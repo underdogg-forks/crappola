@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Datatables;
 
 use Auth;

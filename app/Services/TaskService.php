@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Ninja\Datatables\TaskDatatable;
@@ -18,7 +17,7 @@ class TaskService extends BaseService
     /**
      * TaskService constructor.
      *
-     * @param TaskRepository   $taskRepo
+     * @param TaskRepository $taskRepo
      * @param DatatableService $datatableService
      */
     public function __construct(TaskRepository $taskRepo, DatatableService $datatableService)
@@ -45,11 +44,9 @@ class TaskService extends BaseService
     {
         $datatable = new TaskDatatable(true, $clientPublicId);
         $query = $this->taskRepo->find($clientPublicId, $search);
-
-        if (! Utils::hasPermission('view_all')) {
+        if (!Utils::hasPermission('view_all')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 }

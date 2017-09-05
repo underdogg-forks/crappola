@@ -1,5 +1,4 @@
 <?php namespace App\Ninja\OAuth\Providers;
-
 interface ProviderInterface
 {
     public function getTokenResponse($token);

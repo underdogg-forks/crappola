@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Carbon;
@@ -63,19 +62,16 @@ class Company extends Eloquent
         if ($this->discount_expires) {
             return false;
         }
-
         return $this->promo_expires && $this->promo_expires->gte(Carbon::today());
     }
 
     // handle promos and discounts
     public function hasActiveDiscount(Carbon $date = null)
     {
-        if (! $this->discount || ! $this->discount_expires) {
+        if (!$this->discount || !$this->discount_expires) {
             return false;
         }
-
         $date = $date ?: Carbon::today();
-
         if ($this->plan_term == PLAN_TERM_MONTHLY) {
             return $this->discount_expires->gt($date);
         } else {
@@ -85,19 +81,17 @@ class Company extends Eloquent
 
     public function discountedPrice($price)
     {
-        if (! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
+        if (!$this->hasActivePromo() && !$this->hasActiveDiscount()) {
             return $price;
         }
-
         return $price - ($price * $this->discount);
     }
 
     public function daysUntilPlanExpires()
     {
-        if (! $this->hasActivePlan()) {
+        if (!$this->hasActivePlan()) {
             return 0;
         }
-
         return Carbon::parse($this->plan_expires)->diffInDays(Carbon::today());
     }
 
@@ -111,32 +105,27 @@ class Company extends Eloquent
         if ($this->plan != $plan) {
             return false;
         }
-
         return Carbon::parse($this->plan_expires) < Carbon::today();
     }
 
     public function hasEarnedPromo()
     {
-        if (! Utils::isNinjaProd() || Utils::isPro()) {
+        if (!Utils::isNinjaProd() || Utils::isPro()) {
             return false;
         }
-
         // if they've already been pro return false
         if ($this->plan_expires && $this->plan_expires != '0000-00-00') {
             return false;
         }
-
         // if they've already had a discount or a promotion is active return false
         if ($this->discount_expires || $this->hasActivePromo()) {
             return false;
         }
-
         $discounts = [
             52 => [.6, 3],
             16 => [.4, 3],
             10 => [.25, 5],
         ];
-
         foreach ($discounts as $weeks => $promo) {
             list($discount, $validFor) = $promo;
             $difference = $this->created_at->diffInWeeks();
@@ -144,11 +133,9 @@ class Company extends Eloquent
                 $this->discount = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
-
                 return true;
             }
         }
-
         return false;
     }
 
@@ -160,29 +147,23 @@ class Company extends Eloquent
 
     public function processRefund($user)
     {
-        if (! $this->payment) {
+        if (!$this->payment) {
             return false;
         }
-
         $account = $this->accounts()->first();
         $planDetails = $account->getPlanDetails(false, false);
-
-        if (! empty($planDetails['started'])) {
+        if (!empty($planDetails['started'])) {
             $deadline = clone $planDetails['started'];
             $deadline->modify('+30 days');
-
             if ($deadline >= date_create()) {
                 $accountRepo = app('App\Ninja\Repositories\AccountRepository');
                 $ninjaAccount = $accountRepo->getNinjaAccount();
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
-
                 \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
-
                 return true;
             }
         }
-
         return false;
     }
 
@@ -203,14 +184,11 @@ class Company extends Eloquent
     }
 }
 
-Company::deleted(function ($company)
-{
-    if (! env('MULTI_DB_ENABLED')) {
+Company::deleted(function ($company) {
+    if (!env('MULTI_DB_ENABLED')) {
         return;
     }
-
     $server = \App\Models\DbServer::whereName(config('database.default'))->firstOrFail();
-
     LookupCompany::deleteWhere([
         'company_id' => $company->id,
         'db_server_id' => $server->id,

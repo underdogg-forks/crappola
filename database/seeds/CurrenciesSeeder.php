@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Currency;
 
 class CurrenciesSeeder extends Seeder
@@ -7,7 +6,6 @@ class CurrenciesSeeder extends Seeder
     public function run()
     {
         Eloquent::unguard();
-
         // http://www.localeplanet.com/icu/currency.html
         $currencies = [
             ['name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
@@ -78,7 +76,6 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Myanmar Kyat', 'code' => 'MMK', 'symbol' => 'K', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Peruvian Sol', 'code' => 'PEN', 'symbol' => 'S/ ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
-
         foreach ($currencies as $currency) {
             $record = Currency::whereCode($currency['code'])->first();
             if ($record) {

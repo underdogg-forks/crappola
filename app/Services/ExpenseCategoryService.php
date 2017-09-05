@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
@@ -24,7 +23,7 @@ class ExpenseCategoryService extends BaseService
      * CreditService constructor.
      *
      * @param ExpenseCategoryRepository $creditRepo
-     * @param DatatableService          $datatableService
+     * @param DatatableService $datatableService
      */
     public function __construct(ExpenseCategoryRepository $categoryRepo, DatatableService $datatableService)
     {
@@ -60,9 +59,7 @@ class ExpenseCategoryService extends BaseService
     {
         // we don't support bulk edit and hide the client on the individual client page
         $datatable = new ExpenseCategoryDatatable();
-
         $query = $this->categoryRepo->find($search);
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 }

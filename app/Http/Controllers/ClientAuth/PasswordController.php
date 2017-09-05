@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
@@ -23,7 +22,6 @@ class PasswordController extends Controller
     | explore this trait and override any methods you wish to tweak.
     |
     */
-
     use ResetsPasswords;
 
     /**
@@ -49,13 +47,11 @@ class PasswordController extends Controller
     public function showLinkRequestForm()
     {
         $data = [
-        	'clientauth' => true,
-		];
-
-        if (! session('contact_key')) {
+            'clientauth' => true,
+        ];
+        if (!session('contact_key')) {
             return \Redirect::to('/client/sessionexpired');
         }
-
         return view('clientauth.password')->with($data);
     }
 
@@ -69,24 +65,20 @@ class PasswordController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $broker = $this->getBroker();
-
         $contactId = null;
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted && $contact->email) {
+            if ($contact && !$contact->is_deleted && $contact->email) {
                 $contactId = $contact->id;
             }
         }
-
         $response = Password::broker($broker)->sendResetLink(['id' => $contactId], function (Message $message) {
             $message->subject($this->getEmailSubject());
         });
-
         switch ($response) {
             case Password::RESET_LINK_SENT:
                 return $this->getSendResetLinkEmailSuccessResponse($response);
-
             case Password::INVALID_USER:
             default:
                 return $this->getSendResetLinkEmailFailureResponse($response);
@@ -99,8 +91,8 @@ class PasswordController extends Controller
      * If no token is present, display the link request form.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string|null              $key
-     * @param string|null              $token
+     * @param string|null $key
+     * @param string|null $token
      *
      * @return \Illuminate\Http\Response
      */
@@ -109,16 +101,13 @@ class PasswordController extends Controller
         if (is_null($token)) {
             return $this->getEmail();
         }
-
         $data = array(
-        	'token' => $token,
-			'clientauth' => true,
-		);
-
-        if (! session('contact_key')) {
+            'token' => $token,
+            'clientauth' => true,
+        );
+        if (!session('contact_key')) {
             return \Redirect::to('/client/sessionexpired');
         }
-
         return view('clientauth.reset')->with($data);
     }
 
@@ -128,8 +117,8 @@ class PasswordController extends Controller
      * If no token is present, display the link request form.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string|null              $key
-     * @param string|null              $token
+     * @param string|null $key
+     * @param string|null $token
      *
      * @return \Illuminate\Http\Response
      */
@@ -148,31 +137,24 @@ class PasswordController extends Controller
     public function reset(Request $request)
     {
         $this->validate($request, $this->getResetValidationRules());
-
         $credentials = $request->only(
             'password', 'password_confirmation', 'token'
         );
-
         $credentials['id'] = null;
-
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
+            if ($contact && !$contact->is_deleted) {
                 $credentials['id'] = $contact->id;
             }
         }
-
         $broker = $this->getBroker();
-
         $response = Password::broker($broker)->reset($credentials, function ($user, $password) {
             $this->resetPassword($user, $password);
         });
-
         switch ($response) {
             case Password::PASSWORD_RESET:
                 return $this->getResetSuccessResponse($response);
-
             default:
                 return $this->getResetFailureResponse($request, $response);
         }

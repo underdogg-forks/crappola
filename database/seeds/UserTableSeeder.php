@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\Affiliate;
@@ -7,9 +6,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Country;
-use App\Models\DateFormat;
-use App\Models\Font;
-use App\Models\InvoiceDesign;
 use App\Models\Product;
 use App\Models\User;
 
@@ -18,12 +14,9 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Running UserTableSeeder');
-
         Eloquent::unguard();
-
         $faker = Faker\Factory::create();
         $company = Company::create();
-
         $account = Account::create([
             'name' => $faker->name,
             'address1' => $faker->streetAddress,
@@ -44,11 +37,9 @@ class UserTableSeeder extends Seeder
             'company_id' => $company->id,
             'pdf_email_attachment' => true,
         ]);
-
         $emailSettings = AccountEmailSettings::create([
             'account_id' => $account->id
         ]);
-
         $user = User::create([
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
@@ -62,7 +53,6 @@ class UserTableSeeder extends Seeder
             'notify_paid' => false,
             'is_admin' => 1,
         ]);
-
         $client = Client::create([
             'user_id' => $user->id,
             'account_id' => $account->id,
@@ -76,7 +66,6 @@ class UserTableSeeder extends Seeder
             'country_id' => DEFAULT_COUNTRY,
             'currency_id' => DEFAULT_CURRENCY,
         ]);
-
         Contact::create([
             'user_id' => $user->id,
             'account_id' => $account->id,
@@ -87,7 +76,6 @@ class UserTableSeeder extends Seeder
             'send_invoice' => true,
             'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
-
         Product::create([
             'user_id' => $user->id,
             'account_id' => $account->id,
@@ -96,7 +84,6 @@ class UserTableSeeder extends Seeder
             'notes' => 'Something nice...',
             'cost' => 10,
         ]);
-
         Affiliate::create([
             'affiliate_key' => SELF_HOST_AFFILIATE_KEY,
         ]);

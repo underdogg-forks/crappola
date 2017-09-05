@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use Utils;
@@ -27,7 +26,7 @@ class RecurringExpenseService extends BaseService
      * CreditService constructor.
      *
      * @param RecurringExpenseRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService $datatableService
      */
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, DatatableService $datatableService)
     {
@@ -54,11 +53,9 @@ class RecurringExpenseService extends BaseService
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
-
         if (isset($data['vendor_id']) && $data['vendor_id']) {
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
         }
-
         return $this->recurringExpenseRepo->save($data, $recurringExpense);
     }
 
@@ -72,11 +69,9 @@ class RecurringExpenseService extends BaseService
     public function getDatatable($search, $userId)
     {
         $query = $this->recurringExpenseRepo->find($search);
-
-        if (! Utils::hasPermission('view_all')) {
+        if (!Utils::hasPermission('view_all')) {
             $query->where('recurring_expenses.user_id', '=', Auth::user()->id);
         }
-
         return $this->datatableService->createDatatable(new RecurringExpenseDatatable(), $query);
     }
 }

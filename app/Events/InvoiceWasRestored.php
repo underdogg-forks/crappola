@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Events;
 
 use App\Models\Invoice;
@@ -16,7 +15,7 @@ class InvoiceWasRestored extends Event
      * @var Invoice
      */
     public $invoice;
-    
+
     public $fromDeleted;
 
     /**

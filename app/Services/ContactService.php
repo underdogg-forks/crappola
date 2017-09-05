@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Client;
@@ -44,7 +43,6 @@ class ContactService extends BaseService
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
-
         return $this->contactRepo->save($data, $contact);
     }
 

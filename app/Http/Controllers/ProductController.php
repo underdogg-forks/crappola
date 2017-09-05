@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Product;
@@ -38,7 +37,6 @@ class ProductController extends BaseController
     public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
         //parent::__construct();
-
         $this->productService = $productService;
         $this->productRepo = $productRepo;
     }
@@ -59,7 +57,6 @@ class ProductController extends BaseController
     public function show($publicId)
     {
         Session::reflash();
-
         return Redirect::to("products/$publicId/edit");
     }
 
@@ -80,17 +77,15 @@ class ProductController extends BaseController
     {
         $account = Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
-
         $data = [
-          'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get() : null,
-          'product' => $product,
-          'entity' => $product,
-          'method' => 'PUT',
-          'url' => 'products/'.$publicId,
-          'title' => trans('texts.edit_product'),
+            'account' => $account,
+            'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get() : null,
+            'product' => $product,
+            'entity' => $product,
+            'method' => 'PUT',
+            'url' => 'products/' . $publicId,
+            'title' => trans('texts.edit_product'),
         ];
-
         return View::make('accounts.product', $data);
     }
 
@@ -100,16 +95,14 @@ class ProductController extends BaseController
     public function create()
     {
         $account = Auth::user()->account;
-
         $data = [
-          'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']) : null,
-          'product' => null,
-          'method' => 'POST',
-          'url' => 'products',
-          'title' => trans('texts.create_product'),
+            'account' => $account,
+            'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']) : null,
+            'product' => null,
+            'method' => 'POST',
+            'url' => 'products',
+            'title' => trans('texts.create_product'),
         ];
-
         return View::make('accounts.product', $data);
     }
 
@@ -143,12 +136,9 @@ class ProductController extends BaseController
         } else {
             $product = Product::createNew();
         }
-
         $this->productRepo->save(Input::all(), $product);
-
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
-
         return Redirect::to("products/{$product->public_id}/edit");
     }
 
@@ -160,10 +150,8 @@ class ProductController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->productService->bulk($ids, $action);
-
-        $message = Utils::pluralize($action.'d_product', $count);
+        $message = Utils::pluralize($action . 'd_product', $count);
         Session::flash('message', $message);
-
         return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }
 }

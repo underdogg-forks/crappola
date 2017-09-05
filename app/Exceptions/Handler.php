@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Exceptions;
 
 use Crawler;
@@ -45,10 +44,9 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
-        if (! $this->shouldReport($e)) {
+        if (!$this->shouldReport($e)) {
             return false;
         }
-
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
             if (Crawler::isCrawler()) {
@@ -66,8 +64,7 @@ class Handler extends ExceptionHandler
         } elseif ($e instanceof HttpResponseException) {
             return false;
         }
-
-        if (! Utils::isTravis()) {
+        if (!Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
             $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
             @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
@@ -81,7 +78,7 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Exception               $e
+     * @param \Exception $e
      *
      * @return \Illuminate\Http\Response
      */
@@ -90,60 +87,52 @@ class Handler extends ExceptionHandler
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
         }
-
         if ($e instanceof TokenMismatchException) {
-            if (! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
+            if (!in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
                 return redirect()
-                        ->back()
-                        ->withInput($request->except('password', '_token'))
-                        ->with([
-                            'warning' => trans('texts.token_expired'),
-                        ]);
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->with([
+                        'warning' => trans('texts.token_expired'),
+                    ]);
             }
         }
-
         if ($this->isHttpException($e)) {
             switch ($e->getStatusCode()) {
                 // not found
                 case 404:
                     if ($request->header('X-Ninja-Token') != '') {
                         //API request which has hit a route which does not exist
-
                         $error['error'] = ['message' => 'Route does not exist'];
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
-
                         return response()->make($error, 404, $headers);
                     }
                     break;
-
                 // internal error
                 case '500':
                     if ($request->header('X-Ninja-Token') != '') {
                         //API request which produces 500 error
-
                         $error['error'] = ['message' => 'Internal Server Error'];
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
-
                         return response()->make($error, 500, $headers);
                     }
                     break;
 
             }
         }
-
         // In production, except for maintenance mode, we'll show a custom error screen
         if (Utils::isNinjaProd()
-            && ! Utils::isDownForMaintenance()
-            && ! ($e instanceof HttpResponseException)
-            && ! ($e instanceof ValidationException)) {
+            && !Utils::isDownForMaintenance()
+            && !($e instanceof HttpResponseException)
+            && !($e instanceof ValidationException)
+        ) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,
             ];
-
             return response()->view('error', $data, 500);
         } else {
             return parent::render($request, $e);

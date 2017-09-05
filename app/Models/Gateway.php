@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Eloquent;
@@ -94,7 +93,7 @@ class Gateway extends Eloquent
      */
     public function getLogoUrl()
     {
-        return '/images/gateways/logo_'.$this->provider.'.png';
+        return '/images/gateways/logo_' . $this->provider . '.png';
     }
 
     /**
@@ -125,7 +124,6 @@ class Gateway extends Eloquent
     public static function hasStandardGateway($gatewayIds)
     {
         $diff = array_diff($gatewayIds, static::$alternate);
-
         return count($diff);
     }
 
@@ -159,7 +157,6 @@ class Gateway extends Eloquent
     public function getHelp()
     {
         $link = '';
-
         if ($this->id == GATEWAY_AUTHORIZE_NET) {
             $link = 'http://reseller.authorize.net/application/?id=5560364';
         } elseif ($this->id == GATEWAY_PAYPAL_EXPRESS) {
@@ -175,13 +172,11 @@ class Gateway extends Eloquent
         } elseif ($this->id == GATEWAY_STRIPE) {
             $link = 'https://dashboard.stripe.com/account/apikeys';
         }
-
-        $key = 'texts.gateway_help_'.$this->id;
+        $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
             'link' => "<a href='$link' target='_blank'>Click here</a>",
             'complete_link' => url('/complete'),
         ]);
-
         return $key != $str ? $str : '';
     }
 

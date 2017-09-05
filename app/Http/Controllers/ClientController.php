@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientRequest;
@@ -31,7 +30,6 @@ class ClientController extends BaseController
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
         //parent::__construct();
-
         $this->clientRepo = $clientRepo;
         $this->clientService = $clientService;
     }
@@ -55,7 +53,6 @@ class ClientController extends BaseController
     {
         $search = Input::get('sSearch');
         $userId = Auth::user()->filterId();
-
         return $this->clientService->getDatatable($search, $userId);
     }
 
@@ -67,9 +64,7 @@ class ClientController extends BaseController
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientService->save($request->input());
-
         Session::flash('message', trans('texts.created_client'));
-
         return redirect()->to($client->getRoute());
     }
 
@@ -84,39 +79,32 @@ class ClientController extends BaseController
     {
         $client = $request->entity();
         $user = Auth::user();
-
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/' . $client->public_id)];
         }
         if ($user->can('create', ENTITY_TASK)) {
-            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/' . $client->public_id)];
         }
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
-            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/' . $client->public_id)];
         }
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/' . $client->public_id)];
         }
-
-        if (! empty($actionLinks)) {
+        if (!empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
-
         if ($user->can('create', ENTITY_PAYMENT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/' . $client->public_id)];
         }
-
         if ($user->can('create', ENTITY_CREDIT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/' . $client->public_id)];
         }
-
         if ($user->can('create', ENTITY_EXPENSE)) {
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/' . $client->public_id)];
         }
-
         $token = $client->getGatewayToken();
-
         $data = [
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
@@ -129,7 +117,6 @@ class ClientController extends BaseController
             'gatewayLink' => $token ? $token->gatewayLink() : false,
             'gatewayName' => $token ? $token->gatewayName() : false,
         ];
-
         return View::make('clients.show', $data);
     }
 
@@ -141,18 +128,15 @@ class ClientController extends BaseController
     public function create(ClientRequest $request)
     {
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients().' clients']);
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . ' clients']);
         }
-
         $data = [
             'client' => null,
             'method' => 'POST',
             'url' => 'clients',
             'title' => trans('texts.new_client'),
         ];
-
         $data = array_merge($data, self::getViewModel());
-
         return View::make('clients.edit', $data);
     }
 
@@ -166,22 +150,18 @@ class ClientController extends BaseController
     public function edit(ClientRequest $request)
     {
         $client = $request->entity();
-
         $data = [
             'client' => $client,
             'method' => 'PUT',
-            'url' => 'clients/'.$client->public_id,
+            'url' => 'clients/' . $client->public_id,
             'title' => trans('texts.edit_client'),
         ];
-
         $data = array_merge($data, self::getViewModel());
-
         if (Auth::user()->account->isNinjaAccount()) {
             if ($account = Account::whereId($client->public_id)->first()) {
                 $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
-
         return View::make('clients.edit', $data);
     }
 
@@ -206,9 +186,7 @@ class ClientController extends BaseController
     public function update(UpdateClientRequest $request)
     {
         $client = $this->clientService->save($request->input(), $request->entity());
-
         Session::flash('message', trans('texts.updated_client'));
-
         return redirect()->to($client->getRoute());
     }
 
@@ -217,10 +195,8 @@ class ClientController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->clientService->bulk($ids, $action);
-
-        $message = Utils::pluralize($action.'d_client', $count);
+        $message = Utils::pluralize($action . 'd_client', $count);
         Session::flash('message', $message);
-
         return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
     }
 
@@ -229,40 +205,32 @@ class ClientController extends BaseController
         $account = Auth::user()->account;
         $statusId = intval($statusId);
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
-
-        if (! $startDate) {
+        if (!$startDate) {
             $startDate = Utils::today(false)->modify('-6 month')->format('Y-m-d');
             $endDate = Utils::today(false)->format('Y-m-d');
         }
-
         $invoice = $account->createInvoice(ENTITY_INVOICE);
         $invoice->client = $client;
         $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
-
         $invoices = Invoice::scope()
             ->with(['client'])
             ->invoices()
             ->whereClientId($client->id)
             ->whereIsPublic(true)
             ->orderBy('invoice_date', 'asc');
-
         if ($statusId == INVOICE_STATUS_PAID) {
             $invoices->where('invoice_status_id', '=', INVOICE_STATUS_PAID);
         } elseif ($statusId == INVOICE_STATUS_UNPAID) {
             $invoices->where('invoice_status_id', '!=', INVOICE_STATUS_PAID);
         }
-
-        if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
+        if ($statusId == INVOICE_STATUS_PAID || !$statusId) {
             $invoices->where('invoice_date', '>=', $startDate)
-                    ->where('invoice_date', '<=', $endDate);
+                ->where('invoice_date', '<=', $endDate);
         }
-
         $invoice->invoice_items = $invoices->get();
-
         if (request()->json) {
             return json_encode($invoice);
         }
-
         $data = [
             'showBreadcrumbs' => false,
             'client' => $client,
@@ -270,7 +238,6 @@ class ClientController extends BaseController
             'startDate' => $startDate,
             'endDate' => $endDate,
         ];
-
         return view('clients.statement', $data);
     }
 }

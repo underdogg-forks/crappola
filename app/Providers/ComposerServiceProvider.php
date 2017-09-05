@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -26,20 +25,18 @@ class ComposerServiceProvider extends ServiceProvider
             ],
             'App\Http\ViewComposers\TranslationComposer'
         );
-
         view()->composer(
-             [
-                 'header',
-                 'tasks.edit',
-             ],
-             'App\Http\ViewComposers\AppLanguageComposer'
+            [
+                'header',
+                'tasks.edit',
+            ],
+            'App\Http\ViewComposers\AppLanguageComposer'
         );
-
         view()->composer(
-             [
-                 'public.header',
-             ],
-             'App\Http\ViewComposers\ClientPortalHeaderComposer'
+            [
+                'public.header',
+            ],
+            'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
     }
 

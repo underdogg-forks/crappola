@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
@@ -15,10 +14,9 @@ class DatabaseLookup
 {
     public function handle(Request $request, Closure $next, $guard = 'user')
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (!env('MULTI_DB_ENABLED')) {
             return $next($request);
         }
-
         if ($guard == 'user') {
             if ($code = $request->confirmation_code) {
                 LookupUser::setServerByField('confirmation_code', $code);
@@ -28,7 +26,7 @@ class DatabaseLookup
                 } else {
                     // do nothing
                 }
-            } elseif (! Auth::check() && $email = $request->email) {
+            } elseif (!Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
                 Auth::logout();
@@ -54,7 +52,6 @@ class DatabaseLookup
         } elseif ($guard == 'license') {
             config(['database.default' => DB_NINJA_1]);
         }
-
         return $next($request);
     }
 }

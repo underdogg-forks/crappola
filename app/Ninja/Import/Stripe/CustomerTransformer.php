@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Stripe;
 
 use App\Ninja\Import\BaseTransformer;
@@ -18,21 +17,17 @@ class CustomerTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $contact = $this->getContact($data->email)) {
+        if (!$contact = $this->getContact($data->email)) {
             return false;
         }
-
         $account = auth()->user()->account;
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
-
-        if (! $accountGateway) {
+        if (!$accountGateway) {
             return false;
         }
-
         if ($this->getCustomer($data->id) || $this->getCustomer($data->email)) {
             return false;
         }
-
         return new Item($data, function ($data) use ($account, $contact, $accountGateway) {
             return [
                 'contact_id' => $contact->id,

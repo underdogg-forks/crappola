@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'องค์กร',
     'name' => 'ชื่อ',
     'website' => 'เว็บไซต์',
@@ -1002,8 +1000,6 @@ $LANG = array(
     'trial_call_to_action' => 'เริ่มทดลองใช้ฟรี',
     'trial_success' => 'เปิดใช้งานการทดลองใช้ฟรี Pro Plan สองสัปดาห์แล้ว',
     'overdue' => 'เกินกำหนด',
-
-
     'white_label_text' => 'ชำระเงินสำหรับ white label ไลเซนต์ 1 ปี ราคา :price เพื่อเอา logo invoice ninja ออกจากใบแจ้งหนี้และพอร์ทัลของลูกค้า',
     'user_email_footer' => 'หากต้องการปรับการตั้งค่าการแจ้งเตือนทางอีเมลโปรดไปที่ :link',
     'reset_password_footer' => 'หากคุณไม่ได้ขอให้รีเซ็ตรหัสผ่านนี้โปรดส่งอีเมลถึงฝ่ายสนับสนุนของเรา: :email',
@@ -1012,7 +1008,6 @@ $LANG = array(
     'old_browser' => 'โปรดใช้ <a href=":link" target="_blank">บราวเซอร์ตัวใหม่</a>',
     'white_label_custom_css' => ':link สำหรับ $:price เพื่อให้สามารถจัดแต่งแบบได้ตามต้องการและช่วยสนับสนุนโครงการของเรา',
     'bank_accounts_help' => 'เชื่อมต่อบัญชีธนาคารเพื่อนำเข้าค่าใช้จ่ายโดยอัตโนมัติและสร้างผู้ขาย รองรับอเมริกันเอ็กซ์เพรสและ<a href=":link" target="_blank">400+ ธนาคารใน US.</a>',
-
     'pro_plan_remove_logo' => ':link ลบโลโก้ Invoice Ninja โดยการเข้าร่วม Pro Plan',
     'pro_plan_remove_logo_link' => 'คลิกที่นี่',
     'invitation_status_sent' => 'ส่ง',
@@ -1024,7 +1019,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'โปรดลงทะเบียนบัญชีของคุณเพื่อส่งอีเมล',
     'email_error_user_unconfirmed' => 'โปรดยืนยันบัญชีของคุณเพื่อส่งอีเมล',
     'email_error_invalid_contact_email' => 'อีเมลติดต่อไม่ถูกต้อง',
-
     'navigation' => 'สำรวจ',
     'list_invoices' => 'รายการใบแจ้งหนี้',
     'list_clients' => 'รายการลูกค้า',
@@ -1037,7 +1031,6 @@ $LANG = array(
     'tax_name' => 'ชื่อภาษี',
     'report_settings' => 'การตั้งค่ารายงาน',
     'search_hotkey' => 'ทางลัดคือ /',
-
     'new_user' => 'ผู้ใช้ใหม่',
     'new_product' => 'สินค้าใหม่',
     'new_tax_rate' => 'อัตราภาษีใหม่',
@@ -1046,20 +1039,17 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'เพิ่มฟิลด์เมื่อสร้างรายการใบแจ้งหนี้และแสดงป้ายกำกับ และค่าใน PDF',
     'recurring_invoice_number' => 'จำนวนที่เกิดขึ้นประจำ',
     'recurring_invoice_number_prefix_help' => 'ระบุคำนำหน้าเพื่อเพิ่มหมายเลขใบแจ้งหนี้สำหรับใบแจ้งหนี้ที่เกิดขึ้นประจำ',
-
     // Client Passwords
     'enable_portal_password' => 'รหัสผ่านป้องกันใบแจ้งหนี้',
     'enable_portal_password_help' => 'ช่วยให้คุณสามารถตั้งรหัสผ่านสำหรับแต่ละรายชื่อ หากมีการตั้งรหัสผ่านผู้ติดต่อจะต้องป้อนรหัสผ่านก่อนดูใบแจ้งหนี้',
     'send_portal_password' => 'สร้างรหัสผ่านโดยอัตโนมัติ',
     'send_portal_password_help' => 'หากไม่มีการตั้งค่ารหัสผ่าน ระบบจะสร้างและส่งใบแจ้งหนี้ฉบับแรก',
-
     'expired' => 'หมดอายุ',
     'invalid_card_number' => 'เลขที่บัตรเครดิตไม่ถูกต้อง',
     'invalid_expiry' => 'วันที่หมดอายุไม่ถูกต้อง',
     'invalid_cvv' => 'รสัส CVV ไม่ถูกต้อง',
     'cost' => 'ค่าใช้จ่าย',
     'create_invoice_for_sample' => 'หมายเหตุ: สร้างใบแจ้งหนี้เพื่อดู Preview ได้ที่นี่',
-
     // User Permissions
     'owner' => 'เจ้าของ',
     'administrator' => 'ผู้ดูแลระบบ',
@@ -1078,7 +1068,6 @@ $LANG = array(
     'view_all_help' => 'อนุญาตให้ผู้ใช้มองเห็นรายการที่ตนเองไม่ได้สร้าง',
     'edit_all_help' => 'อนุญาตให้ผู้ใช้แก้ไขรายการที่ไม่ได้สร้างขึ้นเอง',
     'view_payment' => 'ดูรายการจ่ายเงิน',
-
     'january' => 'มกราคม',
     'february' => 'กุมภาพันธ์',
     'march' => 'มีนาคม',
@@ -1091,7 +1080,6 @@ $LANG = array(
     'october' => 'ตุลาคม',
     'november' => 'พฤศจิกายน',
     'december' => 'ธันวาคม',
-
     // Documents
     'documents_header' => 'เอกสาร',
     'email_documents_header' => 'เอกสาร:',
@@ -1116,16 +1104,13 @@ $LANG = array(
     'documents' => 'เอกสาร:',
     'document_date' => 'วันที่เอกสาร',
     'document_size' => 'ขนาด',
-
     'enable_client_portal' => 'พอร์ทัลลูกค้า',
     'enable_client_portal_help' => 'แสดง / ซ่อนพอร์ทัลลูกค้า',
     'enable_client_portal_dashboard' => 'แดชบอร์ด',
     'enable_client_portal_dashboard_help' => 'แสดง / ซ่อนหน้าแดชบอร์ดในหน้าลูกค้า',
-
     // Plans
     'account_management' => 'การจัดการบัญชี',
     'plan_status' => 'สถานะ Plan',
-
     'plan_upgrade' => 'อัปเกรด',
     'plan_change' => 'เปลี่ยน Plan',
     'pending_change_to' => 'เปลี่ยนเป็น',
@@ -1155,9 +1140,7 @@ $LANG = array(
     'plan_paid' => 'เริ่มต้นระยะเวลา',
     'plan_started' => 'เริ่มต้นแพลน',
     'plan_expires' => 'แพลนหมดอายุ',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'การลงทะเบียนหนึ่งปีสำหรับ   Invoice Ninja Pro Plan',
     'pro_plan_month_description' => 'ลงทะเบียนหนึ่งเดือนสำหรับ Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1167,7 +1150,6 @@ $LANG = array(
     'plan_credit_description' => 'เครดิตสำหรับเวลาที่ไม่ได้ใช้',
     'plan_pending_monthly' => 'จะเปลี่ยนเป็นรายเดือน :date',
     'plan_refunded' => 'มีการออกเอกสารการคืนเงินแล้ว',
-
     'live_preview' => 'ดูตัวอย่างสด',
     'page_size' => 'ขนาดหน้า',
     'live_preview_disabled' => 'การดูตัวอย่างแบบสดถูกปิดใช้งานเพื่อสนับสนุนแบบอักษรที่เลือก',
@@ -1177,8 +1159,6 @@ $LANG = array(
     'add_users_not_supported' => 'อัปเกรดเป็นแผน Enterprise เพื่อเพิ่มผู้ใช้เพิ่มเติมในบัญชีของคุณ',
     'enterprise_plan_features' => 'แผน Enterprise เพิ่มการสนับสนุนสำหรับผู้ใช้หลายคนและไฟล์แนบ :link  เพื่อดูรายการคุณสมบัติทั้งหมด',
     'return_to_app' => 'กลับไปยังโปรแกรม',
-
-
     // Payment updates
     'refund_payment' => 'การชำระเงินคืน',
     'refund_max' => 'สูงสุด:',
@@ -1195,7 +1175,6 @@ $LANG = array(
     'activity_39' => ':user ยกเลิก :payment_amount  การชำระเงิน :payment',
     'activity_40' => ':usre คืนเงิน :adjustment ของ  :payment_amount การชำระเงิน :payment',
     'card_expiration' => 'Exp:&nbsp:expires',
-
     'card_creditcardother' => 'ไม่ทราบ',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1210,13 +1189,11 @@ $LANG = array(
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'เปิดใช้ ACH',
     'stripe_ach_help' => 'การสนับสนุน ACH ต้องมีการเปิดใช้งานที่ Stripe',
     'ach_disabled' => 'มีการกำหนดค่าเกตเวย์อื่นสำหรับการตัดบัญชีโดยตรงแล้ว',
-
     'plaid' => 'Plaid',
     'client_id' => 'รหัสลูกค้า',
     'secret' => 'Secret',
@@ -1286,15 +1263,12 @@ $LANG = array(
     'braintree_paypal_help_link_text' => 'เชื่อมโยง PayPal กับบัญชี BrainTree ของคุณ',
     'token_billing_braintree_paypal' => 'บันทึกรายละเอียดการชำระเงิน',
     'add_paypal_account' => 'เพิ่มบัญชี PayPal',
-
-
     'no_payment_method_specified' => 'ไม่ระบุวิธีการชำระเงิน',
     'chart_type' => 'ประเภทแผนภูมิ',
     'format' => 'รูปแบบ',
     'import_ofx' => 'นำเข้า OFX',
     'ofx_file' => 'OFX File',
     'ofx_parse_failed' => 'ไม่สามารถวิเคราะห์ไฟล์ OFX ได้',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'ลงชื่อสมัครใช้ WePay',
@@ -1317,7 +1291,6 @@ $LANG = array(
     'canada' => 'แคนาดา',
     'accept_debit_cards' => 'ยอมรับบัตรเดบิต',
     'debit_cards' => 'บัตรเดบิต',
-
     'warn_start_date_changed' => 'ใบแจ้งหนี้ถัดไปจะถูกส่งในวันเริ่มต้นใหม่',
     'original_start_date' => 'วันที่เริ่มต้นเดิม',
     'new_start_date' => 'วันที่เริ่มต้นใหม่',
@@ -1335,23 +1308,19 @@ $LANG = array(
     'created_products' => 'สร้าง / อัปเดตเรียบร้อยแล้ว :count สินค้า(s)',
     'export_help' => 'ใช้ JSON ถ้าคุณวางแผนที่จะนำเข้าข้อมูลลงใน Invoice Ninja. <br/> ไฟล์ประกอบด้วยลูกค้า, สินค้า, ใบแจ้งหนี้, ใบเสนอราคา และการชำระเงิน.',
     'JSON_file' => 'JSON File',
-
     'view_dashboard' => 'มุมมองแดชบอร์ด',
     'client_session_expired' => 'เซสชั่นหมดอายุ',
     'client_session_expired_message' => 'เซสชันของคุณหมดอายุแล้ว โปรดคลิกลิงก์ในอีเมลของคุณอีกครั้ง',
-
     'auto_bill_notification' => 'ใบแจ้งหนี้นี้จะถูกเรียกเก็บเงินจากคุณโดยอัตโนมัติ :payment_method  ในไฟล์ :due_date',
     'auto_bill_payment_method_bank_transfer' => 'บัญชีธนาคาร',
     'auto_bill_payment_method_credit_card' => 'บัตรเครดิต',
     'auto_bill_payment_method_paypal' => 'บัญชี PayPal',
     'auto_bill_notification_placeholder' => 'ใบแจ้งหนี้นี้จะถูกเรียกเก็บเงินจากบัตรเครดิตของคุณโดยอัตโนมัติในวันครบกำหนด',
     'payment_settings' => 'การตั้งค่าการชำระเงิน',
-
     'on_send_date' => 'ในวันที่ส่ง',
     'on_due_date' => 'ในวันครบกำหนด',
     'auto_bill_ach_date_help' => 'ACH จะเรียกเก็บเงินอัตโนมัติในวันครบกำหนด',
     'warn_change_auto_bill' => 'เนื่องจากกฎของ NACHA การเปลี่ยนแปลงในใบแจ้งหนี้นี้อาจป้องกันการเรียกเก็บเงินอัตโนมัติของ ACH',
-
     'bank_account' => 'บัญชีธนาคาร',
     'payment_processed_through_wepay' => 'ACH การชำระเงินจะดำเนินการโดยใช้ WePay',
     'wepay_payment_tos_agree' => 'ฉันยอมรับ WePay :terms และ :privacy_policy',
@@ -1359,7 +1328,6 @@ $LANG = array(
     'wepay_payment_tos_agree_required' => 'คุณต้องยอมรับข้อกำหนดในการให้บริการและนโยบายส่วนบุคคลของ WePay',
     'ach_email_prompt' => 'กรุณากรอกอีเมลของคุณ:',
     'verification_pending' => 'กำลังตรวจสอบรอดำเนินการ',
-
     'update_font_cache' => 'โปรดบังคับให้รีเฟรชหน้าเว็บเพื่อปรับปรุงแคชแบบอักษร',
     'more_options' => 'ตัวเลือกเพิ่มเติม',
     'credit_card' => 'บัตรเครดิต',
@@ -1373,7 +1341,6 @@ $LANG = array(
     'gateway_exists' => 'เกตเวย์นี้มีอยู่แล้ว',
     'manual_entry' => 'ป้อนค่าด้วยตนเอง',
     'start_of_week' => 'วันแรกของสัปดาห์',
-
     // Frequencies
     'freq_inactive' => 'ไม่ทำงาน',
     'freq_weekly' => 'รายสัปดาห์',
@@ -1383,7 +1350,6 @@ $LANG = array(
     'freq_three_months' => 'สามเดือน',
     'freq_six_months' => 'หกเดือน',
     'freq_annually' => 'รายปี',
-
     // Payment types
     'payment_type_Apply Credit' => 'สมัครเครดิต',
     'payment_type_Bank Transfer' => 'โอนเงินผ่านธนาคาร',
@@ -1410,7 +1376,6 @@ $LANG = array(
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'การบัญชีและกฎหมาย',
     'industry_Advertising' => 'การโฆษณา',
@@ -1444,7 +1409,6 @@ $LANG = array(
     'industry_Travel & Luxury' => 'การท่องเที่ยวและความบันเทิง',
     'industry_Other' => 'อื่นๆ',
     'industry_Photography' => 'ภาพถ่าย',
-
     // Countries
     'country_Afghanistan' => 'อัฟกานิสถาน',
     'country_Albania' => 'อัลบาเนีย',
@@ -1695,7 +1659,6 @@ $LANG = array(
     'country_Samoa' => 'ซามัว',
     'country_Yemen' => 'เยเมน',
     'country_Zambia' => 'แซมเบีย',
-
     // Languages
     'lang_Brazilian Portuguese' => 'โปรตุเกส',
     'lang_Croatian' => 'โครเอเชีย',
@@ -1722,7 +1685,6 @@ $LANG = array(
     'lang_Turkish - Turkey' => 'ตุรกี - ตุรกี',
     'lang_Portuguese - Brazilian' => 'โปรตุเกส - บราซิล',
     'lang_Portuguese - Portugal' => 'โปรตุเกส - โปรตุเกส',
-
     // Frequencies
     'freq_weekly' => 'รายสัปดาห์',
     'freq_two_weeks' => 'สองสัปดาห์',
@@ -1731,7 +1693,6 @@ $LANG = array(
     'freq_three_months' => 'สามเดือน',
     'freq_six_months' => 'หกเดือน',
     'freq_annually' => 'รายปี',
-
     // Industries
     'industry_Accounting & Legal' => 'การบัญชีและกฎหมาย',
     'industry_Advertising' => 'การโฆษณา',
@@ -1763,8 +1724,7 @@ $LANG = array(
     'industry_Transportation' => 'การขนส่ง',
     'industry_Travel & Luxury' => 'การท่องเที่ยวและความบันเทิง',
     'industry_Other' => 'อื่นๆ',
-    'industry_Photography' =>'ภาพถ่าย',
-
+    'industry_Photography' => 'ภาพถ่าย',
     'view_client_portal' => 'ดูพอร์ทัลลูกค้า',
     'view_portal' => 'ดูพอร์ทัล',
     'vendor_contacts' => 'รายชื่อผู้ขาย',
@@ -1806,7 +1766,6 @@ $LANG = array(
     'no_undo' => 'คำเตือน: ไม่สามารถยกเลิกได้',
     'no_contact_selected' => 'โปรดเลือกผู้ติดต่อ',
     'no_client_selected' => 'โปรดเลือกลูกค้า',
-
     'gateway_config_error' => 'อาจช่วยในการตั้งรหัสผ่านใหม่หรือสร้างคีย์ API ใหม่',
     'payment_type_on_file' => ':type ในไฟล์',
     'invoice_for_client' => 'ใบแจ้งหนี้ :invoice สำหรับ :client',
@@ -1829,11 +1788,9 @@ $LANG = array(
     'security_code_email_line2' => 'หมายเหตุ: จะหมดอายุภายใน 10 นาที',
     'bot_help_message' => 'ฉันสนับสนุน:<br/>.สร้าง \ อัปเดท\ อีเมล์ ใบแจ้งหนี้<br/>.แสดงสินค้า<br/>ตัวอย่างเช่น:<br/><i>ใบแจ้งหนี้ 2 ใบกำหนดวันครบกำหนดถึงวันพฤหัสบดีถัดไปและส่วนลด 10%</i>',
     'list_products' => 'แสดงสินค้า',
-
     'include_item_taxes_inline' => 'รวมถึง <b>รายการภาษีในบรรทัดรวม</b>',
     'created_quotes' => 'สร้างเรียบร้อย :count ใบเสนอราคา(s)',
     'limited_gateways' => 'หมายเหตุ: เราสนับสนุนเกตเวย์บัตรเครดิตหนึ่งใบต่อ บริษัท',
-
     'warning' => 'คำเตือน',
     'self-update' => 'ปรับปรุง',
     'update_invoiceninja_title' => 'อัปเดท Invoice Ninja',
@@ -1844,7 +1801,6 @@ $LANG = array(
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'ดาวน์โหลด :version',
     'create_new' => 'สร้างใหม่',
-
     'toggle_navigation' => 'สลับการนำทาง',
     'toggle_history' => 'สลับประวัติ',
     'unassigned' => 'ยังไม่ได้มอบหมาย',
@@ -1857,7 +1813,6 @@ $LANG = array(
     'facebook_and_twitter_help' => 'ติดตามฟีดของเราเพื่อช่วยสนับสนุนโครงการของเรา',
     'reseller_text' => 'หมายเหตุ: ใบอนุญาต white-label มีไว้สำหรับการใช้งานส่วนบุคคลโปรดส่งอีเมลถึงเราที่ :email หากต้องการขายโปรแกรมนี้',
     'unnamed_client' => 'ลูกค้าไม่มีชื่อ',
-
     'day' => 'วัน',
     'week' => 'สัปดาห์',
     'month' => 'เดือน',
@@ -1866,7 +1821,6 @@ $LANG = array(
     'total_profit' => 'ผลกำไรทั้งหมด',
     'total_expenses' => 'ค่าใช้จ่ายรวมทั้งหมด',
     'quote_to' => 'ใบเสนอราคาไปยัง',
-
     // Limits
     'limit' => 'จำกัด',
     'min_limit' => 'ต่ำสุด :min',
@@ -1878,7 +1832,6 @@ $LANG = array(
     'min' => 'น้อย',
     'max' => 'มาก',
     'limits_not_met' => 'ใบแจ้งหนี้นี้ไม่ตรงกับประเภทการชำระเงิน',
-
     'date_range' => 'ช่วงวันที่',
     'raw' => 'ข้อมูลดิบ',
     'raw_html' => 'Raw HTML',
@@ -1894,10 +1847,8 @@ $LANG = array(
     'expense_will_create' => 'ค่าใช้จ่ายถูกสร้างขึ้น',
     'expenses_will_create' => 'ค่าใช้จ่ายถูกสร้างขึ้น',
     'created_expenses' => 'สร้างเรียบร้อย :count  ใบแจ้งหนี้(s)',
-
     'translate_app' => 'ช่วยปรับปรุงการแปลของเราด้วย :link',
     'expense_category' => 'หมวดค่าใช้จ่าย',
-
     'go_ninja_pro' => 'Go Ninja Pro!',
     'go_enterprise' => 'Go Enterprise!',
     'upgrade_for_features' => 'อัพเกรดเพื่อเพิ่มคุณสมบัติเพิ่มเติม',
@@ -1908,10 +1859,8 @@ $LANG = array(
     'enterprise_upgrade_feature1' => 'ตั้งค่าสิทธิ์สำหรับผู้ใช้หลายคน',
     'enterprise_upgrade_feature2' => 'แนบไฟล์ 3rd Party เข้ากับใบแจ้งหนี้และค่าใช้จ่าย',
     'much_more' => 'และอื่น ๆ มากมาย',
-
     'currency_symbol' => 'สัญลักษณ์',
     'currency_code' => 'Code',
-
     'buy_license' => 'ซื้อไลเซนต์',
     'apply_license' => 'สมัครไลเซนต์',
     'submit' => 'ยอมรับ',
@@ -1935,39 +1884,37 @@ $LANG = array(
     'sign_here' => 'โปรดเซ็นชื่อที่นี่:',
     'authorization' => 'การอนุญาต',
     'signed' => 'ลงนาม',
-
-	// BlueVine
-	'bluevine_promo' => 'เพิ่มความคล่องตัวในการทำธุรกิจเครดิตและแฟ็กทีฟแฟคตอริ่งโดยใช้ BlueVine',
-	'bluevine_modal_label' => 'ลงทะเบียนกับ BlueVine',
-	'bluevine_modal_text' => '<h3>การระดมทุนอย่างรวดเร็วสำหรับธุรกิจของคุณ ไม่ต้องมีเอกสาร</h3>
+    // BlueVine
+    'bluevine_promo' => 'เพิ่มความคล่องตัวในการทำธุรกิจเครดิตและแฟ็กทีฟแฟคตอริ่งโดยใช้ BlueVine',
+    'bluevine_modal_label' => 'ลงทะเบียนกับ BlueVine',
+    'bluevine_modal_text' => '<h3>การระดมทุนอย่างรวดเร็วสำหรับธุรกิจของคุณ ไม่ต้องมีเอกสาร</h3>
 <ul><li>สายธุรกิจที่ยืดหยุ่นของสินเชื่อและแฟ็กเรียลแฟกเตอริ่ง</li></ul>',
-	'bluevine_create_account' => 'สร้างบัญชี',
-	'quote_types' => 'รับใบเสนอราคาสำหรับ',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'วงเงิน',
-	'fico_score'                         => 'คะแนน FICO ของคุณ',
-	'business_inception'                 => 'วันที่จดทะเบียนกองทุน',
-	'average_bank_balance'               => 'ยอดคงเหลือในบัญชีธนาคารโดยเฉลี่ย',
-	'annual_revenue'                     => 'รายได้ประจำปี',
-	'desired_credit_limit_factoring'     => 'วงเงินแฟคเตอริ่งที่ต้องการ',
-	'desired_credit_limit_loc'           => 'วงเงินเครดิตสูงสุดที่ต้องการ',
-	'desired_credit_limit'               => 'วงเงินเครดิตที่ต้องการ',
-	'bluevine_credit_line_type_required' => 'คุณต้องเลือกอย่างน้อยหนึ่งอย่าง',
-	'bluevine_field_required'            => 'ต้องระบุข้อมูลนี้',
-	'bluevine_unexpected_error'          => 'เกิดความผิดพลาดอย่างไม่ได้คาดคิด.',
-	'bluevine_no_conditional_offer'      => 'ต้องการข้อมูลเพิ่มเติมก่อนรับใบเสนอราคา คลิกดำเนินการต่อด้านล่าง.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'ข้อเสนอที่มีเงื่อนไข',
-	'bluevine_credit_line_amount'        => 'วงเงิน',
-	'bluevine_advance_rate'              => 'อัตราค่าบริการล่วงหน้า',
-	'bluevine_weekly_discount_rate'      => 'อัตราส่วนลดรายสัปดาห์',
-	'bluevine_minimum_fee_rate'          => 'ค่าธรรมเนียมขั้นต่ำ',
-	'bluevine_line_of_credit'            => 'วงเงินสูงสุด',
-	'bluevine_interest_rate'             => 'อัตราดอกเบี้ย',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'ไปที่ BlueVine',
-	'bluevine_completed'                 => 'สมัคร BlueVine เรียบร้อยแล้ว',
-
+    'bluevine_create_account' => 'สร้างบัญชี',
+    'quote_types' => 'รับใบเสนอราคาสำหรับ',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'วงเงิน',
+    'fico_score' => 'คะแนน FICO ของคุณ',
+    'business_inception' => 'วันที่จดทะเบียนกองทุน',
+    'average_bank_balance' => 'ยอดคงเหลือในบัญชีธนาคารโดยเฉลี่ย',
+    'annual_revenue' => 'รายได้ประจำปี',
+    'desired_credit_limit_factoring' => 'วงเงินแฟคเตอริ่งที่ต้องการ',
+    'desired_credit_limit_loc' => 'วงเงินเครดิตสูงสุดที่ต้องการ',
+    'desired_credit_limit' => 'วงเงินเครดิตที่ต้องการ',
+    'bluevine_credit_line_type_required' => 'คุณต้องเลือกอย่างน้อยหนึ่งอย่าง',
+    'bluevine_field_required' => 'ต้องระบุข้อมูลนี้',
+    'bluevine_unexpected_error' => 'เกิดความผิดพลาดอย่างไม่ได้คาดคิด.',
+    'bluevine_no_conditional_offer' => 'ต้องการข้อมูลเพิ่มเติมก่อนรับใบเสนอราคา คลิกดำเนินการต่อด้านล่าง.',
+    'bluevine_invoice_factoring' => 'Invoice Factoring',
+    'bluevine_conditional_offer' => 'ข้อเสนอที่มีเงื่อนไข',
+    'bluevine_credit_line_amount' => 'วงเงิน',
+    'bluevine_advance_rate' => 'อัตราค่าบริการล่วงหน้า',
+    'bluevine_weekly_discount_rate' => 'อัตราส่วนลดรายสัปดาห์',
+    'bluevine_minimum_fee_rate' => 'ค่าธรรมเนียมขั้นต่ำ',
+    'bluevine_line_of_credit' => 'วงเงินสูงสุด',
+    'bluevine_interest_rate' => 'อัตราดอกเบี้ย',
+    'bluevine_weekly_draw_rate' => 'Weekly Draw Rate',
+    'bluevine_continue' => 'ไปที่ BlueVine',
+    'bluevine_completed' => 'สมัคร BlueVine เรียบร้อยแล้ว',
     'vendor_name' => 'ผู้ขาย',
     'entity_state' => 'สถานะ',
     'client_created_at' => 'วันที่สร้าง',
@@ -2100,22 +2047,19 @@ $LANG = array(
     'financial_year_start_help' => 'ใช้โดย <b>ช่วงวันที่</b>ถูกเลือก',
     'reports_help' => 'Shift + Click เพื่อจัดเรียงตามคอลัมน์  Ctrl + Click  เพื่อล้างการจัดกลุ่ม',
     'this_year' => 'ปีนี้',
-
-	// Updated login screen
-	'ninja_tagline' => 'สร้าง. ส่ง. รับเงิน',
-	'login_or_existing' => 'หรือล็อกอินด้วยบัญชีที่มีอยู่',
-	'sign_up_now' => 'สมัครตอนนี้เลย',
-	'not_a_member_yet' => 'ยังไม่เป็นสมาชิก',
-	'login_create_an_account' => 'สร้างบัญชี!',
-	'client_login' => 'เข้าสู่ระบบลูกค้า',
-
-	// New Client Portal styling
-	'invoice_from' => 'ใบแจ้งหนี้จาก:',
+    // Updated login screen
+    'ninja_tagline' => 'สร้าง. ส่ง. รับเงิน',
+    'login_or_existing' => 'หรือล็อกอินด้วยบัญชีที่มีอยู่',
+    'sign_up_now' => 'สมัครตอนนี้เลย',
+    'not_a_member_yet' => 'ยังไม่เป็นสมาชิก',
+    'login_create_an_account' => 'สร้างบัญชี!',
+    'client_login' => 'เข้าสู่ระบบลูกค้า',
+    // New Client Portal styling
+    'invoice_from' => 'ใบแจ้งหนี้จาก:',
     'email_alias_message' => 'เราต้องการให้ บริษัท แต่ละแห่งมีที่อยู่อีเมลที่ไม่ซ้ำกัน.<br/>พิจารณาใช้นามแฝง เช่น email+label@example.com',
     'full_name' => 'ชื่อเต็ม',
     'month_year' => 'เดือน/ปี',
     'valid_thru' => 'Valid\nthru',
-
     'product_fields' => 'ข้อมูลสินค้า',
     'custom_product_fields_help' => 'เพิ่มฟิลด์เมื่อสร้างใบเสนอราคาหรือใบแจ้งหนี้และแสดงฉลากและมูลค่าใน PDF',
     'freq_two_months' => '2 เดือน',
@@ -2139,7 +2083,6 @@ $LANG = array(
     'create_expense_category' => 'สร้างหมวดหมู่',
     'pro_plan_reports' => ':link เพื่อเปิดใช้รายงานโดยเข้าร่วม Pro Plan',
     'mark_ready' => 'ทำเครื่องหมายเรียบร้อย',
-
     'limits' => 'จำกัด',
     'fees' => 'ค่าธรรมเนียม',
     'fee' => 'ค่าธรรมเนียม',
@@ -2168,7 +2111,6 @@ $LANG = array(
     'logo_warning_too_large' => 'ไฟล์รูปภาพมีขนาดใหญ่เกินไป',
     'logo_warning_fileinfo' => 'คำเตือน: ในการสนับสนุน gifs จำเป็นต้องเปิดใช้ส่วนขยายของไฟล์ info PHP',
     'logo_warning_invalid' => 'เกิดปัญหาในการอ่านไฟล์รูปภาพกรุณาลองใช้รูปแบบอื่น',
-
     'error_refresh_page' => 'เกิดข้อผิดพลาดขึ้นโปรดรีเฟรชหน้าเว็บและลองอีกครั้ง',
     'data' => 'ข้อมูล',
     'imported_settings' => 'การตั้งค่าการนำเข้าสำเร็จ',
@@ -2321,7 +2263,6 @@ $LANG = array(
     'send_email_to_client' => 'ส่งอีเมล์ให้ลูกค้า',
     'refund_subject' => 'กระบวนการขอคืนเงิน',
     'refund_body' => 'คุณได้รับการดำเนินการคืนเงิน: จำนวนเงินสำหรับใบแจ้งหนี้: หมายเลขใบแจ้งหนี้.',
-
     'currency_us_dollar' => 'ดอลลาร์',
     'currency_british_pound' => 'ปอนด์อังกฤษ',
     'currency_euro' => 'ยูโร',
@@ -2389,12 +2330,11 @@ $LANG = array(
     'currency_jordanian_dinar' => 'จอร์แดน ดีนาร์จอร์แดน',
     'currency_myanmar_kyat' => 'พม่า จัตพม่า',
     'currency_peruvian_sol' => 'เปรู นูโวซอล',
-
     'use_english_version' => 'คุณแน่ใจว่าใช้ไฟล์นี้ด้วยภาษาอังกฤษ.<br/>เราใช้คอลัมนี้เพื่อให้ตรงกับช่องที่กำหนด',
     'tax1' => 'ภาษีส่วนที่หนึ่ง',
     'tax2' => 'ภาษีส่วนที่สอง',
     'fee_help' => 'ค่าใช้จ่ายที่เกิดขึ้นขึ้นอยู่กับสถาบันการเงินที่ใช้ชำระ',
-	'format_export' => 'ไฟล์ที่ส่งออก',
+    'format_export' => 'ไฟล์ที่ส่งออก',
     'custom1' => 'กำหนดเองครั้งแรก',
     'custom2' => 'กำหนดเองครั้งที่สอง',
     'contact_first_name' => 'ชื่อที่ติดต่อ',
@@ -2402,9 +2342,6 @@ $LANG = array(
     'contact_custom1' => 'ติดต่อกำหนดเองแบบที่หนึ่ง',
     'contact_custom2' => 'ติดต่อกำหนดเองแบบที่สอง',
     'currency' => 'สกุลเงิน',
-
 );
-
 return $LANG;
-
 ?>

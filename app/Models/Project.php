@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -59,7 +58,6 @@ class Project extends EntityModel
 Project::creating(function ($project) {
     $project->setNullValues();
 });
-
 Project::updating(function ($project) {
     $project->setNullValues();
 });

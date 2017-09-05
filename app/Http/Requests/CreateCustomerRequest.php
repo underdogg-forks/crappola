@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Requests;
-
 class CreateCustomerRequest extends CustomerRequest
 {
     /**
@@ -27,7 +25,6 @@ class CreateCustomerRequest extends CustomerRequest
             'contact_id' => 'required',
             'payment_method.source_reference' => 'required',
         ];
-
         return $rules;
     }
 }

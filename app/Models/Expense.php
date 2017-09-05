@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Events\ExpenseWasCreated;
@@ -150,7 +149,6 @@ class Expense extends EntityModel
         return $this->belongsTo('App\Models\RecurringExpense');
     }
 
-
     /**
      * @return mixed
      */
@@ -219,11 +217,9 @@ class Expense extends EntityModel
     public function toArray()
     {
         $array = parent::toArray();
-
         if (empty($this->visible) || in_array('converted_amount', $this->visible)) {
             $array['converted_amount'] = $this->convertedAmount();
         }
-
         return $array;
     }
 
@@ -238,7 +234,6 @@ class Expense extends EntityModel
         if ($bankdId) {
             $query->whereBankId($bankId);
         }
-
         return $query;
     }
 
@@ -256,8 +251,6 @@ class Expense extends EntityModel
         $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
         $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
         $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
-
-
         return $statuses;
     }
 
@@ -274,13 +267,10 @@ class Expense extends EntityModel
         } else {
             $label = 'logged';
         }
-
         $label = trans("texts.{$label}");
-
         if ($paymentDate) {
             $label = trans('texts.paid') . ' | ' . $label;
         }
-
         return $label;
     }
 
@@ -302,14 +292,12 @@ class Expense extends EntityModel
     public function statusClass()
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
-
         return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
     }
 
     public function statusLabel()
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
-
         return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
     }
 }
@@ -317,19 +305,15 @@ class Expense extends EntityModel
 Expense::creating(function ($expense) {
     $expense->setNullValues();
 });
-
 Expense::created(function ($expense) {
     event(new ExpenseWasCreated($expense));
 });
-
 Expense::updating(function ($expense) {
     $expense->setNullValues();
 });
-
 Expense::updated(function ($expense) {
     event(new ExpenseWasUpdated($expense));
 });
-
 Expense::deleting(function ($expense) {
     $expense->setNullValues();
 });

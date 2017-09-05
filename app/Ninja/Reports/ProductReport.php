@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
@@ -23,24 +22,22 @@ class ProductReport extends AbstractReport
     {
         $account = Auth::user()->account;
         $status = $this->options['invoice_status'];
-
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function ($query) use ($status) {
-                            if ($status == 'draft') {
-                                $query->whereIsPublic(false);
-                            } elseif (in_array($status, ['paid', 'unpaid', 'sent'])) {
-                                $query->whereIsPublic(true);
-                            }
-                            $query->invoices()
-                                  ->withArchived()
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
-                        }]);
-
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts')
+            ->with(['invoices' => function ($query) use ($status) {
+                if ($status == 'draft') {
+                    $query->whereIsPublic(false);
+                } elseif (in_array($status, ['paid', 'unpaid', 'sent'])) {
+                    $query->whereIsPublic(true);
+                }
+                $query->invoices()
+                    ->withArchived()
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['invoice_items']);
+            }]);
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
                 foreach ($invoice->invoice_items as $item) {
@@ -53,7 +50,6 @@ class ProductReport extends AbstractReport
                         Utils::roundSignificant($item->cost, 2),
                     ];
                 }
-
                 //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
                 //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);

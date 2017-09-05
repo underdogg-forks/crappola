@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Libraries\Finance;
@@ -45,9 +44,9 @@ class BankAccountService extends BaseService
      * BankAccountService constructor.
      *
      * @param BankAccountRepository $bankAccountRepo
-     * @param ExpenseRepository     $expenseRepo
-     * @param VendorRepository      $vendorRepo
-     * @param DatatableService      $datatableService
+     * @param ExpenseRepository $expenseRepo
+     * @param VendorRepository $vendorRepo
+     * @param DatatableService $datatableService
      */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
@@ -73,16 +72,15 @@ class BankAccountService extends BaseService
     private function getExpenses($bankId = null)
     {
         $expenses = Expense::scope()
-                        ->bankId($bankId)
-                        ->where('transaction_id', '!=', '')
-                        ->where('expense_date', '>=', Carbon::now()->subYear()->format('Y-m-d'))
-                        ->withTrashed()
-                        ->get(['transaction_id'])
-                        ->toArray();
+            ->bankId($bankId)
+            ->where('transaction_id', '!=', '')
+            ->where('expense_date', '>=', Carbon::now()->subYear()->format('Y-m-d'))
+            ->withTrashed()
+            ->get(['transaction_id'])
+            ->toArray();
         $expenses = array_flip(array_map(function ($val) {
             return $val['transaction_id'];
         }, $expenses));
-
         return $expenses;
     }
 
@@ -96,35 +94,31 @@ class BankAccountService extends BaseService
      */
     public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true)
     {
-        if (! $bankAccount || ! $username || ! $password) {
+        if (!$bankAccount || !$username || !$password) {
             return false;
         }
-
         $bankId = $bankAccount->bank_id;
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
         $bankAccounts = BankSubaccount::scope()
-                            ->whereHas('bank_account', function ($query) use ($bankId) {
-                                $query->where('bank_id', '=', $bankId);
-                            })
-                            ->get();
+            ->whereHas('bank_account', function ($query) use ($bankId) {
+                $query->where('bank_id', '=', $bankId);
+            })
+            ->get();
         $bank = Utils::getFromCache($bankId, 'banks');
         $data = [];
-
         // load OFX trnansactions
         try {
             $finance = new Finance();
             $finance->banks[$bankId] = $bank->getOFXBank($finance);
-
             $login = new Login($finance->banks[$bankId], $username, $password);
             $login->appVersion = $bankAccount->app_version;
             $login->ofxVersion = $bankAccount->ofx_version;
             $finance->banks[$bankId]->logins[] = $login;
-
             foreach ($finance->banks as $bank) {
                 foreach ($bank->logins as $login) {
                     $login->setup();
-                    if (! is_array($login->accounts)) {
+                    if (!is_array($login->accounts)) {
                         return false;
                     }
                     foreach ($login->accounts as $account) {
@@ -135,7 +129,6 @@ class BankAccountService extends BaseService
                     }
                 }
             }
-
             return $data;
         } catch (\Exception $e) {
             Utils::logError($e);
@@ -156,28 +149,23 @@ class BankAccountService extends BaseService
     {
         $obj = new stdClass();
         $obj->account_name = '';
-
         // look up bank account name
         foreach ($bankAccounts as $bankAccount) {
             if (Hash::check($account->id, $bankAccount->account_number)) {
                 $obj->account_name = $bankAccount->account_name;
             }
         }
-
         // if we can't find a match skip the account
-        if (count($bankAccounts) && ! $obj->account_name) {
+        if (count($bankAccounts) && !$obj->account_name) {
             return false;
         }
-
         $obj->masked_account_number = Utils::maskAccountNumber($account->id);
         $obj->hashed_account_number = bcrypt($account->id);
         $obj->type = $account->type;
         $obj->balance = Utils::formatMoney($account->ledgerBalance, CURRENCY_DOLLAR);
-
         if ($includeTransactions) {
             $obj = $this->parseTransactions($obj, $account->response, $expenses, $vendorMap);
         }
-
         return $obj;
     }
 
@@ -193,12 +181,10 @@ class BankAccountService extends BaseService
     {
         $ofxParser = new \OfxParser\Parser();
         $ofx = $ofxParser->loadFromString($data);
-
         $bankAccount = reset($ofx->bankAccounts);
         $account->start_date = $bankAccount->statement->startDate;
         $account->end_date = $bankAccount->statement->endDate;
         $account->transactions = [];
-
         foreach ($bankAccount->statement->transactions as $transaction) {
             // ensure transactions aren't imported as expenses twice
             if (isset($expenses[$transaction->uniqueId])) {
@@ -207,12 +193,10 @@ class BankAccountService extends BaseService
             if ($transaction->amount >= 0) {
                 continue;
             }
-
             // if vendor has already been imported use current name
             $vendorName = trim(substr($transaction->name, 0, 20));
             $key = strtolower($vendorName);
             $vendor = isset($vendorMap[$key]) ? $vendorMap[$key] : null;
-
             $transaction->vendor = $vendor ? $vendor->name : $this->prepareValue($vendorName);
             $transaction->info = $this->prepareValue(substr($transaction->name, 20));
             $transaction->memo = $this->prepareValue($transaction->memo);
@@ -220,7 +204,6 @@ class BankAccountService extends BaseService
             $transaction->amount *= -1;
             $account->transactions[] = $transaction;
         }
-
         return $account;
     }
 
@@ -244,7 +227,6 @@ class BankAccountService extends BaseService
         $account = new stdClass();
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
-
         return $this->parseTransactions($account, $data, $expenses, $vendorMap);
     }
 
@@ -255,13 +237,12 @@ class BankAccountService extends BaseService
     {
         $vendorMap = [];
         $vendors = Vendor::scope()
-                        ->withTrashed()
-                        ->get(['id', 'name', 'transaction_name']);
+            ->withTrashed()
+            ->get(['id', 'name', 'transaction_name']);
         foreach ($vendors as $vendor) {
             $vendorMap[strtolower($vendor->name)] = $vendor;
             $vendorMap[strtolower($vendor->transaction_name)] = $vendor;
         }
-
         return $vendorMap;
     }
 
@@ -270,12 +251,10 @@ class BankAccountService extends BaseService
         $vendorMap = $this->createVendorMap();
         $countVendors = 0;
         $countExpenses = 0;
-
         foreach ($input as $transaction) {
             $vendorName = $transaction['vendor'];
             $key = strtolower($vendorName);
             $info = $transaction['info'];
-
             // find vendor otherwise create it
             if (isset($vendorMap[$key])) {
                 $vendor = $vendorMap[$key];
@@ -291,7 +270,6 @@ class BankAccountService extends BaseService
                 $vendorMap[$transaction['vendor_orig']] = $vendor;
                 $countVendors++;
             }
-
             // create the expense record
             $this->expenseRepo->save([
                 'vendor_id' => $vendor->id,
@@ -304,7 +282,6 @@ class BankAccountService extends BaseService
             ]);
             $countExpenses++;
         }
-
         return trans('texts.imported_expenses', [
             'count_vendors' => $countVendors,
             'count_expenses' => $countExpenses,
@@ -325,7 +302,6 @@ class BankAccountService extends BaseService
     public function getDatatable($accountId)
     {
         $query = $this->bankAccountRepo->find($accountId);
-
         return $this->datatableService->createDatatable(new BankAccountDatatable(false), $query);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExpenseCategoryRequest;
@@ -51,39 +50,32 @@ class ExpenseCategoryController extends BaseController
             'url' => 'expense_categories',
             'title' => trans('texts.new_category'),
         ];
-
         return View::make('expense_categories.edit', $data);
     }
 
     public function edit(ExpenseCategoryRequest $request)
     {
         $category = $request->entity();
-
         $data = [
             'category' => $category,
             'method' => 'PUT',
             'url' => 'expense_categories/' . $category->public_id,
             'title' => trans('texts.edit_category'),
         ];
-
         return View::make('expense_categories.edit', $data);
     }
 
     public function store(CreateExpenseCategoryRequest $request)
     {
         $category = $this->categoryRepo->save($request->input());
-
         Session::flash('message', trans('texts.created_expense_category'));
-
         return redirect()->to($category->getRoute());
     }
 
     public function update(UpdateExpenseCategoryRequest $request)
     {
         $category = $this->categoryRepo->save($request->input(), $request->entity());
-
         Session::flash('message', trans('texts.updated_expense_category'));
-
         return redirect()->to($category->getRoute());
     }
 
@@ -92,13 +84,11 @@ class ExpenseCategoryController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->categoryService->bulk($ids, $action);
-
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
             $message = trans("texts.$field", ['count' => $count]);
             Session::flash('message', $message);
         }
-
         return redirect()->to('/expense_categories');
     }
 }

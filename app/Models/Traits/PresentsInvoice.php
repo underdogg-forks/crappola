@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Models\Traits;
-
 /**
  * Class PresentsInvoice.
  */
@@ -11,140 +9,15 @@ trait PresentsInvoice
     {
         if ($this->invoice_fields) {
             $fields = json_decode($this->invoice_fields, true);
-
             return $this->applyLabels($fields);
         } else {
             return $this->getDefaultInvoiceFields();
         }
     }
 
-    public function getDefaultInvoiceFields()
-    {
-        $fields = [
-            INVOICE_FIELDS_INVOICE => [
-                'invoice.invoice_number',
-                'invoice.po_number',
-                'invoice.invoice_date',
-                'invoice.due_date',
-                'invoice.balance_due',
-                'invoice.partial_due',
-            ],
-            INVOICE_FIELDS_CLIENT => [
-                'client.client_name',
-                'client.id_number',
-                'client.vat_number',
-                'client.address1',
-                'client.address2',
-                'client.city_state_postal',
-                'client.country',
-                'client.email',
-            ],
-            'account_fields1' => [
-                'account.company_name',
-                'account.id_number',
-                'account.vat_number',
-                'account.website',
-                'account.email',
-                'account.phone',
-
-            ],
-            'account_fields2' => [
-                'account.address1',
-                'account.address2',
-                'account.city_state_postal',
-                'account.country',
-            ],
-        ];
-
-        if ($this->custom_invoice_text_label1) {
-            $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value1';
-        }
-        if ($this->custom_invoice_text_label2) {
-            $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value2';
-        }
-        if ($this->custom_client_label1) {
-            $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value1';
-        }
-        if ($this->custom_client_label2) {
-            $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value2';
-        }
-        if ($this->custom_contact_label1) {
-            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value1';
-        }
-        if ($this->custom_contact_label2) {
-            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value2';
-        }
-        if ($this->custom_label1) {
-            $fields['account_fields2'][] = 'account.custom_value1';
-        }
-        if ($this->custom_label2) {
-            $fields['account_fields2'][] = 'account.custom_value2';
-        }
-
-        return $this->applyLabels($fields);
-    }
-
-    public function getAllInvoiceFields()
-    {
-        $fields = [
-            INVOICE_FIELDS_INVOICE => [
-                'invoice.invoice_number',
-                'invoice.po_number',
-                'invoice.invoice_date',
-                'invoice.due_date',
-                'invoice.invoice_total',
-                'invoice.balance_due',
-                'invoice.partial_due',
-                'invoice.outstanding',
-                'invoice.custom_text_value1',
-                'invoice.custom_text_value2',
-                '.blank',
-            ],
-            INVOICE_FIELDS_CLIENT => [
-                'client.client_name',
-                'client.id_number',
-                'client.vat_number',
-                'client.website',
-                'client.work_phone',
-                'client.address1',
-                'client.address2',
-                'client.city_state_postal',
-                'client.postal_city_state',
-                'client.country',
-                'client.contact_name',
-                'client.email',
-                'client.phone',
-                'client.custom_value1',
-                'client.custom_value2',
-                'contact.custom_value1',
-                'contact.custom_value2',
-                '.blank',
-            ],
-            INVOICE_FIELDS_ACCOUNT => [
-                'account.company_name',
-                'account.id_number',
-                'account.vat_number',
-                'account.website',
-                'account.email',
-                'account.phone',
-                'account.address1',
-                'account.address2',
-                'account.city_state_postal',
-                'account.postal_city_state',
-                'account.country',
-                'account.custom_value1',
-                'account.custom_value2',
-                '.blank',
-            ],
-        ];
-
-        return $this->applyLabels($fields);
-    }
-
     private function applyLabels($fields)
     {
         $labels = $this->getInvoiceLabels();
-
         foreach ($fields as $section => $sectionFields) {
             foreach ($sectionFields as $index => $field) {
                 list($entityType, $fieldName) = explode('.', $field);
@@ -158,30 +31,7 @@ trait PresentsInvoice
                 unset($fields[$section][$index]);
             }
         }
-
         return $fields;
-    }
-
-    public function hasCustomLabel($field)
-    {
-        $custom = (array) json_decode($this->invoice_labels);
-
-        return isset($custom[$field]) && $custom[$field];
-    }
-
-    public function getLabel($field, $override = false)
-    {
-        $custom = (array) json_decode($this->invoice_labels);
-
-        if (isset($custom[$field]) && $custom[$field]) {
-            return $custom[$field];
-        } else {
-            if ($override) {
-                $field = $override;
-            }
-            return $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
-        }
-
     }
 
     /**
@@ -190,8 +40,7 @@ trait PresentsInvoice
     public function getInvoiceLabels()
     {
         $data = [];
-        $custom = (array) json_decode($this->invoice_labels);
-
+        $custom = (array)json_decode($this->invoice_labels);
         $fields = [
             'invoice',
             'invoice_date',
@@ -265,7 +114,6 @@ trait PresentsInvoice
             'quote_due_date',
             'service',
         ];
-
         foreach ($fields as $field) {
             $translated = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
             if (isset($custom[$field]) && $custom[$field]) {
@@ -275,28 +123,165 @@ trait PresentsInvoice
                 $data[$field] = $translated;
             }
         }
-
         foreach (['item', 'quantity', 'unit_cost'] as $field) {
             $data["{$field}_orig"] = $data[$field];
         }
-
         foreach ([
-            'account.custom_value1' => 'custom_label1',
-            'account.custom_value2' => 'custom_label2',
-            'invoice.custom_text_value1' => 'custom_invoice_text_label1',
-            'invoice.custom_text_value2' => 'custom_invoice_text_label2',
-            'client.custom_value1' => 'custom_client_label1',
-            'client.custom_value2' => 'custom_client_label2',
-            'contact.custom_value1' => 'custom_contact_label1',
-            'contact.custom_value2' => 'custom_contact_label2',
-        ] as $field => $property) {
+                     'account.custom_value1' => 'custom_label1',
+                     'account.custom_value2' => 'custom_label2',
+                     'invoice.custom_text_value1' => 'custom_invoice_text_label1',
+                     'invoice.custom_text_value2' => 'custom_invoice_text_label2',
+                     'client.custom_value1' => 'custom_client_label1',
+                     'client.custom_value2' => 'custom_client_label2',
+                     'contact.custom_value1' => 'custom_contact_label1',
+                     'contact.custom_value2' => 'custom_contact_label2',
+                 ] as $field => $property) {
             $data[$field] = e($this->$property) ?: trans('texts.custom_field');
         }
-
         return $data;
     }
 
-    public function getCustomDesign($designId) {
+    public function getDefaultInvoiceFields()
+    {
+        $fields = [
+            INVOICE_FIELDS_INVOICE => [
+                'invoice.invoice_number',
+                'invoice.po_number',
+                'invoice.invoice_date',
+                'invoice.due_date',
+                'invoice.balance_due',
+                'invoice.partial_due',
+            ],
+            INVOICE_FIELDS_CLIENT => [
+                'client.client_name',
+                'client.id_number',
+                'client.vat_number',
+                'client.address1',
+                'client.address2',
+                'client.city_state_postal',
+                'client.country',
+                'client.email',
+            ],
+            'account_fields1' => [
+                'account.company_name',
+                'account.id_number',
+                'account.vat_number',
+                'account.website',
+                'account.email',
+                'account.phone',
+            ],
+            'account_fields2' => [
+                'account.address1',
+                'account.address2',
+                'account.city_state_postal',
+                'account.country',
+            ],
+        ];
+        if ($this->custom_invoice_text_label1) {
+            $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value1';
+        }
+        if ($this->custom_invoice_text_label2) {
+            $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value2';
+        }
+        if ($this->custom_client_label1) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value1';
+        }
+        if ($this->custom_client_label2) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value2';
+        }
+        if ($this->custom_contact_label1) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value1';
+        }
+        if ($this->custom_contact_label2) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value2';
+        }
+        if ($this->custom_label1) {
+            $fields['account_fields2'][] = 'account.custom_value1';
+        }
+        if ($this->custom_label2) {
+            $fields['account_fields2'][] = 'account.custom_value2';
+        }
+        return $this->applyLabels($fields);
+    }
+
+    public function getAllInvoiceFields()
+    {
+        $fields = [
+            INVOICE_FIELDS_INVOICE => [
+                'invoice.invoice_number',
+                'invoice.po_number',
+                'invoice.invoice_date',
+                'invoice.due_date',
+                'invoice.invoice_total',
+                'invoice.balance_due',
+                'invoice.partial_due',
+                'invoice.outstanding',
+                'invoice.custom_text_value1',
+                'invoice.custom_text_value2',
+                '.blank',
+            ],
+            INVOICE_FIELDS_CLIENT => [
+                'client.client_name',
+                'client.id_number',
+                'client.vat_number',
+                'client.website',
+                'client.work_phone',
+                'client.address1',
+                'client.address2',
+                'client.city_state_postal',
+                'client.postal_city_state',
+                'client.country',
+                'client.contact_name',
+                'client.email',
+                'client.phone',
+                'client.custom_value1',
+                'client.custom_value2',
+                'contact.custom_value1',
+                'contact.custom_value2',
+                '.blank',
+            ],
+            INVOICE_FIELDS_ACCOUNT => [
+                'account.company_name',
+                'account.id_number',
+                'account.vat_number',
+                'account.website',
+                'account.email',
+                'account.phone',
+                'account.address1',
+                'account.address2',
+                'account.city_state_postal',
+                'account.postal_city_state',
+                'account.country',
+                'account.custom_value1',
+                'account.custom_value2',
+                '.blank',
+            ],
+        ];
+        return $this->applyLabels($fields);
+    }
+
+    public function hasCustomLabel($field)
+    {
+        $custom = (array)json_decode($this->invoice_labels);
+        return isset($custom[$field]) && $custom[$field];
+    }
+
+    public function getLabel($field, $override = false)
+    {
+        $custom = (array)json_decode($this->invoice_labels);
+        if (isset($custom[$field]) && $custom[$field]) {
+            return $custom[$field];
+        } else {
+            if ($override) {
+                $field = $override;
+            }
+            return $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
+        }
+
+    }
+
+    public function getCustomDesign($designId)
+    {
         if ($designId == CUSTOM_DESIGN1) {
             return $this->custom_design1;
         } elseif ($designId == CUSTOM_DESIGN2) {
@@ -304,7 +289,6 @@ trait PresentsInvoice
         } elseif ($designId == CUSTOM_DESIGN3) {
             return $this->custom_design3;
         }
-
         return null;
     }
 }

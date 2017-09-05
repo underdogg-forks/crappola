@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Codedge\Updater\UpdaterManager;
@@ -23,7 +22,6 @@ class SelfUpdateController extends BaseController
         if (Utils::isNinjaProd()) {
             exit;
         }
-
         $this->updater = $updater;
     }
 
@@ -36,7 +34,6 @@ class SelfUpdateController extends BaseController
     {
         $versionInstalled = $this->updater->source()->getVersionInstalled('v');
         $updateAvailable = $this->updater->source()->isNewVersionAvailable($versionInstalled);
-
         return view(
             'vendor.self-update.self-update',
             [
@@ -55,7 +52,6 @@ class SelfUpdateController extends BaseController
     public function update()
     {
         $this->updater->source()->update();
-
         return Redirect::to('/');
     }
 

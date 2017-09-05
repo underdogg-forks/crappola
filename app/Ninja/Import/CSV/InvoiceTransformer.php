@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\CSV;
 
 use App\Ninja\Import\BaseTransformer;
@@ -17,14 +16,12 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->name)) {
+        if (!$this->getClientId($data->name)) {
             return false;
         }
-
         if (isset($data->invoice_number) && $this->hasInvoice($data->invoice_number)) {
             return false;
         }
-
         return new Item($data, function ($data) {
             return [
                 'client_id' => $this->getClientId($data->name),

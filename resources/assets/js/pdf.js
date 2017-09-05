@@ -17,7 +17,7 @@
 
 // Initializing PDFJS global object (if still undefined)
 if (typeof PDFJS === 'undefined') {
-  (typeof window !== 'undefined' ? window : this).PDFJS = {};
+    (typeof window !== 'undefined' ? window : this).PDFJS = {};
 }
 
 //#if BUNDLE_VERSION
@@ -28,8 +28,8 @@ if (typeof PDFJS === 'undefined') {
 //#endif
 
 (function pdfjsWrapper() {
-  // Use strict in our context only - users might not want it
-  'use strict';
+    // Use strict in our context only - users might not want it
+    'use strict';
 
 //#expand __BUNDLE__
 
@@ -37,13 +37,13 @@ if (typeof PDFJS === 'undefined') {
 
 //#if !(MOZCENTRAL || FIREFOX)
 if (!PDFJS.workerSrc && typeof document !== 'undefined') {
-  // workerSrc is not set -- using last script url to define default location
-  PDFJS.workerSrc = (function () {
-    'use strict';
-    var scriptTagContainer = document.body ||
-                             document.getElementsByTagName('head')[0];
-    var pdfjsSrc = scriptTagContainer.lastChild.src;
-    return pdfjsSrc && pdfjsSrc.replace(/\.js$/i, '.worker.js');
-  })();
+    // workerSrc is not set -- using last script url to define default location
+    PDFJS.workerSrc = (function () {
+        'use strict';
+        var scriptTagContainer = document.body ||
+            document.getElementsByTagName('head')[0];
+        var pdfjsSrc = scriptTagContainer.lastChild.src;
+        return pdfjsSrc && pdfjsSrc.replace(/\.js$/i, '.worker.js');
+    })();
 }
 //#endif

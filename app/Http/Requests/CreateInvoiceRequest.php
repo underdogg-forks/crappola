@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use App\Models\Client;
@@ -33,18 +32,15 @@ class CreateInvoiceRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
-
         if ($this->user()->account->client_number_counter) {
             $clientId = Client::getPrivateId(request()->input('client')['public_id']);
-            $rules['client.id_number'] = 'unique:clients,id_number,'.$clientId.',id,account_id,' . $this->user()->account_id;
+            $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,account_id,' . $this->user()->account_id;
         }
-
         /* There's a problem parsing the dates
         if (Request::get('is_recurring') && Request::get('start_date') && Request::get('end_date')) {
             $rules['end_date'] = 'after' . Request::get('start_date');
         }
         */
-
         return $rules;
     }
 }

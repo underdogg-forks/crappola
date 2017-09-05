@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Nutcache;
 
 use App\Ninja\Import\BaseTransformer;
@@ -17,19 +16,17 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->client)) {
+        if (!$this->getClientId($data->client)) {
             return false;
         }
-
         if ($this->hasInvoice($data->document_no)) {
             return false;
         }
-
         return new Item($data, function ($data) {
             return [
                 'client_id' => $this->getClientId($data->client),
                 'invoice_number' => $this->getInvoiceNumber($data->document_no),
-                'paid' => (float) $data->paid_to_date,
+                'paid' => (float)$data->paid_to_date,
                 'po_number' => $this->getString($data, 'purchase_order'),
                 'terms' => $this->getString($data, 'terms'),
                 'public_notes' => $this->getString($data, 'notes'),
@@ -39,7 +36,7 @@ class InvoiceTransformer extends BaseTransformer
                     [
                         'product_key' => '',
                         'notes' => $this->getString($data, 'description'),
-                        'cost' => (float) $data->total,
+                        'cost' => (float)$data->total,
                         'qty' => 1,
                     ],
                 ],

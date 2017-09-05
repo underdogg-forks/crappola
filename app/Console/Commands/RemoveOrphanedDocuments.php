@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Models\Document;
@@ -23,21 +22,16 @@ class RemoveOrphanedDocuments extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running RemoveOrphanedDocuments...');
-
+        $this->info(date('Y-m-d') . ' Running RemoveOrphanedDocuments...');
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
-
         $documents = Document::whereRaw('invoice_id IS NULL AND expense_id IS NULL AND updated_at <= ?', [new DateTime('-1 hour')])
             ->get();
-
-        $this->info(count($documents).' orphaned document(s) found');
-
+        $this->info(count($documents) . ' orphaned document(s) found');
         foreach ($documents as $document) {
             $document->delete();
         }
-
         $this->info('Done');
     }
 

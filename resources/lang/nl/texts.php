@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Organisatie',
     'name' => 'Naam',
     'website' => 'Website',
@@ -991,8 +989,6 @@ $LANG = array(
     'trial_call_to_action' => 'Start gratis probeerversie',
     'trial_success' => 'De gratis twee weken durende probeerversie van het pro plan is succesvol geactiveerd.',
     'overdue' => 'Verlopen',
-
-
     'white_label_text' => 'Koop een white label licentie voor één jaar voor $:price om de Invoice Ninja reclame te verwijderen van facturen en het klantenportaal.',
     'user_email_footer' => 'Ga alstublieft naar :link om uw e-mail notificatie instellingen aan te passen',
     'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is :email',
@@ -1001,7 +997,6 @@ $LANG = array(
     'old_browser' => 'Gebruik a.u.b. een <a href=":link" target="_blank">moderne browser</a>',
     'white_label_custom_css' => ':link voor $:price om eigen opmaak te gebruiken en ons project te ondersteunen.',
     'bank_accounts_help' => 'Koppel een bankrekening om automatisch uitgaven en leveranciers te importeren. Ondersteund American Express en <a href=":link" target="_blank">400+ banken uit de VS.</a>',
-
     'pro_plan_remove_logo' => ':link om het InvoiceNinja logo te verwijderen door het pro plan te nemen',
     'pro_plan_remove_logo_link' => 'Klik hier',
     'invitation_status_sent' => 'Verstuurd',
@@ -1013,7 +1008,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'Registreer een account om e-mails te kunnen versturen',
     'email_error_user_unconfirmed' => 'Bevestig uw account om e-mails te kunnen versturen',
     'email_error_invalid_contact_email' => 'Ongeldig e-mailadres van contactpersoon',
-
     'navigation' => 'Navigatie',
     'list_invoices' => 'Toon Facturen',
     'list_clients' => 'Toon Klanten',
@@ -1026,7 +1020,6 @@ $LANG = array(
     'tax_name' => 'Belasting naam',
     'report_settings' => 'Rapport instellingen',
     'search_hotkey' => 'Snelkoppeling is /',
-
     'new_user' => 'Nieuwe Gebruiker',
     'new_product' => 'Nieuw Product',
     'new_tax_rate' => 'Nieuw BTW-tarief',
@@ -1035,20 +1028,17 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'Voeg een veld toe bij het aanmaken van een factuurregel en toon het label met de waarde op de PDF.',
     'recurring_invoice_number' => 'Terugkerend nummer',
     'recurring_invoice_number_prefix_help' => 'Kies een voorvoegsel voor het factuurnummer van terugkerende facturen.',
-
     // Client Passwords
     'enable_portal_password' => 'Facturen beveiligen met een wachtwoord',
     'enable_portal_password_help' => 'Geeft u de mogelijkheid om een wachtwoord in te stellen voor elke contactpersoon. Als er een wachtwoord is ingesteld moet de contactpersoon het wachtwoord invoeren voordat deze facturen kan bekijken.',
     'send_portal_password' => 'Wachtwoord automatisch genereren',
     'send_portal_password_help' => 'Als er geen wachtwoord is ingesteld zal deze automatisch worden gegenereerd en verzonden bij de eerste factuur.',
-
     'expired' => 'Verlopen',
     'invalid_card_number' => 'Het creditcardnummer is niet geldig.',
     'invalid_expiry' => 'De verloopdatum is niet geldig.',
     'invalid_cvv' => 'Het CVV-nummer is niet geldig.',
     'cost' => 'Kosten',
     'create_invoice_for_sample' => 'Opmerking: maak uw eerste factuur om hier een voorbeeld te zien.',
-
     // User Permissions
     'owner' => 'Eigenaar',
     'administrator' => 'Beheerder',
@@ -1067,7 +1057,6 @@ $LANG = array(
     'view_all_help' => 'Gebruiker toestemming geven om regels te bekijken die hij niet heeft gemaakt',
     'edit_all_help' => 'Gebruiker toestemming geven om regels te bewerken die hij niet heeft gemaakt',
     'view_payment' => 'Betaling bekijken',
-
     'january' => 'januari',
     'february' => 'februari',
     'march' => 'maart',
@@ -1080,7 +1069,6 @@ $LANG = array(
     'october' => 'oktober',
     'november' => 'november',
     'december' => 'december',
-
     // Documents
     'documents_header' => 'Documenten:',
     'email_documents_header' => 'Documenten:',
@@ -1105,16 +1093,13 @@ $LANG = array(
     'documents' => 'Documenten',
     'document_date' => 'Documentdatum',
     'document_size' => 'Grootte',
-
     'enable_client_portal' => 'Dashboard',
     'enable_client_portal_help' => 'Toon/verberg het klantenportaal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Toon/verberg de dashboard pagina in het klantenportaal.',
-
     // Plans
     'account_management' => 'Accountbeheer',
     'plan_status' => 'Status abonnement',
-
     'plan_upgrade' => 'Upgraden',
     'plan_change' => 'Abonnement wijzigen',
     'pending_change_to' => 'Veranderd naar',
@@ -1144,9 +1129,7 @@ $LANG = array(
     'plan_paid' => 'Termijn gestart',
     'plan_started' => 'Abonnement gestart',
     'plan_expires' => 'Abonnement verloopt',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'Jaarabonnement op Invoice Ninja Pro.',
     'pro_plan_month_description' => 'Maandabonnement op Invoice Ninja Pro.',
     'enterprise_plan_product' => 'Zakelijk abonnement',
@@ -1156,7 +1139,6 @@ $LANG = array(
     'plan_credit_description' => 'Krediet voor ongebruikte tijd',
     'plan_pending_monthly' => 'Zal omgezet wordt in maandelijks op :date',
     'plan_refunded' => 'Een terugbetaling is toegekend.',
-
     'live_preview' => 'Live Voorbeeld',
     'page_size' => 'Paginagrootte',
     'live_preview_disabled' => 'Live voorbeeld weergave is uitgeschakeld om het geselecteerde lettertype te ondersteunen.',
@@ -1166,8 +1148,6 @@ $LANG = array(
     'add_users_not_supported' => 'Upgrade naar het zakelijke abonnement om extra gebruikers toe te voegen aan uw account.',
     'enterprise_plan_features' => 'Het zakelijke abonnement voegt ondersteuning toe voor meerdere gebruikers en bijlagen, :link om een volledige lijst van de mogelijkheden te bekijken.',
     'return_to_app' => 'Terug naar app',
-
-
     // Payment updates
     'refund_payment' => 'Terugbetalen',
     'refund_max' => 'Max:',
@@ -1184,7 +1164,6 @@ $LANG = array(
     'activity_39' => ':user heeft een a :payment_amount betaling geannuleerd :payment',
     'activity_40' => ':user heeft :adjustment van een :payment_amount betaling :payment',
     'card_expiration' => 'Verloopt:',
-
     'card_creditcardother' => 'Onbekend',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1199,13 +1178,11 @@ $LANG = array(
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'ACH inschakelen',
     'stripe_ach_help' => 'ACH ondersteuning moet ook ingeschakeld worden bij Stripe.',
     'ach_disabled' => 'Er is al een andere gateway geconfigureerd voor directe afschrijving.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Klantnummer',
     'secret' => 'Secret',
@@ -1275,15 +1252,12 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'braintree_paypal_help_link_text' => 'PayPal koppelen aan uw BrainTree account',
     'token_billing_braintree_paypal' => 'Betalingsgegevens opslaan',
     'add_paypal_account' => 'PayPal rekening toevoegen',
-
-
     'no_payment_method_specified' => 'Geen betalingsmethode gespecificeerd',
     'chart_type' => 'Grafiektype',
     'format' => 'Formaat',
     'import_ofx' => 'OFX importeren',
     'ofx_file' => 'OFX-bestand',
     'ofx_parse_failed' => 'OFX-bestand kon niet worden verwerkt',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Aanmelden met WePay',
@@ -1306,7 +1280,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'canada' => 'Canada',
     'accept_debit_cards' => 'Accepteer betaalkaart',
     'debit_cards' => 'Betaalkaarten',
-
     'warn_start_date_changed' => 'Het volgende factuur zal verzonden worden op de nieuwe startdatum.',
     'original_start_date' => 'Oorspronkelijke startdatum',
     'new_start_date' => 'Nieuwe startdatum',
@@ -1324,23 +1297,19 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'created_products' => ':count product(en) succesvol aangemaakt/bijgewerkt',
     'export_help' => 'Gebruik JSON als u van plan bent om de gegevens te importeren in Invoice Ninja.<br/>Het bestand omvat klanten, producten, facturen, offertes en betalingen.',
     'JSON_file' => 'JSON bestand',
-
     'view_dashboard' => 'Bekijk dashboard',
     'client_session_expired' => 'Sessie verlopen',
     'client_session_expired_message' => 'Uw sessie is verlopen. Gelieve de link in de e-mail opnieuw te openen.',
-
     'auto_bill_notification' => 'Deze factuur zal automatisch worden gefactureerd aan uw opgeslagen betalingsmethode op de vervaldag.',
     'auto_bill_payment_method_bank_transfer' => 'Bankrekening',
     'auto_bill_payment_method_credit_card' => 'creditcard',
     'auto_bill_payment_method_paypal' => 'PayPal account',
     'auto_bill_notification_placeholder' => 'Deze factuur zal automatisch worden gefactureerd aan uw creditcard op de vervaldag.',
     'payment_settings' => 'Betalingsinstellingen',
-
     'on_send_date' => 'Op verzendingsdatum',
     'on_due_date' => 'Op vervaldatum',
     'auto_bill_ach_date_help' => 'ACH automatische facturatie zal atijd uitgevoerd worden op de vervaldag',
     'warn_change_auto_bill' => 'Vanwege NACHA regels kunnen aanpassingen aan dit factuur ACH automatische facturatie voorkomen.',
-
     'bank_account' => 'Bankrekening',
     'payment_processed_through_wepay' => 'ACH betalingen zullen verwerkt worden met WePay.',
     'wepay_payment_tos_agree' => 'Ik ga akkoord met de WePay :terms en :privacy_policy.',
@@ -1348,7 +1317,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'wepay_payment_tos_agree_required' => 'U moet akkoord gaan met de WePay voorwaarden en privacybeleid.',
     'ach_email_prompt' => 'Gelieve uw e-maildres in te vullen:',
     'verification_pending' => 'Verificatie in afwachting',
-
     'update_font_cache' => 'Forceer het vernieuwen van de pagina om de font cache bij te werken.',
     'more_options' => 'Meer opties',
     'credit_card' => 'Creditcard',
@@ -1362,7 +1330,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'gateway_exists' => 'Deze gateway bestaat reeds',
     'manual_entry' => 'Manuele invoer',
     'start_of_week' => 'Eerste dag van de week',
-
     // Frequencies
     'freq_inactive' => 'Inactief',
     'freq_weekly' => 'Wekelijks',
@@ -1372,7 +1339,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'freq_three_months' => 'Drie maanden',
     'freq_six_months' => 'Zes maanden',
     'freq_annually' => 'Jaarlijks',
-
     // Payment types
     'payment_type_Apply Credit' => 'Krediet toepassen',
     'payment_type_Bank Transfer' => 'Overschrijving',
@@ -1399,7 +1365,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Boekhouding & juridisch',
     'industry_Advertising' => 'Adverteren',
@@ -1433,7 +1398,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'industry_Travel & Luxury' => 'Reizen & luxe',
     'industry_Other' => 'Andere',
     'industry_Photography' => 'Fotografie',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albanië',
@@ -1684,7 +1648,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Jemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Braziliaans Portugees',
     'lang_Croatian' => 'Kroatië',
@@ -1712,7 +1675,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'lang_Turkish - Turkey' => 'Turks - Turkije',
     'lang_Portuguese - Brazilian' => 'Portugees - Braziliaans',
     'lang_Portuguese - Portugal' => 'Portugees - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Wekelijks',
     'freq_two_weeks' => 'Twee weken',
@@ -1721,7 +1683,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'freq_three_months' => 'Drie maanden',
     'freq_six_months' => 'Zes maanden',
     'freq_annually' => 'Jaarlijks',
-
     // Industries
     'industry_Accounting & Legal' => 'Boekhouding & juridisch',
     'industry_Advertising' => 'Adverteren',
@@ -1753,8 +1714,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'industry_Transportation' => 'Vervoer',
     'industry_Travel & Luxury' => 'Reizen & luxe',
     'industry_Other' => 'Andere',
-    'industry_Photography' =>'Fotografie',
-
+    'industry_Photography' => 'Fotografie',
     'view_client_portal' => 'Toon klantportaal',
     'view_portal' => 'Toon portaal',
     'vendor_contacts' => 'Leveranciercontacten',
@@ -1796,7 +1756,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'no_undo' => 'Waarschuwing: dit kan niet ongedaan gemaakt worden.',
     'no_contact_selected' => 'Gelieve een contact te selecteren',
     'no_client_selected' => 'Gelieve een klant te selecteren',
-
     'gateway_config_error' => 'Het kan helpen om nieuwe wachtwoorden in te stellen of nieuwe API sleutels te genereren.',
     'payment_type_on_file' => ':type opgeslagen',
     'invoice_for_client' => 'Factuur :invoice voor :client',
@@ -1819,11 +1778,9 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'security_code_email_line2' => 'Opmerking: deze zal over 10 minuten vervallen.',
     'bot_help_message' => 'Momenteel ondersteun ik:<br/>• Aanmaken\bewerken\emailen van facturene<br/>• Producten tonen<br/>Bijvoorbeeld:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'Toon producten',
-
     'include_item_taxes_inline' => 'Gebruik <b>lijnartikel belasting in lijntotaal</b>',
     'created_quotes' => ':count offertes succesvol aangemaakt',
     'limited_gateways' => 'Opmerking: we ondersteunen één creditcard gateway per bedrijf.',
-
     'warning' => 'Waarschuwing',
     'self-update' => 'Update',
     'update_invoiceninja_title' => 'Invoice Ninja bijwerken',
@@ -1834,7 +1791,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'update_invoiceninja_update_start' => 'Nu bijwerken',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Nieuwe aanmaken',
-
     'toggle_navigation' => 'Toon/verberg navigatie',
     'toggle_history' => 'Toon/verberg geschiedenis',
     'unassigned' => 'Niet toegewezen',
@@ -1847,7 +1803,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'facebook_and_twitter_help' => 'Volg onze feeds om ons te helpen met het project',
     'reseller_text' => 'Opmerking: de white-label licentie is bedoeld voor persoonlijk gebruik, gelieve ons te contacteren op :email indien u de app door wilt verkopen.',
     'unnamed_client' => 'Onbenoemde klant',
-
     'day' => 'Dag',
     'week' => 'Week',
     'month' => 'Maand',
@@ -1856,7 +1811,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'total_profit' => 'Totale winst',
     'total_expenses' => 'Totale uitgaven',
     'quote_to' => 'Offerte aan',
-
     // Limits
     'limit' => 'Limiet',
     'min_limit' => 'Min: :min',
@@ -1868,7 +1822,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'Dit factuur voldoet niet aan de limieten voor die betalingsmethode.',
-
     'date_range' => 'Datumbereik',
     'raw' => 'Raw',
     'raw_html' => 'Raw HTML',
@@ -1884,10 +1837,8 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'expense_will_create' => 'uitgave zal aangemaakt worden',
     'expenses_will_create' => 'uitgaven zullen aangemaakt worden',
     'created_expenses' => ':count uitgaven succesvol aangemaakt',
-
     'translate_app' => 'Help onze vertalingen te verbeteren met :link',
     'expense_category' => 'Uitgave categorie',
-
     'go_ninja_pro' => 'Ga Ninja Pro!',
     'go_enterprise' => 'Ga zakelijk!',
     'upgrade_for_features' => 'Upgrade voor meer mogelijkheden',
@@ -1898,10 +1849,8 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'enterprise_upgrade_feature1' => 'Stel machtigingen in voor meerdere gebruikers',
     'enterprise_upgrade_feature2' => 'Voeg externe documenten toe aan facturen & uitgaven',
     'much_more' => 'Veel meer!',
-
     'currency_symbol' => 'Symbool',
     'currency_code' => 'Code',
-
     'buy_license' => 'Koop licentie',
     'apply_license' => 'Activeer licentie',
     'submit' => 'Opslaan',
@@ -1925,39 +1874,37 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'sign_here' => 'Gelieve hier te tekenen:',
     'authorization' => 'Autorisatie',
     'signed' => 'Getekend',
-
-	// BlueVine
-	'bluevine_promo' => 'Krijg flexibele zakelijke kredietlijnen en factuur factoring met BlueVine.',
-	'bluevine_modal_label' => 'Aanmelden met BlueVine',
-	'bluevine_modal_text' => '<h3>Snelle financiering voor uw bedrijf. Geen papierwerk.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Krijg flexibele zakelijke kredietlijnen en factuur factoring met BlueVine.',
+    'bluevine_modal_label' => 'Aanmelden met BlueVine',
+    'bluevine_modal_text' => '<h3>Snelle financiering voor uw bedrijf. Geen papierwerk.</h3>
 <ul><i>Flexibele zakelijke kredietlijnen en factuur factoring.</li></ul>',
-	'bluevine_create_account' => 'Account aanmaken',
-	'quote_types' => 'Ontvang een offerte voor',
-	'invoice_factoring' => 'Factuur factoring',
-	'line_of_credit' => 'Kredietlijn',
-	'fico_score'                         => 'Uw FICO score',
-	'business_inception'                 => 'Zakelijke startdatum',
-	'average_bank_balance'               => 'Gemiddelde balans bankrekening',
-	'annual_revenue'                     => 'Jaarlijkse inkomsten',
-	'desired_credit_limit_factoring'     => 'Gewenste factuur factoring limiet',
-	'desired_credit_limit_loc'           => 'Gewenste kredietlijn limiet',
-	'desired_credit_limit'               => 'Gewenste krediet limiet',
-	'bluevine_credit_line_type_required' => 'Gelieve er minstens één te selecteren',
-	'bluevine_field_required'            => 'Dit veld is vereist',
-	'bluevine_unexpected_error'          => 'Er is een onverwachte fout opgetreden.',
-	'bluevine_no_conditional_offer'      => 'Er is meer informatie nodig om een offerte te verkrijgen. Klik op verdergaan hieronder.',
-	'bluevine_invoice_factoring'         => 'Factuur factoring',
-	'bluevine_conditional_offer'         => 'Voorwaardelijk aanbod',
-	'bluevine_credit_line_amount'        => 'Kredietlijn',
-	'bluevine_advance_rate'              => 'Voorschot tarief',
-	'bluevine_weekly_discount_rate'      => 'Wekelijks kortingspercentage',
-	'bluevine_minimum_fee_rate'          => 'Minimale kosten',
-	'bluevine_line_of_credit'            => 'Kredietlijn',
-	'bluevine_interest_rate'             => 'Rente',
-	'bluevine_weekly_draw_rate'          => 'Wekelijks treksnelheid',
-	'bluevine_continue'                  => 'Ga verder naar BlueVine',
-	'bluevine_completed'                 => 'BlueVine aanmelding voltooid',
-
+    'bluevine_create_account' => 'Account aanmaken',
+    'quote_types' => 'Ontvang een offerte voor',
+    'invoice_factoring' => 'Factuur factoring',
+    'line_of_credit' => 'Kredietlijn',
+    'fico_score' => 'Uw FICO score',
+    'business_inception' => 'Zakelijke startdatum',
+    'average_bank_balance' => 'Gemiddelde balans bankrekening',
+    'annual_revenue' => 'Jaarlijkse inkomsten',
+    'desired_credit_limit_factoring' => 'Gewenste factuur factoring limiet',
+    'desired_credit_limit_loc' => 'Gewenste kredietlijn limiet',
+    'desired_credit_limit' => 'Gewenste krediet limiet',
+    'bluevine_credit_line_type_required' => 'Gelieve er minstens één te selecteren',
+    'bluevine_field_required' => 'Dit veld is vereist',
+    'bluevine_unexpected_error' => 'Er is een onverwachte fout opgetreden.',
+    'bluevine_no_conditional_offer' => 'Er is meer informatie nodig om een offerte te verkrijgen. Klik op verdergaan hieronder.',
+    'bluevine_invoice_factoring' => 'Factuur factoring',
+    'bluevine_conditional_offer' => 'Voorwaardelijk aanbod',
+    'bluevine_credit_line_amount' => 'Kredietlijn',
+    'bluevine_advance_rate' => 'Voorschot tarief',
+    'bluevine_weekly_discount_rate' => 'Wekelijks kortingspercentage',
+    'bluevine_minimum_fee_rate' => 'Minimale kosten',
+    'bluevine_line_of_credit' => 'Kredietlijn',
+    'bluevine_interest_rate' => 'Rente',
+    'bluevine_weekly_draw_rate' => 'Wekelijks treksnelheid',
+    'bluevine_continue' => 'Ga verder naar BlueVine',
+    'bluevine_completed' => 'BlueVine aanmelding voltooid',
     'vendor_name' => 'Verkoper',
     'entity_state' => 'Staat',
     'client_created_at' => 'Aanmaakdatum',
@@ -2090,22 +2037,19 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'financial_year_start_help' => 'Gebruikt door <b>datumbereik</b> selecties',
     'reports_help' => 'Shift + Klik om te sorteren op meerdere kolommen, Ctrl + Klik om de groepering te wissen.',
     'this_year' => 'Dit jaar',
-
-	// Updated login screen
-	'ninja_tagline' => 'Creëren. Sturen. Betaald worden.',
-	'login_or_existing' => 'Of meld aan met een bestaand account.',
-	'sign_up_now' => 'Meld nu aan',
-	'not_a_member_yet' => 'Nog geen lid?',
-	'login_create_an_account' => 'Maak een account aan!',
-	'client_login' => 'Klanten login',
-
-	// New Client Portal styling
-	'invoice_from' => 'Facturen van:',
+    // Updated login screen
+    'ninja_tagline' => 'Creëren. Sturen. Betaald worden.',
+    'login_or_existing' => 'Of meld aan met een bestaand account.',
+    'sign_up_now' => 'Meld nu aan',
+    'not_a_member_yet' => 'Nog geen lid?',
+    'login_create_an_account' => 'Maak een account aan!',
+    'client_login' => 'Klanten login',
+    // New Client Portal styling
+    'invoice_from' => 'Facturen van:',
     'email_alias_message' => 'Let op: het is vereist dat iedere gebruiker een uniek e-mailadres gebruikt.<br/>Overweeg een alias te gebruiken, bv. email+label@example.com',
     'full_name' => 'Volledige naam',
     'month_year' => 'Maand/jaar',
     'valid_thru' => 'Geldig tot',
-
     'product_fields' => 'Productvelden',
     'custom_product_fields_help' => 'Voeg een tekstveld toe bij het creëren van een product of factuur en toon het gekozen label op de PDF.',
     'freq_two_months' => 'Twee maanden',
@@ -2129,7 +2073,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'create_expense_category' => 'Categorie aanmaken',
     'pro_plan_reports' => ':link om rapporten te activeren door te abonneren op het Pro Plan',
     'mark_ready' => 'Markeer als gereed',
-
     'limits' => 'Limieten',
     'fees' => 'Transactiekosten',
     'fee' => 'Transactiekosten',
@@ -2158,7 +2101,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'logo_warning_too_large' => 'Het afbeeldingsbestand is te groot.',
     'logo_warning_fileinfo' => 'Waarschuwing: Om GIF-bestanden te ondersteunen moet de fileinfo PHP extensie ingeschakeld zijn.',
     'logo_warning_invalid' => 'Er was een probleem tijdens het lezen van het afbeeldingsbestand, gelieve een anders formaat te proberen.',
-
     'error_refresh_page' => 'Er trad een fout op, gelieve de pagina te vernieuwen en opnieuw te proberen.',
     'data' => 'Data',
     'imported_settings' => 'Instellingen succesvol geïmporteerd',
@@ -2311,7 +2253,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'send_email_to_client' => 'Verzend e-mail naar de klant',
     'refund_subject' => 'Terugbetaling verwerkt',
     'refund_body' => 'U hebt een terugbetaling gekregen van :amount voor factuur  invoice_number.',
-
     'currency_us_dollar' => 'Amerikaanse dollar',
     'currency_british_pound' => 'Britse pond',
     'currency_euro' => 'Euro',
@@ -2379,12 +2320,11 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'currency_jordanian_dinar' => 'Jordaanse Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruaanse Sol',
-
     'use_english_version' => 'Zorg ervoor dat u de Engelse versie van de bestanden gebruikt.<br/>We gebruiken de kolomkoppen om de velden aan te passen.',
     'tax1' => 'Eerste belasting',
     'tax2' => 'Tweede belasting',
     'fee_help' => 'Gateway vergoedingen zijn de kosten die gelden voor toegang tot de financiële netwerken die de verwerking van online betalingen behandelen.',
-	'format_export' => 'Uitvoerformaat',
+    'format_export' => 'Uitvoerformaat',
     'custom1' => 'Eerste aangepaste',
     'custom2' => 'Tweede aangepaste',
     'contact_first_name' => 'Contact voornaam',
@@ -2392,9 +2332,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'contact_custom1' => 'Eerste contact aangepaste',
     'contact_custom2' => 'Tweede contact aangepaste',
     'currency' => 'Munteenheid',
-
 );
-
 return $LANG;
-
 ?>

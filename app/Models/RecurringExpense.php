@@ -1,8 +1,6 @@
 <?php
-
 namespace App\Models;
-
-//use App\Events\ExpenseWasCreated;
+    //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
 use App\Models\Traits\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -136,19 +134,15 @@ class RecurringExpense extends EntityModel
 RecurringExpense::creating(function ($expense) {
     $expense->setNullValues();
 });
-
 RecurringExpense::created(function ($expense) {
     //event(new ExpenseWasCreated($expense));
 });
-
 RecurringExpense::updating(function ($expense) {
     $expense->setNullValues();
 });
-
 RecurringExpense::updated(function ($expense) {
     //event(new ExpenseWasUpdated($expense));
 });
-
 RecurringExpense::deleting(function ($expense) {
     $expense->setNullValues();
 });

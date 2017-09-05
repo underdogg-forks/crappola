@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Ninja\Presenters;
-
 class UserPresenter extends EntityPresenter
 {
     public function email()

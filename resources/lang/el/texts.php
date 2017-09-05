@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Οργανισμός',
     'name' => 'Επωνυμία',
     'website' => 'Ιστοσελίδα',
@@ -1000,8 +998,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'trial_call_to_action' => 'Έναρξη Δωρεάν Δοκιμής',
     'trial_success' => 'Επιτυχής ενεργοποίηση δωρεάν δοκιμαστικής περιόδου δύο εβδομάδων στο επαγγελματικό πλάνο.',
     'overdue' => 'Εκπρόθεσμος',
-
-
     'white_label_text' => 'Προμηθευτείτε μια ΕΤΗΣΙΑ άδεια χρήσης λευκής ετικέτας με $:price για να αφαιρέσετε το λογότυπο Ninja από το τιμολόγιο και το portal του πελάτη.',
     'user_email_footer' => 'Για να προσαρμόσετε τις ρυθμίσεις ειδοποίησης μέσω email, παρακαλώ κάντε κλικ εδώ :link',
     'reset_password_footer' => 'Αν δεν αιτηθήκατε αυτή την επαναφορά κωδικού, παρακαλώ ενημερώστε την υποστήριξη στο :email',
@@ -1010,7 +1006,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'old_browser' => 'Παρακαλώ χρησιμοποιήστε ένα <a href=":link" target="_blank">νεότερο browser</a>',
     'white_label_custom_css' => ':link για $:price για να ενεργοποιήσετε την προσαρμοσμένη εμφάνιση και να υποστηρίξετε το project μας.',
     'bank_accounts_help' => 'Συνδέστε ένα τραπεζικό λογαριασμό για αυτόματη εισαγωγή δαπανών και δημιουργία προμηθευτών. Υποστηρίζεται η American Express και <a href=":link" target="_blank">400+ Αμερικανικές τράπεζες.</a>',
-
     'pro_plan_remove_logo' => ':link για να αφαιρέσετε το λογότυπο Invoice Ninja και να συμμετέχετε στο Επαγγελματικό Πλάνο',
     'pro_plan_remove_logo_link' => 'Πατήστε εδώ',
     'invitation_status_sent' => 'Απεσταλμένα',
@@ -1022,7 +1017,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'email_error_user_unregistered' => 'Παρακαλούμε εγγραφείτε στο λογαριασμό σας για να στείλετε emails',
     'email_error_user_unconfirmed' => 'Παρακαλούμε επιβεβαιώστε το λογαριασμό σας για να στείλετε emails',
     'email_error_invalid_contact_email' => 'Λανθασμένο email επικοινωνίας',
-
     'navigation' => 'Πλοήγηση',
     'list_invoices' => 'Λίστα Τιμολογίων',
     'list_clients' => 'Λίστα Πελατών',
@@ -1035,7 +1029,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'tax_name' => 'Ονομασία Φόρου',
     'report_settings' => 'Ρυθμίσεις Αναφορών',
     'search_hotkey' => 'συντόμευση είναι /',
-
     'new_user' => 'Νέος Χρήστης',
     'new_product' => 'Νέο Προϊόν',
     'new_tax_rate' => 'Νέο Ποσοστό Φόρου',
@@ -1044,20 +1037,17 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'custom_invoice_item_fields_help' => 'Προσθέστε ένα πεδίο όταν δημιουργείτε ένα προϊόν τιμολογίου και εμφανίστε την ετικέτα και την τιμή στο αρχείο PDF.',
     'recurring_invoice_number' => 'Επαναλαμβανόμενος Αριθμός',
     'recurring_invoice_number_prefix_help' => 'Ορίστε ένα πρόθεμα που να περιλαμβάνεται στον αριθμό τιμολογίου των επαναλαμβανόμενων τιμολογίων.',
-
     // Client Passwords
     'enable_portal_password' => 'Προστασία Τιμολογίων με Κωδικό',
     'enable_portal_password_help' => 'Επιτρέπει τον καθορισμό κωδικού για κάθε επαφή. Αν έχει καθοριστεί κωδικός, η επαφή θα υποχρεούται να καταχωρήσει κωδικό πριν την προβολή των τιμολογίων.',
     'send_portal_password' => 'Αυτόματη Παραγωγή Κωδικού',
     'send_portal_password_help' => 'Εάν δεν έχει οριστεί κωδικό, θα δημιουργηθεί ένα αυτόματα και θα αποσταλεί με το πρώτο τιμολόγιο.',
-
     'expired' => 'Ληγμένα',
     'invalid_card_number' => 'Η πιστωτική κάρτα δεν είναι έγκυρη.',
     'invalid_expiry' => 'Η ημερομηνία λήξης δεν είναι έγκυρη.',
     'invalid_cvv' => 'Το CVV δεν είναι έγκυρο.',
     'cost' => 'Κόστος',
     'create_invoice_for_sample' => 'Σημείωση: δημιουργήστε το πρώτο σας τιμολόγιο για να δείτε την προεπισκόπηση εδώ.',
-
     // User Permissions
     'owner' => 'Ιδιοκτήτης',
     'administrator' => 'Διαχειριστής',
@@ -1076,7 +1066,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'view_all_help' => 'Επιτρέψτε στο χρήστη να βλέπει εγγραφές που δεν έχει δημιουργήσει',
     'edit_all_help' => 'Επιτρέψτε στο χρήστη να τροποποιεί εγγραφές που δεν έχει δημιουργήσει',
     'view_payment' => 'Εμφάνιση Πληρωμής',
-
     'january' => 'Ιανουάριος',
     'february' => 'Φεβρουάριος',
     'march' => 'Μάρτιος',
@@ -1089,7 +1078,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'october' => 'Οκτώβριος',
     'november' => 'Νοέμβριος',
     'december' => 'Δεκέμβριος',
-
     // Documents
     'documents_header' => 'Έγγραφα:',
     'email_documents_header' => 'Έγγραφα:',
@@ -1114,16 +1102,13 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'documents' => 'Έγγραφα',
     'document_date' => 'Ημερομηνία Εγγράφου',
     'document_size' => 'Μέγεθος',
-
     'enable_client_portal' => 'Portal Πελάτη',
     'enable_client_portal_help' => 'Εμφάνιση/απόκρυψη portal πελάτη',
     'enable_client_portal_dashboard' => 'Πίνακας ελέγχου',
     'enable_client_portal_dashboard_help' => 'Εμφάνιση/απόκρυψη του πίνακα ελέγχου στο portal πελάτη.',
-
     // Plans
     'account_management' => 'Διαχείριση Λογαριασμού',
     'plan_status' => 'Κατάσταση Πλάνου',
-
     'plan_upgrade' => 'Αναβάθμιση',
     'plan_change' => 'Αλλαγή Πλάνου',
     'pending_change_to' => 'Αλλαγή Σε',
@@ -1153,9 +1138,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'plan_paid' => 'Έναρξη Περιόδου',
     'plan_started' => 'Έναρξη Πλάνου',
     'plan_expires' => 'Λήξη Πλάνου',
-
     'white_label_button' => 'Λευκή Ετικέτα',
-
     'pro_plan_year_description' => 'Ένα έτος εγγραφή στο Επαγγελματικό Πλάνο του Invoice Ninja.',
     'pro_plan_month_description' => 'Ένας μήνας εγγραφή στο Επαγγελματικό Πλάνο του Invoice Ninja.',
     'enterprise_plan_product' => 'Πλάνο Enterprise',
@@ -1165,7 +1148,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'plan_credit_description' => 'Πίστωση για μη χρησιμοποιημένο διάστημα',
     'plan_pending_monthly' => 'Θα αλλάξει σε μηνιαίο στις :date',
     'plan_refunded' => 'Έχει εκδοθεί επιστροφή χρημάτων.',
-
     'live_preview' => 'Ζωντανή Προεπισκόπηση',
     'page_size' => 'Μέγεθος Σελίδας',
     'live_preview_disabled' => 'Η ζωντανή προεπισκόπηση έχει απενεργοποιηθεί για να μπορεί να εμφανιστεί αυτή η γραμματοσειρά',
@@ -1175,8 +1157,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'add_users_not_supported' => 'Αναβαθμίστε στο Εταιρικό πλάνο για να προσθέσετε επιπλέον χρήστες στο λογαριασμό σας.',
     'enterprise_plan_features' => 'Το Εταιρικό πλάνο προσθέτει υποστήριξη για πολλαπλούς χρήστες και συνημμένα αρχεία, :link για να δείτε  την πλήρη λίστα με τα χαρακτηριστικά.',
     'return_to_app' => 'Επιστροφή στην εφαρμογή',
-
-
     // Payment updates
     'refund_payment' => 'Επιστροφή Πληρωμής',
     'refund_max' => 'Μέγιστο:',
@@ -1193,7 +1173,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'activity_39' => ':user ακύρωσε :payment_amount πληρωμής :payment',
     'activity_40' => ':user επέστρεψε :adjustment μιας :payment_amount πληρωμής :payment',
     'card_expiration' => 'Λήξη:&nbsp:expires',
-
     'card_creditcardother' => 'Άγνωστο',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1208,13 +1187,11 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'card_switch' => 'Εναλλαγή',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Ενεργοποίηση του ACH',
     'stripe_ach_help' => 'Η υποστήριξη ACH πρέπει να ενεργοποιηθεί και στο Stripe.',
     'ach_disabled' => 'Μια άλλη πύλη πληρωμών (Gateway) έχει ήδη παραμετροποιηθεί για άμεση πίστωση',
-
     'plaid' => 'Plaid',
     'client_id' => 'Id Πελάτη',
     'secret' => 'Κρυφό',
@@ -1284,15 +1261,12 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'braintree_paypal_help_link_text' => 'Συνδέστε το PayPal με το λογαριασμό σας στο BrainTree',
     'token_billing_braintree_paypal' => 'Αποθήκευση στοιχείων πληρωμής',
     'add_paypal_account' => 'Προσθήκη Λογαριασμού PayPal',
-
-
     'no_payment_method_specified' => 'Δεν έχει οριστεί τρόπος πληρωμής',
     'chart_type' => 'Τύπος Διαγράμματος',
     'format' => 'Μορφή',
     'import_ofx' => 'Εισαγωγή OFX',
     'ofx_file' => 'Αρχείο OFX',
     'ofx_parse_failed' => 'Αποτυχία ανάλυσης του αρχείου OFX',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Εγγραφείτε στο WePay',
@@ -1315,7 +1289,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'canada' => 'Καναδάς',
     'accept_debit_cards' => 'Αποδοχή Χρεωστικών Καρτών',
     'debit_cards' => 'Χρεωστικές Κάρτες',
-
     'warn_start_date_changed' => 'Το επόμενο τιμολόγιο θα αποσταλεί την επόμενη ημερομηνία έναρξης.',
     'original_start_date' => 'Αρχική ημερομηνία έναρξης',
     'new_start_date' => 'Νέα ημερομηνία έναρξης',
@@ -1333,23 +1306,19 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'created_products' => 'Επιτυχής δημιουργία/ενημέρωση :count προϊόν(των)',
     'export_help' => 'Χρησιμοποιήστε JSON εάν σχεδιάζετε να εισάγετε δεδομένα στο Invoice Ninja.<br/>Το αρχείο περιλαμβάνει πελάτες, προϊόντα, τιμολόγια, προσφορές και πληρωμές.',
     'JSON_file' => 'Αρχείο JSON',
-
     'view_dashboard' => 'Εμφάνιση Πίνακα ελέγχου',
     'client_session_expired' => 'Η συνεδρία έληξε',
     'client_session_expired_message' => 'Η συνεδρία σας έληξε. Παρακαλώ κάντε κλικ ξανά στο σύνδεσμο που έχετε λάβει με email.',
-
     'auto_bill_notification' => 'Αυτό το τιμολόγιο θα χρεωθεί αυτόματα με τη μέθοδο :payment_method στο αρχείο την :due_date. ',
     'auto_bill_payment_method_bank_transfer' => 'τραπεζικός λογαριασμός',
     'auto_bill_payment_method_credit_card' => 'πιστωτική κάρτα',
     'auto_bill_payment_method_paypal' => 'Λογαριασμός PayPal',
     'auto_bill_notification_placeholder' => 'Αυτό το τιμολόγιο θα χρεωθεί αυτόματα στην πιστωτική σας κάρτα την ημερομηνία λήξης της. ',
     'payment_settings' => 'Ρυθμίσεις Πληρωμής',
-
     'on_send_date' => 'Στην ημερομηνία αποστολής',
     'on_due_date' => 'Στην ημερομηνία πληρωμής',
     'auto_bill_ach_date_help' => 'Το ACH θα χρεώνει αυτόματα στην ημερομηνία πληρωμής.',
     'warn_change_auto_bill' => 'Λόγω των κανόνων NACHA οι χρεώσεις σε αυτό το τιμολόγιο μπορεί να αποτρέψουν την αυτόματη χρέωση ACH',
-
     'bank_account' => 'Τραπεζικός Λογαριασμός',
     'payment_processed_through_wepay' => 'Οι πληρωμές ACH θα επεξεργαστούν με χρήση του WePay.',
     'wepay_payment_tos_agree' => 'Συμφωνώ με τους όρους :terms και την πολιτική απορρήτου :privacy_policy του WePay.',
@@ -1357,7 +1326,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'wepay_payment_tos_agree_required' => 'Πρέπει να συμφωνήσετε με τους Όρους Χρήσης και την Πολιτική Απορρήτου του WePay.',
     'ach_email_prompt' => 'Παρακαλώ καταχωρήστε την email διεύθυνσή σας:',
     'verification_pending' => 'Αναμονή Πιστοποίησης',
-
     'update_font_cache' => 'Παρακαλώ ανανεώστε τη σελίδα για να ενημερωθεί η γραμματοσειρά.',
     'more_options' => 'Περισσότερες επιλογές',
     'credit_card' => 'Πιστωτική Κάρτα',
@@ -1371,7 +1339,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'gateway_exists' => 'Αυτή η πύλη πληρωμών (Gateway) υπάρχει ήδη',
     'manual_entry' => 'Χειροκίνητη εισαγωγή',
     'start_of_week' => 'Πρώτη Μέρα της Εβδομάδας',
-
     // Frequencies
     'freq_inactive' => 'Ανενεργό',
     'freq_weekly' => 'Εβδομάδα',
@@ -1381,7 +1348,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'freq_three_months' => 'Τρεις μήνες',
     'freq_six_months' => 'Έξι μήνες',
     'freq_annually' => 'Έτος',
-
     // Payment types
     'payment_type_Apply Credit' => 'Εφαρμογή Πίστωσης',
     'payment_type_Bank Transfer' => 'Τραπεζικό Έμβασμα',
@@ -1408,7 +1374,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'payment_type_Switch' => 'Εναλλαγή',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Λογιστικά & Νομικά',
     'industry_Advertising' => 'Διαφημίσεις',
@@ -1442,7 +1407,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'industry_Travel & Luxury' => 'Ταξίδια & Ανέσεις',
     'industry_Other' => 'Άλλο',
     'industry_Photography' => 'Φωτογραφία',
-
     // Countries
     'country_Afghanistan' => 'Αφγανιστάν',
     'country_Albania' => 'Αλβανία',
@@ -1693,7 +1657,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'country_Samoa' => 'Σαμόα',
     'country_Yemen' => 'Υεμένη',
     'country_Zambia' => 'Ζάμπια',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Πορτογαλικά Βραζιλίας',
     'lang_Croatian' => 'Κροατικά',
@@ -1720,7 +1683,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Turkish - Turkey' => 'Τουρκικά - Τουρκία',
     'lang_Portuguese - Brazilian' => 'Πορτογαλικά - Βραζιλία',
     'lang_Portuguese - Portugal' => 'Πορτογαλικά - Πορτογαλία',
-
     // Frequencies
     'freq_weekly' => 'Εβδομάδα',
     'freq_two_weeks' => 'Δύο εβδομάδες',
@@ -1729,7 +1691,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'freq_three_months' => 'Τρεις μήνες',
     'freq_six_months' => 'Έξι μήνες',
     'freq_annually' => 'Έτος',
-
     // Industries
     'industry_Accounting & Legal' => 'Λογιστικά & Νομικά',
     'industry_Advertising' => 'Διαφημίσεις',
@@ -1761,8 +1722,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'industry_Transportation' => 'Μεταφορά',
     'industry_Travel & Luxury' => 'Ταξίδια & Ανέσεις',
     'industry_Other' => 'Άλλο',
-    'industry_Photography' =>'Φωτογραφία',
-
+    'industry_Photography' => 'Φωτογραφία',
     'view_client_portal' => 'Προβολή portal πελάτη',
     'view_portal' => 'Προβολή portal',
     'vendor_contacts' => 'Επαφές Προμηθευτών',
@@ -1804,7 +1764,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'no_undo' => 'Προειδοποίηση: αυτό δε μπορεί να αναιρεθεί.',
     'no_contact_selected' => 'Παρακαλώ επιλέξτε επαφή',
     'no_client_selected' => 'Παρακαλώ επιλέξτε πελάτη',
-
     'gateway_config_error' => 'Μπορεί να βοηθήσει εάν ορίσετε νέους κωδικούς ή δημιουργήσετε νέα κλειδιά API.',
     'payment_type_on_file' => ':type σε αρχείο',
     'invoice_for_client' => 'Τιμολόγιο :invoice για :client',
@@ -1827,11 +1786,9 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'security_code_email_line2' => 'Σημείωση: θα λήξει σε 10 λεπτά.',
     'bot_help_message' => 'Αυτή τη στιγμή υποστηρίζεται:<br/>• Δημιουργία\ενημέρωση\αποστολή με email ενός τιμολογίου<br/>• Λίστα προϊόντων<br/>Για παράδειγμα:<br/><i>τιμολογήστε τον Μπομπ για 2 εισιτήρια, ορίστε την ημερομηνία λήξης την επόμενη Τρίτη και την έκπτωση σε 10 τοις εκατό</i>',
     'list_products' => 'Λίστα Προϊόντων',
-
     'include_item_taxes_inline' => 'Περιέλαβε <b>φόρο ανά προϊόν σε κάθε γραμμή</b>',
     'created_quotes' => 'Επιτυχής δημιουργία :count προσφοράς(ών)',
     'limited_gateways' => 'Σημείωση: υποστηρίζουμε μία πύλη πληρωμών (Gateway) πιστωτικών καρτών ανά εταιρεία.',
-
     'warning' => 'Ειδοποίηση',
     'self-update' => 'Ενημέρωση',
     'update_invoiceninja_title' => 'Ενημέρωση Invoice Ninja',
@@ -1842,7 +1799,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'update_invoiceninja_update_start' => 'Ενημέρωση Τώρα',
     'update_invoiceninja_download_start' => 'Κατέβασμα :version',
     'create_new' => 'Δημιουργία Νέου',
-
     'toggle_navigation' => 'Εναλλαγή Πλοήγησης',
     'toggle_history' => 'Εναλλαγή Ιστορικού',
     'unassigned' => 'Δεν έχει ανατεθεί',
@@ -1855,7 +1811,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'facebook_and_twitter_help' => 'Ακολουθήστε τη ροή μας για να υποστηρίξετε το project μας',
     'reseller_text' => 'Σημείωση: Η άδεια χρήσης λευκής ετικέτας αφορά προσωπική χρήση, παρακαλώ στείλτε μας email στο :email εάν θέλετε να μεταπωλήσετε την εφαρμογή μας.',
     'unnamed_client' => 'Ανώνυμος Πελάτης',
-
     'day' => 'Ημέρα',
     'week' => 'Εβδομάδα',
     'month' => 'Μήνας',
@@ -1864,7 +1819,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'total_profit' => 'Συνολικά Κέρδη',
     'total_expenses' => 'Συνολικές Δαπάνες',
     'quote_to' => 'Προσφορά προς',
-
     // Limits
     'limit' => 'Όριο',
     'min_limit' => 'Ελάχιστο: :min',
@@ -1876,7 +1830,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'min' => 'Ελάχιστο',
     'max' => 'Μέγιστο',
     'limits_not_met' => 'Αυτό το τιμολόγιο δεν συμφωνεί με τα όριο αυτού του τύπου πληρωμών',
-
     'date_range' => 'Εύρος Ημερομηνιών',
     'raw' => 'Ακατέργαστο',
     'raw_html' => 'Ακατέργαστη HTML',
@@ -1892,10 +1845,8 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'expense_will_create' => 'δαπάνη θα δημιουργηθεί',
     'expenses_will_create' => 'δαπάνες θα δημιουργηθούν',
     'created_expenses' => 'Επιτυχής δημιουργία :count δαπάνης(ών)',
-
     'translate_app' => 'Βοηθήστε να βελτιώσουμε τις μεταφράσεις μας με το :link',
     'expense_category' => 'Κατηγορία Δαπάνης',
-
     'go_ninja_pro' => 'Πήγαινε στην Επαγγελματική έκδοση Ninja',
     'go_enterprise' => 'Πηγαίντε στο Εταιρικό!',
     'upgrade_for_features' => 'Αναβαθμίστε Για Περισσότερα Χαρακτηριστικά',
@@ -1906,10 +1857,8 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'enterprise_upgrade_feature1' => 'Ορίστε δικαιώματα για πολλαπλούς χρήστες',
     'enterprise_upgrade_feature2' => 'Επισυνάψτε αρχεία τρίτων στα τιμολόγια και τις δαπάνες',
     'much_more' => 'Πολύ Περισσότερα!',
-
     'currency_symbol' => 'Σύμβολο',
     'currency_code' => 'Κωδικός',
-
     'buy_license' => 'Αγορά Άδειας Χρήσης',
     'apply_license' => 'Εφαρμογή Άδειας Χρήσης',
     'submit' => 'Υποβολή',
@@ -1933,39 +1882,37 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'sign_here' => 'Παρακαλώ υπογράψτε εδώ:',
     'authorization' => 'Εξουσιοδότηση',
     'signed' => 'Υπογεγραμμένο',
-
-	// BlueVine
-	'bluevine_promo' => 'Δεχθείτε ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων με χρήση της BlueVine.',
-	'bluevine_modal_label' => 'Εγγραφείτε στη BlueVine',
-	'bluevine_modal_text' => '<h3>Γρήγορη χρηματοδότηση της εταιρίας σας χωρίς γραφειοκρατία.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Δεχθείτε ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων με χρήση της BlueVine.',
+    'bluevine_modal_label' => 'Εγγραφείτε στη BlueVine',
+    'bluevine_modal_text' => '<h3>Γρήγορη χρηματοδότηση της εταιρίας σας χωρίς γραφειοκρατία.</h3>
 <ul><li>Ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων.</li></ul>',
-	'bluevine_create_account' => 'Δημιουργήστε λογαριασμό',
-	'quote_types' => 'Λάβετε προσφορά για',
-	'invoice_factoring' => 'Factoring τιμολογίων',
-	'line_of_credit' => 'Πιστωτικές λύσεις',
-	'fico_score'                         => 'Το FICO σκορ σας',
-	'business_inception'                 => 'Ημερομηνία Έναρξης Επιχείρησης',
-	'average_bank_balance'               => 'Μέσο υπόλοιπο τραπεζικού λογαριασμού',
-	'annual_revenue'                     => 'Ετήσια έσοδα',
-	'desired_credit_limit_factoring'     => 'Επιθυμητό όριο factoring τιμολογίων',
-	'desired_credit_limit_loc'           => 'Επιθυμητό όριο πιστωτικων λύσεων',
-	'desired_credit_limit'               => 'Επιθυμητό όριο πίστωσης',
-	'bluevine_credit_line_type_required' => 'Πρέπει να επιλέξετε τουλάχιστον ένα',
-	'bluevine_field_required'            => 'Αυτό το πεδίο είναι απαραίτητο',
-	'bluevine_unexpected_error'          => 'Εμφανίστηκε μη αναμενόμενο σφάλμα.',
-	'bluevine_no_conditional_offer'      => 'Απαιτούνται περισσότερες πληροφορίες πριν τη λήψη προσφοράς. Πατήστε συνέχεια παρακάτω.',
-	'bluevine_invoice_factoring'         => 'Factoring Τιμολογίων',
-	'bluevine_conditional_offer'         => 'Προσφορά υπό όρους',
-	'bluevine_credit_line_amount'        => 'Πιστωτική Λύση',
-	'bluevine_advance_rate'              => 'Ποσοστό Επόμενου Βήματος',
-	'bluevine_weekly_discount_rate'      => 'Εβδομαδιαίο Ποσοστό Έκπτωσης',
-	'bluevine_minimum_fee_rate'          => 'Ελάχιστη Χρέωση',
-	'bluevine_line_of_credit'            => 'Πιστωτικές Λύσεις',
-	'bluevine_interest_rate'             => 'Επιτόκιο',
-	'bluevine_weekly_draw_rate'          => 'Εβδομαδιαίο Ποσοστό Εξισορρόπησης',
-	'bluevine_continue'                  => 'Συνεχίστε στη BlueVine',
-	'bluevine_completed'                 => 'Η εγγραφή στη BlueVine ολοκληρώθηκε',
-
+    'bluevine_create_account' => 'Δημιουργήστε λογαριασμό',
+    'quote_types' => 'Λάβετε προσφορά για',
+    'invoice_factoring' => 'Factoring τιμολογίων',
+    'line_of_credit' => 'Πιστωτικές λύσεις',
+    'fico_score' => 'Το FICO σκορ σας',
+    'business_inception' => 'Ημερομηνία Έναρξης Επιχείρησης',
+    'average_bank_balance' => 'Μέσο υπόλοιπο τραπεζικού λογαριασμού',
+    'annual_revenue' => 'Ετήσια έσοδα',
+    'desired_credit_limit_factoring' => 'Επιθυμητό όριο factoring τιμολογίων',
+    'desired_credit_limit_loc' => 'Επιθυμητό όριο πιστωτικων λύσεων',
+    'desired_credit_limit' => 'Επιθυμητό όριο πίστωσης',
+    'bluevine_credit_line_type_required' => 'Πρέπει να επιλέξετε τουλάχιστον ένα',
+    'bluevine_field_required' => 'Αυτό το πεδίο είναι απαραίτητο',
+    'bluevine_unexpected_error' => 'Εμφανίστηκε μη αναμενόμενο σφάλμα.',
+    'bluevine_no_conditional_offer' => 'Απαιτούνται περισσότερες πληροφορίες πριν τη λήψη προσφοράς. Πατήστε συνέχεια παρακάτω.',
+    'bluevine_invoice_factoring' => 'Factoring Τιμολογίων',
+    'bluevine_conditional_offer' => 'Προσφορά υπό όρους',
+    'bluevine_credit_line_amount' => 'Πιστωτική Λύση',
+    'bluevine_advance_rate' => 'Ποσοστό Επόμενου Βήματος',
+    'bluevine_weekly_discount_rate' => 'Εβδομαδιαίο Ποσοστό Έκπτωσης',
+    'bluevine_minimum_fee_rate' => 'Ελάχιστη Χρέωση',
+    'bluevine_line_of_credit' => 'Πιστωτικές Λύσεις',
+    'bluevine_interest_rate' => 'Επιτόκιο',
+    'bluevine_weekly_draw_rate' => 'Εβδομαδιαίο Ποσοστό Εξισορρόπησης',
+    'bluevine_continue' => 'Συνεχίστε στη BlueVine',
+    'bluevine_completed' => 'Η εγγραφή στη BlueVine ολοκληρώθηκε',
     'vendor_name' => 'Προμηθευτής',
     'entity_state' => 'Περιοχή',
     'client_created_at' => 'Ημ/νία Δημιουργίας',
@@ -2098,22 +2045,19 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'financial_year_start_help' => 'Χρησιμοποιήθηκε από <b>date range</b> επιλογείς',
     'reports_help' => 'Shift + Click για να γίνει ταξινόμηση με βάση πολλές στήλες, Ctrl + Click για εκκαθάριση της ομαδοποίησης.',
     'this_year' => 'Τρέχον Χρόνος',
-
-	// Updated login screen
-	'ninja_tagline' => 'Δημιουργήστε. Αποστείλετε. Εξοφληθείτε.',
-	'login_or_existing' => 'Η κάντε εισαγωγή με ένα υπάρχοντα λογαριασμό.',
-	'sign_up_now' => 'Εγγραφή Τώρα',
-	'not_a_member_yet' => 'Δεν είστε ακόμη μέλη;',
-	'login_create_an_account' => 'Δημιουργία Λογαριασμού',
-	'client_login' => 'Εισαγωγή Πελάτη',
-
-	// New Client Portal styling
-	'invoice_from' => 'Τιμολόγια Από:',
+    // Updated login screen
+    'ninja_tagline' => 'Δημιουργήστε. Αποστείλετε. Εξοφληθείτε.',
+    'login_or_existing' => 'Η κάντε εισαγωγή με ένα υπάρχοντα λογαριασμό.',
+    'sign_up_now' => 'Εγγραφή Τώρα',
+    'not_a_member_yet' => 'Δεν είστε ακόμη μέλη;',
+    'login_create_an_account' => 'Δημιουργία Λογαριασμού',
+    'client_login' => 'Εισαγωγή Πελάτη',
+    // New Client Portal styling
+    'invoice_from' => 'Τιμολόγια Από:',
     'email_alias_message' => 'Απαιτείται από τον κάθε εταιρία να έχει μία μοναδική διεύθυνση email.<br/>Σκεφτείτε τη χρήση ενός ψευδώνυμου. Πχ, email+label@example.com',
     'full_name' => 'Πλήρες Όνομα',
     'month_year' => 'ΜΗΝΑΣ/ΕΤΟΣ',
     'valid_thru' => 'Ισχύει\nthru',
-
     'product_fields' => 'Πεδία Προϊόντος',
     'custom_product_fields_help' => 'Προσθέστε ένα πεδίο όταν δημιουργείτε ένα προϊόν ή ένα τιμολόγιο και εμφανίστε την ετικέτα και την τιμή στο αρχείο PDF',
     'freq_two_months' => 'Δύο μήνες',
@@ -2137,7 +2081,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'create_expense_category' => 'Δημιουργία κατηγορίας',
     'pro_plan_reports' => ':link για την ενεργοποίηση των εκθέσεων με τη συμμετοχή στο Επαγγελματικό Πλάνο',
     'mark_ready' => 'Σήμανση ως Έτοιμο',
-
     'limits' => 'Όρια',
     'fees' => 'Προμήθειες',
     'fee' => 'Αμοιβή',
@@ -2166,7 +2109,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'logo_warning_too_large' => 'Το αρχείο εικόνας είναι πολύ μεγάλο.',
     'logo_warning_fileinfo' => 'Προειδοποίηση: Για την υποστήριξη αρχείων gif πρέπει να έχει ενεργοποιηθεί η PHP επέκταση fileinfo',
     'logo_warning_invalid' => 'Υπήρξε ένα πρόβλημα ανάγνωσης του αρχείου εικόνας, παρακαλώ δοκιμάστε ένα διαφορετικό τύπο αρχείου.',
-
     'error_refresh_page' => 'Εμφανίστηκε ένα λάθος, παρακαλώ ανανεω΄στε αυτή τη σελίδα και προσπαθήστε ξανά.',
     'data' => 'Δεδομένα',
     'imported_settings' => 'Επιτυχής εισαγωγή ρυθμίσεων',
@@ -2319,7 +2261,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'send_email_to_client' => 'Αποστολή email στον πελάτη',
     'refund_subject' => 'Επιστροφή Χρημάτων Επεξεργάσθηκε',
     'refund_body' => 'Έχετε επιστροφή χρημάτων ποσού :amount για το τιμολόγιο :invoice_number.',
-
     'currency_us_dollar' => 'Δολάριο Ηνωμένων Πολιτειών',
     'currency_british_pound' => 'Βρετανική Λίρα',
     'currency_euro' => 'Ευρώ',
@@ -2387,12 +2328,11 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'currency_jordanian_dinar' => 'Δηνάριο Ιορδανίας',
     'currency_myanmar_kyat' => 'Κιάτ Νιανμάρ',
     'currency_peruvian_sol' => 'Σολ Περού',
-
     'use_english_version' => 'Σιγουρευτείτε ότι χρησιμοποιείτε την Αγγλική έκδοση των αρχείων.<br/>Χρησιμοποιούμε τις κεφαλίδες των στηλών για να ταιριάξουμε τα πεδία.',
     'tax1' => 'Πρώτο; Φόρος',
     'tax2' => 'Δεύτερος Φόρος',
     'fee_help' => 'Προμήθειες της πύλης πληρωμής (Gateway) είναι τα κόστη για την πρόσβαση στα δίκτυα που αναλαμβάνουν την επεξεργασία των online πληρωμών',
-	'format_export' => 'Μορφή εξαγωγής',
+    'format_export' => 'Μορφή εξαγωγής',
     'custom1' => 'Πρώτη Προσαρμογή',
     'custom2' => 'Δεύτερη Προσαρμογή',
     'contact_first_name' => 'Όνομα Επαφής',
@@ -2400,9 +2340,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'contact_custom1' => 'Πρώτη Προσαρμογή Επαφής',
     'contact_custom2' => 'Δεύτερη Προσαρμογή Επαφής',
     'currency' => 'Νόμισμα',
-
 );
-
 return $LANG;
-
 ?>

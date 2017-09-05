@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use App\Models\Client;
@@ -12,7 +11,6 @@ class TaskRequest extends EntityRequest
     public function sanitize()
     {
         $input = $this->all();
-
         // check if we're creating a new project
         if ($this->project_id == '-1') {
             $project = [
@@ -26,9 +24,7 @@ class TaskRequest extends EntityRequest
                 $input['project_id'] = null;
             }
         }
-
         $this->replace($input);
-
         return $this->all();
     }
 }

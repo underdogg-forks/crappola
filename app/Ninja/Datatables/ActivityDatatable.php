@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Datatables;
 
 use Utils;
@@ -15,12 +14,10 @@ class ActivityDatatable extends EntityDatatable
                 'activities.id',
                 function ($model) {
                     $str = Utils::timestampToDateTimeString(strtotime($model->created_at));
-
                     if ($model->contact_id) {
                         $ipLookUpLink = IP_LOOKUP_URL . $model->ip;
                         $str .= sprintf(' &nbsp; <i class="fa fa-globe" style="cursor:pointer" title="%s" onclick="openUrl(\'%s\', \'IP Lookup\')"></i>', $model->ip, $ipLookUpLink);
                     }
-
                     return $str;
                 },
             ],
@@ -37,16 +34,13 @@ class ActivityDatatable extends EntityDatatable
                         'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
                         'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
                         'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
-                        'task' => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30).'...') : null,
-                        'expense' => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30).'...') : null,
+                        'task' => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30) . '...') : null,
+                        'expense' => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30) . '...') : null,
                     ];
-
                     $str = trans("texts.activity_{$model->activity_type_id}", $data);
-
                     if ($model->notes) {
                         $str .= ' - ' . trans("texts.notes_{$model->notes}");
                     }
-
                     return $str;
                 },
             ],

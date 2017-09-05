@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Datatables;
 
 use App\Models\Payment;
@@ -25,34 +24,32 @@ class PaymentDatatable extends EntityDatatable
             [
                 'invoice_name',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id])) {
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id])) {
                         return $model->invoice_number;
                     }
-
                     return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 },
             ],
             [
                 'client_name',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
-
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
-                ! $this->hideClient,
+                !$this->hideClient,
             ],
             [
                 'transaction_reference',
                 function ($model) {
-                    return $model->transaction_reference ? e($model->transaction_reference) : '<i>'.trans('texts.manual_entry').'</i>';
+                    return $model->transaction_reference ? e($model->transaction_reference) : '<i>' . trans('texts.manual_entry') . '</i>';
                 },
             ],
             [
                 'method',
                 function ($model) {
-                    return ($model->payment_type && ! $model->last4) ? trans('texts.payment_type_' . $model->payment_type) : ($model->account_gateway_id ? $model->gateway_name : '');
+                    return ($model->payment_type && !$model->last4) ? trans('texts.payment_type_' . $model->payment_type) : ($model->account_gateway_id ? $model->gateway_name : '');
                 },
             ],
             [
@@ -63,7 +60,6 @@ class PaymentDatatable extends EntityDatatable
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
                         if ($model->last4) {
                             $expiration = Utils::fromSqlDate($model->expiration, false)->format('m/y');
-
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         } elseif ($model->email) {
                             return $model->email;
@@ -79,8 +75,8 @@ class PaymentDatatable extends EntityDatatable
                                 $bankName = $bankData->name;
                             }
                         }
-                        if (! empty($bankName)) {
-                            return $bankName.'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        if (!empty($bankName)) {
+                            return $bankName . '&nbsp; &bull;&bull;&bull;' . $model->last4;
                         } elseif ($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
@@ -139,13 +135,12 @@ class PaymentDatatable extends EntityDatatable
                     $max_refund = number_format($model->amount - $model->refunded, 2);
                     $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
                     $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
-
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
-                        && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
-                        && $model->refunded < $model->amount;
+                    && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
+                    && $model->refunded < $model->amount;
                 },
             ],
         ];
@@ -156,7 +151,6 @@ class PaymentDatatable extends EntityDatatable
         $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
         $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
         $class = Payment::calcStatusClass($model->payment_status_id);
-
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

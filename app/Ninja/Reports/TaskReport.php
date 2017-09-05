@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Task;
@@ -18,11 +17,10 @@ class TaskReport extends AbstractReport
     public function run()
     {
         $tasks = Task::scope()
-                    ->orderBy('created_at', 'desc')
-                    ->with('client.contacts')
-                    ->withArchived()
-                    ->dateRange($this->startDate, $this->endDate);
-
+            ->orderBy('created_at', 'desc')
+            ->with('client.contacts')
+            ->withArchived()
+            ->dateRange($this->startDate, $this->endDate);
         foreach ($tasks->get() as $task) {
             $this->data[] = [
                 $task->client ? ($this->isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),

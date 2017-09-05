@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Expense;
@@ -19,15 +18,13 @@ class ProfitAndLossReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-
         $payments = Payment::scope()
-                        ->orderBy('payment_date', 'desc')
-                        ->with('client.contacts', 'invoice')
-                        ->withArchived()
-                        ->excludeFailed()
-                        ->where('payment_date', '>=', $this->startDate)
-                        ->where('payment_date', '<=', $this->endDate);
-
+            ->orderBy('payment_date', 'desc')
+            ->with('client.contacts', 'invoice')
+            ->withArchived()
+            ->excludeFailed()
+            ->where('payment_date', '>=', $this->startDate)
+            ->where('payment_date', '<=', $this->endDate);
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
             $invoice = $payment->invoice;
@@ -41,19 +38,16 @@ class ProfitAndLossReport extends AbstractReport
                 $payment->present()->payment_date,
                 $payment->present()->method,
             ];
-
             $this->addToTotals($client->currency_id, 'revenue', $payment->getCompletedAmount(), $payment->present()->month);
             $this->addToTotals($client->currency_id, 'expenses', 0, $payment->present()->month);
             $this->addToTotals($client->currency_id, 'profit', $payment->getCompletedAmount(), $payment->present()->month);
         }
-
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->with('client.contacts')
-                        ->withArchived()
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
-
+            ->orderBy('expense_date', 'desc')
+            ->with('client.contacts')
+            ->withArchived()
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
         foreach ($expenses->get() as $expense) {
             $client = $expense->client;
             $this->data[] = [
@@ -63,12 +57,10 @@ class ProfitAndLossReport extends AbstractReport
                 $expense->present()->expense_date,
                 $expense->present()->category,
             ];
-
             $this->addToTotals($expense->expense_currency_id, 'revenue', 0, $expense->present()->month);
             $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amount, $expense->present()->month);
             $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amount * -1, $expense->present()->month);
         }
-
         //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
         //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
         //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);

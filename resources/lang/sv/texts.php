@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Organisation',
     'name' => 'Namn',
     'website' => 'Hemsida',
@@ -999,8 +997,6 @@ $LANG = array(
     'trial_call_to_action' => 'Starta test period',
     'trial_success' => 'Lyckades aktivera två veckors gratis testversion för Pro nivå',
     'overdue' => 'Försenat',
-
-
     'white_label_text' => 'Köp ETT ÅR white label licens för $:price för att ta bort bort Invoice Ninja referens från faktura och klient portal.',
     'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till :link',
     'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och e-posta vår support: :email',
@@ -1009,7 +1005,6 @@ $LANG = array(
     'old_browser' => 'Vänligen använd en <a href=":link" target="_blank">nyare webbläsare</a>',
     'white_label_custom_css' => ':link för $:price aktiverar du din egen stil och hjälper till att stödja vårt projekt.',
     'bank_accounts_help' => 'Koppla ett bank konto för att automatiskt importera utgifter och skapa leverantörer. Stödjer American Express och <a href=":link" target="_blank">400+ Amerikanska banker.</a>',
-
     'pro_plan_remove_logo' => ':link för att ta bort Invoice Ninja-logotypen genom att uppgradera till Pro nivå',
     'pro_plan_remove_logo_link' => 'Klicka här',
     'invitation_status_sent' => 'Skickad',
@@ -1021,7 +1016,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'Vänligen registrera ditt konto för att skicka e-post',
     'email_error_user_unconfirmed' => 'Vänligen verifiera ditt konto för att skicka e-post',
     'email_error_invalid_contact_email' => 'Ogiltig kontakt e-post',
-
     'navigation' => 'Navigation',
     'list_invoices' => 'Lista Fakturor',
     'list_clients' => 'Lista Klienter',
@@ -1034,7 +1028,6 @@ $LANG = array(
     'tax_name' => 'Skattenamn',
     'report_settings' => 'Rapport inställingar',
     'search_hotkey' => 'genväg är /',
-
     'new_user' => 'Ny användare',
     'new_product' => 'Ny produkt',
     'new_tax_rate' => 'Ny skatte nivå',
@@ -1043,20 +1036,17 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'Lägg till ett fält när fakturan skapas och visa namn samt värde på PDF´n',
     'recurring_invoice_number' => 'Återkommande nummer',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Lösenordsskydda fakturor',
     'enable_portal_password_help' => 'Tillåter dig att sätta ett lösenord för varje kontakt. Om ett lösenord är valt kommer kontakten vara tvungen att skriva in lösenordet innan den kan se fakturan.',
     'send_portal_password' => 'Generera lösenord automatiskt',
     'send_portal_password_help' => 'Om inget lösenord är satt, kommer ett bli genererat och skickat med första fakturan.',
-
     'expired' => 'Utgått',
     'invalid_card_number' => 'Kreditkortsnumret är inte giltigt',
     'invalid_expiry' => 'Utgångsdatumen är inte giltig.',
     'invalid_cvv' => 'CVV koden är inte giltig.',
     'cost' => 'Kostnad',
     'create_invoice_for_sample' => 'Notis: skapa din första faktura för en förhandsvisning här',
-
     // User Permissions
     'owner' => 'Ägare',
     'administrator' => 'Administratör',
@@ -1075,7 +1065,6 @@ $LANG = array(
     'view_all_help' => 'Tillåt användare att se värden de inte skapat',
     'edit_all_help' => 'Tillåt användare att ändra värden de inte skapat',
     'view_payment' => 'Se betalning',
-
     'january' => 'Januari',
     'february' => 'Februari',
     'march' => 'Mars',
@@ -1088,7 +1077,6 @@ $LANG = array(
     'october' => 'Oktober',
     'november' => 'November',
     'december' => 'December',
-
     // Documents
     'documents_header' => 'Dokument:',
     'email_documents_header' => 'Dokument:',
@@ -1113,16 +1101,13 @@ $LANG = array(
     'documents' => 'Dokument',
     'document_date' => 'Dokument datum',
     'document_size' => 'Storlek',
-
     'enable_client_portal' => 'Klient portal',
     'enable_client_portal_help' => 'Visa/dölj klient portalen.',
     'enable_client_portal_dashboard' => 'Översikt',
     'enable_client_portal_dashboard_help' => 'Visa/dölj översikten i klient portalen.',
-
     // Plans
     'account_management' => 'Konto hantering',
     'plan_status' => 'Nivå status',
-
     'plan_upgrade' => 'Uppgradera',
     'plan_change' => 'Byta nivå',
     'pending_change_to' => 'Ändras till',
@@ -1152,9 +1137,7 @@ $LANG = array(
     'plan_paid' => 'Period startad',
     'plan_started' => 'Nivå startad',
     'plan_expires' => 'Nivå utgår',
-
     'white_label_button' => 'White label',
-
     'pro_plan_year_description' => 'Ett års registering på Invoice Ninja Pro nivå.',
     'pro_plan_month_description' => 'En månads registering på Invoice Ninja Pro nivå.',
     'enterprise_plan_product' => 'Enterprise nivå',
@@ -1164,7 +1147,6 @@ $LANG = array(
     'plan_credit_description' => 'Kredit för oanvänd tid',
     'plan_pending_monthly' => 'Bytar till månadsvis den :date',
     'plan_refunded' => 'En återbetalning har blivit gjord.',
-
     'live_preview' => 'Live förhandsgranskning',
     'page_size' => 'Sidstorlek',
     'live_preview_disabled' => 'Live förhandsgranskning har stängts av för att stödja fonten',
@@ -1174,8 +1156,6 @@ $LANG = array(
     'add_users_not_supported' => 'Uppgradera till Enterprise planen för att lägga till ytterligare användaren på kontot.',
     'enterprise_plan_features' => 'Enterprise plan ger support för flera användare och bifogade filer, :link för att se lista av funktioner.',
     'return_to_app' => 'Återgå till app',
-
-
     // Payment updates
     'refund_payment' => 'Återbetala betalning',
     'refund_max' => 'Max:',
@@ -1192,7 +1172,6 @@ $LANG = array(
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Utgår:&nbsp:expires',
-
     'card_creditcardother' => 'Okänd',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Blankofullmakt',
@@ -1207,13 +1186,11 @@ $LANG = array(
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Aktivera ACH',
     'stripe_ach_help' => 'ACH support måste vara aktiverat på Stripe.',
     'ach_disabled' => 'En annan gateway är redan konfigurerad för direkt debitering.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Klient Id',
     'secret' => 'Hemlig',
@@ -1283,15 +1260,12 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'braintree_paypal_help_link_text' => 'Koppla PayPal till ditt BrainTree-konto',
     'token_billing_braintree_paypal' => 'Spara betalnings detaljer',
     'add_paypal_account' => 'Lägg till PayPal konto',
-
-
     'no_payment_method_specified' => 'Ingen betalningsmetod angiven',
     'chart_type' => 'Diagramtyp',
     'format' => 'Format',
     'import_ofx' => 'Importera OFX',
     'ofx_file' => 'OFX Fil',
     'ofx_parse_failed' => 'Misslyckade parse OFX fil',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Registera med WePay',
@@ -1314,7 +1288,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'canada' => 'Kanada',
     'accept_debit_cards' => 'Acceptera Bankkort',
     'debit_cards' => 'Kontokort',
-
     'warn_start_date_changed' => 'Nästa faktura kommer att skicka på nytt start datum.',
     'original_start_date' => 'Ursprungligt startdatum',
     'new_start_date' => 'Ny start datum',
@@ -1332,23 +1305,19 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Använda JSON om du planerar att importera datan till Invoice Ninja.<br/>Filen innehåller kunder, produkter, fakturor, offerter och betalningar.',
     'JSON_file' => 'JSON Fil',
-
     'view_dashboard' => 'Se översikt',
     'client_session_expired' => 'Din session har avslutats.',
     'client_session_expired_message' => 'Din session har gått ut. Vänligen klicka på länken i e-posten igen.',
-
     'auto_bill_notification' => 'Denna faktura kommer automatiskt faktureras på din :payment_method på fil den :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'bank konto',
     'auto_bill_payment_method_credit_card' => 'kredit kort',
     'auto_bill_payment_method_paypal' => 'PayPal konto',
     'auto_bill_notification_placeholder' => 'Denna faktura kommer automatiskt faktureras till ditt kreditkort på fil på förfallodag.',
     'payment_settings' => 'Betalnings inställningar',
-
     'on_send_date' => 'På sändningsdatum',
     'on_due_date' => 'På förfallodag',
     'auto_bill_ach_date_help' => 'ACH kommer alltid skicka räkningen automatiskt på förfallodagen.',
     'warn_change_auto_bill' => 'På grund av NACHA regler, kan förändringar i denna faktura förhindra ACH auto bill.',
-
     'bank_account' => 'Bank konto',
     'payment_processed_through_wepay' => 'ACH betalningar kommer att bearbetas genom WePay.',
     'wepay_payment_tos_agree' => 'Jag acceptera WePay :terms och :privacy_policy.',
@@ -1356,7 +1325,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'wepay_payment_tos_agree_required' => 'Du måste godkänna WePay villkor och sekretesspolicy.',
     'ach_email_prompt' => 'Vänligen skriv in din e-post adress:',
     'verification_pending' => 'Verifiering väntar',
-
     'update_font_cache' => 'Tvinga uppdatera sidan för att uppdatera fontcachen.',
     'more_options' => 'Fler val',
     'credit_card' => 'Betalkort',
@@ -1370,7 +1338,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'gateway_exists' => 'Denna gateway finns redan.',
     'manual_entry' => 'Manuell',
     'start_of_week' => 'Första veckodagen',
-
     // Frequencies
     'freq_inactive' => 'Inaktiv',
     'freq_weekly' => 'Veckovis',
@@ -1380,7 +1347,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'freq_three_months' => 'Tre månader',
     'freq_six_months' => 'Sex månader',
     'freq_annually' => 'Årsvis',
-
     // Payment types
     'payment_type_Apply Credit' => 'Tillämpa kredit',
     'payment_type_Bank Transfer' => 'Bank överföring',
@@ -1407,7 +1373,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'payment_type_Switch' => 'Växla',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Redovisning & Legala',
     'industry_Advertising' => 'Annonsering',
@@ -1441,7 +1406,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'industry_Travel & Luxury' => 'Resor & Lyx',
     'industry_Other' => 'Övrigt',
     'industry_Photography' => 'Fotografering',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albanien',
@@ -1698,7 +1662,6 @@ Nya Kaledonien',
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yeme',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Brasiliansk Portugisiska',
     'lang_Croatian' => 'Kroatiska',
@@ -1725,7 +1688,6 @@ Nya Kaledonien',
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Veckovis',
     'freq_two_weeks' => 'Två veckor',
@@ -1734,7 +1696,6 @@ Nya Kaledonien',
     'freq_three_months' => 'Tre månader',
     'freq_six_months' => 'Sex månader',
     'freq_annually' => 'Årsvis',
-
     // Industries
     'industry_Accounting & Legal' => 'Redovisning & Legala',
     'industry_Advertising' => 'Annonsering',
@@ -1766,8 +1727,7 @@ Nya Kaledonien',
     'industry_Transportation' => 'Transport',
     'industry_Travel & Luxury' => 'Resor & Lyx',
     'industry_Other' => 'Övrigt',
-    'industry_Photography' =>'Fotografering',
-
+    'industry_Photography' => 'Fotografering',
     'view_client_portal' => 'Se klient portal',
     'view_portal' => 'Se portal',
     'vendor_contacts' => 'Leverantörs kontakter',
@@ -1810,7 +1770,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'no_undo' => 'Varning: Detta kan inte ångras.',
     'no_contact_selected' => 'Välj en kontakt',
     'no_client_selected' => 'Välj en klient',
-
     'gateway_config_error' => 'Det kan hjälpa till att sätta nya lösenord eller generera nya API-nycklar.',
     'payment_type_on_file' => ':type på fil',
     'invoice_for_client' => 'Faktura :Invoice för :client',
@@ -1833,11 +1792,9 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'security_code_email_line2' => 'Notering: Upphör om 10 minuter.',
     'bot_help_message' => 'Jag stöder för närvarande: <br/> • Skapa \ Uppdatera \ Mejla en faktura <br/> • Produktlista <br/> Till exempel: <br/> <i> Fakturera bob för 2 biljetter, ange ett slutdatum på nästa torsdag och rabatten till 10 procent </ i>',
     'list_products' => 'Lista produkter',
-
     'include_item_taxes_inline' => 'Inkludera <b>rad moms i totalmoms</b>',
     'created_quotes' => 'Framgångsrikt skapat :count offert(er)',
     'limited_gateways' => 'Notering: We stödjer ett kreditkorts gateway per företag.',
-
     'warning' => 'Varning',
     'self-update' => 'Uppdatera',
     'update_invoiceninja_title' => 'Uppdatera Invoice Ninja',
@@ -1848,7 +1805,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'update_invoiceninja_update_start' => 'Uppdatera nu',
     'update_invoiceninja_download_start' => 'Ladda ner :version',
     'create_new' => 'Skapa Ny',
-
     'toggle_navigation' => 'Aktivera Navigering',
     'toggle_history' => 'Aktivera Historik',
     'unassigned' => 'Otilldelad',
@@ -1861,7 +1817,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'facebook_and_twitter_help' => 'Följ våra feeds för att stödja vårt projekt',
     'reseller_text' => 'Notis: white-label licensen är tänkt för privat bruk, vänligen eposta oss på :email om du vill vara återförsäljare till appen.',
     'unnamed_client' => 'Namnlös Klient',
-
     'day' => 'Dag',
     'week' => 'Vecka',
     'month' => 'Månad',
@@ -1870,7 +1825,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'total_profit' => 'Summa vinst',
     'total_expenses' => 'Summa utgifter',
     'quote_to' => 'Offert till',
-
     // Limits
     'limit' => 'Gräns',
     'min_limit' => 'Min: :min',
@@ -1882,7 +1836,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'Den faktura uppfyller inte gränserna för denna betalningstyp.',
-
     'date_range' => 'Datumintervall',
     'raw' => 'Rå',
     'raw_html' => 'Rå HTML',
@@ -1898,10 +1851,8 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'expense_will_create' => 'kostnad kommer att skapas',
     'expenses_will_create' => 'kostnad kommer att skapas',
     'created_expenses' => 'Framgångsrikt skapat :count kostnad(er)',
-
     'translate_app' => 'Hjälp oss förbättra vår översättning via :link',
     'expense_category' => 'Kostnads kategori',
-
     'go_ninja_pro' => 'Gå Ninja Pro!',
     'go_enterprise' => 'Gå Enterprise!',
     'upgrade_for_features' => 'Uppgradera för mer funktioner',
@@ -1912,10 +1863,8 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'enterprise_upgrade_feature1' => 'Sätt rättigheter för flera användare.',
     'enterprise_upgrade_feature2' => 'Bifoga 3:e filer för fakturor & kostnader',
     'much_more' => 'Mycket mer!',
-
     'currency_symbol' => 'Symbol',
     'currency_code' => 'Kod',
-
     'buy_license' => 'Köp Licens',
     'apply_license' => 'Uppge Licens',
     'submit' => 'Skicka',
@@ -1939,39 +1888,37 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'sign_here' => 'Vänligen signera här:',
     'authorization' => 'Tillstånd',
     'signed' => 'Signerad',
-
-	// BlueVine
-	'bluevine_promo' => 'Få flexibla affärssystem krediter och fakturabelåning hjälp BlueVine.',
-	'bluevine_modal_label' => 'Registrera med BlueVine',
-	'bluevine_modal_text' => '<h3>Snabb finansiering av ditt företag. Inget pappersarbete.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Få flexibla affärssystem krediter och fakturabelåning hjälp BlueVine.',
+    'bluevine_modal_label' => 'Registrera med BlueVine',
+    'bluevine_modal_text' => '<h3>Snabb finansiering av ditt företag. Inget pappersarbete.</h3>
 <ul><li>Flexibel kredit och fakturaköp.</li></ul>',
-	'bluevine_create_account' => 'Skapa konto',
-	'quote_types' => 'Få offertför',
-	'invoice_factoring' => 'Faktura facto',
-	'line_of_credit' => 'Kredit',
-	'fico_score'                         => 'Din FICO poäng',
-	'business_inception'                 => 'Affärs startkod',
-	'average_bank_balance'               => 'Genomsnitt bankkonto balans.',
-	'annual_revenue'                     => 'Årsomsättning',
-	'desired_credit_limit_factoring'     => 'Önskad faktura factogräns',
-	'desired_credit_limit_loc'           => 'Önskad kreditgräns',
-	'desired_credit_limit'               => 'Önskad kreditgräns',
-	'bluevine_credit_line_type_required' => 'Du måste välja minst en',
-	'bluevine_field_required'            => 'Detta fält krävs',
-	'bluevine_unexpected_error'          => 'Ett oförutsett fel uppkom.',
-	'bluevine_no_conditional_offer'      => 'Mer information krävs innan ni får en offert. Vänligen klicka nedan.',
-	'bluevine_invoice_factoring'         => 'Faktura facto',
-	'bluevine_conditional_offer'         => 'Villkorligt erbjudande',
-	'bluevine_credit_line_amount'        => 'Kredit linje',
-	'bluevine_advance_rate'              => 'Matningshastighet',
-	'bluevine_weekly_discount_rate'      => 'Veckorabattsats',
-	'bluevine_minimum_fee_rate'          => 'Minimiavgift',
-	'bluevine_line_of_credit'            => 'Kreditlinje',
-	'bluevine_interest_rate'             => 'Ränta',
-	'bluevine_weekly_draw_rate'          => 'Vecko dratakt',
-	'bluevine_continue'                  => 'Fortsätt till BlueVine',
-	'bluevine_completed'                 => 'BlueVine registrering slutförd',
-
+    'bluevine_create_account' => 'Skapa konto',
+    'quote_types' => 'Få offertför',
+    'invoice_factoring' => 'Faktura facto',
+    'line_of_credit' => 'Kredit',
+    'fico_score' => 'Din FICO poäng',
+    'business_inception' => 'Affärs startkod',
+    'average_bank_balance' => 'Genomsnitt bankkonto balans.',
+    'annual_revenue' => 'Årsomsättning',
+    'desired_credit_limit_factoring' => 'Önskad faktura factogräns',
+    'desired_credit_limit_loc' => 'Önskad kreditgräns',
+    'desired_credit_limit' => 'Önskad kreditgräns',
+    'bluevine_credit_line_type_required' => 'Du måste välja minst en',
+    'bluevine_field_required' => 'Detta fält krävs',
+    'bluevine_unexpected_error' => 'Ett oförutsett fel uppkom.',
+    'bluevine_no_conditional_offer' => 'Mer information krävs innan ni får en offert. Vänligen klicka nedan.',
+    'bluevine_invoice_factoring' => 'Faktura facto',
+    'bluevine_conditional_offer' => 'Villkorligt erbjudande',
+    'bluevine_credit_line_amount' => 'Kredit linje',
+    'bluevine_advance_rate' => 'Matningshastighet',
+    'bluevine_weekly_discount_rate' => 'Veckorabattsats',
+    'bluevine_minimum_fee_rate' => 'Minimiavgift',
+    'bluevine_line_of_credit' => 'Kreditlinje',
+    'bluevine_interest_rate' => 'Ränta',
+    'bluevine_weekly_draw_rate' => 'Vecko dratakt',
+    'bluevine_continue' => 'Fortsätt till BlueVine',
+    'bluevine_completed' => 'BlueVine registrering slutförd',
     'vendor_name' => 'Leverantör',
     'entity_state' => 'Tillstånd',
     'client_created_at' => 'Datum skapad',
@@ -2105,22 +2052,19 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'financial_year_start_help' => 'Används av <b>datum urvals</b> valen.',
     'reports_help' => 'Shift + Klicka för att sortera flera kolumner, Ctrl + Klicka för att ta bort grupperingen.',
     'this_year' => 'Detta året',
-
-	// Updated login screen
-	'ninja_tagline' => 'Skapa. Skicka. Få betalt.',
-	'login_or_existing' => 'Eller logga in med befintligt konto.',
-	'sign_up_now' => 'Ansök nu',
-	'not_a_member_yet' => 'Inte medlem ännu?',
-	'login_create_an_account' => 'Skapa ett konto!',
-	'client_login' => 'Kund inlogg',
-
-	// New Client Portal styling
-	'invoice_from' => 'Fakturor från:',
+    // Updated login screen
+    'ninja_tagline' => 'Skapa. Skicka. Få betalt.',
+    'login_or_existing' => 'Eller logga in med befintligt konto.',
+    'sign_up_now' => 'Ansök nu',
+    'not_a_member_yet' => 'Inte medlem ännu?',
+    'login_create_an_account' => 'Skapa ett konto!',
+    'client_login' => 'Kund inlogg',
+    // New Client Portal styling
+    'invoice_from' => 'Fakturor från:',
     'email_alias_message' => 'Vi kräver att varje företag har en unik epost.<br/>Överväg att använda ett alias. T.ex. email+label@example.com',
     'full_name' => 'Hela namnet',
     'month_year' => 'MÅNAD/ÅR',
     'valid_thru' => 'Giltigt\ntill',
-
     'product_fields' => 'Produkt fält',
     'custom_product_fields_help' => 'Lägg till ett fält när en produkt eller faktura skapas och visa rubriken samt värdet på PDFen.',
     'freq_two_months' => 'Två månader',
@@ -2144,7 +2088,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'create_expense_category' => 'Skapa kategori',
     'pro_plan_reports' => ':link för att aktivera rapporter genom att aktivera Pro Planen',
     'mark_ready' => 'Markera klar',
-
     'limits' => 'Gränser',
     'fees' => 'Avgifter',
     'fee' => 'Avgift',
@@ -2173,7 +2116,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'logo_warning_too_large' => 'Bilden är för stor.',
     'logo_warning_fileinfo' => 'Varning: För att stödja gifs måste fileInfo PHP extensions vara aktiverat.',
     'logo_warning_invalid' => 'Det var ett problem med att läsa bilden, vänligen testa ett annat format.',
-
     'error_refresh_page' => 'Ett fel uppstod, vänligen uppdatera sidan och försök igen.',
     'data' => 'Information',
     'imported_settings' => 'Framgångsrikt importerat inställningar',
@@ -2326,7 +2268,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2394,12 +2335,11 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Säkerställ att du använder Engelska versionen av filerna<br/>Vi använder kolumn headern för att matcha fälten.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2407,9 +2347,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

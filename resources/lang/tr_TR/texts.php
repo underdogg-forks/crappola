@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Şirket',
     'name' => 'Ünvan',
     'website' => 'Web adresi',
@@ -999,8 +997,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-
-
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
@@ -1009,7 +1005,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
     'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
     'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
-
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
     'invitation_status_sent' => 'Sent',
@@ -1021,7 +1016,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'email_error_user_unregistered' => 'Please register your account to send emails',
     'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
     'email_error_invalid_contact_email' => 'Invalid contact email',
-
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
     'list_clients' => 'List Clients',
@@ -1034,7 +1028,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'tax_name' => 'Tax Name',
     'report_settings' => 'Report Settings',
     'search_hotkey' => 'shortcut is /',
-
     'new_user' => 'New User',
     'new_product' => 'New Product',
     'new_tax_rate' => 'New Tax Rate',
@@ -1043,20 +1036,17 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
     'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password' => 'Generate Password Automatically',
     'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',
-
     'expired' => 'Expired',
     'invalid_card_number' => 'The credit card number is not valid.',
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
     'cost' => 'Cost',
     'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
-
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
@@ -1075,7 +1065,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
     'view_payment' => 'View Payment',
-
     'january' => 'Ocak',
     'february' => 'Şubat',
     'march' => 'Mart',
@@ -1088,7 +1077,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'october' => 'Ekim',
     'november' => 'Kasım',
     'december' => 'Aralık',
-
     // Documents
     'documents_header' => 'Dökümanlar:',
     'email_documents_header' => 'Dökümanlar:',
@@ -1113,16 +1101,13 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
-
     'enable_client_portal' => 'Client Portal',
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1152,9 +1137,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1164,7 +1147,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'plan_credit_description' => 'Credit for unused time',
     'plan_pending_monthly' => 'Will switch to monthly on :date',
     'plan_refunded' => 'A refund has been issued.',
-
     'live_preview' => 'Live Preview',
     'page_size' => 'Page Size',
     'live_preview_disabled' => 'Live preview has been disabled to support selected font',
@@ -1174,8 +1156,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments, :link to see the full list of features.',
     'return_to_app' => 'Return to app',
-
-
     // Payment updates
     'refund_payment' => 'Refund Payment',
     'refund_max' => 'Max:',
@@ -1192,7 +1172,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Exp:&nbsp:expires',
-
     'card_creditcardother' => 'Unknown',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1207,13 +1186,11 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
     'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
     'ach_disabled' => 'Another gateway is already configured for direct debit.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',
     'secret' => 'Secret',
@@ -1283,15 +1260,12 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
     'token_billing_braintree_paypal' => 'Save payment details',
     'add_paypal_account' => 'Add PayPal Account',
-
-
     'no_payment_method_specified' => 'No payment method specified',
     'chart_type' => 'Chart Type',
     'format' => 'Format',
     'import_ofx' => 'Import OFX',
     'ofx_file' => 'OFX File',
     'ofx_parse_failed' => 'Failed to parse OFX file',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Sign up with WePay',
@@ -1314,7 +1288,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'canada' => 'Canada',
     'accept_debit_cards' => 'Accept Debit Cards',
     'debit_cards' => 'Debit Cards',
-
     'warn_start_date_changed' => 'The next invoice will be sent on the new start date.',
     'original_start_date' => 'Original start date',
     'new_start_date' => 'New start date',
@@ -1332,23 +1305,19 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
     'JSON_file' => 'JSON File',
-
     'view_dashboard' => 'View Dashboard',
     'client_session_expired' => 'Session Expired',
     'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
-
     'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'bank account',
     'auto_bill_payment_method_credit_card' => 'credit card',
     'auto_bill_payment_method_paypal' => 'PayPal account',
     'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     'payment_settings' => 'Payment Settings',
-
     'on_send_date' => 'On send date',
     'on_due_date' => 'On due date',
     'auto_bill_ach_date_help' => 'ACH will always auto bill on the due date.',
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
-
     'bank_account' => 'Bank Account',
     'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
@@ -1356,7 +1325,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
-
     'update_font_cache' => 'Please force refresh the page to update the font cache.',
     'more_options' => 'More options',
     'credit_card' => 'Credit Card',
@@ -1370,7 +1338,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
     'start_of_week' => 'First Day of the Week',
-
     // Frequencies
     'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Weekly',
@@ -1380,7 +1347,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'freq_three_months' => 'Three months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
-
     // Payment types
     'payment_type_Apply Credit' => 'Apply Credit',
     'payment_type_Bank Transfer' => 'Bank Transfer',
@@ -1407,7 +1373,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -1441,7 +1406,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
     'industry_Photography' => 'Photography',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albania',
@@ -1692,7 +1656,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Brazilian Portuguese',
     'lang_Croatian' => 'Croatian',
@@ -1719,7 +1682,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Weekly',
     'freq_two_weeks' => 'Two weeks',
@@ -1728,7 +1690,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'freq_three_months' => 'Three months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
-
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -1760,8 +1721,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
-
+    'industry_Photography' => 'Photography',
     'view_client_portal' => 'View client portal',
     'view_portal' => 'View Portal',
     'vendor_contacts' => 'Vendor Contacts',
@@ -1803,7 +1763,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'no_undo' => 'Warning: this can\'t be undone.',
     'no_contact_selected' => 'Please select a contact',
     'no_client_selected' => 'Please select a client',
-
     'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
     'payment_type_on_file' => ':type on file',
     'invoice_for_client' => 'Invoice :invoice for :client',
@@ -1826,11 +1785,9 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
     'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'List Products',
-
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
     'created_quotes' => 'Successfully created :count quotes(s)',
     'limited_gateways' => 'Note: we support one credit card gateway per company.',
-
     'warning' => 'Warning',
     'self-update' => 'Update',
     'update_invoiceninja_title' => 'Update Invoice Ninja',
@@ -1841,7 +1798,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
-
     'toggle_navigation' => 'Toggle Navigation',
     'toggle_history' => 'Toggle History',
     'unassigned' => 'Unassigned',
@@ -1854,7 +1810,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
     'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell the app.',
     'unnamed_client' => 'Unnamed Client',
-
     'day' => 'Day',
     'week' => 'Week',
     'month' => 'Month',
@@ -1863,7 +1818,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'total_profit' => 'Total Profit',
     'total_expenses' => 'Total Expenses',
     'quote_to' => 'Quote to',
-
     // Limits
     'limit' => 'Limit',
     'min_limit' => 'Min: :min',
@@ -1875,7 +1829,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
-
     'date_range' => 'Date Range',
     'raw' => 'Raw',
     'raw_html' => 'Raw HTML',
@@ -1891,10 +1844,8 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'expense_will_create' => 'expense will be created',
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
-
     'translate_app' => 'Help improve our translations with :link',
     'expense_category' => 'Expense Category',
-
     'go_ninja_pro' => 'Go Ninja Pro!',
     'go_enterprise' => 'Go Enterprise!',
     'upgrade_for_features' => 'Upgrade For More Features',
@@ -1905,10 +1856,8 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'enterprise_upgrade_feature1' => 'Set permissions for multiple-users',
     'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
     'much_more' => 'Much More!',
-
     'currency_symbol' => 'Symbol',
     'currency_code' => 'Code',
-
     'buy_license' => 'Buy License',
     'apply_license' => 'Apply License',
     'submit' => 'Submit',
@@ -1932,39 +1881,37 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'sign_here' => 'Please sign here:',
     'authorization' => 'Authorization',
     'signed' => 'Signed',
-
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Hesap oluştur',
-	'quote_types' => 'Fiyat teklifi al',
-	'invoice_factoring' => 'Fatura faktoringi',
-	'line_of_credit' => 'Kredi limiti',
-	'fico_score'                         => 'FICO skorunuz',
-	'business_inception'                 => 'İş Başlangıç Tarihi',
-	'average_bank_balance'               => 'Ortalama banka hesabı bakiyesi',
-	'annual_revenue'                     => 'Yıllık gelir',
-	'desired_credit_limit_factoring'     => 'İstenilen fatura faktoring limiti',
-	'desired_credit_limit_loc'           => 'İstenilen kredi limiti',
-	'desired_credit_limit'               => 'İstenilen kredi limiti',
-	'bluevine_credit_line_type_required' => 'En az birini seçmelisiniz',
-	'bluevine_field_required'            => 'Bu alan gereklidir',
-	'bluevine_unexpected_error'          => 'Beklenmedik bir hata oluştu.',
-	'bluevine_no_conditional_offer'      => 'Teklif almadan önce daha fazla bilgi gereklidir. Aşağıdaki devam linkine tıklayın.',
-	'bluevine_invoice_factoring'         => 'Fatura Faktoringi',
-	'bluevine_conditional_offer'         => 'Koşullu teklif',
-	'bluevine_credit_line_amount'        => 'Kredi Limiti',
-	'bluevine_advance_rate'              => 'Avans Oranı',
-	'bluevine_weekly_discount_rate'      => 'Haftalık İskonto Oranı',
-	'bluevine_minimum_fee_rate'          => 'Minimum Ücret',
-	'bluevine_line_of_credit'            => 'Kredi sınırı',
-	'bluevine_interest_rate'             => 'Faiz oranı',
-	'bluevine_weekly_draw_rate'          => 'Haftalık Çekme Oranı',
-	'bluevine_continue'                  => 'BlueVine\'e devam et',
-	'bluevine_completed'                 => 'BlueVine kayıt tamamlandı',
-
+    'bluevine_create_account' => 'Hesap oluştur',
+    'quote_types' => 'Fiyat teklifi al',
+    'invoice_factoring' => 'Fatura faktoringi',
+    'line_of_credit' => 'Kredi limiti',
+    'fico_score' => 'FICO skorunuz',
+    'business_inception' => 'İş Başlangıç Tarihi',
+    'average_bank_balance' => 'Ortalama banka hesabı bakiyesi',
+    'annual_revenue' => 'Yıllık gelir',
+    'desired_credit_limit_factoring' => 'İstenilen fatura faktoring limiti',
+    'desired_credit_limit_loc' => 'İstenilen kredi limiti',
+    'desired_credit_limit' => 'İstenilen kredi limiti',
+    'bluevine_credit_line_type_required' => 'En az birini seçmelisiniz',
+    'bluevine_field_required' => 'Bu alan gereklidir',
+    'bluevine_unexpected_error' => 'Beklenmedik bir hata oluştu.',
+    'bluevine_no_conditional_offer' => 'Teklif almadan önce daha fazla bilgi gereklidir. Aşağıdaki devam linkine tıklayın.',
+    'bluevine_invoice_factoring' => 'Fatura Faktoringi',
+    'bluevine_conditional_offer' => 'Koşullu teklif',
+    'bluevine_credit_line_amount' => 'Kredi Limiti',
+    'bluevine_advance_rate' => 'Avans Oranı',
+    'bluevine_weekly_discount_rate' => 'Haftalık İskonto Oranı',
+    'bluevine_minimum_fee_rate' => 'Minimum Ücret',
+    'bluevine_line_of_credit' => 'Kredi sınırı',
+    'bluevine_interest_rate' => 'Faiz oranı',
+    'bluevine_weekly_draw_rate' => 'Haftalık Çekme Oranı',
+    'bluevine_continue' => 'BlueVine\'e devam et',
+    'bluevine_completed' => 'BlueVine kayıt tamamlandı',
     'vendor_name' => 'Tedarikçi',
     'entity_state' => 'Durum',
     'client_created_at' => 'Oluşturulan Tarih',
@@ -2097,22 +2044,19 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
     'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
-
-	// Updated login screen
-	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with an existing account.',
-	'sign_up_now' => 'Sign Up Now',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Create an Account!',
-	'client_login' => 'Client Login',
-
-	// New Client Portal styling
-	'invoice_from' => 'Invoices From:',
+    // Updated login screen
+    'ninja_tagline' => 'Create. Send. Get Paid.',
+    'login_or_existing' => 'Or login with an existing account.',
+    'sign_up_now' => 'Sign Up Now',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Create an Account!',
+    'client_login' => 'Client Login',
+    // New Client Portal styling
+    'invoice_from' => 'Invoices From:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
-
     'product_fields' => 'Product Fields',
     'custom_product_fields_help' => 'Add a field when creating a product or invoice and display the label and value on the PDF.',
     'freq_two_months' => 'Two months',
@@ -2136,7 +2080,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'create_expense_category' => 'Create category',
     'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
     'mark_ready' => 'Mark Ready',
-
     'limits' => 'Limits',
     'fees' => 'Fees',
     'fee' => 'Fee',
@@ -2165,7 +2108,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'logo_warning_too_large' => 'The image file is too large.',
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
-
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
@@ -2318,7 +2260,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2386,12 +2327,11 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Dışa aktarma formatı',
+    'format_export' => 'Dışa aktarma formatı',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2399,9 +2339,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Timezone;
 
 class DatabaseSeeder extends Seeder
@@ -12,14 +11,11 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->command->info('Running DatabaseSeeder');
-
         if (Timezone::count()) {
             $this->command->info('Skipping: already run');
             return;
         }
-
         Eloquent::unguard();
-
         $this->call('ConstantsSeeder');
         $this->call('CountriesSeeder');
         $this->call('PaymentLibrariesSeeder');

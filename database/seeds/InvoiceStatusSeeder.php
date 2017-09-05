@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\InvoiceStatus;
 
 class InvoiceStatusSeeder extends Seeder
@@ -7,9 +6,7 @@ class InvoiceStatusSeeder extends Seeder
     public function run()
     {
         Eloquent::unguard();
-
         $this->createInvoiceStatuses();
-
         Eloquent::reguard();
     }
 
@@ -23,7 +20,6 @@ class InvoiceStatusSeeder extends Seeder
             ['id' => '5', 'name' => 'Partial'],
             ['id' => '6', 'name' => 'Paid'],
         ];
-
         foreach ($statuses as $status) {
             $record = InvoiceStatus::find($status['id']);
             if ($record) {

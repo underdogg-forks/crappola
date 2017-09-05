@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Transformers;
 
 use App\Models\AccountEmailSettings;

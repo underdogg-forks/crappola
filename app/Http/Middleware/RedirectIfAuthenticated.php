@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use App\Models\Client;
@@ -43,10 +42,8 @@ class RedirectIfAuthenticated
     {
         if ($this->auth->check() && Client::scope()->count() > 0) {
             Session::reflash();
-
             return new RedirectResponse(url('/dashboard'));
         }
-
         return $next($request);
     }
 }

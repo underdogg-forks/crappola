@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Account;
@@ -21,12 +20,11 @@ class ReportController extends BaseController
     public function d3()
     {
         $message = '';
-        $fileName = storage_path().'/dataviz_sample.txt';
-
+        $fileName = storage_path() . '/dataviz_sample.txt';
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $account = Account::where('id', '=', Auth::user()->account->id)
-                            ->with(['clients.invoices.invoice_items', 'clients.contacts'])
-                            ->first();
+                ->with(['clients.invoices.invoice_items', 'clients.contacts'])
+                ->first();
             $account = $account->hideFieldsForViz();
             $clients = $account->clients;
         } elseif (file_exists($fileName)) {
@@ -35,12 +33,10 @@ class ReportController extends BaseController
         } else {
             $clients = '[]';
         }
-
         $data = [
             'clients' => $clients,
             'message' => $message,
         ];
-
         return View::make('reports.d3', $data);
     }
 
@@ -49,13 +45,11 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
-        if (! Auth::user()->hasPermission('view_all')) {
+        if (!Auth::user()->hasPermission('view_all')) {
             return redirect('/');
         }
-
         $action = Input::get('action');
         $format = Input::get('format');
-
         if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
@@ -67,7 +61,6 @@ class ReportController extends BaseController
             $startDate = Utils::today(false)->modify('-3 month');
             $endDate = Utils::today(false);
         }
-
         $reportTypes = [
             'activity',
             'aging',
@@ -81,7 +74,6 @@ class ReportController extends BaseController
             'tax_rate',
             'quote',
         ];
-
         $params = [
             'startDate' => $startDate->format('Y-m-d'),
             'endDate' => $endDate->format('Y-m-d'),
@@ -90,7 +82,6 @@ class ReportController extends BaseController
             'title' => trans('texts.charts_and_reports'),
             'account' => Auth::user()->account,
         ];
-
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
             $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
@@ -114,7 +105,6 @@ class ReportController extends BaseController
             $params['reportTotals'] = [];
             $params['report'] = false;
         }
-
         return View::make('reports.chart_builder', $params);
     }
 
@@ -126,26 +116,21 @@ class ReportController extends BaseController
      */
     private function export($format, $reportType, $params)
     {
-        if (! Auth::user()->hasPermission('view_all')) {
+        if (!Auth::user()->hasPermission('view_all')) {
             exit;
         }
-
-        $format  = strtolower($format);
-        $data    = $params['displayData'];
+        $format = strtolower($format);
+        $data = $params['displayData'];
         $columns = $params['columns'];
-        $totals  = $params['reportTotals'];
-        $report  = $params['report'];
-
-        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
-
+        $totals = $params['reportTotals'];
+        $report = $params['report'];
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . strtolower(Utils::normalizeChars(trans("texts.$reportType"))) . "-report";
         $formats = ['csv', 'pdf', 'xlsx'];
-        if(!in_array($format, $formats)) {
+        if (!in_array($format, $formats)) {
             throw new \Exception("Invalid format request to export report");
         }
-
         //Get labeled header
         $columns_labeled = $report->tableHeaderArray();
-
         /*$summary = [];
         if(count(array_values($totals))) {
             $summary[] = array_merge([
@@ -165,32 +150,27 @@ class ReportController extends BaseController
         }
 
         dd($summary);*/
-
-        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
-            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
-
+        return Excel::create($filename, function ($excel) use ($report, $data, $reportType, $format, $columns_labeled) {
+            $excel->sheet(trans("texts.$reportType"), function ($sheet) use ($report, $data, $format, $columns_labeled) {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
-
                 //Add border on PDF
-                if($format == 'pdf')
+                if ($format == 'pdf')
                     $sheet->setAllBorders('thin');
-
                 $sheet->rows(array_merge(
-                    [array_map(function($col) {return $col['label'];}, $columns_labeled)],
+                    [array_map(function ($col) {
+                        return $col['label'];
+                    }, $columns_labeled)],
                     $data
                 ));
-
                 //Styling header
-                $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
+                $sheet->cells('A1:' . Utils::num2alpha(count($columns_labeled) - 1) . '1', function ($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
                     $cells->setFontSize(13);
                     $cells->setFontFamily('Calibri');
                     $cells->setFontWeight('bold');
                 });
-
-
                 $sheet->setAutoSize(true);
             });
         })->export($format);

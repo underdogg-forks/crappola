@@ -9,35 +9,35 @@
 
 
   <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{!! $title !!}</h3>
-  </div>
-  <div class="panel-body form-padding-right">
+    <div class="panel-heading">
+      <h3 class="panel-title">{!! $title !!}</h3>
+    </div>
+    <div class="panel-body form-padding-right">
 
-  @if ($product)
-    {{ Former::populate($product) }}
-    {{ Former::populateField('cost', Utils::roundSignificant($product->cost)) }}
-  @endif
+      @if ($product)
+        {{ Former::populate($product) }}
+        {{ Former::populateField('cost', Utils::roundSignificant($product->cost)) }}
+      @endif
 
-  {!! Former::text('product_key')->label('texts.product') !!}
-  {!! Former::textarea('notes')->rows(6) !!}
+      {!! Former::text('product_key')->label('texts.product') !!}
+      {!! Former::textarea('notes')->rows(6) !!}
 
-  @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
-      @if ($account->custom_invoice_item_label1)
+      @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
+        @if ($account->custom_invoice_item_label1)
           {!! Former::text('custom_value1')->label(e($account->custom_invoice_item_label1)) !!}
-      @endif
-      @if ($account->custom_invoice_item_label2)
+        @endif
+        @if ($account->custom_invoice_item_label2)
           {!! Former::text('custom_value2')->label(e($account->custom_invoice_item_label2)) !!}
+        @endif
       @endif
-  @endif
 
-  {!! Former::text('cost') !!}
+      {!! Former::text('cost') !!}
 
-  @if ($account->invoice_item_taxes)
-    @include('partials.tax_rates')
-  @endif
+      @if ($account->invoice_item_taxes)
+        @include('partials.tax_rates')
+      @endif
 
-  </div>
+    </div>
   </div>
 
   {!! Former::actions(
@@ -49,9 +49,9 @@
 
   <script type="text/javascript">
 
-  $(function() {
-    $('#product_key').focus();
-  });
+    $(function () {
+      $('#product_key').focus();
+    });
 
   </script>
 

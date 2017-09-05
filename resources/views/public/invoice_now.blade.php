@@ -2,36 +2,36 @@
 
 @section('body')
 
-{!! Form::open(array('url' => 'get_started?' . request()->getQueryString(), 'id' => 'startForm')) !!}
-{!! Form::hidden('guest_key') !!}
-{!! Form::hidden('sign_up', Input::get('sign_up')) !!}
-{!! Form::hidden('redirect_to', Input::get('redirect_to')) !!}
-{!! Form::close() !!}
+  {!! Form::open(array('url' => 'get_started?' . request()->getQueryString(), 'id' => 'startForm')) !!}
+  {!! Form::hidden('guest_key') !!}
+  {!! Form::hidden('sign_up', Input::get('sign_up')) !!}
+  {!! Form::hidden('redirect_to', Input::get('redirect_to')) !!}
+  {!! Form::close() !!}
 
-<script>
+  <script>
     if (isStorageSupported()) {
-        $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
+      $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
     }
 
-    $(function() {
-        $('#startForm').submit();
+    $(function () {
+      $('#startForm').submit();
     })
 
     function isStorageSupported() {
-        if ('localStorage' in window && window['localStorage'] !== null) {
-          var storage = window.localStorage;
+      if ('localStorage' in window && window['localStorage'] !== null) {
+        var storage = window.localStorage;
       } else {
-          return false;
+        return false;
       }
       var testKey = 'test';
       try {
-          storage.setItem(testKey, '1');
-          storage.removeItem(testKey);
-          return true;
+        storage.setItem(testKey, '1');
+        storage.removeItem(testKey);
+        return true;
       } catch (error) {
-          return false;
+        return false;
       }
-  }
-</script>
+    }
+  </script>
 
 @stop

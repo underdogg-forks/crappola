@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use App\Models\Client;
@@ -34,7 +33,6 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
-
         return $rules;
     }
 }

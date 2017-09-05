@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use App\Models\Payment;
@@ -27,7 +26,6 @@ class SendPaymentEmail extends Job implements ShouldQueue
 
     /**
      * Create a new job instance.
-
      * @param Payment $payment
      */
     public function __construct($payment)

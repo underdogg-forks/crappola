@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Ninja\Datatables\TokenDatatable;
@@ -23,7 +22,7 @@ class TokenService extends BaseService
     /**
      * TokenService constructor.
      *
-     * @param TokenRepository  $tokenRepo
+     * @param TokenRepository $tokenRepo
      * @param DatatableService $datatableService
      */
     public function __construct(TokenRepository $tokenRepo, DatatableService $datatableService)
@@ -49,7 +48,6 @@ class TokenService extends BaseService
     {
         $datatable = new TokenDatatable(false);
         $query = $this->tokenRepo->find($userId);
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 }

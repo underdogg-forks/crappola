@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Datatables;
 
 use Auth;
@@ -17,10 +16,9 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
+                    if (!Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
                         return $model->project;
                     }
-
                     return link_to("projects/{$model->public_id}/edit", $model->project)->toHtml();
                 },
             ],
@@ -28,10 +26,9 @@ class ProjectDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
-
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';

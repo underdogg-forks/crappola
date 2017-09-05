@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Traits;
 
 use Utils;
@@ -15,7 +14,7 @@ trait HasLogo
      */
     public function hasLogo()
     {
-        return ! empty($this->logo);
+        return !empty($this->logo);
     }
 
     /**
@@ -29,14 +28,12 @@ trait HasLogo
     protected function calculateLogoDetails()
     {
         $disk = $this->getLogoDisk();
-
-        if ($disk->exists($this->account_key.'.png')) {
-            $this->logo = $this->account_key.'.png';
-        } elseif ($disk->exists($this->account_key.'.jpg')) {
-            $this->logo = $this->account_key.'.jpg';
+        if ($disk->exists($this->account_key . '.png')) {
+            $this->logo = $this->account_key . '.png';
+        } elseif ($disk->exists($this->account_key . '.jpg')) {
+            $this->logo = $this->account_key . '.jpg';
         }
-
-        if (! empty($this->logo)) {
+        if (!empty($this->logo)) {
             $image = imagecreatefromstring($disk->get($this->logo));
             $this->logo_width = imagesx($image);
             $this->logo_height = imagesy($image);
@@ -52,16 +49,13 @@ trait HasLogo
      */
     public function getLogoRaw()
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         $disk = $this->getLogoDisk();
-
-        if (! $disk->exists($this->logo)) {
+        if (!$disk->exists($this->logo)) {
             return null;
         }
-
         return $disk->get($this->logo);
     }
 
@@ -72,36 +66,29 @@ trait HasLogo
      */
     public function getLogoURL($cachebuster = false)
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
-
         if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             // Stored locally
             $logoUrl = url('/logo/' . $this->logo);
-
             if ($cachebuster) {
-                $logoUrl .= '?no_cache='.time();
+                $logoUrl .= '?no_cache=' . time();
             }
-
             return $logoUrl;
         }
-
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
     public function getLogoPath()
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
-
         if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             return $adapter->applyPathPrefix($this->logo);
         } else {
@@ -114,10 +101,9 @@ trait HasLogo
      */
     public function getLogoWidth()
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         return $this->logo_width;
     }
 
@@ -126,10 +112,9 @@ trait HasLogo
      */
     public function getLogoHeight()
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         return $this->logo_height;
     }
 
@@ -138,10 +123,9 @@ trait HasLogo
      */
     public function getLogoSize()
     {
-        if (! $this->hasLogo()) {
+        if (!$this->hasLogo()) {
             return null;
         }
-
         return round($this->logo_size / 1000);
     }
 

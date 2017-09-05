@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Events\UserLoggedIn;
@@ -26,7 +25,6 @@ class AuthController extends Controller
     | a simple trait to add these behaviors. Why don't you explore it?
     |
     */
-
     use AuthenticatesAndRegistersUsers;
 
     /**
@@ -48,7 +46,7 @@ class AuthController extends Controller
      * Create a new authentication controller instance.
      *
      * @param AccountRepository $repo
-     * @param AuthService       $authService
+     * @param AuthService $authService
      *
      * @internal param \Illuminate\Contracts\Auth\Guard $auth
      * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
@@ -106,9 +104,7 @@ class AuthController extends Controller
     public function authUnlink()
     {
         $this->accountRepo->unlinkUserFromOauth(Auth::user());
-
         Session::flash('message', trans('texts.updated_settings'));
-
         return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
     }
 
@@ -117,20 +113,18 @@ class AuthController extends Controller
      */
     public function getLoginWrapper()
     {
-        if (! Utils::isNinja() && ! User::count()) {
+        if (!Utils::isNinja() && !User::count()) {
             return redirect()->to('/setup');
         }
-
-        if (Utils::isNinja() && ! Utils::isTravis()) {
+        if (Utils::isNinja() && !Utils::isTravis()) {
             // make sure the user is on SITE_URL/login to ensure OAuth works
             $requestURL = request()->url();
             $loginURL = SITE_URL . '/login';
             $subdomain = Utils::getSubdomain(request()->url());
-            if ($requestURL != $loginURL && ! strstr($subdomain, 'webapp-')) {
+            if ($requestURL != $loginURL && !strstr($subdomain, 'webapp-')) {
                 return redirect()->to($loginURL);
             }
         }
-
         return self::getLogin();
     }
 
@@ -143,18 +137,13 @@ class AuthController extends Controller
     {
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
-
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             Session::flash('error', trans('texts.invalid_credentials'));
-
             return redirect()->to('login');
         }
-
         $response = self::postLogin($request);
-
         if (Auth::check()) {
             Event::fire(new UserLoggedIn());
-
             /*
             $users = false;
             // we're linking a new account
@@ -166,14 +155,12 @@ class AuthController extends Controller
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
             */
-
             $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             Session::put(SESSION_USER_ACCOUNTS, $users);
         } elseif ($user) {
             $user->failed_logins = $user->failed_logins + 1;
             $user->save();
         }
-
         return $response;
     }
 
@@ -182,12 +169,11 @@ class AuthController extends Controller
      */
     public function getLogoutWrapper()
     {
-        if (Auth::check() && ! Auth::user()->registered) {
+        if (Auth::check() && !Auth::user()->registered) {
             if (request()->force_logout) {
                 $account = Auth::user()->account;
                 $this->accountRepo->unlinkAccount($account);
-
-                if (! $account->hasMultipleAccounts()) {
+                if (!$account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
                 }
                 $account->forceDelete();
@@ -195,15 +181,11 @@ class AuthController extends Controller
                 return redirect('/');
             }
         }
-
         $response = self::getLogout();
-
         Session::flush();
-
         if ($reason = request()->reason) {
             Session::flash('warning', trans("texts.{$reason}_logout"));
         }
-
         return $response;
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Artisan;
@@ -42,20 +41,16 @@ class MakeModule extends Command
         $fields = $this->argument('fields');
         $migrate = $this->option('migrate');
         $lower = strtolower($name);
-        
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);
         $fillable = array_map(function ($item) {
             return explode(':', $item)[0];
         }, $fillable);
         $fillable = implode(',', $fillable);
-
         $this->info("Creating module: {$name}...");
-
         Artisan::call('module:make', ['name' => [$name]]);
         Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
         Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
-
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'views', '--fields' => $fields, '--filename' => 'edit.blade']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable', '--fields' => $fields]);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository', '--fields' => $fields]);
@@ -68,15 +63,12 @@ class MakeModule extends Command
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'api-controller']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'lang', '--filename' => 'texts']);
-
         if ($migrate == 'false') {
             $this->info("Use the following command to run the migrations:\nphp artisan module:migrate $name");
         } else {
             Artisan::call('module:migrate', ['module' => $name]);
         }
-
         Artisan::call('module:dump');
-
         $this->info('Done');
     }
 

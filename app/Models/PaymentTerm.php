@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Cache;
@@ -37,15 +36,12 @@ class PaymentTerm extends EntityModel
     public static function getSelectOptions()
     {
         $terms = PaymentTerm::whereAccountId(0)->get();
-
         foreach (PaymentTerm::scope()->get() as $term) {
             $terms->push($term);
         }
-
         foreach ($terms as $term) {
             $term->name = trans('texts.payment_terms_net') . ' ' . $term->getNumDays();
         }
-
         return $terms->sortBy('num_days');
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Ninja\Repositories\PaymentTermRepository;
@@ -15,7 +14,7 @@ class PaymentTermService extends BaseService
      * PaymentTermService constructor.
      *
      * @param PaymentTermRepository $paymentTermRepo
-     * @param DatatableService      $datatableService
+     * @param DatatableService $datatableService
      */
     public function __construct(PaymentTermRepository $paymentTermRepo, DatatableService $datatableService)
     {
@@ -39,9 +38,7 @@ class PaymentTermService extends BaseService
     public function getDatatable($accountId = 0)
     {
         $datatable = new PaymentTermDatatable(false);
-
         $query = $this->paymentTermRepo->find($accountId);
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 

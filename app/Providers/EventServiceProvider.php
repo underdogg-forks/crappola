@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
@@ -13,7 +12,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
@@ -28,7 +26,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ClientWasRestored' => [
             'App\Listeners\ActivityListener@restoredClient',
         ],
-
         // Invoices
         'App\Events\InvoiceWasCreated' => [
             'App\Listeners\ActivityListener@createdInvoice',
@@ -66,7 +63,6 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\NotificationListener@viewedInvoice',
             'App\Listeners\InvoiceListener@viewedInvoice',
         ],
-
         // Quotes
         'App\Events\QuoteWasCreated' => [
             'App\Listeners\ActivityListener@createdQuote',
@@ -104,7 +100,6 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@approvedQuote',
             'App\Listeners\NotificationListener@approvedQuote',
         ],
-
         // Payments
         'App\Events\PaymentWasCreated' => [
             'App\Listeners\ActivityListener@createdPayment',
@@ -137,7 +132,6 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@restoredPayment',
             'App\Listeners\InvoiceListener@restoredPayment',
         ],
-
         // Credits
         'App\Events\CreditWasCreated' => [
             'App\Listeners\ActivityListener@createdCredit',
@@ -152,7 +146,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CreditWasRestored' => [
             'App\Listeners\ActivityListener@restoredCredit',
         ],
-
         // User events
         'App\Events\UserSignedUp' => [
             'App\Listeners\HandleUserSignedUp',
@@ -163,7 +156,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UserSettingsChanged' => [
             'App\Listeners\HandleUserSettingsChanged',
         ],
-
         // Task events
         'App\Events\TaskWasCreated' => [
             'App\Listeners\ActivityListener@createdTask',
@@ -180,7 +172,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\TaskWasDeleted' => [
             'App\Listeners\ActivityListener@deletedTask',
         ],
-
         // Expense events
         'App\Events\ExpenseWasCreated' => [
             'App\Listeners\ActivityListener@createdExpense',
@@ -197,11 +188,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ExpenseWasDeleted' => [
             'App\Listeners\ActivityListener@deletedExpense',
         ],
-
         'Illuminate\Queue\Events\JobExceptionOccurred' => [
             'App\Listeners\InvoiceListener@jobFailed'
         ]
-
         /*
         // Update events
         \Codedge\Updater\Events\UpdateAvailable::class => [

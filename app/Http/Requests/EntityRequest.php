@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
@@ -17,34 +16,30 @@ class EntityRequest extends Request
         if ($this->entity) {
             return $this->entity;
         }
-
         $class = EntityModel::getClassName($this->entityType);
-
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
-        if (! empty($this->$field)) {
+        if (!empty($this->$field)) {
             $publicId = $this->$field;
         }
-        if (! $publicId) {
+        if (!$publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
-            if (! empty($this->$field)) {
+            if (!empty($this->$field)) {
                 $publicId = $this->$field;
             }
         }
-        if (! $publicId) {
+        if (!$publicId) {
             $publicId = Input::get('public_id') ?: Input::get('id');
         }
-        if (! $publicId) {
+        if (!$publicId) {
             return null;
         }
-
         if (method_exists($class, 'trashed')) {
             $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
         } else {
             $this->entity = $class::scope($publicId)->firstOrFail();
         }
-
         return $this->entity;
     }
 
@@ -58,7 +53,6 @@ class EntityRequest extends Request
         if ($this->entity()) {
             if ($this->user()->can('view', $this->entity())) {
                 HistoryUtils::trackViewed($this->entity());
-
                 return true;
             }
         } else {

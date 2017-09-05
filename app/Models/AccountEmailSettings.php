@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Eloquent;
@@ -9,6 +8,15 @@ use Eloquent;
  */
 class AccountEmailSettings extends Eloquent
 {
+    public static $templates = [
+        TEMPLATE_INVOICE,
+        TEMPLATE_QUOTE,
+        //TEMPLATE_PARTIAL,
+        TEMPLATE_PAYMENT,
+        TEMPLATE_REMINDER1,
+        TEMPLATE_REMINDER2,
+        TEMPLATE_REMINDER3,
+    ];
     /**
      * @var array
      */
@@ -33,16 +41,6 @@ class AccountEmailSettings extends Eloquent
         'late_fee2_percent',
         'late_fee3_amount',
         'late_fee3_percent',
-    ];
-
-    public static $templates = [
-        TEMPLATE_INVOICE,
-        TEMPLATE_QUOTE,
-        //TEMPLATE_PARTIAL,
-        TEMPLATE_PAYMENT,
-        TEMPLATE_REMINDER1,
-        TEMPLATE_REMINDER2,
-        TEMPLATE_REMINDER3,
     ];
 
 }

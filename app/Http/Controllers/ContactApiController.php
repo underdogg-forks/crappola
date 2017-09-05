@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactRequest;
@@ -22,7 +21,6 @@ class ContactApiController extends BaseAPIController
     public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {
         parent::__construct();
-
         $this->contactRepo = $contactRepo;
         $this->contactService = $contactService;
     }
@@ -46,9 +44,8 @@ class ContactApiController extends BaseAPIController
     public function index()
     {
         $contacts = Contact::scope()
-                    ->withTrashed()
-                    ->orderBy('created_at', 'desc');
-
+            ->withTrashed()
+            ->orderBy('created_at', 'desc');
         return $this->listResponse($contacts);
     }
 
@@ -103,7 +100,6 @@ class ContactApiController extends BaseAPIController
     public function store(CreateContactRequest $request)
     {
         $contact = $this->contactService->save($request->input());
-
         return $this->itemResponse($contact);
     }
 
@@ -141,11 +137,9 @@ class ContactApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-
         $data = $request->input();
         $data['public_id'] = $publicId;
         $contact = $this->contactService->save($data, $request->entity());
-
         return $this->itemResponse($contact);
     }
 
@@ -174,9 +168,7 @@ class ContactApiController extends BaseAPIController
     public function destroy(UpdateContactRequest $request)
     {
         $contact = $request->entity();
-
         $this->contactRepo->delete($contact);
-
         return $this->itemResponse($contact);
     }
 }

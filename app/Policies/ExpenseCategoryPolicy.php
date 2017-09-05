@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\User;
@@ -7,7 +6,7 @@ use App\Models\User;
 class ExpenseCategoryPolicy extends EntityPolicy
 {
     /**
-     * @param User  $user
+     * @param User $user
      * @param mixed $item
      *
      * @return bool

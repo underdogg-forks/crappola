@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -24,15 +23,12 @@ class ResetData extends Command
     public function fire()
     {
         $this->info(date('Y-m-d') . ' Running ResetData...');
-
-        if (! Utils::isNinjaDev()) {
+        if (!Utils::isNinjaDev()) {
             return;
         }
-
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
-
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');

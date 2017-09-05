@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Zoho;
 
 use App\Ninja\Import\BaseTransformer;
@@ -19,7 +18,7 @@ class PaymentTransformer extends BaseTransformer
     {
         return new Item($data, function ($data) {
             return [
-                'amount' => (float) $data->total - (float) $data->balance,
+                'amount' => (float)$data->total - (float)$data->balance,
                 'payment_date_sql' => $data->last_payment_date,
                 'client_id' => $data->client_id,
                 'invoice_id' => $data->invoice_id,

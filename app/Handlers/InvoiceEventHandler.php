@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Handlers;
 
 use App\Ninja\Mailers\ContactMailer;
@@ -36,7 +35,6 @@ class InvoiceEventHandler
     public function onPaid($payment)
     {
         $this->contactMailer->sendPaymentConfirmation($payment);
-
         $this->sendNotifications($payment->invoice, 'paid', $payment);
     }
 

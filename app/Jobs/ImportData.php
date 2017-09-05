@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,8 +43,8 @@ class ImportData extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param mixed   $files
-     * @param mixed   $settings
+     * @param mixed $files
+     * @param mixed $settings
      */
     public function __construct(User $user, $type, $settings)
     {
@@ -63,12 +62,10 @@ class ImportData extends Job implements ShouldQueue
     public function handle(ImportService $importService, UserMailer $userMailer)
     {
         $includeSettings = false;
-
         if (App::runningInConsole()) {
             Auth::onceUsingId($this->user->id);
             $this->user->account->loadLocalizationSettings();
         }
-
         try {
             if ($this->type === IMPORT_JSON) {
                 $includeData = $this->settings['include_data'];
@@ -85,7 +82,6 @@ class ImportData extends Job implements ShouldQueue
                 $files = $this->settings['files'];
                 $results = $importService->importFiles($source, $files);
             }
-
             $subject = trans('texts.import_complete');
             $message = $importService->presentResults($results, $includeSettings);
         } catch (Exception $exception) {
@@ -93,9 +89,7 @@ class ImportData extends Job implements ShouldQueue
             $message = $exception->getMessage();
             Utils::logError($subject . ': ' . $message);
         }
-
         $userMailer->sendMessage($this->user, $subject, $message);
-
         if (App::runningInConsole()) {
             Auth::logout();
         }

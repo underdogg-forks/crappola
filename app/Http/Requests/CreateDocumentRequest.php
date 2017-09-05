@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use App\Models\Expense;
@@ -19,18 +18,15 @@ class CreateDocumentRequest extends DocumentRequest
      */
     public function authorize()
     {
-        if (! $this->user()->hasFeature(FEATURE_DOCUMENTS)) {
+        if (!$this->user()->hasFeature(FEATURE_DOCUMENTS)) {
             return false;
         }
-        
         if ($this->invoice && $this->user()->cannot('edit', $this->invoice)) {
             return false;
         }
-
         if ($this->expense && $this->user()->cannot('edit', $this->expense)) {
             return false;
         }
-
         return $this->user()->can('create', ENTITY_DOCUMENT);
     }
 

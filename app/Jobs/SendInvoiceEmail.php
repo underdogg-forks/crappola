@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use App\Models\Invoice;
@@ -47,9 +46,9 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * Create a new job instance.
      *
      * @param Invoice $invoice
-     * @param string  $pdf
-     * @param bool    $reminder
-     * @param mixed   $pdfString
+     * @param string $pdf
+     * @param bool $reminder
+     * @param mixed $pdfString
      */
     public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false)
     {
@@ -71,9 +70,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         if (App::runningInConsole() && $this->userId) {
             Auth::onceUsingId($this->userId);
         }
-
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
-
         if (App::runningInConsole() && $this->userId) {
             Auth::logout();
         }
@@ -85,12 +82,12 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param ContactMailer $mailer
      * @param Logger $logger
      */
-     /*
-    public function failed(ContactMailer $mailer, Logger $logger)
-    {
-        $this->jobName = $this->job->getName();
+    /*
+   public function failed(ContactMailer $mailer, Logger $logger)
+   {
+       $this->jobName = $this->job->getName();
 
-        parent::failed($mailer, $logger);
-    }
-    */
+       parent::failed($mailer, $logger);
+   }
+   */
 }

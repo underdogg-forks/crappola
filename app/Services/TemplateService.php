@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Gateway;
@@ -20,26 +19,21 @@ class TemplateService
     {
         /** @var \App\Models\Account $account */
         $account = $data['account'];
-
         /** @var \App\Models\Client $client */
         $client = $data['client'];
-
         /** @var \App\Models\Invitation $invitation */
         $invitation = $data['invitation'];
-
         $invoice = $invitation->invoice;
         $contact = $invitation->contact;
-        $passwordHTML = isset($data['password']) ? '<p>'.trans('texts.password').': '.$data['password'].'<p>' : false;
+        $passwordHTML = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
         $documentsHTML = '';
-
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
-            $documentsHTML .= trans('texts.email_documents_header').'<ul>';
+            $documentsHTML .= trans('texts.email_documents_header') . '<ul>';
             foreach ($invoice->allDocuments() as $document) {
-                $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+                $documentsHTML .= '<li><a href="' . HTML::entities($document->getClientUrl($invitation)) . '">' . HTML::entities($document->name) . '</a></li>';
             }
             $documentsHTML .= '</ul>';
         }
-
         $variables = [
             '$footer' => $account->getEmailFooter(),
             '$emailSignature' => $account->getEmailFooter(),
@@ -58,10 +52,10 @@ class TemplateService
             '$partial' => $invoice->present()->partial,
             '$link' => $invitation->getLink(),
             '$password' => $passwordHTML,
-            '$viewLink' => $invitation->getLink().'$password',
-            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
-            '$paymentLink' => $invitation->getLink('payment').'$password',
-            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
+            '$viewLink' => $invitation->getLink() . '$password',
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()) . '$password',
+            '$paymentLink' => $invitation->getLink('payment') . '$password',
+            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')) . '$password',
             '$customClient1' => $client->custom_value1,
             '$customClient2' => $client->custom_value2,
             '$customContact1' => $contact->custom_value1,
@@ -73,7 +67,6 @@ class TemplateService
             '$portalLink' => $invitation->contact->link,
             '$portalButton' => Form::emailViewButton($invitation->contact->link, 'portal'),
         ];
-
         // Add variables for available payment types
         foreach (Gateway::$gatewayTypes as $type) {
             if ($type == GATEWAY_TYPE_TOKEN) {
@@ -82,14 +75,11 @@ class TemplateService
             $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
             $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$snakeCase}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$snakeCase}");
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$snakeCase}");
         }
-
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
-
         $str = str_replace(array_keys($variables), array_values($variables), $template);
-
-        if (! $includesPasswordPlaceholder && $passwordHTML) {
+        if (!$includesPasswordPlaceholder && $passwordHTML) {
             $pos = strrpos($str, '$password');
             if ($pos !== false) {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
@@ -97,7 +87,6 @@ class TemplateService
         }
         $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
-
         return $str;
     }
 }

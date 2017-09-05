@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddInvoiceFontSupport extends Migration
@@ -13,7 +12,6 @@ class AddInvoiceFontSupport extends Migration
     {
         Schema::create('fonts', function ($t) {
             $t->increments('id');
-
             $t->string('name');
             $t->string('folder');
             $t->string('css_stack');
@@ -26,11 +24,9 @@ class AddInvoiceFontSupport extends Migration
             $t->boolean('is_early_access');
             $t->unsignedInteger('sort_order')->default(10000);
         });
-
         // Create fonts
         //$seeder = new FontsSeeder();
         //$seeder->run();
-
         Schema::table('accounts', function ($table) {
             $table->unsignedInteger('header_font_id')->default(1);
             $table->unsignedInteger('body_font_id')->default(1);
@@ -57,14 +53,12 @@ class AddInvoiceFontSupport extends Migration
                 $table->dropColumn('header_font_id');
             });
         }
-
         if (Schema::hasColumn('accounts', 'body_font_id')) {
             Schema::table('accounts', function ($table) {
                 //$table->dropForeign('accounts_body_font_id_foreign');
                 $table->dropColumn('body_font_id');
             });
         }
-
         Schema::dropIfExists('fonts');
     }
 }

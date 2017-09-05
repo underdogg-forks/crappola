@@ -15,28 +15,28 @@
 
 
   <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{!! $title !!}</h3>
-  </div>
-  <div class="panel-body form-padding-right">
+    <div class="panel-heading">
+      <h3 class="panel-title">{!! $title !!}</h3>
+    </div>
+    <div class="panel-body form-padding-right">
 
-  @if ($taxRate)
-    {{ Former::populate($taxRate) }}
-    {{ Former::populateField('is_inclusive', intval($taxRate->is_inclusive)) }}
-  @endif
+      @if ($taxRate)
+        {{ Former::populate($taxRate) }}
+        {{ Former::populateField('is_inclusive', intval($taxRate->is_inclusive)) }}
+      @endif
 
-  {!! Former::text('name')->label('texts.name') !!}
-  {!! Former::text('rate')->label('texts.rate')->append('%') !!}
+      {!! Former::text('name')->label('texts.name') !!}
+      {!! Former::text('rate')->label('texts.rate')->append('%') !!}
 
-  {!! Former::radios('is_inclusive')->radios([
-          trans('texts.exclusive') . ': 100 + 10% = 100 + 10' => array('name' => 'is_inclusive', 'value' => 0),
-          trans('texts.inclusive') . ':&nbsp; 100 + 10% = 90.91 + 9.09' => array('name' => 'is_inclusive', 'value' => 1),
-      ])->check(0)
-        ->label('type')
-        ->help('tax_rate_type_help') !!}
+      {!! Former::radios('is_inclusive')->radios([
+              trans('texts.exclusive') . ': 100 + 10% = 100 + 10' => array('name' => 'is_inclusive', 'value' => 0),
+              trans('texts.inclusive') . ':&nbsp; 100 + 10% = 90.91 + 9.09' => array('name' => 'is_inclusive', 'value' => 1),
+          ])->check(0)
+            ->label('type')
+            ->help('tax_rate_type_help') !!}
 
 
-  </div>
+    </div>
   </div>
 
   {!! Former::actions(
@@ -48,9 +48,9 @@
 
   <script type="text/javascript">
 
-  $(function() {
-    $('#name').focus();
-  });
+    $(function () {
+      $('#name').focus();
+    });
 
   </script>
 

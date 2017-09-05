@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Account;
@@ -31,13 +30,11 @@ class PushService
     public function sendNotification(Invoice $invoice, $type)
     {
         //check user has registered for push notifications
-        if (! $this->checkDeviceExists($invoice->account)) {
+        if (!$this->checkDeviceExists($invoice->account)) {
             return;
         }
-
         //Harvest an array of devices that are registered for this notification type
         $devices = json_decode($invoice->account->devices, true);
-
         foreach ($devices as $device) {
             if (($device["notify_{$type}"] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, IOS_DEVICE);
@@ -74,7 +71,6 @@ class PushService
     private function checkDeviceExists(Account $account)
     {
         $devices = json_decode($account->devices, true);
-
         if (count($devices) >= 1) {
             return true;
         } else {
@@ -98,15 +94,12 @@ class PushService
             case 'sent':
                 return $this->entitySentMessage($invoice);
                 break;
-
             case 'paid':
                 return $this->invoicePaidMessage($invoice);
                 break;
-
             case 'approved':
                 return $this->quoteApprovedMessage($invoice);
                 break;
-
             case 'viewed':
                 return $this->entityViewedMessage($invoice);
                 break;

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\FreshBooks;
 
 use App\Ninja\Import\BaseTransformer;

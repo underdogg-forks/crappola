@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,7 +15,6 @@ use Barracuda\ArchiveStream\Archive;
 class DownloadInvoices extends Job
 {
     //use InteractsWithQueue, SerializesModels;
-
     /**
      * @var User
      */
@@ -30,8 +28,8 @@ class DownloadInvoices extends Job
     /**
      * Create a new job instance.
      *
-     * @param mixed   $files
-     * @param mixed   $settings
+     * @param mixed $files
+     * @param mixed $settings
      */
     public function __construct(User $user, $invoices)
     {
@@ -47,11 +45,9 @@ class DownloadInvoices extends Job
     public function handle(UserMailer $userMailer)
     {
         $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
-
         foreach ($this->invoices as $invoice) {
             $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
         }
-
         $zip->finish();
         exit;
 

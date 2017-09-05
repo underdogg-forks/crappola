@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Libraries\Skype;
-
 class SkypeResponse
 {
     public function __construct($type)
@@ -14,7 +12,6 @@ class SkypeResponse
     {
         $instance = new self('message/text');
         $instance->setText($message);
-
         return json_encode($instance);
     }
 

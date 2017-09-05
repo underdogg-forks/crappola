@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddInclusiveTaxes extends Migration
@@ -14,15 +13,12 @@ class AddInclusiveTaxes extends Migration
         Schema::table('tax_rates', function ($table) {
             $table->boolean('is_inclusive')->default(false);
         });
-
         Schema::table('companies', function ($table) {
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
         });
-
         DB::statement('UPDATE companies
             LEFT JOIN accounts ON accounts.company_id = companies.id AND accounts.bluevine_status IS NOT NULL
             SET companies.bluevine_status = accounts.bluevine_status');
-
         Schema::table('accounts', function ($table) {
             $table->dropColumn('bluevine_status');
             $table->text('bcc_email')->nullable();
@@ -32,11 +28,9 @@ class AddInclusiveTaxes extends Migration
             $table->tinyInteger('domain_id')->default(1)->nullable()->unsigned();
             $table->tinyInteger('payment_terms')->nullable();
         });
-
         Schema::table('activities', function ($table) {
             $table->text('notes')->nullable();
         });
-
         Schema::table('date_formats', function ($table) {
             $table->string('format_moment')->nullable();
         });
@@ -52,11 +46,9 @@ class AddInclusiveTaxes extends Migration
         Schema::table('tax_rates', function ($table) {
             $table->dropColumn('is_inclusive');
         });
-
         Schema::table('companies', function ($table) {
             $table->dropColumn('bluevine_status');
         });
-
         Schema::table('accounts', function ($table) {
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
             if (Schema::hasColumn('accounts', 'bcc_email')) {
@@ -68,11 +60,9 @@ class AddInclusiveTaxes extends Migration
             $table->dropColumn('domain_id');
             $table->dropColumn('payment_terms');
         });
-
         Schema::table('activities', function ($table) {
             $table->dropColumn('notes');
         });
-
         Schema::table('date_formats', function ($table) {
             $table->dropColumn('format_moment');
         });

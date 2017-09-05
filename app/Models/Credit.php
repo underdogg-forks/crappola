@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Events\CreditWasCreated;
@@ -101,16 +100,13 @@ class Credit extends EntityModel
             $applied = $amount;
             $this->balance = $this->balance - $amount;
         }
-
         $this->save();
-
         return $applied;
     }
 }
 
 Credit::creating(function ($credit) {
 });
-
 Credit::created(function ($credit) {
     event(new CreditWasCreated($credit));
 });

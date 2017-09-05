@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -23,7 +22,6 @@ class CalculatePayouts extends Command
      */
     protected $description = 'Calculate referral payouts';
 
-
     /**
      * Create a new command instance.
      *
@@ -42,37 +40,29 @@ class CalculatePayouts extends Command
     public function handle()
     {
         $this->info('Running CalculatePayouts...');
-
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
-
         foreach ($servers as $server) {
             $this->info('Processing users: ' . $server->name);
             config(['database.default' => $server->name]);
-
             $users = User::where('referral_code', '!=', '')
                 ->get(['email', 'referral_code']);
             foreach ($users as $user) {
                 $userMap[$user->referral_code] = $user->email;
             }
         }
-
         foreach ($servers as $server) {
             $this->info('Processing companies: ' . $server->name);
             config(['database.default' => $server->name]);
-
             $companies = Company::where('referral_code', '!=', '')
                 ->with('payment.client.payments')
                 ->whereNotNull('payment_id')
                 ->get();
-
             foreach ($companies as $company) {
                 $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
                 $client = $payment->client;
-
                 $this->info("User: $user");
-
                 foreach ($client->payments as $payment) {
                     $this->info("Date: $payment->payment_date, Amount: $payment->amount, Reference: $payment->transaction_reference");
                 }
@@ -83,7 +73,6 @@ class CalculatePayouts extends Command
     protected function getOptions()
     {
         return [
-
         ];
     }
 

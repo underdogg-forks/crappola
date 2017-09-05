@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use Auth;
@@ -28,18 +27,15 @@ class BaseService
      */
     public function bulk($ids, $action)
     {
-        if (! $ids) {
+        if (!$ids) {
             return 0;
         }
-
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
-
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
                 $this->getRepo()->$action($entity);
             }
         }
-
         return count($entities);
     }
 }

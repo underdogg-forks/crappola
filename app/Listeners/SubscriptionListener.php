@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Listeners;
 
 use App\Events\ClientWasCreated;
@@ -128,25 +127,20 @@ class SubscriptionListener
      */
     private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
-        if (! EntityModel::$notifySubscriptions) {
+        if (!EntityModel::$notifySubscriptions) {
             return;
         }
-
         $subscription = $entity->account->getSubscription($eventId);
-
         if ($subscription) {
             $manager = new Manager();
             $manager->setSerializer(new ArraySerializer());
             $manager->parseIncludes($include);
-
             $resource = new Item($entity, $transformer, $entity->getEntityType());
             $data = $manager->createData($resource)->toArray();
-
             // For legacy Zapier support
             if (isset($data['client_id'])) {
                 $data['client_name'] = $entity->client->getDisplayName();
             }
-
             Utils::notifyZapier($subscription, $data);
         }
     }

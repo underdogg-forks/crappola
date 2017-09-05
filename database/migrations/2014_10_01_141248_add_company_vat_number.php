@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddCompanyVatNumber extends Migration
@@ -14,7 +13,6 @@ class AddCompanyVatNumber extends Migration
         Schema::table('accounts', function ($table) {
             $table->string('vat_number')->nullable();
         });
-        
         Schema::table('clients', function ($table) {
             $table->string('vat_number')->nullable();
         });
@@ -30,7 +28,6 @@ class AddCompanyVatNumber extends Migration
         Schema::table('accounts', function ($table) {
             $table->dropColumn('vat_number');
         });
-
         Schema::table('clients', function ($table) {
             $table->dropColumn('vat_number');
         });

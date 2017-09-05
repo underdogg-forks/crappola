@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\EntityModel;
@@ -55,13 +54,10 @@ class BaseAPIController extends Controller
     public function __construct()
     {
         $this->manager = new Manager();
-
         if ($include = Request::get('include')) {
             $this->manager->parseIncludes($include);
         }
-
         $this->serializer = Request::get('serializer') ?: API_SERIALIZER_ARRAY;
-
         if ($this->serializer === API_SERIALIZER_JSON) {
             $this->manager->setSerializer(new JsonApiSerializer());
         } else {
@@ -73,15 +69,11 @@ class BaseAPIController extends Controller
     {
         $entity = $request->entity();
         $action = $request->action;
-
-        if (! in_array($action, ['archive', 'delete', 'restore'])) {
+        if (!in_array($action, ['archive', 'delete', 'restore'])) {
             return $this->errorResponse("Action [$action] is not supported");
         }
-
         $repo = Utils::toCamelCase($this->entityType) . 'Repo';
-
         $this->$repo->$action($entity);
-
         return $this->itemResponse($entity);
     }
 
@@ -89,47 +81,37 @@ class BaseAPIController extends Controller
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
-
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
-
         $query->with($includes);
-
         if ($updatedAt = intval(Input::get('updated_at'))) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
-
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
         }
-
-        if (! Utils::hasPermission('view_all')) {
+        if (!Utils::hasPermission('view_all')) {
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
                 $query->where('user_id', '=', Auth::user()->id);
             }
         }
-
         $data = $this->createCollection($query, $transformer, $this->entityType);
-
         return $this->response($data);
     }
 
     protected function itemResponse($item)
     {
-        if (! $item) {
+        if (!$item) {
             return $this->errorResponse('Record not found', 404);
         }
-
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
-
         $data = $this->createItem($item, $transformer, $this->entityType);
-
         return $this->response($data);
     }
 
@@ -138,9 +120,7 @@ class BaseAPIController extends Controller
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
         }
-
         $resource = new Item($data, $transformer, $entityType);
-
         return $this->manager->createData($resource)->toArray();
     }
 
@@ -149,7 +129,6 @@ class BaseAPIController extends Controller
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
         }
-
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
             $limit = min(MAX_API_PAGE_SIZE, Input::get('per_page', DEFAULT_API_PAGE_SIZE));
             $paginator = $query->paginate($limit);
@@ -159,14 +138,12 @@ class BaseAPIController extends Controller
         } else {
             $resource = new Collection($query, $transformer, $entityType);
         }
-
         return $this->manager->createData($resource)->toArray();
     }
 
     protected function response($response)
     {
         $index = Request::get('index') ?: 'data';
-
         if ($index == 'none') {
             unset($response['meta']);
         } else {
@@ -174,16 +151,13 @@ class BaseAPIController extends Controller
             $response = [
                 $index => $response,
             ];
-
             if ($meta) {
                 $response['meta'] = $meta;
                 unset($response[$index]['meta']);
             }
         }
-
         $response = json_encode($response, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
-
         return Response::make($response, 200, $headers);
     }
 
@@ -192,7 +166,6 @@ class BaseAPIController extends Controller
         $error['error'] = $response;
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
-
         return Response::make($error, $httpErrorCode, $headers);
     }
 
@@ -200,7 +173,6 @@ class BaseAPIController extends Controller
     {
         $included = Request::get('include');
         $included = explode(',', $included);
-
         foreach ($included as $include) {
             if ($include == 'invoices') {
                 $data[] = 'invoices.invoice_items';
@@ -216,7 +188,6 @@ class BaseAPIController extends Controller
                 $data[] = $include;
             }
         }
-
         return $data;
     }
 
@@ -227,7 +198,6 @@ class BaseAPIController extends Controller
         header('Content-disposition: attachment; filename="' . $name . '"');
         header('Cache-Control: public, must-revalidate, max-age=0');
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-
         return $data;
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Ninja\Datatables\UserDatatable;
@@ -23,7 +22,7 @@ class UserService extends BaseService
     /**
      * UserService constructor.
      *
-     * @param UserRepository   $userRepo
+     * @param UserRepository $userRepo
      * @param DatatableService $datatableService
      */
     public function __construct(UserRepository $userRepo, DatatableService $datatableService)
@@ -49,7 +48,6 @@ class UserService extends BaseService
     {
         $datatable = new UserDatatable(false);
         $query = $this->userRepo->find($accountId);
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Country;
@@ -14,7 +13,6 @@ use App\Models\Country;
 | database. Just tell the factory how a default model should look.
 |
 */
-
 $factory->define(Contact::class, function (Faker\Generator $faker) {
     return [
         'client_id' => function () {
@@ -31,7 +29,6 @@ $factory->define(Contact::class, function (Faker\Generator $faker) {
         'phone' => $faker->phoneNumber,
     ];
 });
-
 $factory->define(Client::class, function (Faker\Generator $faker) {
     return [
         'user_id' => 1,

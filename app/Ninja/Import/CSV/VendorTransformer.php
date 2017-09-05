@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\CSV;
 
 use App\Ninja\Import\BaseTransformer;
@@ -21,7 +20,6 @@ class VendorTransformer extends BaseTransformer
         if (isset($data->name) && $this->hasVendor($data->name)) {
             return false;
         }
-
         return new Item($data, function ($data) {
             return [
                 'name' => $this->getString($data, 'name'),

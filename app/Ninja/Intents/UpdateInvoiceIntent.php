@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Intents;
 
 use App\Models\EntityModel;
@@ -12,12 +11,10 @@ class UpdateInvoiceIntent extends InvoiceIntent
     {
         $invoice = $this->stateInvoice();
         $invoiceItems = $this->requestInvoiceItems();
-
         $data = array_merge($this->requestFields(), [
             'public_id' => $invoice->public_id,
             'invoice_items' => array_merge($invoice->invoice_items->toArray(), $invoiceItems),
         ]);
-
         // map the cost and qty fields to the invoice items
         if (isset($data['cost']) || isset($data['quantity'])) {
             foreach ($data['invoice_items'] as $key => $item) {
@@ -28,29 +25,21 @@ class UpdateInvoiceIntent extends InvoiceIntent
                 }
             }
         }
-
         //var_dump($data);
-
         $valid = EntityModel::validate($data, ENTITY_INVOICE, $invoice);
-
         if ($valid !== true) {
             throw new Exception($valid);
         }
-
         $invoice = $this->invoiceRepo->save($data, $invoice);
-
         $invoiceItems = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
         $invoiceItemIds = array_map(function ($item) {
             return $item['public_id'];
         }, $invoiceItems);
-
         $this->setStateEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
-
         $response = $invoice
             ->load('invoice_items')
             ->present()
             ->skypeBot;
-
         return $this->createResponse(SKYPE_CARD_RECEIPT, $response);
     }
 }

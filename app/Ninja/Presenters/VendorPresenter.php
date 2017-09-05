@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Ninja\Presenters;
-
 class VendorPresenter extends EntityPresenter
 {
     /**

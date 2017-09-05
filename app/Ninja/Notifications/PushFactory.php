@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Notifications;
 
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
@@ -33,7 +32,6 @@ class PushFactory
     public function customMessage($token, $message, $messageArray, $device)
     {
         $customMessage = PushNotification::Message($message, $messageArray);
-
         $this->message($token, $customMessage, $device);
     }
 
@@ -68,9 +66,9 @@ class PushFactory
      * We need to run this once ~ 24hrs
      *
      *
-     * @param string $token   - A valid token (can be any valid token)
+     * @param string $token - A valid token (can be any valid token)
      * @param string $message - Nil value for message
-     * @param string $device  - Type of device the message is being pushed to.
+     * @param string $device - Type of device the message is being pushed to.
      *
      * @return array
      */
@@ -79,7 +77,6 @@ class PushFactory
         $feedback = PushNotification::app($device)
             ->to($token)
             ->send($message);
-
         return $feedback->getFeedback();
     }
 }

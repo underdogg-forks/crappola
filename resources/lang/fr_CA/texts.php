@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Entreprise',
     'name' => 'Nom',
     'website' => 'Site web',
@@ -991,8 +989,6 @@ $LANG = array(
     'trial_call_to_action' => 'Démarrez votre essai gratuit',
     'trial_success' => 'Le Plan Pro, version d\'essai gratuit pour 2 semaines a été activé',
     'overdue' => 'En souffrance',
-
-
     'white_label_text' => 'Achetez une licence sans pub d\'UN AN au coût de $:price pour retirer la marque de Invoice Ninja des factures et du portail client.',
     'user_email_footer' => 'Pour modifier vos paramètres de notification par courriel, veuillez visiter :link',
     'reset_password_footer' => 'Si vous n\'avez pas effectué de demande de réinitalisation de mot de passe veuillez contacter notre support : :email',
@@ -1001,7 +997,6 @@ $LANG = array(
     'old_browser' => 'Veuillez utiliser un <a href=":link" target="_blank">navigateur plus récent</a>',
     'white_label_custom_css' => ':link à $:price pour activer les styles personnalisés et supporter notre projet.',
     'bank_accounts_help' => 'Veuillez vous connecter à un compte bancaire pour importer automatiquement les dépenses et créer les fournisseurs. Supporte American Express et <a href=":link" target="_blank"> plus de 400 banques américaines.</a>',
-
     'pro_plan_remove_logo' => ':link pour supprimer le logo Invoice Ninja en souscrivant au plan pro',
     'pro_plan_remove_logo_link' => 'Cliquez ici',
     'invitation_status_sent' => 'Envoyé',
@@ -1013,7 +1008,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'Veuillez vous créer un compte pour envoyer des courriels',
     'email_error_user_unconfirmed' => 'Veuillez confirmer votre compte pour pouvoir envoyer des courriels',
     'email_error_invalid_contact_email' => 'Ce courriel est invalide',
-
     'navigation' => 'Navigation',
     'list_invoices' => 'Liste des factures',
     'list_clients' => 'Liste des clients',
@@ -1026,7 +1020,6 @@ $LANG = array(
     'tax_name' => 'Nom de la taxe',
     'report_settings' => 'Paramètres des rapports',
     'search_hotkey' => 'raccourci /',
-
     'new_user' => 'Nouvel utilisateur',
     'new_product' => 'Nouveau produit',
     'new_tax_rate' => 'Nouveau taux de taxe',
@@ -1035,20 +1028,17 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'Ajoutez un champ lors de la création d\'une facture pour afficher le libellé et la valeur du champ sur le PDF.',
     'recurring_invoice_number' => 'Numéro récurrent',
     'recurring_invoice_number_prefix_help' => 'Spécifier un préfixe à ajouter aux numéros de factures récurrentes',
-
     // Client Passwords
     'enable_portal_password' => 'Protéger les factures avec un mot de passe',
     'enable_portal_password_help' => 'Permet de spécifier un mot de passe pour chaque contact. Si un mot de passe est spécifié, le contact devra saisir ce mot de passe pour visualiser ses factures.',
     'send_portal_password' => 'Générer un mot de passe automatiquement',
     'send_portal_password_help' => 'Si aucun mot de passe n\'est spécifié, le client recevra un mot de passe autogénéré lors de l\'envoi de la première facture.',
-
     'expired' => 'Expiré',
     'invalid_card_number' => 'Le numéro de carte de crédit n\'est pas valide.',
     'invalid_expiry' => 'La date d\'expiration n\'est pas valide.',
     'invalid_cvv' => 'Le CVV n\'est pas valide.',
     'cost' => 'Coût',
     'create_invoice_for_sample' => 'Note: créez votre première facture pour la visualiser ici.',
-
     // User Permissions
     'owner' => 'Propriétaire',
     'administrator' => 'Administrateur',
@@ -1067,7 +1057,6 @@ $LANG = array(
     'view_all_help' => 'Autoriser un utilisateur à visualiser des enregistrements d\'autres utilisateurs',
     'edit_all_help' => 'Autoriser un utilisateur à modifier des enregistrements d\'autres utilisateurs',
     'view_payment' => 'Visualiser un paiement',
-
     'january' => 'Janvier',
     'february' => 'Février',
     'march' => 'Mars',
@@ -1080,7 +1069,6 @@ $LANG = array(
     'october' => 'Octobre',
     'november' => 'Novembre',
     'december' => 'Décembre',
-
     // Documents
     'documents_header' => 'Documents:',
     'email_documents_header' => 'Documents:',
@@ -1105,16 +1093,13 @@ $LANG = array(
     'documents' => 'Documents',
     'document_date' => 'Date du document',
     'document_size' => 'Taille',
-
     'enable_client_portal' => 'Portail client',
     'enable_client_portal_help' => 'Afficher/masquer le portail client.',
     'enable_client_portal_dashboard' => 'Tableau de bord',
     'enable_client_portal_dashboard_help' => 'Afficher/masquer la page du tableau de bord dans le portail client.',
-
     // Plans
     'account_management' => 'Gestion du compte',
     'plan_status' => 'État du plan',
-
     'plan_upgrade' => 'Mise à jour',
     'plan_change' => 'Changer de plan',
     'pending_change_to' => 'Changer pour',
@@ -1144,9 +1129,7 @@ $LANG = array(
     'plan_paid' => 'Terme depuis le',
     'plan_started' => 'Plan depuis le',
     'plan_expires' => 'Plan expire le',
-
     'white_label_button' => 'Sans pub',
-
     'pro_plan_year_description' => 'Abonnement à une année du plan Invoice Ninja Pro.',
     'pro_plan_month_description' => 'Abonnement à un mois du plan Invoice Ninja Pro.',
     'enterprise_plan_product' => 'Plan Enterprise',
@@ -1156,7 +1139,6 @@ $LANG = array(
     'plan_credit_description' => 'Crédit inutilisé',
     'plan_pending_monthly' => 'Passer au plan mensuel le :date',
     'plan_refunded' => 'Un remboursement vous a été émis.',
-
     'live_preview' => 'Prévisualisation',
     'page_size' => 'Taille de page',
     'live_preview_disabled' => 'La prévisualisation en direct a été désactivée pour cette police',
@@ -1166,8 +1148,6 @@ $LANG = array(
     'add_users_not_supported' => 'Mettre à jour vers le plan Enterprise plan pour ajouter des utilisateurs à votre compte.',
     'enterprise_plan_features' => 'Le Plan entreprise offre le support pour de multiple utilisateurs ainsi que l\'ajout de pièces jointes, :link pour voir la liste complète des fonctionnalités.',
     'return_to_app' => 'Retour à l\'application',
-
-
     // Payment updates
     'refund_payment' => 'Remboursement',
     'refund_max' => 'Max:',
@@ -1184,7 +1164,6 @@ $LANG = array(
     'activity_39' => ':user a annulé un paiement :payment de :payment_amount',
     'activity_40' => ':user a remboursé :adjustment d\'un paiement :payment de :payment_amount ',
     'card_expiration' => 'Exp:&nbsp:expire',
-
     'card_creditcardother' => 'Inconnu',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1199,13 +1178,11 @@ $LANG = array(
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Activer ACH',
     'stripe_ach_help' => 'Les fonctionnalités de ACH requiert d\'être aussi activées pour Stripe.',
     'ach_disabled' => 'Une autre passerelle est déjà configurée pour le prélèvement automatique.',
-
     'plaid' => 'Plaid',
     'client_id' => 'ID du client',
     'secret' => 'Secret',
@@ -1275,15 +1252,12 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'braintree_paypal_help_link_text' => 'lier PayPal à votre compte BrainTree',
     'token_billing_braintree_paypal' => 'Sauvegarder les détails du paiement',
     'add_paypal_account' => 'Ajouter un compte PayPal',
-
-
     'no_payment_method_specified' => 'Aucune méthode de paiement spécifiée',
     'chart_type' => 'Type de graphique',
     'format' => 'Format',
     'import_ofx' => 'Importer OFX',
     'ofx_file' => 'Fichier OFX',
     'ofx_parse_failed' => 'Le traitement du fichier OFX a échoué',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'S\'enregistrer avec WePay',
@@ -1306,7 +1280,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'canada' => 'Canada',
     'accept_debit_cards' => 'Accepter les cartes de débit',
     'debit_cards' => 'Cartes de débit',
-
     'warn_start_date_changed' => 'La prochaine facture sera envoyée à la date spécifiée',
     'original_start_date' => 'Première date de départ',
     'new_start_date' => 'Nouvelle date de départ',
@@ -1324,23 +1297,19 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'created_products' => ':count produit(s) ont été crées/mis à jour',
     'export_help' => 'Utilisez JSON si vous prévoyez importer les données dans Invoice Ninja.<br/>Ceci inclut les clients, les produits, les factures, les soumissions et les paiements.',
     'JSON_file' => 'Fichier JSON',
-
     'view_dashboard' => 'Voir Tableau de bord',
     'client_session_expired' => 'Session expirée',
     'client_session_expired_message' => 'Votre session a expirée. Veuillez cliquer sur le lien dans votre courriel.',
-
     'auto_bill_notification' => 'Cette facture sera automatiquement facturée à votre :payment_method au dossier le :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'compte de banque',
     'auto_bill_payment_method_credit_card' => 'carte de crédit',
     'auto_bill_payment_method_paypal' => 'compte PayPal',
     'auto_bill_notification_placeholder' => 'Cette facture sera automatiquement facturée à votre carte de crédit inscrite au dossier à la date d\'échéance.',
     'payment_settings' => 'Paramètres de paiement',
-
     'on_send_date' => 'À la date d\'envoi',
     'on_due_date' => 'À la date d\'échéance',
     'auto_bill_ach_date_help' => 'ACH sera toujours facturé automatiquement à la date d\'échéance.',
     'warn_change_auto_bill' => 'Selon les règles de NACHA, les changements à cette facture pourrait prévenir l\'autofacturation de ACH.',
-
     'bank_account' => 'Compte de banque',
     'payment_processed_through_wepay' => 'Les paiements ACH seront traités avec WePay.',
     'wepay_payment_tos_agree' => 'J\'accepte les conditions d\'utilisation et la politique de confidentialité de WePay',
@@ -1348,7 +1317,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'wepay_payment_tos_agree_required' => 'Vous devez accepter les conditions d\'utilisation et la politique de confidentialité de WePay',
     'ach_email_prompt' => 'Veuillez entrer votre adresse courriel:',
     'verification_pending' => 'En attente de vérification',
-
     'update_font_cache' => 'Veuillez actualiser la page pour mettre à jour le cache de la police de caractères',
     'more_options' => 'Plus d\'options',
     'credit_card' => 'Carte de crédit',
@@ -1362,7 +1330,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'gateway_exists' => 'La passerelle existe déjà',
     'manual_entry' => 'Saisie manuelle',
     'start_of_week' => 'Premier jour de la semaine',
-
     // Frequencies
     'freq_inactive' => 'Inactif',
     'freq_weekly' => 'Hebdomadaire',
@@ -1372,7 +1339,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'freq_three_months' => 'Trimestrielle',
     'freq_six_months' => 'Semestrielle',
     'freq_annually' => 'Annuelle',
-
     // Payment types
     'payment_type_Apply Credit' => 'Appliquer le crédit',
     'payment_type_Bank Transfer' => 'Virement bancaire',
@@ -1399,7 +1365,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Administration',
     'industry_Advertising' => 'Publicité',
@@ -1433,7 +1398,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'industry_Travel & Luxury' => 'Voyage',
     'industry_Other' => 'Autre',
     'industry_Photography' => 'Photographie',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albanie',
@@ -1684,7 +1648,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yémen',
     'country_Zambia' => 'Zambie',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Portuguais - Brésil',
     'lang_Croatian' => 'Croate',
@@ -1711,7 +1674,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Turkish - Turkey' => 'Turc - Turquie',
     'lang_Portuguese - Brazilian' => 'Portugais - Brésil',
     'lang_Portuguese - Portugal' => 'Portugais - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Hebdomadaire',
     'freq_two_weeks' => 'Aux deux semaines',
@@ -1720,7 +1682,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'freq_three_months' => 'Trimestrielle',
     'freq_six_months' => 'Semestrielle',
     'freq_annually' => 'Annuelle',
-
     // Industries
     'industry_Accounting & Legal' => 'Administration',
     'industry_Advertising' => 'Publicité',
@@ -1752,8 +1713,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'industry_Transportation' => 'Transport',
     'industry_Travel & Luxury' => 'Voyage',
     'industry_Other' => 'Autre',
-    'industry_Photography' =>'Photographie',
-
+    'industry_Photography' => 'Photographie',
     'view_client_portal' => 'Voir le portail client',
     'view_portal' => 'Voir le portail',
     'vendor_contacts' => 'Contacts du fournisseur',
@@ -1795,7 +1755,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'no_undo' => 'Avertissement: Ceci ne peut être annulé.',
     'no_contact_selected' => 'Veuillez sélectionner un contact',
     'no_client_selected' => 'Veuillez sélectionner un client',
-
     'gateway_config_error' => 'Cela pourrait aider de définir de nouveau mots de passe ou générer de nouvelles clés API.',
     'payment_type_on_file' => ':type inscrit au dossier',
     'invoice_for_client' => 'Facture :invoice pour :client',
@@ -1818,11 +1777,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'security_code_email_line2' => 'Note: il expirera dans 10 minutes.',
     'bot_help_message' => 'Je supporte actuellement:<br/>• Créer\mettre à jour\envoyer une facture<br/>• Lister les produits<br/>Par exemple:<br/><i>Facturer 2 billets à Simon, définir la date d\'échéance au prochain jeudi et l\'escompte à 10 %</i>',
     'list_products' => 'Liste des produits',
-
     'include_item_taxes_inline' => 'Inclure une <b>ligne de taxes dans la ligne total</b>',
     'created_quotes' => ':count soumission(s) ont été créées',
     'limited_gateways' => 'Note: Nous supportons une passerelle de carte de crédit par entreprise',
-
     'warning' => 'Avertissement',
     'self-update' => 'Mettre à jour',
     'update_invoiceninja_title' => 'Mettre à jour Invoice Ninja',
@@ -1833,7 +1790,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'update_invoiceninja_update_start' => 'Mettre à jour',
     'update_invoiceninja_download_start' => 'Télécharger :version',
     'create_new' => 'Créer',
-
     'toggle_navigation' => 'Basculer la navigation',
     'toggle_history' => 'Basculer l\'historique',
     'unassigned' => 'Non assigné',
@@ -1846,7 +1802,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'facebook_and_twitter_help' => 'Suivez-nous pour nous soutenir notre projet',
     'reseller_text' => 'Note: La licence sans-pub est réservée pour un usage personnel. Veuillez prendre contact avec nous à :email si vous souhaitez revendre l\'application.',
     'unnamed_client' => 'Client sans nom',
-
     'day' => 'Jour',
     'week' => 'Semaine',
     'month' => 'Mois',
@@ -1855,7 +1810,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'total_profit' => 'Total des profits',
     'total_expenses' => 'Total des dépenses',
     'quote_to' => 'Soumission pour',
-
     // Limits
     'limit' => 'Limite',
     'min_limit' => 'Min: :min',
@@ -1867,7 +1821,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'Cette facture ne rencontre pas les limites définies pour ce type de paiement.',
-
     'date_range' => 'Intervalle de dates',
     'raw' => 'Brut',
     'raw_html' => 'HTML brut',
@@ -1883,10 +1836,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'expense_will_create' => 'dépense sera créée',
     'expenses_will_create' => 'dépenses seront créée',
     'created_expenses' => ':count dépense(s) créée(s)',
-
     'translate_app' => 'Aidez-nous à améliorer nos traductions avec :link',
     'expense_category' => 'Catégorie de dépense',
-
     'go_ninja_pro' => 'Devenez Ninja Pro',
     'go_enterprise' => 'Devenez Entreprise!',
     'upgrade_for_features' => 'Mettre à jour pour plus de fonctionnalités',
@@ -1897,10 +1848,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'enterprise_upgrade_feature1' => 'Définissez les permissions pour plusieurs utilisateurs',
     'enterprise_upgrade_feature2' => 'Ajoutez des fichiers joints aux factures et dépenses',
     'much_more' => 'Encore plus!',
-
     'currency_symbol' => 'Symbole',
     'currency_code' => 'Code',
-
     'buy_license' => 'Acheter une licence',
     'apply_license' => 'Activer la licence',
     'submit' => 'Envoyer',
@@ -1924,39 +1873,37 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'sign_here' => 'Veuillez signer ici:',
     'authorization' => 'Autorisation',
     'signed' => 'Signé',
-
-	// BlueVine
-	'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVIne.',
-	'bluevine_modal_label' => 'Inscrivez-vous avec BlueVine',
-	'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVIne.',
+    'bluevine_modal_label' => 'Inscrivez-vous avec BlueVine',
+    'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
 <ul><li>Marges de crédit et affacturage d\'affaires flexibles.</li></ul>',
-	'bluevine_create_account' => 'Créer un compte',
-	'quote_types' => 'Obtenir une soumission pour',
-	'invoice_factoring' => 'Affacturage',
-	'line_of_credit' => 'Marge de crédit',
-	'fico_score'                         => 'Votre pointage de crédit',
-	'business_inception'                 => 'Date de création de l\'entreprise',
-	'average_bank_balance'               => 'Solde moyen de compte bancaire',
-	'annual_revenue'                     => 'Revenu annuel',
-	'desired_credit_limit_factoring'     => 'Affacturage désiré',
-	'desired_credit_limit_loc'           => 'Marge de crédit désirée',
-	'desired_credit_limit'               => 'Limite de crédit désirée',
-	'bluevine_credit_line_type_required' => 'Faites au moins un choix',
-	'bluevine_field_required'            => 'Ce champs est requis',
-	'bluevine_unexpected_error'          => 'Une erreur inattendue s\'est produite.',
-	'bluevine_no_conditional_offer'      => 'Vous devez fournir plus d\'information afin d\'obtenir une soumission. Veuillez cliquer ci-dessous.',
-	'bluevine_invoice_factoring'         => 'Affacturage',
-	'bluevine_conditional_offer'         => 'Offre conditionnelle',
-	'bluevine_credit_line_amount'        => 'Marge de crédit',
-	'bluevine_advance_rate'              => 'Taux de l\'accompte',
-	'bluevine_weekly_discount_rate'      => 'Taux de remise hebdomadaire',
-	'bluevine_minimum_fee_rate'          => 'Frais minimaux',
-	'bluevine_line_of_credit'            => 'Marge de crédit',
-	'bluevine_interest_rate'             => 'Taux d\'intérêt',
-	'bluevine_weekly_draw_rate'          => 'Taux hebdomadaire de retrait',
-	'bluevine_continue'                  => 'Continuer vers BlueVine',
-	'bluevine_completed'                 => 'Inscription complètée avec BlueVIne',
-
+    'bluevine_create_account' => 'Créer un compte',
+    'quote_types' => 'Obtenir une soumission pour',
+    'invoice_factoring' => 'Affacturage',
+    'line_of_credit' => 'Marge de crédit',
+    'fico_score' => 'Votre pointage de crédit',
+    'business_inception' => 'Date de création de l\'entreprise',
+    'average_bank_balance' => 'Solde moyen de compte bancaire',
+    'annual_revenue' => 'Revenu annuel',
+    'desired_credit_limit_factoring' => 'Affacturage désiré',
+    'desired_credit_limit_loc' => 'Marge de crédit désirée',
+    'desired_credit_limit' => 'Limite de crédit désirée',
+    'bluevine_credit_line_type_required' => 'Faites au moins un choix',
+    'bluevine_field_required' => 'Ce champs est requis',
+    'bluevine_unexpected_error' => 'Une erreur inattendue s\'est produite.',
+    'bluevine_no_conditional_offer' => 'Vous devez fournir plus d\'information afin d\'obtenir une soumission. Veuillez cliquer ci-dessous.',
+    'bluevine_invoice_factoring' => 'Affacturage',
+    'bluevine_conditional_offer' => 'Offre conditionnelle',
+    'bluevine_credit_line_amount' => 'Marge de crédit',
+    'bluevine_advance_rate' => 'Taux de l\'accompte',
+    'bluevine_weekly_discount_rate' => 'Taux de remise hebdomadaire',
+    'bluevine_minimum_fee_rate' => 'Frais minimaux',
+    'bluevine_line_of_credit' => 'Marge de crédit',
+    'bluevine_interest_rate' => 'Taux d\'intérêt',
+    'bluevine_weekly_draw_rate' => 'Taux hebdomadaire de retrait',
+    'bluevine_continue' => 'Continuer vers BlueVine',
+    'bluevine_completed' => 'Inscription complètée avec BlueVIne',
     'vendor_name' => 'Fournisseur',
     'entity_state' => 'Province',
     'client_created_at' => 'Date de création',
@@ -2089,23 +2036,20 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'financial_year_start_help' => 'Utilisés par sélecteurs d\'<b>écart de date</b>',
     'reports_help' => 'MAJ + Clic pour trier plusieurs colonnes, CTRL + Clic pour désactiver la sélection.',
     'this_year' => 'Cette année',
-
-	// Updated login screen
-	'ninja_tagline' => 'Créer, envoyer et encaissez.',
-	'login_or_existing' => 'Ou utilisez un compte existant.',
-	'sign_up_now' => 'Inscrivez-vous maintenant',
-	'not_a_member_yet' => 'Pas encore membre?',
-	'login_create_an_account' => 'Créer un compte',
-	'client_login' => 'Connexion client',
-
-	// New Client Portal styling
-	'invoice_from' => 'Factures de:',
+    // Updated login screen
+    'ninja_tagline' => 'Créer, envoyer et encaissez.',
+    'login_or_existing' => 'Ou utilisez un compte existant.',
+    'sign_up_now' => 'Inscrivez-vous maintenant',
+    'not_a_member_yet' => 'Pas encore membre?',
+    'login_create_an_account' => 'Créer un compte',
+    'client_login' => 'Connexion client',
+    // New Client Portal styling
+    'invoice_from' => 'Factures de:',
     'email_alias_message' => 'Chaque entreprise doit avoir une adresse courriel unique.
 <br/>Vous pouvez utiliser un alias, ex. email+label@example.com',
     'full_name' => 'Nom complet',
     'month_year' => 'MOIS/ANNÉE',
     'valid_thru' => 'Valide\nthru',
-
     'product_fields' => 'Champs produit',
     'custom_product_fields_help' => 'Ajoute un champ lors de la création d\'un produit ou d\'une facture et affiche l\'étiquette et la valeur sur la visualisation PDF.',
     'freq_two_months' => 'Deux mois',
@@ -2129,7 +2073,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'create_expense_category' => 'Créer une catégorie',
     'pro_plan_reports' => ':link pour activer les rapports en joignant le Plan Pro',
     'mark_ready' => 'Marquer comme prêt',
-
     'limits' => 'Limites',
     'fees' => 'Frais',
     'fee' => 'Frais',
@@ -2158,7 +2101,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'logo_warning_too_large' => 'Le fichier image est trop gros.',
     'logo_warning_fileinfo' => 'Avertissement: L\'extension PHP fileinfo doit être activée pour utiliser les gifs',
     'logo_warning_invalid' => 'Il y a eu un problème avec le fichier image. Veuillez essayer avec un autre format.',
-
     'error_refresh_page' => 'Une erreur est survenue. Veuillez actualiser la page et essayer de nouveau.',
     'data' => 'Données',
     'imported_settings' => 'Les paramètres ont été inmportés',
@@ -2311,7 +2253,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'send_email_to_client' => 'Envoyer un courriel au client',
     'refund_subject' => 'Remboursement réussi',
     'refund_body' => 'Vous avez été remboursé du montant de ;amount pour la facture :invoice_number.',
-
     'currency_us_dollar' => 'Dollar américain',
     'currency_british_pound' => 'Livre sterling anglaise',
     'currency_euro' => 'Euro',
@@ -2379,12 +2320,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_jordanian_dinar' => 'Dinar jordanien',
     'currency_myanmar_kyat' => 'Kyat birman',
     'currency_peruvian_sol' => 'Nouveau sol péruvien',
-
     'use_english_version' => 'Veuillez vous assurer d\'utiliser la version anglaise des fichiers.<br/>Les entêtes de colonnes sont utilisées pour correspondre aux champs.',
     'tax1' => 'Première taxe',
     'tax2' => 'Deuxième taxe',
     'fee_help' => 'Les frais de la passerelle sont les coûts facturés pour l\'accès aux réseaux financiers qui traitent le traitement des paiements en ligne.',
-	'format_export' => 'Format d\'exportation',
+    'format_export' => 'Format d\'exportation',
     'custom1' => 'Personnalisation 1',
     'custom2' => 'Personnalisation 2',
     'contact_first_name' => 'Prénom du contact',
@@ -2392,9 +2332,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'contact_custom1' => 'Personnalisation 1 du contact',
     'contact_custom2' => 'Personnalisation 2 du contact',
     'currency' => 'Devise',
-
 );
-
 return $LANG;
-
 ?>

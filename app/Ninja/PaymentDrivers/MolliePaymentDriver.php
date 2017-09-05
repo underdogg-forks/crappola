@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\PaymentDrivers;
 
 use Exception;
@@ -11,10 +10,8 @@ class MolliePaymentDriver extends BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
-
         // Enable webhooks
-        $data['notifyUrl'] = url('/payment_hook/'. $this->account()->account_key . '/' . GATEWAY_MOLLIE);
-
+        $data['notifyUrl'] = url('/payment_hook/' . $this->account()->account_key . '/' . GATEWAY_MOLLIE);
         return $data;
     }
 
@@ -28,30 +25,27 @@ class MolliePaymentDriver extends BasePaymentDriver
     {
         $ref = array_get($input, 'id');
         $data = [
-          'transactionReference' => $ref
+            'transactionReference' => $ref
         ];
-
         $response = $this->gateway()->fetchTransaction($data)->send();
-
         if ($response->isPaid() || $response->isPaidOut()) {
             $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
-                            ->whereTransactionReference($ref)
-                            ->first();
+                ->whereTransactionReference($ref)
+                ->first();
             if ($invitation) {
-              $this->invitation = $invitation;
-              $this->createPayment($ref);
+                $this->invitation = $invitation;
+                $this->createPayment($ref);
             }
         } else {
             // check if payment has failed
             $payment = Payment::whereAccountId($this->accountGateway->account_id)
-                            ->whereTransactionReference($ref)
-                            ->first();
+                ->whereTransactionReference($ref)
+                ->first();
             if ($payment) {
                 $payment->markFailed($response->getStatus());
             }
             return false;
         }
-
         return RESULT_SUCCESS;
     }
 

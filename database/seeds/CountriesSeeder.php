@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Country;
 
 class CountriesSeeder extends Seeder
@@ -12,7 +11,6 @@ class CountriesSeeder extends Seeder
     public function run()
     {
         Eloquent::unguard();
-
         $countries = Countries::getList();
         foreach ($countries as $countryId => $country) {
             if ($record = Country::whereCountryCode($country['country-code'])->first()) {
@@ -34,11 +32,10 @@ class CountriesSeeder extends Seeder
                     'name' => $country['name'],
                     'region_code' => $country['region-code'],
                     'sub_region_code' => $country['sub-region-code'],
-                    'eea' => (bool) $country['eea'],
+                    'eea' => (bool)$country['eea'],
                 ]);
             }
         }
-
         // Source: http://www.bitboost.com/ref/international-address-formats.html
         // Source: https://en.wikipedia.org/wiki/Linguistic_issues_concerning_the_euro
         $countries = [
@@ -158,7 +155,6 @@ class CountriesSeeder extends Seeder
                 'swap_postal_code' => true,
             ],
         ];
-
         foreach ($countries as $code => $data) {
             $country = Country::where('iso_3166_2', '=', $code)->first();
             if (isset($data['swap_postal_code'])) {

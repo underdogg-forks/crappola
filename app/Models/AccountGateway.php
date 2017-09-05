@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Crypt;
@@ -46,13 +45,11 @@ class AccountGateway extends EntityModel
     {
         $flags = unserialize(CREDIT_CARDS);
         $arrayOfImages = [];
-
         foreach ($flags as $card => $name) {
             if (($this->accepted_credit_cards & $card) == $card) {
                 $arrayOfImages[] = ['source' => asset($name['card']), 'alt' => $name['text']];
             }
         }
-
         return $arrayOfImages;
     }
 
@@ -67,7 +64,6 @@ class AccountGateway extends EntityModel
         $provider = str_replace('\\', '', $provider);
         $class = $folder . $provider . 'PaymentDriver';
         $class = str_replace('_', '', $class);
-
         if (class_exists($class)) {
             return $class;
         } else {
@@ -76,7 +72,7 @@ class AccountGateway extends EntityModel
     }
 
     /**
-     * @param bool  $invitation
+     * @param bool $invitation
      * @param mixed $gatewayTypeId
      *
      * @return mixed
@@ -84,7 +80,6 @@ class AccountGateway extends EntityModel
     public function paymentDriver($invitation = false, $gatewayTypeId = false)
     {
         $class = static::paymentDriverClass($this->gateway->provider);
-
         return new $class($this, $invitation, $gatewayTypeId);
     }
 
@@ -129,10 +124,9 @@ class AccountGateway extends EntityModel
      */
     public function getPublishableStripeKey()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
-
         return $this->getConfigField('publishableKey');
     }
 
@@ -141,7 +135,7 @@ class AccountGateway extends EntityModel
      */
     public function getAchEnabled()
     {
-        return ! empty($this->getConfigField('enableAch'));
+        return !empty($this->getConfigField('enableAch'));
     }
 
     /**
@@ -149,7 +143,7 @@ class AccountGateway extends EntityModel
      */
     public function getAlipayEnabled()
     {
-        return ! empty($this->getConfigField('enableAlipay'));
+        return !empty($this->getConfigField('enableAlipay'));
     }
 
     /**
@@ -157,7 +151,7 @@ class AccountGateway extends EntityModel
      */
     public function getPayPalEnabled()
     {
-        return ! empty($this->getConfigField('enablePayPal'));
+        return !empty($this->getConfigField('enablePayPal'));
     }
 
     /**
@@ -165,10 +159,9 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidSecret()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
-
         return $this->getConfigField('plaidSecret');
     }
 
@@ -177,10 +170,9 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidClientId()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
-
         return $this->getConfigField('plaidClientId');
     }
 
@@ -189,10 +181,9 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidPublicKey()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
-
         return $this->getConfigField('plaidPublicKey');
     }
 
@@ -201,7 +192,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnabled()
     {
-        return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
+        return !empty($this->getPlaidClientId()) && $this->getAchEnabled();
     }
 
     /**
@@ -209,12 +200,10 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnvironment()
     {
-        if (! $this->getPlaidClientId()) {
+        if (!$this->getPlaidClientId()) {
             return null;
         }
-
         $stripe_key = $this->getPublishableStripeKey();
-
         return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
 
@@ -224,7 +213,6 @@ class AccountGateway extends EntityModel
     public function getWebhookUrl()
     {
         $account = $this->account ? $this->account : Account::find($this->account_id);
-
-        return \URL::to(env('WEBHOOK_PREFIX', '').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX', ''));
+        return \URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 }

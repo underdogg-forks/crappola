@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Traits;
 
 use Carbon;
@@ -15,22 +14,18 @@ trait HasRecurrence
      */
     public function shouldSendToday()
     {
-        if (! $this->user->confirmed) {
+        if (!$this->user->confirmed) {
             return false;
         }
-
         $account = $this->account;
         $timezone = $account->getTimezone();
-
-        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
+        if (!$this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
             return false;
         }
-
         if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()) {
             return false;
         }
-
-        if (! $this->last_sent_date) {
+        if (!$this->last_sent_date) {
             return true;
         } else {
             $date1 = new DateTime($this->last_sent_date);
@@ -38,18 +33,15 @@ trait HasRecurrence
             $diff = $date2->diff($date1);
             $daysSinceLastSent = $diff->format('%a');
             $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
-
             // check we don't send a few hours early due to timezone difference
             if (Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
                 return false;
             }
-
             // check we never send twice on one day
             if ($daysSinceLastSent == 0) {
                 return false;
             }
         }
-
         switch ($this->frequency_id) {
             case FREQUENCY_WEEKLY:
                 return $daysSinceLastSent >= 7;
@@ -70,7 +62,6 @@ trait HasRecurrence
             default:
                 return false;
         }
-
         return false;
     }
 
@@ -80,7 +71,6 @@ trait HasRecurrence
     private function getRecurrenceRule()
     {
         $rule = '';
-
         switch ($this->frequency_id) {
             case FREQUENCY_WEEKLY:
                 $rule = 'FREQ=WEEKLY;';
@@ -107,11 +97,9 @@ trait HasRecurrence
                 $rule = 'FREQ=YEARLY;';
                 break;
         }
-
         if ($this->end_date) {
             $rule .= 'UNTIL=' . $this->getOriginal('end_date');
         }
-
         return $rule;
     }
 
@@ -125,5 +113,4 @@ trait HasRecurrence
         return $this->account->getDateTime() >= $nextSendDate;
     }
     */
-
 }

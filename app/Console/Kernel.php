@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
@@ -42,25 +41,21 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $logFile = storage_path() . '/logs/cron.log';
-
         $schedule
             ->command('ninja:send-invoices --force')
             ->sendOutputTo($logFile)
             ->withoutOverlapping()
             ->hourly();
-
         $schedule
             ->command('ninja:send-reminders --force')
             ->sendOutputTo($logFile)
             ->daily();
-
         if (Utils::isNinja()) {
             $schedule
                 ->command('ninja:send-renewals --force')
                 ->sendOutputTo($logFile)
                 ->daily();
         }
-
         $schedule
             ->command('updater:check-for-update --prefixVersionWith=v')
             ->sendOutputTo($logFile)

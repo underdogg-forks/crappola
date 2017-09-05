@@ -8,23 +8,25 @@
 
   <style type="text/css">
 
-  #tooltip {
-    position: absolute;
-    width: 200px;
-    height: auto;
-    padding: 10px 10px 2px 10px;
-    background-color: #F6F6F6;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-  }
+    #tooltip
+    {
+      position: absolute;
+      width: 200px;
+      height: auto;
+      padding: 10px 10px 2px 10px;
+      background-color: #F6F6F6;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    }
 
-  .no-pointer-events {
-    pointer-events: none;
-  }
+    .no-pointer-events
+    {
+      pointer-events: none;
+    }
 
   </style>
 @stop
@@ -62,9 +64,9 @@
     // store data as JSON
     var data = {!! $clients !!};
 
-    _.each(data, function(client) {
-      _.each(client.invoices, function(invoice) {
-        _.each(invoice.invoice_items, function(invoice_item) {
+    _.each(data, function (client) {
+      _.each(client.invoices, function (invoice) {
+        _.each(invoice.invoice_items, function (invoice_item) {
           invoice_item.invoice = invoice;
         });
       });
@@ -75,38 +77,44 @@
     var invoices = _.flatten(_.pluck(clients, 'invoices'));
 
     // remove quotes and recurring invoices
-    invoices = _.filter(invoices, function(invoice) {
+    invoices = _.filter(invoices, function (invoice) {
       return parseInt(invoice.invoice_type_id) == {{ INVOICE_TYPE_STANDARD }} && !invoice.is_recurring;
     });
 
     var products = _.flatten(_.pluck(invoices, 'invoice_items'));
     products = d3.nest()
-      .key(function(d) { return d.product_key; })
+      .key(function (d) {
+        return d.product_key;
+      })
       .sortKeys(d3.ascending)
-      .rollup(function(d) { return {
-        amount: d3.sum(d, function(g) {
-          return g.qty * g.cost;
-        }),
-        paid: d3.sum(d, function(g) {
-          return g.invoice && g.invoice.invoice_status_id == {{ INVOICE_STATUS_PAID }} ? (g.qty * g.cost) : 0;
-        }),
-        age: d3.mean(d, function(g) {
-          return calculateInvoiceAge(g.invoice) || null;
-        }),
-      }})
+      .rollup(function (d) {
+        return {
+          amount: d3.sum(d, function (g) {
+            return g.qty * g.cost;
+          }),
+          paid: d3.sum(d, function (g) {
+            return g.invoice && g.invoice.invoice_status_id == {{ INVOICE_STATUS_PAID }} ? (g.qty * g.cost) : 0;
+          }),
+          age: d3.mean(d, function (g) {
+            return calculateInvoiceAge(g.invoice) || null;
+          }),
+        }
+      })
       .entries(products);
 
     // create standardized display properties
-    _.each(clients, function(client) {
+    _.each(clients, function (client) {
       client.displayName = getClientDisplayName(client);
       client.displayTotal = +client.paid_to_date + +client.balance;
       client.displayBalance = +client.balance;
       client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
-      var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
+      var oldestInvoice = _.max(client.invoices, function (invoice) {
+        return calculateInvoiceAge(invoice)
+      });
       client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
     });
 
-    _.each(invoices, function(invoice) {
+    _.each(invoices, function (invoice) {
       invoice.displayName = invoice.invoice_number;
       invoice.displayTotal = +invoice.amount;
       invoice.displayBalance = +invoice.balance;
@@ -114,7 +122,7 @@
       invoice.displayAge = calculateInvoiceAge(invoice);
     });
 
-    _.each(products, function(product) {
+    _.each(products, function (product) {
       product.displayName = product.key;
       product.displayTotal = product.values.amount;
       product.displayBalance = product.values.amount - product.values.paid;
@@ -127,18 +135,26 @@
     //console.log(JSON.stringify(products));
 
     var arc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r })
-      .outerRadius(function(d) { return d.r - 8 })
+      .innerRadius(function (d) {
+        return d.r
+      })
+      .outerRadius(function (d) {
+        return d.r - 8
+      })
       .startAngle(0);
 
     var fullArc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r - 1 })
-      .outerRadius(function(d) { return d.r - 7 })
+      .innerRadius(function (d) {
+        return d.r - 1
+      })
+      .outerRadius(function (d) {
+        return d.r - 7
+      })
       .startAngle(0)
       .endAngle(2 * Math.PI);
 
     var diameter = 800,
-    format = d3.format(",d");
+      format = d3.format(",d");
     //color = d3.scale.category10();
 
     var color = d3.scale.linear()
@@ -148,7 +164,9 @@
     var bubble = d3.layout.pack()
       .sort(null)
       .size([diameter, diameter])
-      .value(function(d) { return Math.max(30, d.displayTotal) })
+      .value(function (d) {
+        return Math.max(30, d.displayTotal)
+      })
       .padding(12);
 
     var svg = d3.select(".svg-div").append("svg")
@@ -169,19 +187,23 @@
       var groupBy = $('#groupBySelect').val().toLowerCase();
       data.children = window[groupBy];
 
-      data = bubble.nodes(data).filter(function(d) {
+      data = bubble.nodes(data).filter(function (d) {
         return !d.children && d.displayTotal && d.displayName;
       });
 
       var selection = svg.selectAll(".node")
-        .data(data, function(d) { return d.displayName; });
+        .data(data, function (d) {
+          return d.displayName;
+        });
 
       var node = selection.enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + (d.x+20) + "," + (d.y+20) + ")"; });
+        .attr("transform", function (d) {
+          return "translate(" + (d.x + 20) + "," + (d.y + 20) + ")";
+        });
 
       var visibleTooltip = false;
-      node.on("mousemove", function(d) {
+      node.on("mousemove", function (d) {
         if (!visibleTooltip || visibleTooltip != d.displayName) {
           d3.select("#tooltip")
             .classed("hidden", false)
@@ -204,7 +226,7 @@
         }
       });
 
-      svg.on("click", function() {
+      svg.on("click", function () {
         visibleTooltip = false;
         d3.select("#tooltip")
           .classed("hidden", true);
@@ -212,38 +234,52 @@
 
       node.append("circle")
         .attr("fill", "#ffffff")
-        .attr("r", function(d) { return d.r });
+        .attr("r", function (d) {
+          return d.r
+        });
 
       node.append("path")
-        .each(function(d) { d.endAngle = 0; })
+        .each(function (d) {
+          d.endAngle = 0;
+        })
         .attr("class", "no-pointer-events")
         .attr("class", "animate-fade")
         .attr("d", fullArc)
-        .style("fill", function(d, i) { return 'white'; });
+        .style("fill", function (d, i) {
+          return 'white';
+        });
 
       node.append("text")
         .attr("dy", ".3em")
         .attr("class", "no-pointer-events")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.displayName; });
+        .text(function (d) {
+          return d.displayName;
+        });
 
       node.append("path")
-        .each(function(d) { d.endAngle = 0; })
+        .each(function (d) {
+          d.endAngle = 0;
+        })
         .attr("class", "no-pointer-events")
         .attr("class", "animate-grow")
         .attr("d", arc)
-        .style("fill", function(d, i) { return '#2e9e49'; });
+        .style("fill", function (d, i) {
+          return '#2e9e49';
+        });
 
       d3.selectAll("path.animate-grow")
         .transition()
-        .delay(function(d, i) { return (Math.random() * 500) })
+        .delay(function (d, i) {
+          return (Math.random() * 500)
+        })
         .duration(1000)
         .call(arcTween, 5);
 
       d3.selectAll("path.animate-fade")
         .transition()
         .duration(1000)
-        .style("fill", function(d, i) {
+        .style("fill", function (d, i) {
           return 'red';
         });
 
@@ -254,9 +290,9 @@
 
     // http://bl.ocks.org/mbostock/5100636
     function arcTween(transition, newAngle) {
-      transition.attrTween("d", function(d) {
-        var interpolate = d3.interpolate( 0, 360 * d.displayPercent * Math.PI/180 );
-        return function(t) {
+      transition.attrTween("d", function (d) {
+        var interpolate = d3.interpolate(0, 360 * d.displayPercent * Math.PI / 180);
+        return function (t) {
           d.endAngle = interpolate(t);
           return arc(d);
         };
@@ -267,14 +303,14 @@
       if (!invoice || invoice.invoice_status_id == 5) {
         return -1;
       }
-      var dayInSeconds = 1000*60*60*24;
-      @if (Auth::user()->account->hasFeature(FEATURE_REPORTS))
-        var date = convertToJsDate(invoice.created_at);
-      @else
-        var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);
+      var dayInSeconds = 1000 * 60 * 60 * 24;
+        @if (Auth::user()->account->hasFeature(FEATURE_REPORTS))
+      var date = convertToJsDate(invoice.created_at);
+        @else
+      var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);
       @endif
 
-      return parseInt((new Date().getTime() - date) / dayInSeconds);
+        return parseInt((new Date().getTime() - date) / dayInSeconds);
     }
 
     function convertToJsDate(isoDate) {
@@ -282,7 +318,7 @@
         return false;
       }
       var t = isoDate.split(/[- :]/);
-      return new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
+      return new Date(t[0], t[1] - 1, t[2], t[3], t[4], t[5]);
     }
 
 
@@ -292,7 +328,8 @@
         string += 's';
       }
       return string;
-    };
+    }
+    ;
 
   </script>
 

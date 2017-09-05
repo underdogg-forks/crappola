@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentRequest;
@@ -31,7 +30,6 @@ class DocumentAPIController extends BaseAPIController
     public function __construct(DocumentRepository $documentRepo)
     {
         parent::__construct();
-
         $this->documentRepo = $documentRepo;
     }
 
@@ -55,7 +53,6 @@ class DocumentAPIController extends BaseAPIController
     public function index()
     {
         $documents = Document::scope();
-
         return $this->listResponse($documents);
     }
 
@@ -90,7 +87,6 @@ class DocumentAPIController extends BaseAPIController
     public function show(DocumentRequest $request)
     {
         $document = $request->entity();
-
         if (array_key_exists($document->type, Document::$types)) {
             return DocumentController::getDownloadResponse($document);
         } else {
@@ -123,7 +119,6 @@ class DocumentAPIController extends BaseAPIController
     public function store(CreateDocumentRequest $request)
     {
         $document = $this->documentRepo->upload($request->all());
-
         return $this->itemResponse($document);
     }
 
@@ -153,9 +148,7 @@ class DocumentAPIController extends BaseAPIController
     public function destroy(UpdateDocumentRequest $request)
     {
         $entity = $request->entity();
-
         $this->documentRepo->delete($entity);
-
         return $this->itemResponse($entity);
     }
 }

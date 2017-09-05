@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientRequest;
@@ -19,7 +18,6 @@ class ClientApiController extends BaseAPIController
     public function __construct(ClientRepository $clientRepo)
     {
         parent::__construct();
-
         $this->clientRepo = $clientRepo;
     }
 
@@ -45,7 +43,6 @@ class ClientApiController extends BaseAPIController
         $clients = Client::scope()
             ->orderBy('created_at', 'desc')
             ->withTrashed();
-
         if ($email = Input::get('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
@@ -53,7 +50,6 @@ class ClientApiController extends BaseAPIController
         } elseif ($idNumber = Input::get('id_number')) {
             $clients = $clients->whereIdNumber($idNumber);
         }
-
         return $this->listResponse($clients);
     }
 
@@ -110,7 +106,6 @@ class ClientApiController extends BaseAPIController
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientRepo->save($request->input());
-
         return $this->itemResponse($client);
     }
 
@@ -149,13 +144,10 @@ class ClientApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-
         $data = $request->input();
         $data['public_id'] = $publicId;
         $client = $this->clientRepo->save($data, $request->entity());
-
         $client->load(['contacts']);
-
         return $this->itemResponse($client);
     }
 
@@ -185,9 +177,7 @@ class ClientApiController extends BaseAPIController
     public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
-
         $this->clientRepo->delete($client);
-
         return $this->itemResponse($client);
     }
 }

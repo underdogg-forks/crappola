@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Hiveage;
 
 use App\Ninja\Import\BaseTransformer;
@@ -20,7 +19,6 @@ class ClientTransformer extends BaseTransformer
         if ($this->hasClient($data->name)) {
             return false;
         }
-
         return new Item($data, function ($data) {
             return [
                 'name' => $this->getString($data, 'name'),

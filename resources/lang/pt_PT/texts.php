@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Organização',
     'name' => 'Nome',
     'website' => 'Website',
@@ -991,8 +989,6 @@ $LANG = array(
     'trial_call_to_action' => 'Iniciar período de testes',
     'trial_success' => 'Ativado duas semanas de teste para testar o plano Pro',
     'overdue' => 'Vencido',
-
-
     'white_label_text' => 'Comprar UM ANO da licença de marca branca por $:price para remover o branding do Invoice Ninja das notas de pagamento e do portal do cliente.',
     'user_email_footer' => 'Para ajustar as suas definições de notificações de e-mail aceda :link',
     'reset_password_footer' => 'Se não solicitou a redefinição da palavra-passe por favor envie um e-mail para o nosso suporte: :email',
@@ -1001,7 +997,6 @@ $LANG = array(
     'old_browser' => 'Utilize um <a href=":link" target="_blank">navegador atualizado</a>',
     'white_label_custom_css' => ':link apenas $:price para permitir um estilo personalizado e apoiar o nosso projecto.',
     'bank_accounts_help' => 'Conecte sua conta bancária para importar suas despesas e criar fornecedores. Suporte ao American Express e <a href=":link" target="_blank">400+ bancos americanos.</a>',
-
     'pro_plan_remove_logo' => ':link para remover a logo do Invoice Ninja contratando o plano profissional',
     'pro_plan_remove_logo_link' => 'Clique aqui',
     'invitation_status_sent' => 'Enviado',
@@ -1013,7 +1008,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'Registe-se para enviar e-mails',
     'email_error_user_unconfirmed' => 'Confirme a sua conta para enviar e-mails',
     'email_error_invalid_contact_email' => 'E-mail do contato inválido',
-
     'navigation' => 'Navegação',
     'list_invoices' => 'Listar Notas de Pagamento',
     'list_clients' => 'Listar Clientes',
@@ -1026,7 +1020,6 @@ $LANG = array(
     'tax_name' => 'Nome do Imposto',
     'report_settings' => 'Configuração de Relatórios',
     'search_hotkey' => 'atalho /',
-
     'new_user' => 'Novo Utilizador',
     'new_product' => 'Novo Produto',
     'new_tax_rate' => 'Novo Imposto',
@@ -1035,20 +1028,17 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'Adicionar um campo ao adicionar um item e mostrar a etiqueta e valor no PDF.',
     'recurring_invoice_number' => 'Nº Recorrente',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Proteger notas de pag. com palavra-passe',
     'enable_portal_password_help' => 'Permite definir uma palavra-passe para cada contacto. Se uma palavra-passe for definida, o contacto deverá introduzir a palavra-passe antes de visualizar a nota de pagamento.',
     'send_portal_password' => 'Gerar uma Palavra-passe Automaticamente',
     'send_portal_password_help' => 'Se não definir uma palavra-passe, será gerada uma automaticamente e enviada com a primeira nota de pagamento.',
-
     'expired' => 'Expirada',
     'invalid_card_number' => 'Cartão de crédito inválido.',
     'invalid_expiry' => 'Data de expiração inválida.',
     'invalid_cvv' => 'O código CVV é inválido.',
     'cost' => 'Custo',
     'create_invoice_for_sample' => 'Nota: crie a primeira nota de pagamento para ver uma pré-visualização aqui.',
-
     // User Permissions
     'owner' => 'Proprietário',
     'administrator' => 'Administrador',
@@ -1067,7 +1057,6 @@ $LANG = array(
     'view_all_help' => 'Permite o utilizador visualizar registos que ele não criou',
     'edit_all_help' => 'Permite ao utilizador editar registos que ele não criou',
     'view_payment' => 'Ver Pagamento',
-
     'january' => 'Janeiro',
     'february' => 'Fevereiro',
     'march' => 'Março',
@@ -1080,7 +1069,6 @@ $LANG = array(
     'october' => 'Outubro',
     'november' => 'Novembro',
     'december' => 'Dezembro',
-
     // Documents
     'documents_header' => 'Documentos:',
     'email_documents_header' => 'Documentos:',
@@ -1105,16 +1093,13 @@ $LANG = array(
     'documents' => 'Documentos',
     'document_date' => 'Data do Documento',
     'document_size' => 'Tamanho',
-
     'enable_client_portal' => 'Portal do Cliente',
     'enable_client_portal_help' => 'Mostrar/ocultar o portal do cliente.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Mostrar/ocultar o dashboard no portal do cliente.',
-
     // Plans
     'account_management' => 'Gerir Conta',
     'plan_status' => 'Estado do Plano',
-
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Alterar Plano',
     'pending_change_to' => 'Altera Para',
@@ -1144,9 +1129,7 @@ $LANG = array(
     'plan_paid' => 'Iniciou o período',
     'plan_started' => 'Iniciou o Plano',
     'plan_expires' => 'Plano Expira',
-
     'white_label_button' => 'Marca Branca',
-
     'pro_plan_year_description' => 'Subscrição de um ano no plano Invoice Ninja Pro.',
     'pro_plan_month_description' => 'Um mês de subscrição no plano Invoice Ninja Pro.',
     'enterprise_plan_product' => 'Plano Enterprise',
@@ -1156,7 +1139,6 @@ $LANG = array(
     'plan_credit_description' => 'Crédito pelo tempo não utilizado',
     'plan_pending_monthly' => 'Vamos alterar para mensal em :date',
     'plan_refunded' => 'Foi realizada um reembolso.',
-
     'live_preview' => 'Pré-visualização',
     'page_size' => 'Tamanho da Página',
     'live_preview_disabled' => 'Pré-visualização em tempo real desactivada para suportar o tipo de letra selecionado',
@@ -1166,8 +1148,6 @@ $LANG = array(
     'add_users_not_supported' => 'Altere para o plano Enterprise para adicionar utilizadores adicionais à sua conta.',
     'enterprise_plan_features' => 'O plano Enterprise adiciona suporte a multiplos utilizadores e anexos de ficheiros, :link para ver a lista completa de funcionalidades.',
     'return_to_app' => 'Voltar à app',
-
-
     // Payment updates
     'refund_payment' => 'Reembolsar Pagamento',
     'refund_max' => 'Máx:',
@@ -1184,7 +1164,6 @@ $LANG = array(
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Venc:&nbsp:expira',
-
     'card_creditcardother' => 'Desconhecido',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1199,13 +1178,11 @@ $LANG = array(
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Ativar ACH',
     'stripe_ach_help' => 'ACH também deverá estar ativo no Stripe.',
     'ach_disabled' => 'Existe outro gateway configurado para débito direto.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',
     'secret' => 'Secret',
@@ -1275,15 +1252,12 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'braintree_paypal_help_link_text' => 'ligar o PayPal à sua conta BrainTree',
     'token_billing_braintree_paypal' => 'Guardar detalhes do pagamento',
     'add_paypal_account' => 'Adicionar Conta PayPal',
-
-
     'no_payment_method_specified' => 'Nenhum método de pagamento definido',
     'chart_type' => 'Tipo de Gráfico',
     'format' => 'Formato',
     'import_ofx' => 'Importar OFX',
     'ofx_file' => 'Ficheiro OFX',
     'ofx_parse_failed' => 'Falha ao ler o ficheiro OFX',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Registar com WePay',
@@ -1306,7 +1280,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'canada' => 'Canadá',
     'accept_debit_cards' => 'Aceitar Cartão de Débito',
     'debit_cards' => 'Cartões de Débito',
-
     'warn_start_date_changed' => 'A próxima nota de pagamento será enviada na nova data de início.',
     'original_start_date' => 'Data de início original',
     'new_start_date' => 'Nova data de início',
@@ -1324,23 +1297,19 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Utilize JSON se planear importar os dados para o Invoice Ninja.<br/>O ficheiro incluí clientes, produtos, notas de pagamento, orçamentos e pagamentos.',
     'JSON_file' => 'Ficheiro JSON',
-
     'view_dashboard' => 'Ver Dashboard',
     'client_session_expired' => 'Sessão Expirada',
     'client_session_expired_message' => 'A sua sessão expirou. Por favor abra novamente o link no seu email.',
-
     'auto_bill_notification' => 'Esta nota de pagamento será paga automaticamente a :due_data através do seu :payment_method.',
     'auto_bill_payment_method_bank_transfer' => 'conta bancária',
     'auto_bill_payment_method_credit_card' => 'cartão de crédito',
     'auto_bill_payment_method_paypal' => 'conta PayPal',
     'auto_bill_notification_placeholder' => 'Esta nota de pagamento será paga automaticamente no seu cartão de crédito na data de vencimento.',
     'payment_settings' => 'Definições de Pagamento',
-
     'on_send_date' => 'Na data de envio',
     'on_due_date' => 'Na data de vencimento',
     'auto_bill_ach_date_help' => 'ACH fará sempre o pagamento automático na data de vencimento.',
     'warn_change_auto_bill' => 'Devido às regras NACHA, alterações a esta nota de pagamento podem evitar pagamentos automáticos ACH.',
-
     'bank_account' => 'Conta Bancária',
     'payment_processed_through_wepay' => 'Pagamentos ACH serão processados utilizando WePay.',
     'wepay_payment_tos_agree' => 'Eu concordo com :terms e :privacy_policy da WePay.',
@@ -1348,7 +1317,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'wepay_payment_tos_agree_required' => 'Deve concordar com os Termos de Serviço e Política de Privacidade da WePay.',
     'ach_email_prompt' => 'Por favor indique o seu email:',
     'verification_pending' => 'Verificação Pendente',
-
     'update_font_cache' => 'Por favor force a actualização da página para actualizar a cache dos tipos de letra.',
     'more_options' => 'Mais opções',
     'credit_card' => 'Cartão de Crédito',
@@ -1362,7 +1330,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'gateway_exists' => 'Este gateway já existe',
     'manual_entry' => 'Introdução manual',
     'start_of_week' => 'Primeiro Dia da Semana',
-
     // Frequencies
     'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Semanal',
@@ -1372,7 +1339,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'freq_three_months' => 'Trimestral',
     'freq_six_months' => 'Semestral',
     'freq_annually' => 'Anual',
-
     // Payment types
     'payment_type_Apply Credit' => 'Aplicar Crédito',
     'payment_type_Bank Transfer' => 'Transferência Bancária',
@@ -1399,7 +1365,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Contabilidade & Legislação',
     'industry_Advertising' => 'Publicidade',
@@ -1433,7 +1398,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'industry_Travel & Luxury' => 'Viagens & Luxo',
     'industry_Other' => 'Outros',
     'industry_Photography' => 'Fotografia',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albania',
@@ -1684,7 +1648,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Português do Brasil',
     'lang_Croatian' => 'Croatian',
@@ -1711,7 +1674,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Semanal',
     'freq_two_weeks' => '2 semanas',
@@ -1720,7 +1682,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'freq_three_months' => 'Trimestral',
     'freq_six_months' => 'Semestral',
     'freq_annually' => 'Anual',
-
     // Industries
     'industry_Accounting & Legal' => 'Contabilidade & Legislação',
     'industry_Advertising' => 'Publicidade',
@@ -1752,8 +1713,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'industry_Transportation' => 'Transporte',
     'industry_Travel & Luxury' => 'Viagens & Luxo',
     'industry_Other' => 'Outros',
-    'industry_Photography' =>'Fotografia',
-
+    'industry_Photography' => 'Fotografia',
     'view_client_portal' => 'View client portal',
     'view_portal' => 'View Portal',
     'vendor_contacts' => 'Vendor Contacts',
@@ -1796,7 +1756,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'no_undo' => 'Aviso: isto não pode ser revertido.',
     'no_contact_selected' => 'Por favor selecione um contacto',
     'no_client_selected' => 'Por favor selecione um cliente',
-
     'gateway_config_error' => 'Poderá ajudar a definir novas palavras-passe ou a gerar novas chaves API.',
     'payment_type_on_file' => ':type guardado',
     'invoice_for_client' => 'Nota de Pagamento :invoice para :client',
@@ -1819,11 +1778,9 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'security_code_email_line2' => 'Nota: irá expirar em 10 minutos.',
     'bot_help_message' => 'Atualmente suporto:<br/>• Criar/atualizar/enviar uma nota de pagamento<br/>• Listar produtos:<br/><i>Por exemplo:<br/>faturar o bob por 2 bilhetes, definir a data de vencimento para a próxima quinta-feira e o desconto para 10%</i>',
     'list_products' => 'Listar Produtos',
-
     'include_item_taxes_inline' => 'Incluir <b>impostos dos items no total da linha</b>',
     'created_quotes' => ':count orçamento(s) criados com sucesso.',
     'limited_gateways' => 'Nota: suportamos um gateway de cartão de crédito por empresa.',
-
     'warning' => 'Aviso',
     'self-update' => 'Atualizar',
     'update_invoiceninja_title' => 'Atualizar Invoice Ninja',
@@ -1834,7 +1791,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'update_invoiceninja_update_start' => 'Atualizar agora',
     'update_invoiceninja_download_start' => 'Transferir :version',
     'create_new' => 'Criar Nova',
-
     'toggle_navigation' => 'Alternar Navegação',
     'toggle_history' => 'Alternar Histórico',
     'unassigned' => 'Não atribuído',
@@ -1847,7 +1803,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'facebook_and_twitter_help' => 'Siga os nossos feeds para nos ajudar a suportar o projecto',
     'reseller_text' => 'Nota: a licença de marca-branca é prevista para uso pessoal, por favor envie um email para :email se desejar revender a aplicação.',
     'unnamed_client' => 'Cliente Sem Nome',
-
     'day' => 'Dia',
     'week' => 'Semana',
     'month' => 'Mês',
@@ -1856,7 +1811,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'total_profit' => 'Lucro Total',
     'total_expenses' => 'Despesas Totais',
     'quote_to' => 'Orçamento para',
-
     // Limits
     'limit' => 'Limite',
     'min_limit' => 'Min: :min',
@@ -1868,7 +1822,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'Esta Nota de Pag. não cumpre os limites para este tipo de pagamento.',
-
     'date_range' => 'Interevalo de Datas',
     'raw' => 'Raw',
     'raw_html' => 'Código HTML',
@@ -1884,10 +1837,8 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'expense_will_create' => 'a despesa será criada',
     'expenses_will_create' => 'as despesas serão criadas',
     'created_expenses' => ':count despesa(s) criadas com sucesso',
-
     'translate_app' => 'Ajude a melhorar as nossas traduções com :link',
     'expense_category' => 'Categoria de Despesas',
-
     'go_ninja_pro' => 'Obtenha o Ninja Pro!',
     'go_enterprise' => 'Obtenha o Enterprise!',
     'upgrade_for_features' => 'Suba de Plano para Obter Mais Funcionalidades',
@@ -1898,10 +1849,8 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'enterprise_upgrade_feature1' => 'Defina permissões para vários utilizadores',
     'enterprise_upgrade_feature2' => 'Anexe ficheiros de terceiros às suas notas de pagamento & despesas',
     'much_more' => 'Muito Mais!',
-
     'currency_symbol' => 'Símbolo',
     'currency_code' => 'Código',
-
     'buy_license' => 'Comprar Licença',
     'apply_license' => 'Aplicar Linceça',
     'submit' => 'Submeter',
@@ -1925,39 +1874,37 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'sign_here' => 'Por favor assine aqui:',
     'authorization' => 'Autorização',
     'signed' => 'Assinado',
-
-	// BlueVine
-	'bluevine_promo' => 'Tenha uma linha de crédito flexível usando BlueVine.',
-	'bluevine_modal_label' => 'Registar com BlueVine',
-	'bluevine_modal_text' => '<h3>Capital rápido para o seu negócio. Sem papelada.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Tenha uma linha de crédito flexível usando BlueVine.',
+    'bluevine_modal_label' => 'Registar com BlueVine',
+    'bluevine_modal_text' => '<h3>Capital rápido para o seu negócio. Sem papelada.</h3>
 <ul><li>Linhas de crédito flexíveis para o seu negócio.</li></ul>',
-	'bluevine_create_account' => 'Criar uma conta',
-	'quote_types' => 'Pedir orçamento para',
-	'invoice_factoring' => 'Faturação de contas',
-	'line_of_credit' => 'Linha de crédito',
-	'fico_score'                         => 'Pontuação FICO',
-	'business_inception'                 => 'Data de Criação do Negócio',
-	'average_bank_balance'               => 'Média do balanço das contas bancárias',
-	'annual_revenue'                     => 'Anual faturado',
-	'desired_credit_limit_factoring'     => 'Limite de crédito desejado',
-	'desired_credit_limit_loc'           => 'Limite da linha de crédito desejado',
-	'desired_credit_limit'               => 'Limite de crédito desejado',
-	'bluevine_credit_line_type_required' => 'Deve escolher pelo menos uma',
-	'bluevine_field_required'            => 'O campo é obrigatório',
-	'bluevine_unexpected_error'          => 'Ocorreu um erro inesperado.',
-	'bluevine_no_conditional_offer'      => 'É necessário mais informação antes de obter um orçamento. Clique abaixo para continuar.',
-	'bluevine_invoice_factoring'         => 'Faturação de Contas',
-	'bluevine_conditional_offer'         => 'Oferta Condicional',
-	'bluevine_credit_line_amount'        => 'Linha de Crédito',
-	'bluevine_advance_rate'              => 'Taxa de Avanço',
-	'bluevine_weekly_discount_rate'      => 'Taxa de Desconto Semanal',
-	'bluevine_minimum_fee_rate'          => 'Taxa Mínima',
-	'bluevine_line_of_credit'            => 'Linha de Crédito',
-	'bluevine_interest_rate'             => 'Taxa de Juro',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continuar para BlueVine',
-	'bluevine_completed'                 => 'Registo com o BlueVine concluído',
-
+    'bluevine_create_account' => 'Criar uma conta',
+    'quote_types' => 'Pedir orçamento para',
+    'invoice_factoring' => 'Faturação de contas',
+    'line_of_credit' => 'Linha de crédito',
+    'fico_score' => 'Pontuação FICO',
+    'business_inception' => 'Data de Criação do Negócio',
+    'average_bank_balance' => 'Média do balanço das contas bancárias',
+    'annual_revenue' => 'Anual faturado',
+    'desired_credit_limit_factoring' => 'Limite de crédito desejado',
+    'desired_credit_limit_loc' => 'Limite da linha de crédito desejado',
+    'desired_credit_limit' => 'Limite de crédito desejado',
+    'bluevine_credit_line_type_required' => 'Deve escolher pelo menos uma',
+    'bluevine_field_required' => 'O campo é obrigatório',
+    'bluevine_unexpected_error' => 'Ocorreu um erro inesperado.',
+    'bluevine_no_conditional_offer' => 'É necessário mais informação antes de obter um orçamento. Clique abaixo para continuar.',
+    'bluevine_invoice_factoring' => 'Faturação de Contas',
+    'bluevine_conditional_offer' => 'Oferta Condicional',
+    'bluevine_credit_line_amount' => 'Linha de Crédito',
+    'bluevine_advance_rate' => 'Taxa de Avanço',
+    'bluevine_weekly_discount_rate' => 'Taxa de Desconto Semanal',
+    'bluevine_minimum_fee_rate' => 'Taxa Mínima',
+    'bluevine_line_of_credit' => 'Linha de Crédito',
+    'bluevine_interest_rate' => 'Taxa de Juro',
+    'bluevine_weekly_draw_rate' => 'Weekly Draw Rate',
+    'bluevine_continue' => 'Continuar para BlueVine',
+    'bluevine_completed' => 'Registo com o BlueVine concluído',
     'vendor_name' => 'Fornecedor',
     'entity_state' => 'Estado',
     'client_created_at' => 'Data de Criação',
@@ -2090,22 +2037,19 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'financial_year_start_help' => 'Utilizado pelos selectores <b>interevalo de data>',
     'reports_help' => 'Shift + ordenar por várias colunas, Ctrl + Click para limpar os grupos.',
     'this_year' => 'Este ano',
-
-	// Updated login screen
-	'ninja_tagline' => 'Criar. Enviar. Ser Pago.',
-	'login_or_existing' => 'Ou inicie sessão com um conta.',
-	'sign_up_now' => 'Inicie sessão agora',
-	'not_a_member_yet' => 'Ainda não é membro?',
-	'login_create_an_account' => 'Criar uma conta!',
-	'client_login' => 'Iniciar sessão como cliente',
-
-	// New Client Portal styling
-	'invoice_from' => 'Notas de pag. From:',
+    // Updated login screen
+    'ninja_tagline' => 'Criar. Enviar. Ser Pago.',
+    'login_or_existing' => 'Ou inicie sessão com um conta.',
+    'sign_up_now' => 'Inicie sessão agora',
+    'not_a_member_yet' => 'Ainda não é membro?',
+    'login_create_an_account' => 'Criar uma conta!',
+    'client_login' => 'Iniciar sessão como cliente',
+    // New Client Portal styling
+    'invoice_from' => 'Notas de pag. From:',
     'email_alias_message' => 'Cada empresa deve ter um único email. <br/>Consider utilizar um alias. ex, email+label@example.com',
     'full_name' => 'Nome completo',
     'month_year' => 'MÊS/ANO',
     'valid_thru' => 'Válido\npor',
-
     'product_fields' => 'Campos do produto',
     'custom_product_fields_help' => 'Adicionar um campo quando criar um produto ou nota de pag. e mostrar esse campo e valor no PDF.',
     'freq_two_months' => 'Dois meses',
@@ -2129,7 +2073,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'create_expense_category' => 'Criar categoria',
     'pro_plan_reports' => ':link para ativar relatórios aderindo ao plano Pro',
     'mark_ready' => 'Marcar concluido',
-
     'limits' => 'Limites',
     'fees' => 'Taxas',
     'fee' => 'Taxa',
@@ -2158,7 +2101,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'logo_warning_too_large' => 'A imagem é muito grande.',
     'logo_warning_fileinfo' => 'Aviso: Para suportar GIFSa extensão fileinfo PHP etem que estar ativa.',
     'logo_warning_invalid' => 'Há um problemas a ler a imagem, por favor tente outro formato.',
-
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Definições importadas com sucesso',
@@ -2311,7 +2253,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2379,12 +2320,11 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2392,9 +2332,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

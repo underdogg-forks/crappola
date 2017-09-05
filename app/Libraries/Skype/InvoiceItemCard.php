@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Libraries\Skype;
-
 class InvoiceItemCard
 {
     public function __construct($invoiceItem, $account)

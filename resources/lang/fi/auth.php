@@ -1,7 +1,5 @@
 <?php
-
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Language Lines
@@ -12,8 +10,6 @@ return [
     | these language lines according to your application's requirements.
     |
     */
-
-    'failed'   => 'Kirjautuminen epäonnistui.',
+    'failed' => 'Kirjautuminen epäonnistui.',
     'throttle' => 'Liian monta kirjautumisyritystä. Yritä uudelleen :seconds sekunnin kuluttua.',
-
 ];

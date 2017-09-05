@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Requests;
-
 class UpdateDocumentRequest extends DocumentRequest
 {
     /**
@@ -22,7 +20,6 @@ class UpdateDocumentRequest extends DocumentRequest
     public function rules()
     {
         return [
-
         ];
     }
 }

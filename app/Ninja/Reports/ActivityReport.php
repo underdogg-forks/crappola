@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Activity;
@@ -17,15 +16,12 @@ class ActivityReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-
         $startDate = $this->startDate->format('Y-m-d');
         $endDate = $this->endDate->format('Y-m-d');
-
         $activities = Activity::scope()
             ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
             ->whereRaw("DATE(created_at) >= \"{$startDate}\" and DATE(created_at) <= \"$endDate\"")
             ->orderBy('id', 'desc');
-
         foreach ($activities->get() as $activity) {
             $client = $activity->client;
             $this->data[] = [
@@ -35,7 +31,6 @@ class ActivityReport extends AbstractReport
                 $activity->getMessage(),
             ];
         }
-
 
     }
 }

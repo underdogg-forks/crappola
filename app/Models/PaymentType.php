@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Eloquent;
@@ -40,15 +39,12 @@ class PaymentType extends Eloquent
             'solo' => PAYMENT_TYPE_SOLO,
             'switch' => PAYMENT_TYPE_SWITCH,
         ];
-
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
-
-        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
+        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }
-
-        if (! empty($cardTypes[$cardName])) {
+        if (!empty($cardTypes[$cardName])) {
             return $cardTypes[$cardName];
         } else {
             return PAYMENT_TYPE_CREDIT_CARD_OTHER;

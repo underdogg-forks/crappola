@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\PaymentDrivers;
 
 use Exception;

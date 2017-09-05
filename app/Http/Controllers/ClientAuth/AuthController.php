@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
@@ -29,9 +28,8 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         $data = [
-			'clientauth' => true,
-		];
-
+            'clientauth' => true,
+        ];
         return view('clientauth.login')->with($data);
     }
 
@@ -46,15 +44,13 @@ class AuthController extends Controller
     {
         $credentials = $request->only('password');
         $credentials['id'] = null;
-
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
+            if ($contact && !$contact->is_deleted) {
                 $credentials['id'] = $contact->id;
             }
         }
-
         return $credentials;
     }
 

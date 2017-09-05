@@ -1,16 +1,12 @@
 <?php
-
 return array(
-
     /*
     |--------------------------------------------------------------------------
     | Table specific configuration options.
     |--------------------------------------------------------------------------
     |
     */
-
     'table' => array(
-
         /*
         |--------------------------------------------------------------------------
         | Table class
@@ -20,9 +16,7 @@ return array(
         | Supported: string
         |
         */
-
         'class' => 'table table-bordered',
-
         /*
         |--------------------------------------------------------------------------
         | Table ID
@@ -33,9 +27,7 @@ return array(
         | Supported: string
         |
         */
-
         'id' => '',
-
         /*
         |--------------------------------------------------------------------------
         | DataTable options
@@ -47,15 +39,10 @@ return array(
         | Supported: array
         |
         */
-
         'options' => array(
-
             "sPaginationType" => "full_numbers",
-
             "bProcessing" => false
-
         ),
-
         /*
         |--------------------------------------------------------------------------
         | DataTable callbacks
@@ -67,9 +54,7 @@ return array(
         | Supported: array
         |
         */
-
         'callbacks' => array(),
-
         /*
         |--------------------------------------------------------------------------
         | Skip javascript in table template
@@ -79,10 +64,7 @@ return array(
         | Supported: boolean
         |
         */
-
         'noScript' => false,
-
-
         /*
         |--------------------------------------------------------------------------
         | Table view
@@ -92,10 +74,7 @@ return array(
         | Supported: string
         |
         */
-
         'table_view' => 'chumper.datatable::template',
-
-
         /*
         |--------------------------------------------------------------------------
         | Script view
@@ -105,9 +84,7 @@ return array(
         | Supported: string
         |
         */
-
         'script_view' => 'chumper.datatable::javascript',
-        
         /*
           |--------------------------------------------------------------------------
           | Option view
@@ -116,21 +93,15 @@ return array(
           | Template used to render the options recursive
           |
         */
-        
         'options_view' => config('chumper.datatable::options')
-
     ),
-
-
     /*
     |--------------------------------------------------------------------------
     | Engine specific configuration options.
     |--------------------------------------------------------------------------
     |
     */
-
     'engine' => array(
-
         /*
         |--------------------------------------------------------------------------
         | Search for exact words
@@ -140,10 +111,6 @@ return array(
         | Supported: boolean
         |
         */
-
         'exactWordSearch' => false,
-
     )
-
-
 );

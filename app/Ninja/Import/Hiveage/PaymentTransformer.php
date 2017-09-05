@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Hiveage;
 
 use App\Ninja\Import\BaseTransformer;

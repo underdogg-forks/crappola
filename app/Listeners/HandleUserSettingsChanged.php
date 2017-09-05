@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Listeners;
 
 use App\Events\UserSettingsChanged;
@@ -17,7 +16,7 @@ class HandleUserSettingsChanged
      * Create the event handler.
      *
      * @param AccountRepository $accountRepo
-     * @param UserMailer        $userMailer
+     * @param UserMailer $userMailer
      */
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
@@ -34,16 +33,13 @@ class HandleUserSettingsChanged
      */
     public function handle(UserSettingsChanged $event)
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return;
         }
-
         $account = Auth::user()->account;
         $account->loadLocalizationSettings();
-
         $users = $this->accountRepo->loadAccounts(Auth::user()->id);
         Session::put(SESSION_USER_ACCOUNTS, $users);
-
         if ($event->user && $event->user->isEmailBeingChanged()) {
             $this->userMailer->sendConfirmation($event->user);
             Session::flash('warning', trans('texts.verify_email'));

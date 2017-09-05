@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Events\TaskWasCreated;
@@ -87,7 +86,6 @@ class Task extends EntityModel
     public static function calcStartTime($task)
     {
         $parts = json_decode($task->time_log) ?: [];
-
         if (count($parts)) {
             return Utils::timestampToDateTimeString($parts[0][0]);
         } else {
@@ -106,10 +104,8 @@ class Task extends EntityModel
     public function getLastStartTime()
     {
         $parts = json_decode($this->time_log) ?: [];
-
         if (count($parts)) {
             $index = count($parts) - 1;
-
             return $parts[$index][0];
         } else {
             return '';
@@ -125,15 +121,13 @@ class Task extends EntityModel
     {
         $duration = 0;
         $parts = json_decode($task->time_log) ?: [];
-
         foreach ($parts as $part) {
-            if (count($part) == 1 || ! $part[1]) {
+            if (count($part) == 1 || !$part[1]) {
                 $duration += time() - $part[0];
             } else {
                 $duration += $part[1] - $part[0];
             }
         }
-
         return $duration;
     }
 
@@ -152,8 +146,7 @@ class Task extends EntityModel
     {
         $parts = json_decode($this->time_log) ?: [];
         $part = $parts[count($parts) - 1];
-
-        if (count($part) == 1 || ! $part[1]) {
+        if (count($part) == 1 || !$part[1]) {
             return time() - $part[0];
         } else {
             return 0;
@@ -166,7 +159,6 @@ class Task extends EntityModel
     public function hasPreviousDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
-
         return count($parts) && (count($parts[0]) && $parts[0][1]);
     }
 
@@ -198,7 +190,6 @@ class Task extends EntityModel
         if ($this->description) {
             return Utils::truncateString($this->description, 16);
         }
-
         return '#' . $this->public_id;
     }
 
@@ -206,7 +197,6 @@ class Task extends EntityModel
     {
         $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) >= ' . $startDate->format('U'));
         $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->modify('+1 day')->format('U'));
-
         return $query;
     }
 
@@ -217,7 +207,6 @@ class Task extends EntityModel
         $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
         $statuses[TASK_STATUS_PAID] = trans('texts.paid');
-
         return $statuses;
     }
 
@@ -234,7 +223,6 @@ class Task extends EntityModel
         } else {
             $label = 'logged';
         }
-
         return trans("texts.{$label}");
     }
 
@@ -262,7 +250,6 @@ class Task extends EntityModel
             $balance = 0;
             $invoiceNumber = false;
         }
-
         return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
     }
 
@@ -275,7 +262,6 @@ class Task extends EntityModel
             $balance = 0;
             $invoiceNumber = false;
         }
-
         return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber);
     }
 }
@@ -283,7 +269,6 @@ class Task extends EntityModel
 Task::created(function ($task) {
     event(new TaskWasCreated($task));
 });
-
 Task::updated(function ($task) {
     event(new TaskWasUpdated($task));
 });

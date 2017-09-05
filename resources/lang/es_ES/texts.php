@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Empresa',
     'name' => 'Nombre',
     'website' => 'Sitio web',
@@ -996,8 +994,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'trial_call_to_action' => 'Iniciar periodo de Prueba',
     'trial_success' => 'Habilitado correctamente el periodo de dos semanas de prueba Pro ',
     'overdue' => 'Atraso',
-
-
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'Para ajustar la configuración de las notificaciones de tu email, visita :link',
     'reset_password_footer' => 'Si no has solicitado un cambio de contraseña, por favor contactate con nosostros: :email',
@@ -1006,7 +1002,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'old_browser' => 'Por favor use un <a href=":link" target="_blank">navegador mas actual</a>',
     'white_label_custom_css' => ':link para $:price to enable custom styling and help support our project.',
     'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
-
     'pro_plan_remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja',
     'pro_plan_remove_logo_link' => 'Haz click aquí',
     'invitation_status_sent' => 'Sent',
@@ -1018,7 +1013,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'email_error_user_unregistered' => 'Por favor registra tu cuenta para enviar correos',
     'email_error_user_unconfirmed' => 'Por favor confirma tu cuenta para enviar correos',
     'email_error_invalid_contact_email' => 'Correo de contacto no válido',
-
     'navigation' => 'Navegación',
     'list_invoices' => 'Lista de Facturas',
     'list_clients' => 'Lista de Clientes',
@@ -1031,7 +1025,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'tax_name' => 'Nombre de Impuesto',
     'report_settings' => 'Configuración de Informes',
     'search_hotkey' => 'atajo es /',
-
     'new_user' => 'Nuevo Usuario',
     'new_product' => 'Nuevo producto',
     'new_tax_rate' => 'Nuevo impuesto',
@@ -1040,20 +1033,17 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'custom_invoice_item_fields_help' => 'Añadir un campo al crear un concepto de factura y mostrar la etiqueta y su valor en el PDF.',
     'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
     'enable_portal_password_help' => 'Habilite para seleccionar una password para contacto. Si una password esta especificada, el contacto deberá introducir una password antes de ver las facturas.',
     'send_portal_password' => 'Generate Password Automatically',
     'send_portal_password_help' => 'Si no se especifica password, se generará una y se enviará junto con la primera factura.',
-
     'expired' => 'Expirada',
     'invalid_card_number' => 'El número de Tarjeta de Credito no es válido',
     'invalid_expiry' => 'La fecha de expiración no es valida.',
     'invalid_cvv' => 'El CVV no es válido.',
     'cost' => 'Coste',
     'create_invoice_for_sample' => 'Nota: crea tu primera factura para ver una previsualización aqui.',
-
     // User Permissions
     'owner' => 'Propietario',
     'administrator' => 'Administrador',
@@ -1072,7 +1062,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
     'view_payment' => 'Ver pago',
-
     'january' => 'Enero',
     'february' => 'Febrero',
     'march' => 'Marzo',
@@ -1085,7 +1074,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'october' => 'Octubre',
     'november' => 'Noviembre',
     'december' => 'Diciembre',
-
     // Documents
     'documents_header' => 'Documentos:',
     'email_documents_header' => 'Documentos:',
@@ -1110,16 +1098,13 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'documents' => 'Documentos',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
-
     'enable_client_portal' => 'Dashboard',
     'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-
     // Plans
     'account_management' => 'Administración de la cuetna',
     'plan_status' => 'Plan Status',
-
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1149,9 +1134,7 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1161,7 +1144,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'plan_credit_description' => 'Credit for unused time',
     'plan_pending_monthly' => 'Will switch to monthly on :date',
     'plan_refunded' => 'A refund has been issued.',
-
     'live_preview' => 'Previsualización en vivo',
     'page_size' => 'Page Size',
     'live_preview_disabled' => 'Live preview has been disabled to support selected font',
@@ -1171,8 +1153,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments, :link to see the full list of features.',
     'return_to_app' => 'Return to app',
-
-
     // Payment updates
     'refund_payment' => 'Reembolsar Pago',
     'refund_max' => 'Max:',
@@ -1189,7 +1169,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Exp:&nbsp:expires',
-
     'card_creditcardother' => 'Desconocido',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1204,13 +1183,11 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
     'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
     'ach_disabled' => 'Ya existe otra pasarela configurada para débito directo.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',
     'secret' => 'Secret',
@@ -1280,15 +1257,12 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
     'token_billing_braintree_paypal' => 'Save payment details',
     'add_paypal_account' => 'Add PayPal Account',
-
-
     'no_payment_method_specified' => 'No payment method specified',
     'chart_type' => 'Chart Type',
     'format' => 'Formato',
     'import_ofx' => 'Import OFX',
     'ofx_file' => 'OFX File',
     'ofx_parse_failed' => 'Failed to parse OFX file',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Registrarse con WePay',
@@ -1311,7 +1285,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'canada' => 'Canada',
     'accept_debit_cards' => 'Accept Debit Cards',
     'debit_cards' => 'Tarjetas de Débito',
-
     'warn_start_date_changed' => 'La siguiente factura se enviará en la nueva fecha de inicio.',
     'original_start_date' => 'Fecha de inicio original',
     'new_start_date' => 'Nueva fecha de inicio',
@@ -1329,23 +1302,19 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
     'JSON_file' => 'JSON File',
-
     'view_dashboard' => 'Ver Escritorio',
     'client_session_expired' => 'Sesión Caducada',
     'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
-
     'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'bank account',
     'auto_bill_payment_method_credit_card' => 'tarjeta de crédito',
     'auto_bill_payment_method_paypal' => 'Cuenta PayPal',
     'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     'payment_settings' => 'Ajustes de Pago',
-
     'on_send_date' => 'On send date',
     'on_due_date' => 'On due date',
     'auto_bill_ach_date_help' => 'ACH will always auto bill on the due date.',
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
-
     'bank_account' => 'Bank Account',
     'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
@@ -1353,7 +1322,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
-
     'update_font_cache' => 'Please force refresh the page to update the font cache.',
     'more_options' => 'More options',
     'credit_card' => 'Credit Card',
@@ -1367,7 +1335,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
     'start_of_week' => 'Primer día de la semana',
-
     // Frequencies
     'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Weekly',
@@ -1377,7 +1344,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'freq_three_months' => 'Three months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
-
     // Payment types
     'payment_type_Apply Credit' => 'Apply Credit',
     'payment_type_Bank Transfer' => 'Transferencia bancaria',
@@ -1404,7 +1370,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Contabilidad y legal',
     'industry_Advertising' => 'Publicidad',
@@ -1438,7 +1403,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'industry_Travel & Luxury' => 'Viaje y ocio',
     'industry_Other' => 'Otro',
     'industry_Photography' => 'Fotografía',
-
     // Countries
     'country_Afghanistan' => 'Afganistán',
     'country_Albania' => 'Albania',
@@ -1689,7 +1653,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Portugués brasileño',
     'lang_Croatian' => 'Croata',
@@ -1716,7 +1679,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Weekly',
     'freq_two_weeks' => 'Two weeks',
@@ -1725,7 +1687,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'freq_three_months' => 'Three months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
-
     // Industries
     'industry_Accounting & Legal' => 'Contabilidad y legal',
     'industry_Advertising' => 'Publicidad',
@@ -1757,8 +1718,7 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'industry_Transportation' => 'Transporte',
     'industry_Travel & Luxury' => 'Viaje y ocio',
     'industry_Other' => 'Otro',
-    'industry_Photography' =>'Fotografía',
-
+    'industry_Photography' => 'Fotografía',
     'view_client_portal' => 'Ver portal de cliente',
     'view_portal' => 'Ver portal',
     'vendor_contacts' => 'Vendor Contacts',
@@ -1800,7 +1760,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'no_undo' => 'Warning: this can\'t be undone.',
     'no_contact_selected' => 'Please select a contact',
     'no_client_selected' => 'Please select a client',
-
     'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
     'payment_type_on_file' => ':type en fichero',
     'invoice_for_client' => 'Invoice :invoice for :client',
@@ -1823,11 +1782,9 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
     'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'List Products',
-
     'include_item_taxes_inline' => 'Incluir total del <b>impuesto para cada concepto de factura</b>',
     'created_quotes' => 'Successfully created :count quotes(s)',
     'limited_gateways' => 'Note: we support one credit card gateway per company.',
-
     'warning' => 'Warning',
     'self-update' => 'Update',
     'update_invoiceninja_title' => 'Update Invoice Ninja',
@@ -1838,7 +1795,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
-
     'toggle_navigation' => 'Toggle Navigation',
     'toggle_history' => 'Toggle History',
     'unassigned' => 'Unassigned',
@@ -1851,7 +1807,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
     'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell the app.',
     'unnamed_client' => 'Unnamed Client',
-
     'day' => 'Day',
     'week' => 'Week',
     'month' => 'Month',
@@ -1860,7 +1815,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'total_profit' => 'Total Profit',
     'total_expenses' => 'Total Expenses',
     'quote_to' => 'Quote to',
-
     // Limits
     'limit' => 'Limit',
     'min_limit' => 'Min: :min',
@@ -1872,7 +1826,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
-
     'date_range' => 'Date Range',
     'raw' => 'Raw',
     'raw_html' => 'Raw HTML',
@@ -1888,10 +1841,8 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'expense_will_create' => 'expense will be created',
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
-
     'translate_app' => 'Ayúdanos a mejorar nuestras traducciones con :link',
     'expense_category' => 'Expense Category',
-
     'go_ninja_pro' => 'Go Ninja Pro!',
     'go_enterprise' => 'Go Enterprise!',
     'upgrade_for_features' => 'Upgrade For More Features',
@@ -1902,10 +1853,8 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'enterprise_upgrade_feature1' => 'Set permissions for multiple-users',
     'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
     'much_more' => 'Much More!',
-
     'currency_symbol' => 'Símbolo',
     'currency_code' => 'Código',
-
     'buy_license' => 'Buy License',
     'apply_license' => 'Apply License',
     'submit' => 'Submit',
@@ -1929,39 +1878,37 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'sign_here' => 'Please sign here:',
     'authorization' => 'Authorization',
     'signed' => 'Signed',
-
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Create an account',
-	'quote_types' => 'Get a quote for',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'Line of credit',
-	'fico_score'                         => 'Your FICO score',
-	'business_inception'                 => 'Business Inception Date',
-	'average_bank_balance'               => 'Average bank account balance',
-	'annual_revenue'                     => 'Annual revenue',
-	'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
-	'desired_credit_limit_loc'           => 'Desired line of credit limit',
-	'desired_credit_limit'               => 'Desired credit limit',
-	'bluevine_credit_line_type_required' => 'You must choose at least one',
-	'bluevine_field_required'            => 'This field is required',
-	'bluevine_unexpected_error'          => 'An unexpected error occurred.',
-	'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'Conditional Offer',
-	'bluevine_credit_line_amount'        => 'Credit Line',
-	'bluevine_advance_rate'              => 'Advance Rate',
-	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
-	'bluevine_minimum_fee_rate'          => 'Minimum Fee',
-	'bluevine_line_of_credit'            => 'Line of Credit',
-	'bluevine_interest_rate'             => 'Interest Rate',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continue to BlueVine',
-	'bluevine_completed'                 => 'BlueVine signup completed',
-
+    'bluevine_create_account' => 'Create an account',
+    'quote_types' => 'Get a quote for',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'Line of credit',
+    'fico_score' => 'Your FICO score',
+    'business_inception' => 'Business Inception Date',
+    'average_bank_balance' => 'Average bank account balance',
+    'annual_revenue' => 'Annual revenue',
+    'desired_credit_limit_factoring' => 'Desired invoice factoring limit',
+    'desired_credit_limit_loc' => 'Desired line of credit limit',
+    'desired_credit_limit' => 'Desired credit limit',
+    'bluevine_credit_line_type_required' => 'You must choose at least one',
+    'bluevine_field_required' => 'This field is required',
+    'bluevine_unexpected_error' => 'An unexpected error occurred.',
+    'bluevine_no_conditional_offer' => 'More information is required before getting a quote. Click continue below.',
+    'bluevine_invoice_factoring' => 'Invoice Factoring',
+    'bluevine_conditional_offer' => 'Conditional Offer',
+    'bluevine_credit_line_amount' => 'Credit Line',
+    'bluevine_advance_rate' => 'Advance Rate',
+    'bluevine_weekly_discount_rate' => 'Weekly Discount Rate',
+    'bluevine_minimum_fee_rate' => 'Minimum Fee',
+    'bluevine_line_of_credit' => 'Line of Credit',
+    'bluevine_interest_rate' => 'Interest Rate',
+    'bluevine_weekly_draw_rate' => 'Weekly Draw Rate',
+    'bluevine_continue' => 'Continue to BlueVine',
+    'bluevine_completed' => 'BlueVine signup completed',
     'vendor_name' => 'Vendor',
     'entity_state' => 'State',
     'client_created_at' => 'Date Created',
@@ -2094,22 +2041,19 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
     'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
-
-	// Updated login screen
-	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with an existing account.',
-	'sign_up_now' => 'Sign Up Now',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Create an Account!',
-	'client_login' => 'Client Login',
-
-	// New Client Portal styling
-	'invoice_from' => 'Invoices From:',
+    // Updated login screen
+    'ninja_tagline' => 'Create. Send. Get Paid.',
+    'login_or_existing' => 'Or login with an existing account.',
+    'sign_up_now' => 'Sign Up Now',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Create an Account!',
+    'client_login' => 'Client Login',
+    // New Client Portal styling
+    'invoice_from' => 'Invoices From:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
-
     'product_fields' => 'Product Fields',
     'custom_product_fields_help' => 'Add a field when creating a product or invoice and display the label and value on the PDF.',
     'freq_two_months' => 'Two months',
@@ -2133,7 +2077,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'create_expense_category' => 'Create category',
     'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
     'mark_ready' => 'Mark Ready',
-
     'limits' => 'Limits',
     'fees' => 'Fees',
     'fee' => 'Fee',
@@ -2162,7 +2105,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'logo_warning_too_large' => 'The image file is too large.',
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
-
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
@@ -2315,7 +2257,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2383,12 +2324,11 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2396,9 +2336,6 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

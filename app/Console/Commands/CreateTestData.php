@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Ninja\Repositories\AccountRepository;
@@ -39,10 +38,10 @@ class CreateTestData extends Command
     /**
      * CreateTestData constructor.
      *
-     * @param ClientRepository  $clientRepo
+     * @param ClientRepository $clientRepo
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentRepository $paymentRepo
-     * @param VendorRepository  $vendorRepo
+     * @param VendorRepository $vendorRepo
      * @param ExpenseRepository $expenseRepo
      * @param AccountRepository $accountRepo
      */
@@ -55,9 +54,7 @@ class CreateTestData extends Command
         AccountRepository $accountRepo)
     {
         parent::__construct();
-
         $this->faker = Factory::create();
-
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
@@ -75,14 +72,11 @@ class CreateTestData extends Command
             $this->info('Unable to run in production');
             return false;
         }
-
-        $this->info(date('Y-m-d').' Running CreateTestData...');
+        $this->info(date('Y-m-d') . ' Running CreateTestData...');
         $this->count = $this->argument('count');
-
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
-
         if (filter_var($this->argument('create_account'), FILTER_VALIDATE_BOOLEAN)) {
             $this->info('Creating new account...');
             $account = $this->accountRepo->create(
@@ -95,11 +89,9 @@ class CreateTestData extends Command
             $this->info('Using first account...');
             Auth::loginUsingId(1);
         }
-
         $this->createClients();
         $this->createVendors();
         $this->createOtherObjects();
-
         $this->info('Done');
     }
 
@@ -120,10 +112,8 @@ class CreateTestData extends Command
                     'phone' => $this->faker->phoneNumber,
                 ]],
             ];
-
             $client = $this->clientRepo->save($data);
             $this->info('Client: ' . $client->name);
-
             $this->createInvoices($client);
         }
     }
@@ -146,10 +136,8 @@ class CreateTestData extends Command
                     'notes' => $this->faker->text($this->faker->numberBetween(50, 300)),
                 ]],
             ];
-
             $invoice = $this->invoiceRepo->save($data);
             $this->info('Invoice: ' . $invoice->invoice_number);
-
             $this->createPayment($client, $invoice);
         }
     }
@@ -166,9 +154,7 @@ class CreateTestData extends Command
             'amount' => $this->faker->randomFloat(2, 0, $invoice->amount),
             'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
         ];
-
         $payment = $this->paymentRepo->save($data);
-
         $this->info('Payment: ' . $payment->amount);
     }
 
@@ -189,10 +175,8 @@ class CreateTestData extends Command
                     'phone' => $this->faker->phoneNumber,
                 ]],
             ];
-
             $vendor = $this->vendorRepo->save($data);
             $this->info('Vendor: ' . $vendor->name);
-
             $this->createExpense($vendor);
         }
     }
@@ -209,7 +193,6 @@ class CreateTestData extends Command
                 'expense_date' => null,
                 'public_notes' => '',
             ];
-
             $expense = $this->expenseRepo->save($data);
             $this->info('Expense: ' . $expense->amount);
         }
@@ -219,10 +202,8 @@ class CreateTestData extends Command
     {
         $this->createTaxRate('Tax 1', 10, 1);
         $this->createTaxRate('Tax 2', 20, 2);
-
         $this->createCategory('Category 1', 1);
         $this->createCategory('Category 1', 2);
-
         $this->createProject('Project 1', 1);
         $this->createProject('Project 2', 2);
     }

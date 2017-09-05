@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Language;
 
 class LanguageSeeder extends Seeder
@@ -7,10 +6,8 @@ class LanguageSeeder extends Seeder
     public function run()
     {
         Eloquent::unguard();
-
         // https://github.com/caouecs/Laravel-lang
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
-
         $languages = [
             ['name' => 'English', 'locale' => 'en'],
             ['name' => 'Italian', 'locale' => 'it'],
@@ -38,7 +35,6 @@ class LanguageSeeder extends Seeder
             ['name' => 'Romanian', 'locale' => 'ro'],
             ['name' => 'Turkish - Turkey', 'locale' => 'tr_TR'],
         ];
-
         foreach ($languages as $language) {
             $record = Language::whereLocale($language['locale'])->first();
             if ($record) {
@@ -48,7 +44,6 @@ class LanguageSeeder extends Seeder
                 Language::create($language);
             }
         }
-
         Eloquent::reguard();
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
@@ -19,22 +18,20 @@ class QuoteReport extends AbstractReport
     {
         $account = Auth::user()->account;
         $status = $this->options['invoice_status'];
-
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function ($query) use ($status) {
-                            if ($status == 'draft') {
-                                $query->whereIsPublic(false);
-                            }
-                            $query->quotes()
-                                  ->withArchived()
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
-                        }]);
-
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts')
+            ->with(['invoices' => function ($query) use ($status) {
+                if ($status == 'draft') {
+                    $query->whereIsPublic(false);
+                }
+                $query->quotes()
+                    ->withArchived()
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['invoice_items']);
+            }]);
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
                 $this->data[] = [
@@ -44,9 +41,8 @@ class QuoteReport extends AbstractReport
                     $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
                 ];
-
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
-            }            
+            }
         }
     }
 }

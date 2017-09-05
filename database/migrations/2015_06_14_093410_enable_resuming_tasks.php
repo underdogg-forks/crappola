@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class EnableResumingTasks extends Migration
@@ -17,19 +16,15 @@ class EnableResumingTasks extends Migration
             $table->timestamp('resume_time')->nullable();
             $table->text('time_log')->nullable();
         });
-
         $tasks = DB::table('tasks')
-                    ->where('duration', '=', -1)
-                    ->select('id', 'duration', 'start_time')
-                    ->get();
-
+            ->where('duration', '=', -1)
+            ->select('id', 'duration', 'start_time')
+            ->get();
         foreach ($tasks as $task) {
             $data = [
                 'is_running' => true,
                 'duration' => 0,
-                
             ];
-
             DB::table('tasks')
                 ->where('id', $task->id)
                 ->update($data);

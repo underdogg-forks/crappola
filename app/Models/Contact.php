@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Utils;
@@ -125,7 +124,6 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
             $this->contact_key = $contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             static::where('id', $this->id)->update(['contact_key' => $contact_key]);
         }
-
         return $contact_key;
     }
 
@@ -135,7 +133,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return trim($this->first_name.' '.$this->last_name);
+            return trim($this->first_name . ' ' . $this->last_name);
         } else {
             return '';
         }
@@ -146,36 +144,29 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function getLinkAttribute()
     {
-        if (! $this->account) {
+        if (!$this->account) {
             $this->load('account');
         }
-
         $account = $this->account;
         $url = trim(SITE_URL, '/');
-
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
-            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
+            if (Utils::isNinjaProd() && !Utils::isReseller()) {
                 $url = $account->present()->clientPortalLink();
             }
-
             if ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
-
         return "{$url}/client/dashboard/{$this->contact_key}";
     }
 }
 
-Contact::creating(function ($contact)
-{
+Contact::creating(function ($contact) {
     LookupContact::createNew($contact->account->account_key, [
         'contact_key' => $contact->contact_key,
     ]);
 });
-
-Contact::deleted(function ($contact)
-{
+Contact::deleted(function ($contact) {
     if ($contact->forceDeleting) {
         LookupContact::deleteWhere([
             'contact_key' => $contact->contact_key,

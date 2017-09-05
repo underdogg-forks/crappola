@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Events\VendorWasCreated;
@@ -216,16 +215,13 @@ class Vendor extends EntityModel
     {
         //$publicId = isset($data['public_id']) ? $data['public_id'] : false;
         $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
-
         if ($publicId && $publicId != '-1') {
             $contact = VendorContact::scope($publicId)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();
         }
-
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
-
         return $this->vendor_contacts()->save($contact);
     }
 
@@ -259,7 +255,6 @@ class Vendor extends EntityModel
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
-
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
@@ -292,13 +287,11 @@ class Vendor extends EntityModel
             'postal_code',
             'country_id',
         ];
-
         foreach ($fields as $field) {
             if ($this->$field) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -322,11 +315,9 @@ class Vendor extends EntityModel
         if ($this->currency_id) {
             return $this->currency_id;
         }
-
-        if (! $this->account) {
+        if (!$this->account) {
             $this->load('account');
         }
-
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
 
@@ -336,34 +327,29 @@ class Vendor extends EntityModel
     public function getTotalExpenses()
     {
         return DB::table('expenses')
-                ->select('expense_currency_id', DB::raw('SUM(amount) as amount'))
-                ->whereVendorId($this->id)
-                ->whereIsDeleted(false)
-                ->groupBy('expense_currency_id')
-                ->get();
+            ->select('expense_currency_id', DB::raw('SUM(amount) as amount'))
+            ->whereVendorId($this->id)
+            ->whereIsDeleted(false)
+            ->groupBy('expense_currency_id')
+            ->get();
     }
 }
 
 Vendor::creating(function ($vendor) {
     $vendor->setNullValues();
 });
-
 Vendor::created(function ($vendor) {
     event(new VendorWasCreated($vendor));
 });
-
 Vendor::updating(function ($vendor) {
     $vendor->setNullValues();
 });
-
 Vendor::updated(function ($vendor) {
     event(new VendorWasUpdated($vendor));
 });
-
 Vendor::deleting(function ($vendor) {
     $vendor->setNullValues();
 });
-
 Vendor::deleted(function ($vendor) {
     event(new VendorWasDeleted($vendor));
 });

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Auth;
@@ -120,7 +119,6 @@ class Activity extends Eloquent
         $expense = $this->expense;
         $isSystem = $this->is_system;
         $task = $this->task;
-
         $data = [
             'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
             'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
@@ -131,10 +129,9 @@ class Activity extends Eloquent
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
-            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
-            'expense' => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30).'...') : null,
+            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30) . '...') : null,
+            'expense' => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30) . '...') : null,
         ];
-
         return trans("texts.activity_{$activityTypeId}", $data);
     }
 }

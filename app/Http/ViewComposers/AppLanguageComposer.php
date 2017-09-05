@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\ViewComposers;
 
 use Illuminate\View\View;
@@ -26,12 +25,10 @@ class AppLanguageComposer
     private function getLanguage()
     {
         $code = app()->getLocale();
-
         if (preg_match('/_/', $code)) {
             $codes = explode('_', $code);
             $code = $codes[0];
         }
-
         return $code;
     }
 }

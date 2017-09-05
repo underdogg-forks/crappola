@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Intents\WebApp;
 
 use App\Models\Account;
@@ -11,7 +10,6 @@ class NavigateToIntent extends BaseIntent
     {
         $location = $this->getField('Location');
         $location = str_replace(' ', '_', $location);
-
         if (in_array($location, array_merge(Account::$basicSettings, Account::$advancedSettings))) {
             $location = '/settings/' . $location;
         } elseif (in_array($location, ['report', 'reports'])) {
@@ -21,7 +19,6 @@ class NavigateToIntent extends BaseIntent
         } else {
             $location = '/dashboard';
         }
-
         return redirect($location);
     }
 }

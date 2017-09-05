@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddPartialAmountToInvoices extends Migration
@@ -14,7 +13,6 @@ class AddPartialAmountToInvoices extends Migration
         Schema::table('invoices', function ($table) {
             $table->decimal('partial', 13, 2)->nullable();
         });
-
         Schema::table('accounts', function ($table) {
             $table->boolean('utf8_invoices')->default(true);
             $table->boolean('auto_wrap')->default(false);
@@ -32,7 +30,6 @@ class AddPartialAmountToInvoices extends Migration
         Schema::table('invoices', function ($table) {
             $table->dropColumn('partial');
         });
-
         Schema::table('accounts', function ($table) {
             if (Schema::hasColumn('accounts', 'utf8_invoices')) {
                 $table->dropColumn('utf8_invoices');

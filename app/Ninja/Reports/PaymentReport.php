@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Reports;
 
 use App\Models\Payment;
@@ -20,21 +19,19 @@ class PaymentReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-
         $payments = Payment::scope()
-                        ->orderBy('payment_date', 'desc')
-                        ->withArchived()
-                        ->excludeFailed()
-                        ->whereHas('client', function ($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->whereHas('invoice', function ($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
-                        ->where('payment_date', '>=', $this->startDate)
-                        ->where('payment_date', '<=', $this->endDate);
-
+            ->orderBy('payment_date', 'desc')
+            ->withArchived()
+            ->excludeFailed()
+            ->whereHas('client', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->whereHas('invoice', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
+            ->where('payment_date', '>=', $this->startDate)
+            ->where('payment_date', '<=', $this->endDate);
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
             $client = $payment->client;
@@ -47,7 +44,6 @@ class PaymentReport extends AbstractReport
                 $account->formatMoney($payment->getCompletedAmount(), $client),
                 $payment->present()->method,
             ];
-
             $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
             $this->addToTotals($client->currency_id, 'paid', $payment->getCompletedAmount());
         }

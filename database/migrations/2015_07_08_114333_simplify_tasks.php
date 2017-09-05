@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class SimplifyTasks extends Migration
@@ -12,10 +11,9 @@ class SimplifyTasks extends Migration
     public function up()
     {
         $tasks = \App\Models\Task::all();
-
         foreach ($tasks as $task) {
             $startTime = strtotime($task->start_time);
-            if (! $task->time_log || ! count(json_decode($task->time_log))) {
+            if (!$task->time_log || !count(json_decode($task->time_log))) {
                 $task->time_log = json_encode([[$startTime, $startTime + $task->duration]]);
                 $task->save();
             } elseif ($task->getDuration() != intval($task->duration)) {
@@ -23,18 +21,15 @@ class SimplifyTasks extends Migration
                 $task->save();
             }
         }
-
         Schema::table('tasks', function ($table) {
             $table->dropColumn('start_time');
             $table->dropColumn('duration');
             $table->dropColumn('break_duration');
             $table->dropColumn('resume_time');
         });
-
         Schema::table('users', function ($table) {
             $table->boolean('dark_mode')->default(false)->nullable();
         });
-
         Schema::table('users', function ($table) {
             $table->dropColumn('theme_id');
         });
@@ -53,7 +48,6 @@ class SimplifyTasks extends Migration
             $table->timestamp('resume_time')->nullable();
             $table->integer('break_duration')->nullable();
         });
-
         if (Schema::hasColumn('users', 'dark_mode')) {
             Schema::table('users', function ($table) {
                 $table->dropColumn('dark_mode');

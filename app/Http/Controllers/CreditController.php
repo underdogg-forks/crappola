@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateCreditRequest;
@@ -26,7 +25,6 @@ class CreditController extends BaseController
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
         // parent::__construct();
-
         $this->creditRepo = $creditRepo;
         $this->creditService = $creditService;
     }
@@ -60,28 +58,23 @@ class CreditController extends BaseController
             'title' => trans('texts.new_credit'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
-
         return View::make('credits.edit', $data);
     }
 
     public function edit($publicId)
     {
         $credit = Credit::withTrashed()->scope($publicId)->firstOrFail();
-
         $this->authorize('edit', $credit);
-
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
-
         $data = [
             'client' => $credit->client,
             'clientPublicId' => $credit->client->public_id,
             'credit' => $credit,
             'method' => 'PUT',
-            'url' => 'credits/'.$publicId,
+            'url' => 'credits/' . $publicId,
             'title' => 'Edit Credit',
             'clients' => null,
         ];
-
         return View::make('credits.edit', $data);
     }
 
@@ -93,14 +86,12 @@ class CreditController extends BaseController
     public function show($publicId)
     {
         Session::reflash();
-
         return Redirect::to("credits/{$publicId}/edit");
     }
 
     public function update(UpdateCreditRequest $request)
     {
         $credit = $request->entity();
-
         return $this->save($credit);
     }
 
@@ -112,10 +103,8 @@ class CreditController extends BaseController
     private function save($credit = null)
     {
         $credit = $this->creditService->save(Input::all(), $credit);
-
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         Session::flash('message', $message);
-
         return redirect()->to("clients/{$credit->client->public_id}#credits");
     }
 
@@ -124,12 +113,10 @@ class CreditController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->creditService->bulk($ids, $action);
-
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_credit', $count);
+            $message = Utils::pluralize($action . 'd_credit', $count);
             Session::flash('message', $message);
         }
-
         return $this->returnBulk(ENTITY_CREDIT, $action, $ids);
     }
 }

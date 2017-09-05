@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Organizata',
     'name' => 'Emri',
     'website' => 'Website',
@@ -997,8 +995,6 @@ $LANG = array(
     'trial_call_to_action' => 'Filloni periudhën provuese',
     'trial_success' => 'Periudha provuese dyjavore për pro planin është aktivizuar me sukses',
     'overdue' => 'E vonuar',
-
-
     'white_label_text' => 'Bli nje license vjecare me cmimin $:price per te hequr logot dhe tekstet e Invoice Ninja nga fatura dhe portali i klientit. ',
     'user_email_footer' => 'Për të ndryshuar lajmërimet tuaja me email vizitoni :link',
     'reset_password_footer' => 'Nëse nuk keni kërkuar resetimin e fjalëkalimit ju lutem na shkruani në emailin tonë : :email',
@@ -1007,7 +1003,6 @@ $LANG = array(
     'old_browser' => 'Ju lutem përdorni <a href=":link" target="_blank">shfletuesin e ri</a>',
     'white_label_custom_css' => ':link për $:price për të ndryshuar stilin dhe përkrahur projektin tonë.',
     'bank_accounts_help' => 'Lidheni llogarinë tuaj bankare për të importuar automatikisht shpenzimet. Përkrahë American Express dhe <a href=":link" target="_blank">400+ banka në SHBA.</a>',
-
     'pro_plan_remove_logo' => ':link për të larguar Invoice Ninja logo duke iu bashkangjitur Pro Planit',
     'pro_plan_remove_logo_link' => 'Kliko këtu',
     'invitation_status_sent' => 'Sent',
@@ -1019,7 +1014,6 @@ $LANG = array(
     'email_error_user_unregistered' => 'Ju lutem regjistroni llogarinë tuaj të dërgoni email',
     'email_error_user_unconfirmed' => 'Ju lutem konfirmoni llogarinë tuaj të dërgoni email',
     'email_error_invalid_contact_email' => 'Emaili i kontaktit i pa saktë',
-
     'navigation' => 'Navigimi',
     'list_invoices' => 'Listo faturat',
     'list_clients' => 'Listo klientët',
@@ -1032,7 +1026,6 @@ $LANG = array(
     'tax_name' => 'Emri i taksës',
     'report_settings' => 'Rregullimi i raporteve',
     'search_hotkey' => 'shkurtesa është /',
-
     'new_user' => 'Përdorues i ri',
     'new_product' => 'Produkt i ri',
     'new_tax_rate' => 'Normë e re e taksave',
@@ -1042,20 +1035,17 @@ Fushat e njësive në faturë',
     'custom_invoice_item_fields_help' => 'Shtoni një fushë ë kur të krijoni faturë dhe etiketa me vlerë të shfaqen në PDF.',
     'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
     'enable_portal_password_help' => 'Ju mundëson të vendosni fjalëkalim për secilin kontakt. Nëse vendoset fjalëkalimi, kontakti duhet të vendos fjalëkalimin para se t\'i sheh faturat.',
     'send_portal_password' => 'Generate Password Automatically',
     'send_portal_password_help' => 'Nëse nuk caktoni fjalëkalim, do të krijohet një dhe do t\'ju dërgohet me faturën e parë.',
-
     'expired' => 'Skaduar',
     'invalid_card_number' => 'Numri i kredit kartës nuk është valid.',
     'invalid_expiry' => 'Data e skadimit nuk është valide.',
     'invalid_cvv' => 'CVV nuk është valid.',
     'cost' => 'Kosto',
     'create_invoice_for_sample' => 'Shënim: krijoni faturën e parë këtu për ta parashikuar.',
-
     // User Permissions
     'owner' => 'Pronari',
     'administrator' => 'Administrator',
@@ -1074,7 +1064,6 @@ Fushat e njësive në faturë',
     'view_all_help' => 'Lejo përdoruesit të shohin të dhëna që nuk i kanë krijuar',
     'edit_all_help' => 'Lejo përdoruesit të modifikojnë shënimet që nuk i kanë krijuar',
     'view_payment' => 'Shiko pagesën',
-
     'january' => 'Janar',
     'february' => 'Shkurt',
     'march' => 'Mars',
@@ -1087,7 +1076,6 @@ Fushat e njësive në faturë',
     'october' => 'Tetor',
     'november' => 'Nëntor',
     'december' => 'Dhjetor',
-
     // Documents
     'documents_header' => 'Dokumente:',
     'email_documents_header' => 'Dokumente:',
@@ -1112,16 +1100,13 @@ Fushat e njësive në faturë',
     'documents' => 'Dokumente',
     'document_date' => 'Data e dokumentit',
     'document_size' => 'Madhësia',
-
     'enable_client_portal' => 'Portali i klientit',
     'enable_client_portal_help' => 'Shfaq/fsheh portalin e klientit.',
     'enable_client_portal_dashboard' => 'Paneli',
     'enable_client_portal_dashboard_help' => 'Shfaq/fsheh panelin në portalin e klientit.',
-
     // Plans
     'account_management' => 'Menaxhimi i llogarive',
     'plan_status' => 'Statusi i planit',
-
     'plan_upgrade' => 'Ndërro versionin',
     'plan_change' => 'Ndrysho planin',
     'pending_change_to' => 'Ndryshohet në',
@@ -1151,9 +1136,7 @@ Fushat e njësive në faturë',
     'plan_paid' => 'Kushtet kanë filluar',
     'plan_started' => 'Plani ka filluar',
     'plan_expires' => 'Plani skadon',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'Regjistrimi një vjeçar në Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'Regjistrim një mujor në Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Plani Enterprise',
@@ -1163,7 +1146,6 @@ Fushat e njësive në faturë',
     'plan_credit_description' => 'Kredit për kohën e pa përdorur',
     'plan_pending_monthly' => 'Do të kaloj në baza mujore më :date',
     'plan_refunded' => 'Rimbursimi është aprovuar.',
-
     'live_preview' => 'Live parashikim',
     'page_size' => 'Madhësia e faqes',
     'live_preview_disabled' => 'Parashikimi live është çaktivizuar për të përkrahur fontin e selektuar',
@@ -1173,8 +1155,6 @@ Fushat e njësive në faturë',
     'add_users_not_supported' => 'Kaloni në planin Enterprise për të shtuar përdorues shtesë në llogarinë tuaj.',
     'enterprise_plan_features' => 'Plani Enterprise shton përkrahje për shumë përdorues dhe bashkangjithjen e fajllave, :link për të parë listën e të gjitha veçorive.',
     'return_to_app' => 'Kthehu në aplikacion',
-
-
     // Payment updates
     'refund_payment' => 'Rimburso pagesën',
     'refund_max' => 'Maksimumi:',
@@ -1191,7 +1171,6 @@ Fushat e njësive në faturë',
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Skadon:&nbsp:expires',
-
     'card_creditcardother' => 'Panjohur',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1206,13 +1185,11 @@ Fushat e njësive në faturë',
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Aktivizo ACH',
     'stripe_ach_help' => 'Përkrahja ACH duhet të aktivizohet tek Stripe.',
     'ach_disabled' => 'Një tjetër kanal pagese tashmë është konfiguruar për direkt debit.',
-
     'plaid' => 'Plaid',
     'client_id' => 'ID e klientit',
     'secret' => 'Sekret',
@@ -1282,15 +1259,12 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'braintree_paypal_help_link_text' => 'lidh PayPal me llogarinë tuaj në BrainTree',
     'token_billing_braintree_paypal' => 'Ruaj detajet e pagesës',
     'add_paypal_account' => 'Shto llogari PayPal',
-
-
     'no_payment_method_specified' => 'Nuk është caktuar metoda e pagesës',
     'chart_type' => 'Lloji i grafikonit',
     'format' => 'Format',
     'import_ofx' => 'Importo OFX',
     'ofx_file' => 'OXF Fajll',
     'ofx_parse_failed' => 'Ka dështuar marrja e fajllit OFX',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Regjistrohu në WePay',
@@ -1313,7 +1287,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'canada' => 'Canada',
     'accept_debit_cards' => 'Prano Debit Kartë',
     'debit_cards' => 'Debit Kartë',
-
     'warn_start_date_changed' => 'Fatura e re do të dërgohet në datën e re të fillimit.',
     'original_start_date' => 'Data orgjinale e fillimit',
     'new_start_date' => 'Data e re e filimit',
@@ -1331,23 +1304,19 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
     'JSON_file' => 'Fajlli JSON',
-
     'view_dashboard' => 'Shiko Panelin',
     'client_session_expired' => 'Seanca ka skaduar.',
     'client_session_expired_message' => 'Seanca ka skaduar. Ju lutem klikoni linkun në emailin tuaj përsëri.',
-
     'auto_bill_notification' => 'Kjo faturë do të dërgohet për pagesë automatikisht tek  :payment_method në :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'llogaria bankare',
     'auto_bill_payment_method_credit_card' => 'kredit kartë',
     'auto_bill_payment_method_paypal' => 'Llogaria PayPal',
     'auto_bill_notification_placeholder' => 'Kjo faturë do të dërgohet për pagesë automatikisht nga kredit karta juaj në afatin e pagesës.',
     'payment_settings' => 'Rregullimi i pagesës',
-
     'on_send_date' => 'Në datën e dërgimit',
     'on_due_date' => 'Në datën e pagesës',
     'auto_bill_ach_date_help' => 'ACH will always auto bill on the due date.',
     'warn_change_auto_bill' => 'Për shkak të rregullave të NACHA, ndryshimet në këtë faturë mund të parandalojnë autopagesën përmes ACH.',
-
     'bank_account' => 'Llogaria Bankare',
     'payment_processed_through_wepay' => 'Pagesat ACH do të procesohen përmes WePay.',
     'wepay_payment_tos_agree' => 'Pajtohem me WePay :terms dhe:privacy_policy.',
@@ -1355,7 +1324,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'wepay_payment_tos_agree_required' => 'Ju duhet të pajtoheni me WePay Kushtet e Shërbimit dhe Politikat e Privatësisë.',
     'ach_email_prompt' => 'Ju lutem vendosni email adresën tuaj:',
     'verification_pending' => 'Verifikimi në pritje',
-
     'update_font_cache' => 'Ju lutem freskojeni faqen për të parë fontin.',
     'more_options' => 'Më shumë opsione',
     'credit_card' => 'Kredit kartë',
@@ -1369,7 +1337,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'gateway_exists' => 'Ky kanal pagese tashmë ekziston',
     'manual_entry' => 'Vendos manualisht',
     'start_of_week' => 'First Day of the Week',
-
     // Frequencies
     'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Javore',
@@ -1379,7 +1346,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'freq_three_months' => 'Tre mujore',
     'freq_six_months' => 'Gjashtë mujore',
     'freq_annually' => 'Vjetore',
-
     // Payment types
     'payment_type_Apply Credit' => 'Apliko kreditin',
     'payment_type_Bank Transfer' => 'Transfer bankar',
@@ -1406,7 +1372,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'payment_type_Switch' => 'Kalo',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Kontabilitet & Ligjore',
     'industry_Advertising' => 'Reklamimi',
@@ -1440,7 +1405,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'industry_Travel & Luxury' => 'Udhëtime & Luks',
     'industry_Other' => 'Të tjera',
     'industry_Photography' => 'Fotografi',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albania',
@@ -1691,7 +1655,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Brazilian Portuguese',
     'lang_Croatian' => 'Croatian',
@@ -1718,7 +1681,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Javore',
     'freq_two_weeks' => 'Dy javore',
@@ -1727,7 +1689,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'freq_three_months' => 'Tre mujore',
     'freq_six_months' => 'Gjashtë mujore',
     'freq_annually' => 'Vjetore',
-
     // Industries
     'industry_Accounting & Legal' => 'Kontabilitet & Ligjore',
     'industry_Advertising' => 'Reklamimi',
@@ -1759,8 +1720,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'industry_Transportation' => 'Transport',
     'industry_Travel & Luxury' => 'Udhëtime & Luks',
     'industry_Other' => 'Të tjera',
-    'industry_Photography' =>'Fotografi',
-
+    'industry_Photography' => 'Fotografi',
     'view_client_portal' => 'Shiko portalin e klienti',
     'view_portal' => 'Shiko portalin',
     'vendor_contacts' => 'Kontakte te kompanive',
@@ -1802,7 +1762,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'no_undo' => 'Vërejtje: kjo nuk mund të kthehet prapa.',
     'no_contact_selected' => 'Ju lutem zgjedhni një kontakt',
     'no_client_selected' => 'Ju lutem zgjedhni një klient',
-
     'gateway_config_error' => 'Mund t\'ju duhet ndihmë për të vendosur fjalëkalim të ri ose për të gjeneruar çelës të ri API .',
     'payment_type_on_file' => ':type ne skedar',
     'invoice_for_client' => 'Fatura :invoice per :client',
@@ -1825,11 +1784,9 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'security_code_email_line2' => 'Shenim: skadon per 10 minuta.',
     'bot_help_message' => 'Momentalisht mund te bej:<br/>• Krijo/perditeso/dergo nje fature<br/>• Listo produktet<br/>Per shembull:<br/><i>Dergo fature Bobit per 2 bileta me date te fundit per te enjten tjeter dhe ul cmimin me 10 perqind<i>',
     'list_products' => 'Listo Produktet',
-
     'include_item_taxes_inline' => 'Perfshi <b>line item taxes in line total</b>',
     'created_quotes' => 'Jane krijuar me sukses :count oferta',
     'limited_gateways' => 'Shenim: ne ofrojme nje kanal pagese me karte krediti per kompani.',
-
     'warning' => 'Paralajmerim',
     'self-update' => 'Perditeso',
     'update_invoiceninja_title' => 'Perditeso Invoice Ninja',
@@ -1840,7 +1797,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'update_invoiceninja_update_start' => 'Perditeso tani',
     'update_invoiceninja_download_start' => 'Shkarko :version',
     'create_new' => 'Krijo',
-
     'toggle_navigation' => 'Ndrysho Navigimin',
     'toggle_history' => 'Ndrysho Historine',
     'unassigned' => 'E pacaktuar',
@@ -1853,7 +1809,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'facebook_and_twitter_help' => 'Ndiqni te rejat tona per te na perkrahur',
     'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell the app.',
     'unnamed_client' => 'Klient pa Emer',
-
     'day' => 'Dite',
     'week' => 'Jave',
     'month' => 'Muaj',
@@ -1862,7 +1817,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'total_profit' => 'Fitimi Total',
     'total_expenses' => 'Shpenzimet Totale',
     'quote_to' => 'Oferte per',
-
     // Limits
     'limit' => 'Limit',
     'min_limit' => 'Min: :min',
@@ -1874,7 +1828,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'Kjo fature nuk respekton limitet per kete kanal pagese.',
-
     'date_range' => 'Shtrirja e Dates',
     'raw' => 'Raw',
     'raw_html' => 'Raw HTML',
@@ -1890,10 +1843,8 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'expense_will_create' => 'expense will be created',
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
-
     'translate_app' => 'Help improve our translations with :link',
     'expense_category' => 'Expense Category',
-
     'go_ninja_pro' => 'Go Ninja Pro!',
     'go_enterprise' => 'Go Enterprise!',
     'upgrade_for_features' => 'Upgrade For More Features',
@@ -1904,10 +1855,8 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'enterprise_upgrade_feature1' => 'Set permissions for multiple-users',
     'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
     'much_more' => 'Much More!',
-
     'currency_symbol' => 'Symbol',
     'currency_code' => 'Code',
-
     'buy_license' => 'Buy License',
     'apply_license' => 'Apply License',
     'submit' => 'Submit',
@@ -1931,39 +1880,37 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'sign_here' => 'Please sign here:',
     'authorization' => 'Authorization',
     'signed' => 'Signed',
-
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Create an account',
-	'quote_types' => 'Get a quote for',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'Line of credit',
-	'fico_score'                         => 'Your FICO score',
-	'business_inception'                 => 'Business Inception Date',
-	'average_bank_balance'               => 'Average bank account balance',
-	'annual_revenue'                     => 'Annual revenue',
-	'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
-	'desired_credit_limit_loc'           => 'Desired line of credit limit',
-	'desired_credit_limit'               => 'Desired credit limit',
-	'bluevine_credit_line_type_required' => 'You must choose at least one',
-	'bluevine_field_required'            => 'This field is required',
-	'bluevine_unexpected_error'          => 'An unexpected error occurred.',
-	'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'Conditional Offer',
-	'bluevine_credit_line_amount'        => 'Credit Line',
-	'bluevine_advance_rate'              => 'Advance Rate',
-	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
-	'bluevine_minimum_fee_rate'          => 'Minimum Fee',
-	'bluevine_line_of_credit'            => 'Line of Credit',
-	'bluevine_interest_rate'             => 'Interest Rate',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continue to BlueVine',
-	'bluevine_completed'                 => 'BlueVine signup completed',
-
+    'bluevine_create_account' => 'Create an account',
+    'quote_types' => 'Get a quote for',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'Line of credit',
+    'fico_score' => 'Your FICO score',
+    'business_inception' => 'Business Inception Date',
+    'average_bank_balance' => 'Average bank account balance',
+    'annual_revenue' => 'Annual revenue',
+    'desired_credit_limit_factoring' => 'Desired invoice factoring limit',
+    'desired_credit_limit_loc' => 'Desired line of credit limit',
+    'desired_credit_limit' => 'Desired credit limit',
+    'bluevine_credit_line_type_required' => 'You must choose at least one',
+    'bluevine_field_required' => 'This field is required',
+    'bluevine_unexpected_error' => 'An unexpected error occurred.',
+    'bluevine_no_conditional_offer' => 'More information is required before getting a quote. Click continue below.',
+    'bluevine_invoice_factoring' => 'Invoice Factoring',
+    'bluevine_conditional_offer' => 'Conditional Offer',
+    'bluevine_credit_line_amount' => 'Credit Line',
+    'bluevine_advance_rate' => 'Advance Rate',
+    'bluevine_weekly_discount_rate' => 'Weekly Discount Rate',
+    'bluevine_minimum_fee_rate' => 'Minimum Fee',
+    'bluevine_line_of_credit' => 'Line of Credit',
+    'bluevine_interest_rate' => 'Interest Rate',
+    'bluevine_weekly_draw_rate' => 'Weekly Draw Rate',
+    'bluevine_continue' => 'Continue to BlueVine',
+    'bluevine_completed' => 'BlueVine signup completed',
     'vendor_name' => 'Vendor',
     'entity_state' => 'State',
     'client_created_at' => 'Date Created',
@@ -2096,22 +2043,19 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
     'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
-
-	// Updated login screen
-	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with an existing account.',
-	'sign_up_now' => 'Sign Up Now',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Create an Account!',
-	'client_login' => 'Client Login',
-
-	// New Client Portal styling
-	'invoice_from' => 'Invoices From:',
+    // Updated login screen
+    'ninja_tagline' => 'Create. Send. Get Paid.',
+    'login_or_existing' => 'Or login with an existing account.',
+    'sign_up_now' => 'Sign Up Now',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Create an Account!',
+    'client_login' => 'Client Login',
+    // New Client Portal styling
+    'invoice_from' => 'Invoices From:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
-
     'product_fields' => 'Product Fields',
     'custom_product_fields_help' => 'Add a field when creating a product or invoice and display the label and value on the PDF.',
     'freq_two_months' => 'Two months',
@@ -2135,7 +2079,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'create_expense_category' => 'Create category',
     'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
     'mark_ready' => 'Mark Ready',
-
     'limits' => 'Limits',
     'fees' => 'Fees',
     'fee' => 'Fee',
@@ -2164,7 +2107,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'logo_warning_too_large' => 'The image file is too large.',
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
-
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
@@ -2317,7 +2259,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2385,12 +2326,11 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2398,9 +2338,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

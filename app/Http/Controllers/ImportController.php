@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -22,21 +21,18 @@ class ImportController extends BaseController
 
     public function doImport(Request $request)
     {
-        if (! Auth::user()->confirmed) {
+        if (!Auth::user()->confirmed) {
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
         }
-
         $source = Input::get('source');
         $files = [];
         $timestamp = time();
-
         foreach (ImportService::$entityTypes as $entityType) {
             $fileName = $entityType;
             if ($request->hasFile($fileName)) {
                 $file = $request->file($fileName);
                 $destinationPath = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
                 $extension = strtolower($file->getClientOriginalExtension());
-
                 if ($source === IMPORT_CSV) {
                     if ($extension != 'csv') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
@@ -46,22 +42,19 @@ class ImportController extends BaseController
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
                 } else {
-                    if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                    if (!in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
                 }
-
                 $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
                 $file->move($destinationPath, $newFileName);
                 $files[$entityType] = $destinationPath . '/' . $newFileName;
             }
         }
-
-        if (! count($files)) {
+        if (!count($files)) {
             Session::flash('error', trans('texts.select_file'));
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
-
         try {
             if ($source === IMPORT_CSV) {
                 $data = $this->importService->mapCSV($files);
@@ -101,7 +94,6 @@ class ImportController extends BaseController
         } catch (Exception $exception) {
             Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
-
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
@@ -112,7 +104,6 @@ class ImportController extends BaseController
             $map = Input::get('map');
             $headers = Input::get('headers');
             $timestamp = Input::get('timestamp');
-
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);
                 $message = $this->importService->presentResults($results);
@@ -125,12 +116,10 @@ class ImportController extends BaseController
                 $this->dispatch(new ImportData(Auth::user(), IMPORT_CSV, $settings));
                 $message = trans('texts.import_started');
             }
-
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);
         } catch (Exception $exception) {
             Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
-
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
@@ -146,7 +135,6 @@ class ImportController extends BaseController
         } catch (Exception $exception) {
             Utils::logError($exception);
         }
-
         return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 }

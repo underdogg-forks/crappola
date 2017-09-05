@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Ninja\Presenters;
-
 /**
  * Class TaskPresenter.
  */
@@ -28,11 +26,6 @@ class TaskPresenter extends EntityPresenter
         return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
     }
 
-    public function project()
-    {
-        return $this->entity->project ? $this->entity->project->name : '';
-    }
-
     /**
      * @param $account
      * @param mixed $showProject
@@ -42,32 +35,30 @@ class TaskPresenter extends EntityPresenter
     public function invoiceDescription($account, $showProject)
     {
         $str = '';
-
         if ($showProject && $project = $this->project()) {
             $str .= "## {$project}\n\n";
         }
-
         if ($description = trim($this->entity->description)) {
             $str .= $description . "\n\n";
         }
-
         $parts = json_decode($this->entity->time_log) ?: [];
         $times = [];
-
         foreach ($parts as $part) {
             $start = $part[0];
-            if (count($part) == 1 || ! $part[1]) {
+            if (count($part) == 1 || !$part[1]) {
                 $end = time();
             } else {
                 $end = $part[1];
             }
-
             $start = $account->formatDateTime('@' . intval($start));
             $end = $account->formatTime('@' . intval($end));
-
             $times[] = "### {$start} - {$end}";
         }
-
         return $str . implode("\n", $times);
+    }
+
+    public function project()
+    {
+        return $this->entity->project ? $this->entity->project->name : '';
     }
 }

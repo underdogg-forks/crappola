@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Gateway;
 
 class PaymentLibrariesSeeder extends Seeder
@@ -7,7 +6,6 @@ class PaymentLibrariesSeeder extends Seeder
     public function run()
     {
         Eloquent::unguard();
-
         $gateways = [
             ['name' => 'Authorize.Net AIM', 'provider' => 'AuthorizeNet_AIM', 'sort_order' => 4],
             ['name' => 'Authorize.Net SIM', 'provider' => 'AuthorizeNet_SIM', 'payment_library_id' => 2],
@@ -74,11 +72,10 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'FirstData Payeezy', 'provider' => 'FirstData_Payeezy'],
             ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 8, 'is_offsite' => true],
         ];
-
         foreach ($gateways as $gateway) {
             $record = Gateway::whereName($gateway['name'])
-                        ->whereProvider($gateway['provider'])
-                        ->first();
+                ->whereProvider($gateway['provider'])
+                ->first();
             if ($record) {
                 $record->fill($gateway);
                 $record->save();

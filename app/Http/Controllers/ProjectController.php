@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProjectRequest;
@@ -44,7 +43,6 @@ class ProjectController extends BaseController
     {
         $search = Input::get('sSearch');
         $userId = Auth::user()->filterId();
-
         return $this->projectService->getDatatable($search, $userId);
     }
 
@@ -58,14 +56,12 @@ class ProjectController extends BaseController
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
         ];
-
         return View::make('projects.edit', $data);
     }
 
     public function edit(ProjectRequest $request)
     {
         $project = $request->entity();
-
         $data = [
             'project' => $project,
             'method' => 'PUT',
@@ -74,25 +70,20 @@ class ProjectController extends BaseController
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $project->client ? $project->client->public_id : null,
         ];
-
         return View::make('projects.edit', $data);
     }
 
     public function store(CreateProjectRequest $request)
     {
         $project = $this->projectService->save($request->input());
-
         Session::flash('message', trans('texts.created_project'));
-
         return redirect()->to($project->getRoute());
     }
 
     public function update(UpdateProjectRequest $request)
     {
         $project = $this->projectService->save($request->input(), $request->entity());
-
         Session::flash('message', trans('texts.updated_project'));
-
         return redirect()->to($project->getRoute());
     }
 
@@ -101,13 +92,11 @@ class ProjectController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->projectService->bulk($ids, $action);
-
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
             $message = trans("texts.$field", ['count' => $count]);
             Session::flash('message', $message);
         }
-
         return redirect()->to('/projects');
     }
 }

@@ -1,16 +1,12 @@
 <?php
-
-if (! defined('APP_NAME')) {
+if (!defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
     define('SITE_URL', env('APP_URL'));
-
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
-
     define('RECENTLY_VIEWED', 'recent_history');
-
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
@@ -39,23 +35,18 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROJECT', 'project');
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
     define('ENTITY_CUSTOMER', 'customer');
-
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
-
     define('INVOICE_ITEM_TYPE_STANDARD', 1);
     define('INVOICE_ITEM_TYPE_TASK', 2);
     define('INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE', 3);
     define('INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE', 4);
     define('INVOICE_ITEM_TYPE_LATE_FEE', 5);
-
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
     define('PERSON_VENDOR_CONTACT', 'vendorcontact');
-
     define('BASIC_SETTINGS', 'basic_settings');
     define('ADVANCED_SETTINGS', 'advanced_settings');
-
     define('ACCOUNT_COMPANY_DETAILS', 'company_details');
     define('ACCOUNT_USER_DETAILS', 'user_details');
     define('ACCOUNT_LOCALIZATION', 'localization');
@@ -82,13 +73,11 @@ if (! defined('APP_NAME')) {
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
     define('ACCOUNT_SYSTEM_SETTINGS', 'system_settings');
     define('ACCOUNT_PAYMENT_TERMS', 'payment_terms');
-
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
     define('ACTION_CLONE', 'clone');
     define('ACTION_CONVERT', 'convert');
     define('ACTION_DELETE', 'delete');
-
     define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
     define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
     define('ACTIVITY_TYPE_DELETE_CLIENT', 3);
@@ -135,7 +124,6 @@ if (! defined('APP_NAME')) {
     define('ACTIVITY_TYPE_DELETE_TASK', 45);
     define('ACTIVITY_TYPE_RESTORE_TASK', 46);
     define('ACTIVITY_TYPE_UPDATE_EXPENSE', 47);
-
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 20);
     define('LOGGED_ERROR_LIMIT', 100);
@@ -155,10 +143,8 @@ if (! defined('APP_NAME')) {
     define('DEFAULT_HEADER_FONT', 1); // Roboto
     define('DEFAULT_BODY_FONT', 1); // Roboto
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
-
     define('DEFAULT_BANK_OFX_VERSION', 102);
     define('DEFAULT_BANK_APP_VERSION', 2500);
-
     define('IMPORT_CSV', 'CSV');
     define('IMPORT_JSON', 'JSON');
     define('IMPORT_FRESHBOOKS', 'FreshBooks');
@@ -171,21 +157,17 @@ if (! defined('APP_NAME')) {
     define('IMPORT_INVOICEPLANE', 'InvoicePlane');
     define('IMPORT_HARVEST', 'Harvest');
     define('IMPORT_STRIPE', 'Stripe');
-
     define('MAX_NUM_CLIENTS', 100);
     define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_CLIENTS_LEGACY', 500);
     define('MAX_INVOICE_AMOUNT', 1000000000);
     define('LEGACY_CUTOFF', 57800);
     define('ERROR_DELAY', 3);
-
     define('MAX_NUM_VENDORS', 100);
     define('MAX_NUM_VENDORS_PRO', 20000);
-
     define('STATUS_ACTIVE', 'active');
     define('STATUS_ARCHIVED', 'archived');
     define('STATUS_DELETED', 'deleted');
-
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
     define('INVOICE_STATUS_VIEWED', 3);
@@ -194,30 +176,25 @@ if (! defined('APP_NAME')) {
     define('INVOICE_STATUS_PAID', 6);
     define('INVOICE_STATUS_OVERDUE', -1);
     define('INVOICE_STATUS_UNPAID', -2);
-
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
     define('PAYMENT_STATUS_FAILED', 3);
     define('PAYMENT_STATUS_COMPLETED', 4);
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
     define('PAYMENT_STATUS_REFUNDED', 6);
-
     define('TASK_STATUS_LOGGED', 1);
     define('TASK_STATUS_RUNNING', 2);
     define('TASK_STATUS_INVOICED', 3);
     define('TASK_STATUS_PAID', 4);
-
     define('EXPENSE_STATUS_LOGGED', 1);
     define('EXPENSE_STATUS_PENDING', 2);
     define('EXPENSE_STATUS_INVOICED', 3);
     define('EXPENSE_STATUS_BILLED', 4);
     define('EXPENSE_STATUS_PAID', 5);
     define('EXPENSE_STATUS_UNPAID', 6);
-
     define('CUSTOM_DESIGN1', 11);
     define('CUSTOM_DESIGN2', 12);
     define('CUSTOM_DESIGN3', 13);
-
     define('FREQUENCY_WEEKLY', 1);
     define('FREQUENCY_TWO_WEEKS', 2);
     define('FREQUENCY_FOUR_WEEKS', 3);
@@ -226,7 +203,6 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_THREE_MONTHS', 6);
     define('FREQUENCY_SIX_MONTHS', 7);
     define('FREQUENCY_ANNUALLY', 8);
-
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
     define('SESSION_CURRENCY_DECORATOR', 'currency_decorator');
@@ -240,13 +216,10 @@ if (! defined('APP_NAME')) {
     define('SESSION_LEFT_SIDEBAR', 'showLeftSidebar');
     define('SESSION_RIGHT_SIDEBAR', 'showRightSidebar');
     define('SESSION_DB_SERVER', 'dbServer');
-
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
-
     define('CURRENCY_DOLLAR', 1);
     define('CURRENCY_EURO', 3);
-
     define('DEFAULT_TIMEZONE', 'US/Eastern');
     define('DEFAULT_COUNTRY', 840); // United Stated
     define('DEFAULT_CURRENCY', CURRENCY_DOLLAR);
@@ -257,13 +230,10 @@ if (! defined('APP_NAME')) {
     define('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a');
     define('DEFAULT_LOCALE', 'en');
     define('DEFAULT_MAP_ZOOM', 10);
-
     define('RESULT_SUCCESS', 'success');
     define('RESULT_FAILURE', 'failure');
-
     define('PAYMENT_LIBRARY_OMNIPAY', 1);
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
-
     define('GATEWAY_AUTHORIZE_NET', 1);
     define('GATEWAY_EWAY', 4);
     define('GATEWAY_MOLLIE', 9);
@@ -284,11 +254,9 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_BRAINTREE', 61);
     define('GATEWAY_CUSTOM', 62);
     define('GATEWAY_GOCARDLESS', 64);
-
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers
     define('CUSTOMER_REFERENCE_LOCAL', 'local');
-
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
     define('EVENT_CREATE_QUOTE', 3);
@@ -298,7 +266,6 @@ if (! defined('APP_NAME')) {
     define('EVENT_DELETE_QUOTE', 7);
     define('EVENT_UPDATE_INVOICE', 8);
     define('EVENT_DELETE_INVOICE', 9);
-
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));
     define('NINJA_ACCOUNT_EMAIL', env('NINJA_ACCOUNT_EMAIL', 'contact@invoiceninja.com'));
@@ -310,11 +277,9 @@ if (! defined('APP_NAME')) {
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
     define('NINJA_VERSION', '3.6.1' . env('NINJA_VERSION_SUFFIX'));
-
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
     define('SOCIAL_LINK_GITHUB', env('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/'));
-
     define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
     define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
@@ -334,22 +299,17 @@ if (! defined('APP_NAME')) {
     define('IP_LOOKUP_URL', env('IP_LOOKUP_URL', 'http://whatismyipaddress.com/ip/'));
     define('CHROME_PDF_HELP_URL', 'https://support.google.com/chrome/answer/6213030?hl=en');
     define('FIREFOX_PDF_HELP_URL', 'https://support.mozilla.org/en-US/kb/view-pdf-files-firefox');
-
     define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
     define('MSBOT_LUIS_URL', 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps');
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
     define('INVOICEPLANE_IMPORT', 'https://github.com/turbo124/Plane2Ninja');
-
     define('BOT_PLATFORM_WEB_APP', 'WebApp');
     define('BOT_PLATFORM_SKYPE', 'Skype');
-
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
-
     define('DB_NINJA_LOOKUP', 'db-ninja-0');
     define('DB_NINJA_1', 'db-ninja-1');
     define('DB_NINJA_2', 'db-ninja-2');
-
     define('COUNT_FREE_DESIGNS', 4);
     define('PRODUCT_ONE_CLICK_INSTALL', 1);
     define('PRODUCT_INVOICE_DESIGNS', 2);
@@ -358,7 +318,6 @@ if (! defined('APP_NAME')) {
     define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
-
     define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 8));
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_2', env('PLAN_PRICE_ENTERPRISE_MONTHLY_2', 12));
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_5', env('PLAN_PRICE_ENTERPRISE_MONTHLY_5', 18));
@@ -366,25 +325,20 @@ if (! defined('APP_NAME')) {
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_20', env('PLAN_PRICE_ENTERPRISE_MONTHLY_20', 36));
     define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
     define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
-
     define('USER_TYPE_SELF_HOST', 'SELF_HOST');
     define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
     define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
-
     define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
     define('MAX_API_PAGE_SIZE', 500);
-
     define('IOS_DEVICE', env('IOS_DEVICE', ''));
     define('ANDROID_DEVICE', env('ANDROID_DEVICE', ''));
-
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
     define('TOKEN_BILLING_OPT_OUT', 3);
     define('TOKEN_BILLING_ALWAYS', 4);
-
     define('PAYMENT_TYPE_CREDIT', 1);
     define('PAYMENT_TYPE_ACH', 5);
     define('PAYMENT_TYPE_VISA', 6);
@@ -404,11 +358,9 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_TYPE_SOLO', 22);
     define('PAYMENT_TYPE_SWITCH', 23);
     define('PAYMENT_TYPE_ALIPAY', 24);
-
     define('PAYMENT_METHOD_STATUS_NEW', 'new');
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
     define('PAYMENT_METHOD_STATUS_VERIFIED', 'verified');
-
     define('GATEWAY_TYPE_CREDIT_CARD', 1);
     define('GATEWAY_TYPE_BANK_TRANSFER', 2);
     define('GATEWAY_TYPE_PAYPAL', 3);
@@ -417,7 +369,6 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_TOKEN', 'token');
-
     define('TEMPLATE_INVOICE', 'invoice');
     define('TEMPLATE_QUOTE', 'quote');
     define('TEMPLATE_PARTIAL', 'partial');
@@ -425,54 +376,41 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER1', 'reminder1');
     define('TEMPLATE_REMINDER2', 'reminder2');
     define('TEMPLATE_REMINDER3', 'reminder3');
-
     define('RESET_FREQUENCY_DAILY', 1);
     define('RESET_FREQUENCY_WEEKLY', 2);
     define('RESET_FREQUENCY_MONTHLY', 3);
     define('RESET_FREQUENCY_QUATERLY', 4);
     define('RESET_FREQUENCY_YEARLY', 5);
-
     define('REMINDER_DIRECTION_AFTER', 1);
     define('REMINDER_DIRECTION_BEFORE', 2);
-
     define('REMINDER_FIELD_DUE_DATE', 1);
     define('REMINDER_FIELD_INVOICE_DATE', 2);
-
     define('FILTER_INVOICE_DATE', 'invoice_date');
     define('FILTER_PAYMENT_DATE', 'payment_date');
-
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');
     define('SOCIAL_GITHUB', 'GitHub');
     define('SOCIAL_LINKEDIN', 'LinkedIn');
-
     define('USER_STATE_ACTIVE', 'active');
     define('USER_STATE_PENDING', 'pending');
     define('USER_STATE_DISABLED', 'disabled');
     define('USER_STATE_ADMIN', 'admin');
     define('USER_STATE_OWNER', 'owner');
-
     define('API_SERIALIZER_ARRAY', 'array');
     define('API_SERIALIZER_JSON', 'json');
-
     define('EMAIL_DESIGN_PLAIN', 1);
     define('EMAIL_DESIGN_LIGHT', 2);
     define('EMAIL_DESIGN_DARK', 3);
-
     define('BANK_LIBRARY_OFX', 1);
-
     define('CURRENCY_DECORATOR_CODE', 'code');
     define('CURRENCY_DECORATOR_SYMBOL', 'symbol');
     define('CURRENCY_DECORATOR_NONE', 'none');
-
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_ACCOUNT_COUNT', 'B');
-
     define('AUTO_BILL_OFF', 1);
     define('AUTO_BILL_OPT_IN', 2);
     define('AUTO_BILL_OPT_OUT', 3);
     define('AUTO_BILL_ALWAYS', 4);
-
     // These must be lowercase
     define('PLAN_FREE', 'free');
     define('PLAN_PRO', 'pro');
@@ -480,7 +418,6 @@ if (! defined('APP_NAME')) {
     define('PLAN_WHITE_LABEL', 'white_label');
     define('PLAN_TERM_MONTHLY', 'month');
     define('PLAN_TERM_YEARLY', 'year');
-
     // Pro
     define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
     define('FEATURE_REMOVE_CREATED_BY', 'remove_created_by');
@@ -498,23 +435,17 @@ if (! defined('APP_NAME')) {
     define('FEATURE_API', 'api');
     define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
     define('FEATURE_CUSTOM_URL', 'custom_url');
-
     define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
-
     // Whitelabel
     define('FEATURE_WHITE_LABEL', 'feature_white_label');
-
     // Enterprise
     define('FEATURE_DOCUMENTS', 'documents');
-
     // No Trial allowed
     define('FEATURE_USERS', 'users'); // Grandfathered for old Pro users
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
-
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-06-04');
     define('EXTRAS_GRANDFATHER_COMPANY_ID', 35089);
-
     // WePay
     define('WEPAY_PRODUCTION', 'production');
     define('WEPAY_STAGE', 'stage');
@@ -523,16 +454,13 @@ if (! defined('APP_NAME')) {
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
     define('WEPAY_THEME', env('WEPAY_THEME', '{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
-
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
     define('SKYPE_CARD_HERO', '');
-
     define('BOT_STATE_GET_EMAIL', 'get_email');
     define('BOT_STATE_GET_CODE', 'get_code');
     define('BOT_STATE_READY', 'ready');
     define('SIMILAR_MIN_THRESHOLD', 50);
-
     // https://docs.botframework.com/en-us/csharp/builder/sdkreference/attachments.html
     define('SKYPE_BUTTON_OPEN_URL', 'openUrl');
     define('SKYPE_BUTTON_IM_BACK', 'imBack');
@@ -542,20 +470,17 @@ if (! defined('APP_NAME')) {
     define('SKYPE_BUTTON_PLAY_VIDEO', 'playVideo');
     define('SKYPE_BUTTON_SHOW_IMAGE', 'showImage');
     define('SKYPE_BUTTON_DOWNLOAD_FILE', 'downloadFile');
-
     define('INVOICE_FIELDS_CLIENT', 'client_fields');
     define('INVOICE_FIELDS_INVOICE', 'invoice_fields');
     define('INVOICE_FIELDS_ACCOUNT', 'account_fields');
-
     $creditCards = [
-                1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
-                2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
-                4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
-                8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
-            ];
+        1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
+        2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
+        4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
+        8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
+        16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
+    ];
     define('CREDIT_CARDS', serialize($creditCards));
-
     $cachedTables = [
         'currencies' => 'App\Models\Currency',
         'sizes' => 'App\Models\Size',
@@ -576,15 +501,12 @@ if (! defined('APP_NAME')) {
         'banks' => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
-
     // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
     define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
-
     function uctrans($text, $data = [])
     {
         $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
-
         return $locale == 'en' ? ucwords($text) : $text;
     }
 
@@ -592,7 +514,6 @@ if (! defined('APP_NAME')) {
     {
         $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
-
         return $locale == 'en' ? strtoupper($text) : $text;
     }
 
@@ -600,13 +521,11 @@ if (! defined('APP_NAME')) {
     function otrans($text)
     {
         $locale = Session::get(SESSION_LOCALE);
-
         if ($locale == 'en') {
             return trans($text);
         } else {
             $string = trans($text);
             $english = trans($text, [], 'en');
-
             return $string != $english ? $string : '';
         }
     }
@@ -614,19 +533,17 @@ if (! defined('APP_NAME')) {
     // include modules in translations
     function mtrans($entityType, $text = false)
     {
-        if (! $text) {
+        if (!$text) {
             $text = $entityType;
         }
-
         // check if this has been translated in a module language file
-        if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+        if (!Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key);
             if ($key != $value) {
                 return $value;
             }
         }
-
         return trans("texts.{$text}");
     }
 }

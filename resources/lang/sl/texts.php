@@ -1,7 +1,5 @@
 <?php
-
 $LANG = array(
-
     'organization' => 'Podjetje',
     'name' => 'Ime',
     'website' => 'Spletna stran',
@@ -999,8 +997,6 @@ Prijava v račun',
     'trial_call_to_action' => 'Začni brezplačno poskusno obdobje',
     'trial_success' => 'Dva tedensko brezplačno poskusno obdobje uspešno omogočeno.',
     'overdue' => 'Zapadlo',
-
-
     'white_label_text' => 'Za odstranitev Invoice Ninja znamke z računa in portala za stranke, zakupi enoletno "white Label" licenco v znesku $:price.',
     'user_email_footer' => 'Za spremembo e-poštnih obvestil obiščite :link',
     'reset_password_footer' => 'Če niste zahtevali ponastavitev gesla, nas prosim obvestite: : e-mail',
@@ -1009,7 +1005,6 @@ Prijava v račun',
     'old_browser' => 'Prosimo uprabite <a href=":link" target="_blank">novejši brskalnik/a>',
     'white_label_custom_css' => ':link za $:price da omogočite lastne sloge za pomoč in podporo našega projekta',
     'bank_accounts_help' => 'Povežite bančni račun za samodejen uvozi stroškov in prodajalcev.. Podpira American Express in več kot<a href=":link" target="_blank">400 bank iz ZDA.</a>',
-
     'pro_plan_remove_logo' => ':link za odstranitev logotipa Invoice Ninja z vstopom v Pro Plan',
     'pro_plan_remove_logo_link' => 'Klikni tu',
     'invitation_status_sent' => 'Poslano',
@@ -1021,7 +1016,6 @@ Prijava v račun',
     'email_error_user_unregistered' => 'Za pošiljanje e-pošte registrirajte vaš račun',
     'email_error_user_unconfirmed' => 'Za pošiljanje pošte potrdite svoj račun',
     'email_error_invalid_contact_email' => 'Neveljaven kontakten e-naslov',
-
     'navigation' => 'Navigacija',
     'list_invoices' => 'Seznam računov',
     'list_clients' => 'Seznam Strank',
@@ -1034,7 +1028,6 @@ Prijava v račun',
     'tax_name' => 'Ime davčne stopnje',
     'report_settings' => 'Nastavitve Poročil',
     'search_hotkey' => 'bližnjica je /',
-
     'new_user' => 'Nov Uporabnik',
     'new_product' => 'Nov Produkt',
     'new_tax_rate' => 'Nova Davčna Stopnja',
@@ -1043,20 +1036,17 @@ Prijava v račun',
     'custom_invoice_item_fields_help' => 'Pri ustvarjanju postavke računa dodaj polje in na PDF dokumentu prikaži oznako in vrednost.',
     'recurring_invoice_number' => 'Ponavljajoče Številke',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
-
     // Client Passwords
     'enable_portal_password' => 'Račune zaščiti z geslom',
     'enable_portal_password_help' => 'Omogoča da nastavite geslo za vsako osebo. Če je geslo nastavljeno, ga bo uporabnik moral vnesti pred ogledom računa.',
     'send_portal_password' => 'Gesla ustvari sampdejno',
     'send_portal_password_help' => 'Če geslo ni nastavljeno, bo ustvarjeno samodejno in se pošlje s prvim računom.',
-
     'expired' => 'Poteklo',
     'invalid_card_number' => 'Št. kreditne kartice ni veljavna.',
     'invalid_expiry' => 'Datum poteka ni veljaven.',
     'invalid_cvv' => 'CVV ni veljaven.',
     'cost' => 'Strošek',
     'create_invoice_for_sample' => 'Opomba: Ustvarite vaš prvi račun da boste tu videli predogled.',
-
     // User Permissions
     'owner' => 'Lastnik',
     'administrator' => 'Upravljalec',
@@ -1075,7 +1065,6 @@ Prijava v račun',
     'view_all_help' => 'Dovoli uporabniku ogled zapisov, ki jih ni naredil',
     'edit_all_help' => 'Dovoli uporabniku urejanje zapisov, ki jih ni naredil',
     'view_payment' => 'Ogled Plačila',
-
     'january' => 'Januar',
     'february' => 'Februar',
     'march' => 'Marec',
@@ -1088,7 +1077,6 @@ Prijava v račun',
     'october' => 'Oktober',
     'november' => 'November',
     'december' => 'December',
-
     // Documents
     'documents_header' => 'Dokumenti:',
     'email_documents_header' => 'Dokumenti:',
@@ -1113,16 +1101,13 @@ Prijava v račun',
     'documents' => 'Dokumenti',
     'document_date' => 'Datum Dokumenta',
     'document_size' => 'Velikost',
-
     'enable_client_portal' => 'Portal za stranke',
     'enable_client_portal_help' => 'Pokaži/skrij portal za stranke',
     'enable_client_portal_dashboard' => 'Nadzorna plošča',
     'enable_client_portal_dashboard_help' => 'Prikaži/skrij nadzorno ploščo v stranko portalu.',
-
     // Plans
     'account_management' => 'Upravljanje Računa',
     'plan_status' => 'Trenuten plan',
-
     'plan_upgrade' => 'Nadgradi',
     'plan_change' => 'Spremeni Plan',
     'pending_change_to' => 'Spremeni v',
@@ -1152,9 +1137,7 @@ Prijava v račun',
     'plan_paid' => 'Obdobje se je pričelo',
     'plan_started' => 'Začetek Načrta',
     'plan_expires' => 'Načrt Poteče',
-
     'white_label_button' => 'White Label',
-
     'pro_plan_year_description' => 'Letna članarina v Invoice Ninja Pro načrt.',
     'pro_plan_month_description' => 'Mesečna članarina v Invoice Ninja Pro načrt.',
     'enterprise_plan_product' => 'Plan Podjetje',
@@ -1164,7 +1147,6 @@ Prijava v račun',
     'plan_credit_description' => 'Dobropis za neuporabljeni čas',
     'plan_pending_monthly' => 'Preklom na mesečno na:',
     'plan_refunded' => 'Vračilo je bilo izvedeno.',
-
     'live_preview' => 'Takojšen predogled',
     'page_size' => '
 Velikost strani',
@@ -1175,8 +1157,6 @@ Velikost strani',
     'add_users_not_supported' => 'Za dodtne uporabnike v vašem računu nadgradi na podjetniški načrt',
     'enterprise_plan_features' => 'Podjetniški načrt omogoča več uporabnikov in priponk. :link za ogled celotnega seznama funkcij.',
     'return_to_app' => 'Vrni se na aplikacijo',
-
-
     // Payment updates
     'refund_payment' => 'Vračilo Plačila',
     'refund_max' => 'Maksimalno:',
@@ -1193,7 +1173,6 @@ Velikost strani',
     'activity_39' => ':user cancelled a :payment_amount payment :payment',
     'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Exp:&nbsp:expires',
-
     'card_creditcardother' => 'Neznano',
     'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
@@ -1208,13 +1187,11 @@ Velikost strani',
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
     'card_ach' => 'ACH',
-
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Omogoči ACH',
     'stripe_ach_help' => 'ACH podpora mora biti omogočena pri Stripe.',
     'ach_disabled' => 'Za neposredno bremenitev je nastavljen drug prehod.',
-
     'plaid' => 'Plaid',
     'client_id' => 'Identifikacija Stranke',
     'secret' => 'Skrivnost',
@@ -1285,15 +1262,12 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'braintree_paypal_help_link_text' => 'Povežite PayPay z vašim BrainTree računom ',
     'token_billing_braintree_paypal' => 'Shrani plačilne podatke',
     'add_paypal_account' => 'Dodaj Paypal Račun',
-
-
     'no_payment_method_specified' => 'Plačilno sredstvo ni izbrano.',
     'chart_type' => 'Tip Grafikona',
     'format' => 'Oblika',
     'import_ofx' => 'Uvozi OFX',
     'ofx_file' => 'OFX Datoteka',
     'ofx_parse_failed' => 'Razčleniti datoteke OFX ni bila uspešna',
-
     // WePay
     'wepay' => 'WePay',
     'sign_up_with_wepay' => 'Prijavi se z WePay',
@@ -1316,7 +1290,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'canada' => 'Canada',
     'accept_debit_cards' => 'Sprejmi Debetne Kartice',
     'debit_cards' => 'Debetne Kartice',
-
     'warn_start_date_changed' => 'Naslednji račun bo poslan v začetku naslednjega dne,',
     'original_start_date' => 'Prvotni začetni datum',
     'new_start_date' => 'Novi začetni datum',
@@ -1334,23 +1307,19 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Uporabite JSON če nameravate uvoziti podatke v Invoice Ninja. <br/> Datoteka vsebuje stranke izdelke, račune, ponudbe in plačila.',
     'JSON_file' => 'JSON Datoteka',
-
     'view_dashboard' => 'Prikaži/skrij',
     'client_session_expired' => 'Seja je potekla',
     'client_session_expired_message' => 'Vaša seja je potekla. Prosimo ponovno kliknite na link v vaši e-pošti.',
-
     'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
     'auto_bill_payment_method_bank_transfer' => 'Bančni račun',
     'auto_bill_payment_method_credit_card' => 'kreditna kartica',
     'auto_bill_payment_method_paypal' => 'PayPal račun',
     'auto_bill_notification_placeholder' => 'Ta račun bo samodejno bremenili vašo kreditno kartico v datoteki na dan zapadlosti.',
     'payment_settings' => 'Nastavitev Plačil',
-
     'on_send_date' => 'Na datum plačila',
     'on_due_date' => 'Na datum zapadlosti',
     'auto_bill_ach_date_help' => 'ACH bo vedno poslal samodejni račun na datum zapadlosti.',
     'warn_change_auto_bill' => 'Zaradi NACHA pravil, lahko spremembe tega računa preprečijo samodejni ACH račun.',
-
     'bank_account' => 'Bančni Račun',
     'payment_processed_through_wepay' => 'ACH plačila bodo izvedena preko WePay.',
     'wepay_payment_tos_agree' => 'Strinjam se z WePay :terms in :privacy_policy.',
@@ -1358,7 +1327,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'wepay_payment_tos_agree_required' => 'Morate se strinjati z WePay pogoji storitve in pravilnikom o zasebnosti.',
     'ach_email_prompt' => 'Prosim vnesite vaš e-naslov:',
     'verification_pending' => 'Preverjanje v teku',
-
     'update_font_cache' => 'Prosimo, da osvežite stran za posodobitev predpomnilnika pisave.',
     'more_options' => 'Več opcij',
     'credit_card' => 'Kreditna Kartica',
@@ -1372,7 +1340,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'gateway_exists' => 'Prehod že obstaja',
     'manual_entry' => 'Ročni vnos',
     'start_of_week' => 'Prvi dan v tednu',
-
     // Frequencies
     'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Tedensko',
@@ -1382,7 +1349,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'freq_three_months' => 'Trije meseci',
     'freq_six_months' => 'Šest mesecev',
     'freq_annually' => 'Letno',
-
     // Payment types
     'payment_type_Apply Credit' => 'Potrdi dobropis',
     'payment_type_Bank Transfer' => 'Bančno Nakazilo',
@@ -1409,7 +1375,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
-
     // Industries
     'industry_Accounting & Legal' => 'Računovodstvo in Pravosodje',
     'industry_Advertising' => 'Oglaševanje',
@@ -1444,7 +1409,6 @@ Biotehnologija',
     'industry_Travel & Luxury' => 'Potovalne agencije',
     'industry_Other' => 'Ostalo',
     'industry_Photography' => 'Fotografija',
-
     // Countries
     'country_Afghanistan' => 'Afghanistan',
     'country_Albania' => 'Albania',
@@ -1695,7 +1659,6 @@ Biotehnologija',
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambia' => 'Zambia',
-
     // Languages
     'lang_Brazilian Portuguese' => 'Brazilian Portuguese',
     'lang_Croatian' => 'Croatian',
@@ -1722,7 +1685,6 @@ Biotehnologija',
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
-
     // Frequencies
     'freq_weekly' => 'Tedensko',
     'freq_two_weeks' => 'Dva tedna',
@@ -1731,7 +1693,6 @@ Biotehnologija',
     'freq_three_months' => 'Trije meseci',
     'freq_six_months' => 'Šest mesecev',
     'freq_annually' => 'Letno',
-
     // Industries
     'industry_Accounting & Legal' => 'Računovodstvo in Pravosodje',
     'industry_Advertising' => 'Oglaševanje',
@@ -1764,8 +1725,7 @@ Biotehnologija',
     'industry_Transportation' => 'Transport',
     'industry_Travel & Luxury' => 'Potovalne agencije',
     'industry_Other' => 'Ostalo',
-    'industry_Photography' =>'Fotografija',
-
+    'industry_Photography' => 'Fotografija',
     'view_client_portal' => 'View client portal',
     'view_portal' => 'View Portal',
     'vendor_contacts' => 'Vendor Contacts',
@@ -1808,7 +1768,6 @@ Nekaj ​​je šlo narobe',
     'no_undo' => 'Opozorilo: Tega ni mogoče razveljaviti.',
     'no_contact_selected' => 'Prosim izberite kontakt',
     'no_client_selected' => 'Prosim izberite stranko',
-
     'gateway_config_error' => 'To lahko pomaga določiti novo geslo ali ustvariti nove API ključe.',
     'payment_type_on_file' => ':type na datoteko',
     'invoice_for_client' => 'Račun :invoice za :client',
@@ -1831,11 +1790,9 @@ Nekaj ​​je šlo narobe',
     'security_code_email_line2' => 'Opomba: Poteče v 10 minutah.',
     'bot_help_message' => 'Trenutno podpiram:<br/>• Ustvari\posodobi\e-pošlji račun<br/>• Seznam produktov<br/>N primer:<br/><i>Izstavi račun za 2 karti, nastavi zapadlost na naslednji četrtek in 10 odstotkov popusta</i>',
     'list_products' => 'Seznam Produktov',
-
     'include_item_taxes_inline' => 'Prikaži <b>davke v vrstici skupno</b>',
     'created_quotes' => 'Število uspešno ustvarjenih stroškov:',
     'limited_gateways' => 'Opomba: podpiramo en prehod s kreditno kartico na podjetje.',
-
     'warning' => 'Opozorilo',
     'self-update' => 'Nadgradnja',
     'update_invoiceninja_title' => 'Nadgradi Invoice Ninjo',
@@ -1846,7 +1803,6 @@ Nekaj ​​je šlo narobe',
     'update_invoiceninja_update_start' => 'Posodobi zdaj',
     'update_invoiceninja_download_start' => 'Prenesi :version',
     'create_new' => 'Ustvari',
-
     'toggle_navigation' => 'Preklop Navigacije',
     'toggle_history' => 'Preklop Zgodovine',
     'unassigned' => 'ne-dodeljen',
@@ -1859,7 +1815,6 @@ Nekaj ​​je šlo narobe',
     'facebook_and_twitter_help' => 'Spremljajte naše vire za pomoč in podporo našega projekta',
     'reseller_text' => 'Opomba: White-label licenca je namenjena za osebno uporabo. Če želite aplikacijo prodajati, nam prosim pišite na :email',
     'unnamed_client' => 'Neimenovana stranka',
-
     'day' => 'Dan',
     'week' => 'Teden',
     'month' => 'Mesec',
@@ -1868,7 +1823,6 @@ Nekaj ​​je šlo narobe',
     'total_profit' => 'Skupen dobiček',
     'total_expenses' => 'Skupni Stroški',
     'quote_to' => 'Ponudba za',
-
     // Limits
     'limit' => 'Omejitev',
     'min_limit' => 'Minimalno: :min',
@@ -1880,7 +1834,6 @@ Nekaj ​​je šlo narobe',
     'min' => 'Minimalno',
     'max' => 'Maksimalno',
     'limits_not_met' => 'Račun ne izpolnjuje zahtevanih omjeitev za ta način plačila.',
-
     'date_range' => 'Časovno obdobje',
     'raw' => 'HTML',
     'raw_html' => 'Raw HTML',
@@ -1896,10 +1849,8 @@ Nekaj ​​je šlo narobe',
     'expense_will_create' => 'strošek bo ustvarjen',
     'expenses_will_create' => 'stroški bodo ustvarjeni',
     'created_expenses' => 'Število uspešno ustvarjenih stroškov:',
-
     'translate_app' => 'Pomagajte nam izboljšati naše prevode',
     'expense_category' => 'Kategorija Stroškov',
-
     'go_ninja_pro' => 'Izberi Ninja Pro!',
     'go_enterprise' => 'Izberi Enterprise!',
     'upgrade_for_features' => 'Nadgradi Za Več Opcij',
@@ -1910,10 +1861,8 @@ Nekaj ​​je šlo narobe',
     'enterprise_upgrade_feature1' => 'Nastavi pravice za posamezne uporabnike',
     'enterprise_upgrade_feature2' => 'Pripni durge dokumente k računom in ponudbam',
     'much_more' => 'Še veliko več!',
-
     'currency_symbol' => 'Simbol',
     'currency_code' => 'Valuta',
-
     'buy_license' => 'Kupi Licenco',
     'apply_license' => 'Potrdi Licenco',
     'submit' => 'Oddaj',
@@ -1937,39 +1886,37 @@ Nekaj ​​je šlo narobe',
     'sign_here' => 'Prosimo, da se podpišete tukaj:',
     'authorization' => 'Overovitev',
     'signed' => 'Podpisan',
-
-	// BlueVine
-	'bluevine_promo' => 'Pridobi prilagodljiva poslovna področja kreditiranja in odkup računov z uporabo BlueVine.',
-	'bluevine_modal_label' => 'Prijavi se z BlueVine',
-	'bluevine_modal_text' => '<h3>Hitro financiranje za vaše podjetje. Brez papirologije</h3>
+    // BlueVine
+    'bluevine_promo' => 'Pridobi prilagodljiva poslovna področja kreditiranja in odkup računov z uporabo BlueVine.',
+    'bluevine_modal_label' => 'Prijavi se z BlueVine',
+    'bluevine_modal_text' => '<h3>Hitro financiranje za vaše podjetje. Brez papirologije</h3>
 <ul><li>Prožna poslovna področja kreditiranja in odkup računov.</li></ul>',
-	'bluevine_create_account' => 'Ustvari račun',
-	'quote_types' => 'Pridobi ponudbo ta',
-	'invoice_factoring' => 'Odkup računov',
-	'line_of_credit' => 'Kreditna linija',
-	'fico_score'                         => 'Vaša FICO ocena',
-	'business_inception'                 => 'Datum ustanovitve podjetja',
-	'average_bank_balance'               => 'Povprečna bilanca bančnega računa',
-	'annual_revenue'                     => 'Letni prihodki',
-	'desired_credit_limit_factoring'     => 'Željena omejitev odkupa računa',
-	'desired_credit_limit_loc'           => 'Željena omejitev kreditne linije',
-	'desired_credit_limit'               => 'Željena omejitev kredita',
-	'bluevine_credit_line_type_required' => 'Izbrati morate vsaj eno',
-	'bluevine_field_required'            => 'To polje je obvezno',
-	'bluevine_unexpected_error'          => 'Zgodila se je nepričakovana napaka.',
-	'bluevine_no_conditional_offer'      => 'Preden pošljemo ponudbo potrebujemo več informacij. Klikni Nadaljuj spodaj.',
-	'bluevine_invoice_factoring'         => 'Odkup računov',
-	'bluevine_conditional_offer'         => 'Pogojno ponudba',
-	'bluevine_credit_line_amount'        => 'Kreditna linija',
-	'bluevine_advance_rate'              => 'Izboljšana stopnja',
-	'bluevine_weekly_discount_rate'      => 'Tedenska stopnja popusta',
-	'bluevine_minimum_fee_rate'          => 'Minimalna provizija',
-	'bluevine_line_of_credit'            => 'Kreditna linija',
-	'bluevine_interest_rate'             => 'Obrestna mera',
-	'bluevine_weekly_draw_rate'          => 'Tedenska mera',
-	'bluevine_continue'                  => 'Nadaljuj v BlueVine',
-	'bluevine_completed'                 => 'BlueVine prijava končana',
-
+    'bluevine_create_account' => 'Ustvari račun',
+    'quote_types' => 'Pridobi ponudbo ta',
+    'invoice_factoring' => 'Odkup računov',
+    'line_of_credit' => 'Kreditna linija',
+    'fico_score' => 'Vaša FICO ocena',
+    'business_inception' => 'Datum ustanovitve podjetja',
+    'average_bank_balance' => 'Povprečna bilanca bančnega računa',
+    'annual_revenue' => 'Letni prihodki',
+    'desired_credit_limit_factoring' => 'Željena omejitev odkupa računa',
+    'desired_credit_limit_loc' => 'Željena omejitev kreditne linije',
+    'desired_credit_limit' => 'Željena omejitev kredita',
+    'bluevine_credit_line_type_required' => 'Izbrati morate vsaj eno',
+    'bluevine_field_required' => 'To polje je obvezno',
+    'bluevine_unexpected_error' => 'Zgodila se je nepričakovana napaka.',
+    'bluevine_no_conditional_offer' => 'Preden pošljemo ponudbo potrebujemo več informacij. Klikni Nadaljuj spodaj.',
+    'bluevine_invoice_factoring' => 'Odkup računov',
+    'bluevine_conditional_offer' => 'Pogojno ponudba',
+    'bluevine_credit_line_amount' => 'Kreditna linija',
+    'bluevine_advance_rate' => 'Izboljšana stopnja',
+    'bluevine_weekly_discount_rate' => 'Tedenska stopnja popusta',
+    'bluevine_minimum_fee_rate' => 'Minimalna provizija',
+    'bluevine_line_of_credit' => 'Kreditna linija',
+    'bluevine_interest_rate' => 'Obrestna mera',
+    'bluevine_weekly_draw_rate' => 'Tedenska mera',
+    'bluevine_continue' => 'Nadaljuj v BlueVine',
+    'bluevine_completed' => 'BlueVine prijava končana',
     'vendor_name' => 'Prodajalec',
     'entity_state' => 'Stanje',
     'client_created_at' => 'Datum vnosa',
@@ -2102,22 +2049,19 @@ Nekaj ​​je šlo narobe',
     'financial_year_start_help' => 'Uporaba pri izbiri časovnega odbodja',
     'reports_help' => 'Shift + Klik za razvrstitev po stolpcih, Ctrl + Klik za preklic združevanja v skupino.',
     'this_year' => 'To Leto',
-
-	// Updated login screen
-	'ninja_tagline' => 'Ustvari. Pošlji. Prejmi Plačilo.',
-	'login_or_existing' => 'Ali pa se prijavite z obstoječim računom',
-	'sign_up_now' => 'Prijavi Se Zdaj',
-	'not_a_member_yet' => 'Še nisi član?',
-	'login_create_an_account' => 'Ustvari Račun!',
-	'client_login' => 'Vpis stranke',
-
-	// New Client Portal styling
-	'invoice_from' => 'Račun od:',
+    // Updated login screen
+    'ninja_tagline' => 'Ustvari. Pošlji. Prejmi Plačilo.',
+    'login_or_existing' => 'Ali pa se prijavite z obstoječim računom',
+    'sign_up_now' => 'Prijavi Se Zdaj',
+    'not_a_member_yet' => 'Še nisi član?',
+    'login_create_an_account' => 'Ustvari Račun!',
+    'client_login' => 'Vpis stranke',
+    // New Client Portal styling
+    'invoice_from' => 'Račun od:',
     'email_alias_message' => 'Vsako podjetje potrebuje unikaten e-poštni naslov. <br/>Razmislite o uporabi vzdevka. Npr, e-naslov+oznaka@primer.si',
     'full_name' => 'Polno Ime',
     'month_year' => 'MESEC/LETO',
     'valid_thru' => 'Veljaven',
-
     'product_fields' => 'Polja Produkta',
     'custom_product_fields_help' => 'Pri ustvarjanju produkta ali računa dodaj polje in na PDF dokumentu prikaži oznako in vrednost.',
     'freq_two_months' => 'Dva meseca',
@@ -2141,7 +2085,6 @@ Nekaj ​​je šlo narobe',
     'create_expense_category' => 'Ustvari kategorijo',
     'pro_plan_reports' => ':link za omogočiti poročila s prijavo na naš Pro načrt',
     'mark_ready' => 'Označi kot pripravljeno',
-
     'limits' => 'Omejitve',
     'fees' => 'Provizije
 ',
@@ -2171,7 +2114,6 @@ Nekaj ​​je šlo narobe',
     'logo_warning_too_large' => 'Slikovna datoteka je prevelika.',
     'logo_warning_fileinfo' => 'Opozorilo: Za gif podporo potrebujete fileinfo PHP dodatek omogočen.',
     'logo_warning_invalid' => 'Pri branju slikovne datoteko je prišlo do težave, poskusite z drugačno obliko datoteke.',
-
     'error_refresh_page' => 'Prišlo je do napake, prosimo osvežite stran in poskusite znova.',
     'data' => 'Podatki',
     'imported_settings' => 'Nastavitve uspešno uvožene',
@@ -2324,7 +2266,6 @@ Nekaj ​​je šlo narobe',
     'send_email_to_client' => 'Send email to the client',
     'refund_subject' => 'Refund Processed',
     'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
-
     'currency_us_dollar' => 'US Dollar',
     'currency_british_pound' => 'British Pound',
     'currency_euro' => 'Euro',
@@ -2392,12 +2333,11 @@ Nekaj ​​je šlo narobe',
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
-
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2405,9 +2345,6 @@ Nekaj ​​je šlo narobe',
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
-
 );
-
 return $LANG;
-
 ?>

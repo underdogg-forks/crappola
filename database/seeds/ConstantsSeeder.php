@@ -1,6 +1,4 @@
 <?php
-
-use App\Models\Frequency;
 use App\Models\PaymentLibrary;
 use App\Models\PaymentTerm;
 use App\Models\Size;
@@ -23,14 +21,12 @@ class ConstantsSeeder extends Seeder
         Theme::create(['name' => 'spacelab']);
         Theme::create(['name' => 'united']);
         Theme::create(['name' => 'yeti']);
-
         Size::create(['name' => '1 - 3']);
         Size::create(['name' => '4 - 10']);
         Size::create(['name' => '11 - 50']);
         Size::create(['name' => '51 - 100']);
         Size::create(['name' => '101 - 500']);
         Size::create(['name' => '500+']);
-
         PaymentTerm::create(['num_days' => 7, 'name' => 'Net 7', 'public_id' => 1]);
         PaymentTerm::create(['num_days' => 10, 'name' => 'Net 10', 'public_id' => 2]);
         PaymentTerm::create(['num_days' => 14, 'name' => 'Net 14', 'public_id' => 3]);
@@ -38,10 +34,8 @@ class ConstantsSeeder extends Seeder
         PaymentTerm::create(['num_days' => 30, 'name' => 'Net 30', 'public_id' => 5]);
         PaymentTerm::create(['num_days' => 60, 'name' => 'Net 60', 'public_id' => 6]);
         PaymentTerm::create(['num_days' => 90, 'name' => 'Net 90', 'public_id' => 7]);
-
         PaymentLibrary::create(['name' => 'Omnipay']);
         PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
-
         /*
         d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.
         D, DD: Abbreviated and full weekday names, respectively. Eg, Mon, Monday.
@@ -49,7 +43,6 @@ class ConstantsSeeder extends Seeder
         M, MM: Abbreviated and full month names, respectively. Eg, Jan, January
         yy, yyyy: 2- and 4-digit years, respectively. Eg, 12, 2012.)
         */
-
         $timezones = [
             'Pacific/Midway' => '(GMT-11:00) Midway Island',
             'US/Samoa' => '(GMT-11:00) Samoa',
@@ -165,7 +158,6 @@ class ConstantsSeeder extends Seeder
             'Pacific/Auckland' => '(GMT+12:00) Auckland',
             'Pacific/Fiji' => '(GMT+12:00) Fiji',
         ];
-
         foreach ($timezones as $name => $location) {
             Timezone::create(['name' => $name, 'location' => $location]);
         }

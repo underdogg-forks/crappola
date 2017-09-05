@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddInvoiceDesignTable extends Migration
@@ -14,11 +13,9 @@ class AddInvoiceDesignTable extends Migration
         Schema::table('invoice_designs', function ($table) {
             $table->mediumText('javascript')->nullable();
         });
-
         Schema::table('accounts', function ($table) {
             $table->text('invoice_design')->nullable();
         });
-
         DB::table('invoice_designs')->where('id', 1)->update([
             'javascript' => "var GlobalY=0;//Y position of line at current page
 
@@ -112,7 +109,6 @@ class AddInvoiceDesignTable extends Migration
 	    var AmountX = layout.lineTotalRight - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
 	    doc.text(AmountX, y, AmountText);",
         ]);
-
         DB::table('invoice_designs')->where('id', 2)->update([
             'javascript' => "  var GlobalY=0;//Y position of line at current page
 
@@ -261,10 +257,9 @@ class AddInvoiceDesignTable extends Migration
 			  var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
 			  SetPdfColor('SomeGreen', doc, 'secondary');
 			  doc.text(AmountX, y, AmountText);",
-            ]);
-
+        ]);
         DB::table('invoice_designs')->where('id', 3)->update([
-                'javascript' => "    var client = invoice.client;
+            'javascript' => "    var client = invoice.client;
 	    var account = invoice.account;
 	    var currencyId = client.currency_id;
 
@@ -413,7 +408,6 @@ class AddInvoiceDesignTable extends Migration
 	    var amountX = layout.lineTotalRight - (doc.getStringUnitWidth(amount) * doc.internal.getFontSize());
 	    doc.text(amountX, y+2, amount);",
         ]);
-
         DB::table('invoice_designs')->where('id', 4)->update([
             'javascript' => "  var client = invoice.client;
 		  var account = invoice.account;
@@ -489,7 +483,6 @@ class AddInvoiceDesignTable extends Migration
 		    doc.setFontType('normal');
 		    doc.text(layout.marginLeft, 790, 'Created by InvoiceNinja.com');
 		  }",
-          
         ]);
     }
 
@@ -503,7 +496,6 @@ class AddInvoiceDesignTable extends Migration
         Schema::table('invoice_designs', function ($table) {
             $table->dropColumn('javascript');
         });
-
         Schema::table('accounts', function ($table) {
             $table->dropColumn('invoice_design');
         });

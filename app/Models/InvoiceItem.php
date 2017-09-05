@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -78,15 +77,12 @@ class InvoiceItem extends EntityModel
     {
         $amount = $this->cost * $this->qty;
         $preTaxAmount = $amount;
-
         if ($this->tax_rate1) {
             $amount += $preTaxAmount * $this->tax_rate1 / 100;
         }
-
         if ($this->tax_rate2) {
             $amount += $preTaxAmount * $this->tax_rate2 / 100;
         }
-
         return $amount;
     }
 

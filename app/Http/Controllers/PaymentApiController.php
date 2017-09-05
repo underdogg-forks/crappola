@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PaymentRequest;
@@ -21,7 +20,6 @@ class PaymentApiController extends BaseAPIController
     public function __construct(PaymentRepository $paymentRepo, ContactMailer $contactMailer)
     {
         parent::__construct();
-
         $this->paymentRepo = $paymentRepo;
         $this->contactMailer = $contactMailer;
     }
@@ -46,10 +44,9 @@ class PaymentApiController extends BaseAPIController
     public function index()
     {
         $payments = Payment::scope()
-                        ->withTrashed()
-                        ->with(['invoice'])
-                        ->orderBy('created_at', 'desc');
-
+            ->withTrashed()
+            ->with(['invoice'])
+            ->orderBy('created_at', 'desc');
         return $this->listResponse($payments);
     }
 
@@ -107,13 +104,10 @@ class PaymentApiController extends BaseAPIController
     {
         // check payment has been marked sent
         $request->invoice->markSentIfUnsent();
-
         $payment = $this->paymentRepo->save($request->input());
-
         if (Input::get('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
-
         return $this->itemResponse($payment);
     }
 
@@ -152,11 +146,9 @@ class PaymentApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-
         $data = $request->input();
         $data['public_id'] = $publicId;
         $payment = $this->paymentRepo->save($data, $request->entity());
-
         return $this->itemResponse($payment);
     }
 
@@ -186,9 +178,7 @@ class PaymentApiController extends BaseAPIController
     public function destroy(UpdatePaymentRequest $request)
     {
         $payment = $request->entity();
-
         $this->paymentRepo->delete($payment);
-
         return $this->itemResponse($payment);
     }
 }

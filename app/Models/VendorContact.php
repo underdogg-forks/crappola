@@ -1,9 +1,7 @@
 <?php
-
 namespace App\Models;
 
 // vendor
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -107,7 +105,7 @@ class VendorContact extends EntityModel
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
+            return $this->first_name . ' ' . $this->last_name;
         } else {
             return '';
         }

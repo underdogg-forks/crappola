@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaxRateRequest;
@@ -22,7 +21,6 @@ class TaxRateController extends BaseController
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
         //parent::__construct();
-
         $this->taxRateService = $taxRateService;
         $this->taxRateRepo = $taxRateRepo;
     }
@@ -40,42 +38,36 @@ class TaxRateController extends BaseController
     public function edit($publicId)
     {
         $data = [
-          'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
-          'method' => 'PUT',
-          'url' => 'tax_rates/'.$publicId,
-          'title' => trans('texts.edit_tax_rate'),
+            'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
+            'method' => 'PUT',
+            'url' => 'tax_rates/' . $publicId,
+            'title' => trans('texts.edit_tax_rate'),
         ];
-
         return View::make('accounts.tax_rate', $data);
     }
 
     public function create()
     {
         $data = [
-          'taxRate' => null,
-          'method' => 'POST',
-          'url' => 'tax_rates',
-          'title' => trans('texts.create_tax_rate'),
+            'taxRate' => null,
+            'method' => 'POST',
+            'url' => 'tax_rates',
+            'title' => trans('texts.create_tax_rate'),
         ];
-
         return View::make('accounts.tax_rate', $data);
     }
 
     public function store(CreateTaxRateRequest $request)
     {
         $this->taxRateRepo->save($request->input());
-
         Session::flash('message', trans('texts.created_tax_rate'));
-
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
         $this->taxRateRepo->save($request->input(), $request->entity());
-
         Session::flash('message', trans('texts.updated_tax_rate'));
-
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
@@ -84,9 +76,7 @@ class TaxRateController extends BaseController
         $action = Input::get('bulk_action');
         $ids = Input::get('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
-
         Session::flash('message', trans('texts.archived_tax_rate'));
-
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 }

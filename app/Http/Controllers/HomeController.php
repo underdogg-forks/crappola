@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
@@ -32,7 +31,6 @@ class HomeController extends BaseController
     public function __construct(Mailer $mailer)
     {
         //parent::__construct();
-
         $this->mailer = $mailer;
     }
 
@@ -42,8 +40,7 @@ class HomeController extends BaseController
     public function showIndex()
     {
         Session::reflash();
-
-        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
+        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
@@ -69,7 +66,6 @@ class HomeController extends BaseController
         if (Input::has('rc')) {
             Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
         }
-
         if (Auth::check()) {
             $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
             return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
@@ -87,7 +83,6 @@ class HomeController extends BaseController
     public function newsFeed($userType, $version)
     {
         $response = Utils::getNewsFeedResponse($userType);
-
         return Response::json($response);
     }
 
@@ -104,9 +99,7 @@ class HomeController extends BaseController
                 $user->save();
             }
         }
-
         Session::forget('news_feed_message');
-
         return 'success';
     }
 
@@ -132,11 +125,9 @@ class HomeController extends BaseController
     public function contactUs()
     {
         $message = request()->contact_us_message;
-
         if (request()->include_errors) {
             $message .= "\n\n" . join("\n", Utils::getErrors());
         }
-
         Mail::raw($message, function ($message) {
             $subject = 'Customer Message: ';
             if (Utils::isNinjaProd()) {
@@ -145,11 +136,10 @@ class HomeController extends BaseController
                 $subject .= 'Self-Host';
             }
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
-                    ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
-                    ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
-                    ->subject($subject);
+                ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
+                ->subject($subject);
         });
-
         return RESULT_SUCCESS;
     }
 }

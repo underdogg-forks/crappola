@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Serializers;
 
 use League\Fractal\Serializer\ArraySerializer as FractalArraySerializer;
@@ -11,7 +10,7 @@ class ArraySerializer extends FractalArraySerializer
 {
     /**
      * @param string $resourceKey
-     * @param array  $data
+     * @param array $data
      *
      * @return array
      */
@@ -22,7 +21,7 @@ class ArraySerializer extends FractalArraySerializer
 
     /**
      * @param string $resourceKey
-     * @param array  $data
+     * @param array $data
      *
      * @return array
      */

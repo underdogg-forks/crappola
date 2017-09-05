@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -40,7 +39,6 @@ class VerifyCsrfToken extends BaseVerifier
                 return $next($request);
             }
         }
-
         return parent::handle($request, $next);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Services\BankAccountService;
@@ -33,12 +32,11 @@ class TestOFX extends Command
     public function __construct(BankAccountService $bankAccountService)
     {
         parent::__construct();
-
         $this->bankAccountService = $bankAccountService;
     }
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running TestOFX...');
+        $this->info(date('Y-m-d') . ' Running TestOFX...');
     }
 }

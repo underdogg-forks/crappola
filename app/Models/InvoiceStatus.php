@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Eloquent;
@@ -33,6 +32,6 @@ class InvoiceStatus extends Eloquent
                 return INVOICE_STATUS_UNPAID;
             default:
                 return false;
-        }        
+        }
     }
 }

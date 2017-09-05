@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Utils;
@@ -57,15 +56,12 @@ class AccountGatewaySettings extends EntityModel
     public function feesToString()
     {
         $parts = [];
-
         if (floatval($this->fee_amount) != 0) {
             $parts[] = Utils::formatMoney($this->fee_amount);
         }
-
         if (floatval($this->fee_percent) != 0) {
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
-
         return join(' + ', $parts);
     }
 }

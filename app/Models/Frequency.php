@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Cache;
@@ -26,12 +25,10 @@ class Frequency extends Eloquent
     public static function selectOptions()
     {
         $data = [];
-
         foreach (Cache::get('frequencies') as $frequency) {
             $name = Str::snake(str_replace(' ', '_', $frequency->name));
             $data[$frequency->id] = trans('texts.freq_' . $name);
         }
-
         return $data;
     }
 }

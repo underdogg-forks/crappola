@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Import\Wave;
 
 use App\Ninja\Import\BaseTransformer;
@@ -17,14 +16,12 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->customer)) {
+        if (!$this->getClientId($data->customer)) {
             return false;
         }
-
         if ($this->hasInvoice($data->invoice_num)) {
             return false;
         }
-
         return new Item($data, function ($data) {
             return [
                 'client_id' => $this->getClientId($data->customer),
@@ -37,8 +34,8 @@ class InvoiceTransformer extends BaseTransformer
                     [
                         'product_key' => $this->getString($data, 'product'),
                         'notes' => $this->getString($data, 'description'),
-                        'cost' => (float) $data->amount,
-                        'qty' => (float) $data->quantity,
+                        'cost' => (float)$data->amount,
+                        'qty' => (float)$data->quantity,
                     ],
                 ],
             ];

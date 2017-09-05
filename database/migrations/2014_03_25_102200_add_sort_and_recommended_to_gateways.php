@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddSortAndRecommendedToGateways extends Migration
@@ -17,7 +16,7 @@ class AddSortAndRecommendedToGateways extends Migration
             $table->string('site_url', 200)->nullable();
         });
     }
-    
+
     public function down()
     {
         if (Schema::hasColumn('gateways', 'sort_order')) {
@@ -25,13 +24,11 @@ class AddSortAndRecommendedToGateways extends Migration
                 $table->dropColumn('sort_order');
             });
         }
-        
         if (Schema::hasColumn('gateways', 'recommended')) {
             Schema::table('gateways', function ($table) {
                 $table->dropColumn('recommended');
             });
         }
-        
         if (Schema::hasColumn('gateways', 'site_url')) {
             Schema::table('gateways', function ($table) {
                 $table->dropColumn('site_url');

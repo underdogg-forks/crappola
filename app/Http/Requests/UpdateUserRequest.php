@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Auth;
@@ -7,7 +6,6 @@ use Auth;
 class UpdateUserRequest extends EntityRequest
 {
     // Expenses
-
     /**
      * Determine if the user is authorized to make this request.
      *

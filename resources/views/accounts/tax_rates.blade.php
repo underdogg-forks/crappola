@@ -15,35 +15,35 @@
 
 
   <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{!! trans('texts.tax_settings') !!}</h3>
-  </div>
-  <div class="panel-body">
+    <div class="panel-heading">
+      <h3 class="panel-title">{!! trans('texts.tax_settings') !!}</h3>
+    </div>
+    <div class="panel-body">
 
-    {!! Former::checkbox('invoice_taxes')
-        ->text(trans('texts.enable_invoice_tax'))
-        ->label('&nbsp;')
-        ->value(1) !!}
+      {!! Former::checkbox('invoice_taxes')
+          ->text(trans('texts.enable_invoice_tax'))
+          ->label('&nbsp;')
+          ->value(1) !!}
 
-    {!! Former::checkbox('invoice_item_taxes')
-        ->text(trans('texts.enable_line_item_tax'))
-        ->label('&nbsp;')
-        ->value(1) !!}
+      {!! Former::checkbox('invoice_item_taxes')
+          ->text(trans('texts.enable_line_item_tax'))
+          ->label('&nbsp;')
+          ->value(1) !!}
 
-    {!! Former::checkbox('show_item_taxes')
-        ->text(trans('texts.show_line_item_tax'))
-        ->label('&nbsp;')
-        ->value(1) !!}
+      {!! Former::checkbox('show_item_taxes')
+          ->text(trans('texts.show_line_item_tax'))
+          ->label('&nbsp;')
+          ->value(1) !!}
 
-    {!! Former::checkbox('include_item_taxes_inline')
-        ->text(trans('texts.include_item_taxes_inline'))
-        ->label('&nbsp;')
-        ->value(1) !!}
+      {!! Former::checkbox('include_item_taxes_inline')
+          ->text(trans('texts.include_item_taxes_inline'))
+          ->label('&nbsp;')
+          ->value(1) !!}
 
-    {!! Former::checkbox('enable_second_tax_rate')
-        ->text(trans('texts.enable_second_tax_rate'))
-        ->label('&nbsp;')
-        ->value(1) !!}
+      {!! Former::checkbox('enable_second_tax_rate')
+          ->text(trans('texts.enable_second_tax_rate'))
+          ->label('&nbsp;')
+          ->value(1) !!}
 
       &nbsp;
 
@@ -52,7 +52,7 @@
       &nbsp;
       {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
       {!! Former::close() !!}
-  </div>
+    </div>
   </div>
 
   {!! Button::primary(trans('texts.create_tax_rate'))

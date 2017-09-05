@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Ninja\Repositories\DashboardRepository;
@@ -11,7 +10,6 @@ class DashboardApiController extends BaseAPIController
     public function __construct(DashboardRepository $dashboardRepo)
     {
         parent::__construct();
-
         $this->dashboardRepo = $dashboardRepo;
     }
 
@@ -21,7 +19,6 @@ class DashboardApiController extends BaseAPIController
         $viewAll = $user->hasPermission('view_all');
         $userId = $user->id;
         $accountId = $user->account->id;
-
         $dashboardRepo = $this->dashboardRepo;
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
         $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
@@ -31,7 +28,6 @@ class DashboardApiController extends BaseAPIController
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
-
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
@@ -40,7 +36,6 @@ class DashboardApiController extends BaseAPIController
                 }
             }
         }
-
         $data = [
             'id' => 1,
             'paidToDate' => count($paidToDate) && $paidToDate[0]->value ? $paidToDate[0]->value : 0,
@@ -53,7 +48,6 @@ class DashboardApiController extends BaseAPIController
             'activeClients' => $metrics ? $metrics->active_clients : 0,
             'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
         ];
-
         return $this->response($data);
     }
 }

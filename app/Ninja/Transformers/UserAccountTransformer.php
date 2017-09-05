@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
@@ -16,14 +15,12 @@ class UserAccountTransformer extends EntityTransformer
     public function __construct(Account $account, $serializer, $tokenName)
     {
         parent::__construct($account, $serializer);
-
         $this->tokenName = $tokenName;
     }
 
     public function includeUser(User $user)
     {
         $transformer = new UserTransformer($this->account, $this->serializer);
-
         return $this->includeItem($user, $transformer, 'user');
     }
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Client;
@@ -28,7 +27,7 @@ class ExpenseService extends BaseService
      * ExpenseService constructor.
      *
      * @param ExpenseRepository $expenseRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService $datatableService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
@@ -55,11 +54,9 @@ class ExpenseService extends BaseService
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
-
         if (isset($data['vendor_id']) && $data['vendor_id']) {
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
         }
-
         return $this->expenseRepo->save($data, $expense);
     }
 
@@ -71,11 +68,9 @@ class ExpenseService extends BaseService
     public function getDatatable($search)
     {
         $query = $this->expenseRepo->find($search);
-
-        if (! Utils::hasPermission('view_all')) {
+        if (!Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
-
         return $this->datatableService->createDatatable(new ExpenseDatatable(), $query);
     }
 
@@ -87,13 +82,10 @@ class ExpenseService extends BaseService
     public function getDatatableVendor($vendorPublicId)
     {
         $datatable = new ExpenseDatatable(true, true);
-
         $query = $this->expenseRepo->findVendor($vendorPublicId);
-
-        if (! Utils::hasPermission('view_all')) {
+        if (!Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
-
         return $this->datatableService->createDatatable($datatable, $query);
     }
 }

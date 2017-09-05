@@ -1,10 +1,10 @@
 @extends('public.header')
 
 @section('content')
-    <div class="container main-container">
+  <div class="container main-container">
 
-        @include('payments.paymentmethods_list')
+    @include('payments.paymentmethods_list')
 
-        <p></p>
-    </div>
+    <p></p>
+  </div>
 @stop

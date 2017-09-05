@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Listeners;
 
 use Illuminate\Queue\Events\JobExceptionOccurred;
@@ -29,12 +28,10 @@ class InvoiceListener
         if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
             return;
         }
-
         // Make sure the account has the same design set as the invoice does
         if (Auth::check()) {
             $invoice = $event->invoice;
             $account = Auth::user()->account;
-
             if ($invoice->invoice_design_id && $account->invoice_design_id != $invoice->invoice_design_id) {
                 $account->invoice_design_id = $invoice->invoice_design_id;
                 $account->save();
@@ -69,14 +66,12 @@ class InvoiceListener
         $invoice = $payment->invoice;
         $adjustment = $payment->amount * -1;
         $partial = max(0, $invoice->partial - $payment->amount);
-
         $invoice->updateBalances($adjustment, $partial);
         $invoice->updatePaidStatus(true);
-
         // store a backup of the invoice
         $activity = Activity::wherePaymentId($payment->id)
-                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-                        ->first();
+            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+            ->first();
         $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
         $activity->save();
     }
@@ -89,7 +84,6 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount();
-
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
     }
@@ -102,7 +96,6 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $event->refundAmount;
-
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
     }
@@ -115,7 +108,6 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $payment->amount;
-
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
     }
@@ -128,7 +120,6 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount();
-
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
     }
@@ -138,14 +129,12 @@ class InvoiceListener
      */
     public function restoredPayment(PaymentWasRestored $event)
     {
-        if (! $event->fromDeleted) {
+        if (!$event->fromDeleted) {
             return;
         }
-
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount() * -1;
-
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
     }
@@ -161,7 +150,6 @@ class InvoiceListener
             });
         }
         */
-
         Utils::logError($exception->exception);
     }
 }

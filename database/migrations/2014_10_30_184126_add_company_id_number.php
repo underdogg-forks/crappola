@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class AddCompanyIdNumber extends Migration
@@ -14,7 +13,6 @@ class AddCompanyIdNumber extends Migration
         Schema::table('accounts', function ($table) {
             $table->string('id_number')->nullable();
         });
-        
         Schema::table('clients', function ($table) {
             $table->string('id_number')->nullable();
         });

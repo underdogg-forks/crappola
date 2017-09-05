@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 
 class EncryptTokens extends Migration
@@ -12,7 +11,7 @@ class EncryptTokens extends Migration
     public function up()
     {
         $gateways = DB::table('account_gateways')
-                        ->get(['id', 'config']);
+            ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)
@@ -28,7 +27,7 @@ class EncryptTokens extends Migration
     public function down()
     {
         $gateways = DB::table('account_gateways')
-                        ->get(['id', 'config']);
+            ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)
