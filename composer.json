@@ -84,7 +84,6 @@
     "predis/predis": "^1.1",
     "simshaun/recurr": "dev-master",
     "softcommerce/omnipay-paytrace": "~1.0",
-
     "turbo124/laravel-push-notification": "^2.0",
     "vink/omnipay-komoju": "~1.0",
     "webpatser/laravel-countries": "dev-master",
@@ -149,7 +148,7 @@
       "php -r \"copy('.env.example', '.env');\"",
       "php artisan key:generate"
     ]
-  }
+  },
   "repositories": [
     {
       "type": "package",
