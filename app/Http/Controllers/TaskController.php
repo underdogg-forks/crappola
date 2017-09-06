@@ -119,10 +119,14 @@ class TaskController extends BaseController
     public function create(TaskRequest $request)
     {
         $this->checkTimezone();
+        $clientPublicId = Input::old('client') ? Input::old('client') : ($request->client_id ?: 0);
+        $projectPublicId = Input::old('project_id') ? Input::old('project_id') : ($request->project_id ?: 0);
         $data = [
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
+            'clientObject' => Client::scope($clientPublicId)->firstOrFail(),
             'projectPublicId' => Input::old('project_id') ? Input::old('project_id') : ($request->project_id ?: 0),
+            'projectObject' => Project::scope($projectPublicId)->firstOrFail(),
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
@@ -130,6 +134,7 @@ class TaskController extends BaseController
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
         ];
         $data = array_merge($data, self::getViewModel());
+
         return View::make('tasks.edit', $data);
     }
 

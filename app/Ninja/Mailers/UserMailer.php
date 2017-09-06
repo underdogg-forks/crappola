@@ -14,7 +14,7 @@ class UserMailer extends Mailer
      */
     public function sendConfirmation(User $user, User $invitor = null)
     {
-        if (!$user->email) {
+        /*if (!$user->email) {
             return;
         }
         $view = 'confirm';
@@ -30,7 +30,7 @@ class UserMailer extends Mailer
             $fromEmail = CONTACT_EMAIL;
             $fromName = CONTACT_NAME;
         }
-        $this->sendTo($user->email, $fromEmail, $fromName, $subject, $view, $data);
+        $this->sendTo($user->email, $fromEmail, $fromName, $subject, $view, $data);*/
     }
 
     /**

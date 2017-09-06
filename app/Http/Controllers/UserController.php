@@ -168,17 +168,17 @@ class UserController extends BaseController
             $user = false;
             $rules['email'] = 'required|email|unique:users';
         }
-        $validator = Validator::make(Input::all(), $rules);
+        /*$validator = Validator::make(Input::all(), $rules);
         if ($validator->fails()) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                 ->withErrors($validator)
                 ->withInput();
-        }
-        if (!\App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
+        }*/
+        /*if (!\App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
-        }
+        }*/
         if ($userPublicId) {
             $user->first_name = trim(Input::get('first_name'));
             $user->last_name = trim(Input::get('last_name'));
@@ -207,23 +207,27 @@ class UserController extends BaseController
             }
         }
         $user->save();
-        if (!$user->confirmed && Input::get('action') === 'email') {
+
+
+        /*if (!$user->confirmed && Input::get('action') === 'email') {
             $this->userMailer->sendConfirmation($user, Auth::user());
             $message = trans('texts.sent_invite');
         } else {
             $message = trans('texts.updated_user');
-        }
+        }*/
+        $message = trans('texts.save');
+
         Session::flash('message', $message);
-        return Redirect::to('users/' . $user->public_id . '/edit');
+        return Redirect::to('settings/user_management/');
     }
 
     public function sendConfirmation($userPublicId)
     {
-        $user = User::where('account_id', '=', Auth::user()->account_id)
+        /*$user = User::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $userPublicId)->firstOrFail();
         $this->userMailer->sendConfirmation($user, Auth::user());
         Session::flash('message', trans('texts.sent_invite'));
-        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);*/
     }
 
     /**

@@ -60,11 +60,16 @@
                       ->value($task->present()->project) !!}
             @endif
           @else
+            {{--@if ($projectPublicId && $clientPublicId)
+              {!! Former::select('client')->options([$clientPublicId => 'client public name'])->select($clientPublicId)->addGroupClass('client-select') !!}
+              {!! Former::select('project_id')->options([$projectPublicId => 'project public name'])->select($projectPublicId)->addGroupClass('project-select') !!}
+            @else--}}
             {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
             {!! Former::select('project_id')
                     ->addOption('', '')
                     ->addGroupClass('project-select')
                     ->label(trans('texts.project')) !!}
+            {{--@endif--}}
           @endif
 
           {!! Former::textarea('description')->rows(4) !!}

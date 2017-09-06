@@ -12,13 +12,7 @@ return '<strong>' + match + '</strong>';
 })
 }
 },
-template: '
-<div class="combobox-container"><input type="hidden"/>
-  <div class="input-group"><input type="text" id="{{ $entityType }}_name" name="{{ $entityType }}_name"
-                                  autocomplete="off"/> <span class="input-group-addon dropdown-toggle"
-                                                             data-dropdown="dropdown"> <span class="caret"/> <i
-        class="fa fa-times"></i> </span></div>
-</div> ',
+template: '<div class="combobox-container"> <input type="hidden" /> <div class="input-group"> <input type="text" id="{{ $entityType }}_name" name="{{ $entityType }}_name" autocomplete="off" /> <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> <span class="caret" /> <i class="fa fa-times"></i> </span> </div> </div> ',
 matcher: function (item) {
 // if the user has entered a value show the 'Create ...' option
 if (item.indexOf("{{ trans("texts.create_{$entityType}") }}") == 0) {
