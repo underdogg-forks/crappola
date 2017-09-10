@@ -6,7 +6,7 @@ use App\Models\Client;
 use App\Models\Invitation;
 use Auth;
 use DB;
-use Request;
+use Illuminate\Http\Request;
 use Utils;
 use App;
 

@@ -32,7 +32,7 @@
     "jlapp/swaggervel": "master-dev",
     "jonnyw/php-phantomjs": "^4.5.1",
     "laracasts/presenter": "dev-master",
-    "laravel/framework": "5.2.*",
+    "laravel/framework": "5.3.*",
     "laravel/socialite": "^2.0",
     "laravelcollective/bus": "^5.2",
     "laravelcollective/html": "^5.2",
@@ -55,10 +55,11 @@
     "wildbit/laravel-postmark-provider": "^3.0"
   },
   "require-dev": {
-    "fzaninotto/faker": "^1.6",
-    "mockery/mockery": "^0.9",
     "codeception/c3": "~2.0",
     "codeception/codeception": "*",
+    "filp/whoops": "^2.1",
+    "fzaninotto/faker": "^1.6",
+    "mockery/mockery": "^0.9",
     "phpspec/phpspec": "~2.1",
     "phpunit/phpunit": "^5.7",
     "symfony/css-selector": "3.1.*",

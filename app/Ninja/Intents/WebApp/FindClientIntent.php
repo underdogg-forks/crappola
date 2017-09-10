@@ -8,7 +8,7 @@ class FindClientIntent extends BaseIntent
     public function process()
     {
         $client = $this->requestClient();
-        $url = $client ? $client->present()->url : '/clients';
+        $url = $client ? $client->present()->url : '/relations';
         return redirect($url);
     }
 }

@@ -63,7 +63,7 @@
   </div>
 
   <ol class="breadcrumb pull-left">
-    <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+    <li>{{ link_to('/relations', trans('texts.clients')) }}</li>
     <li class='active'>{{ $client->getDisplayName() }}</li>
   </ol>
 

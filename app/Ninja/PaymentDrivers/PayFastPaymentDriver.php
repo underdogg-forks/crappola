@@ -1,7 +1,7 @@
 <?php
 namespace App\Ninja\PaymentDrivers;
 
-use Request;
+use Illuminate\Http\Request;
 
 class PayFastPaymentDriver extends BasePaymentDriver
 {

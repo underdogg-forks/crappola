@@ -122,7 +122,7 @@
                     <a id="createClientLink" class="pointer"
                        data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
                     <span data-bind="visible: $root.invoice().client().public_id() > 0" style="display:none">|
-                        <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}"
+                        <a data-bind="attr: {href: '{{ url('/relations') }}/' + $root.invoice().client().public_id()}"
                            target="_blank">{{ trans('texts.view_client') }}</a>
                     </span>
                   </div>

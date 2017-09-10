@@ -40,7 +40,14 @@ class AppServiceProvider extends ServiceProvider
         });
         Form::macro('nav_link', function ($url, $text) {
             //$class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
+
+
+
             $class = (Request::is($url) || Request::is($url . '/*')) ? ' class="active"' : '';
+
+
+
+
             $title = trans("texts.$text") . Utils::getProLabel($text);
             return '<li' . $class . '><a href="' . URL::to($url) . '">' . $title . '</a></li>';
         });

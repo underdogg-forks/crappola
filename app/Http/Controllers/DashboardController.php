@@ -68,7 +68,7 @@ class DashboardController extends BaseController
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
             'showBreadcrumbs' => false,
-            'currencies' => $this->getCurrencyCodes(),
+            'currencies' => null,
             'expenses' => $expenses,
             'tasks' => $tasks,
             'showBlueVinePromo' => $showBlueVinePromo,

@@ -10,7 +10,7 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Request;
+use Illuminate\Http\Request;
 use Response;
 use Utils;
 

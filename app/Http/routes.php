@@ -87,7 +87,7 @@ Route::group(['middleware' => ['lookup:user']], function () {
     Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);
 });
 // Client auth
-Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin']);
+//Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin']);
 Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout']);
 Route::get('/client/sessionexpired', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired']);
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail']);
@@ -125,7 +125,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
-    Route::resource('clients', 'ClientController');
+    Route::resource('relations', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');

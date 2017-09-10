@@ -32,7 +32,7 @@ use File;
 use Image;
 use Input;
 use Redirect;
-use Request;
+use Illuminate\Http\Request;
 use Response;
 use Session;
 use stdClass;

@@ -37,6 +37,18 @@ class Utils
         return Auth::check() && Auth::user()->confirmed;
     }
 
+
+    function active_class_path($paths, $classes = null)
+    {
+        foreach ((array) $paths as $path) {
+            if (request()->is($path)) {
+                return 'class="' . ($classes ? $classes . ' ' : '') . 'active"';
+            }
+        }
+        return $classes ? 'class="' . $classes . '"' : '';
+    }
+
+
     public static function isDatabaseSetup()
     {
         try {
@@ -399,7 +411,7 @@ class Utils
     {
         $cache = Cache::get($type);
         if (!$cache) {
-            static::logError("Cache for {$type} is not set");
+            //static::logError("Cache for {$type} is not set");
             return null;
         }
         $data = $cache->filter(function ($item) use ($id) {
@@ -420,12 +432,12 @@ class Utils
         if (!$countryId && Auth::check()) {
             $countryId = Auth::user()->account->country_id;
         }
-        $currency = self::getFromCache($currencyId, 'currencies');
-        $thousand = $currency->thousand_separator;
-        $decimal = $currency->decimal_separator;
-        $precision = $currency->precision;
-        $code = $currency->code;
-        $swapSymbol = $currency->swap_currency_symbol;
+        $currency = self::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies');
+        $thousand = ".";
+        $decimal = ",";
+        $precision = "2";
+        $code = "EUR";
+        $swapSymbol = false;
         if ($countryId && $currencyId == CURRENCY_EURO) {
             $country = self::getFromCache($countryId, 'countries');
             $swapSymbol = $country->swap_currency_symbol;
@@ -437,7 +449,7 @@ class Utils
             }
         }
         $value = number_format($value, $precision, $decimal, $thousand);
-        $symbol = $currency->symbol;
+        $symbol = "EUR";
         if ($decorator == CURRENCY_DECORATOR_NONE) {
             return $value;
         } elseif ($decorator == CURRENCY_DECORATOR_CODE || !$symbol) {

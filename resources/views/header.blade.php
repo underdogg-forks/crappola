@@ -217,26 +217,23 @@
 @stop
 
 @section('body')
-
-  @if ( ! Request::is('settings/account_management'))
-    @include('partials.upgrade_modal')
-  @endif
-
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
     <div class="navbar-header">
-      <div class="navbar-brand">
-      <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a href="#" id="left-menu-toggle" class="menu-toggle" title="{{ trans('texts.toggle_navigation') }}">
-          <i class="fa fa-bars hide-phone" style="width:30px;padding-top:2px;float:right"></i>
+      <div class="navbar-brand pull-left">
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="navbar-brand pull-right">
+        <a href="#" id="left-menu-toggle" class="menu-toggle pull-right" title="{{ trans('texts.toggle_navigation') }}">
+          <i class="fa fa-bars hide-phone" style="width:35px;padding-top:2px;float:right"></i>
           {{-- Per our license, please do not remove or modify this link. --}}
-      </a>
+        </a>
       </div>
     </div>
 
@@ -445,20 +442,22 @@
             min-width: 234px !important;
           }*/
 
-          .navigation-footer {
+          .navigation-footer
+          {
             position: fixed;
-            bottom:0;
-            height: 60px;
-            text-align:left;
-            background-color:#FFF;
-            width:100%;
-            min-width:100%;
+            bottom: 0;
+            height: 36px;
+            text-align: left;
+            background-color: #FFF;
+            width: 100%;
+            min-width: 100%;
             border-top-style: solid;
             border-bottom-style: solid;
           }
 
-          div.navigation-footer i:hover {
-            color:#fff !important;
+          div.navigation-footer i:hover
+          {
+            color: #fff !important;
           }
         </style>
       </div>

@@ -1,7 +1,8 @@
 <?php
 namespace App\Providers;
 
-use Illuminate\Contracts\Auth\Access\Gate as GateContract;
+//use Illuminate\Contracts\Auth\Access\Gate as GateContract;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -38,11 +39,13 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(GateContract $gate)
+    public function boot()
     {
-        foreach (get_class_methods(new \App\Policies\GenericEntityPolicy()) as $method) {
+        $this->registerPolicies();
+        //GateContract $gate
+        /*foreach (get_class_methods(new \App\Policies\GenericEntityPolicy()) as $method) {
             $gate->define($method, "App\Policies\GenericEntityPolicy@{$method}");
         }
-        $this->registerPolicies($gate);
+        $this->registerPolicies($gate);*/
     }
 }

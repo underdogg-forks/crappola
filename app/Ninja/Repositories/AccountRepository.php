@@ -18,7 +18,7 @@ use App\Models\UserAccount;
 use App\Models\LookupUser;
 use Auth;
 use Input;
-use Request;
+use Illuminate\Http\Request;
 use Schema;
 use Session;
 use stdClass;

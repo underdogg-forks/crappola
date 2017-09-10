@@ -1,19 +1,19 @@
 <script type="text/javascript">
 
-  var currencies = {!! \Cache::get('currencies') !!};
+  /*var currencies =  \Cache::get('currencies') !!};
   var currencyMap = {};
   for (var i = 0; i < currencies.length; i++) {
     var currency = currencies[i];
     currencyMap[currency.id] = currency;
     currencyMap[currency.code] = currency;
-  }
+  }*/
 
-  var countries = {!! \Cache::get('countries') !!};
+  /*var countries = {!! \Cache::get('countries') !!};
   var countryMap = {};
   for (var i = 0; i < countries.length; i++) {
     var country = countries[i];
     countryMap[country.id] = country;
-  }
+  }*/
 
   var NINJA = NINJA || {};
   @if (Auth::check())

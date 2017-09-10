@@ -13,7 +13,7 @@ use CreditCard;
 use DateTime;
 use Exception;
 use Omnipay;
-use Request;
+use Illuminate\Http\Request;
 use Session;
 use URL;
 use Utils;

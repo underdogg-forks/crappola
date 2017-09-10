@@ -5,7 +5,7 @@ use App\Models\AccountToken;
 use Auth;
 use Cache;
 use Closure;
-use Request;
+use Illuminate\Http\Request;
 use Response;
 use Session;
 use Utils;

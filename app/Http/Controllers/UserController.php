@@ -10,7 +10,7 @@ use Auth;
 use Input;
 use Password;
 use Redirect;
-use Request;
+use Illuminate\Http\Request;
 use Session;
 use URL;
 use Utils;

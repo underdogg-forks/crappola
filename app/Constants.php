@@ -491,6 +491,10 @@ if (!defined('APP_NAME')) {
         'banks' => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
+
+
+
+
     // TODO remove these translation functions
     function uctrans($text)
     {

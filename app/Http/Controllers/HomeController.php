@@ -8,7 +8,7 @@ use Auth;
 use Input;
 use Mail;
 use Redirect;
-use Request;
+use Illuminate\Http\Request;
 use Response;
 use Session;
 use View;

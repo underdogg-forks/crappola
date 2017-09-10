@@ -28,7 +28,7 @@
   <div class="row">
     <div class="col-md-7">
       <ol class="breadcrumb">
-        <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+        <li>{{ link_to('/relations', trans('texts.clients')) }}</li>
         <li class='active'>{{ $client->getDisplayName() }}</li> {!! $client->present()->statusLabel !!}
       </ol>
     </div>
