@@ -29,7 +29,7 @@
 "predis/predis": "^1.1",
 "rtconner/laravel-tagging": "^2.2",
 "simshaun/recurr": "dev-master",
-"spatie/laravel-permission": "^2.3",
+"spatie/laravel-permission": "^1.13",
 "thomaswelton/laravel-gravatar": "^1.0",
 "turbo124/laravel-push-notification": "^2.0",
 "watson/bootstrap-form": "^1.0",

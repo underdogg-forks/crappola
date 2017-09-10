@@ -225,6 +225,8 @@
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
     <div class="navbar-header">
+      <div class="navbar-brand">
+      <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
@@ -232,12 +234,10 @@
         <span class="icon-bar"></span>
       </button>
       <a href="#" id="left-menu-toggle" class="menu-toggle" title="{{ trans('texts.toggle_navigation') }}">
-        <div class="navbar-brand">
-          <i class="fa fa-bars hide-phone" style="width:32px;padding-top:2px;float:left"></i>
+          <i class="fa fa-bars hide-phone" style="width:30px;padding-top:2px;float:right"></i>
           {{-- Per our license, please do not remove or modify this link. --}}
-          <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
-        </div>
       </a>
+      </div>
     </div>
 
     <a id="right-menu-toggle" class="menu-toggle hide-phone pull-right" title="{{ trans('texts.toggle_history') }}"
@@ -255,22 +255,6 @@
         {!! Form::menu_link('payment') !!}
       </ul>
       <div class="navbar-form navbar-right">
-
-        @if (Auth::check())
-          @if (!Auth::user()->registered)
-            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!}
-            &nbsp;
-          @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            @if (Auth::user()->account->company->hasActivePromo())
-              {!! Button::warning(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!}
-              &nbsp;
-            @else
-              {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!}
-              &nbsp;
-            @endif
-          @endif
-        @endif
-
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
             <div id="myAccountButton" class="ellipsis"
@@ -328,33 +312,7 @@
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
         </div>
-
       </div>
-
-      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
-      <div class="form-group has-feedback">
-        <input type="text" name="command" id="search"
-               style="width: 280px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
-               class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
-        @if (env('SPEECH_ENABLED'))
-          @include('partials/speech_recognition')
-        @endif
-      </div>
-      {!! Former::close() !!}
-
-      @if (false && Utils::isAdmin())
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown">
-            @section('self-updater')
-              <a href="{{ URL::to('self-update') }}" class="dropdown-toggle">
-                <span class="glyphicon glyphicon-cloud-download"
-                      title="{{ trans('texts.update_invoiceninja_title') }}"></span>
-              </a>
-            @show
-          </li>
-        </ul>
-      @endif
-
       <ul class="nav navbar-nav hide-non-phone" style="font-weight: bold">
         @foreach ([
             'dashboard' => false,
@@ -451,7 +409,7 @@
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
-      <div class="container-fluid">
+      <div class="container-fluid" style="background-color:#CCC; height:100%">
 
         @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 
@@ -482,32 +440,48 @@
 
         @yield('content')
         <br/>
-        <div class="row">
-          <div class="col-md-12">
+        <style>
+          /*navigation-footer {
+            min-width: 234px !important;
+          }*/
 
-            @if (Utils::isNinjaProd())
-              @if (Auth::check() && Auth::user()->isTrial())
-                {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
-                        'count' => Auth::user()->account->getCountTrialDaysLeft(),
-                        'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
-                    ]) !!}
-              @endif
-            @else
-              @include('partials.white_label', ['company' => Auth::user()->account->company])
+          .navigation-footer {
+            position: fixed;
+            bottom:0;
+            height: 60px;
+            text-align:left;
+            background-color:#FFF;
+            width:100%;
+            min-width:100%;
+            border-top-style: solid;
+            border-bottom-style: solid;
+          }
+
+          div.navigation-footer i:hover {
+            color:#fff !important;
+          }
+        </style>
+      </div>
+      <div class="row navigation-footer">
+        <div class="col-md-12">
+
+          @if (Utils::isNinjaProd())
+            @if (Auth::check() && Auth::user()->isTrial())
+              {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
+                      'count' => Auth::user()->account->getCountTrialDaysLeft(),
+                      'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
+                  ]) !!}
             @endif
-          </div>
+          @else
+            @include('partials.white_label', ['company' => Auth::user()->account->company])
+          @endif
         </div>
       </div>
-      <!-- /#page-content-wrapper -->
-    </div>
+    </div><!-- /#page-content-wrapper -->
 
     @include('partials.contact_us')
     @include('partials.sign_up')
     @include('partials.keyboard_shortcuts')
 
-  </div>
-
-  <p>&nbsp;</p>
-
-
+  </div><!-- /#wrapper -->
 @stop

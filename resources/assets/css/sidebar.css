@@ -223,7 +223,7 @@
     }
 
     #wrapper.toggled-left #left-sidebar-wrapper {
-        width: 0;
+        width: 25px;
     }
 
     #wrapper.toggled-right #right-sidebar-wrapper {
