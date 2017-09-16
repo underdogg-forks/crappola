@@ -47,7 +47,7 @@ class ApiCheck
             // check if user is archived
             if ($token && $token->user) {
                 Auth::onceUsingId($token->user_id);
-                Session::set('token_id', $token->id);
+                Session::put('token_id', $token->id);
             } elseif ($hasApiSecret && $request->is('api/v1/ping')) {
                 // do nothing: allow ping with api_secret or account token
             } else {

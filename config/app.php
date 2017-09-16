@@ -145,7 +145,7 @@ return [
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
     ],
     /*
     |--------------------------------------------------------------------------
