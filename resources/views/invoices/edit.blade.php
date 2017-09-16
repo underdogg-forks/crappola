@@ -1194,7 +1194,7 @@
         window.dropzone = new Dropzone('#document-upload .dropzone', {
           url:{!! json_encode(url('documents')) !!},
           params: {
-            _token: "{{ Session::getToken() }}"
+            _token: ""
           },
           acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
           addRemoveLinks: true,

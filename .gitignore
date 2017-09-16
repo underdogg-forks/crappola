@@ -17,5 +17,6 @@
 .env
 Homestead.json
 Homestead.yaml
+.lock
 npm-debug.log
 .vagrant

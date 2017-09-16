@@ -228,7 +228,7 @@ return [
         'Rocketeer' => 'Rocketeer\Facades\Rocketeer',
         'Socialite' => 'Laravel\Socialite\Facades\Socialite',
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
-        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
+        //'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
         'Crawler' => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
         'Updater' => Codedge\Updater\UpdaterFacade::class,
         'Module' => Nwidart\Modules\Facades\Module::class,

@@ -2,13 +2,13 @@
 namespace App\Providers;
 
 use Form;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\ServiceProvider;
+use Queue;
 use Request;
 use URL;
 use Utils;
 use Validator;
-use Queue;
-use Illuminate\Queue\Events\JobProcessing;
 
 /**
  * Class AppServiceProvider.
@@ -40,14 +40,7 @@ class AppServiceProvider extends ServiceProvider
         });
         Form::macro('nav_link', function ($url, $text) {
             //$class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
-
-
-
             $class = (Request::is($url) || Request::is($url . '/*')) ? ' class="active"' : '';
-
-
-
-
             $title = trans("texts.$text") . Utils::getProLabel($text);
             return '<li' . $class . '><a href="' . URL::to($url) . '">' . $title . '</a></li>';
         });
@@ -201,5 +194,8 @@ class AppServiceProvider extends ServiceProvider
             'Illuminate\Contracts\Auth\Registrar',
             'App\Services\Registrar'
         );
+
+        $this->app->bind('bootstrapper::form', function ($app) { $form = new Form( $app->make('collective::html'), $app->make('url'), $app->make('view'),
+        $app['session.store']->token() ); return $form->setSessionStore($app['session.store']); },true);
     }
 }

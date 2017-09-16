@@ -5,7 +5,7 @@ use App\Models\Contact;
 use App\Models\Invitation;
 use Auth;
 use Closure;
-use Session;
+use Illuminate\Contracts\Session\Session;
 
 /**
  * Class Authenticate.
