@@ -145,6 +145,7 @@ return [
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+        Yajra\Datatables\DatatablesServiceProvider::class,
         //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
     ],
     /*
@@ -230,6 +231,7 @@ return [
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
         //'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
         'Crawler' => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
         'Updater' => Codedge\Updater\UpdaterFacade::class,
         'Module' => Nwidart\Modules\Facades\Module::class,
         'Utils' => App\Libraries\Utils::class,
