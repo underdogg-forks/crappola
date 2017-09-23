@@ -9,7 +9,7 @@ class ConstantsSeeder extends Seeder
 {
     public function run()
     {
-        Theme::create(['name' => 'amelia']);
+        /*Theme::create(['name' => 'amelia']);
         Theme::create(['name' => 'cerulean']);
         Theme::create(['name' => 'cosmo']);
         Theme::create(['name' => 'cyborg']);
@@ -26,7 +26,7 @@ class ConstantsSeeder extends Seeder
         Size::create(['name' => '11 - 50']);
         Size::create(['name' => '51 - 100']);
         Size::create(['name' => '101 - 500']);
-        Size::create(['name' => '500+']);
+        Size::create(['name' => '500+']);*/
         PaymentTerm::create(['num_days' => 7, 'name' => 'Net 7', 'public_id' => 1]);
         PaymentTerm::create(['num_days' => 10, 'name' => 'Net 10', 'public_id' => 2]);
         PaymentTerm::create(['num_days' => 14, 'name' => 'Net 14', 'public_id' => 3]);

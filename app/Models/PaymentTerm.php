@@ -11,6 +11,9 @@ class PaymentTerm extends EntityModel
 {
     use SoftDeletes;
 
+    public $table = 'lookup__payment_terms';
+
+
     /**
      * @var bool
      */
