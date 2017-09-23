@@ -15,7 +15,12 @@ class Task extends EntityModel
     use SoftDeletes;
     use PresentableTrait;
 
-public $table = 'tickets';
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    public $table = 'tickets';
 
     /**
      * @var array

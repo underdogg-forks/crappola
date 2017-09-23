@@ -15,6 +15,12 @@ class Company extends Eloquent
     use SoftDeletes;
     use PresentableTrait;
 
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'companies__settings';
 
     /**

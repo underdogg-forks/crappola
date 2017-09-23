@@ -11,6 +11,12 @@ class PaymentTerm extends EntityModel
 {
     use SoftDeletes;
 
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'lookup__payment_terms';
 
 

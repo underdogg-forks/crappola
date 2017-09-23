@@ -19,7 +19,14 @@ class User extends Authenticatable
     use PresentableTrait;
     use SoftDeletes;
 
-    public $table = 'staff';
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'staff';
+
+
 
     /**
      * @var string
@@ -34,13 +41,6 @@ class User extends Authenticatable
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
     ];
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.

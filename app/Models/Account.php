@@ -30,6 +30,11 @@ class Account extends Eloquent
     use SendsEmails;
     use HasLogo;
 
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'companies';
 
     /**

@@ -8,6 +8,12 @@ use Eloquent;
  */
 class InvoiceStatus extends Eloquent
 {
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'lookup__invoicestatuses';
     /**
      * @var bool

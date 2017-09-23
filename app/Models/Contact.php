@@ -16,6 +16,12 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 {
     use SoftDeletes, Authenticatable, CanResetPassword;
 
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'customers__contacts';
 
 

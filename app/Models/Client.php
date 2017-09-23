@@ -15,6 +15,12 @@ class Client extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
     public $table = 'customers';
 
 
