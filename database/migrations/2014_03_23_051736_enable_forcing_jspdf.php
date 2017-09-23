@@ -10,7 +10,7 @@ class EnableForcingJspdf extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->boolean('force_pdfjs')->default(false);
         });
     }
@@ -22,7 +22,7 @@ class EnableForcingJspdf extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('force_pdfjs');
         });
     }

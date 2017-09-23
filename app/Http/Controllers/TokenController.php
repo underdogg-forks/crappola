@@ -55,7 +55,7 @@ class TokenController extends BaseController
      */
     public function edit($publicId)
     {
-        $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
+        $token = AccountToken::where('company_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();
         $data = [
             'token' => $token,
@@ -122,7 +122,7 @@ class TokenController extends BaseController
                 'name' => 'required',
             ];
             if ($tokenPublicId) {
-                $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
+                $token = AccountToken::where('company_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
             $validator = Validator::make(Input::all(), $rules);

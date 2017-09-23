@@ -70,27 +70,27 @@ class WePayPaymentDriver extends BasePaymentDriver
         if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             // Persist bank details
             $this->tokenResponse = $wepay->request('/payment_bank/persist', [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'payment_bank_id' => $token,
             ]);
         } else {
             // Authorize credit card
             $tokenResponse = $wepay->request('credit_card/authorize', [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
             ]);
             // Update the callback uri and get the card details
             $tokenResponse = $wepay->request('credit_card/modify', [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
                 'auto_update' => WEPAY_AUTO_UPDATE,
                 'callback_uri' => $this->accountGateway->getWebhookUrl(),
             ]);
             $this->tokenResponse = $wepay->request('credit_card', [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
             ]);
@@ -106,7 +106,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
 
             $gatewayResponse = $wepay->request($paymentMethodType, array(
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
             ));
@@ -144,7 +144,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         parent::removePaymentMethod($paymentMethod);
         $wepay = Utils::setupWePay($this->accountGateway);
         $response = $wepay->request('/credit_card/delete', [
-            'client_id' => WEPAY_CLIENT_ID,
+            'customer_id' => WEPAY_CLIENT_ID,
             'client_secret' => WEPAY_CLIENT_SECRET,
             'credit_card_id' => intval($paymentMethod->source_reference),
         ]);
@@ -197,7 +197,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
             $wepay = Utils::setupWePay($accountGateway);
             $source = $wepay->request('credit_card', [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => intval($objectId),
             ]);
@@ -214,7 +214,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
             $wepay = Utils::setupWePay($accountGateway);
             $wepayAccount = $wepay->request('account', [
-                'account_id' => intval($objectId),
+                'company_id' => intval($objectId),
             ]);
             if ($wepayAccount->state == 'deleted') {
                 $accountGateway->delete();

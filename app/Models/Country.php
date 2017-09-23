@@ -8,6 +8,8 @@ use Eloquent;
  */
 class Country extends Eloquent
 {
+    public $table = 'lookup__countries';
+
     /**
      * @var bool
      */

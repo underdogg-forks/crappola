@@ -73,7 +73,7 @@
               }
             }
             @endif
-            @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
+            @foreach (['relations', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
             , {
               name: 'data',
               limit: 3,
@@ -270,7 +270,7 @@
                 @if ($item->user_id == Auth::user()->id)
                   @include('user_account', [
                       'user_account_id' => $item->id,
-                      'user_id' => $item->user_id,
+                      'staff_id' => $item->user_id,
                       'account_name' => $item->account_name,
                       'user_name' => $item->user_name,
                       'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
@@ -282,7 +282,7 @@
                 @if ($item->user_id != Auth::user()->id)
                   @include('user_account', [
                       'user_account_id' => $item->id,
-                      'user_id' => $item->user_id,
+                      'staff_id' => $item->user_id,
                       'account_name' => $item->account_name,
                       'user_name' => $item->user_name,
                       'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
@@ -313,7 +313,7 @@
       <ul class="nav navbar-nav hide-non-phone" style="font-weight: bold">
         @foreach ([
             'dashboard' => false,
-            'clients' => false,
+            'relations' => false,
             'products' => false,
             'invoices' => false,
             'payments' => false,
@@ -341,7 +341,7 @@
       <ul class="sidebar-nav">
         @foreach([
             'dashboard',
-            'clients',
+            'relations',
             'products',
             'invoices',
             'payments',

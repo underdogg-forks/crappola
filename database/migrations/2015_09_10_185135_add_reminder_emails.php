@@ -10,7 +10,7 @@ class AddReminderEmails extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->string('email_subject_invoice')->nullable();
             $table->string('email_subject_quote')->nullable();
             $table->string('email_subject_payment')->nullable();
@@ -36,8 +36,8 @@ class AddReminderEmails extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
-            if (Schema::hasColumn('accounts', 'email_subject_invoice')) {
+        Schema::table('companies', function ($table) {
+            if (Schema::hasColumn('companies', 'email_subject_invoice')) {
                 $table->dropColumn('email_subject_invoice');
                 $table->dropColumn('email_subject_quote');
                 $table->dropColumn('email_subject_payment');

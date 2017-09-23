@@ -15,6 +15,10 @@ use App\Models\LookupContact;
 class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
     use SoftDeletes, Authenticatable, CanResetPassword;
+
+    public $table = 'customers__contacts';
+
+
     /**
      * @var array
      */

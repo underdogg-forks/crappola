@@ -19,6 +19,8 @@ class User extends Authenticatable
     use PresentableTrait;
     use SoftDeletes;
 
+    public $table = 'staff';
+
     /**
      * @var string
      */
@@ -403,7 +405,7 @@ class User extends Authenticatable
 User::created(function ($user) {
     LookupUser::createNew($user->account->account_key, [
         'email' => $user->email,
-        'user_id' => $user->id,
+        'staff_id' => $user->id,
         'confirmation_code' => $user->confirmation_code,
     ]);
 });

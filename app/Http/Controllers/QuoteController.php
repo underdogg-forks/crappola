@@ -92,7 +92,7 @@ class QuoteController extends BaseController
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $account->present()->taxRateOptions,
             'countries' => Cache::get('countries'),
-            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
+            'relations' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),

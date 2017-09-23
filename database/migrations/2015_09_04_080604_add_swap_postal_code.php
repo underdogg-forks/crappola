@@ -10,10 +10,10 @@ class AddSwapPostalCode extends Migration
      */
     public function up()
     {
-        Schema::table('countries', function ($table) {
+        Schema::table('lookup__countries', function ($table) {
             $table->boolean('swap_postal_code')->default(0);
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->boolean('show_item_taxes')->default(0);
         });
     }
@@ -25,10 +25,10 @@ class AddSwapPostalCode extends Migration
      */
     public function down()
     {
-        Schema::table('countries', function ($table) {
+        Schema::table('lookup__countries', function ($table) {
             $table->dropColumn('swap_postal_code');
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('show_item_taxes');
         });
     }

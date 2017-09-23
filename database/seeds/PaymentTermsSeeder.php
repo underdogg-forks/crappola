@@ -10,7 +10,7 @@ class PaymentTermsSeeder extends Seeder
             ['num_days' => -1, 'name' => 'Net 0'],
         ];
         foreach ($paymentTerms as $paymentTerm) {
-            if (!DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->get()) {
+            if (!DB::table('lookup__payment_terms')->where('name', '=', $paymentTerm['name'])->get()) {
                 PaymentTerm::create($paymentTerm);
             }
         }

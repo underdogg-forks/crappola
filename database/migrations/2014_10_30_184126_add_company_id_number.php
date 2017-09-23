@@ -10,10 +10,10 @@ class AddCompanyIdNumber extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->string('id_number')->nullable();
         });
-        Schema::table('clients', function ($table) {
+        Schema::table('relations', function ($table) {
             $table->string('id_number')->nullable();
         });
     }
@@ -25,10 +25,10 @@ class AddCompanyIdNumber extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('id_number');
         });
-        Schema::table('clients', function ($table) {
+        Schema::table('relations', function ($table) {
             $table->dropColumn('id_number');
         });
     }

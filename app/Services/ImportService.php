@@ -154,7 +154,7 @@ class ImportService
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
         $transformer = new BaseTransformer($this->maps);
-        $this->checkClientCount(count($json['clients']));
+        $this->checkClientCount(count($json['relations']));
         if ($includeSettings) {
             // remove blank id values
             $settings = [];
@@ -186,7 +186,7 @@ class ImportService
                     continue;
                 }
             }
-            foreach ($json['clients'] as $jsonClient) {
+            foreach ($json['relations'] as $jsonClient) {
                 if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
                     $client = $this->clientRepo->save($jsonClient);
                     $this->addClientToMaps($client);
@@ -196,7 +196,7 @@ class ImportService
                     continue;
                 }
                 foreach ($jsonClient['invoices'] as $jsonInvoice) {
-                    $jsonInvoice['client_id'] = $client->id;
+                    $jsonInvoice['customer_id'] = $client->id;
                     if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
                         $invoice = $this->invoiceRepo->save($jsonInvoice);
                         $this->addInvoiceToMaps($invoice);
@@ -208,7 +208,7 @@ class ImportService
                     foreach ($jsonInvoice['payments'] as $jsonPayment) {
                         $jsonPayment['invoice_id'] = $invoice->public_id;
                         if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
-                            $jsonPayment['client_id'] = $client->id;
+                            $jsonPayment['customer_id'] = $client->id;
                             $jsonPayment['invoice_id'] = $invoice->id;
                             $payment = $this->paymentRepo->save($jsonPayment);
                             $this->addSuccess($payment);
@@ -381,7 +381,7 @@ class ImportService
         $this->$mapFunction($entity);
         // if the invoice is paid we'll also create a payment record
         if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid'] > 0) {
-            $this->createPayment($source, $row, $data['client_id'], $entity->id, $entity->public_id);
+            $this->createPayment($source, $row, $data['customer_id'], $entity->id, $entity->public_id);
         }
         return $entity;
     }

@@ -380,8 +380,8 @@ class Utils
     {
         return [
             'context' => $context,
-            'user_id' => Auth::check() ? Auth::user()->id : 0,
-            'account_id' => Auth::check() ? Auth::user()->account_id : 0,
+            'staff_id' => Auth::check() ? Auth::user()->id : 0,
+            'company_id' => Auth::check() ? Auth::user()->account_id : 0,
             'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
             'method' => Request::method(),
             'url' => Input::get('url', Request::url()),
@@ -1083,7 +1083,7 @@ class Utils
         $first = count($parts) ? $parts[0] : false;
         $second = count($parts) > 1 ? $parts[1] : false;
         $entityTypes = [
-            'clients',
+            'relations',
             'invoices',
             'payments',
             'recurring_invoices',

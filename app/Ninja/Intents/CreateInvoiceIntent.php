@@ -14,7 +14,7 @@ class CreateInvoiceIntent extends InvoiceIntent
             throw new Exception(trans('texts.client_not_found'));
         }
         $data = array_merge($this->requestFields(), [
-            'client_id' => $client->id,
+            'customer_id' => $client->id,
             'invoice_items' => $invoiceItems,
         ]);
         //var_dump($data);

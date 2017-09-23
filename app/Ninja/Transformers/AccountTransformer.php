@@ -24,7 +24,7 @@ class AccountTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'clients',
+        'relations',
         'invoices',
         'payments',
     ];
@@ -81,7 +81,7 @@ class AccountTransformer extends EntityTransformer
     public function includeClients(Account $account)
     {
         $transformer = new ClientTransformer($account, $this->serializer);
-        return $this->includeCollection($account->clients, $transformer, 'clients');
+        return $this->includeCollection($account->clients, $transformer, 'relations');
     }
 
     /**

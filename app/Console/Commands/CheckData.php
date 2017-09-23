@@ -66,7 +66,7 @@ class CheckData extends Command
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
-        if (!$this->option('client_id')) {
+        if (!$this->option('customer_id')) {
             $this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
             $this->checkDraftSentInvoices();
@@ -74,7 +74,7 @@ class CheckData extends Command
         $this->checkBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
-        if (!$this->option('client_id')) {
+        if (!$this->option('customer_id')) {
             $this->checkOAuth();
             $this->checkInvitations();
             $this->checkFailedJobs();
@@ -251,15 +251,15 @@ class CheckData extends Command
             }
         }
         // check for missing contacts
-        $clients = DB::table('clients')
+        $clients = DB::table('relations')
             ->leftJoin('contacts', function ($join) {
                 $join->on('contacts.client_id', '=', 'clients.id')
                     ->whereNull('contacts.deleted_at');
             })
             ->groupBy('clients.id', 'clients.user_id', 'clients.account_id')
             ->havingRaw('count(contacts.id) = 0');
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
+        if ($this->option('customer_id')) {
+            $clients->where('clients.id', '=', $this->option('customer_id'));
         }
         $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.account_id']);
         $this->logMessage(count($clients) . ' clients without any contacts');
@@ -280,7 +280,7 @@ class CheckData extends Command
             }
         }
         // check for more than one primary contact
-        $clients = DB::table('clients')
+        $clients = DB::table('relations')
             ->leftJoin('contacts', function ($join) {
                 $join->on('contacts.client_id', '=', 'clients.id')
                     ->where('contacts.is_primary', '=', true)
@@ -288,8 +288,8 @@ class CheckData extends Command
             })
             ->groupBy('clients.id')
             ->havingRaw('count(contacts.id) != 1');
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
+        if ($this->option('customer_id')) {
+            $clients->where('clients.id', '=', $this->option('customer_id'));
         }
         $clients = $clients->get(['clients.id', DB::raw('count(contacts.id)')]);
         $this->logMessage(count($clients) . ' clients without a single primary contact');
@@ -409,7 +409,7 @@ class CheckData extends Command
                 if ($table == 'accounts') {
                     $accountId = 'id';
                 } else {
-                    $accountId = 'account_id';
+                    $accountId = 'company_id';
                 }
                 $records = DB::table($table)
                     ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
@@ -423,8 +423,8 @@ class CheckData extends Command
                             DB::table($table)
                                 ->where('id', $record->id)
                                 ->update([
-                                    'account_id' => $record->account_id,
-                                    'user_id' => $record->user_id,
+                                    'company_id' => $record->account_id,
+                                    'staff_id' => $record->user_id,
                                 ]);
                         }
                     }
@@ -436,7 +436,7 @@ class CheckData extends Command
     private function checkPaidToDate()
     {
         // update client paid_to_date value
-        $clients = DB::table('clients')
+        $clients = DB::table('relations')
             ->join('payments', 'payments.client_id', '=', 'clients.id')
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->where('payments.is_deleted', '=', 0)
@@ -452,7 +452,7 @@ class CheckData extends Command
         }
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
-                DB::table('clients')
+                DB::table('relations')
                     ->where('id', $client->id)
                     ->update(['paid_to_date' => $client->amount]);
             }
@@ -462,7 +462,7 @@ class CheckData extends Command
     private function checkBalances()
     {
         // find all clients where the balance doesn't equal the sum of the outstanding invoices
-        $clients = DB::table('clients')
+        $clients = DB::table('relations')
             ->join('invoices', 'invoices.client_id', '=', 'clients.id')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '!=', 20432)
@@ -472,8 +472,8 @@ class CheckData extends Command
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', 0)
             ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
+        if ($this->option('customer_id')) {
+            $clients->where('clients.id', '=', $this->option('customer_id'));
         }
         $clients = $clients->groupBy('clients.id', 'clients.balance')
             ->orderBy('accounts.company_id', 'DESC')
@@ -490,7 +490,7 @@ class CheckData extends Command
             $lastCreatedAt = null;
             $clientFix = false;
             $activities = DB::table('activities')
-                ->where('client_id', '=', $client->id)
+                ->where('customer_id', '=', $client->id)
                 ->orderBy('activities.id')
                 ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
             //$this->logMessage(var_dump($activities));
@@ -620,8 +620,8 @@ class CheckData extends Command
                     DB::table('activities')->insert([
                         'created_at' => new Carbon(),
                         'updated_at' => new Carbon(),
-                        'account_id' => $client->account_id,
-                        'client_id' => $client->id,
+                        'company_id' => $client->account_id,
+                        'customer_id' => $client->id,
                         'adjustment' => $client->actual_balance - $activity->balance,
                         'balance' => $client->actual_balance,
                     ]);
@@ -630,7 +630,7 @@ class CheckData extends Command
             $data = ['balance' => $client->actual_balance];
             $this->logMessage("Corrected balance:{$client->actual_balance}");
             if ($this->option('fix') == 'true') {
-                DB::table('clients')
+                DB::table('relations')
                     ->where('id', $client->id)
                     ->update($data);
             }
@@ -652,7 +652,7 @@ class CheckData extends Command
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
-            ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+            ['customer_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }

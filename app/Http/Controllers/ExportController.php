@@ -71,7 +71,7 @@ class ExportController extends BaseController
         $manager->setSerializer(new ArraySerializer());
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['clients' => function ($query) {
+        $account->load(['relations' => function ($query) {
             $query->withArchived()
                 ->with(['contacts', 'invoices' => function ($query) {
                     $query->withArchived()
@@ -156,8 +156,8 @@ class ExportController extends BaseController
             'title' => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
             'multiUser' => $account->users->count() > 1,
         ];
-        if ($request->input('include') === 'all' || $request->input('clients')) {
-            $data['clients'] = Client::scope()
+        if ($request->input('include') === 'all' || $request->input('relations')) {
+            $data['relations'] = Client::scope()
                 ->with('user', 'contacts', 'country')
                 ->withArchived()
                 ->get();

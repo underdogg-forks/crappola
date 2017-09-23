@@ -21,16 +21,16 @@ class SimplifyTasks extends Migration
                 $task->save();
             }
         }
-        Schema::table('tasks', function ($table) {
+        Schema::table('tickets', function ($table) {
             $table->dropColumn('start_time');
             $table->dropColumn('duration');
             $table->dropColumn('break_duration');
             $table->dropColumn('resume_time');
         });
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->boolean('dark_mode')->default(false)->nullable();
         });
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('theme_id');
         });
     }
@@ -42,18 +42,18 @@ class SimplifyTasks extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function ($table) {
+        Schema::table('tickets', function ($table) {
             $table->timestamp('start_time')->nullable();
             $table->integer('duration')->nullable();
             $table->timestamp('resume_time')->nullable();
             $table->integer('break_duration')->nullable();
         });
-        if (Schema::hasColumn('accounts', 'dark_mode')) {
-            Schema::table('users', function ($table) {
+        if (Schema::hasColumn('companies', 'dark_mode')) {
+            Schema::table('staff', function ($table) {
                 $table->dropColumn('dark_mode');
             });
         }
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->integer('theme_id')->nullable();
         });
     }

@@ -10,7 +10,7 @@ class AddNotifyApproved extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->boolean('notify_approved')->default(true);
         });
     }
@@ -22,7 +22,7 @@ class AddNotifyApproved extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('notify_approved');
         });
     }

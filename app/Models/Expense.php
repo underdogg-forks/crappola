@@ -29,7 +29,7 @@ class Expense extends EntityModel
      * @var array
      */
     protected $fillable = [
-        'client_id',
+        'customer_id',
         'vendor_id',
         'expense_currency_id',
         'expense_date',

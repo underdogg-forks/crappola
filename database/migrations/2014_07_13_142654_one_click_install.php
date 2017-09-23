@@ -30,7 +30,7 @@ class OneClickInstall extends Migration
             $table->string('license_key')->unique();
             $table->boolean('is_claimed');
             $table->string('transaction_reference');
-            $table->foreign('affiliate_id')->references('id')->on('affiliates');
+            //$table->foreign('affiliate_id')->references('id')->on('affiliates');
         });
     }
 

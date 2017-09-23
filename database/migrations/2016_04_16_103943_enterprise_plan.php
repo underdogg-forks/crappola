@@ -16,9 +16,28 @@ class EnterprisePlan extends Migration
         if ($timeout == 0) {
             $timeout = 600;
         }
+
+        Schema::create('companies__settings', function ($table) {
+            $table->increments('id');
+            $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
+            $table->enum('plan_term', ['month', 'year'])->nullable();
+            $table->date('plan_started')->nullable();
+            $table->date('plan_paid')->nullable();
+            $table->date('plan_expires')->nullable();
+            $table->unsignedInteger('payment_id')->nullable();
+            $table->date('trial_started')->nullable();
+            $table->enum('trial_plan', ['pro', 'enterprise'])->nullable();
+            $table->enum('pending_plan', ['pro', 'enterprise', 'free'])->nullable();
+            $table->enum('pending_term', ['month', 'year'])->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+
+
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
-        if (!Schema::hasTable('companies')) {
+/*        if (!Schema::hasTable('companies')) {
             Schema::create('companies', function ($table) {
                 $table->increments('id');
                 $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
@@ -34,19 +53,19 @@ class EnterprisePlan extends Migration
                 $table->timestamps();
                 $table->softDeletes();
             });
-            Schema::table('companies', function ($table) {
-                $table->foreign('payment_id')->references('id')->on('payments');
+            Schema::table('companies__settings', function ($table) {
+                //$table->foreign('payment_id')->references('id')->on('customers__payments');
             });
-        }
-        if (!Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table) {
+        }*/
+/*        if (!Schema::hasColumn('companies', 'company_id')) {
+            Schema::table('companies', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
-            Schema::table('accounts', function ($table) {
-                $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            Schema::table('companies', function ($table) {
+                //$table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
-        }
-        $single_account_ids = \DB::table('users')
+        }*/
+/*        $single_account_ids = \DB::table('staff')
             ->leftJoin('user_accounts', function ($join) {
                 $join->on('user_accounts.user_id1', '=', 'users.id');
                 $join->orOn('user_accounts.user_id2', '=', 'users.id');
@@ -54,7 +73,7 @@ class EnterprisePlan extends Migration
                 $join->orOn('user_accounts.user_id4', '=', 'users.id');
                 $join->orOn('user_accounts.user_id5', '=', 'users.id');
             })
-            ->leftJoin('accounts', 'accounts.id', '=', 'users.account_id')
+            ->leftJoin('companies', 'accounts.id', '=', 'users.account_id')
             ->whereNull('user_accounts.id')
             ->whereNull('accounts.company_id')
             ->where(function ($query) {
@@ -67,8 +86,8 @@ class EnterprisePlan extends Migration
                 $this->upAccounts($account);
                 $this->checkTimeout($timeout, $startTime);
             }
-        }
-        $group_accounts = \DB::select(
+        }*/
+/*        $group_accounts = \DB::select(
             'SELECT u1.account_id as account1, u2.account_id as account2, u3.account_id as account3, u4.account_id as account4, u5.account_id as account5 FROM `user_accounts`
             LEFT JOIN users u1 ON (u1.public_id IS NULL OR u1.public_id = 0) AND user_accounts.user_id1 = u1.id
             LEFT JOIN users u2 ON (u2.public_id IS NULL OR u2.public_id = 0) AND user_accounts.user_id2 = u2.id
@@ -90,13 +109,13 @@ class EnterprisePlan extends Migration
                 $this->upAccounts(null, Account::find(get_object_vars($group_account)));
                 $this->checkTimeout($timeout, $startTime);
             }
-        }
-        if (Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table) {
+        }*/
+/*        if (Schema::hasColumn('companies', 'pro_plan_paid')) {
+            Schema::table('companies', function ($table) {
                 $table->dropColumn('pro_plan_paid');
                 $table->dropColumn('pro_plan_trial');
             });
-        }
+        }*/
     }
 
     private function upAccounts($primaryAccount, $otherAccounts = [])
@@ -169,14 +188,14 @@ class EnterprisePlan extends Migration
         }
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
-        if (!Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table) {
+        if (!Schema::hasColumn('companies', 'pro_plan_paid')) {
+            Schema::table('companies', function ($table) {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();
             });
         }
         $company_ids = \DB::table('companies')
-            ->leftJoin('accounts', 'accounts.company_id', '=', 'companies.id')
+            ->leftJoin('companies', 'accounts.company_id', '=', 'companies.id')
             ->whereNull('accounts.pro_plan_paid')
             ->whereNull('accounts.pro_plan_trial')
             ->where(function ($query) {
@@ -195,9 +214,9 @@ class EnterprisePlan extends Migration
                 $this->checkTimeout($timeout, $startTime);
             }
         }
-        if (Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table) {
-                $table->dropForeign('accounts_company_id_foreign');
+        if (Schema::hasColumn('companies', 'company_id')) {
+            Schema::table('companies', function ($table) {
+                //$table->dropForeign('accounts_company_id_foreign');
                 $table->dropColumn('company_id');
             });
         }

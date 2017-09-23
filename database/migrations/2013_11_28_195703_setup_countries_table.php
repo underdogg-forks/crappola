@@ -12,7 +12,7 @@ class SetupCountriesTable extends Migration
     {
         // Creates the users table
         /*
-        Schema::create('countries', function($table)
+        Schema::create('lookup__countries', function($table)
         {
             $table->integer('id')->index();
             $table->string('capital', 255)->nullable();
@@ -41,6 +41,6 @@ class SetupCountriesTable extends Migration
      */
     public function down()
     {
-        //Schema::drop('countries');
+        //Schema::drop('lookup__countries');
     }
 }

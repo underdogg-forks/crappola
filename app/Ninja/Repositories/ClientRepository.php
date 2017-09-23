@@ -27,7 +27,7 @@ class ClientRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('clients')
+        $query = DB::table('relations')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('clients.account_id', '=', \Auth::user()->account_id)
@@ -162,7 +162,7 @@ class ClientRepository extends BaseRepository
                 $max = $percent;
             }
         }
-        $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
+        $contacts = Contact::scope()->get(['customer_id', 'first_name', 'last_name', 'public_id']);
         foreach ($contacts as $contact) {
             if (!$contact->getFullName() || !isset($map[$contact->client_id])) {
                 continue;

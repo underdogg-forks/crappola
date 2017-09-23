@@ -10,11 +10,11 @@ class AddSocialLogin extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->string('oauth_user_id')->nullable();
             $table->unsignedInteger('oauth_provider_id')->nullable();
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->string('custom_invoice_text_label1')->nullable();
             $table->string('custom_invoice_text_label2')->nullable();
         });
@@ -36,11 +36,11 @@ class AddSocialLogin extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('oauth_user_id');
             $table->dropColumn('oauth_provider_id');
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('custom_invoice_text_label1');
             $table->dropColumn('custom_invoice_text_label2');
         });

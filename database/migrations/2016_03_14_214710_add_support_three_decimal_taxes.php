@@ -10,8 +10,8 @@ class AddSupportThreeDecimalTaxes extends Migration
      */
     public function up()
     {
-        Schema::table('tax_rates', function ($table) {
-            if (Schema::hasColumn('tax_rates', 'rate')) {
+        Schema::table('lookup__taxrates', function ($table) {
+            if (Schema::hasColumn('lookup__taxrates', 'rate')) {
                 $table->decimal('rate', 13, 3)->change();
             }
         });
@@ -24,7 +24,7 @@ class AddSupportThreeDecimalTaxes extends Migration
      */
     public function down()
     {
-        Schema::table('tax_rates', function ($table) {
+        Schema::table('lookup__taxrates', function ($table) {
             $table->decimal('rate', 13, 2)->change();
         });
     }

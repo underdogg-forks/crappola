@@ -129,14 +129,14 @@ class InitLookup extends Command
                 foreach ($account['users'] as $user) {
                     $lookupUser = false;
                     if ($validate || $update) {
-                        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)->whereUserId($user['user_id'])->first();
+                        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)->whereUserId($user['staff_id'])->first();
                     }
                     if ($validate) {
                         if (!$lookupUser) {
-                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Not found!");
+                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['staff_id']} | Not found!");
                             continue;
                         } elseif ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
-                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Out of date!");
+                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['staff_id']} | Out of date!");
                             continue;
                         }
                     }
@@ -151,7 +151,7 @@ class InitLookup extends Command
                         LookupUser::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'email' => $user['email'] ?: null,
-                            'user_id' => $user['user_id'],
+                            'staff_id' => $user['staff_id'],
                             'oauth_user_key' => $user['oauth_user_key'],
                             'referral_code' => $user['referral_code'],
                         ]);
@@ -251,7 +251,7 @@ class InitLookup extends Command
         foreach ($users as $user) {
             $data['users'][] = [
                 'email' => $user->email,
-                'user_id' => $user->id,
+                'staff_id' => $user->id,
                 'oauth_user_key' => ($user->oauth_provider_id && $user->oauth_user_id) ? ($user->oauth_provider_id . '-' . $user->oauth_user_id) : null,
                 'referral_code' => $user->referral_code,
             ];

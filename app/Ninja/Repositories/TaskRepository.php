@@ -18,7 +18,7 @@ class TaskRepository extends BaseRepository
     public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('tasks')
-            ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
+            ->leftJoin('relations', 'tasks.client_id', '=', 'clients.id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
@@ -123,8 +123,8 @@ class TaskRepository extends BaseRepository
         } else {
             $timeLog = [];
         }
-        if (isset($data['client_id'])) {
-            $task->client_id = Client::getPrivateId($data['client_id']);
+        if (isset($data['customer_id'])) {
+            $task->client_id = Client::getPrivateId($data['customer_id']);
         }
         array_multisort($timeLog);
         if (isset($data['action'])) {

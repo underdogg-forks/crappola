@@ -299,7 +299,7 @@ class OnlinePaymentController extends BaseController
             $client = $clientRepo->save($data, $client);
         }
         $data = [
-            'client_id' => $client->id,
+            'customer_id' => $client->id,
             'is_recurring' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
             'frequency_id' => Input::get('frequency_id'),
             'auto_bill_id' => Input::get('auto_bill_id'),

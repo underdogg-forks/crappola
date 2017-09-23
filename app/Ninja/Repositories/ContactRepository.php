@@ -13,8 +13,8 @@ class ContactRepository extends BaseRepository
         } elseif (!$publicId || $publicId == '-1') {
             $contact = Contact::createNew();
             $contact->send_invoice = true;
-            $contact->client_id = $data['client_id'];
-            $contact->is_primary = Contact::scope()->where('client_id', '=', $contact->client_id)->count() == 0;
+            $contact->client_id = $data['customer_id'];
+            $contact->is_primary = Contact::scope()->where('customer_id', '=', $contact->client_id)->count() == 0;
             $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         } else {
             $contact = Contact::scope($publicId)->firstOrFail();

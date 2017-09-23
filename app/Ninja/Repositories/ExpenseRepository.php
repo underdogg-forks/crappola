@@ -44,7 +44,7 @@ class ExpenseRepository extends BaseRepository
         $accountid = \Auth::user()->account_id;
         $query = DB::table('expenses')
             ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
-            ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
+            ->leftjoin('relations', 'clients.id', '=', 'expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftjoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
             ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')

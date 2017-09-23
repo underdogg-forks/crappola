@@ -66,7 +66,7 @@ class PaymentService extends BaseService
             $data = [
                 'payment_type_id' => PAYMENT_TYPE_CREDIT,
                 'invoice_id' => $invoice->id,
-                'client_id' => $client->id,
+                'customer_id' => $client->id,
                 'amount' => $amount,
             ];
             $payment = $this->paymentRepo->save($data);

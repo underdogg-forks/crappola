@@ -274,7 +274,7 @@ class AppController extends BaseController
     {
         $result = DB::select("SELECT engine
                     FROM information_schema.TABLES
-                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
+                    WHERE TABLE_NAME='relations' AND TABLE_SCHEMA='ninja'");
         if (count($result) && $result[0]->engine == 'InnoDB') {
             return;
         }
@@ -321,7 +321,7 @@ class AppController extends BaseController
         if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
             $data = DB::table('accounts')
                 ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
-                ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                ->leftJoin('relations', 'clients.id', '=', 'payments.client_id')
                 ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
                 ->where('payments.is_deleted', '=', false)
                 ->get([

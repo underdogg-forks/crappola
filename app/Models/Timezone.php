@@ -8,6 +8,7 @@ use Eloquent;
  */
 class Timezone extends Eloquent
 {
+    public $table = 'lookup__timezones';
     /**
      * @var bool
      */

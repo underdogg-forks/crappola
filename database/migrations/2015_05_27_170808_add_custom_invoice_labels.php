@@ -10,7 +10,7 @@ class AddCustomInvoiceLabels extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->text('invoice_labels')->nullable();
         });
     }
@@ -22,7 +22,7 @@ class AddCustomInvoiceLabels extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('invoice_labels');
         });
     }

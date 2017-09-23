@@ -8,6 +8,7 @@ use Eloquent;
  */
 class DateFormat extends Eloquent
 {
+    public $table = 'lookup__dateformats';
     /**
      * @var bool
      */

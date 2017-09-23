@@ -121,7 +121,7 @@ class CreateTestData extends Command
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'is_public' => true,
-                'client_id' => $client->id,
+                'customer_id' => $client->id,
                 'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'due_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'invoice_items' => [[
@@ -145,7 +145,7 @@ class CreateTestData extends Command
     {
         $data = [
             'invoice_id' => $invoice->id,
-            'client_id' => $client->id,
+            'customer_id' => $client->id,
             'amount' => $this->faker->randomFloat(2, 0, $invoice->amount),
             'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
         ];

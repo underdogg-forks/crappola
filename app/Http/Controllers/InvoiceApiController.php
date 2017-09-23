@@ -158,11 +158,11 @@ class InvoiceApiController extends BaseAPIController
                 }
                 $client = $this->clientRepo->save($clientData);
             }
-        } elseif (isset($data['client_id'])) {
-            $client = Client::scope($data['client_id'])->firstOrFail();
+        } elseif (isset($data['customer_id'])) {
+            $client = Client::scope($data['customer_id'])->firstOrFail();
         }
         $data = self::prepareData($data, $client);
-        $data['client_id'] = $client->id;
+        $data['customer_id'] = $client->id;
         // in these cases the invoice needs to be set as public
         $isAutoBill = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
         $isEmailInvoice = isset($data['email_invoice']) && filter_var($data['email_invoice'], FILTER_VALIDATE_BOOLEAN);
@@ -178,7 +178,7 @@ class InvoiceApiController extends BaseAPIController
             } elseif ($isPaid) {
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
-                    'client_id' => $client->id,
+                    'customer_id' => $client->id,
                     'amount' => $data['paid'],
                 ]);
             }

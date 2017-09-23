@@ -78,7 +78,7 @@ class InvoiceTransformer extends EntityTransformer
             'id' => (int)$invoice->public_id,
             'amount' => (float)$invoice->amount,
             'balance' => (float)$invoice->balance,
-            'client_id' => (int)($this->client ? $this->client->public_id : $invoice->client->public_id),
+            'customer_id' => (int)($this->client ? $this->client->public_id : $invoice->client->public_id),
             'invoice_status_id' => (int)$invoice->invoice_status_id,
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),

@@ -12,43 +12,48 @@ class AddTaskProjects extends Migration
     {
         Schema::create('projects', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id')->index();
-            $table->unsignedInteger('client_id')->index()->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+            $table->unsignedInteger('company_id')->index();
+            $table->unsignedInteger('staff_id');
+            $table->unsignedInteger('customer_id')->index()->nullable();
             $table->string('name')->nullable();
             $table->boolean('is_deleted')->default(false);
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            //$table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            //$table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
+            //$table->foreign('customer_id')->references('id')->on('relations')->onDelete('cascade');
             $table->unsignedInteger('public_id')->index();
-            $table->unique(['account_id', 'public_id']);
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unique(['company_id', 'public_id']);
         });
-        Schema::table('tasks', function ($table) {
+        Schema::table('tickets', function ($table) {
             $table->unsignedInteger('project_id')->nullable()->index();
-            if (Schema::hasColumn('tasks', 'description')) {
+            if (Schema::hasColumn('tickets', 'description')) {
                 $table->text('description')->change();
             }
         });
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Schema::table('tasks', function ($table) {
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+        Schema::table('tickets', function ($table) {
+            //$table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+
+
         // is_deleted to standardize tables
-        Schema::table('expense_categories', function ($table) {
+        /*Schema::table('expense_categories', function ($table) {
             $table->boolean('is_deleted')->default(false);
-        });
+        });*/
+
+
         Schema::table('products', function ($table) {
             $table->boolean('is_deleted')->default(false);
         });
         // add 'delete cascase' to resolve error when deleting an account
         Schema::table('account_gateway_tokens', function ($table) {
-            $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
+            //$table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
         });
         Schema::table('account_gateway_tokens', function ($table) {
-            $table->foreign('default_payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
+            //$table->foreign('default_payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
         });
         Schema::table('invoices', function ($table) {
             $table->boolean('is_public')->default(false);
@@ -63,14 +68,14 @@ class AddTaskProjects extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function ($table) {
-            $table->dropForeign('tasks_project_id_foreign');
+        Schema::table('tickets', function ($table) {
+            //$table->dropForeign('tasks_project_id_foreign');
             $table->dropColumn('project_id');
         });
         Schema::dropIfExists('projects');
-        Schema::table('expense_categories', function ($table) {
+        /*Schema::table('expense_categories', function ($table) {
             $table->dropColumn('is_deleted');
-        });
+        });*/
         Schema::table('products', function ($table) {
             $table->dropColumn('is_deleted');
         });

@@ -20,7 +20,7 @@ class PaymentTransformer extends BaseTransformer
             return [
                 'amount' => $data->paid,
                 'payment_date_sql' => $data->date_paid,
-                'client_id' => $data->client_id,
+                'customer_id' => $data->client_id,
                 'invoice_id' => $data->invoice_id,
             ];
         });

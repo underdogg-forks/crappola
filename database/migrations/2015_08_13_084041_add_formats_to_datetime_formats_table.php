@@ -11,13 +11,13 @@ class AddFormatsToDatetimeFormatsTable extends Migration
      */
     public function up()
     {
-        DB::table('date_formats')
+        DB::table('lookup__dateformats')
             ->where('label', '20/03/2013')
             ->update(['label' => '20-03-2013']);
-        DB::table('datetime_formats')
+        DB::table('lookup__datetimeformats')
             ->where('label', '20/03/2013 6:15 pm')
             ->update(['label' => '20-03-2013 6:15 pm']);
-        Schema::table('datetime_formats', function (Blueprint $table) {
+        Schema::table('lookup__datetimeformats', function (Blueprint $table) {
             $table->string('format_moment');
         });
     }
@@ -29,7 +29,7 @@ class AddFormatsToDatetimeFormatsTable extends Migration
      */
     public function down()
     {
-        Schema::table('datetime_formats', function (Blueprint $table) {
+        Schema::table('lookup__datetimeformats', function (Blueprint $table) {
             $table->dropColumn('format_moment');
         });
     }

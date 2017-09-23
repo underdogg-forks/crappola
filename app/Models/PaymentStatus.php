@@ -8,6 +8,7 @@ use Eloquent;
  */
 class PaymentStatus extends Eloquent
 {
+    public $table = 'lookup__paymentstatuses';
     /**
      * @var bool
      */

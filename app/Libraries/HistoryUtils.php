@@ -34,7 +34,7 @@ class HistoryUtils
             ACTIVITY_TYPE_VIEW_QUOTE,
         ];
         $activities = Activity::with(['client.contacts', 'invoice', 'task', 'expense'])
-            ->whereIn('user_id', $userIds)
+            ->whereIn('staff_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'desc')
             ->limit(100)

@@ -28,7 +28,7 @@ class CreatePaymentRequest extends PaymentRequest
             ->firstOrFail();
         $this->merge([
             'invoice_id' => $invoice->id,
-            'client_id' => $invoice->client->id,
+            'customer_id' => $invoice->client->id,
         ]);
         $rules = [
             'client' => 'required', // TODO: change to client_id once views are updated

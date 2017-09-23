@@ -40,8 +40,8 @@ class ContactService extends BaseService
      */
     public function save($data, $contact = null)
     {
-        if (isset($data['client_id']) && $data['client_id']) {
-            $data['client_id'] = Client::getPrivateId($data['client_id']);
+        if (isset($data['customer_id']) && $data['customer_id']) {
+            $data['customer_id'] = Client::getPrivateId($data['customer_id']);
         }
         return $this->contactRepo->save($data, $contact);
     }

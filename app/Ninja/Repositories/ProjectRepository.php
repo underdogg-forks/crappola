@@ -21,7 +21,7 @@ class ProjectRepository extends BaseRepository
     {
         $query = DB::table('projects')
             ->where('projects.account_id', '=', Auth::user()->account_id)
-            ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
+            ->leftjoin('relations', 'clients.id', '=', 'projects.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
             ->where('clients.deleted_at', '=', null)
@@ -60,7 +60,7 @@ class ProjectRepository extends BaseRepository
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
         if (!$project) {
             $project = Project::createNew();
-            $project['client_id'] = $input['client_id'];
+            $project['customer_id'] = $input['customer_id'];
         }
         $project->fill($input);
         $project->save();

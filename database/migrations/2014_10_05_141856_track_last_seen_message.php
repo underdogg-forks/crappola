@@ -10,7 +10,7 @@ class TrackLastSeenMessage extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->unsignedInteger('news_feed_id')->nullable();
         });
         if (DB::table('payment_libraries')->count() > 0) {
@@ -33,7 +33,7 @@ class TrackLastSeenMessage extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('news_feed_id');
         });
     }

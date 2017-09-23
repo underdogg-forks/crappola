@@ -51,8 +51,8 @@ class InvoiceRepository extends BaseRepository
     {
         $query = DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
-            ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
+            ->join('relations', 'clients.id', '=', 'invoices.client_id')
+            ->join('lookup__invoicestatuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
             ->where('contacts.deleted_at', '=', null)
@@ -136,8 +136,8 @@ class InvoiceRepository extends BaseRepository
     {
         $query = DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
-            ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
+            ->join('relations', 'clients.id', '=', 'invoices.client_id')
+            ->join('lookup__invoicestatuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
             ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
@@ -197,7 +197,7 @@ class InvoiceRepository extends BaseRepository
         $query = DB::table('invitations')
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->join('relations', 'clients.id', '=', 'invoices.client_id')
             ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
             ->where('invitations.contact_id', '=', $contactId)
             ->where('invitations.deleted_at', '=', null)
@@ -255,7 +255,7 @@ class InvoiceRepository extends BaseRepository
         $query = DB::table('invitations')
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->join('relations', 'clients.id', '=', 'invoices.client_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invitations.contact_id', '=', $contactId)
             ->where('invitations.deleted_at', '=', null)
@@ -332,7 +332,7 @@ class InvoiceRepository extends BaseRepository
             } elseif (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_QUOTE;
             }
-            $invoice = $account->createInvoice($entityType, $data['client_id']);
+            $invoice = $account->createInvoice($entityType, $data['customer_id']);
             $invoice->invoice_date = date_create()->format('Y-m-d');
             $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
@@ -344,7 +344,7 @@ class InvoiceRepository extends BaseRepository
             }
             // set the default due date
             if ($entityType == ENTITY_INVOICE) {
-                $client = Client::scope()->whereId($data['client_id'])->first();
+                $client = Client::scope()->whereId($data['customer_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
         } else {
@@ -726,7 +726,7 @@ class InvoiceRepository extends BaseRepository
         $clone->invoice_date = date_create()->format('Y-m-d');
         $clone->due_date = $account->defaultDueDate($invoice->client);
         foreach ([
-                     'client_id',
+                     'customer_id',
                      'discount',
                      'is_amount_discount',
                      'po_number',
@@ -833,7 +833,7 @@ class InvoiceRepository extends BaseRepository
         }
         $invoice->markSentIfUnsent();
         $data = [
-            'client_id' => $invoice->client_id,
+            'customer_id' => $invoice->client_id,
             'invoice_id' => $invoice->id,
             'amount' => $invoice->balance,
         ];

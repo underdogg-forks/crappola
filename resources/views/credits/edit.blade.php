@@ -4,7 +4,7 @@
 
 
   {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-      'client_id' => 'required',
+      'customer_id' => 'required',
       'amount' => 'required',
   )) !!}
 
@@ -24,7 +24,7 @@
           @if ($credit)
             {!! Former::plaintext()->label('client')->value($client->present()->link) !!}
           @else
-            {!! Former::select('client_id')
+            {!! Former::select('customer_id')
                 ->label('client')
                 ->addOption('', '')
                 ->addGroupClass('client-select') !!}

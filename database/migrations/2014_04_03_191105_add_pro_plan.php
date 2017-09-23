@@ -10,7 +10,7 @@ class AddProPlan extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->date('pro_plan_paid')->nullable();
         });
     }
@@ -22,7 +22,7 @@ class AddProPlan extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('pro_plan_paid');
         });
     }

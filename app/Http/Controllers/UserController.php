@@ -62,7 +62,7 @@ class UserController extends BaseController
 
     public function edit($publicId)
     {
-        $user = User::where('account_id', '=', Auth::user()->account_id)
+        $user = User::where('company_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)
             ->withTrashed()
             ->firstOrFail();
@@ -113,7 +113,7 @@ class UserController extends BaseController
     {
         $action = Input::get('bulk_action');
         $id = Input::get('bulk_public_id');
-        $user = User::where('account_id', '=', Auth::user()->account_id)
+        $user = User::where('company_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $id)
             ->withTrashed()
             ->firstOrFail();
@@ -143,7 +143,7 @@ class UserController extends BaseController
                 'last_name' => 'required',
             ];
             if ($userPublicId) {
-                $user = User::where('account_id', '=', Auth::user()->account_id)
+                $user = User::where('company_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $userPublicId)
                     ->withTrashed()
                     ->firstOrFail();
@@ -173,7 +173,7 @@ class UserController extends BaseController
                     $user->permissions = Input::get('permissions');
                 }
             } else {
-                $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
+                $lastUser = User::withTrashed()->where('company_id', '=', Auth::user()->account_id)
                     ->orderBy('public_id', 'DESC')->first();
                 $user = new User();
                 $user->account_id = Auth::user()->account_id;
@@ -207,7 +207,7 @@ class UserController extends BaseController
 
     public function sendConfirmation($userPublicId)
     {
-        $user = User::where('account_id', '=', Auth::user()->account_id)
+        $user = User::where('company_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $userPublicId)->firstOrFail();
         $this->userMailer->sendConfirmation($user, Auth::user());
         Session::flash('message', trans('texts.sent_invite'));

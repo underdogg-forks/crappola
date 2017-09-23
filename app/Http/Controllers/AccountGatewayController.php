@@ -314,7 +314,7 @@ class AccountGatewayController extends BaseController
         }
         $wepay = Utils::setupWePay($accountGateway);
         $update_uri_data = $wepay->request('account/get_update_uri', [
-            'account_id' => $accountGateway->getConfig()->accountId,
+            'company_id' => $accountGateway->getConfig()->accountId,
             'mode' => 'iframe',
             'redirect_uri' => URL::to('/gateways'),
         ]);
@@ -350,7 +350,7 @@ class AccountGatewayController extends BaseController
         try {
             $wepay = Utils::setupWePay();
             $userDetails = [
-                'client_id' => WEPAY_CLIENT_ID,
+                'customer_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'email' => Input::get('email'),
                 'first_name' => Input::get('first_name'),
@@ -405,7 +405,7 @@ class AccountGatewayController extends BaseController
                 Session::flash('message', trans('texts.created_wepay_confirmation_required'));
             } else {
                 $updateUri = $wepay->request('/account/get_update_uri', [
-                    'account_id' => $wepayAccount->account_id,
+                    'company_id' => $wepayAccount->account_id,
                     'redirect_uri' => URL::to('gateways'),
                 ]);
                 $response = Redirect::to($updateUri->uri);

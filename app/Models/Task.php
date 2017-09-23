@@ -15,11 +15,13 @@ class Task extends EntityModel
     use SoftDeletes;
     use PresentableTrait;
 
+public $table = 'tickets';
+
     /**
      * @var array
      */
     protected $fillable = [
-        'client_id',
+        'customer_id',
         'description',
         'time_log',
         'is_running',

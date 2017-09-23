@@ -87,7 +87,7 @@ class BaseAPIController extends Controller
         if ($updatedAt = intval(Input::get('updated_at'))) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
-        if ($clientPublicId = Input::get('client_id')) {
+        if ($clientPublicId = Input::get('customer_id')) {
             $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
@@ -97,7 +97,7 @@ class BaseAPIController extends Controller
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
-                $query->where('user_id', '=', Auth::user()->id);
+                $query->where('staff_id', '=', Auth::user()->id);
             }
         }
         $data = $this->createCollection($query, $transformer, $this->entityType);
@@ -175,7 +175,7 @@ class BaseAPIController extends Controller
                 $data[] = 'invoices.invoice_items';
             } elseif ($include == 'client') {
                 $data[] = 'client.contacts';
-            } elseif ($include == 'clients') {
+            } elseif ($include == 'relations') {
                 $data[] = 'clients.contacts';
             } elseif ($include == 'vendors') {
                 $data[] = 'vendors.vendor_contacts';

@@ -77,7 +77,7 @@ class InvoiceService extends BaseService
                 $client = $this->clientRepo->save($data['client']);
             }
             if ($canSaveClient || $canViewClient) {
-                $data['client_id'] = $client->id;
+                $data['customer_id'] = $client->id;
             }
         }
         return $this->invoiceRepo->save($data, $invoice);

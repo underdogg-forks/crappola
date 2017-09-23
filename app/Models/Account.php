@@ -30,6 +30,8 @@ class Account extends Eloquent
     use SendsEmails;
     use HasLogo;
 
+    public $table = 'companies';
+
     /**
      * @var string
      */
@@ -383,7 +385,7 @@ class Account extends Eloquent
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense', 'account_id', 'id')->withTrashed();
+        return $this->hasMany('App\Models\Expense', 'company_id', 'id')->withTrashed();
     }
 
     /**
@@ -391,7 +393,7 @@ class Account extends Eloquent
      */
     public function payments()
     {
-        return $this->hasMany('App\Models\Payment', 'account_id', 'id')->withTrashed();
+        return $this->hasMany('App\Models\Payment', 'company_id', 'id')->withTrashed();
     }
 
     /**
@@ -407,7 +409,7 @@ class Account extends Eloquent
      */
     public function expense_categories()
     {
-        return $this->hasMany('App\Models\ExpenseCategory', 'account_id', 'id')->withTrashed();
+        return $this->hasMany('App\Models\ExpenseCategory', 'company_id', 'id')->withTrashed();
     }
 
     /**
@@ -415,7 +417,7 @@ class Account extends Eloquent
      */
     public function projects()
     {
-        return $this->hasMany('App\Models\Project', 'account_id', 'id')->withTrashed();
+        return $this->hasMany('App\Models\Project', 'company_id', 'id')->withTrashed();
     }
 
     /**
@@ -1151,7 +1153,7 @@ class Account extends Eloquent
      */
     public function getSubscription($eventId)
     {
-        return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
+        return Subscription::where('company_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
     }
 
     /**

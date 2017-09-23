@@ -94,7 +94,7 @@
           if (!email)return;
 
           WePay.bank_account.create({
-            'client_id': '{{ WEPAY_CLIENT_ID }}',
+            'customer_id': '{{ WEPAY_CLIENT_ID }}',
             'email': email
           }, function (data) {
             dataObj = JSON.parse(data);

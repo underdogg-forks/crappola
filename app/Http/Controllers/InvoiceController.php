@@ -119,7 +119,7 @@ class InvoiceController extends BaseController
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
         $data = [
-            'clients' => $clients->get(),
+            'relations' => $clients->get(),
             'entityType' => $entityType,
             'showBreadcrumbs' => $clone,
             'invoice' => $invoice,
@@ -139,7 +139,7 @@ class InvoiceController extends BaseController
         }
         // Set the invitation data on the client's contacts
         if (!$clone) {
-            $clients = $data['clients'];
+            $clients = $data['relations'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {
                     continue;
@@ -179,7 +179,7 @@ class InvoiceController extends BaseController
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
         $data = [
-            'clients' => $clients->get(),
+            'relations' => $clients->get(),
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
             'method' => 'POST',
@@ -469,7 +469,7 @@ class InvoiceController extends BaseController
                 ->where('invoice_id', '=', $invoice->id);
         }
         $activities = $activities->orderBy('id', 'desc')
-            ->get(['id', 'created_at', 'user_id', 'json_backup', 'activity_type_id', 'payment_id']);
+            ->get(['id', 'created_at', 'staff_id', 'json_backup', 'activity_type_id', 'payment_id']);
         $versionsJson = [];
         $versionsSelect = [];
         $lastId = false;

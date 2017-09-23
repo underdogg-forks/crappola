@@ -14,7 +14,7 @@ class AddHasTasksToInvoices extends Migration
             $table->boolean('has_tasks')->default(false);
         });
         $invoices = DB::table('invoices')
-            ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
+            ->join('tickets', 'tickets.invoice_id', '=', 'invoices.id')
             ->selectRaw('DISTINCT invoices.id')
             ->get();
         foreach ($invoices as $invoice) {

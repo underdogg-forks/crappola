@@ -10,13 +10,13 @@ class AddAdvancedSettings extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->string('primary_color')->nullable();
             $table->string('secondary_color')->nullable();
         });
-        Schema::table('payments', function ($table) {
-            $table->dropForeign('payments_invoice_id_foreign');
-            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+        Schema::table('customers__payments', function ($table) {
+            //$table->dropForeign('payments_invoice_id_foreign');
+            //$table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 
@@ -27,7 +27,7 @@ class AddAdvancedSettings extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('primary_color');
             $table->dropColumn('secondary_color');
         });

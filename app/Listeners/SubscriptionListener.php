@@ -138,7 +138,7 @@ class SubscriptionListener
             $resource = new Item($entity, $transformer, $entity->getEntityType());
             $data = $manager->createData($resource)->toArray();
             // For legacy Zapier support
-            if (isset($data['client_id'])) {
+            if (isset($data['customer_id'])) {
                 $data['client_name'] = $entity->client->getDisplayName();
             }
             Utils::notifyZapier($subscription, $data);

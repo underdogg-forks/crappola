@@ -56,7 +56,7 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'relations' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
         return View::make('credits.edit', $data);
     }
@@ -73,7 +73,7 @@ class CreditController extends BaseController
             'method' => 'PUT',
             'url' => 'credits/' . $publicId,
             'title' => 'Edit Credit',
-            'clients' => null,
+            'relations' => null,
         ];
         return View::make('credits.edit', $data);
     }

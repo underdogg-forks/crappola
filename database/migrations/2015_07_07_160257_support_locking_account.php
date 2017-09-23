@@ -10,7 +10,7 @@ class SupportLockingAccount extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->smallInteger('failed_logins')->nullable();
         });
         Schema::table('account_gateways', function ($table) {
@@ -26,7 +26,7 @@ class SupportLockingAccount extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
+        Schema::table('staff', function ($table) {
             $table->dropColumn('failed_logins');
         });
         Schema::table('account_gateways', function ($table) {

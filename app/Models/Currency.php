@@ -8,6 +8,7 @@ use Eloquent;
  */
 class Currency extends Eloquent
 {
+    public $table = 'lookup__currencies';
     /**
      * @var bool
      */

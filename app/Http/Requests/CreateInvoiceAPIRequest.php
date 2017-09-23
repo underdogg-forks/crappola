@@ -24,7 +24,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
     {
         $rules = [
             'email' => 'required_without:client_id',
-            'client_id' => 'required_without:email',
+            'customer_id' => 'required_without:email',
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,,id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',

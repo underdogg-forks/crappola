@@ -10,14 +10,14 @@ class AddDefaultQuoteTerms extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->text('quote_terms')->nullable();
         });
-        $accounts = DB::table('accounts')
+        $accounts = DB::table('companies')
             ->orderBy('id')
             ->get(['id', 'invoice_terms']);
         foreach ($accounts as $account) {
-            DB::table('accounts')
+            DB::table('companies')
                 ->where('id', $account->id)
                 ->update(['quote_terms' => $account->invoice_terms]);
         }
@@ -30,7 +30,7 @@ class AddDefaultQuoteTerms extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('quote_terms');
         });
     }

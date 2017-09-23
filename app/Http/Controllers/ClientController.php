@@ -133,7 +133,7 @@ class ClientController extends BaseController
         $data = [
             'client' => null,
             'method' => 'POST',
-            'url' => 'clients',
+            'url' => 'relations',
             'title' => trans('texts.new_client'),
         ];
         $data = array_merge($data, self::getViewModel());

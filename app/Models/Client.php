@@ -15,6 +15,9 @@ class Client extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
+    public $table = 'customers';
+
+
     /**
      * @var string
      */
@@ -268,7 +271,7 @@ class Client extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense', 'client_id', 'id')->withTrashed();
+        return $this->hasMany('App\Models\Expense', 'customer_id', 'id')->withTrashed();
     }
 
     /**
@@ -331,7 +334,7 @@ class Client extends EntityModel
     public function getTotalCredit()
     {
         return DB::table('credits')
-            ->where('client_id', '=', $this->id)
+            ->where('customer_id', '=', $this->id)
             ->whereNull('deleted_at')
             ->sum('balance');
     }

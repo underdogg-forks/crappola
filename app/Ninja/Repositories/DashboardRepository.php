@@ -113,7 +113,7 @@ class DashboardRepository
         $currencyId = intval($currencyId);
         $timeframe = 'concat(YEAR(' . $entityType . '_date), ' . $groupBy . '(' . $entityType . '_date))';
         $records = DB::table($entityType . 's')
-            ->leftJoin('clients', 'clients.id', '=', $entityType . 's.client_id')
+            ->leftJoin('relations', 'clients.id', '=', $entityType . 's.client_id')
             ->whereRaw('(clients.id IS NULL OR clients.is_deleted = 0)')
             ->where($entityType . 's.account_id', '=', $accountId)
             ->where($entityType . 's.is_deleted', '=', false)
@@ -153,7 +153,7 @@ class DashboardRepository
         );
         $metrics = DB::table('accounts')
             ->select($select)
-            ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
+            ->leftJoin('relations', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
@@ -183,7 +183,7 @@ class DashboardRepository
         $paidToDate = DB::table('payments')
             ->select($select)
             ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
-            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->leftJoin('relations', 'clients.id', '=', 'invoices.client_id')
             ->where('payments.account_id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
@@ -211,7 +211,7 @@ class DashboardRepository
         );
         $averageInvoice = DB::table('accounts')
             ->select($select)
-            ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
+            ->leftJoin('relations', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
@@ -238,7 +238,7 @@ class DashboardRepository
         );
         $balances = DB::table('accounts')
             ->select($select)
-            ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
+            ->leftJoin('relations', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
@@ -265,7 +265,7 @@ class DashboardRepository
     public function pastDue($accountId, $userId, $viewAll)
     {
         $pastDue = DB::table('invoices')
-            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->leftJoin('relations', 'clients.id', '=', 'invoices.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
             ->where('clients.deleted_at', '=', null)
@@ -290,7 +290,7 @@ class DashboardRepository
     public function upcoming($accountId, $userId, $viewAll)
     {
         $upcoming = DB::table('invoices')
-            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->leftJoin('relations', 'clients.id', '=', 'invoices.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
             ->where('clients.deleted_at', '=', null)
@@ -318,7 +318,7 @@ class DashboardRepository
     public function payments($accountId, $userId, $viewAll)
     {
         $payments = DB::table('payments')
-            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+            ->leftJoin('relations', 'clients.id', '=', 'payments.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->where('payments.account_id', '=', $accountId)

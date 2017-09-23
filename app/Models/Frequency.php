@@ -10,6 +10,7 @@ use Str;
  */
 class Frequency extends Eloquent
 {
+    public $table = 'lookup__frequencies';
     /**
      * @var bool
      */

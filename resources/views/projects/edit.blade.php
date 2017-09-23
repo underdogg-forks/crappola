@@ -7,7 +7,7 @@
             ->method($method)
             ->rules([
                 'name' => 'required',
-        'client_id' => 'required',
+        'customer_id' => 'required',
             ]) !!}
 
   @if ($project)
@@ -31,7 +31,7 @@
             {!! Former::plaintext('client_name')
                 ->value($project->client ? $project->client->present()->link : '') !!}
           @else
-            {!! Former::select('client_id')
+            {!! Former::select('customer_id')
                 ->addOption('', '')
                 ->label(trans('texts.client'))
                 ->addGroupClass('client-select') !!}

@@ -8,6 +8,7 @@ use Eloquent;
  */
 class Size extends Eloquent
 {
+    public $table = 'lookup__sizes';
     /**
      * @var bool
      */

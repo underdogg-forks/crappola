@@ -15,7 +15,7 @@ class LookupUser extends LookupModel
     protected $fillable = [
         'lookup_account_id',
         'email',
-        'user_id',
+        'staff_id',
         'confirmation_code',
         'oauth_user_key',
         'referral_code',

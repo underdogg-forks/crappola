@@ -275,7 +275,7 @@ Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], func
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
-    Route::resource('clients', 'ClientApiController');
+    Route::resource('relations', 'ClientApiController');
     Route::resource('contacts', 'ContactApiController');
     Route::get('quotes', 'QuoteApiController@index');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');

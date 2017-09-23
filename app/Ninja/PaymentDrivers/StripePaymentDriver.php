@@ -210,10 +210,10 @@ class StripePaymentDriver extends BasePaymentDriver
                     'allow_redirects' => false,
                     'headers' => ['content-type' => 'application/x-www-form-urlencoded'],
                     'body' => http_build_query([
-                        'client_id' => $clientId,
+                        'customer_id' => $clientId,
                         'secret' => $secret,
                         'public_token' => $publicToken,
-                        'account_id' => $accountId,
+                        'company_id' => $accountId,
                     ]),
                 ]
             );

@@ -17,7 +17,7 @@ class CreditRepository extends BaseRepository
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
-            ->join('clients', 'clients.id', '=', 'credits.client_id')
+            ->join('relations', 'clients.id', '=', 'credits.client_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('clients.account_id', '=', \Auth::user()->account_id)
             ->where('contacts.deleted_at', '=', null)
@@ -60,7 +60,7 @@ class CreditRepository extends BaseRepository
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
-            ->join('clients', 'clients.id', '=', 'credits.client_id')
+            ->join('relations', 'clients.id', '=', 'credits.client_id')
             ->where('credits.client_id', '=', $clientId)
             ->where('clients.deleted_at', '=', null)
             ->where('credits.deleted_at', '=', null)
@@ -100,7 +100,7 @@ class CreditRepository extends BaseRepository
         } else {
             $credit = Credit::createNew();
             $credit->balance = Utils::parseFloat($input['amount']);
-            $credit->client_id = Client::getPrivateId($input['client_id']);
+            $credit->client_id = Client::getPrivateId($input['customer_id']);
             $credit->credit_date = date('Y-m-d');
         }
         $credit->fill($input);

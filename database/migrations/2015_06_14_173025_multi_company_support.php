@@ -17,11 +17,11 @@ class MultiCompanySupport extends Migration
             $table->unsignedInteger('user_id3')->nullable();
             $table->unsignedInteger('user_id4')->nullable();
             $table->unsignedInteger('user_id5')->nullable();
-            $table->foreign('user_id1')->references('id')->on('users');
-            $table->foreign('user_id2')->references('id')->on('users');
-            $table->foreign('user_id3')->references('id')->on('users');
-            $table->foreign('user_id4')->references('id')->on('users');
-            $table->foreign('user_id5')->references('id')->on('users');
+            //$table->foreign('user_id1')->references('id')->on('staff');
+            //$table->foreign('user_id2')->references('id')->on('staff');
+            //$table->foreign('user_id3')->references('id')->on('staff');
+            //$table->foreign('user_id4')->references('id')->on('staff');
+            //$table->foreign('user_id5')->references('id')->on('staff');
         });
     }
 

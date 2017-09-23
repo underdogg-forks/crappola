@@ -40,14 +40,14 @@ class UserTableSeeder extends Seeder
             'pdf_email_attachment' => true,
         ]);
         $emailSettings = AccountEmailSettings::create([
-            'account_id' => $account->id
+            'company_id' => $account->id
         ]);
         $user = User::create([
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
             'email' => TEST_USERNAME,
             'username' => TEST_USERNAME,
-            'account_id' => $account->id,
+            'company_id' => $account->id,
             'password' => Hash::make(TEST_PASSWORD),
             'registered' => true,
             'confirmed' => true,
@@ -56,8 +56,8 @@ class UserTableSeeder extends Seeder
             'is_admin' => 1,
         ]);
         $client = Client::create([
-            'user_id' => $user->id,
-            'account_id' => $account->id,
+            'staff_id' => $user->id,
+            'company_id' => $account->id,
             'public_id' => 1,
             'name' => $faker->name,
             'address1' => $faker->streetAddress,
@@ -69,9 +69,9 @@ class UserTableSeeder extends Seeder
             'currency_id' => DEFAULT_CURRENCY,
         ]);
         Contact::create([
-            'user_id' => $user->id,
-            'account_id' => $account->id,
-            'client_id' => $client->id,
+            'staff_id' => $user->id,
+            'company_id' => $account->id,
+            'customer_id' => $client->id,
             'public_id' => 1,
             'email' => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary' => true,
@@ -79,15 +79,15 @@ class UserTableSeeder extends Seeder
             'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
         Product::create([
-            'user_id' => $user->id,
-            'account_id' => $account->id,
+            'staff_id' => $user->id,
+            'company_id' => $account->id,
             'public_id' => 1,
             'product_key' => 'ITEM',
             'notes' => 'Something nice...',
             'cost' => 10,
         ]);
-        Affiliate::create([
+        /*Affiliate::create([
             'affiliate_key' => SELF_HOST_AFFILIATE_KEY,
-        ]);
+        ]);*/
     }
 }

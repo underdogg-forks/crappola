@@ -33,7 +33,7 @@ class ReportController extends BaseController
             $clients = '[]';
         }
         $data = [
-            'clients' => $clients,
+            'relations' => $clients,
             'message' => $message,
         ];
         return View::make('reports.d3', $data);

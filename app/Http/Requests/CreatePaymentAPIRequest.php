@@ -33,7 +33,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
             ->firstOrFail();
         $this->merge([
             'invoice_id' => $invoice->id,
-            'client_id' => $invoice->client->id,
+            'customer_id' => $invoice->client->id,
         ]);
         $rules = [
             'amount' => 'required|numeric|not_in:0',

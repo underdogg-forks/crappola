@@ -10,7 +10,7 @@ class AllowNullClientCurrency extends Migration
      */
     public function up()
     {
-        Schema::table('clients', function ($table) {
+        Schema::table('relations', function ($table) {
             //DB::statement('ALTER TABLE `clients` MODIFY `currency_id` INTEGER UNSIGNED NULL;');
         });
     }

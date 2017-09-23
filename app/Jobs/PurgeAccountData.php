@@ -43,10 +43,10 @@ class PurgeAccountData extends Job
             'vendor_contacts',
             'vendors',
             'contacts',
-            'clients',
+            'relations',
         ];
         foreach ($tables as $table) {
-            DB::table($table)->where('account_id', '=', $user->account_id)->delete();
+            DB::table($table)->where('company_id', '=', $user->account_id)->delete();
         }
         $account->invoice_number_counter = 1;
         $account->quote_number_counter = 1;

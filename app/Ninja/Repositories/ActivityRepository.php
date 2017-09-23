@@ -60,7 +60,7 @@ class ActivityRepository
         return DB::table('activities')
             ->join('accounts', 'accounts.id', '=', 'activities.account_id')
             ->join('users', 'users.id', '=', 'activities.user_id')
-            ->join('clients', 'clients.id', '=', 'activities.client_id')
+            ->join('relations', 'clients.id', '=', 'activities.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
             ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')

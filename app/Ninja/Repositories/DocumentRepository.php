@@ -25,9 +25,9 @@ class DocumentRepository extends BaseRepository
     public function find()
     {
         $accountid = \Auth::user()->account_id;
-        $query = DB::table('clients')
+        $query = DB::table('relations')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
-            ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
+            ->leftjoin('relations', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
             ->select(
                 'documents.account_id',
@@ -160,7 +160,7 @@ class DocumentRepository extends BaseRepository
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
             ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->join('relations', 'clients.id', '=', 'invoices.client_id')
             ->where('invitations.contact_id', '=', $contactId)
             ->where('invitations.deleted_at', '=', null)
             ->where('invoices.is_deleted', '=', false)

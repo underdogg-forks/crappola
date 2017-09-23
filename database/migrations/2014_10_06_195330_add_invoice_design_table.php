@@ -13,7 +13,7 @@ class AddInvoiceDesignTable extends Migration
         Schema::table('invoice_designs', function ($table) {
             $table->mediumText('javascript')->nullable();
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->text('invoice_design')->nullable();
         });
         DB::table('invoice_designs')->where('id', 1)->update([
@@ -496,7 +496,7 @@ class AddInvoiceDesignTable extends Migration
         Schema::table('invoice_designs', function ($table) {
             $table->dropColumn('javascript');
         });
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('invoice_design');
         });
     }

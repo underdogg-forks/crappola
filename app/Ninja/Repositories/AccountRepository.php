@@ -85,7 +85,7 @@ class AccountRepository
     {
         $account = $user->account;
         $data = [
-            'clients' => [],
+            'relations' => [],
             'contacts' => [],
             'invoices' => [],
             'quotes' => [],
@@ -103,14 +103,14 @@ class AccountRepository
                 ->get();
         } else {
             $clients = Client::scope()
-                ->where('user_id', '=', $user->id)
+                ->where('staff_id', '=', $user->id)
                 ->with(['contacts', 'invoices' => function ($query) use ($user) {
-                    $query->where('user_id', '=', $user->id);
+                    $query->where('staff_id', '=', $user->id);
                 }])->get();
         }
         foreach ($clients as $client) {
             if ($client->name) {
-                $data['clients'][] = [
+                $data['relations'][] = [
                     'value' => ($account->clientNumbersEnabled() && $client->id_number ? $client->id_number . ': ' : '') . $client->name,
                     'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
                     'url' => $client->present()->url,

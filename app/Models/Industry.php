@@ -8,6 +8,7 @@ use Eloquent;
  */
 class Industry extends Eloquent
 {
+    public $table = 'lookup__industries';
     /**
      * @var bool
      */

@@ -19,11 +19,11 @@ class PaymentRepository extends BaseRepository
     {
         $query = DB::table('payments')
             ->join('accounts', 'accounts.id', '=', 'payments.account_id')
-            ->join('clients', 'clients.id', '=', 'payments.client_id')
+            ->join('relations', 'clients.id', '=', 'payments.client_id')
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
-            ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+            ->leftJoin('lookup__payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
             ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
             ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
             ->where('payments.account_id', '=', \Auth::user()->account_id)
@@ -92,7 +92,7 @@ class PaymentRepository extends BaseRepository
     {
         $query = DB::table('payments')
             ->join('accounts', 'accounts.id', '=', 'payments.account_id')
-            ->join('clients', 'clients.id', '=', 'payments.client_id')
+            ->join('relations', 'clients.id', '=', 'payments.client_id')
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
@@ -100,7 +100,7 @@ class PaymentRepository extends BaseRepository
                 $join->on('invitations.invoice_id', '=', 'invoices.id')
                     ->on('invitations.contact_id', '=', 'contacts.id');
             })
-            ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+            ->leftJoin('lookup__payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
             ->where('clients.is_deleted', '=', false)
             ->where('payments.is_deleted', '=', false)
             ->where('invitations.deleted_at', '=', null)
@@ -180,10 +180,10 @@ class PaymentRepository extends BaseRepository
             $payment->private_notes = trim($input['private_notes']);
         }
         if (!$publicId) {
-            $clientId = $input['client_id'];
+            $clientId = $input['customer_id'];
             $amount = Utils::parseFloat($input['amount']);
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
-                $credits = Credit::scope()->where('client_id', '=', $clientId)
+                $credits = Credit::scope()->where('customer_id', '=', $clientId)
                     ->where('balance', '>', 0)->orderBy('created_at')->get();
                 $remaining = $amount;
                 foreach ($credits as $credit) {

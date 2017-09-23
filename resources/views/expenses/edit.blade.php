@@ -70,7 +70,7 @@
                     ->label('client')
                     ->value($expense->client->present()->link)  !!}
           @else
-            {!! Former::select('client_id')
+            {!! Former::select('customer_id')
                     ->addOption('', '')
                     ->label(trans('texts.client'))
                     ->data_bind('combobox: client_id')

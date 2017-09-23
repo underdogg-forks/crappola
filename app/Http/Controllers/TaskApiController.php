@@ -102,8 +102,8 @@ class TaskApiController extends BaseAPIController
     {
         $data = Input::all();
         $taskId = isset($data['id']) ? $data['id'] : false;
-        if (isset($data['client_id']) && $data['client_id']) {
-            $data['client'] = $data['client_id'];
+        if (isset($data['customer_id']) && $data['customer_id']) {
+            $data['client'] = $data['customer_id'];
         }
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();

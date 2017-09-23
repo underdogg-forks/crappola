@@ -55,7 +55,7 @@ class EntityTransformer extends TransformerAbstract
             'is_owner' => (bool)(Auth::check() && Auth::user()->owns($entity)),
         ];
         if ($entity->relationLoaded('user')) {
-            $data['user_id'] = (int)$entity->user->public_id + 1;
+            $data['staff_id'] = (int)$entity->user->public_id + 1;
         }
         return $data;
     }

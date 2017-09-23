@@ -20,7 +20,7 @@ class PaymentTransformer extends BaseTransformer
             return [
                 'amount' => (float)$data->paid_to_date,
                 'payment_date_sql' => $this->getDate($data, 'date'),
-                'client_id' => $data->client_id,
+                'customer_id' => $data->client_id,
                 'invoice_id' => $data->invoice_id,
             ];
         });

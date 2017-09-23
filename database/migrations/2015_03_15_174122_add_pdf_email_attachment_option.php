@@ -10,7 +10,7 @@ class AddPdfEmailAttachmentOption extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->smallInteger('pdf_email_attachment')->default(0);
         });
     }
@@ -22,7 +22,7 @@ class AddPdfEmailAttachmentOption extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('pdf_email_attachment');
         });
     }

@@ -41,7 +41,7 @@ class ResetData extends Command
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
-            ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+            ['customer_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }

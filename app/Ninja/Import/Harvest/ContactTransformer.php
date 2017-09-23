@@ -21,7 +21,7 @@ class ContactTransformer extends BaseTransformer
         }
         return new Item($data, function ($data) {
             return [
-                'client_id' => $this->getClientId($data->client),
+                'customer_id' => $this->getClientId($data->client),
                 'first_name' => $this->getString($data, 'first_name'),
                 'last_name' => $this->getString($data, 'last_name'),
                 'email' => $this->getString($data, 'email'),

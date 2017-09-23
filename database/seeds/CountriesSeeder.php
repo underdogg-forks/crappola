@@ -18,7 +18,7 @@ class CountriesSeeder extends Seeder
                 $record->full_name = ((isset($country['full_name'])) ? $country['full_name'] : null);
                 $record->save();
             } else {
-                DB::table('countries')->insert([
+                DB::table('lookup__countries')->insert([
                     'id' => $countryId,
                     'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
                     'citizenship' => ((isset($country['citizenship'])) ? $country['citizenship'] : null),
@@ -38,7 +38,7 @@ class CountriesSeeder extends Seeder
         }
         // Source: http://www.bitboost.com/ref/international-address-formats.html
         // Source: https://en.wikipedia.org/wiki/Linguistic_issues_concerning_the_euro
-        $countries = [
+        /*$countries = [
             'AR' => [
                 'swap_postal_code' => true,
             ],
@@ -170,6 +170,6 @@ class CountriesSeeder extends Seeder
                 $country->decimal_separator = $data['decimal_separator'];
             }
             $country->save();
-        }
+        }*/
     }
 }
