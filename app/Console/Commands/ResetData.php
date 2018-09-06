@@ -14,7 +14,7 @@ class ResetData extends Command
      * @var string
      */
     protected $name = 'ninja:reset-data';
-    
+
     /**
      * @var string
      */

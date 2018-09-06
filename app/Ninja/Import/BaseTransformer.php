@@ -120,7 +120,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getDate($date, $format = 'Y-m-d')
     {
-        if ( ! $date instanceof DateTime) {
+        if (!$date instanceof DateTime) {
             $date = DateTime::createFromFormat($format, $date);
         }
 
@@ -174,7 +174,7 @@ class BaseTransformer extends TransformerAbstract
     protected function getInvoiceClientId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
-        return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
+        return isset($this->maps[ENTITY_INVOICE . '_' . ENTITY_CLIENT][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE . '_' . ENTITY_CLIENT][$invoiceNumber] : null;
     }
 
 

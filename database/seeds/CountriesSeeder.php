@@ -1,8 +1,10 @@
 <?php
+
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use App\Models\Country;
 
-class CountriesSeeder extends Seeder {
+class CountriesSeeder extends Seeder
+{
 
     /**
      * Run the database seeds.
@@ -17,7 +19,7 @@ class CountriesSeeder extends Seeder {
         if (DB::table('countries')->count() == 0) {
             //Get all of the countries
             $countries = Countries::getList();
-            foreach ($countries as $countryId => $country){
+            foreach ($countries as $countryId => $country) {
                 DB::table('countries')->insert(array(
                     'id' => $countryId,
                     'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
@@ -36,7 +38,7 @@ class CountriesSeeder extends Seeder {
                 ));
             }
         }
-        
+
         // Source: http://www.bitboost.com/ref/international-address-formats.html
         // Source: https://en.wikipedia.org/wiki/Linguistic_issues_concerning_the_euro
         $countries = [

@@ -17,41 +17,6 @@ class Client extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ClientPresenter';
-
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
-    protected $fillable = [
-        'name',
-        'id_number',
-        'vat_number',
-        'work_phone',
-        'custom_value1',
-        'custom_value2',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postal_code',
-        'country_id',
-        'private_notes',
-        'size_id',
-        'industry_id',
-        'currency_id',
-        'language_id',
-        'payment_terms',
-        'website',
-    ];
-
-    /**
-     * @var string
-     */
     public static $fieldName = 'name';
     /**
      * @var string
@@ -89,6 +54,38 @@ class Client extends EntityModel
      * @var string
      */
     public static $fieldWebsite = 'website';
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ClientPresenter';
+    /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'id_number',
+        'vat_number',
+        'work_phone',
+        'custom_value1',
+        'custom_value2',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'private_notes',
+        'size_id',
+        'industry_id',
+        'currency_id',
+        'language_id',
+        'payment_terms',
+        'website',
+    ];
 
     /**
      * @return array
@@ -228,7 +225,7 @@ class Client extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense','client_id','id')->withTrashed();
+        return $this->hasMany('App\Models\Expense', 'client_id', 'id')->withTrashed();
     }
 
     /**
@@ -247,11 +244,13 @@ class Client extends EntityModel
             $contact->send_invoice = true;
         }
 
-        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
-            if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
+        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password) {
+            if (!empty($data['password']) && $data['password'] != '-%unchanged%-') {
                 $contact->password = bcrypt($data['password']);
-            } else if(empty($data['password'])){
-                $contact->password = null;
+            } else {
+                if (empty($data['password'])) {
+                    $contact->password = null;
+                }
             }
         }
 
@@ -291,9 +290,9 @@ class Client extends EntityModel
     public function getTotalCredit()
     {
         return DB::table('credits')
-                ->where('client_id', '=', $this->id)
-                ->whereNull('deleted_at')
-                ->sum('balance');
+            ->where('client_id', '=', $this->id)
+            ->whereNull('deleted_at')
+            ->sum('balance');
     }
 
     /**
@@ -310,8 +309,8 @@ class Client extends EntityModel
     public function getPrimaryContact()
     {
         return $this->contacts()
-                    ->whereIsPrimary(true)
-                    ->first();
+            ->whereIsPrimary(true)
+            ->first();
     }
 
     /**
@@ -323,7 +322,7 @@ class Client extends EntityModel
             return $this->name;
         }
 
-        if ( ! count($this->contacts)) {
+        if (!count($this->contacts)) {
             return '';
         }
 
@@ -390,7 +389,7 @@ class Client extends EntityModel
     {
         $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
 
-        if ( ! $accountGateway) {
+        if (!$accountGateway) {
             return false;
         }
 
@@ -483,7 +482,8 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAutoBillConfigurableInvoices(){
+    public function hasAutoBillConfigurableInvoices()
+    {
         return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
     }
 }

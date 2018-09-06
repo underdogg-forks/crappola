@@ -16,22 +16,23 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])) {
                         return $model->invoice_number;
                     }
 
-                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
+                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number,
+                        ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
-                ! $this->hideClient
+                !$this->hideClient
             ],
             [
                 'invoice_date',
@@ -50,8 +51,11 @@ class InvoiceDatatable extends EntityDatatable
                 function ($model) {
                     return $model->partial > 0 ?
                         trans('texts.partial_remaining', [
-                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)]
+                                'partial' => Utils::formatMoney($model->partial, $model->currency_id,
+                                    $model->country_id),
+                                'balance' => Utils::formatMoney($model->balance, $model->currency_id,
+                                    $model->country_id)
+                            ]
                         ) :
                         Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 },
@@ -66,7 +70,8 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'invoice_status_name',
                 function ($model) use ($entityType) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit",
+                        trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
                 }
             ]
         ];
@@ -102,9 +107,13 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--',
+                function () {
+                    return false;
+                },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) || Auth::user()->can('create', ENTITY_PAYMENT);
+                    return Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->user_id]) || Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ],
             [
@@ -113,7 +122,8 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:markEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -122,7 +132,8 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create', ENTITY_PAYMENT);
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create',
+                            ENTITY_PAYMENT);
                 }
             ],
             [
@@ -131,7 +142,8 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("quotes/{$model->quote_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->quote_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_INVOICE && $model->quote_id && Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -140,7 +152,8 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -149,7 +162,8 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:convertEntity({$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_QUOTE && !$model->quote_invoice_id && Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->user_id]);
                 }
             ]
         ];
@@ -186,7 +200,7 @@ class InvoiceDatatable extends EntityDatatable
                 $class = 'success';
                 break;
         }
-        
+
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 

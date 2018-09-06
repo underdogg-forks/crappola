@@ -34,7 +34,8 @@ class AccountApiController extends BaseAPIController
     public function register(RegisterRequest $request)
     {
 
-        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
+        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email,
+            $request->password);
         $user = $account->users()->first();
 
         Auth::login($user, true);
@@ -49,21 +50,8 @@ class AccountApiController extends BaseAPIController
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
-            return $this->errorResponse(['message'=>'Invalid credentials'],401);
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
-    }
-
-    private function processLogin(Request $request)
-    {
-        // Create a new token only if one does not already exist
-        $user = Auth::user();
-        $this->accountRepo->createTokens($user, $request->token_name);
-
-        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
-        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
-        $data = $this->createCollection($users, $transformer, 'user_account');
-
-        return $this->response($data);
     }
 
     public function show(Request $request)
@@ -111,20 +99,19 @@ class AccountApiController extends BaseAPIController
         $account = Auth::user()->account;
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
-        $devices = json_decode($account->devices,TRUE);
+        $devices = json_decode($account->devices, true);
 
 
-            for($x=0; $x<count($devices); $x++)
-            {
-                if ($devices[$x]['email'] == Auth::user()->username) {
-                    $devices[$x]['token'] = $request->token; //update
-                    $account->devices = json_encode($devices);
-                    $account->save();
-                    $devices[$x]['account_key'] = $account->account_key;
+        for ($x = 0; $x < count($devices); $x++) {
+            if ($devices[$x]['email'] == Auth::user()->username) {
+                $devices[$x]['token'] = $request->token; //update
+                $account->devices = json_encode($devices);
+                $account->save();
+                $devices[$x]['account_key'] = $account->account_key;
 
-                    return $this->response($devices[$x]);
-                }
+                return $this->response($devices[$x]);
             }
+        }
 
         //User does not have a device, create new record
 
@@ -133,10 +120,10 @@ class AccountApiController extends BaseAPIController
             'email' => $request->email,
             'device' => $request->device,
             'account_key' => $account->account_key,
-            'notify_sent' => TRUE,
-            'notify_viewed' => TRUE,
-            'notify_approved' => TRUE,
-            'notify_paid' => TRUE,
+            'notify_sent' => true,
+            'notify_viewed' => true,
+            'notify_approved' => true,
+            'notify_paid' => true,
         ];
 
         $devices[] = $newDevice;
@@ -151,15 +138,14 @@ class AccountApiController extends BaseAPIController
     {
         $account = Auth::user()->account;
 
-        $devices = json_decode($account->devices, TRUE);
+        $devices = json_decode($account->devices, true);
 
-        if(count($devices) < 1)
-            return $this->errorResponse(['message'=>'No registered devices.'], 400);
+        if (count($devices) < 1) {
+            return $this->errorResponse(['message' => 'No registered devices.'], 400);
+        }
 
-        for($x=0; $x<count($devices); $x++)
-        {
-            if($devices[$x]['email'] == Auth::user()->username)
-            {
+        for ($x = 0; $x < count($devices); $x++) {
+            if ($devices[$x]['email'] == Auth::user()->username) {
 
                 $newDevice = [
                     'token' => $devices[$x]['token'],
@@ -180,5 +166,18 @@ class AccountApiController extends BaseAPIController
             }
         }
 
+    }
+
+    private function processLogin(Request $request)
+    {
+        // Create a new token only if one does not already exist
+        $user = Auth::user();
+        $this->accountRepo->createTokens($user, $request->token_name);
+
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
+        $data = $this->createCollection($users, $transformer, 'user_account');
+
+        return $this->response($data);
     }
 }

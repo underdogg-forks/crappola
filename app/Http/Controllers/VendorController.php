@@ -42,13 +42,13 @@ class VendorController extends BaseController
             'title' => trans('texts.vendors'),
             'sortCol' => '4',
             'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'city',
-              'phone',
-              'email',
-              'date_created',
-              ''
+                'checkbox',
+                'vendor',
+                'city',
+                'phone',
+                'email',
+                'date_created',
+                ''
             ]),
         ]);
     }
@@ -75,13 +75,13 @@ class VendorController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param  int $id
      * @return Response
      */
     public function show(VendorRequest $request)
     {
         $vendor = $request->entity();
-                
+
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
@@ -89,14 +89,14 @@ class VendorController extends BaseController
         ];
 
         $data = [
-            'actionLinks'           => $actionLinks,
-            'showBreadcrumbs'       => false,
-            'vendor'                => $vendor,
-            'totalexpense'          => $vendor->getTotalExpense(),
-            'title'                 => trans('texts.view_vendor'),
-            'hasRecurringInvoices'  => false,
-            'hasQuotes'             => false,
-            'hasTasks'          => false,
+            'actionLinks' => $actionLinks,
+            'showBreadcrumbs' => false,
+            'vendor' => $vendor,
+            'totalexpense' => $vendor->getTotalExpense(),
+            'title' => trans('texts.view_vendor'),
+            'hasRecurringInvoices' => false,
+            'hasQuotes' => false,
+            'hasTasks' => false,
         ];
 
         return View::make('vendors.show', $data);
@@ -110,7 +110,10 @@ class VendorController extends BaseController
     public function create(VendorRequest $request)
     {
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors().' vendors']);
+            return View::make('error', [
+                'hideHeader' => true,
+                'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumVendors() . ' vendors'
+            ]);
         }
 
         $data = [
@@ -128,17 +131,17 @@ class VendorController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
+     * @param  int $id
      * @return Response
      */
     public function edit(VendorRequest $request)
     {
         $vendor = $request->entity();
-        
+
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',
-            'url' => 'vendors/'.$vendor->public_id,
+            'url' => 'vendors/' . $vendor->public_id,
             'title' => trans('texts.edit_vendor'),
         ];
 
@@ -166,7 +169,7 @@ class VendorController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param  int $id
      * @return Response
      */
     public function update(UpdateVendorRequest $request)
@@ -184,7 +187,7 @@ class VendorController extends BaseController
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
-        $message = Utils::pluralize($action.'d_vendor', $count);
+        $message = Utils::pluralize($action . 'd_vendor', $count);
         Session::flash('message', $message);
 
         if ($action == 'restore' && $count == 1) {

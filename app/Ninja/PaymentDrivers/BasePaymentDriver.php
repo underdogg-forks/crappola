@@ -131,7 +131,7 @@ class BasePaymentDriver
         }
 
         $data = [
-            'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
+            'details' => !empty($input['details']) ? json_decode($input['details']) : false,
             'accountGateway' => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
             'gateway' => $gateway,
@@ -158,7 +158,8 @@ class BasePaymentDriver
     // check if a custom view exists for this provider
     protected function paymentView()
     {
-        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(), $this->gatewayType);
+        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(),
+            $this->gatewayType);
 
         if (file_exists($file)) {
             return sprintf('payments.%s/%s', $this->providerName(), $this->gatewayType);
@@ -191,7 +192,7 @@ class BasePaymentDriver
             ]);
 
             // TODO check this is always true
-            if ( ! $this->tokenize()) {
+            if (!$this->tokenize()) {
                 $rules = array_merge($rules, [
                     'card_number' => 'required',
                     'expiration_month' => 'required',
@@ -221,7 +222,7 @@ class BasePaymentDriver
         }
 
         $this->gateway = Omnipay::create($this->accountGateway->gateway->provider);
-        $this->gateway->initialize((array) $this->accountGateway->getConfig());
+        $this->gateway->initialize((array)$this->accountGateway->getConfig());
 
         return $this->gateway;
     }
@@ -237,7 +238,7 @@ class BasePaymentDriver
 
         // load or create token
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
-            if ( ! $paymentMethod) {
+            if (!$paymentMethod) {
                 $paymentMethod = PaymentMethod::clientId($this->client()->id)
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
@@ -253,7 +254,7 @@ class BasePaymentDriver
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
         $response = $gateway->purchase($data)->send();
-        $this->purchaseResponse = (array) $response->getData();
+        $this->purchaseResponse = (array)$response->getData();
 
         // parse the transaction reference
         if ($this->transactionReferenceParam) {
@@ -287,17 +288,17 @@ class BasePaymentDriver
 
     private function updateClient()
     {
-        if ( ! $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
+        if (!$this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             return;
         }
 
         // update the contact info
-        if ( ! $this->contact()->getFullName()) {
+        if (!$this->contact()->getFullName()) {
             $this->contact()->first_name = $this->input['first_name'];
             $this->contact()->last_name = $this->input['last_name'];
         }
 
-        if ( ! $this->contact()->email) {
+        if (!$this->contact()->email) {
             $this->contact()->email = $this->input['email'];
         }
 
@@ -305,7 +306,7 @@ class BasePaymentDriver
             $this->contact()->save();
         }
 
-        if ( ! $this->accountGateway->show_address || ! $this->accountGateway->update_address) {
+        if (!$this->accountGateway->show_address || !$this->accountGateway->update_address) {
             return;
         }
 
@@ -427,7 +428,7 @@ class BasePaymentDriver
             return true;
         }
 
-        if ( ! $this->handles(GATEWAY_TYPE_TOKEN)) {
+        if (!$this->handles(GATEWAY_TYPE_TOKEN)) {
             return false;
         }
 
@@ -457,13 +458,13 @@ class BasePaymentDriver
             return $this->customer;
         }
 
-        if ( ! $clientId) {
+        if (!$clientId) {
             $clientId = $this->client()->id;
         }
 
         $this->customer = AccountGatewayToken::clientAndGateway($clientId, $this->accountGateway->id)
-                            ->with('payment_methods')
-                            ->first();
+            ->with('payment_methods')
+            ->first();
 
         if ($this->customer && $this->invitation) {
             $this->customer = $this->checkCustomerExists($this->customer) ? $this->customer : null;
@@ -497,7 +498,7 @@ class BasePaymentDriver
     {
         $account = $this->account();
 
-        if ( ! $customer = $this->customer()) {
+        if (!$customer = $this->customer()) {
             $customer = new AccountGatewayToken();
             $customer->account_id = $account->id;
             $customer->contact_id = $this->invitation->contact_id;
@@ -618,7 +619,7 @@ class BasePaymentDriver
                 $account = Account::with('users')->find($invoice->client->public_id);
                 $company = $account->company;
 
-                if(
+                if (
                     $company->plan != $plan
                     || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
                 ) {
@@ -666,7 +667,7 @@ class BasePaymentDriver
             $amount = $payment->getCompletedAmount();
         }
 
-        if ( ! $amount) {
+        if (!$amount) {
             return false;
         }
 
@@ -722,20 +723,20 @@ class BasePaymentDriver
 
             if ($response->isCancelled()) {
                 return false;
-            } elseif ( ! $response->isSuccessful()) {
+            } elseif (!$response->isSuccessful()) {
                 throw new Exception($response->getMessage());
             }
         }
 
         // check invoice still has balance
-        if ( ! floatval($this->invoice()->balance)) {
+        if (!floatval($this->invoice()->balance)) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
         }
 
         // check this isn't a duplicate transaction reference
         if (Payment::whereAccountId($this->invitation->account_id)
-                ->whereTransactionReference($ref)
-                ->first()) {
+            ->whereTransactionReference($ref)
+            ->first()) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'DT']));
         }
 
@@ -744,7 +745,7 @@ class BasePaymentDriver
 
     public function tokenLinks()
     {
-        if ( ! $this->customer()) {
+        if (!$this->customer()) {
             return [];
         }
 
@@ -756,7 +757,7 @@ class BasePaymentDriver
                 continue;
             }
 
-            $url = URL::to("/payment/{$this->invitation->invitation_key}/token/".$paymentMethod->public_id);
+            $url = URL::to("/payment/{$this->invitation->invitation_key}/token/" . $paymentMethod->public_id);
 
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
                 if ($paymentMethod->bank_name) {
@@ -814,7 +815,8 @@ class BasePaymentDriver
         return $url;
     }
 
-    protected function parseCardType($cardName) {
+    protected function parseCardType($cardName)
+    {
         $cardTypes = [
             'visa' => PAYMENT_TYPE_VISA,
             'americanexpress' => PAYMENT_TYPE_AMERICAN_EXPRESS,
@@ -834,7 +836,8 @@ class BasePaymentDriver
 
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
-        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
+        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/',
+                $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }

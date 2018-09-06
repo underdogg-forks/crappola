@@ -10,7 +10,8 @@ use App\Ninja\Repositories\AccountRepository;
 /**
  * Class HandleUserLoggedIn
  */
-class HandleUserLoggedIn {
+class HandleUserLoggedIn
+{
 
     /**
      * @var AccountRepository
@@ -19,23 +20,23 @@ class HandleUserLoggedIn {
 
     /**
      * Create the event handler.
-     * 
+     *
      * @param AccountRepository $accountRepo
      */
-	public function __construct(AccountRepository $accountRepo)
-	{
+    public function __construct(AccountRepository $accountRepo)
+    {
         $this->accountRepo = $accountRepo;
-	}
+    }
 
-	/**
-	 * Handle the event.
-	 *
-	 * @param  UserLoggedIn  $event
+    /**
+     * Handle the event.
      *
-	 * @return void
-	 */
-	public function handle(UserLoggedIn $event)
-	{
+     * @param  UserLoggedIn $event
+     *
+     * @return void
+     */
+    public function handle(UserLoggedIn $event)
+    {
         $account = Auth::user()->account;
 
         if (empty($account->last_login)) {
@@ -52,10 +53,10 @@ class HandleUserLoggedIn {
 
         // if they're using Stripe make sure they're using Stripe.js 
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
-        if ($accountGateway && ! $accountGateway->getPublishableStripeKey()) {
+        if ($accountGateway && !$accountGateway->getPublishableStripeKey()) {
             Session::flash('warning', trans('texts.missing_publishable_key'));
         } elseif ($account->isLogoTooLarge()) {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
-	}
+    }
 }

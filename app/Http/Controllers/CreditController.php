@@ -38,13 +38,13 @@ class CreditController extends BaseController
             'title' => trans('texts.credits'),
             'sortCol' => '4',
             'columns' => Utils::trans([
-              'checkbox',
-              'client',
-              'credit_amount',
-              'credit_balance',
-              'credit_date',
-              'private_notes',
-              ''
+                'checkbox',
+                'client',
+                'credit_amount',
+                'credit_balance',
+                'credit_date',
+                'private_notes',
+                ''
             ]),
         ]);
     }
@@ -62,7 +62,7 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), 
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
         return View::make('credits.edit', $data);
@@ -105,7 +105,7 @@ class CreditController extends BaseController
         $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_credit', $count);
+            $message = Utils::pluralize($action . 'd_credit', $count);
             Session::flash('message', $message);
         }
 

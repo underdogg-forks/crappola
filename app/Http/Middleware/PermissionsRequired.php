@@ -17,6 +17,17 @@ class PermissionsRequired
     static protected $actions = [];
 
     /**
+     * add a controller's action permission
+     *
+     * @param Controller $controller
+     * @param array $permissions
+     */
+    public static function addPermission(Controller $controller, array $permissions)
+    {
+        static::$actions[get_class($controller)] = $permissions;
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param  Request $request
@@ -50,16 +61,5 @@ class PermissionsRequired
         }
 
         return $next($request);
-    }
-
-    /**
-     * add a controller's action permission
-     *
-     * @param Controller $controller
-     * @param array $permissions
-     */
-    public static function addPermission(Controller $controller, array $permissions)
-    {
-        static::$actions[get_class($controller)] = $permissions;
     }
 }

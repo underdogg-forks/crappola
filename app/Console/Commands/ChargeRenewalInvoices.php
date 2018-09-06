@@ -54,29 +54,29 @@ class ChargeRenewalInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' ChargeRenewalInvoices...');
+        $this->info(date('Y-m-d') . ' ChargeRenewalInvoices...');
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
         $invoices = Invoice::whereAccountId($ninjaAccount->id)
-                        ->whereDueDate(date('Y-m-d'))
-                        ->where('balance', '>', 0)
-                        ->with('client')
-                        ->orderBy('id')
-                        ->get();
+            ->whereDueDate(date('Y-m-d'))
+            ->where('balance', '>', 0)
+            ->with('client')
+            ->orderBy('id')
+            ->get();
 
-        $this->info(count($invoices).' invoices found');
+        $this->info(count($invoices) . ' invoices found');
 
         foreach ($invoices as $invoice) {
 
             // check if account has switched to free since the invoice was created
             $account = Account::find($invoice->client->public_id);
 
-            if ( ! $account) {
+            if (!$account) {
                 continue;
             }
 
             $company = $account->company;
-            if ( ! $company->plan || $company->plan == PLAN_FREE) {
+            if (!$company->plan || $company->plan == PLAN_FREE) {
                 continue;
             }
 

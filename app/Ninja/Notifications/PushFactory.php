@@ -7,7 +7,6 @@ use Davibennun\LaravelPushNotification\Facades\PushNotification;
 /**
  * Class PushFactory
  */
-
 class PushFactory
 {
     /**

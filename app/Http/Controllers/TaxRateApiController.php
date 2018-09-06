@@ -31,8 +31,8 @@ class TaxRateApiController extends BaseAPIController
     public function index()
     {
         $taxRates = TaxRate::scope()
-                        ->withTrashed()
-                        ->orderBy('created_at', 'desc');
+            ->withTrashed()
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($taxRates);
     }
@@ -54,7 +54,7 @@ class TaxRateApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-        
+
         $data = $request->input();
         $data['public_id'] = $publicId;
         $taxRate = $this->taxRateRepo->save($data, $request->entity());

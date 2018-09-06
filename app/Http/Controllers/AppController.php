@@ -115,7 +115,7 @@ class AppController extends BaseController
 
 
         // Write Config Settings
-        $fp = fopen(base_path().'/.env', 'w');
+        $fp = fopen(base_path() . '/.env', 'w');
         fwrite($fp, $config);
         fclose($fp);
 
@@ -148,8 +148,9 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        if ( ! $canUpdateEnv = @fopen(base_path().'/.env', 'w')) {
-            Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
+        if (!$canUpdateEnv = @fopen(base_path() . '/.env', 'w')) {
+            Session::flash('error',
+                'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
             return Redirect::to('/settings/system_settings');
         }
 
@@ -185,17 +186,116 @@ class AppController extends BaseController
                 continue;
             }
             if (preg_match('/\s/', $val)) {
-                    $val = "'{$val}'";
+                $val = "'{$val}'";
             }
             $config .= "{$key}={$val}\n";
         }
 
-        $fp = fopen(base_path().'/.env', 'w');
+        $fp = fopen(base_path() . '/.env', 'w');
         fwrite($fp, $config);
         fclose($fp);
 
         Session::flash('message', trans('texts.updated_settings'));
         return Redirect::to('/settings/system_settings');
+    }
+
+    public function install()
+    {
+        if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
+            try {
+                set_time_limit(60 * 5); // shouldn't take this long but just in case
+                Artisan::call('migrate', ['--force' => true]);
+                if (Industry::count() == 0) {
+                    Artisan::call('db:seed', ['--force' => true]);
+                }
+                Artisan::call('optimize', ['--force' => true]);
+            } catch (Exception $e) {
+                Utils::logError($e);
+                return Response::make($e->getMessage(), 500);
+            }
+        }
+
+        return Redirect::to('/');
+    }
+
+    public function update()
+    {
+        if (!Utils::isNinjaProd()) {
+            try {
+                set_time_limit(60 * 5);
+                Artisan::call('clear-compiled');
+                Artisan::call('cache:clear');
+                Artisan::call('debugbar:clear');
+                Artisan::call('route:clear');
+                Artisan::call('view:clear');
+                Artisan::call('config:clear');
+                Artisan::call('optimize', ['--force' => true]);
+                Cache::flush();
+                Session::flush();
+                Artisan::call('migrate', ['--force' => true]);
+                Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
+                Event::fire(new UserSettingsChanged());
+
+                // legacy fix: check cipher is in .env file
+                if (!env('APP_CIPHER')) {
+                    $fp = fopen(base_path() . '/.env', 'a');
+                    fwrite($fp, "\nAPP_CIPHER=rijndael-128");
+                    fclose($fp);
+                }
+
+                // show message with link to Trello board
+                $message = trans('texts.see_whats_new', ['version' => NINJA_VERSION]);
+                $message = link_to(RELEASES_URL, $message, ['target' => '_blank']);
+                $message = sprintf('%s - %s', trans('texts.processed_updates'), $message);
+                Session::flash('warning', $message);
+            } catch (Exception $e) {
+                Utils::logError($e);
+                return Response::make($e->getMessage(), 500);
+            }
+        }
+
+        return Redirect::to('/');
+    }
+
+    public function emailBounced()
+    {
+        $messageId = Input::get('MessageID');
+        $error = Input::get('Name') . ': ' . Input::get('Description');
+        return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
+    }
+
+    public function emailOpened()
+    {
+        $messageId = Input::get('MessageID');
+        return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
+
+        return RESULT_SUCCESS;
+    }
+
+    public function stats()
+    {
+        if (!hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
+            sleep(3);
+            return '';
+        }
+
+        if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
+            $data = DB::table('accounts')
+                ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
+                ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
+                ->where('payments.is_deleted', '=', false)
+                ->get([
+                    'clients.public_id as client_id',
+                    'payments.public_id as payment_id',
+                    'payments.payment_date',
+                    'payments.amount'
+                ]);
+        } else {
+            $data = DB::table('users')->count();
+        }
+
+        return json_encode($data);
     }
 
     private function testDatabase($database)
@@ -239,104 +339,5 @@ class AppController extends BaseController
         } catch (Exception $e) {
             return $e->getMessage();
         }
-    }
-
-    public function install()
-    {
-        if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
-            try {
-                set_time_limit(60 * 5); // shouldn't take this long but just in case
-                Artisan::call('migrate', ['--force' => true]);
-                if (Industry::count() == 0) {
-                    Artisan::call('db:seed', ['--force' => true]);
-                }
-                Artisan::call('optimize', ['--force' => true]);
-            } catch (Exception $e) {
-                Utils::logError($e);
-                return Response::make($e->getMessage(), 500);
-            }
-        }
-
-        return Redirect::to('/');
-    }
-
-    public function update()
-    {
-        if (!Utils::isNinjaProd()) {
-            try {
-                set_time_limit(60 * 5);
-                Artisan::call('clear-compiled');
-                Artisan::call('cache:clear');
-                Artisan::call('debugbar:clear');
-                Artisan::call('route:clear');
-                Artisan::call('view:clear');
-                Artisan::call('config:clear');
-                Artisan::call('optimize', ['--force' => true]);
-                Cache::flush();
-                Session::flush();
-                Artisan::call('migrate', ['--force' => true]);
-                Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
-                Event::fire(new UserSettingsChanged());
-
-                // legacy fix: check cipher is in .env file
-                if ( ! env('APP_CIPHER')) {
-                    $fp = fopen(base_path().'/.env', 'a');
-                    fwrite($fp, "\nAPP_CIPHER=rijndael-128");
-                    fclose($fp);
-                }
-
-                // show message with link to Trello board
-                $message = trans('texts.see_whats_new', ['version' => NINJA_VERSION]);
-                $message = link_to(RELEASES_URL, $message, ['target' => '_blank']);
-                $message = sprintf('%s - %s', trans('texts.processed_updates'), $message);
-                Session::flash('warning', $message);
-            } catch (Exception $e) {
-                Utils::logError($e);
-                return Response::make($e->getMessage(), 500);
-            }
-        }
-
-        return Redirect::to('/');
-    }
-
-    public function emailBounced()
-    {
-        $messageId = Input::get('MessageID');
-        $error = Input::get('Name') . ': ' . Input::get('Description');
-        return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
-    }
-
-    public function emailOpened()
-    {
-        $messageId = Input::get('MessageID');
-        return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
-
-        return RESULT_SUCCESS;
-    }
-
-    public function stats()
-    {
-        if ( ! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
-            sleep(3);
-            return '';
-        }
-
-        if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
-            $data = DB::table('accounts')
-                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
-                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
-                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
-                            ->where('payments.is_deleted', '=', false)
-                            ->get([
-                                'clients.public_id as client_id',
-                                'payments.public_id as payment_id',
-                                'payments.payment_date',
-                                'payments.amount'
-                            ]);
-        } else {
-            $data = DB::table('users')->count();
-        }
-
-        return json_encode($data);
     }
 }

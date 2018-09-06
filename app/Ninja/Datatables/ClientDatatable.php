@@ -20,7 +20,8 @@ class ClientDatatable extends EntityDatatable
             [
                 'first_name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name)->toHtml();
+                    return link_to("clients/{$model->public_id}",
+                        $model->first_name . ' ' . $model->last_name)->toHtml();
                 }
             ],
             [
@@ -63,10 +64,14 @@ class ClientDatatable extends EntityDatatable
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--',
+                function () {
+                    return false;
+                },
                 function ($model) {
                     $user = Auth::user();
-                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
+                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create',
+                                ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
                 }
             ],
             [
@@ -97,10 +102,15 @@ class ClientDatatable extends EntityDatatable
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--',
+                function () {
+                    return false;
+                },
                 function ($model) {
                     $user = Auth::user();
-                    return ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create', ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));
+                    return ($user->can('create', ENTITY_TASK) || $user->can('create',
+                                ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create',
+                                ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));
                 }
             ],
             [

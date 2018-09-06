@@ -61,20 +61,20 @@ class OnlinePaymentController extends BaseController
      */
     public function showPayment($invitationKey, $gatewayType = false, $sourceId = false)
     {
-        if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
             ]);
         }
 
-        if ( ! floatval($invitation->invoice->balance)) {
+        if (!floatval($invitation->invoice->balance)) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
 
-        if ( ! $gatewayType) {
+        if (!$gatewayType) {
             $gatewayType = Session::get($invitation->id . 'gateway_type');
         }
 
@@ -119,8 +119,9 @@ class OnlinePaymentController extends BaseController
     public function offsitePayment($invitationKey = false, $gatewayType = false)
     {
         $invitationKey = $invitationKey ?: Session::get('invitation_key');
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
-                        ->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency',
+            'invoice.client.account.account_gateways.gateway')
+            ->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
         $gatewayType = $gatewayType ?: Session::get($invitation->id . 'gateway_type');
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayType);
@@ -140,36 +141,11 @@ class OnlinePaymentController extends BaseController
     }
 
     /**
-     * @param $paymentDriver
-     * @param $exception
-     * @param bool $showPayment
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    private function error($paymentDriver, $exception, $showPayment = false)
-    {
-        if (is_string($exception)) {
-            $displayError = $exception;
-            $logError = $exception;
-        } else {
-            $displayError = $exception->getMessage();
-            $logError = Utils::getErrorString($exception);
-        }
-
-        $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $displayError);
-        Session::flash('error', $message);
-
-        $message = sprintf('Payment Error [%s]: %s', $paymentDriver->providerName(), $logError);
-        Utils::logError($message, 'PHP', true);
-
-        $route = $showPayment ? 'payment/' : 'view/';
-        return redirect()->to($route . $paymentDriver->invitation->invitation_key);
-    }
-
-    /**
      * @param $routingNumber
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getBankInfo($routingNumber) {
+    public function getBankInfo($routingNumber)
+    {
         if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
             return response()->json([
                 'message' => 'Invalid routing number',
@@ -232,14 +208,14 @@ class OnlinePaymentController extends BaseController
         $account = Account::whereAccountKey(Input::get('account_key'))->first();
         $redirectUrl = Input::get('redirect_url', URL::previous());
 
-        if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
+        if (!$account || !$account->enable_buy_now_buttons || !$account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$redirectUrl}/?error=invalid account");
         }
 
         Auth::onceUsingId($account->users[0]->id);
         $product = Product::scope(Input::get('product_id'))->first();
 
-        if ( ! $product) {
+        if (!$product) {
             return redirect()->to("{$redirectUrl}/?error=invalid product");
         }
 
@@ -262,14 +238,16 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id' => $client->id,
-            'invoice_items' => [[
-                'product_key' => $product->product_key,
-                'notes' => $product->notes,
-                'cost' => $product->cost,
-                'qty' => 1,
-                'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
-                'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
-            ]]
+            'invoice_items' => [
+                [
+                    'product_key' => $product->product_key,
+                    'notes' => $product->notes,
+                    'cost' => $product->cost,
+                    'qty' => 1,
+                    'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
+                    'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
+                ]
+            ]
         ];
         $invoice = $invoiceService->save($data);
         $invitation = $invoice->invitations[0];
@@ -280,5 +258,31 @@ class OnlinePaymentController extends BaseController
         } else {
             return redirect()->to($invitation->getLink());
         }
+    }
+
+    /**
+     * @param $paymentDriver
+     * @param $exception
+     * @param bool $showPayment
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    private function error($paymentDriver, $exception, $showPayment = false)
+    {
+        if (is_string($exception)) {
+            $displayError = $exception;
+            $logError = $exception;
+        } else {
+            $displayError = $exception->getMessage();
+            $logError = Utils::getErrorString($exception);
+        }
+
+        $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $displayError);
+        Session::flash('error', $message);
+
+        $message = sprintf('Payment Error [%s]: %s', $paymentDriver->providerName(), $logError);
+        Utils::logError($message, 'PHP', true);
+
+        $route = $showPayment ? 'payment/' : 'view/';
+        return redirect()->to($route . $paymentDriver->invitation->invitation_key);
     }
 }

@@ -87,7 +87,7 @@ class ContactMailer extends Mailer
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
             $documents = $invoice->documents;
 
-            foreach($invoice->expenses as $expense){
+            foreach ($invoice->expenses as $expense) {
                 $documents = $documents->merge($expense->documents);
             }
 
@@ -95,9 +95,11 @@ class ContactMailer extends Mailer
 
             $size = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
-            foreach($documents as $document){
+            foreach ($documents as $document) {
                 $size += $document->size;
-                if($size > $maxSize)break;
+                if ($size > $maxSize) {
+                    break;
+                }
 
                 $documentStrings[] = [
                     'name' => $document->name,
@@ -107,7 +109,8 @@ class ContactMailer extends Mailer
         }
 
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString,
+                $documentStrings);
             if ($response === true) {
                 $sent = true;
             }
@@ -124,123 +127,6 @@ class ContactMailer extends Mailer
         }
 
         return $response;
-    }
-
-    /**
-     * @param Invitation $invitation
-     * @param Invoice $invoice
-     * @param $body
-     * @param $subject
-     * @param $pdfString
-     * @param $documentStrings
-     * @return bool|string
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     */
-    private function sendInvitation(
-        Invitation$invitation,
-        Invoice $invoice,
-        $body,
-        $subject,
-        $pdfString,
-        $documentStrings
-    )
-    {
-
-        $client = $invoice->client;
-        $account = $invoice->account;
-
-        if (Auth::check()) {
-            $user = Auth::user();
-        } else {
-            $user = $invitation->user;
-            if ($invitation->user->trashed()) {
-                $user = $account->users()->orderBy('id')->first();
-            }
-        }
-
-        if (!$user->email || !$user->registered) {
-            return trans('texts.email_error_user_unregistered');
-        } elseif (!$user->confirmed) {
-            return trans('texts.email_error_user_unconfirmed');
-        } elseif (!$invitation->contact->email) {
-            return trans('texts.email_error_invalid_contact_email');
-        } elseif ($invitation->contact->trashed()) {
-            return trans('texts.email_error_inactive_contact');
-        }
-
-        $variables = [
-            'account' => $account,
-            'client' => $client,
-            'invitation' => $invitation,
-            'amount' => $invoice->getRequestedAmount()
-        ];
-
-        // Let the client know they'll be billed later
-        if ($client->autoBillLater()) {
-            $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
-        }
-
-        if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
-            // The contact needs a password
-            $variables['password'] = $password = $this->generatePassword();
-            $invitation->contact->password = bcrypt($password);
-            $invitation->contact->save();
-        }
-
-        $data = [
-            'body' => $this->templateService->processVariables($body, $variables),
-            'link' => $invitation->getLink(),
-            'entityType' => $invoice->getEntityType(),
-            'invoiceId' => $invoice->id,
-            'invitation' => $invitation,
-            'account' => $account,
-            'client' => $client,
-            'invoice' => $invoice,
-            'documents' => $documentStrings,
-        ];
-
-        if ($account->attachPDF()) {
-            $data['pdfString'] = $pdfString;
-            $data['pdfFileName'] = $invoice->getFileName();
-        }
-
-        $subject = $this->templateService->processVariables($subject, $variables);
-        $fromEmail = $user->email;
-        $view = $account->getTemplateView(ENTITY_INVOICE);
-
-        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
-
-        if ($response === true) {
-            return true;
-        } else {
-            return $response;
-        }
-    }
-
-    /**
-     * @param int $length
-     * @return string
-     */
-    protected function generatePassword($length = 9)
-    {
-        $sets = [
-            'abcdefghjkmnpqrstuvwxyz',
-            'ABCDEFGHJKMNPQRSTUVWXYZ',
-            '23456789',
-        ];
-        $all = '';
-        $password = '';
-        foreach($sets as $set)
-        {
-            $password .= $set[array_rand(str_split($set))];
-            $all .= $set;
-        }
-        $all = str_split($all);
-        for($i = 0; $i < $length - count($sets); $i++)
-            $password .= $all[array_rand($all)];
-        $password = str_shuffle($password);
-
-        return $password;
     }
 
     /**
@@ -329,6 +215,123 @@ class ContactMailer extends Mailer
         ];
 
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     */
+    protected function generatePassword($length = 9)
+    {
+        $sets = [
+            'abcdefghjkmnpqrstuvwxyz',
+            'ABCDEFGHJKMNPQRSTUVWXYZ',
+            '23456789',
+        ];
+        $all = '';
+        $password = '';
+        foreach ($sets as $set) {
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+        $all = str_split($all);
+        for ($i = 0; $i < $length - count($sets); $i++) {
+            $password .= $all[array_rand($all)];
+        }
+        $password = str_shuffle($password);
+
+        return $password;
+    }
+
+    /**
+     * @param Invitation $invitation
+     * @param Invoice $invoice
+     * @param $body
+     * @param $subject
+     * @param $pdfString
+     * @param $documentStrings
+     * @return bool|string
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     */
+    private function sendInvitation(
+        Invitation $invitation,
+        Invoice $invoice,
+        $body,
+        $subject,
+        $pdfString,
+        $documentStrings
+    ) {
+
+        $client = $invoice->client;
+        $account = $invoice->account;
+
+        if (Auth::check()) {
+            $user = Auth::user();
+        } else {
+            $user = $invitation->user;
+            if ($invitation->user->trashed()) {
+                $user = $account->users()->orderBy('id')->first();
+            }
+        }
+
+        if (!$user->email || !$user->registered) {
+            return trans('texts.email_error_user_unregistered');
+        } elseif (!$user->confirmed) {
+            return trans('texts.email_error_user_unconfirmed');
+        } elseif (!$invitation->contact->email) {
+            return trans('texts.email_error_invalid_contact_email');
+        } elseif ($invitation->contact->trashed()) {
+            return trans('texts.email_error_inactive_contact');
+        }
+
+        $variables = [
+            'account' => $account,
+            'client' => $client,
+            'invitation' => $invitation,
+            'amount' => $invoice->getRequestedAmount()
+        ];
+
+        // Let the client know they'll be billed later
+        if ($client->autoBillLater()) {
+            $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
+        }
+
+        if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
+            // The contact needs a password
+            $variables['password'] = $password = $this->generatePassword();
+            $invitation->contact->password = bcrypt($password);
+            $invitation->contact->save();
+        }
+
+        $data = [
+            'body' => $this->templateService->processVariables($body, $variables),
+            'link' => $invitation->getLink(),
+            'entityType' => $invoice->getEntityType(),
+            'invoiceId' => $invoice->id,
+            'invitation' => $invitation,
+            'account' => $account,
+            'client' => $client,
+            'invoice' => $invoice,
+            'documents' => $documentStrings,
+        ];
+
+        if ($account->attachPDF()) {
+            $data['pdfString'] = $pdfString;
+            $data['pdfFileName'] = $invoice->getFileName();
+        }
+
+        $subject = $this->templateService->processVariables($subject, $variables);
+        $fromEmail = $user->email;
+        $view = $account->getTemplateView(ENTITY_INVOICE);
+
+        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view,
+            $data);
+
+        if ($response === true) {
+            return true;
+        } else {
+            return $response;
+        }
     }
 
 }

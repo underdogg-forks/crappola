@@ -22,7 +22,7 @@ class UserAccount extends Eloquent
             return false;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
             if ($this->$field && $this->$field == $userId) {
                 return true;
@@ -40,7 +40,7 @@ class UserAccount extends Eloquent
             return;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
             if (!$this->$field) {
                 $this->$field = $userId;
@@ -58,7 +58,7 @@ class UserAccount extends Eloquent
             return;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
             if ($this->$field && $this->$field == $userId) {
                 $this->$field = null;

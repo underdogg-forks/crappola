@@ -9,5 +9,5 @@ class TwoCheckoutPaymentDriver extends BasePaymentDriver
     {
         return $this->createPayment($input['order_number']);
     }
-    
+
 }

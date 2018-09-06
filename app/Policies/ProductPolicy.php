@@ -15,7 +15,8 @@ class ProductPolicy extends EntityPolicy
      * @param $item
      * @return mixed
      */
-	public static function edit(User $user, $item) {
+    public static function edit(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 
@@ -23,7 +24,8 @@ class ProductPolicy extends EntityPolicy
      * @param User $user
      * @return mixed
      */
-    public static function create(User $user) {
+    public static function create(User $user)
+    {
         return $user->hasPermission('admin');
     }
 }

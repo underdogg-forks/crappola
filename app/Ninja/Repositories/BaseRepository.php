@@ -8,28 +8,9 @@ class BaseRepository
     /**
      * @return null
      */
-    public function getClassName() 
+    public function getClassName()
     {
         return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-        return new $className();
-    }
-
-    /**
-     * @param $entity
-     * @param $type
-     * @return string
-     */
-    private function getEventClass($entity, $type)
-    {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 
     /**
@@ -40,7 +21,7 @@ class BaseRepository
         if ($entity->trashed()) {
             return;
         }
-        
+
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
@@ -55,7 +36,7 @@ class BaseRepository
      */
     public function restore($entity)
     {
-        if ( ! $entity->trashed()) {
+        if (!$entity->trashed()) {
             return;
         }
 
@@ -83,7 +64,7 @@ class BaseRepository
         if ($entity->is_deleted) {
             return;
         }
-        
+
         $entity->is_deleted = true;
         $entity->save();
 
@@ -112,5 +93,24 @@ class BaseRepository
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getInstance()
+    {
+        $className = $this->getClassName();
+        return new $className();
+    }
+
+    /**
+     * @param $entity
+     * @param $type
+     * @return string
+     */
+    private function getEventClass($entity, $type)
+    {
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 }

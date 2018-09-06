@@ -31,14 +31,6 @@ class UserService extends BaseService
     }
 
     /**
-     * @return UserRepository
-     */
-    protected function getRepo()
-    {
-        return $this->userRepo;
-    }
-
-    /**
      * @param $accountId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -48,5 +40,13 @@ class UserService extends BaseService
         $query = $this->userRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return UserRepository
+     */
+    protected function getRepo()
+    {
+        return $this->userRepo;
     }
 }

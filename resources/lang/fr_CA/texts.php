@@ -1030,10 +1030,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Spécifiez un préfixe qui sera ajouté au numéro de la facture récurrente. La valeur par défaut est \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Factures protégées',
-    'enable_portal_password_help'=>'Permet de spécifier un mot de passe pour chaque contact. Si un mot de passe est spécifié, le contact devra saisir ce mot de passe pour visualiser ses factures.',
-    'send_portal_password'=>'Génère automatiquement un mot de passe',
-    'send_portal_password_help'=>'Si aucun mot de passe n\'est spécifié, le client recevra un mot de passe autogénéré lors de l\'envoi de la première facture.',
+    'enable_portal_password' => 'Factures protégées',
+    'enable_portal_password_help' => 'Permet de spécifier un mot de passe pour chaque contact. Si un mot de passe est spécifié, le contact devra saisir ce mot de passe pour visualiser ses factures.',
+    'send_portal_password' => 'Génère automatiquement un mot de passe',
+    'send_portal_password_help' => 'Si aucun mot de passe n\'est spécifié, le client recevra un mot de passe autogénéré lors de l\'envoi de la première facture.',
 
     'expired' => 'Expiré',
     'invalid_card_number' => 'Le numéro de carte de crédit n\'est pas valide.',
@@ -1415,7 +1415,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1745,7 +1745,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

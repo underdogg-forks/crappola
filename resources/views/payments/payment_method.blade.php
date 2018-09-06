@@ -15,11 +15,14 @@
                         <header>
                             @if ($client && isset($invoiceNumber))
                                 <h2>{{ $client->getDisplayName() }}</h2>
-                                <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
+                                <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}
+                                    <span>|&nbsp; {{ trans('texts.amount_due') }}
+                                        : <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
                             @elseif ($paymentTitle)
                                 <h2>{{ $paymentTitle }}
                                     @if(isset($paymentSubtitle))
-                                    <br/><small>{{ $paymentSubtitle }}</small>
+                                        <br/>
+                                        <small>{{ $paymentSubtitle }}</small>
                                     @endif
                                 </h2>
                             @endif
@@ -45,12 +48,12 @@
 
             </div>
 
-            </div>
         </div>
+    </div>
 
 
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
 
     </div>
 
@@ -58,9 +61,9 @@
 
     <script type="text/javascript">
 
-        $(function() {
-            $('select').change(function() {
-                $(this).css({color:'#444444'});
+        $(function () {
+            $('select').change(function () {
+                $(this).css({color: '#444444'});
             });
 
             $('#country_id').combobox();

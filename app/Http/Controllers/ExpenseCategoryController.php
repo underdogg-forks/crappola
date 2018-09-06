@@ -34,9 +34,9 @@ class ExpenseCategoryController extends BaseController
             'title' => trans('texts.expense_categories'),
             'sortCol' => '1',
             'columns' => Utils::trans([
-              'checkbox',
-              'name',
-              ''
+                'checkbox',
+                'name',
+                ''
             ]),
         ]);
     }

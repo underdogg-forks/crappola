@@ -13,16 +13,15 @@ class EntityModel extends Eloquent
     /**
      * @var bool
      */
+    public static $notifySubscriptions = true;
+    /**
+     * @var bool
+     */
     public $timestamps = true;
     /**
      * @var array
      */
     protected $hidden = ['id'];
-
-    /**
-     * @var bool
-     */
-    public static $notifySubscriptions = true;
 
     /**
      * @param null $context
@@ -50,14 +49,14 @@ class EntityModel extends Eloquent
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
 
-        if (method_exists($className, 'trashed')){
+        if (method_exists($className, 'trashed')) {
             $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
         $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-                        ->first();
+            ->first();
 
         if ($lastEntity) {
             $entity->public_id = $lastEntity->public_id + 1;
@@ -80,16 +79,21 @@ class EntityModel extends Eloquent
     }
 
     /**
+     * @param $entityType
      * @return string
      */
-    public function getActivityKey()
+    public static function getClassName($entityType)
     {
-        return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getDisplayName() . ']';
+        return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
     }
 
-    public function entityKey()
+    /**
+     * @param $entityType
+     * @return string
+     */
+    public static function getTransformerName($entityType)
     {
-        return $this->public_id . ':' . $this->getEntityType();
+        return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
     }
 
     /*
@@ -105,6 +109,53 @@ class EntityModel extends Eloquent
     */
 
     /**
+     * @param $data
+     * @param $entityType
+     * @return bool|string
+     */
+    public static function validate($data, $entityType, $entity = false)
+    {
+        // Use the API request if it exists
+        $action = $entity ? 'update' : 'create';
+        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
+        if (!class_exists($requestClass)) {
+            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
+        }
+
+        $request = new $requestClass();
+        $request->setUserResolver(function () {
+            return Auth::user();
+        });
+        $request->setEntity($entity);
+        $request->replace($data);
+
+        if (!$request->authorize()) {
+            return trans('texts.not_allowed');
+        }
+
+        $validator = Validator::make($data, $request->rules());
+
+        if ($validator->fails()) {
+            return $validator->messages()->first();
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getActivityKey()
+    {
+        return '[' . $this->getEntityType() . ':' . $this->public_id . ':' . $this->getDisplayName() . ']';
+    }
+
+    public function entityKey()
+    {
+        return $this->public_id . ':' . $this->getEntityType();
+    }
+
+    /**
      * @param $query
      * @param bool $publicId
      * @param bool $accountId
@@ -116,7 +167,7 @@ class EntityModel extends Eloquent
             $accountId = Auth::user()->account_id;
         }
 
-        $query->where($this->getTable() .'.account_id', '=', $accountId);
+        $query->where($this->getTable() . '.account_id', '=', $accountId);
 
         if ($publicId) {
             if (is_array($publicId)) {
@@ -126,7 +177,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
+        if (Auth::check() && !Auth::user()->hasPermission('view_all')) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -158,23 +209,7 @@ class EntityModel extends Eloquent
         return $this->getName();
     }
 
-    /**
-     * @param $entityType
-     * @return string
-     */
-    public static function getClassName($entityType)
-    {
-        return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
-    }
-
-    /**
-     * @param $entityType
-     * @return string
-     */
-    public static function getTransformerName($entityType)
-    {
-        return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
-    }
+    // converts "App\Models\Client" to "client_id"
 
     public function setNullValues()
     {
@@ -185,7 +220,6 @@ class EntityModel extends Eloquent
         }
     }
 
-    // converts "App\Models\Client" to "client_id"
     /**
      * @return string
      */
@@ -193,40 +227,8 @@ class EntityModel extends Eloquent
     {
         $class = get_class($this);
         $parts = explode('\\', $class);
-        $name = $parts[count($parts)-1];
+        $name = $parts[count($parts) - 1];
         return strtolower($name) . '_id';
-    }
-
-    /**
-     * @param $data
-     * @param $entityType
-     * @return bool|string
-     */
-    public static function validate($data, $entityType, $entity = false)
-    {
-        // Use the API request if it exists
-        $action = $entity ? 'update' : 'create';
-        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
-        if ( ! class_exists($requestClass)) {
-            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
-        }
-
-        $request = new $requestClass();
-        $request->setUserResolver(function() { return Auth::user(); });
-        $request->setEntity($entity);
-        $request->replace($data);
-
-        if ( ! $request->authorize()) {
-            return trans('texts.not_allowed');
-        }
-
-        $validator = Validator::make($data, $request->rules());
-
-        if ($validator->fails()) {
-            return $validator->messages()->first();
-        } else {
-            return true;
-        }
     }
 
 }

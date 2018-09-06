@@ -14,18 +14,25 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 {
     use SoftDeletes, Authenticatable, CanResetPassword;
     /**
+     * @var string
+     */
+    public static $fieldFirstName = 'first_name';
+    /**
+     * @var string
+     */
+    public static $fieldLastName = 'last_name';
+    /**
+     * @var string
+     */
+    public static $fieldEmail = 'email';
+    /**
+     * @var string
+     */
+    public static $fieldPhone = 'phone';
+    /**
      * @var array
      */
     protected $dates = ['deleted_at'];
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_CONTACT;
-    }
-
     /**
      * @var array
      */
@@ -38,24 +45,12 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     ];
 
     /**
-     * @var string
+     * @return mixed
      */
-    public static $fieldFirstName = 'first_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldLastName = 'last_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldEmail = 'email';
-
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'phone';
+    public function getEntityType()
+    {
+        return ENTITY_CONTACT;
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -128,7 +123,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
+            return $this->first_name . ' ' . $this->last_name;
         } else {
             return '';
         }

@@ -31,5 +31,5 @@ class ExpensePresenter extends EntityPresenter
     {
         return $this->entity->invoice_id ? $this->entity->convertedAmount() : 0;
     }
-    
+
 }

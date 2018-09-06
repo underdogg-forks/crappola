@@ -54,12 +54,12 @@ class TokenController extends BaseController
     public function edit($publicId)
     {
         $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
-                        ->where('public_id', '=', $publicId)->firstOrFail();
+            ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
             'token' => $token,
             'method' => 'PUT',
-            'url' => 'tokens/'.$publicId,
+            'url' => 'tokens/' . $publicId,
             'title' => trans('texts.edit_token'),
         ];
 
@@ -90,10 +90,10 @@ class TokenController extends BaseController
     public function create()
     {
         $data = [
-          'token' => null,
-          'method' => 'POST',
-          'url' => 'tokens',
-          'title' => trans('texts.add_token'),
+            'token' => null,
+            'method' => 'POST',
+            'url' => 'tokens',
+            'title' => trans('texts.add_token'),
         ];
 
         return View::make('accounts.token', $data);
@@ -127,7 +127,7 @@ class TokenController extends BaseController
 
             if ($tokenPublicId) {
                 $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
-                            ->where('public_id', '=', $tokenPublicId)->firstOrFail();
+                    ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
             $validator = Validator::make(Input::all(), $rules);

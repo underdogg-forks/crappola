@@ -279,7 +279,7 @@ class Payment extends EntityModel
         }
         $bankData = $this->bank_data;
 
-        return $bankData?$bankData->name:null;
+        return $bankData ? $bankData->name : null;
     }
 
     /**

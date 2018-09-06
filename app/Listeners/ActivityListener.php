@@ -119,7 +119,7 @@ class ActivityListener
      */
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
-        if (! $event->invoice->isChanged()) {
+        if (!$event->invoice->isChanged()) {
             return;
         }
 
@@ -224,7 +224,7 @@ class ActivityListener
      */
     public function updatedQuote(QuoteWasUpdated $event)
     {
-        if (! $event->quote->isChanged()) {
+        if (!$event->quote->isChanged()) {
             return;
         }
 

@@ -1,7 +1,6 @@
 <?php namespace App\Http\Requests;
 
 
-
 class CreateTaxRateRequest extends TaxRateRequest
 {
     // Expenses 

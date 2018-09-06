@@ -52,10 +52,11 @@ class DocumentAPIController extends BaseAPIController
     {
         $document = $request->entity();
 
-        if(array_key_exists($document->type, Document::$types))
+        if (array_key_exists($document->type, Document::$types)) {
             return DocumentController::getDownloadResponse($document);
-        else
-            return $this->errorResponse(['error'=>'Invalid mime type'],400);
+        } else {
+            return $this->errorResponse(['error' => 'Invalid mime type'], 400);
+        }
     }
 
     /**
@@ -65,7 +66,7 @@ class DocumentAPIController extends BaseAPIController
      */
     public function store(CreateDocumentRequest $request)
     {
-        
+
         $document = $this->documentRepo->upload($request->all());
 
         return $this->itemResponse($document);

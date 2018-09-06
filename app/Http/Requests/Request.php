@@ -3,7 +3,8 @@
 use Illuminate\Foundation\Http\FormRequest;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
-abstract class Request extends FormRequest {
+abstract class Request extends FormRequest
+{
 
     // populate in subclass to auto load record
     protected $autoload = [];
@@ -11,7 +12,7 @@ abstract class Request extends FormRequest {
     /**
      * Validate the input.
      *
-     * @param  \Illuminate\Validation\Factory  $factory
+     * @param  \Illuminate\Validation\Factory $factory
      * @return \Illuminate\Validation\Validator
      */
     public function validator($factory)

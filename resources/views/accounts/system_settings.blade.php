@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content') 
+@section('content')
     @parent
 
     @include('accounts.nav', ['selected' => ACCOUNT_SYSTEM_SETTINGS])

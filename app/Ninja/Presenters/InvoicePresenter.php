@@ -3,7 +3,8 @@
 use Utils;
 use App\Libraries\Skype\InvoiceCard;
 
-class InvoicePresenter extends EntityPresenter {
+class InvoicePresenter extends EntityPresenter
+{
 
     public function client()
     {
@@ -65,7 +66,7 @@ class InvoicePresenter extends EntityPresenter {
     // https://schema.org/PaymentStatusType
     public function paymentStatus()
     {
-        if ( ! $this->entity->balance) {
+        if (!$this->entity->balance) {
             return 'PaymentComplete';
         } elseif ($this->entity->isOverdue()) {
             return 'PaymentPastDue';
@@ -103,7 +104,7 @@ class InvoicePresenter extends EntityPresenter {
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
         $frequency = strtolower($frequency);
-        return trans('texts.freq_'.$frequency);
+        return trans('texts.freq_' . $frequency);
     }
 
     public function email()
@@ -117,7 +118,7 @@ class InvoicePresenter extends EntityPresenter {
         $client = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
-        if ( ! $paymentMethod) {
+        if (!$paymentMethod) {
             return false;
         }
 

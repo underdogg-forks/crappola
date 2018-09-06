@@ -89,7 +89,7 @@ class SubscriptionListener
      */
     private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
-        if ( ! EntityModel::$notifySubscriptions) {
+        if (!EntityModel::$notifySubscriptions) {
             return;
         }
 

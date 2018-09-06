@@ -1041,10 +1041,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Určete prefix, který se přidá k číslu pravidelných faktur. Výchozí hodnota je \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Faktury chráněné heslem',
-    'enable_portal_password_help'=>'Umožní Vám nastavit heslo pro každý kontakt. Pokud heslo nastavíte, tak kontakt ho bude pro zobrazení faktury vždy použít.',
-    'send_portal_password'=>'Generovat heslo automaticky',
-    'send_portal_password_help'=>'Pokud heslo není nastaveno, bude vygenerováno a zasláno spolu s první fakturou.',
+    'enable_portal_password' => 'Faktury chráněné heslem',
+    'enable_portal_password_help' => 'Umožní Vám nastavit heslo pro každý kontakt. Pokud heslo nastavíte, tak kontakt ho bude pro zobrazení faktury vždy použít.',
+    'send_portal_password' => 'Generovat heslo automaticky',
+    'send_portal_password_help' => 'Pokud heslo není nastaveno, bude vygenerováno a zasláno spolu s první fakturou.',
 
     'expired' => 'Expirované',
     'invalid_card_number' => 'Číslo platební karty není platné.',
@@ -1426,7 +1426,7 @@ $LANG = array(
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1756,7 +1756,7 @@ $LANG = array(
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

@@ -1033,10 +1033,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Protéger les factures avec un mot de passe',
-    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
-    'send_portal_password'=>'Générer un mot de passe automatiquement',
-    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    'enable_portal_password' => 'Protéger les factures avec un mot de passe',
+    'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
+    'send_portal_password' => 'Générer un mot de passe automatiquement',
+    'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',
 
     'expired' => 'Expiré',
     'invalid_card_number' => 'Le numéro de carte bancaire est invalide.',
@@ -1418,7 +1418,7 @@ $LANG = array(
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1748,7 +1748,7 @@ $LANG = array(
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

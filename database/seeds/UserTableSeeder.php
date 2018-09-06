@@ -15,8 +15,8 @@ use Faker\Factory;
 class UserTableSeeder extends Seeder
 {
 
-	public function run()
-	{
+    public function run()
+    {
         $this->command->info('Running UserTableSeeder');
 
         Eloquent::unguard();
@@ -94,6 +94,6 @@ class UserTableSeeder extends Seeder
             'affiliate_key' => SELF_HOST_AFFILIATE_KEY
         ]);
 
-	}
+    }
 
 }

@@ -9,7 +9,7 @@ class InvitationTransformer extends EntityTransformer
         $invitation->setRelation('account', $this->account);
 
         return [
-            'id' => (int) $invitation->public_id,
+            'id' => (int)$invitation->public_id,
             'key' => $invitation->getName(),
             'status' => $invitation->getStatus(),
             'link' => $invitation->getLink(),

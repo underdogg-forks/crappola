@@ -23,19 +23,10 @@ class PaymentService extends BaseService
         PaymentRepository $paymentRepo,
         AccountRepository $accountRepo,
         DatatableService $datatableService
-    )
-    {
+    ) {
         $this->datatableService = $datatableService;
         $this->paymentRepo = $paymentRepo;
         $this->accountRepo = $accountRepo;
-    }
-
-    /**
-     * @return PaymentRepository
-     */
-    protected function getRepo()
-    {
-        return $this->paymentRepo;
     }
 
     /**
@@ -53,7 +44,7 @@ class PaymentService extends BaseService
         /** @var \App\Models\Invitation $invitation */
         $invitation = $invoice->invitations->first();
 
-        if ( ! $invitation) {
+        if (!$invitation) {
             return false;
         }
 
@@ -74,13 +65,13 @@ class PaymentService extends BaseService
 
         $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_TOKEN);
 
-        if ( ! $paymentDriver) {
+        if (!$paymentDriver) {
             return false;
         }
 
         $customer = $paymentDriver->customer();
 
-        if ( ! $customer) {
+        if (!$customer) {
             return false;
         }
 
@@ -125,21 +116,20 @@ class PaymentService extends BaseService
 
     public function getDatatable($clientPublicId, $search)
     {
-        $datatable = new PaymentDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new PaymentDatatable(!$clientPublicId, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-
     public function bulk($ids, $action, $params = [])
     {
         if ($action == 'refund') {
-            if ( ! $ids ) {
+            if (!$ids) {
                 return 0;
             }
 
@@ -161,5 +151,13 @@ class PaymentService extends BaseService
         } else {
             return parent::bulk($ids, $action);
         }
+    }
+
+    /**
+     * @return PaymentRepository
+     */
+    protected function getRepo()
+    {
+        return $this->paymentRepo;
     }
 }

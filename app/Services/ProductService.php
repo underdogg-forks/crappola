@@ -28,14 +28,6 @@ class ProductService extends BaseService
     }
 
     /**
-     * @return ProductRepository
-     */
-    protected function getRepo()
-    {
-        return $this->productRepo;
-    }
-
-    /**
      * @param $accountId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -45,5 +37,13 @@ class ProductService extends BaseService
         $query = $this->productRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return ProductRepository
+     */
+    protected function getRepo()
+    {
+        return $this->productRepo;
     }
 }

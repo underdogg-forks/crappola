@@ -3,7 +3,8 @@
 use Input;
 use Utils;
 
-class EntityRequest extends Request {
+class EntityRequest extends Request
+{
 
     protected $entityType;
     private $entity;
@@ -17,19 +18,19 @@ class EntityRequest extends Request {
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
-        if ( ! empty($this->$field)) {
+        if (!empty($this->$field)) {
             $publicId = $this->$field;
         }
-        if ( ! $publicId) {
+        if (!$publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
-            if ( ! empty($this->$field)) {
+            if (!empty($this->$field)) {
                 $publicId = $this->$field;
             }
         }
-        if ( ! $publicId) {
+        if (!$publicId) {
             $publicId = Input::get('public_id') ?: Input::get('id');
         }
-        if ( ! $publicId) {
+        if (!$publicId) {
             return null;
         }
 

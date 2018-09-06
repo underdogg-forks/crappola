@@ -9,7 +9,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()
     {
-        $types =  [
+        $types = [
             GATEWAY_TYPE_CREDIT_CARD,
             GATEWAY_TYPE_TOKEN
         ];
@@ -26,11 +26,6 @@ class WePayPaymentDriver extends BasePaymentDriver
         return true;
     }
 
-    protected function checkCustomerExists($customer)
-    {
-        return true;
-    }
-
     public function rules()
     {
         $rules = parent::rules();
@@ -43,25 +38,6 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
 
         return $rules;
-    }
-
-    protected function paymentDetails($paymentMethod = false)
-    {
-        $data = parent::paymentDetails($paymentMethod);
-
-        if ($transactionId = Session::get($this->invitation->id . 'payment_ref')) {
-            $data['transaction_id'] = $transactionId;
-        }
-
-        $data['applicationFee'] = (WEPAY_APP_FEE_MULTIPLIER * $data['amount']) + WEPAY_APP_FEE_FIXED;
-        $data['feePayer'] = WEPAY_FEE_PAYER;
-        $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
-
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
-            $data['paymentMethodType'] = 'payment_bank';
-        }
-
-        return $data;
     }
 
     public function createToken()
@@ -103,51 +79,6 @@ class WePayPaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    /*
-    public function creatingCustomer($customer)
-    {
-        if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
-            $wepay = \Utils::setupWePay($accountGateway);
-            $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
-
-            $gatewayResponse = $wepay->request($paymentMethodType, array(
-                'client_id' => WEPAY_CLIENT_ID,
-                'client_secret' => WEPAY_CLIENT_SECRET,
-                $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
-            ));
-        }
-    }
-    */
-
-    protected function creatingPaymentMethod($paymentMethod)
-    {
-        $source = $this->tokenResponse;
-
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-            $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
-            $paymentMethod->last4 = $source->account_last_four;
-            $paymentMethod->bank_name = $source->bank_name;
-            $paymentMethod->source_reference = $source->payment_bank_id;
-
-            switch($source->state) {
-                case 'new':
-                case 'pending':
-                    $paymentMethod->status = 'new';
-                    break;
-                case 'authorized':
-                    $paymentMethod->status = 'verified';
-                    break;
-            }
-        } else {
-            $paymentMethod->last4 = $source->last_four;
-            $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
-            $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
-            $paymentMethod->source_reference = $source->credit_card_id;
-        }
-
-        return $paymentMethod;
-    }
-
     public function removePaymentMethod($paymentMethod)
     {
         parent::removePaymentMethod($paymentMethod);
@@ -164,31 +95,6 @@ class WePayPaymentDriver extends BasePaymentDriver
         } else {
             throw new Exception(trans('texts.failed_remove_payment_method'));
         }
-    }
-
-    protected function refundDetails($payment, $amount)
-    {
-        $data = parent::refundDetails($payment, $amount);
-
-        $data['refund_reason'] = 'Refund issued by merchant.';
-
-        // WePay issues a full refund when no amount is set. If an amount is set, it will try
-        // to issue a partial refund without refunding any fees. However, the Stripe driver
-        // (but not the API) requires the amount parameter to be set no matter what.
-        if ($data['amount'] == $payment->getCompletedAmount()) {
-            unset($data['amount']);
-        }
-
-        return $data;
-    }
-
-    protected function attemptVoidPayment($response, $payment, $amount)
-    {
-        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
-            return false;
-        }
-
-        return $response->getCode() == 4004;
     }
 
     public function handleWebHook($input)
@@ -209,7 +115,8 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
 
         if ($objectType == 'credit_card') {
-            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=',
+                $objectId)->first();
 
             if (!$paymentMethod) {
                 throw new Exception('Unknown payment method');
@@ -279,6 +186,100 @@ class WePayPaymentDriver extends BasePaymentDriver
         } else {
             return 'Ignoring event';
         }
+    }
+
+    /*
+    public function creatingCustomer($customer)
+    {
+        if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
+            $wepay = \Utils::setupWePay($accountGateway);
+            $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
+
+            $gatewayResponse = $wepay->request($paymentMethodType, array(
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
+            ));
+        }
+    }
+    */
+
+    protected function checkCustomerExists($customer)
+    {
+        return true;
+    }
+
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $data = parent::paymentDetails($paymentMethod);
+
+        if ($transactionId = Session::get($this->invitation->id . 'payment_ref')) {
+            $data['transaction_id'] = $transactionId;
+        }
+
+        $data['applicationFee'] = (WEPAY_APP_FEE_MULTIPLIER * $data['amount']) + WEPAY_APP_FEE_FIXED;
+        $data['feePayer'] = WEPAY_FEE_PAYER;
+        $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
+
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
+            $data['paymentMethodType'] = 'payment_bank';
+        }
+
+        return $data;
+    }
+
+    protected function creatingPaymentMethod($paymentMethod)
+    {
+        $source = $this->tokenResponse;
+
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+            $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
+            $paymentMethod->last4 = $source->account_last_four;
+            $paymentMethod->bank_name = $source->bank_name;
+            $paymentMethod->source_reference = $source->payment_bank_id;
+
+            switch ($source->state) {
+                case 'new':
+                case 'pending':
+                    $paymentMethod->status = 'new';
+                    break;
+                case 'authorized':
+                    $paymentMethod->status = 'verified';
+                    break;
+            }
+        } else {
+            $paymentMethod->last4 = $source->last_four;
+            $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
+            $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
+            $paymentMethod->source_reference = $source->credit_card_id;
+        }
+
+        return $paymentMethod;
+    }
+
+    protected function refundDetails($payment, $amount)
+    {
+        $data = parent::refundDetails($payment, $amount);
+
+        $data['refund_reason'] = 'Refund issued by merchant.';
+
+        // WePay issues a full refund when no amount is set. If an amount is set, it will try
+        // to issue a partial refund without refunding any fees. However, the Stripe driver
+        // (but not the API) requires the amount parameter to be set no matter what.
+        if ($data['amount'] == $payment->getCompletedAmount()) {
+            unset($data['amount']);
+        }
+
+        return $data;
+    }
+
+    protected function attemptVoidPayment($response, $payment, $amount)
+    {
+        if (!parent::attemptVoidPayment($response, $payment, $amount)) {
+            return false;
+        }
+
+        return $response->getCode() == 4004;
     }
 
 }

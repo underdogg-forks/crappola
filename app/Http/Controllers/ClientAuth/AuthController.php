@@ -43,6 +43,14 @@ class AuthController extends Controller
     }
 
     /**
+     * @return mixed
+     */
+    public function getSessionExpired()
+    {
+        return view('clientauth.sessionexpired');
+    }
+
+    /**
      * Get the needed authorization credentials from the request.
      *
      * @param  \Illuminate\Http\Request $request
@@ -77,13 +85,5 @@ class AuthController extends Controller
         $this->validate($request, [
             'password' => 'required',
         ]);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSessionExpired()
-    {
-        return view('clientauth.sessionexpired');
     }
 }

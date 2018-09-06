@@ -33,19 +33,10 @@ class VendorService extends BaseService
         VendorRepository $vendorRepo,
         DatatableService $datatableService,
         NinjaRepository $ninjaRepo
-    )
-    {
-        $this->vendorRepo       = $vendorRepo;
-        $this->ninjaRepo        = $ninjaRepo;
+    ) {
+        $this->vendorRepo = $vendorRepo;
+        $this->ninjaRepo = $ninjaRepo;
         $this->datatableService = $datatableService;
-    }
-
-    /**
-     * @return VendorRepository
-     */
-    protected function getRepo()
-    {
-        return $this->vendorRepo;
     }
 
     /**
@@ -71,10 +62,18 @@ class VendorService extends BaseService
         $datatable = new VendorDatatable();
         $query = $this->vendorRepo->find($search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return VendorRepository
+     */
+    protected function getRepo()
+    {
+        return $this->vendorRepo;
     }
 }

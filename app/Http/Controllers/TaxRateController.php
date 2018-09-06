@@ -38,10 +38,10 @@ class TaxRateController extends BaseController
     public function edit($publicId)
     {
         $data = [
-          'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
-          'method' => 'PUT',
-          'url' => 'tax_rates/'.$publicId,
-          'title' => trans('texts.edit_tax_rate'),
+            'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
+            'method' => 'PUT',
+            'url' => 'tax_rates/' . $publicId,
+            'title' => trans('texts.edit_tax_rate'),
         ];
 
         return View::make('accounts.tax_rate', $data);
@@ -50,10 +50,10 @@ class TaxRateController extends BaseController
     public function create()
     {
         $data = [
-          'taxRate' => null,
-          'method' => 'POST',
-          'url' => 'tax_rates',
-          'title' => trans('texts.create_tax_rate'),
+            'taxRate' => null,
+            'method' => 'POST',
+            'url' => 'tax_rates',
+            'title' => trans('texts.create_tax_rate'),
         ];
 
         return View::make('accounts.tax_rate', $data);

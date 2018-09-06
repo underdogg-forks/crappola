@@ -42,34 +42,34 @@ class PaymentApiController extends BaseAPIController
     public function index()
     {
         $payments = Payment::scope()
-                        ->withTrashed()
-                        ->with(['invoice'])
-                        ->orderBy('created_at', 'desc');
+            ->withTrashed()
+            ->with(['invoice'])
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($payments);
     }
 
     /**
-    * @SWG\Put(
-    *   path="/payments/{payment_id",
-    *   summary="Update a payment",
-    *   tags={"payment"},
-    *   @SWG\Parameter(
-    *     in="body",
-    *     name="body",
-    *     @SWG\Schema(ref="#/definitions/Payment")
-    *   ),
-    *   @SWG\Response(
-    *     response=200,
-    *     description="Update payment",
-    *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
-    *   ),
-    *   @SWG\Response(
-    *     response="default",
-    *     description="an ""unexpected"" error"
-    *   )
-    * )
-    */
+     * @SWG\Put(
+     *   path="/payments/{payment_id",
+     *   summary="Update a payment",
+     *   tags={"payment"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Payment")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update payment",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
 
     public function update(UpdatePaymentRequest $request, $publicId)
     {
@@ -118,31 +118,31 @@ class PaymentApiController extends BaseAPIController
     }
 
     /**
-    * @SWG\Delete(
-    *   path="/payments/{payment_id}",
-    *   summary="Delete a payment",
-    *   tags={"payment"},
-    *   @SWG\Parameter(
-    *     in="body",
-    *     name="body",
-    *     @SWG\Schema(ref="#/definitions/Payment")
-    *   ),
-    *   @SWG\Response(
-    *     response=200,
-    *     description="Delete payment",
-    *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
-    *   ),
-    *   @SWG\Response(
-    *     response="default",
-    *     description="an ""unexpected"" error"
-    *   )
-    * )
-    */
+     * @SWG\Delete(
+     *   path="/payments/{payment_id}",
+     *   summary="Delete a payment",
+     *   tags={"payment"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Payment")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Delete payment",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
 
     public function destroy(UpdatePaymentRequest $request)
     {
         $payment = $request->entity();
-        
+
         $this->clientRepo->delete($payment);
 
         return $this->itemResponse($payment);

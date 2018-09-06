@@ -38,7 +38,7 @@ class HomeController extends BaseController
     public function showIndex()
     {
         Session::reflash();
-        
+
         if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
@@ -115,7 +115,7 @@ class HomeController extends BaseController
                 $user->save();
             }
         }
-        
+
         Session::forget('news_feed_message');
 
         return 'success';

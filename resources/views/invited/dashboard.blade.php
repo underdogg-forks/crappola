@@ -18,8 +18,8 @@
         }
 
         div.logo img {
-            max-width:300px;
-            max-height:200px;
+            max-width: 300px;
+            max-height: 200px;
         }
 
         div.address-details {
@@ -32,10 +32,12 @@
             padding-left: 15px;
             padding-right: 6px;
         }
+
         div.col-md-4-center {
             padding-left: 6px;
             padding-right: 6px;
         }
+
         div.col-md-4-right {
             padding-left: 6px;
             padding-right: 15px;
@@ -65,24 +67,38 @@
         }
 
         table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-            background-color: {{ $color }} !important;
+            background-color: {{ $color }}  !important;
         }
 
-        .pagination>.active>a,
-        .pagination>.active>span,
-        .pagination>.active>a:hover,
-        .pagination>.active>span:hover,
-        .pagination>.active>a:focus,
-        .pagination>.active>span:focus {
+        .pagination > .active > a,
+        .pagination > .active > span,
+        .pagination > .active > a:hover,
+        .pagination > .active > span:hover,
+        .pagination > .active > a:focus,
+        .pagination > .active > span:focus {
             background-color: {{ $color }};
             border-color: {{ $color }};
         }
 
-        table.table thead .sorting:after { content: '' !important }
-        table.table thead .sorting_asc:after { content: '' !important }
-        table.table thead .sorting_desc:after { content: '' !important }
-        table.table thead .sorting_asc_disabled:after { content: '' !important }
-        table.table thead .sorting_desc_disabled:after { content: '' !important }
+        table.table thead .sorting:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_asc:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_desc:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_asc_disabled:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_desc_disabled:after {
+            content: '' !important
+        }
 
     </style>
 
@@ -116,13 +132,15 @@
             </div>
             <div class="col-md-3 address-details">
                 @if ($account->website)
-                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ Utils::addHttp($account->website) }}" target="_blank">{{ $account->website }}</a><br/>
+                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ Utils::addHttp($account->website) }}"
+                                                                      target="_blank">{{ $account->website }}</a><br/>
                 @endif
                 @if ($account->work_phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $account->work_phone }}<br/>
                 @endif
                 @if ($account->work_email)
-                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($account->work_email, $account->work_email) !!}<br/>
+                    <i class="fa fa-envelope"
+                       style="width: 20px"></i>{!! HTML::mailto($account->work_email, $account->work_email) !!}<br/>
                 @endif
             </div>
         </div>
@@ -163,11 +181,11 @@
         </div>
 
         @if (!empty($account->getTokenGatewayId()))
-                <div class="row">
-                    <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12">
                     @include('payments.paymentmethods_list')
                 </div>
-        </div>
+            </div>
         @endif
 
         <div style="min-height: 550px">

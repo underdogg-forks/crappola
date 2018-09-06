@@ -56,20 +56,20 @@ class Product extends EntityModel
     }
 
     /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PRODUCT;
-    }
-
-    /**
      * @param $key
      * @return mixed
      */
     public static function findProductByKey($key)
     {
         return Product::scope()->where('product_key', '=', $key)->first();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_PRODUCT;
     }
 
     /**

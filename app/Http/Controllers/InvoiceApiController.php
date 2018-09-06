@@ -25,8 +25,14 @@ class InvoiceApiController extends BaseAPIController
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer, PaymentService $paymentService)
-    {
+    public function __construct(
+        InvoiceService $invoiceService,
+        InvoiceRepository $invoiceRepo,
+        ClientRepository $clientRepo,
+        PaymentRepository $paymentRepo,
+        Mailer $mailer,
+        PaymentService $paymentService
+    ) {
         parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
@@ -56,29 +62,29 @@ class InvoiceApiController extends BaseAPIController
     public function index()
     {
         $invoices = Invoice::scope()
-                        ->withTrashed()
-                        ->with('invoice_items', 'client')
-                        ->orderBy('created_at', 'desc');
+            ->withTrashed()
+            ->with('invoice_items', 'client')
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($invoices);
     }
 
-        /**
-         * @SWG\Get(
-         *   path="/invoices/{invoice_id}",
-         *   summary="Individual Invoice",
-         *   tags={"invoice"},
-         *   @SWG\Response(
-         *     response=200,
-         *     description="A single invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
+    /**
+     * @SWG\Get(
+     *   path="/invoices/{invoice_id}",
+     *   summary="Individual Invoice",
+     *   tags={"invoice"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
 
     public function show(InvoiceRequest $request)
     {
@@ -113,12 +119,12 @@ class InvoiceApiController extends BaseAPIController
 
         if (isset($data['email'])) {
             $email = $data['email'];
-            $client = Client::scope()->whereHas('contacts', function($query) use ($email) {
+            $client = Client::scope()->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', '=', $email);
             })->first();
 
             if (!$client) {
-                $validator = Validator::make(['email'=>$email], ['email' => 'email']);
+                $validator = Validator::make(['email' => $email], ['email' => 'email']);
                 if ($validator->fails()) {
                     $messages = $validator->messages();
                     return $messages->first();
@@ -126,25 +132,25 @@ class InvoiceApiController extends BaseAPIController
 
                 $clientData = ['contact' => ['email' => $email]];
                 foreach ([
-                    'name',
-                    'address1',
-                    'address2',
-                    'city',
-                    'state',
-                    'postal_code',
-                    'country_id',
-                    'private_notes',
-                    'currency_code',
-                ] as $field) {
+                             'name',
+                             'address1',
+                             'address2',
+                             'city',
+                             'state',
+                             'postal_code',
+                             'country_id',
+                             'private_notes',
+                             'currency_code',
+                         ] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];
                     }
                 }
                 foreach ([
-                    'first_name',
-                    'last_name',
-                    'phone',
-                ] as $field) {
+                             'first_name',
+                             'last_name',
+                             'phone',
+                         ] as $field) {
                     if (isset($data[$field])) {
                         $clientData['contact'][$field] = $data[$field];
                     }
@@ -152,8 +158,10 @@ class InvoiceApiController extends BaseAPIController
 
                 $client = $this->clientRepo->save($clientData);
             }
-        } else if (isset($data['client_id'])) {
-            $client = Client::scope($data['client_id'])->firstOrFail();
+        } else {
+            if (isset($data['client_id'])) {
+                $client = Client::scope($data['client_id'])->firstOrFail();
+            }
         }
 
         $data = self::prepareData($data, $client);
@@ -163,12 +171,14 @@ class InvoiceApiController extends BaseAPIController
 
         if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
             $payment = $this->paymentService->autoBillInvoice($invoice);
-        } else if (isset($data['paid']) && $data['paid']) {
-            $payment = $this->paymentRepo->save([
-                'invoice_id' => $invoice->id,
-                'client_id' => $client->id,
-                'amount' => $data['paid']
-            ]);
+        } else {
+            if (isset($data['paid']) && $data['paid']) {
+                $payment = $this->paymentRepo->save([
+                    'invoice_id' => $invoice->id,
+                    'client_id' => $client->id,
+                    'amount' => $data['paid']
+                ]);
+            }
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
@@ -180,8 +190,8 @@ class InvoiceApiController extends BaseAPIController
         }
 
         $invoice = Invoice::scope($invoice->public_id)
-                        ->with('client', 'invoice_items', 'invitations')
-                        ->first();
+            ->with('client', 'invoice_items', 'invitations')
+            ->first();
 
         if (isset($data['download_invoice']) && boolval($data['download_invoice'])) {
             return $this->fileReponse($invoice->getFileName(), $invoice->getPDFString());
@@ -288,27 +298,27 @@ class InvoiceApiController extends BaseAPIController
         return Response::make($response, 200, $headers);
     }
 
-        /**
-         * @SWG\Put(
-         *   path="/invoices",
-         *   tags={"invoice"},
-         *   summary="Update an invoice",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Invoice")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Update invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
+    /**
+     * @SWG\Put(
+     *   path="/invoices",
+     *   tags={"invoice"},
+     *   summary="Update an invoice",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Invoice")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
@@ -324,33 +334,33 @@ class InvoiceApiController extends BaseAPIController
         $this->invoiceService->save($data, $request->entity());
 
         $invoice = Invoice::scope($publicId)
-                        ->with('client', 'invoice_items', 'invitations')
-                        ->firstOrFail();
+            ->with('client', 'invoice_items', 'invitations')
+            ->firstOrFail();
 
         return $this->itemResponse($invoice);
     }
 
-        /**
-         * @SWG\Delete(
-         *   path="/invoices",
-         *   tags={"invoice"},
-         *   summary="Delete an invoice",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Invoice")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Delete invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
+    /**
+     * @SWG\Delete(
+     *   path="/invoices",
+     *   tags={"invoice"},
+     *   summary="Delete an invoice",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Invoice")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Delete invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
 
     public function destroy(UpdateInvoiceAPIRequest $request)
     {

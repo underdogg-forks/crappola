@@ -14,7 +14,7 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ( ! $this->getClientId($data->customer)) {
+        if (!$this->getClientId($data->customer)) {
             return false;
         }
 
@@ -34,8 +34,8 @@ class InvoiceTransformer extends BaseTransformer
                     [
                         'product_key' => $this->getString($data, 'product'),
                         'notes' => $this->getString($data, 'description'),
-                        'cost' => (float) $data->amount,
-                        'qty' => (float) $data->quantity,
+                        'cost' => (float)$data->amount,
+                        'qty' => (float)$data->quantity,
                     ]
                 ],
             ];

@@ -26,27 +26,27 @@ class TaskService extends BaseService
     }
 
     /**
-     * @return TaskRepository
-     */
-    protected function getRepo()
-    {
-        return $this->taskRepo;
-    }
-
-    /**
      * @param $clientPublicId
      * @param $search
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId, $search)
     {
-        $datatable = new TaskDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new TaskDatatable(!$clientPublicId, $clientPublicId);
         $query = $this->taskRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return TaskRepository
+     */
+    protected function getRepo()
+    {
+        return $this->taskRepo;
     }
 }

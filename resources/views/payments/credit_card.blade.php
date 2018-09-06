@@ -53,7 +53,7 @@
         {{ Former::populateField('country_id', 840) }}
 
         <script>
-            $(function() {
+            $(function () {
                 $('#card_number').val('4242424242424242');
                 $('#cvv').val('1234');
                 $('#expiration_month').val(1);
@@ -89,7 +89,8 @@
     <p>&nbsp;<br/>&nbsp;</p>
 
     @if (!empty($showAddress))
-        <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
+        <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span>
+        </h3>
         <div class="row">
             <div class="col-md-6">
                 {!! Former::text('address1')
@@ -213,8 +214,11 @@
     <div class="row" style="padding-top:18px">
         <div class="col-md-5">
             @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
-                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
-                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
+                <input id="token_billing" type="checkbox" name="token_billing"
+                       {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1"
+                       style="margin-left:0px; vertical-align:top">
+                <label for="token_billing" class="checkbox"
+                       style="display: inline;">{{ trans('texts.token_billing') }}</label>
                 <span class="help-block" style="font-size:15px">
                     @if ($storageGateway == GATEWAY_STRIPE)
                         {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
@@ -229,7 +233,8 @@
             @if (isset($acceptedCreditCardTypes))
                 <div class="pull-right">
                     @foreach ($acceptedCreditCardTypes as $card)
-                        <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 70px; display: inline; margin-right: 6px;"/>
+                        <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}"
+                             style="width: 70px; display: inline; margin-right: 6px;"/>
                     @endforeach
                 </div>
             @endif
@@ -257,8 +262,8 @@
     {!! Former::close() !!}
 
     <script type="text/javascript">
-        $(function() {
-            $('.payment-form').submit(function(event) {
+        $(function () {
+            $('.payment-form').submit(function (event) {
                 var $form = $(this);
 
                 // Disable the submit button to prevent repeated clicks

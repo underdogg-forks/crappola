@@ -33,8 +33,13 @@ class ClientPortalController extends BaseController
     private $paymentRepo;
     private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService)
-    {
+    public function __construct(
+        InvoiceRepository $invoiceRepo,
+        PaymentRepository $paymentRepo,
+        ActivityRepository $activityRepo,
+        DocumentRepository $documentRepo,
+        PaymentService $paymentService
+    ) {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
@@ -107,7 +112,7 @@ class ClientPortalController extends BaseController
             }
         }
 
-        if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
+        if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
             $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
         }
 
@@ -142,11 +147,10 @@ class ClientPortalController extends BaseController
         }
 
 
-
-        if($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()){
+        if ($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()) {
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
 
-            if(count($zipDocs) > 1){
+            if (count($zipDocs) > 1) {
                 $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
                 $data['documentsZipSize'] = $size;
             }
@@ -155,7 +159,8 @@ class ClientPortalController extends BaseController
         return View::make('invoices.view', $data);
     }
 
-    public function contactIndex($contactKey) {
+    public function contactIndex($contactKey)
+    {
         if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
             return $this->returnError();
         }
@@ -164,20 +169,7 @@ class ClientPortalController extends BaseController
 
         Session::put('contact_key', $contactKey);// track current contact
 
-        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/invoices/');
-    }
-
-    private function getPaymentTypes($account, $client, $invitation)
-    {
-        $links = [];
-
-        foreach ($account->account_gateways as $accountGateway) {
-            $paymentDriver = $accountGateway->paymentDriver($invitation);
-            $links = array_merge($links, $paymentDriver->tokenLinks());
-            $links = array_merge($links, $paymentDriver->paymentLinks());
-        }
-
-        return $links;
+        return redirect()->to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/invoices/');
     }
 
     public function download($invitationKey)
@@ -246,7 +238,9 @@ class ClientPortalController extends BaseController
         $query->where('activities.adjustment', '!=', 0);
 
         return Datatable::query($query)
-            ->addColumn('activities.id', function ($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
+            ->addColumn('activities.id', function ($model) {
+                return Utils::timestampToDateTimeString(strtotime($model->created_at));
+            })
             ->addColumn('activity_type_id', function ($model) {
                 $data = [
                     'client' => Utils::getClientDisplayName($model),
@@ -254,15 +248,23 @@ class ClientPortalController extends BaseController
                     'invoice' => $model->invoice,
                     'contact' => Utils::getClientDisplayName($model),
                     'payment' => $model->payment ? ' ' . $model->payment : '',
-                    'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
-                    'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
-                    'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
+                    'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id,
+                        $model->country_id) : '',
+                    'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount,
+                        $model->currency_id, $model->country_id) : null,
+                    'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id,
+                        $model->country_id) : null,
                 ];
 
                 return trans("texts.activity_{$model->activity_type_id}", $data);
-             })
-            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
-            ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : ''; })
+            })
+            ->addColumn('balance', function ($model) {
+                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('adjustment', function ($model) {
+                return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id,
+                    $model->country_id) : '';
+            })
             ->make();
     }
 
@@ -338,7 +340,6 @@ class ClientPortalController extends BaseController
         return $this->invoiceRepo->getClientRecurringDatatable($contact->id);
     }
 
-
     public function paymentIndex()
     {
         if (!$contact = $this->getContact()) {
@@ -358,7 +359,14 @@ class ClientPortalController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'status'])
+            'columns' => Utils::trans([
+                'invoice',
+                'transaction_reference',
+                'method',
+                'payment_amount',
+                'payment_date',
+                'status'
+            ])
         ];
 
         return response()->view('public_list', $data);
@@ -372,41 +380,27 @@ class ClientPortalController extends BaseController
         $payments = $this->paymentRepo->findForContact($contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
-                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
-                ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>'.trans('texts.manual_entry').'</i>'; })
-                ->addColumn('payment_type', function ($model) { return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
-                ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
-                ->addColumn('status', function ($model) { return $this->getPaymentStatusLabel($model); })
-                ->orderColumns( 'invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date')
-                ->make();
-    }
-
-    private function getPaymentStatusLabel($model)
-    {
-        $label = trans('texts.status_' . strtolower($model->payment_status_name));
-        $class = 'default';
-        switch ($model->payment_status_id) {
-            case PAYMENT_STATUS_PENDING:
-                $class = 'info';
-                break;
-            case PAYMENT_STATUS_COMPLETED:
-                $class = 'success';
-                break;
-            case PAYMENT_STATUS_FAILED:
-                $class = 'danger';
-                break;
-            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
-                $label = trans('texts.status_partially_refunded_amount', [
-                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
-                ]);
-                $class = 'primary';
-                break;
-            case PAYMENT_STATUS_REFUNDED:
-                $class = 'default';
-                break;
-        }
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+            ->addColumn('invoice_number', function ($model) {
+                return $model->invitation_key ? link_to('/view/' . $model->invitation_key,
+                    $model->invoice_number)->toHtml() : $model->invoice_number;
+            })
+            ->addColumn('transaction_reference', function ($model) {
+                return $model->transaction_reference ? $model->transaction_reference : '<i>' . trans('texts.manual_entry') . '</i>';
+            })
+            ->addColumn('payment_type', function ($model) {
+                return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : '');
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('payment_date', function ($model) {
+                return Utils::dateToString($model->payment_date);
+            })
+            ->addColumn('status', function ($model) {
+                return $this->getPaymentStatusLabel($model);
+            })
+            ->orderColumns('invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date')
+            ->make();
     }
 
     public function quoteIndex()
@@ -423,17 +417,16 @@ class ClientPortalController extends BaseController
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
-          'color' => $color,
-          'account' => $account,
-          'clientFontUrl' => $account->getFontsUrl(),
-          'title' => trans('texts.quotes'),
-          'entityType' => ENTITY_QUOTE,
-          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
+            'color' => $color,
+            'account' => $account,
+            'clientFontUrl' => $account->getFontsUrl(),
+            'title' => trans('texts.quotes'),
+            'entityType' => ENTITY_QUOTE,
+            'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
         ];
 
         return response()->view('public_list', $data);
     }
-
 
     public function quoteDatatable()
     {
@@ -458,17 +451,16 @@ class ClientPortalController extends BaseController
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
-          'color' => $color,
-          'account' => $account,
-          'clientFontUrl' => $account->getFontsUrl(),
-          'title' => trans('texts.documents'),
-          'entityType' => ENTITY_DOCUMENT,
-          'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
+            'color' => $color,
+            'account' => $account,
+            'clientFontUrl' => $account->getFontsUrl(),
+            'title' => trans('texts.documents'),
+            'entityType' => ENTITY_DOCUMENT,
+            'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
         ];
 
         return response()->view('public_list', $data);
     }
-
 
     public function documentDatatable()
     {
@@ -479,32 +471,8 @@ class ClientPortalController extends BaseController
         return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
-    private function returnError($error = false)
+    public function getDocumentVFSJS($publicId, $name)
     {
-        return response()->view('error', [
-            'error' => $error ?: trans('texts.invoice_not_found'),
-            'hideHeader' => true,
-            'account' => $this->getContact()->account,
-        ]);
-    }
-
-    private function getContact() {
-        $contactKey = session('contact_key');
-
-        if (!$contactKey) {
-            return false;
-        }
-
-        $contact = Contact::where('contact_key', '=', $contactKey)->first();
-
-        if (!$contact || $contact->is_deleted) {
-            return false;
-        }
-
-        return $contact;
-    }
-
-    public function getDocumentVFSJS($publicId, $name){
         if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
@@ -512,27 +480,29 @@ class ClientPortalController extends BaseController
         $document = Document::scope($publicId, $contact->account_id)->first();
 
 
-        if(!$document->isPDFEmbeddable()){
-            return Response::view('error', ['error'=>'Image does not exist!'], 404);
+        if (!$document->isPDFEmbeddable()) {
+            return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $authorized = false;
-        if($document->expense && $document->expense->client_id == $contact->client_id){
+        if ($document->expense && $document->expense->client_id == $contact->client_id) {
             $authorized = true;
-        } else if($document->invoice && $document->invoice->client_id ==$contact->client_id){
-            $authorized = true;
+        } else {
+            if ($document->invoice && $document->invoice->client_id == $contact->client_id) {
+                $authorized = true;
+            }
         }
 
-        if(!$authorized){
-            return Response::view('error', ['error'=>'Not authorized'], 403);
+        if (!$authorized) {
+            return Response::view('error', ['error' => 'Not authorized'], 403);
         }
 
-        if(substr($name, -3)=='.js'){
+        if (substr($name, -3) == '.js') {
             $name = substr($name, 0, -3);
         }
 
-        $content = $document->preview?$document->getRawPreview():$document->getRaw();
-        $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
+        $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
+        $content = 'ninjaAddVFSDoc(' . json_encode(intval($publicId) . '/' . strval($name)) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -540,56 +510,8 @@ class ClientPortalController extends BaseController
         return $response;
     }
 
-    protected function canCreateZip(){
-        return function_exists('gmp_init');
-    }
-
-    protected function getInvoiceZipDocuments($invoice, &$size=0){
-        $documents = $invoice->documents;
-
-        foreach($invoice->expenses as $expense){
-            $documents = $documents->merge($expense->documents);
-        }
-
-        $documents = $documents->sortBy('size');
-
-        $size = 0;
-        $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
-        $toZip = [];
-        foreach($documents as $document){
-            if($size + $document->size > $maxSize)break;
-
-            if(!empty($toZip[$document->name])){
-                // This name is taken
-                if($toZip[$document->name]->hash != $document->hash){
-                    // 2 different files with the same name
-                    $nameInfo = pathinfo($document->name);
-
-                    for($i = 1;; $i++){
-                        $name = $nameInfo['filename'].' ('.$i.').'.$nameInfo['extension'];
-
-                        if(empty($toZip[$name])){
-                            $toZip[$name] = $document;
-                            $size += $document->size;
-                            break;
-                        } else if ($toZip[$name]->hash == $document->hash){
-                            // We're not adding this after all
-                            break;
-                        }
-                    }
-
-                }
-            }
-            else{
-                $toZip[$document->name] = $document;
-                $size += $document->size;
-            }
-        }
-
-        return $toZip;
-    }
-
-    public function getInvoiceDocumentsZip($invitationKey){
+    public function getInvoiceDocumentsZip($invitationKey)
+    {
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
@@ -600,21 +522,23 @@ class ClientPortalController extends BaseController
 
         $toZip = $this->getInvoiceZipDocuments($invoice);
 
-        if(!count($toZip)){
-            return Response::view('error', ['error'=>'No documents small enough'], 404);
+        if (!count($toZip)) {
+            return Response::view('error', ['error' => 'No documents small enough'], 404);
         }
 
-        $zip = new ZipArchive($invitation->account->name.' Invoice '.$invoice->invoice_number.'.zip');
-        return Response::stream(function() use ($toZip, $zip) {
-            foreach($toZip as $name=>$document){
+        $zip = new ZipArchive($invitation->account->name . ' Invoice ' . $invoice->invoice_number . '.zip');
+        return Response::stream(function () use ($toZip, $zip) {
+            foreach ($toZip as $name => $document) {
                 $fileStream = $document->getStream();
-                if($fileStream){
-                    $zip->init_file_stream_transfer($name, $document->size, ['time'=>$document->created_at->timestamp]);
-                    while ($buffer = fread($fileStream, 256000))$zip->stream_file_part($buffer);
+                if ($fileStream) {
+                    $zip->init_file_stream_transfer($name, $document->size,
+                        ['time' => $document->created_at->timestamp]);
+                    while ($buffer = fread($fileStream, 256000)) {
+                        $zip->stream_file_part($buffer);
+                    }
                     fclose($fileStream);
                     $zip->complete_file_stream();
-                }
-                else{
+                } else {
                     $zip->add_file($name, $document->getRaw());
                 }
             }
@@ -622,7 +546,8 @@ class ClientPortalController extends BaseController
         }, 200);
     }
 
-    public function getDocument($invitationKey, $publicId){
+    public function getDocument($invitationKey, $publicId)
+    {
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
@@ -633,14 +558,16 @@ class ClientPortalController extends BaseController
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
 
         $authorized = false;
-        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+        if ($document->expense && $document->expense->client_id == $invitation->invoice->client_id) {
             $authorized = true;
-        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
-            $authorized = true;
+        } else {
+            if ($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id) {
+                $authorized = true;
+            }
         }
 
-        if(!$authorized){
-            return Response::view('error', ['error'=>'Not authorized'], 403);
+        if (!$authorized) {
+            return Response::view('error', ['error' => 'Not authorized'], 403);
         }
 
         return DocumentController::getDownloadResponse($document);
@@ -696,7 +623,7 @@ class ClientPortalController extends BaseController
             Session::flash('message', trans('texts.payment_method_verified'));
         }
 
-        return redirect()->to($account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
     }
 
     public function removePaymentMethod($publicId)
@@ -720,10 +647,11 @@ class ClientPortalController extends BaseController
             Session::flash('error', $exception->getMessage());
         }
 
-        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
     }
 
-    public function setDefaultPaymentMethod(){
+    public function setDefaultPaymentMethod()
+    {
         if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
@@ -733,7 +661,7 @@ class ClientPortalController extends BaseController
 
         $validator = Validator::make(Input::all(), ['source' => 'required']);
         if ($validator->fails()) {
-            return Redirect::to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
+            return Redirect::to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
         }
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
@@ -747,22 +675,11 @@ class ClientPortalController extends BaseController
 
         Session::flash('message', trans('texts.payment_method_set_as_default'));
 
-        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
     }
 
-    private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)
+    public function setAutoBill()
     {
-        $message = '';
-        if ($accountGateway && $accountGateway->gateway) {
-            $message = $accountGateway->gateway->name . ': ';
-        }
-        $message .= $error ?: trans('texts.payment_method_error');
-
-        Session::flash('error', $message);
-        Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
-    }
-
-    public function setAutoBill(){
         if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
@@ -785,5 +702,138 @@ class ClientPortalController extends BaseController
         }
 
         return Redirect::to('client/invoices/recurring');
+    }
+
+    protected function canCreateZip()
+    {
+        return function_exists('gmp_init');
+    }
+
+    protected function getInvoiceZipDocuments($invoice, &$size = 0)
+    {
+        $documents = $invoice->documents;
+
+        foreach ($invoice->expenses as $expense) {
+            $documents = $documents->merge($expense->documents);
+        }
+
+        $documents = $documents->sortBy('size');
+
+        $size = 0;
+        $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
+        $toZip = [];
+        foreach ($documents as $document) {
+            if ($size + $document->size > $maxSize) {
+                break;
+            }
+
+            if (!empty($toZip[$document->name])) {
+                // This name is taken
+                if ($toZip[$document->name]->hash != $document->hash) {
+                    // 2 different files with the same name
+                    $nameInfo = pathinfo($document->name);
+
+                    for ($i = 1; ; $i++) {
+                        $name = $nameInfo['filename'] . ' (' . $i . ').' . $nameInfo['extension'];
+
+                        if (empty($toZip[$name])) {
+                            $toZip[$name] = $document;
+                            $size += $document->size;
+                            break;
+                        } else {
+                            if ($toZip[$name]->hash == $document->hash) {
+                                // We're not adding this after all
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            } else {
+                $toZip[$document->name] = $document;
+                $size += $document->size;
+            }
+        }
+
+        return $toZip;
+    }
+
+    private function getPaymentTypes($account, $client, $invitation)
+    {
+        $links = [];
+
+        foreach ($account->account_gateways as $accountGateway) {
+            $paymentDriver = $accountGateway->paymentDriver($invitation);
+            $links = array_merge($links, $paymentDriver->tokenLinks());
+            $links = array_merge($links, $paymentDriver->paymentLinks());
+        }
+
+        return $links;
+    }
+
+    private function getPaymentStatusLabel($model)
+    {
+        $label = trans('texts.status_' . strtolower($model->payment_status_name));
+        $class = 'default';
+        switch ($model->payment_status_id) {
+            case PAYMENT_STATUS_PENDING:
+                $class = 'info';
+                break;
+            case PAYMENT_STATUS_COMPLETED:
+                $class = 'success';
+                break;
+            case PAYMENT_STATUS_FAILED:
+                $class = 'danger';
+                break;
+            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
+                $label = trans('texts.status_partially_refunded_amount', [
+                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
+                ]);
+                $class = 'primary';
+                break;
+            case PAYMENT_STATUS_REFUNDED:
+                $class = 'default';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+
+    private function returnError($error = false)
+    {
+        return response()->view('error', [
+            'error' => $error ?: trans('texts.invoice_not_found'),
+            'hideHeader' => true,
+            'account' => $this->getContact()->account,
+        ]);
+    }
+
+    private function getContact()
+    {
+        $contactKey = session('contact_key');
+
+        if (!$contactKey) {
+            return false;
+        }
+
+        $contact = Contact::where('contact_key', '=', $contactKey)->first();
+
+        if (!$contact || $contact->is_deleted) {
+            return false;
+        }
+
+        return $contact;
+    }
+
+    private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)
+    {
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error ?: trans('texts.payment_method_error');
+
+        Session::flash('error', $message);
+        Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message),
+            'PHP', true);
     }
 }

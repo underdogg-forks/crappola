@@ -1030,10 +1030,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Kies een voorvoegsel voor het factuurnummer van terugkerende facturen. De standaard is: \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Facturen beveiligen met een wachtwoord',
-    'enable_portal_password_help'=>'Geeft u de mogelijkheid om een wachtwoord in te stellen voor elke contactpersoon. Als er een wachtwoord is ingesteld moet de contactpersoon het wachtwoord invoeren voordat deze facturen kan bekijken.',
-    'send_portal_password'=>'Wachtwoord automatisch genereren',
-    'send_portal_password_help'=>'Als er geen wachtwoord is ingesteld zal deze automatisch worden gegenereerd en verzonden bij de eerste factuur.',
+    'enable_portal_password' => 'Facturen beveiligen met een wachtwoord',
+    'enable_portal_password_help' => 'Geeft u de mogelijkheid om een wachtwoord in te stellen voor elke contactpersoon. Als er een wachtwoord is ingesteld moet de contactpersoon het wachtwoord invoeren voordat deze facturen kan bekijken.',
+    'send_portal_password' => 'Wachtwoord automatisch genereren',
+    'send_portal_password_help' => 'Als er geen wachtwoord is ingesteld zal deze automatisch worden gegenereerd en verzonden bij de eerste factuur.',
 
     'expired' => 'Verlopen',
     'invalid_card_number' => 'Het creditcardnummer is niet geldig.',
@@ -1415,7 +1415,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1745,7 +1745,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

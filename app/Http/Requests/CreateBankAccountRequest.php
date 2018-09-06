@@ -1,7 +1,6 @@
 <?php namespace App\Http\Requests;
 
 
-
 class CreateBankAccountRequest extends Request
 {
     // Expenses 

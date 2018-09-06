@@ -3,21 +3,23 @@
 @section('head')
     @parent
 
-        <style type="text/css">
-            .iframe_url {
-                display: none;
-            }
-            .input-group-addon div.checkbox {
-                display: inline;
-            }
-            .tab-content .pad-checkbox span.input-group-addon {
-                padding-right: 30px;
-            }
-        </style>
+    <style type="text/css">
+        .iframe_url {
+            display: none;
+        }
+
+        .input-group-addon div.checkbox {
+            display: inline;
+        }
+
+        .tab-content .pad-checkbox span.input-group-addon {
+            padding-right: 30px;
+        }
+    </style>
 @stop
 
-@section('content')	
-	@parent
+@section('content')
+    @parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_SETTINGS, 'advanced' => true])
 
     {!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
@@ -36,13 +38,16 @@
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active">
-                        <a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a>
+                        <a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab"
+                           data-toggle="tab">{{ trans('texts.invoice_number') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#quoteNumber" aria-controls="quoteNumber" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
+                        <a href="#quoteNumber" aria-controls="quoteNumber" role="tab"
+                           data-toggle="tab">{{ trans('texts.quote_number') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#recurringInvoiceNumber" aria-controls="recurringInvoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
+                        <a href="#recurringInvoiceNumber" aria-controls="recurringInvoiceNumber" role="tab"
+                           data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
                     </li>
                 </ul>
             </div>
@@ -115,7 +120,7 @@
 
         </div>
     </div>
-    
+
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -126,19 +131,24 @@
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active">
-                        <a href="#clientFields" aria-controls="clientFields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
+                        <a href="#clientFields" aria-controls="clientFields" role="tab"
+                           data-toggle="tab">{{ trans('texts.client_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#companyFields" aria-controls="companyFields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
+                        <a href="#companyFields" aria-controls="companyFields" role="tab"
+                           data-toggle="tab">{{ trans('texts.company_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
+                        <a href="#invoiceFields" aria-controls="invoiceFields" role="tab"
+                           data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceItemFields" aria-controls="invoiceItemFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_item_fields') }}</a>
+                        <a href="#invoiceItemFields" aria-controls="invoiceItemFields" role="tab"
+                           data-toggle="tab">{{ trans('texts.invoice_item_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
+                        <a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab"
+                           data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
                     </li>
                 </ul>
             </div>
@@ -225,16 +235,21 @@
     </div>
 
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
-      </div>
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
+        </div>
         <div class="panel-body form-padding-right">
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#invoiceTerms" aria-controls="invoiceTerms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
-                    <li role="presentation"><a href="#invoiceFooter" aria-controls="invoiceFooter" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
-                    <li role="presentation"><a href="#quoteTerms" aria-controls="quoteTerms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                    <li role="presentation" class="active"><a href="#invoiceTerms" aria-controls="invoiceTerms"
+                                                              role="tab"
+                                                              data-toggle="tab">{{ trans('texts.invoice_terms') }}</a>
+                    </li>
+                    <li role="presentation"><a href="#invoiceFooter" aria-controls="invoiceFooter" role="tab"
+                                               data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
+                    <li role="presentation"><a href="#quoteTerms" aria-controls="quoteTerms" role="tab"
+                                               data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -264,14 +279,15 @@
     </div>
 
 
-    
+
     @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>
     @endif
 
-    <div class="modal fade" id="patternHelpModal" tabindex="-1" role="dialog" aria-labelledby="patternHelpModalLabel" aria-hidden="true">
+    <div class="modal fade" id="patternHelpModal" tabindex="-1" role="dialog" aria-labelledby="patternHelpModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" style="min-width:150px">
             <div class="modal-content">
                 <div class="modal-header">
@@ -285,7 +301,8 @@
                     <ul>
                         @foreach (\App\Models\Invoice::$patternFields as $field)
                             @if ($field == 'date:')
-                                <li>{$date:format} - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
+                                <li>{$date:format}
+                                    - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
                             @else
                                 <li>{${{ $field }}}</li>
                             @endif
@@ -298,7 +315,8 @@
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
             </div>
@@ -306,50 +324,50 @@
     </div>
 
 
-	{!! Former::close() !!}
+    {!! Former::close() !!}
 
 
-	<script type="text/javascript">
+    <script type="text/javascript">
 
-  	function setQuoteNumberEnabled() {
-			var disabled = $('#share_counter').prop('checked');
-			$('#quote_number_counter').prop('disabled', disabled);
-			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');			
-		}
-
-    function onInvoiceNumberTypeChange() {
-        var val = $('input[name=invoice_number_type]:checked').val()
-        if (val == 'prefix') {
-            $('.invoice-prefix').show();
-            $('.invoice-pattern').hide();
-        } else {
-            $('.invoice-prefix').hide();
-            $('.invoice-pattern').show();
+        function setQuoteNumberEnabled() {
+            var disabled = $('#share_counter').prop('checked');
+            $('#quote_number_counter').prop('disabled', disabled);
+            $('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');
         }
-    }
 
-    function onQuoteNumberTypeChange() {
-        var val = $('input[name=quote_number_type]:checked').val()
-        if (val == 'prefix') {
-            $('.quote-prefix').show();
-            $('.quote-pattern').hide();
-        } else {
-            $('.quote-prefix').hide();
-            $('.quote-pattern').show();
+        function onInvoiceNumberTypeChange() {
+            var val = $('input[name=invoice_number_type]:checked').val()
+            if (val == 'prefix') {
+                $('.invoice-prefix').show();
+                $('.invoice-pattern').hide();
+            } else {
+                $('.invoice-prefix').hide();
+                $('.invoice-pattern').show();
+            }
         }
-    }
 
-    $('.number-pattern .input-group-addon').click(function() {
-        $('#patternHelpModal').modal('show');
-    });
+        function onQuoteNumberTypeChange() {
+            var val = $('input[name=quote_number_type]:checked').val()
+            if (val == 'prefix') {
+                $('.quote-prefix').show();
+                $('.quote-pattern').hide();
+            } else {
+                $('.quote-prefix').hide();
+                $('.quote-pattern').show();
+            }
+        }
 
-    $(function() {       	
-    	setQuoteNumberEnabled();
-        onInvoiceNumberTypeChange();
-        onQuoteNumberTypeChange();
-    });
+        $('.number-pattern .input-group-addon').click(function () {
+            $('#patternHelpModal').modal('show');
+        });
 
-	</script>
+        $(function () {
+            setQuoteNumberEnabled();
+            onInvoiceNumberTypeChange();
+            onQuoteNumberTypeChange();
+        });
+
+    </script>
 
 
 @stop

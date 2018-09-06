@@ -1,7 +1,6 @@
 <?php namespace App\Http\Requests;
 
 
-
 class UpdateAccountRequest extends Request
 {
     /**
@@ -23,7 +22,7 @@ class UpdateAccountRequest extends Request
     {
         return [
             'name' => 'required',
-            'logo' => 'sometimes|max:'.MAX_LOGO_FILE_SIZE.'|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:' . MAX_LOGO_FILE_SIZE . '|mimes:jpeg,gif,png',
         ];
     }
 }

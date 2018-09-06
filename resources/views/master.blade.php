@@ -98,7 +98,7 @@
                 confirmButtonColor: "#DD6B55",
                 showCancelButton: true,
                 closeOnConfirm: false
-            }, function() {
+            }, function () {
                 success();
                 swal.close();
             });
@@ -124,12 +124,12 @@
         @if (env('FACEBOOK_PIXEL'))
         <!-- Facebook Pixel Code -->
         !function (f, b, e, v, n, t, s) {
-            if (f.fbq)return;
+            if (f.fbq) return;
             n = f.fbq = function () {
                 n.callMethod ?
-                        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
             };
-            if (!f._fbq)f._fbq = n;
+            if (!f._fbq) f._fbq = n;
             n.push = n;
             n.loaded = !0;
             n.version = '2.0';
@@ -140,7 +140,7 @@
             s = b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t, s)
         }(window,
-                document, 'script', '//connect.facebook.net/en_US/fbevents.js');
+            document, 'script', '//connect.facebook.net/en_US/fbevents.js');
 
         fbq('init', '{{ env('FACEBOOK_PIXEL') }}');
         fbq('track', "PageView");
@@ -164,7 +164,7 @@
         ;
         @endif
 
-                window._fbq = window._fbq || [];
+            window._fbq = window._fbq || [];
 
     </script>
 
@@ -193,10 +193,10 @@
                 'gtm.start': new Date().getTime(), event: 'gtm.js'
             });
             var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
             j.async = true;
             j.src =
-                    '//www.googletagmanager.com/gtm.js?id=' + i + dl;
+                '//www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', '{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>
     <!-- End Google Tag Manager -->
@@ -210,10 +210,10 @@
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
             i[r] = i[r] || function () {
-                        (i[r].q = i[r].q || []).push(arguments)
-                    }, i[r].l = 1 * new Date();
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
             a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0];
+                m = s.getElementsByTagName(o)[0];
             a.async = 1;
             a.src = g;
             m.parentNode.insertBefore(a, m)
@@ -244,8 +244,8 @@
         });
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
-            @if (Session::get('trackEventAction') === '/buy_pro_plan')
-                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {
+        @if (Session::get('trackEventAction') === '/buy_pro_plan')
+        window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {
             'value': '{{ session('trackEventAmount') }}',
             'currency': 'USD'
         }]);
@@ -266,6 +266,7 @@
             return undefined;
         }
     });
+
     function openUrl(url, track) {
         trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');

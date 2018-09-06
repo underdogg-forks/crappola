@@ -2,7 +2,8 @@
 
 use Utils;
 
-class PaymentPresenter extends EntityPresenter {
+class PaymentPresenter extends EntityPresenter
+{
 
     public function client()
     {

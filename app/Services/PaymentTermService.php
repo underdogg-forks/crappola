@@ -21,14 +21,6 @@ class PaymentTermService extends BaseService
     }
 
     /**
-     * @return PaymentTermRepository
-     */
-    protected function getRepo()
-    {
-        return $this->paymentTermRepo;
-    }
-
-    /**
      * @param int $accountId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -67,5 +59,13 @@ class PaymentTermService extends BaseService
                 }
             ]
         ];
+    }
+
+    /**
+     * @return PaymentTermRepository
+     */
+    protected function getRepo()
+    {
+        return $this->paymentTermRepo;
     }
 }

@@ -1039,10 +1039,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Geben Sie einen Präfix für wiederkehrende Rechnungen an. Standard ist \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Passwortgeschützte Rechnungen',
-    'enable_portal_password_help'=>'Erlaubt Ihnen ein Passwort für jeden Kontakt zu erstellen. Wenn ein Passwort erstellt wurde, muss der Kunde dieses eingeben, bevor er eine Rechnung ansehen darf.',
-    'send_portal_password'=>'Erstelle das Passwort automatisch',
-    'send_portal_password_help'=>'Wenn kein Passwort gesetzt wurde, wird eins generiert und mit der ersten Rechnung verschickt.',
+    'enable_portal_password' => 'Passwortgeschützte Rechnungen',
+    'enable_portal_password_help' => 'Erlaubt Ihnen ein Passwort für jeden Kontakt zu erstellen. Wenn ein Passwort erstellt wurde, muss der Kunde dieses eingeben, bevor er eine Rechnung ansehen darf.',
+    'send_portal_password' => 'Erstelle das Passwort automatisch',
+    'send_portal_password_help' => 'Wenn kein Passwort gesetzt wurde, wird eins generiert und mit der ersten Rechnung verschickt.',
 
     'expired' => 'Abgelaufen',
     'invalid_card_number' => 'Die Kreditkartennummer ist nicht gültig.',
@@ -1424,7 +1424,7 @@ $LANG = array(
     'industry_Transportation' => 'Verkehrswesen',
     'industry_Travel & Luxury' => 'Reisen & Luxus',
     'industry_Other' => 'Andere',
-    'industry_Photography' =>'Fotografie',
+    'industry_Photography' => 'Fotografie',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1754,7 +1754,7 @@ $LANG = array(
     'industry_Transportation' => 'Verkehrswesen',
     'industry_Travel & Luxury' => 'Reisen & Luxus',
     'industry_Other' => 'Andere',
-    'industry_Photography' =>'Fotografie',
+    'industry_Photography' => 'Fotografie',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

@@ -25,12 +25,12 @@ class ReportController extends BaseController
     public function d3()
     {
         $message = '';
-        $fileName = storage_path().'/dataviz_sample.txt';
+        $fileName = storage_path() . '/dataviz_sample.txt';
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $account = Account::where('id', '=', Auth::user()->account->id)
-                            ->with(['clients.invoices.invoice_items', 'clients.contacts'])
-                            ->first();
+                ->with(['clients.invoices.invoice_items', 'clients.contacts'])
+                ->first();
             $account = $account->hideFieldsForViz();
             $clients = $account->clients->toJson();
         } elseif (file_exists($fileName)) {
@@ -111,7 +111,8 @@ class ReportController extends BaseController
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             if ($enableReport) {
                 $isExport = $action == 'export';
-                $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
+                $params = array_merge($params,
+                    self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
 
                 if ($isExport) {
                     self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
@@ -148,7 +149,7 @@ class ReportController extends BaseController
         foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType) {
             // SQLite does not support the YEAR(), MONTH(), WEEK() and similar functions.
             // Let's see if SQLite is being used.
-            if (Config::get('database.connections.'.Config::get('database.default').'.driver') == 'sqlite') {
+            if (Config::get('database.connections.' . Config::get('database.default') . '.driver') == 'sqlite') {
                 // Replace the unsupported function with it's date format counterpart
                 switch ($groupBy) {
                     case 'MONTH':
@@ -166,46 +167,46 @@ class ReportController extends BaseController
                 }
 
                 // Concatenate the year and the chosen timeframe (Month, Week or Day)
-                $timeframe = 'strftime("%Y", '.$entityType.'_date) || strftime("'.$dateFormat.'", '.$entityType.'_date)';
+                $timeframe = 'strftime("%Y", ' . $entityType . '_date) || strftime("' . $dateFormat . '", ' . $entityType . '_date)';
             } else {
                 // Supported by Laravel's other DBMS drivers (MySQL, MSSQL and PostgreSQL)
-                $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
+                $timeframe = 'concat(YEAR(' . $entityType . '_date), ' . $groupBy . '(' . $entityType . '_date))';
             }
 
-            $records = DB::table($entityType.'s')
-                ->select(DB::raw('sum('.$entityType.'s.amount) as total, '.$timeframe.' as '.$groupBy))
-                ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
+            $records = DB::table($entityType . 's')
+                ->select(DB::raw('sum(' . $entityType . 's.amount) as total, ' . $timeframe . ' as ' . $groupBy))
+                ->join('clients', 'clients.id', '=', $entityType . 's.client_id')
                 ->where('clients.is_deleted', '=', false)
-                ->where($entityType.'s.account_id', '=', Auth::user()->account_id)
-                ->where($entityType.'s.is_deleted', '=', false)
-                ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
-                ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
+                ->where($entityType . 's.account_id', '=', Auth::user()->account_id)
+                ->where($entityType . 's.is_deleted', '=', false)
+                ->where($entityType . 's.' . $entityType . '_date', '>=', $startDate->format('Y-m-d'))
+                ->where($entityType . 's.' . $entityType . '_date', '<=', $endDate->format('Y-m-d'))
                 ->groupBy($groupBy);
 
             if ($entityType == ENTITY_INVOICE) {
                 $records->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                        ->where('is_recurring', '=', false);
+                    ->where('is_recurring', '=', false);
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                        ->where('invoices.is_deleted', '=', false);
+                    ->where('invoices.is_deleted', '=', false);
             }
 
             $totals = $records->lists('total');
-            $dates  = $records->lists($groupBy);
-            $data   = array_combine($dates, $totals);
+            $dates = $records->lists($groupBy);
+            $data = array_combine($dates, $totals);
 
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
-            $endDate->modify('+1 '.$padding);
-            $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
-            $period   = new DatePeriod($startDate, $interval, $endDate);
-            $endDate->modify('-1 '.$padding);
+            $endDate->modify('+1 ' . $padding);
+            $interval = new DateInterval('P1' . substr($groupBy, 0, 1));
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            $endDate->modify('-1 ' . $padding);
 
             $totals = [];
 
             foreach ($period as $d) {
                 $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
                 // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
-                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y').($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
+                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y') . ($d->format($dateFormat) + 1) : $d->format('Y' . $dateFormat);
                 $totals[] = isset($data[$date]) ? $data[$date] : 0;
 
                 if ($entityType == ENTITY_INVOICE) {
@@ -275,27 +276,31 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $clients = Client::scope()
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function($query) use ($startDate, $endDate, $dateField) {
-                            $query->with('invoice_items')->withArchived();
-                            if ($dateField == FILTER_INVOICE_DATE) {
-                                $query->where('invoice_date', '>=', $startDate)
-                                      ->where('invoice_date', '<=', $endDate)
-                                      ->with('payments');
-                            } else {
-                                $query->whereHas('payments', function($query) use ($startDate, $endDate) {
-                                            $query->where('payment_date', '>=', $startDate)
-                                                  ->where('payment_date', '<=', $endDate)
-                                                  ->withArchived();
-                                        })
-                                        ->with(['payments' => function($query) use ($startDate, $endDate) {
-                                            $query->where('payment_date', '>=', $startDate)
-                                                  ->where('payment_date', '<=', $endDate)
-                                                  ->withArchived();
-                                        }]);
-                            }
-                        }]);
+            ->withArchived()
+            ->with('contacts')
+            ->with([
+                'invoices' => function ($query) use ($startDate, $endDate, $dateField) {
+                    $query->with('invoice_items')->withArchived();
+                    if ($dateField == FILTER_INVOICE_DATE) {
+                        $query->where('invoice_date', '>=', $startDate)
+                            ->where('invoice_date', '<=', $endDate)
+                            ->with('payments');
+                    } else {
+                        $query->whereHas('payments', function ($query) use ($startDate, $endDate) {
+                            $query->where('payment_date', '>=', $startDate)
+                                ->where('payment_date', '<=', $endDate)
+                                ->withArchived();
+                        })
+                            ->with([
+                                'payments' => function ($query) use ($startDate, $endDate) {
+                                    $query->where('payment_date', '>=', $startDate)
+                                        ->where('payment_date', '<=', $endDate)
+                                        ->withArchived();
+                                }
+                            ]);
+                    }
+                }
+            ]);
 
         foreach ($clients->get() as $client) {
             $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
@@ -305,7 +310,7 @@ class ReportController extends BaseController
 
             foreach ($client->invoices as $invoice) {
                 foreach ($invoice->getTaxes(true) as $key => $tax) {
-                    if ( ! isset($taxTotals[$currencyId])) {
+                    if (!isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
                     if (isset($taxTotals[$currencyId][$key])) {
@@ -358,17 +363,17 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $payments = Payment::scope()
-                        ->withTrashed()
-                        ->where('is_deleted', '=', false)
-                        ->whereHas('client', function($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->whereHas('invoice', function($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
-                        ->where('payment_date', '>=', $startDate)
-                        ->where('payment_date', '<=', $endDate);
+            ->withTrashed()
+            ->where('is_deleted', '=', false)
+            ->whereHas('client', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->whereHas('invoice', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
+            ->where('payment_date', '>=', $startDate)
+            ->where('payment_date', '<=', $endDate);
 
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
@@ -409,22 +414,27 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $clients = Client::scope()
-                        ->withTrashed()
-                        ->with('contacts')
+            ->withTrashed()
+            ->with('contacts')
+            ->where('is_deleted', '=', false)
+            ->with([
+                'invoices' => function ($query) use ($startDate, $endDate) {
+                    $query->where('invoice_date', '>=', $startDate)
+                        ->where('invoice_date', '<=', $endDate)
                         ->where('is_deleted', '=', false)
-                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
-                                  ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_deleted', '=', false)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->with(['payments' => function($query) {
-                                        $query->withTrashed()
-                                              ->with('payment_type', 'account_gateway.gateway')
-                                              ->where('is_deleted', '=', false);
-                                  }, 'invoice_items'])
-                                  ->withTrashed();
-                        }]);
+                        ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                        ->where('is_recurring', '=', false)
+                        ->with([
+                            'payments' => function ($query) {
+                                $query->withTrashed()
+                                    ->with('payment_type', 'account_gateway.gateway')
+                                    ->where('is_deleted', '=', false);
+                            },
+                            'invoice_items'
+                        ])
+                        ->withTrashed();
+                }
+            ]);
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
@@ -440,7 +450,8 @@ class ReportController extends BaseController
                         $payment ? $account->formatMoney($payment->amount, $client) : '',
                         $payment ? $payment->present()->method : '',
                     ];
-                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
+                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid',
+                        $payment ? $payment->amount : 0);
                 }
 
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
@@ -470,15 +481,17 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $clients = Client::scope()
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
-                                  ->where('invoice_date', '<=', $endDate)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->withArchived();
-                        }]);
+            ->withArchived()
+            ->with('contacts')
+            ->with([
+                'invoices' => function ($query) use ($startDate, $endDate) {
+                    $query->where('invoice_date', '>=', $startDate)
+                        ->where('invoice_date', '<=', $endDate)
+                        ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                        ->where('is_recurring', '=', false)
+                        ->withArchived();
+                }
+            ]);
 
         foreach ($clients->get() as $client) {
             $amount = 0;
@@ -523,10 +536,10 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $expenses = Expense::scope()
-                        ->withTrashed()
-                        ->with('client.contacts', 'vendor')
-                        ->where('expense_date', '>=', $startDate)
-                        ->where('expense_date', '<=', $endDate);
+            ->withTrashed()
+            ->with('client.contacts', 'vendor')
+            ->where('expense_date', '>=', $startDate)
+            ->where('expense_date', '<=', $endDate);
 
 
         foreach ($expenses->get() as $expense) {
@@ -562,7 +575,8 @@ class ReportController extends BaseController
      * @param $value
      * @return mixed
      */
-    private function addToTotals($data, $currencyId, $field, $value) {
+    private function addToTotals($data, $currencyId, $field, $value)
+    {
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
         if (!isset($data[$currencyId][$field])) {
@@ -603,9 +617,9 @@ class ReportController extends BaseController
         foreach ($totals as $currencyId => $fields) {
             $csv = Utils::getFromCache($currencyId, 'currencies')->name . ',';
             foreach ($fields as $key => $value) {
-                $csv .= '"' . Utils::formatMoney($value, $currencyId).'",';
+                $csv .= '"' . Utils::formatMoney($value, $currencyId) . '",';
             }
-            fwrite($output, $csv."\n");
+            fwrite($output, $csv . "\n");
         }
 
         fclose($output);

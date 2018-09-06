@@ -1,45 +1,46 @@
 <table class="table table-striped data-table {{ $class = str_random(8) }}">
     <colgroup>
         @for ($i = 0; $i < count($columns); $i++)
-        <col class="con{{ $i }}" />
+            <col class="con{{ $i }}"/>
         @endfor
     </colgroup>
     <thead>
     <tr>
         @foreach($columns as $i => $c)
-        <th align="center" valign="middle" class="head{{ $i }}"
-            @if ($c == 'checkbox')
+            <th align="center" valign="middle" class="head{{ $i }}"
+                @if ($c == 'checkbox')
                 style="width:20px"
-            @endif
-        >
-            @if ($c == 'checkbox' && $hasCheckboxes = true)
-                <input type="checkbox" class="selectAll"/>
-            @else
-                {{ $c }}
-            @endif
-        </th>
+                    @endif
+            >
+                @if ($c == 'checkbox' && $hasCheckboxes = true)
+                    <input type="checkbox" class="selectAll"/>
+                @else
+                    {{ $c }}
+                @endif
+            </th>
         @endforeach
     </tr>
     </thead>
     <tbody>
     @foreach($data as $d)
-    <tr>
-        @foreach($d as $dd)
-        <td>{{ $dd }}</td>
-        @endforeach
-    </tr>
+        <tr>
+            @foreach($d as $dd)
+                <td>{{ $dd }}</td>
+            @endforeach
+        </tr>
     @endforeach
     </tbody>
 </table>
 <script type="text/javascript">
     @if (isset($values['entityType']))
-            window.load_{{ $values['entityType'] }} = function load_{{ $values['entityType'] }}() {
-                load_{{ $class }}();
-            }
+        window.load_{{ $values['entityType'] }} = function load_{{ $values['entityType'] }}() {
+        load_{{ $class }}();
+    }
     @else
-        jQuery(document).ready(function(){
-            load_{{ $class }}();
-        });
+    jQuery(document).ready(function () {
+        load_{{ $class }}();
+    });
+
     @endif
 
     function refreshDatatable() {
@@ -48,7 +49,7 @@
 
     function load_{{ $class }}() {
         window.dataTable = jQuery('.{{ $class }}').dataTable({
-            "fnRowCallback": function(row, data) {
+            "fnRowCallback": function (row, data) {
                 if (data[0].indexOf('ENTITY_DELETED') > 0) {
                     $(row).addClass('entityDeleted');
                 }
@@ -63,25 +64,29 @@
             "aoColumnDefs": [
                 {
                     'bSortable': false,
-                    'aTargets': [ 0, {{ count($columns) - 1 }} ]
+                    'aTargets': [0, {{ count($columns) - 1 }} ]
                 },
                 {
                     'sClass': 'right',
                     'aTargets': {{ isset($values['rightAlign']) ? json_encode($values['rightAlign']) : '[]' }}
                 }
             ],
-            @endif
-            @foreach ($options as $k => $o)
-            {!! json_encode($k) !!}: {!! json_encode($o) !!},
-            @endforeach
-            @foreach ($callbacks as $k => $o)
-            {!! json_encode($k) !!}: {!! $o !!},
-            @endforeach
-            "fnDrawCallback": function(oSettings) {
-                if (window.onDatatableReady) {
-                    window.onDatatableReady();
-                }
+        @endif
+        @foreach ($options as $k => $o)
+        {!! json_encode($k) !!}: {!! json_encode($o) !!},
+        @endforeach
+        @foreach ($callbacks as $k => $o)
+        {!! json_encode($k) !!}: {!! $o !!},
+        @endforeach
+            "fnDrawCallback"
+    :
+
+        function (oSettings) {
+            if (window.onDatatableReady) {
+                window.onDatatableReady();
             }
-        });
+        }
+    })
+        ;
     }
 </script>

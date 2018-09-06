@@ -58,20 +58,28 @@ class ExportController extends BaseController
 
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['clients' => function($query) {
-            $query->withArchived()
-                  ->with(['contacts', 'invoices' => function($query) {
-                      $query->withArchived()
-                            ->with(['invoice_items', 'payments' => function($query) {
-                                $query->withArchived();
-                            }]);
-                  }]);
-        }]);
+        $account->load([
+            'clients' => function ($query) {
+                $query->withArchived()
+                    ->with([
+                        'contacts',
+                        'invoices' => function ($query) {
+                            $query->withArchived()
+                                ->with([
+                                    'invoice_items',
+                                    'payments' => function ($query) {
+                                        $query->withArchived();
+                                    }
+                                ]);
+                        }
+                    ]);
+            }
+        ]);
 
         $resource = new Item($account, new AccountTransformer);
         $data = $manager->parseIncludes('clients.invoices.payments')
-                    ->createData($resource)
-                    ->toArray();
+            ->createData($resource)
+            ->toArray();
 
         return response()->json($data);
     }
@@ -86,8 +94,8 @@ class ExportController extends BaseController
     {
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($data) {
-            $excel->sheet('', function($sheet) use ($data) {
+        return Excel::create($fileName, function ($excel) use ($data) {
+            $excel->sheet('', function ($sheet) use ($data) {
                 $sheet->loadView('export', $data);
             });
         })->download('csv');
@@ -104,17 +112,17 @@ class ExportController extends BaseController
         $user = Auth::user();
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($user, $data) {
+        return Excel::create($fileName, function ($excel) use ($user, $data) {
 
             $excel->setTitle($data['title'])
-                  ->setCreator($user->getDisplayName())
-                  ->setLastModifiedBy($user->getDisplayName())
-                  ->setDescription('')
-                  ->setSubject('')
-                  ->setKeywords('')
-                  ->setCategory('')
-                  ->setManager('')
-                  ->setCompany($user->account->getDisplayName());
+                ->setCreator($user->getDisplayName())
+                ->setLastModifiedBy($user->getDisplayName())
+                ->setDescription('')
+                ->setSubject('')
+                ->setKeywords('')
+                ->setCategory('')
+                ->setManager('')
+                ->setCompany($user->account->getDisplayName());
 
             foreach ($data as $key => $val) {
                 if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
@@ -124,7 +132,7 @@ class ExportController extends BaseController
                     $key = 'recurring_invoices';
                 }
                 $label = trans("texts.{$key}");
-                $excel->sheet($label, function($sheet) use ($key, $data) {
+                $excel->sheet($label, function ($sheet) use ($key, $data) {
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;

@@ -21,7 +21,7 @@ class Mailer
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
         // check the username is set
-        if ( ! env('POSTMARK_API_TOKEN') && ! env('MAIL_USERNAME')) {
+        if (!env('POSTMARK_API_TOKEN') && !env('MAIL_USERNAME')) {
             return trans('texts.invalid_mail_config');
         }
 
@@ -29,40 +29,41 @@ class Mailer
         if (stristr($toEmail, '@example.com')) {
             return true;
         }
-        
+
         if (isset($_ENV['POSTMARK_API_TOKEN'])) {
-            $views = 'emails.'.$view.'_html';
+            $views = 'emails.' . $view . '_html';
         } else {
             $views = [
-                'emails.'.$view.'_html',
-                'emails.'.$view.'_text',
+                'emails.' . $view . '_html',
+                'emails.' . $view . '_text',
             ];
         }
 
         try {
-            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
+            $response = Mail::send($views, $data,
+                function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
 
-                $toEmail = strtolower($toEmail);
-                $replyEmail = $fromEmail;
-                $fromEmail = CONTACT_EMAIL;
+                    $toEmail = strtolower($toEmail);
+                    $replyEmail = $fromEmail;
+                    $fromEmail = CONTACT_EMAIL;
 
-                $message->to($toEmail)
+                    $message->to($toEmail)
                         ->from($fromEmail, $fromName)
                         ->replyTo($replyEmail, $fromName)
                         ->subject($subject);
 
-                // Attach the PDF to the email
-                if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
-                    $message->attachData($data['pdfString'], $data['pdfFileName']);
-                }
-                
-                // Attach documents to the email
-                if(!empty($data['documents'])){
-                    foreach($data['documents'] as $document){
-                        $message->attachData($document['data'], $document['name']);
+                    // Attach the PDF to the email
+                    if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
+                        $message->attachData($data['pdfString'], $data['pdfFileName']);
                     }
-                }
-            });
+
+                    // Attach documents to the email
+                    if (!empty($data['documents'])) {
+                        foreach ($data['documents'] as $document) {
+                            $message->attachData($document['data'], $document['name']);
+                        }
+                    }
+                });
 
             return $this->handleSuccess($response, $data);
         } catch (Exception $exception) {
@@ -84,13 +85,13 @@ class Mailer
 
             // Track the Postmark message id
             if (isset($_ENV['POSTMARK_API_TOKEN']) && $response) {
-                $json = json_decode((string) $response->getBody());
+                $json = json_decode((string)$response->getBody());
                 $messageId = $json->MessageID;
             }
 
             $invoice->markInvitationSent($invitation, $messageId);
         }
-        
+
         return true;
     }
 
@@ -107,7 +108,7 @@ class Mailer
         } else {
             $emailError = $exception->getMessage();
         }
-        
+
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
             $invitation->email_error = $emailError;

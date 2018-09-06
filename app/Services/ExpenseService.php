@@ -36,14 +36,6 @@ class ExpenseService extends BaseService
     }
 
     /**
-     * @return ExpenseRepository
-     */
-    protected function getRepo()
-    {
-        return $this->expenseRepo;
-    }
-
-    /**
      * @param $data
      * @param null $expense
      * @return mixed|null
@@ -69,7 +61,7 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->find($search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -86,10 +78,18 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return ExpenseRepository
+     */
+    protected function getRepo()
+    {
+        return $this->expenseRepo;
     }
 }

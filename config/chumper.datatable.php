@@ -107,7 +107,7 @@ return array(
         */
 
         'script_view' => 'chumper.datatable::javascript',
-        
+
         /*
           |--------------------------------------------------------------------------
           | Option view
@@ -116,7 +116,7 @@ return array(
           | Template used to render the options recursive
           |
         */
-        
+
         'options_view' => config('chumper.datatable::options')
 
     ),

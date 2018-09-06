@@ -2,33 +2,33 @@
 
     var currencies = {!! \Cache::get('currencies') !!};
     var currencyMap = {};
-    for (var i=0; i<currencies.length; i++) {
+    for (var i = 0; i < currencies.length; i++) {
         var currency = currencies[i];
         currencyMap[currency.id] = currency;
     }
 
     var countries = {!! \Cache::get('countries') !!};
     var countryMap = {};
-    for (var i=0; i<countries.length; i++) {
+    for (var i = 0; i < countries.length; i++) {
         var country = countries[i];
         countryMap[country.id] = country;
     }
 
     var NINJA = NINJA || {};
     @if (Auth::check())
-    NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
+        NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
     NINJA.secondaryColor = "{{ Auth::user()->account->secondary_color }}";
     NINJA.fontSize = {{ Auth::user()->account->font_size ?: DEFAULT_FONT_SIZE }};
     NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
     NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
     @else
-    NINJA.fontSize = {{ DEFAULT_FONT_SIZE }};
+        NINJA.fontSize = {{ DEFAULT_FONT_SIZE }};
     @endif
 
-    NINJA.parseFloat = function(str) {
+        NINJA.parseFloat = function (str) {
         if (!str) return '';
-        str = (str+'').replace(/[^0-9\.\-]/g, '');
-        
+        str = (str + '').replace(/[^0-9\.\-]/g, '');
+
         return window.parseFloat(str);
     }
 

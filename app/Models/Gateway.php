@@ -10,11 +10,6 @@ use Utils;
 class Gateway extends Eloquent
 {
     /**
-     * @var bool
-     */
-    public $timestamps = true;
-
-    /**
      * @var array
      */
     public static $gatewayTypes = [
@@ -25,9 +20,6 @@ class Gateway extends Eloquent
         GATEWAY_TYPE_DWOLLA,
         GATEWAY_TYPE_TOKEN,
     ];
-
-    // these will appear in the primary gateway select
-    // the rest are shown when selecting 'more options'
     /**
      * @var array
      */
@@ -41,8 +33,8 @@ class Gateway extends Eloquent
         GATEWAY_MOLLIE,
     ];
 
-    // allow adding these gateway if another gateway
-    // is already configured
+    // these will appear in the primary gateway select
+    // the rest are shown when selecting 'more options'
     /**
      * @var array
      */
@@ -52,6 +44,8 @@ class Gateway extends Eloquent
         GATEWAY_DWOLLA,
     ];
 
+    // allow adding these gateway if another gateway
+    // is already configured
     /**
      * @var array
      */
@@ -66,7 +60,6 @@ class Gateway extends Eloquent
         // Dwolla
         'returnUrl',
     ];
-
     /**
      * @var array
      */
@@ -77,23 +70,10 @@ class Gateway extends Eloquent
         // Dwolla
         'sandbox',
     ];
-
     /**
-     * @return string
+     * @var bool
      */
-    public function getLogoUrl()
-    {
-        return '/images/gateways/logo_'.$this->provider.'.png';
-    }
-
-    /**
-     * @param $gatewayId
-     * @return bool
-     */
-    public function isGateway($gatewayId)
-    {
-        return $this->id == $gatewayId;
-    }
+    public $timestamps = true;
 
     /**
      * @param $type
@@ -113,6 +93,23 @@ class Gateway extends Eloquent
         $diff = array_diff($gatewayIds, static::$alternate);
 
         return count($diff);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogoUrl()
+    {
+        return '/images/gateways/logo_' . $this->provider . '.png';
+    }
+
+    /**
+     * @param $gatewayId
+     * @return bool
+     */
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
     }
 
     /**
@@ -160,7 +157,7 @@ class Gateway extends Eloquent
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         }
 
-        $key = 'texts.gateway_help_'.$this->id;
+        $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
             'link' => "<a href='$link' target='_blank'>Click here</a>",
             'complete_link' => url('/complete'),

@@ -46,15 +46,15 @@ class ExpenseController extends BaseController
             'title' => trans('texts.expenses'),
             'sortCol' => '3',
             'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'client',
-              'expense_date',
-              'amount',
-              'category',
-              'public_notes',
-              'status',
-              ''
+                'checkbox',
+                'vendor',
+                'client',
+                'expense_date',
+                'amount',
+                'category',
+                'public_notes',
+                'status',
+                ''
             ]),
         ]);
     }
@@ -103,7 +103,10 @@ class ExpenseController extends BaseController
 
         $actions = [];
         if ($expense->invoice) {
-            $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
+            $actions[] = [
+                'url' => URL::to("invoices/{$expense->invoice->public_id}/edit"),
+                'label' => trans('texts.view_invoice')
+            ];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
         }
@@ -120,7 +123,7 @@ class ExpenseController extends BaseController
             'vendor' => null,
             'expense' => $expense,
             'method' => 'PUT',
-            'url' => 'expenses/'.$expense->public_id,
+            'url' => 'expenses/' . $expense->public_id,
             'title' => 'Edit Expense',
             'actions' => $actions,
             'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
@@ -138,7 +141,7 @@ class ExpenseController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param  int $id
      * @return Response
      */
     public function update(UpdateExpenseRequest $request)
@@ -173,18 +176,16 @@ class ExpenseController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $ids    = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
 
-        switch($action)
-        {
+        switch ($action) {
             case 'invoice':
                 $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
                 $currencyId = null;
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
-                foreach ($expenses as $expense)
-                {
+                foreach ($expenses as $expense) {
                     if ($expense->client) {
                         if (!$clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
@@ -208,16 +209,16 @@ class ExpenseController extends BaseController
                 }
 
                 return Redirect::to("invoices/create/{$clientPublicId}")
-                        ->with('expenseCurrencyId', $currencyId)
-                        ->with('expenses', $ids);
+                    ->with('expenseCurrencyId', $currencyId)
+                    ->with('expenses', $ids);
                 break;
 
             default:
-                $count  = $this->expenseService->bulk($ids, $action);
+                $count = $this->expenseService->bulk($ids, $action);
         }
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_expense', $count);
+            $message = Utils::pluralize($action . 'd_expense', $count);
             Session::flash('message', $message);
         }
 

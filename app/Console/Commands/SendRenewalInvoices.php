@@ -47,13 +47,13 @@ class SendRenewalInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running SendRenewalInvoices...');
+        $this->info(date('Y-m-d') . ' Running SendRenewalInvoices...');
 
         // get all accounts with plans expiring in 10 days
         $companies = Company::whereRaw('datediff(plan_expires, curdate()) = 10')
-                        ->orderBy('id')
-                        ->get();
-        $this->info(count($companies).' companies found renewing in 10 days');
+            ->orderBy('id')
+            ->get();
+        $this->info(count($companies) . ' companies found renewing in 10 days');
 
         foreach ($companies as $company) {
             if (!count($company->accounts)) {
@@ -74,7 +74,7 @@ class SendRenewalInvoices extends Command
                 $plan['price'] = min($company->pending_plan_price, Utils::getPlanPrice($plan));
             }
 
-            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']){
+            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']) {
                 continue;
             }
 

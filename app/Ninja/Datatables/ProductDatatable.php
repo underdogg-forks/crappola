@@ -15,7 +15,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'product_key',
                 function ($model) {
-                    return link_to('products/'.$model->public_id.'/edit', $model->product_key)->toHtml();
+                    return link_to('products/' . $model->public_id . '/edit', $model->product_key)->toHtml();
                 }
             ],
             [

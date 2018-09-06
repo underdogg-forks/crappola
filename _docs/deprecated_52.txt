@@ -1,0 +1,4 @@
+Package chumper/datatable is abandoned, you should avoid using it. Use OpenSkill/Datatable instead.
+Package guzzle/guzzle is abandoned, you should avoid using it. Use guzzlehttp/guzzle instead.
+Package illuminate/html is abandoned, you should avoid using it. Use laravelcollective/html instead.
+Package phpoffice/phpexcel is abandoned, you should avoid using it. Use phpoffice/phpspreadsheet instead.

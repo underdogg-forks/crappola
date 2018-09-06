@@ -14,11 +14,6 @@ use App\Events\UserLoggedIn;
 class AuthService
 {
     /**
-     * @var AccountRepository
-     */
-    private $accountRepo;
-
-    /**
      * @var array
      */
     public static $providers = [
@@ -27,6 +22,10 @@ class AuthService
         3 => SOCIAL_GITHUB,
         4 => SOCIAL_LINKEDIN
     ];
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepo;
 
     /**
      * AuthService constructor.
@@ -40,6 +39,24 @@ class AuthService
 
     public static function getProviders()
     {
+    }
+
+    /**
+     * @param $provider
+     * @return mixed
+     */
+    public static function getProviderId($provider)
+    {
+        return array_search(strtolower($provider), array_map('strtolower', AuthService::$providers));
+    }
+
+    /**
+     * @param $providerId
+     * @return mixed|string
+     */
+    public static function getProviderName($providerId)
+    {
+        return $providerId ? AuthService::$providers[$providerId] : '';
     }
 
     /**
@@ -63,7 +80,8 @@ class AuthService
             $email = $socialiteUser->email;
             $oauthUserId = $socialiteUser->id;
             $name = Utils::splitName($socialiteUser->name);
-            $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
+            $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId,
+                $oauthUserId);
 
             if ($result === true) {
                 if (!$isRegistered) {
@@ -85,7 +103,7 @@ class AuthService
                 return redirect()->to('login');
             }
         }
-        
+
         $redirectTo = Input::get('redirect_to') ?: 'dashboard';
         return redirect()->to($redirectTo);
     }
@@ -97,23 +115,5 @@ class AuthService
     private function getAuthorization($provider)
     {
         return Socialite::driver($provider)->redirect();
-    }
-
-    /**
-     * @param $provider
-     * @return mixed
-     */
-    public static function getProviderId($provider)
-    {
-        return array_search(strtolower($provider), array_map('strtolower', AuthService::$providers));
-    }
-
-    /**
-     * @param $providerId
-     * @return mixed|string
-     */
-    public static function getProviderName($providerId)
-    {
-        return $providerId ? AuthService::$providers[$providerId] : '';
     }
 }

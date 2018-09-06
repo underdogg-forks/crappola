@@ -10,7 +10,7 @@
     </style>
 @stop
 
-@section('content') 
+@section('content')
     @parent
     @include('accounts.nav', ['selected' => ACCOUNT_EMAIL_SETTINGS, 'advanced' => true])
 
@@ -29,9 +29,9 @@
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
             {!! Former::checkbox('document_email_attachment')->text(trans('texts.enable')) !!}
-            
+
             &nbsp;
-            
+
             {{-- Former::select('recurring_hour')->options($recurringHours) --}}
 
             @if (Utils::isNinja())
@@ -43,7 +43,7 @@
                             trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
                         ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
                 {{ Former::setOption('capitalize_translations', false) }}
-                
+
                 {!! Former::text('subdomain')
                             ->placeholder(trans('texts.www'))
                             ->onchange('onSubdomainChange()')
@@ -66,7 +66,7 @@
             <h3 class="panel-title">{!! trans('texts.email_design') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
-            
+
             {!! Former::select('email_design_id')
                         ->appendIcon('question-sign')
                         ->addGroupClass('email_design_id')
@@ -92,7 +92,8 @@
         </center>
     @endif
 
-    <div class="modal fade" id="iframeHelpModal" tabindex="-1" role="dialog" aria-labelledby="iframeHelpModalLabel" aria-hidden="true">
+    <div class="modal fade" id="iframeHelpModal" tabindex="-1" role="dialog" aria-labelledby="iframeHelpModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" style="min-width:150px">
             <div class="modal-content">
                 <div class="modal-header">
@@ -112,17 +113,19 @@
 &lt;/script&gt;</pre>
                     <p>{{ trans('texts.iframe_url_help2') }}</p>
                     <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
-                    </div>
+                </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="designHelpModal" tabindex="-1" role="dialog" aria-labelledby="designHelpModalLabel" aria-hidden="true">
+    <div class="modal fade" id="designHelpModal" tabindex="-1" role="dialog" aria-labelledby="designHelpModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" style="min-width:150px">
             <div class="modal-content">
                 <div class="modal-header">
@@ -148,7 +151,8 @@
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
             </div>
@@ -159,43 +163,43 @@
 
     <script type="text/javascript">
 
-    function onSubdomainChange() {
-        var input = $('#subdomain');
-        var val = input.val();
-        if (!val) return;
-        val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
-        input.val(val);
-    }
-
-    function onCustomLinkChange() {
-        var val = $('input[name=custom_link]:checked').val()
-        if (val == 'subdomain') {
-            $('.subdomain').show();
-            $('.iframe_url').hide();
-        } else {
-            $('.subdomain').hide();
-            $('.iframe_url').show();
+        function onSubdomainChange() {
+            var input = $('#subdomain');
+            var val = input.val();
+            if (!val) return;
+            val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+            input.val(val);
         }
-    }
 
-    $('.iframe_url .input-group-addon').click(function() {
-        $('#iframeHelpModal').modal('show');
-    });
+        function onCustomLinkChange() {
+            var val = $('input[name=custom_link]:checked').val()
+            if (val == 'subdomain') {
+                $('.subdomain').show();
+                $('.iframe_url').hide();
+            } else {
+                $('.subdomain').hide();
+                $('.iframe_url').show();
+            }
+        }
 
-    $('.email_design_id .input-group-addon').click(function() {
-        $('#designHelpModal').modal('show');
-    });
-
-    $(function() {          
-        onCustomLinkChange();
-
-        $('#subdomain').change(function() {
-            $('#iframe_url').val('');
+        $('.iframe_url .input-group-addon').click(function () {
+            $('#iframeHelpModal').modal('show');
         });
-        $('#iframe_url').change(function() {
-            $('#subdomain').val('');
+
+        $('.email_design_id .input-group-addon').click(function () {
+            $('#designHelpModal').modal('show');
         });
-    });
+
+        $(function () {
+            onCustomLinkChange();
+
+            $('#subdomain').change(function () {
+                $('#iframe_url').val('');
+            });
+            $('#iframe_url').change(function () {
+                $('#subdomain').val('');
+            });
+        });
 
     </script>
 @stop

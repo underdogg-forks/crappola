@@ -66,12 +66,13 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            if (isset($_SERVER['REQUEST_URI']) && !Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            if (isset($_SERVER['REQUEST_URI']) && !Utils::startsWith($_SERVER['REQUEST_URI'],
+                    '/news_feed') && !Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @file_get_contents(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @file_get_contents(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
@@ -166,7 +167,7 @@ class StartupCheck
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache') || !Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if ( ! Schema::hasTable((new $class)->getTable())) {
+                if (!Schema::hasTable((new $class)->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {

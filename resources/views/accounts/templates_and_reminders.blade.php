@@ -46,9 +46,13 @@
             <div class="row">
                 <div role="tabpanel">
                     <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active"><a href="#invoice" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.invoice_email') }}</a></li>
-                        <li role="presentation"><a href="#quote" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.quote_email') }}</a></li>
-                        <li role="presentation"><a href="#payment" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.payment_email') }}</a></li>
+                        <li role="presentation" class="active"><a href="#invoice" aria-controls="notes" role="tab"
+                                                                  data-toggle="tab">{{ trans('texts.invoice_email') }}</a>
+                        </li>
+                        <li role="presentation"><a href="#quote" aria-controls="terms" role="tab"
+                                                   data-toggle="tab">{{ trans('texts.quote_email') }}</a></li>
+                        <li role="presentation"><a href="#payment" aria-controls="footer" role="tab"
+                                                   data-toggle="tab">{{ trans('texts.payment_email') }}</a></li>
                     </ul>
                     <div class="tab-content">
                         @include('accounts.template', ['field' => 'invoice', 'active' => true])
@@ -70,9 +74,13 @@
             <div class="row">
                 <div role="tabpanel">
                     <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active"><a href="#reminder1" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.first_reminder') }}</a></li>
-                        <li role="presentation"><a href="#reminder2" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.second_reminder') }}</a></li>
-                        <li role="presentation"><a href="#reminder3" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.third_reminder') }}</a></li>
+                        <li role="presentation" class="active"><a href="#reminder1" aria-controls="notes" role="tab"
+                                                                  data-toggle="tab">{{ trans('texts.first_reminder') }}</a>
+                        </li>
+                        <li role="presentation"><a href="#reminder2" aria-controls="terms" role="tab"
+                                                   data-toggle="tab">{{ trans('texts.second_reminder') }}</a></li>
+                        <li role="presentation"><a href="#reminder3" aria-controls="footer" role="tab"
+                                                   data-toggle="tab">{{ trans('texts.third_reminder') }}</a></li>
                     </ul>
                     <div class="tab-content">
                         @include('accounts.template', ['field' => 'reminder1', 'isReminder' => true, 'active' => true])
@@ -85,7 +93,8 @@
     </div>
 
 
-    <div class="modal fade" id="templatePreviewModal" tabindex="-1" role="dialog" aria-labelledby="templatePreviewModalLabel" aria-hidden="true">
+    <div class="modal fade" id="templatePreviewModal" tabindex="-1" role="dialog"
+         aria-labelledby="templatePreviewModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="width:800px">
             <div class="modal-content">
                 <div class="modal-header">
@@ -94,18 +103,21 @@
                 </div>
 
                 <div class="modal-body">
-                    <iframe id="server-preview" frameborder="1" width="100%" height="500px"/></iframe>
+                    <iframe id="server-preview" frameborder="1" width="100%" height="500px"/>
+                    </iframe>
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <div class="modal fade" id="templateHelpModal" tabindex="-1" role="dialog" aria-labelledby="templateHelpModalLabel" aria-hidden="true">
+    <div class="modal fade" id="templateHelpModal" tabindex="-1" role="dialog" aria-labelledby="templateHelpModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" style="min-width:150px">
             <div class="modal-content">
                 <div class="modal-header">
@@ -143,7 +155,8 @@
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
             </div>
@@ -156,7 +169,7 @@
         </center>
     @else
         <script>
-            $(function() {
+            $(function () {
                 $('form.warn-on-exit input').prop('disabled', true);
             });
         </script>
@@ -171,9 +184,9 @@
         var templates = {!! json_encode($defaultTemplates) !!};
 
         function refreshPreview() {
-            for (var i=0; i<entityTypes.length; i++) {
+            for (var i = 0; i < entityTypes.length; i++) {
                 var entityType = entityTypes[i];
-                for (var j=0; j<stringTypes.length; j++) {
+                for (var j = 0; j < stringTypes.length; j++) {
                     var stringType = stringTypes[j];
                     var idName = '#email_' + stringType + '_' + entityType;
                     var value = $(idName).val();
@@ -188,10 +201,10 @@
             $('#templatePreviewModal').modal('show');
             var template = $('#email_template_' + field).val();
             var url = '{{ URL::to('settings/email_preview') }}?template=' + template;
-            $('#server-preview').attr('src', url).load(function() {
+            $('#server-preview').attr('src', url).load(function () {
                 // disable links in the preview
-                $('iframe').contents().find('a').each(function(index) {
-                    $(this).on('click', function(event) {
+                $('iframe').contents().find('a').each(function (index) {
+                    $(this).on('click', function (event) {
                         event.preventDefault();
                         event.stopPropagation();
                     });
@@ -199,18 +212,18 @@
             });
         }
 
-        $(function() {
-            for (var i=0; i<entityTypes.length; i++) {
+        $(function () {
+            for (var i = 0; i < entityTypes.length; i++) {
                 var entityType = entityTypes[i];
-                for (var j=0; j<stringTypes.length; j++) {
+                for (var j = 0; j < stringTypes.length; j++) {
                     var stringType = stringTypes[j];
                     var idName = '#email_' + stringType + '_' + entityType;
                     $(idName).keyup(refreshPreview);
                 }
             }
 
-            for (var i=1; i<=3; i++) {
-                $('#enable_reminder' + i).bind('click', {id: i}, function(event) {
+            for (var i = 1; i <= 3; i++) {
+                $('#enable_reminder' + i).bind('click', {id: i}, function (event) {
                     enableReminder(event.data.id)
                 });
                 enableReminder(i);
@@ -243,65 +256,65 @@
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
             var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
 
-            @if ($account->isPro())
+                    @if ($account->isPro())
             var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
-            @else
+                    @else
             var documentsHtml = "";
-            @endif
+                    @endif
 
             var vals = [
-                {!! json_encode($emailFooter) !!},
-                "{{ $account->getDisplayName() }}",
-                "{{ $account->formatDate($account->getDateTime()) }}",
-                "{{ $account->formatDate($account->getDateTime()) }}",
-                "Client Name",
-                formatMoney(100),
-                "Contact Name",
-                "First Name",
-                "0001",
-                "0001",
-                passwordHtml,
-                documentsHtml,
-                "{{ URL::to('/view/...') }}$password",
-                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
-                "{{ URL::to('/payment/...') }}$password",
-                '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
-                '{{ trans('texts.auto_bill_notification_placeholder') }}',
-                "{{ URL::to('/client/portal/...') }}",
-                '{!! Form::flatButton('view_portal', '#36c157') !!}',
-            ];
+                        {!! json_encode($emailFooter) !!},
+                    "{{ $account->getDisplayName() }}",
+                    "{{ $account->formatDate($account->getDateTime()) }}",
+                    "{{ $account->formatDate($account->getDateTime()) }}",
+                    "Client Name",
+                    formatMoney(100),
+                    "Contact Name",
+                    "First Name",
+                    "0001",
+                    "0001",
+                    passwordHtml,
+                    documentsHtml,
+                    "{{ URL::to('/view/...') }}$password",
+                    '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
+                    "{{ URL::to('/payment/...') }}$password",
+                    '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
+                    '{{ trans('texts.auto_bill_notification_placeholder') }}',
+                    "{{ URL::to('/client/portal/...') }}",
+                    '{!! Form::flatButton('view_portal', '#36c157') !!}',
+                ];
 
             // Add blanks for custom values
             keys.push('customClient1', 'customClient2', 'customInvoice1', 'customInvoice2');
             vals.push('custom value', 'custom value', 'custom value', 'custom value');
 
             // Add any available payment method links
-            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
-                {!! "keys.push('" . Utils::toCamelCase($type).'Link' . "');" !!}
-                {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
+                    @foreach (\App\Models\Gateway::$gatewayTypes as $type)
+                    {!! "keys.push('" . Utils::toCamelCase($type).'Link' . "');" !!}
+                    {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
-                {!! "keys.push('" . Utils::toCamelCase($type).'Button' . "');" !!}
-                {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
-            @endforeach
+                    {!! "keys.push('" . Utils::toCamelCase($type).'Button' . "');" !!}
+                    {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
+                    @endforeach
 
             var includesPasswordPlaceholder = str.indexOf('$password') != -1;
 
-            for (var i=0; i<keys.length; i++) {
-                var regExp = new RegExp('\\$'+keys[i], 'g');
+            for (var i = 0; i < keys.length; i++) {
+                var regExp = new RegExp('\\$' + keys[i], 'g');
                 str = str.replace(regExp, vals[i]);
             }
 
-            if(!includesPasswordPlaceholder){
+            if (!includesPasswordPlaceholder) {
                 var lastSpot = str.lastIndexOf('$password')
                 str = str.slice(0, lastSpot) + str.slice(lastSpot).replace('$password', passwordHtml);
             }
-            str = str.replace(/\$password/g,'');
+            str = str.replace(/\$password/g, '');
 
             return str;
         }
 
         function resetText(section, field) {
-            sweetConfirm(function() {
+            sweetConfirm(function () {
                 var fieldName = 'email_' + section + '_' + field;
                 var value = templates[field][section];
                 $('#' + fieldName).val(value);

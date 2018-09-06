@@ -42,10 +42,10 @@ return array(
     */
     "excludes" => array(
         storage_path(),
-        base_path()."/tests",
-        base_path()."/resources/views",
-        base_path()."/config",
-        base_path()."/vendor"
+        base_path() . "/tests",
+        base_path() . "/resources/views",
+        base_path() . "/config",
+        base_path() . "/vendor"
     ),
 
     /*

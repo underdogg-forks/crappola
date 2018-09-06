@@ -33,15 +33,15 @@ class QuoteApiController extends BaseAPIController
      *   )
      * )
      */
-     public function index()
-     {
-         $invoices = Invoice::scope()
-                         ->withTrashed()
-                         ->quotes()
-                         ->with('invoice_items', 'client')
-                         ->orderBy('created_at', 'desc');
+    public function index()
+    {
+        $invoices = Invoice::scope()
+            ->withTrashed()
+            ->quotes()
+            ->with('invoice_items', 'client')
+            ->orderBy('created_at', 'desc');
 
-         return $this->listResponse($invoices);
-     }
+        return $this->listResponse($invoices);
+    }
 
 }

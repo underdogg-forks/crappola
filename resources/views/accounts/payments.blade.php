@@ -1,7 +1,7 @@
 @extends('header')
 
 @section('content')
-	@parent
+    @parent
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
     {!! Former::open()->addClass('warn-on-exit') !!}
@@ -24,51 +24,53 @@
                             trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
                         ])->help(trans('texts.auto_bill_ach_date_help')) !!}
             <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-8"><p>{!! trans('texts.payment_settings_supported_gateways') !!}</p></div>
+                <div class="col-sm-offset-4 col-sm-8"><p>{!! trans('texts.payment_settings_supported_gateways') !!}</p>
+                </div>
             </div>
             {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
     {!! Former::close() !!}
 
-  <!--
+    <!--
   <label for="trashed" style="font-weight:normal; margin-left: 10px;">
     <input id="trashed" type="checkbox" onclick="setTrashVisible()"
       {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
-  </label>
-  -->
-  
-  @if ($showAdd)
-      {!! Button::primary(trans('texts.add_gateway'))
-            ->asLinkTo(URL::to('/gateways/create'))
-            ->withAttributes(['class' => 'pull-right'])
-            ->appendIcon(Icon::create('plus-sign')) !!}
-  @endif
+            </label>
+-->
 
-  @include('partials.bulk_form', ['entityType' => ENTITY_ACCOUNT_GATEWAY])
+    @if ($showAdd)
+        {!! Button::primary(trans('texts.add_gateway'))
+              ->asLinkTo(URL::to('/gateways/create'))
+              ->withAttributes(['class' => 'pull-right'])
+              ->appendIcon(Icon::create('plus-sign')) !!}
+    @endif
 
-  {!! Datatable::table()
-      ->addColumn(
-        trans('texts.name'),
-        trans('texts.action'))
-      ->setUrl(url('api/gateways/'))
-      ->setOptions('sPaginationType', 'bootstrap')
-      ->setOptions('bFilter', false)
-      ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
-      ->render('datatable') !!}
+    @include('partials.bulk_form', ['entityType' => ENTITY_ACCOUNT_GATEWAY])
 
-  <script>
-    window.onDatatableReady = actionListHandler;
-    function setTrashVisible() {
-        var checked = $('#trashed').is(':checked');
-        var url = '{{ URL::to('view_archive/gateway') }}' + (checked ? '/true' : '/false');
+    {!! Datatable::table()
+        ->addColumn(
+          trans('texts.name'),
+          trans('texts.action'))
+        ->setUrl(url('api/gateways/'))
+        ->setOptions('sPaginationType', 'bootstrap')
+        ->setOptions('bFilter', false)
+        ->setOptions('bAutoWidth', false)
+        ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
+        ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
+        ->render('datatable') !!}
 
-        $.get(url, function(data) {
-            refreshDatatable();
-        })
-    }
-  </script>
+    <script>
+        window.onDatatableReady = actionListHandler;
+
+        function setTrashVisible() {
+            var checked = $('#trashed').is(':checked');
+            var url = '{{ URL::to('view_archive/gateway') }}' + (checked ? '/true' : '/false');
+
+            $.get(url, function (data) {
+                refreshDatatable();
+            })
+        }
+    </script>
 
 @stop

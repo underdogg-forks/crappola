@@ -52,8 +52,8 @@ class EmailService
     {
         /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::with('user', 'invoice', 'contact')
-                        ->whereMessageId($messageId)
-                        ->first();
+            ->whereMessageId($messageId)
+            ->first();
 
         if (!$invitation) {
             return false;

@@ -10,7 +10,7 @@ class UserAccountTransformer extends EntityTransformer
     ];
 
     protected $tokenName;
-    
+
     public function __construct(Account $account, $serializer, $tokenName)
     {
         parent::__construct($account, $serializer);

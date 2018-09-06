@@ -33,14 +33,6 @@ class CreditService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->creditRepo;
-    }
-
-    /**
      * @param $data
      * @return mixed|null
      */
@@ -57,13 +49,21 @@ class CreditService extends BaseService
     public function getDatatable($clientPublicId, $search)
     {
         // we don't support bulk edit and hide the client on the individual client page
-        $datatable = new CreditDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new CreditDatatable(!$clientPublicId, $clientPublicId);
         $query = $this->creditRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('credits.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->creditRepo;
     }
 }

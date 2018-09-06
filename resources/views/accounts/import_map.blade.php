@@ -1,11 +1,11 @@
 @extends('header')
 
 @section('content')
-	@parent
+    @parent
 
     @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
 
-	{!! Former::open('/import_csv')->addClass('warn-on-exit') !!}
+    {!! Former::open('/import_csv')->addClass('warn-on-exit') !!}
 
     @foreach (App\Services\ImportService::$entityTypes as $entityType)
         @if (isset($data[$entityType]))

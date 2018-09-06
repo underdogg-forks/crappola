@@ -22,6 +22,23 @@ class AccountGateway extends EntityModel
     protected $dates = ['deleted_at'];
 
     /**
+     * @param $provider
+     * @return string
+     */
+    public static function paymentDriverClass($provider)
+    {
+        $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $class = $folder . $provider . 'PaymentDriver';
+        $class = str_replace('_', '', $class);
+
+        if (class_exists($class)) {
+            return $class;
+        } else {
+            return $folder . 'BasePaymentDriver';
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getEntityType()
@@ -52,23 +69,6 @@ class AccountGateway extends EntityModel
         }
 
         return $arrayOfImages;
-    }
-
-    /**
-     * @param $provider
-     * @return string
-     */
-    public static function paymentDriverClass($provider)
-    {
-        $folder = 'App\\Ninja\\PaymentDrivers\\';
-        $class = $folder . $provider . 'PaymentDriver';
-        $class = str_replace('_', '', $class);
-
-        if (class_exists($class)) {
-            return $class;
-        } else {
-            return $folder . 'BasePaymentDriver';
-        }
     }
 
     /**
@@ -122,7 +122,7 @@ class AccountGateway extends EntityModel
      */
     public function getPublishableStripeKey()
     {
-        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -134,7 +134,7 @@ class AccountGateway extends EntityModel
      */
     public function getAchEnabled()
     {
-       return !empty($this->getConfigField('enableAch'));
+        return !empty($this->getConfigField('enableAch'));
     }
 
     /**
@@ -150,7 +150,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidSecret()
     {
-        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -162,7 +162,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidClientId()
     {
-        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -174,7 +174,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidPublicKey()
     {
-        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+        if (!$this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -210,6 +210,7 @@ class AccountGateway extends EntityModel
     {
         $account = $this->account ? $this->account : Account::find($this->account_id);
 
-        return \URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX',''));
+        return \URL::to(env('WEBHOOK_PREFIX',
+                '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 }

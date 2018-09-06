@@ -14,7 +14,7 @@ class MolliePaymentDriver extends BasePaymentDriver
 
         if ($response->isCancelled()) {
             return false;
-        } elseif ( ! $response->isSuccessful()) {
+        } elseif (!$response->isSuccessful()) {
             throw new Exception($response->getMessage());
         }
 

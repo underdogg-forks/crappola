@@ -17,7 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class User
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+{
     /**
      * @var array
      */
@@ -61,6 +62,37 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @param $user
+     */
+    public static function onUpdatingUser($user)
+    {
+        if ($user->password != $user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+
+        // if the user changes their email then they need to reconfirm it
+        if ($user->isEmailBeingChanged()) {
+            $user->confirmed = 0;
+            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+        }
+    }
+
+    /**
+     * @param $user
+     */
+    public static function onUpdatedUser($user)
+    {
+        if (!$user->getOriginal('email')
+            || $user->getOriginal('email') == TEST_USERNAME
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
+            event(new UserSignedUp());
+        }
+
+        event(new UserSettingsChanged($user));
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -194,7 +226,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
+            return $this->first_name . ' ' . $this->last_name;
         } else {
             return '';
         }
@@ -258,7 +290,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return MAX_NUM_VENDORS;
     }
 
-
     /**
      * @return mixed
      */
@@ -302,106 +333,37 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * @param $user
-     */
-    public static function onUpdatingUser($user)
-    {
-        if ($user->password != $user->getOriginal('password')) {
-            $user->failed_logins = 0;
-        }
-
-        // if the user changes their email then they need to reconfirm it
-        if ($user->isEmailBeingChanged()) {
-            $user->confirmed = 0;
-            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
-        }
-    }
-
-    /**
-     * @param $user
-     */
-    public static function onUpdatedUser($user)
-    {
-        if (!$user->getOriginal('email')
-            || $user->getOriginal('email') == TEST_USERNAME
-            || $user->getOriginal('username') == TEST_USERNAME
-            || $user->getOriginal('email') == 'tests@bitrock.com') {
-            event(new UserSignedUp());
-        }
-
-        event(new UserSettingsChanged($user));
-    }
-
-    /**
      * @return bool
      */
     public function isEmailBeingChanged()
     {
         return Utils::isNinjaProd()
-                && $this->email != $this->getOriginal('email')
-                && $this->getOriginal('confirmed');
-    }
-
-
-
-    /**
-     * Set the permissions attribute on the model.
-     *
-     * @param  mixed  $value
-     * @return $this
-     */
-     protected function setPermissionsAttribute($value){
-         if(empty($value)) {
-             $this->attributes['permissions'] = 0;
-         } else {
-             $bitmask = 0;
-             foreach($value as $permission){
-                if ( ! $permission) {
-                    continue;
-                }
-                $bitmask = $bitmask | static::$all_permissions[$permission];
-             }
-
-             $this->attributes['permissions'] = $bitmask;
-         }
-
-         return $this;
-    }
-
-    /**
-     * Expands the value of the permissions attribute
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function getPermissionsAttribute($value){
-        $permissions = [];
-        foreach(static::$all_permissions as $permission => $bitmask){
-            if(($value & $bitmask) == $bitmask) {
-                $permissions[$permission] = $permission;
-            }
-        }
-
-        return $permissions;
+            && $this->email != $this->getOriginal('email')
+            && $this->getOriginal('confirmed');
     }
 
     /**
      * Checks to see if the user has the required permission
      *
-     * @param  mixed  $permission Either a single permission or an array of possible permissions
+     * @param  mixed $permission Either a single permission or an array of possible permissions
      * @param boolean True to require all permissions, false to require only one
      * @return boolean
      */
-    public function hasPermission($permission, $requireAll = false){
+    public function hasPermission($permission, $requireAll = false)
+    {
         if ($this->is_admin) {
             return true;
-        } else if(is_string($permission)){
-            return !empty($this->permissions[$permission]);
-        } else if(is_array($permission)) {
-            if($requireAll){
-                return count(array_diff($permission, $this->permissions)) == 0;
+        } else {
+            if (is_string($permission)) {
+                return !empty($this->permissions[$permission]);
             } else {
-                return count(array_intersect($permission, $this->permissions)) > 0;
+                if (is_array($permission)) {
+                    if ($requireAll) {
+                        return count(array_diff($permission, $this->permissions)) == 0;
+                    } else {
+                        return count(array_intersect($permission, $this->permissions)) > 0;
+                    }
+                }
             }
         }
 
@@ -412,23 +374,24 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @param $entity
      * @return bool
      */
-    public function owns($entity) {
+    public function owns($entity)
+    {
         return !empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
     /**
      * @return bool|mixed
      */
-    public function filterId() {
+    public function filterId()
+    {
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
-
     public function caddAddUsers()
     {
-        if ( ! Utils::isNinja()) {
+        if (!Utils::isNinja()) {
             return true;
-        } elseif ( ! $this->hasFeature(FEATURE_USERS)) {
+        } elseif (!$this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -441,6 +404,49 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         return $numUsers < $company->num_users;
+    }
+
+    /**
+     * Set the permissions attribute on the model.
+     *
+     * @param  mixed $value
+     * @return $this
+     */
+    protected function setPermissionsAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['permissions'] = 0;
+        } else {
+            $bitmask = 0;
+            foreach ($value as $permission) {
+                if (!$permission) {
+                    continue;
+                }
+                $bitmask = $bitmask | static::$all_permissions[$permission];
+            }
+
+            $this->attributes['permissions'] = $bitmask;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Expands the value of the permissions attribute
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    protected function getPermissionsAttribute($value)
+    {
+        $permissions = [];
+        foreach (static::$all_permissions as $permission => $bitmask) {
+            if (($value & $bitmask) == $bitmask) {
+                $permissions[$permission] = $permission;
+            }
+        }
+
+        return $permissions;
     }
 }
 

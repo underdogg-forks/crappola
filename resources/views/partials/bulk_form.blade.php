@@ -15,15 +15,18 @@
 
         $('#bulk_public_id').val(id);
         $('#bulk_action').val(action);
-        
+
         $('form.bulk-form').submit();
     }
+
     function archiveEntity(id) {
         submitBulkForm('archive', id);
     }
+
     function restoreEntity(id) {
         submitBulkForm('restore', id);
     }
+
     function deleteEntity(id) {
         submitBulkForm('delete', id);
     }

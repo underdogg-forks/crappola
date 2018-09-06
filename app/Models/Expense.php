@@ -107,8 +107,9 @@ class Expense extends EntityModel
      */
     public function getName()
     {
-        if($this->expense_number)
+        if ($this->expense_number) {
             return $this->expense_number;
+        }
 
         return $this->public_id;
     }
@@ -160,7 +161,9 @@ class Expense extends EntityModel
     {
         $array = parent::toArray();
 
-        if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['converted_amount'] = $this->convertedAmount();
+        if (empty($this->visible) || in_array('converted_amount', $this->visible)) {
+            $array['converted_amount'] = $this->convertedAmount();
+        }
 
         return $array;
     }

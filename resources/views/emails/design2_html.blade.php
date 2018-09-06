@@ -12,10 +12,12 @@
     </tr>
     <tr>
         <td style="border-collapse: collapse;">
-            <table cellpadding="10" cellspacing="0" border="0" bgcolor="#F4F5F5" width="600" align="center" 
-                class="header" style="border-top-width: 6px; border-top-color: {{ $account->primary_color ?: '#2E2B2B' }}; border-top-style: solid;">
+            <table cellpadding="10" cellspacing="0" border="0" bgcolor="#F4F5F5" width="600" align="center"
+                   class="header"
+                   style="border-top-width: 6px; border-top-color: {{ $account->primary_color ?: '#2E2B2B' }}; border-top-style: solid;">
                 <tr>
-                    <td class="logo" width="208" style="border-collapse: collapse; vertical-align: middle;" valign="middle">
+                    <td class="logo" width="208" style="border-collapse: collapse; vertical-align: middle;"
+                        valign="middle">
                         @include('emails.partials.account_logo')
                     </td>
                     <td width="183" style="border-collapse: collapse; vertical-align: middle;" valign="middle">
@@ -23,7 +25,7 @@
                             @if ($invoice->due_date)
                                 <span style="font-size: 11px; color: #8f8d8e;">
                                     {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
-                                </span><br />
+                                </span><br/>
                             @endif
                             <span style="font-size: 18px;">
                                 {{ trans("texts.{$entityType}") }} {{ $invoice->invoice_number }}
@@ -34,7 +36,7 @@
                         <p class="right" style="line-height: 14px; margin: 0; padding: 0;">
                             <span style="font-size: 15px; color: #231F20;">
                                 {{ trans('texts.' . $invoice->present()->balanceDueLabel) }}:
-                            </span><br />
+                            </span><br/>
                             <span class="total" style="font-size: 26px; display: block;margin-top: 5px;">
                                 {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
                             </span>
@@ -59,11 +61,12 @@
         @endif
         {{ $account->getCityState() }}
         @if ($account->address1 || $account->getCityState())
-            <br />
+            <br/>
         @endif
 
         @if ($account->website)
-            <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
+            <strong><a href="{{ $account->present()->website }}"
+                       style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
         @endif
     </p>
 @stop

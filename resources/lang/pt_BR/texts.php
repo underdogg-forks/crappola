@@ -1030,10 +1030,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Informe um prefixo para a numeração das faturas recorrentes. O valor padrão é \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Faturas protegidas por senha',
-    'enable_portal_password_help'=>'Permite definir uma senha para cada contato. Se uma senha for definida, o contato deverá informar sua senha antes de visualizar a fatura.',
-    'send_portal_password'=>'Gerar senha automaticamente',
-    'send_portal_password_help'=>'Se uma senha não for definida, uma senha será gerada e enviada juntamente com a primeira fatura.',
+    'enable_portal_password' => 'Faturas protegidas por senha',
+    'enable_portal_password_help' => 'Permite definir uma senha para cada contato. Se uma senha for definida, o contato deverá informar sua senha antes de visualizar a fatura.',
+    'send_portal_password' => 'Gerar senha automaticamente',
+    'send_portal_password_help' => 'Se uma senha não for definida, uma senha será gerada e enviada juntamente com a primeira fatura.',
 
     'expired' => 'Expireda',
     'invalid_card_number' => 'Cartão de Crédito inválido.',
@@ -1415,7 +1415,7 @@ Quando tiver os valores dos depósitos, volte a esta pagina e complete a verific
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -1745,7 +1745,7 @@ Quando tiver os valores dos depósitos, volte a esta pagina e complete a verific
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',

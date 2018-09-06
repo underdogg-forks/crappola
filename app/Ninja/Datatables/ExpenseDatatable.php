@@ -13,10 +13,9 @@ class ExpenseDatatable extends EntityDatatable
         return [
             [
                 'vendor_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->vendor_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
                             return $model->vendor_name;
                         }
 
@@ -25,32 +24,33 @@ class ExpenseDatatable extends EntityDatatable
                         return '';
                     }
                 },
-                ! $this->hideClient
+                !$this->hideClient
             ],
             [
                 'client_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->client_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
 
-                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        return link_to("clients/{$model->client_public_id}",
+                            Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';
                     }
                 },
-                ! $this->hideClient
+                !$this->hideClient
             ],
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])) {
                         return Utils::fromSqlDate($model->expense_date);
                     }
 
-                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
+                    return link_to("expenses/{$model->public_id}/edit",
+                        Utils::fromSqlDate($model->expense_date))->toHtml();
                 }
             ],
             [
@@ -93,7 +93,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 trans('texts.edit_expense'),
                 function ($model) {
-                    return URL::to("expenses/{$model->public_id}/edit") ;
+                    return URL::to("expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
@@ -105,7 +105,8 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_public_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
+                    return $model->invoice_public_id && Auth::user()->can('editByOwner',
+                            [ENTITY_INVOICE, $model->invoice_user_id]);
                 }
             ],
             [
@@ -114,7 +115,8 @@ class ExpenseDatatable extends EntityDatatable
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return !$model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create',
+                            ENTITY_INVOICE);
                 }
             ],
         ];

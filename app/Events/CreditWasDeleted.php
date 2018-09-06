@@ -6,9 +6,10 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class CreditWasDeleted
  */
-class CreditWasDeleted extends Event {
+class CreditWasDeleted extends Event
+{
 
-	use SerializesModels;
+    use SerializesModels;
 
     /**
      * @var Credit

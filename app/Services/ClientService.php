@@ -26,19 +26,14 @@ class ClientService extends BaseService
      * @param DatatableService $datatableService
      * @param NinjaRepository $ninjaRepo
      */
-    public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
-    {
+    public function __construct(
+        ClientRepository $clientRepo,
+        DatatableService $datatableService,
+        NinjaRepository $ninjaRepo
+    ) {
         $this->clientRepo = $clientRepo;
         $this->ninjaRepo = $ninjaRepo;
         $this->datatableService = $datatableService;
-    }
-
-    /**
-     * @return ClientRepository
-     */
-    protected function getRepo()
-    {
-        return $this->clientRepo;
     }
 
     /**
@@ -67,5 +62,13 @@ class ClientService extends BaseService
         $query = $this->clientRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return ClientRepository
+     */
+    protected function getRepo()
+    {
+        return $this->clientRepo;
     }
 }

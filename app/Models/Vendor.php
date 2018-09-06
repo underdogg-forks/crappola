@@ -19,15 +19,51 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter    = 'App\Ninja\Presenters\VendorPresenter';
+    public static $fieldName = 'name';
+    /**
+     * @var string
+     */
+    public static $fieldPhone = 'work_phone';
+    /**
+     * @var string
+     */
+    public static $fieldAddress1 = 'address1';
+    /**
+     * @var string
+     */
+    public static $fieldAddress2 = 'address2';
+    /**
+     * @var string
+     */
+    public static $fieldCity = 'city';
+    /**
+     * @var string
+     */
+    public static $fieldState = 'state';
+    /**
+     * @var string
+     */
+    public static $fieldPostalCode = 'postal_code';
+    /**
+     * @var string
+     */
+    public static $fieldNotes = 'notes';
+    /**
+     * @var string
+     */
+    public static $fieldCountry = 'country';
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
     /**
      * @var array
      */
-    protected $dates        = ['deleted_at'];
+    protected $dates = ['deleted_at'];
     /**
      * @var array
      */
-    protected $fillable     = [
+    protected $fillable = [
         'name',
         'id_number',
         'vat_number',
@@ -43,43 +79,6 @@ class Vendor extends EntityModel
         'website',
         'transaction_name',
     ];
-
-    /**
-     * @var string
-     */
-    public static $fieldName        = 'name';
-    /**
-     * @var string
-     */
-    public static $fieldPhone       = 'work_phone';
-    /**
-     * @var string
-     */
-    public static $fieldAddress1    = 'address1';
-    /**
-     * @var string
-     */
-    public static $fieldAddress2    = 'address2';
-    /**
-     * @var string
-     */
-    public static $fieldCity        = 'city';
-    /**
-     * @var string
-     */
-    public static $fieldState       = 'state';
-    /**
-     * @var string
-     */
-    public static $fieldPostalCode  = 'postal_code';
-    /**
-     * @var string
-     */
-    public static $fieldNotes       = 'notes';
-    /**
-     * @var string
-     */
-    public static $fieldCountry     = 'country';
 
     /**
      * @return array
@@ -201,7 +200,7 @@ class Vendor extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense','vendor_id','id');
+        return $this->hasMany('App\Models\Expense', 'vendor_id', 'id');
     }
 
     /**
@@ -323,9 +322,9 @@ class Vendor extends EntityModel
     public function getTotalExpense()
     {
         return DB::table('expenses')
-                ->where('vendor_id', '=', $this->id)
-                ->whereNull('deleted_at')
-                ->sum('amount');
+            ->where('vendor_id', '=', $this->id)
+            ->whereNull('deleted_at')
+            ->sum('amount');
     }
 }
 

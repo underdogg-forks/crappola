@@ -41,41 +41,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             Session::put($this->invitation->id . 'device_data', $input['device_data']);
             */
 
-            $data['details'] = ! empty($input['device_data']) ? json_decode($input['device_data']) : false;
-        }
-
-        return $data;
-    }
-
-    protected function checkCustomerExists($customer)
-    {
-        if ( ! parent::checkCustomerExists($customer)) {
-            return false;
-        }
-
-        $customer = $this->gateway()->findCustomer($customer->token)
-            ->send()
-            ->getData();
-
-        return ($customer instanceof Customer);
-    }
-
-    protected function paymentDetails($paymentMethod = false)
-    {
-        $data = parent::paymentDetails($paymentMethod);
-
-        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
-
-        if ($deviceData) {
-            $data['device_data'] = $deviceData;
-        }
-
-        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
-            $data['ButtonSource'] = 'InvoiceNinja_SP';
-        }
-
-        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
-            $data['token'] = $this->input['sourceToken'];
+            $data['details'] = !empty($input['device_data']) ? json_decode($input['device_data']) : false;
         }
 
         return $data;
@@ -113,23 +79,68 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    private function customerData()
-    {
-        return [
-            'firstName' => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
-            'lastName' => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
-            'company' => $this->client()->name,
-            'email' => $this->contact()->email,
-            'phone' => $this->contact()->phone,
-            'website' => $this->client()->website
-        ];
-    }
-
     public function creatingCustomer($customer)
     {
         $customer->token = $this->tokenResponse->customerId;
 
         return $customer;
+    }
+
+    public function removePaymentMethod($paymentMethod)
+    {
+        parent::removePaymentMethod($paymentMethod);
+
+        $response = $this->gateway()->deletePaymentMethod([
+            'token' => $paymentMethod->source_reference
+        ])->send();
+
+        if ($response->isSuccessful()) {
+            return true;
+        } else {
+            throw new Exception($response->getMessage());
+        }
+    }
+
+    public function createTransactionToken()
+    {
+        return $this->gateway()
+            ->clientToken()
+            ->send()
+            ->getToken();
+    }
+
+    protected function checkCustomerExists($customer)
+    {
+        if (!parent::checkCustomerExists($customer)) {
+            return false;
+        }
+
+        $customer = $this->gateway()->findCustomer($customer->token)
+            ->send()
+            ->getData();
+
+        return ($customer instanceof Customer);
+    }
+
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $data = parent::paymentDetails($paymentMethod);
+
+        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
+
+        if ($deviceData) {
+            $data['device_data'] = $deviceData;
+        }
+
+        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
+            $data['ButtonSource'] = 'InvoiceNinja_SP';
+        }
+
+        if (!$paymentMethod && !empty($this->input['sourceToken'])) {
+            $data['token'] = $this->input['sourceToken'];
+        }
+
+        return $data;
     }
 
     protected function creatingPaymentMethod($paymentMethod)
@@ -152,24 +163,9 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    public function removePaymentMethod($paymentMethod)
-    {
-        parent::removePaymentMethod($paymentMethod);
-
-        $response = $this->gateway()->deletePaymentMethod([
-            'token' => $paymentMethod->source_reference
-        ])->send();
-
-        if ($response->isSuccessful()) {
-            return true;
-        } else {
-            throw new Exception($response->getMessage());
-        }
-    }
-
     protected function attemptVoidPayment($response, $payment, $amount)
     {
-        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
+        if (!parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
         }
 
@@ -185,11 +181,15 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    public function createTransactionToken()
+    private function customerData()
     {
-        return $this->gateway()
-                ->clientToken()
-                ->send()
-                ->getToken();
+        return [
+            'firstName' => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
+            'lastName' => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
+            'company' => $this->client()->name,
+            'email' => $this->contact()->email,
+            'phone' => $this->contact()->phone,
+            'website' => $this->client()->website
+        ];
     }
 }

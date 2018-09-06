@@ -15,17 +15,52 @@ class Task extends EntityModel
     use PresentableTrait;
 
     /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
+
+    /**
+     * @param $task
+     * @return string
+     */
+    public static function calcStartTime($task)
+    {
+        $parts = json_decode($task->time_log) ?: [];
+
+        if (count($parts)) {
+            return Utils::timestampToDateTimeString($parts[0][0]);
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * @param $task
+     * @return int
+     */
+    public static function calcDuration($task)
+    {
+        $duration = 0;
+        $parts = json_decode($task->time_log) ?: [];
+
+        foreach ($parts as $part) {
+            if (count($part) == 1 || !$part[1]) {
+                $duration += time() - $part[0];
+            } else {
+                $duration += $part[1] - $part[0];
+            }
+        }
+
+        return $duration;
+    }
+
+    /**
      * @return mixed
      */
     public function getEntityType()
     {
         return ENTITY_TASK;
     }
-
-    /**
-     * @var string
-     */
-    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -60,46 +95,11 @@ class Task extends EntityModel
     }
 
     /**
-     * @param $task
-     * @return string
-     */
-    public static function calcStartTime($task)
-    {
-        $parts = json_decode($task->time_log) ?: [];
-
-        if (count($parts)) {
-            return Utils::timestampToDateTimeString($parts[0][0]);
-        } else {
-            return '';
-        }
-    }
-
-    /**
      * @return string
      */
     public function getStartTime()
     {
         return self::calcStartTime($this);
-    }
-
-    /**
-     * @param $task
-     * @return int
-     */
-    public static function calcDuration($task)
-    {
-        $duration = 0;
-        $parts = json_decode($task->time_log) ?: [];
-
-        foreach ($parts as $part) {
-            if (count($part) == 1 || !$part[1]) {
-                $duration += time() - $part[0];
-            } else {
-                $duration += $part[1] - $part[0];
-            }
-        }
-
-        return $duration;
     }
 
     /**
@@ -116,7 +116,7 @@ class Task extends EntityModel
     public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
-        $part = $parts[count($parts)-1];
+        $part = $parts[count($parts) - 1];
 
         if (count($part) == 1 || !$part[1]) {
             return time() - $part[0];

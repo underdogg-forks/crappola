@@ -7,9 +7,10 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class InvoiceInvitationWasViewed
  */
-class InvoiceInvitationWasViewed extends Event {
+class InvoiceInvitationWasViewed extends Event
+{
 
-	use SerializesModels;
+    use SerializesModels;
 
     /**
      * @var Invoice

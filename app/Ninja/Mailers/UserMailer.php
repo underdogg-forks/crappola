@@ -23,7 +23,8 @@ class UserMailer extends Mailer
 
         $data = [
             'user' => $user,
-            'invitationMessage' => $invitor ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : '',
+            'invitationMessage' => $invitor ? trans('texts.invitation_message',
+                ['invitor' => $invitor->getDisplayName()]) : '',
         ];
 
         if ($invitor) {
@@ -48,9 +49,8 @@ class UserMailer extends Mailer
         Invoice $invoice,
         $notificationType,
         Payment $payment = null
-    )
-    {
-        if (! $user->email || $user->cannot('view', $invoice)) {
+    ) {
+        if (!$user->email || $user->cannot('view', $invoice)) {
             return;
         }
 
@@ -66,7 +66,7 @@ class UserMailer extends Mailer
             'userName' => $user->getDisplayName(),
             'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
-            'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
+            'invoiceLink' => SITE_URL . "/{$entityType}s/{$invoice->public_id}",
             'account' => $account,
         ];
 

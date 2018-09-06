@@ -22,7 +22,7 @@ class ProductController extends BaseController
 
     /**
      * ProductController constructor.
-     * 
+     *
      * @param ProductService $productService
      */
     public function __construct(ProductService $productService)
@@ -57,12 +57,12 @@ class ProductController extends BaseController
         $account = Auth::user()->account;
 
         $data = [
-          'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => Product::scope($publicId)->firstOrFail(),
-          'method' => 'PUT',
-          'url' => 'products/'.$publicId,
-          'title' => trans('texts.edit_product'),
+            'account' => $account,
+            'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
+            'product' => Product::scope($publicId)->firstOrFail(),
+            'method' => 'PUT',
+            'url' => 'products/' . $publicId,
+            'title' => trans('texts.edit_product'),
         ];
 
         return View::make('accounts.product', $data);
@@ -76,12 +76,12 @@ class ProductController extends BaseController
         $account = Auth::user()->account;
 
         $data = [
-          'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => null,
-          'method' => 'POST',
-          'url' => 'products',
-          'title' => trans('texts.create_product'),
+            'account' => $account,
+            'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
+            'product' => null,
+            'method' => 'POST',
+            'url' => 'products',
+            'title' => trans('texts.create_product'),
         ];
 
         return View::make('accounts.product', $data);
@@ -105,6 +105,20 @@ class ProductController extends BaseController
     }
 
     /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function bulk()
+    {
+        $action = Input::get('bulk_action');
+        $ids = Input::get('bulk_public_id');
+        $count = $this->productService->bulk($ids, $action);
+
+        Session::flash('message', trans('texts.archived_product'));
+
+        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+    }
+
+    /**
      * @param bool $productPublicId
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -125,20 +139,6 @@ class ProductController extends BaseController
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
-
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function bulk()
-    {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
-        $count = $this->productService->bulk($ids, $action);
-
-        Session::flash('message', trans('texts.archived_product'));
 
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }

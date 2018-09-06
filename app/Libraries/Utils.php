@@ -19,7 +19,13 @@ use WePay;
 class Utils
 {
     private static $weekdayNames = [
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
     ];
 
 
@@ -207,8 +213,8 @@ class Utils
     public static function getProLabel($feature)
     {
         if (Auth::check()
-                && !Auth::user()->isPro()
-                && $feature == ACCOUNT_ADVANCED_SETTINGS) {
+            && !Auth::user()->isPro()
+            && $feature == ACCOUNT_ADVANCED_SETTINGS) {
             return '&nbsp;<sup class="pro-label">PRO</sup>';
         } else {
             return '';
@@ -283,7 +289,7 @@ class Utils
             $message = 'An error occurred, please try again later.';
         }
 
-        static::logError($message.' '.$exception);
+        static::logError($message . ' ' . $exception);
 
         $data = [
             'showBreadcrumbs' => false,
@@ -297,7 +303,7 @@ class Utils
     {
         $class = get_class($exception);
         $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
-        return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
+        return "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
     public static function logError($error, $context = 'PHP', $info = false)
@@ -325,9 +331,9 @@ class Utils
         ];
 
         if ($info) {
-            Log::info($error."\n", $data);
+            Log::info($error . "\n", $data);
         } else {
-            Log::error($error."\n", $data);
+            Log::error($error . "\n", $data);
         }
 
         /*
@@ -352,15 +358,16 @@ class Utils
         return intval($value);
     }
 
-    public static function getFromCache($id, $type) {
+    public static function getFromCache($id, $type)
+    {
         $cache = Cache::get($type);
 
-        if ( ! $cache) {
+        if (!$cache) {
             static::logError("Cache for {$type} is not set");
             return null;
         }
 
-        $data = $cache->filter(function($item) use ($id) {
+        $data = $cache->filter(function ($item) use ($id) {
             return $item->id == $id;
         });
 
@@ -413,7 +420,7 @@ class Utils
 
     public static function pluralize($string, $count)
     {
-        $field = $count == 1 ? $string : $string.'s';
+        $field = $count == 1 ? $string : $string . 's';
         $string = trans("texts.$field", ['count' => $count]);
 
         return $string;
@@ -463,7 +470,7 @@ class Utils
 
     public static function toArray($data)
     {
-        return json_decode(json_encode((array) $data), true);
+        return json_decode(json_encode((array)$data), true);
     }
 
     public static function toSpaceCase($string)
@@ -545,10 +552,11 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
-        if(!$dateTime)
+        if (!$dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        }
     }
 
     public static function fromSqlDate($date, $formatResult = true)
@@ -560,10 +568,11 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
-        if(!$dateTime)
+        if (!$dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format($format) : $dateTime;
+        }
     }
 
     public static function fromSqlDateTime($date, $formatResult = true)
@@ -585,7 +594,7 @@ class Utils
     {
         // http://stackoverflow.com/a/3172665
         $f = ':';
-        return sprintf('%02d%s%02d%s%02d', floor($t/3600), $f, ($t/60)%60, $f, $t%60);
+        return sprintf('%02d%s%02d%s%02d', floor($t / 3600), $f, ($t / 60) % 60, $f, $t % 60);
     }
 
     public static function today($formatResult = true)
@@ -617,12 +626,12 @@ class Utils
         $object = new stdClass();
         $object->accountId = Auth::user()->account_id;
         $object->url = $url;
-        $object->name = ucwords($type).': '.$name;
+        $object->name = ucwords($type) . ': ' . $name;
 
         $data = [];
         $counts = [];
 
-        for ($i = 0; $i<count($viewed); $i++) {
+        for ($i = 0; $i < count($viewed); $i++) {
             $item = $viewed[$i];
 
             if ($object->url == $item->url || $object->name == $item->name) {
@@ -654,15 +663,15 @@ class Utils
         }
 
         $variables = ['MONTH', 'QUARTER', 'YEAR'];
-        for ($i = 0; $i<count($variables); $i++) {
+        for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
-            $regExp = '/:'.$variable.'[+-]?[\d]*/';
+            $regExp = '/:' . $variable . '[+-]?[\d]*/';
             preg_match_all($regExp, $str, $matches);
             $matches = $matches[0];
             if (count($matches) == 0) {
                 continue;
             }
-            usort($matches, function($a, $b) {
+            usort($matches, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
             foreach ($matches as $match) {
@@ -683,55 +692,6 @@ class Utils
         return $str;
     }
 
-    private static function getDatePart($part, $offset)
-    {
-        $offset = intval($offset);
-        if ($part == 'MONTH') {
-            return Utils::getMonth($offset);
-        } elseif ($part == 'QUARTER') {
-            return Utils::getQuarter($offset);
-        } elseif ($part == 'YEAR') {
-            return Utils::getYear($offset);
-        }
-    }
-
-    private static function getMonth($offset)
-    {
-        $months = ['january', 'february', 'march', 'april', 'may', 'june',
-            'july', 'august', 'september', 'october', 'november', 'december', ];
-
-        $month = intval(date('n')) - 1;
-
-        $month += $offset;
-        $month = $month % 12;
-
-        if ($month < 0) {
-            $month += 12;
-        }
-
-        return trans('texts.' . $months[$month]);
-    }
-
-    private static function getQuarter($offset)
-    {
-        $month = intval(date('n')) - 1;
-        $quarter = floor(($month + 3) / 3);
-        $quarter += $offset;
-        $quarter = $quarter % 4;
-        if ($quarter == 0) {
-            $quarter = 4;
-        }
-
-        return 'Q'.$quarter;
-    }
-
-    private static function getYear($offset)
-    {
-        $year = intval(date('Y'));
-
-        return $year + $offset;
-    }
-
     public static function getEntityClass($entityType)
     {
         return 'App\\Models\\' . static::getEntityName($entityType);
@@ -747,7 +707,7 @@ class Utils
         if ($model->client_name) {
             return $model->client_name;
         } elseif ($model->first_name || $model->last_name) {
-            return $model->first_name.' '.$model->last_name;
+            return $model->first_name . ' ' . $model->last_name;
         } else {
             return $model->email;
         }
@@ -755,11 +715,13 @@ class Utils
 
     public static function getVendorDisplayName($model)
     {
-        if(is_null($model))
+        if (is_null($model)) {
             return '';
+        }
 
-        if($model->vendor_name)
+        if ($model->vendor_name) {
             return $model->vendor_name;
+        }
 
         return 'No vendor name';
     }
@@ -767,7 +729,7 @@ class Utils
     public static function getPersonDisplayName($firstName, $lastName, $email)
     {
         if ($firstName || $lastName) {
-            return $firstName.' '.$lastName;
+            return $firstName . ' ' . $lastName;
         } elseif ($email) {
             return $email;
         } else {
@@ -778,7 +740,7 @@ class Utils
     public static function generateLicense()
     {
         $parts = [];
-        for ($i = 0; $i<5; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $parts[] = strtoupper(str_random(4));
         }
 
@@ -813,7 +775,7 @@ class Utils
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Content-Length: ' . strlen($jsonEncodedData)],
         ];
 
         curl_setopt_array($curl, $opts);
@@ -831,16 +793,16 @@ class Utils
     public static function getApiHeaders($count = 0)
     {
         return [
-          'Content-Type' => 'application/json',
-          //'Access-Control-Allow-Origin' => '*',
-          //'Access-Control-Allow-Methods' => 'GET',
-          //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
-          //'Access-Control-Allow-Credentials' => 'true',
-          'X-Total-Count' => $count,
-          'X-Ninja-Version' => NINJA_VERSION,
-          //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
-          //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
-          //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
+            'Content-Type' => 'application/json',
+            //'Access-Control-Allow-Origin' => '*',
+            //'Access-Control-Allow-Methods' => 'GET',
+            //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
+            //'Access-Control-Allow-Credentials' => 'true',
+            'X-Total-Count' => $count,
+            'X-Ninja-Version' => NINJA_VERSION,
+            //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
+            //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
+            //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
     }
 
@@ -902,8 +864,6 @@ class Utils
         }
     }
 
-    // nouns in German and French should be uppercase
-    // TODO remove this
     public static function transFlowText($key)
     {
         $str = trans("texts.$key");
@@ -956,11 +916,14 @@ class Utils
         return $domain;
     }
 
+    // nouns in German and French should be uppercase
+    // TODO remove this
+
     public static function splitName($name)
     {
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+        $firstName = trim(preg_replace('#' . $lastName . '#', '', $name));
         return [$firstName, $lastName];
     }
 
@@ -1001,7 +964,7 @@ class Utils
         if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
             $title = substr($title, 7);
         } else {
-            $link = $prefix.$link;
+            $link = $prefix . $link;
         }
 
         return link_to($link, $title, ['target' => '_blank']);
@@ -1086,7 +1049,68 @@ class Utils
     public static function getTranslatedWeekdayNames()
     {
         return collect(static::$weekdayNames)->transform(function ($day) {
-             return trans('texts.'.strtolower($day));
+            return trans('texts.' . strtolower($day));
         });
+    }
+
+    private static function getDatePart($part, $offset)
+    {
+        $offset = intval($offset);
+        if ($part == 'MONTH') {
+            return Utils::getMonth($offset);
+        } elseif ($part == 'QUARTER') {
+            return Utils::getQuarter($offset);
+        } elseif ($part == 'YEAR') {
+            return Utils::getYear($offset);
+        }
+    }
+
+    private static function getMonth($offset)
+    {
+        $months = [
+            'january',
+            'february',
+            'march',
+            'april',
+            'may',
+            'june',
+            'july',
+            'august',
+            'september',
+            'october',
+            'november',
+            'december',
+        ];
+
+        $month = intval(date('n')) - 1;
+
+        $month += $offset;
+        $month = $month % 12;
+
+        if ($month < 0) {
+            $month += 12;
+        }
+
+        return trans('texts.' . $months[$month]);
+    }
+
+    private static function getQuarter($offset)
+    {
+        $month = intval(date('n')) - 1;
+        $quarter = floor(($month + 3) / 3);
+        $quarter += $offset;
+        $quarter = $quarter % 4;
+        if ($quarter == 0) {
+            $quarter = 4;
+        }
+
+        return 'Q' . $quarter;
+    }
+
+    private static function getYear($offset)
+    {
+        $year = intval(date('Y'));
+
+        return $year + $offset;
     }
 }

@@ -14,18 +14,20 @@ class CreditDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
 
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}",
+                        Utils::getClientDisplayName($model))->toHtml() : '';
                 },
-                ! $this->hideClient
+                !$this->hideClient
             ],
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span '.Utils::getEntityRowClass($model).'/>';
+                    return Utils::formatMoney($model->amount, $model->currency_id,
+                            $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                 }
             ],
             [

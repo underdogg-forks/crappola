@@ -25,6 +25,75 @@ class PaymentMethod extends EntityModel
     protected $hidden = ['id'];
 
     /**
+     * @param $routingNumber
+     * @return mixed|null|\stdClass|string
+     */
+    public static function lookupBankData($routingNumber)
+    {
+        $cached = Cache::get('bankData:' . $routingNumber);
+
+        if ($cached != null) {
+            return $cached == false ? null : $cached;
+        }
+
+        $dataPath = base_path('vendor/gatepay/FedACHdir/FedACHdir.txt');
+
+        if (!file_exists($dataPath) || !$size = filesize($dataPath)) {
+            return 'Invalid data file';
+        }
+
+        $lineSize = 157;
+        $numLines = $size / $lineSize;
+
+        if ($numLines % 1 != 0) {
+            // The number of lines should be an integer
+            return 'Invalid data file';
+        }
+
+        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
+        $file = fopen($dataPath, 'r');
+
+        // Binary search
+        $low = 0;
+        $high = $numLines - 1;
+        while ($low <= $high) {
+            $mid = floor(($low + $high) / 2);
+
+            fseek($file, $mid * $lineSize);
+            $thisNumber = fread($file, 9);
+
+            if ($thisNumber > $routingNumber) {
+                $high = $mid - 1;
+            } else {
+                if ($thisNumber < $routingNumber) {
+                    $low = $mid + 1;
+                } else {
+                    $data = new \stdClass();
+                    $data->routing_number = $thisNumber;
+
+                    fseek($file, 26, SEEK_CUR);
+
+                    $data->name = trim(fread($file, 36));
+                    $data->address = trim(fread($file, 36));
+                    $data->city = trim(fread($file, 20));
+                    $data->state = fread($file, 2);
+                    $data->zip = fread($file, 5) . '-' . fread($file, 4);
+                    $data->phone = fread($file, 10);
+                    break;
+                }
+            }
+        }
+
+        if (!empty($data)) {
+            Cache::put('bankData:' . $routingNumber, $data, 5);
+            return $data;
+        } else {
+            Cache::put('bankData:' . $routingNumber, false, 5);
+            return null;
+        }
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account()
@@ -94,7 +163,7 @@ class PaymentMethod extends EntityModel
         }
         $bankData = $this->bank_data;
 
-        return $bankData?$bankData->name:null;
+        return $bankData ? $bankData->name : null;
     }
 
     /**
@@ -113,7 +182,7 @@ class PaymentMethod extends EntityModel
      */
     public function scopeClientId($query, $clientId)
     {
-        $query->whereHas('contact', function($query) use ($clientId) {
+        $query->whereHas('contact', function ($query) use ($clientId) {
             $query->whereClientId($clientId);
         });
     }
@@ -140,72 +209,6 @@ class PaymentMethod extends EntityModel
     }
 
     /**
-     * @param $routingNumber
-     * @return mixed|null|\stdClass|string
-     */
-    public static function lookupBankData($routingNumber) {
-        $cached = Cache::get('bankData:'.$routingNumber);
-
-        if ($cached != null) {
-            return $cached == false ? null : $cached;
-        }
-
-        $dataPath = base_path('vendor/gatepay/FedACHdir/FedACHdir.txt');
-
-        if (!file_exists($dataPath) || !$size = filesize($dataPath)) {
-            return 'Invalid data file';
-        }
-
-        $lineSize = 157;
-        $numLines = $size/$lineSize;
-
-        if ($numLines % 1 != 0) {
-            // The number of lines should be an integer
-            return 'Invalid data file';
-        }
-
-        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
-        $file = fopen($dataPath, 'r');
-
-        // Binary search
-        $low = 0;
-        $high = $numLines - 1;
-        while ($low <= $high) {
-            $mid = floor(($low + $high) / 2);
-
-            fseek($file, $mid * $lineSize);
-            $thisNumber = fread($file, 9);
-
-            if ($thisNumber > $routingNumber) {
-                $high = $mid - 1;
-            } else if ($thisNumber < $routingNumber) {
-                $low = $mid + 1;
-            } else {
-                $data = new \stdClass();
-                $data->routing_number = $thisNumber;
-
-                fseek($file, 26, SEEK_CUR);
-
-                $data->name = trim(fread($file, 36));
-                $data->address = trim(fread($file, 36));
-                $data->city = trim(fread($file, 20));
-                $data->state = fread($file, 2);
-                $data->zip = fread($file, 5).'-'.fread($file, 4);
-                $data->phone = fread($file, 10);
-                break;
-            }
-        }
-
-        if (!empty($data)) {
-            Cache::put('bankData:'.$routingNumber, $data, 5);
-            return $data;
-        } else {
-            Cache::put('bankData:'.$routingNumber, false, 5);
-            return null;
-        }
-    }
-
-    /**
      * @return bool
      */
     public function requiresDelayedAutoBill()
@@ -228,10 +231,12 @@ class PaymentMethod extends EntityModel
     }
 }
 
-PaymentMethod::deleting(function($paymentMethod) {
+PaymentMethod::deleting(function ($paymentMethod) {
     $accountGatewayToken = $paymentMethod->account_gateway_token;
     if ($accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
-        $newDefault = $accountGatewayToken->payment_methods->first(function($i, $paymentMethdod) use ($accountGatewayToken){
+        $newDefault = $accountGatewayToken->payment_methods->first(function ($i, $paymentMethdod) use (
+            $accountGatewayToken
+        ) {
             return $paymentMethdod->id != $accountGatewayToken->default_payment_method_id;
         });
         $accountGatewayToken->default_payment_method_id = $newDefault ? $newDefault->id : null;

@@ -111,7 +111,7 @@ class Activity extends Eloquent
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
-            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
+            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30) . '...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

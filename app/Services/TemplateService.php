@@ -24,17 +24,17 @@ class TemplateService
         $invitation = $data['invitation'];
 
         $invoice = $invitation->invoice;
-        $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
+        $passwordHTML = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
         $documentsHTML = '';
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
-            $documentsHTML .= trans('texts.email_documents_header').'<ul>';
-            foreach($invoice->documents as $document){
-                $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+            $documentsHTML .= trans('texts.email_documents_header') . '<ul>';
+            foreach ($invoice->documents as $document) {
+                $documentsHTML .= '<li><a href="' . HTML::entities($document->getClientUrl($invitation)) . '">' . HTML::entities($document->name) . '</a></li>';
             }
-            foreach($invoice->expenses as $expense){
-                foreach($expense->documents as $document){
-                    $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+            foreach ($invoice->expenses as $expense) {
+                foreach ($expense->documents as $document) {
+                    $documentsHTML .= '<li><a href="' . HTML::entities($document->getClientUrl($invitation)) . '">' . HTML::entities($document->name) . '</a></li>';
                 }
             }
             $documentsHTML .= '</ul>';
@@ -53,16 +53,16 @@ class TemplateService
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),
             '$password' => $passwordHTML,
-            '$viewLink' => $invitation->getLink().'$password',
-            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
-            '$paymentLink' => $invitation->getLink('payment').'$password',
-            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
+            '$viewLink' => $invitation->getLink() . '$password',
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()) . '$password',
+            '$paymentLink' => $invitation->getLink('payment') . '$password',
+            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')) . '$password',
             '$customClient1' => $account->custom_client_label1,
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
             '$documents' => $documentsHTML,
-            '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
+            '$autoBill' => empty($data['autobill']) ? '' : $data['autobill'],
             '$portalLink' => $invitation->contact->link,
             '$portalButton' => Form::emailViewButton($invitation->contact->link, 'portal'),
         ];
@@ -71,7 +71,7 @@ class TemplateService
         foreach (Gateway::$gatewayTypes as $type) {
             $camelType = Utils::toCamelCase($type);
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$type}");
         }
 
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
@@ -80,8 +80,7 @@ class TemplateService
 
         if (!$includesPasswordPlaceholder && $passwordHTML) {
             $pos = strrpos($str, '$password');
-            if ($pos !== false)
-            {
+            if ($pos !== false) {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
         }

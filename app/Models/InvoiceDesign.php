@@ -26,7 +26,7 @@ class InvoiceDesign extends Eloquent
             if ($design->id > Auth::user()->maxInvoiceDesignId()) {
                 $designs->pull($design->id);
             }
-            
+
             $design->javascript = $design->pdfmake;
             $design->pdfmake = null;
 
@@ -38,7 +38,7 @@ class InvoiceDesign extends Eloquent
                 }
             }
         }
-        
+
         return $designs;
     }
 }

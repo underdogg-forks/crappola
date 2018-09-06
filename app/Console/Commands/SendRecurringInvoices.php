@@ -54,20 +54,21 @@ class SendRecurringInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running SendRecurringInvoices...');
+        $this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
         $today = new DateTime();
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)',
+                [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
-        $this->info(count($invoices).' recurring invoice(s) found');
+        $this->info(count($invoices) . ' recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
-            $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($shouldSendToday ? 'YES' : 'NO'));
+            $this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($shouldSendToday ? 'YES' : 'NO'));
 
-            if ( ! $shouldSendToday) {
+            if (!$shouldSendToday) {
                 continue;
             }
 
@@ -80,13 +81,14 @@ class SendRecurringInvoices extends Command
             }
         }
 
-        $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
+        $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client',
+            'user')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE
             AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
                 [$today->format('Y-m-d')])
             ->orderBy('invoices.id', 'asc')
             ->get();
-        $this->info(count($delayedAutoBillInvoices).' due recurring invoice instance(s) found');
+        $this->info(count($delayedAutoBillInvoices) . ' due recurring invoice instance(s) found');
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {

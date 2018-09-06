@@ -17,9 +17,9 @@ class QuoteTransformer extends EntityTransformer
     public function transform(Invoice $invoice)
     {
         return [
-            'id' => (int) $invoice->public_id,
+            'id' => (int)$invoice->public_id,
             'quote_number' => $invoice->invoice_number,
-            'amount' => (float) $invoice->amount,
+            'amount' => (float)$invoice->amount,
             'quote_terms' => $invoice->terms,
         ];
     }

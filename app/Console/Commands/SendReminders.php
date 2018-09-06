@@ -30,7 +30,7 @@ class SendReminders extends Command
      * @var InvoiceRepository
      */
     protected $invoiceRepo;
-    
+
     /**
      * @var accountRepository
      */

@@ -23,7 +23,7 @@ class IntegrationController extends Controller
         }
 
         $subscription = Subscription::where('account_id', '=', Auth::user()->account_id)
-                            ->where('event_id', '=', $eventId)->first();
+            ->where('event_id', '=', $eventId)->first();
 
         if (!$subscription) {
             $subscription = new Subscription();
@@ -38,6 +38,6 @@ class IntegrationController extends Controller
             return Response::json('Failed to create subscription', 500);
         }
 
-        return Response::json('{"id":'.$subscription->id.'}', 201);
+        return Response::json('{"id":' . $subscription->id . '}', 201);
     }
 }

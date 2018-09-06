@@ -25,5 +25,5 @@ class PaymentTerm extends EntityModel
     {
         return ENTITY_PAYMENT_TERM;
     }
-    
+
 }
