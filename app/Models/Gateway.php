@@ -1,7 +1,7 @@
 <?php namespace App\Models;
 
 use Eloquent;
-use Omnipay;
+//use Omnipay;
 use Utils;
 
 /**
@@ -171,6 +171,7 @@ class Gateway extends Eloquent
      */
     public function getFields()
     {
-        return Omnipay::create($this->provider)->getDefaultParameters();
+        //return Omnipay::create($this->provider)->getDefaultParameters();
+        return array();
     }
 }

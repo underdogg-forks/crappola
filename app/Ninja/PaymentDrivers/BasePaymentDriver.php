@@ -3,7 +3,7 @@
 use URL;
 use Session;
 use Request;
-use Omnipay;
+//use Omnipay;
 use Exception;
 use CreditCard;
 use DateTime;

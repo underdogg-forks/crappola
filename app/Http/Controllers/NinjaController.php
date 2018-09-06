@@ -8,7 +8,7 @@ use View;
 use Validator;
 use URL;
 use Cache;
-use Omnipay;
+//use Omnipay;
 use App\Models\Country;
 use App\Models\License;
 use App\Models\Affiliate;

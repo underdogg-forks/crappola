@@ -4,6 +4,7 @@ use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 // vendor
+
 /**
  * Class VendorTransformer
  */

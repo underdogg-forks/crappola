@@ -18,7 +18,7 @@
     "optimize-autoloader": true
   },
   "require": {
-    "php": ">=5.5.9",
+    "php": ">=7.1",
     "ext-gd": "*",
     "ext-gmp": "*",
     "ext-mcrypt": "*",
@@ -39,8 +39,8 @@
     "laracasts/presenter": "dev-master",
     "laravel/framework": "5.2.*",
     "laravel/socialite": "^2.0",
-    "laravelcollective/bus": "5.2.*",
-    "laravelcollective/html": "5.2.*",
+    "laravelcollective/bus": "^5.2",
+    "laravelcollective/html": "^5.2",
     "league/flysystem-aws-s3-v3": "^1.0",
     "league/flysystem-rackspace": "^1.0",
     "league/fractal": "^0.13",

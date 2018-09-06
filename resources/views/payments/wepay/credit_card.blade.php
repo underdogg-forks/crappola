@@ -5,11 +5,11 @@
 
     <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.v2.js"></script>
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
             WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
             var $form = $('.payment-form');
-            $('.payment-form').submit(function(event) {
+            $('.payment-form').submit(function (event) {
                 var data = {
                     client_id: {{ WEPAY_CLIENT_ID }},
                     user_name: $('#first_name').val() + ' ' + $('#last_name').val(),
@@ -26,7 +26,7 @@
                     }
                 };
 
-                if(data.address.country == 'US') {
+                if (data.address.country == 'US') {
                     data.address.zip = $('#postal_code').val();
                 } else {
                     data.address.postcode = $('#postal_code').val();
@@ -37,7 +37,7 @@
                 $form.find('button').prop('disabled', true);
                 $('#js-error-message').hide();
 
-                var response = WePay.credit_card.create(data, function(response) {
+                var response = WePay.credit_card.create(data, function (response) {
                     if (response.error) {
                         // Show the errors on the form
                         var error = response.error_description;

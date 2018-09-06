@@ -6,10 +6,10 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript">
         Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
-        $(function() {
+        $(function () {
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
-            $('.payment-form').submit(function(event) {
-                if($('[name=plaidAccountId]').length)return;
+            $('.payment-form').submit(function (event) {
+                if ($('[name=plaidAccountId]').length) return;
 
                 var $form = $(this);
 
@@ -54,29 +54,34 @@
                 return false;
             });
 
-            @if ($accountGateway->getPlaidEnabled())
-                var plaidHandler = Plaid.create({
+                    @if ($accountGateway->getPlaidEnabled())
+            var plaidHandler = Plaid.create({
                     selectAccount: true,
                     env: '{{ $accountGateway->getPlaidEnvironment() }}',
                     clientName: {!! json_encode($account->getDisplayName()) !!},
                     key: '{{ $accountGateway->getPlaidPublicKey() }}',
                     product: 'auth',
                     onSuccess: plaidSuccessHandler,
-                    onExit : function(){$('#secured_by_plaid').hide()}
+                    onExit: function () {
+                        $('#secured_by_plaid').hide()
+                    }
                 });
 
-                $('#plaid_link_button').click(function(){plaidHandler.open();$('#secured_by_plaid').fadeIn()});
-                $('#plaid_unlink').click(function(e){
-                    e.preventDefault();
-                    $('#manual_container').fadeIn();
-                    $('#plaid_linked').hide();
-                    $('#plaid_link_button').show();
-                    $('#pay_now_button').hide();
-                    $('#add_account_button').show();
-                    $('[name=plaidPublicToken]').remove();
-                    $('[name=plaidAccountId]').remove();
-                    $('[name=account_holder_type],#account_holder_name').attr('required','required');
-                })
+            $('#plaid_link_button').click(function () {
+                plaidHandler.open();
+                $('#secured_by_plaid').fadeIn()
+            });
+            $('#plaid_unlink').click(function (e) {
+                e.preventDefault();
+                $('#manual_container').fadeIn();
+                $('#plaid_linked').hide();
+                $('#plaid_link_button').show();
+                $('#pay_now_button').hide();
+                $('#add_account_button').show();
+                $('[name=plaidPublicToken]').remove();
+                $('[name=plaidAccountId]').remove();
+                $('[name=account_holder_type],#account_holder_name').attr('required', 'required');
+            })
             @endif
         });
 
@@ -86,7 +91,7 @@
             if (response.error) {
                 // Show the errors on the form
                 var error = response.error.message;
-                if(response.error.param == 'bank_account[country]') {
+                if (response.error.param == 'bank_account[country]') {
                     error = "{{trans('texts.country_not_supported')}}";
                 }
                 $form.find('button').prop('disabled', false);
@@ -115,7 +120,7 @@
 
 
             var payNowBtn = $('#pay_now_button');
-            if(payNowBtn.length) {
+            if (payNowBtn.length) {
                 payNowBtn.show();
                 $('#add_account_button').hide();
             }
@@ -148,7 +153,7 @@
     @if (Utils::isNinjaDev())
         {!! Former::populateField('account_holder_name', 'Test Client') !!}
         <script>
-            $(function() {
+            $(function () {
                 $('#routing_number').val('110000000');
                 $('#account_number').val('000123456789');
                 $('#confirm_account_number').val('000123456789');
@@ -250,40 +255,42 @@
 
     <script type="text/javascript">
         var routingNumberCache = {};
-        $('#routing_number, #country').on('change keypress keyup keydown paste', function(){setTimeout(function () {
-            var routingNumber = $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-            if (routingNumber.length != 9 || $("#country_id").val() != 840 || routingNumberCache[routingNumber] === false) {
-                $('#bank_name').hide();
-            } else if (routingNumberCache[routingNumber]) {
-                $('#bank_name').empty().append(routingNumberCache[routingNumber]).show();
-            } else {
-                routingNumberCache[routingNumber] = false;
-                $('#bank_name').hide();
-                $.ajax({
-                    url:"{{ URL::to('/bank') }}/" + routingNumber,
-                    success:function(data) {
-                        var els = $().add(document.createTextNode(data.name + ", " + data.city + ", " + data.state));
-                        routingNumberCache[routingNumber] = els;
-
-                        // Still the same number?
-                        if (routingNumber == $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')) {
-                            $('#bank_name').empty().append(els).show();
-                        }
-                    },
-                    error:function(xhr) {
-                        if (xhr.status == 404) {
-                            var els = $(document.createTextNode('{{trans('texts.unknown_bank')}}'));
+        $('#routing_number, #country').on('change keypress keyup keydown paste', function () {
+            setTimeout(function () {
+                var routingNumber = $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+                if (routingNumber.length != 9 || $("#country_id").val() != 840 || routingNumberCache[routingNumber] === false) {
+                    $('#bank_name').hide();
+                } else if (routingNumberCache[routingNumber]) {
+                    $('#bank_name').empty().append(routingNumberCache[routingNumber]).show();
+                } else {
+                    routingNumberCache[routingNumber] = false;
+                    $('#bank_name').hide();
+                    $.ajax({
+                        url: "{{ URL::to('/bank') }}/" + routingNumber,
+                        success: function (data) {
+                            var els = $().add(document.createTextNode(data.name + ", " + data.city + ", " + data.state));
                             routingNumberCache[routingNumber] = els;
 
                             // Still the same number?
                             if (routingNumber == $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')) {
                                 $('#bank_name').empty().append(els).show();
                             }
+                        },
+                        error: function (xhr) {
+                            if (xhr.status == 404) {
+                                var els = $(document.createTextNode('{{trans('texts.unknown_bank')}}'));
+                                routingNumberCache[routingNumber] = els;
+
+                                // Still the same number?
+                                if (routingNumber == $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')) {
+                                    $('#bank_name').empty().append(els).show();
+                                }
+                            }
                         }
-                    }
-                })
-            }
-        },10)})
+                    })
+                }
+            }, 10)
+        })
     </script>
 
 @stop

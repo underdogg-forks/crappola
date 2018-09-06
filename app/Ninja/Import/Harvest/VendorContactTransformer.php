@@ -4,6 +4,7 @@ use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 // vendor
+
 /**
  * Class VendorContactTransformer
  */
@@ -15,7 +16,7 @@ class VendorContactTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ( ! $this->hasVendor($data->vendor)) {
+        if (!$this->hasVendor($data->vendor)) {
             return false;
         }
 

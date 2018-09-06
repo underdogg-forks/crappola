@@ -67,7 +67,7 @@ class Utils
 
     public static function isNinja()
     {
-        return self::isNinjaProd() || self::isNinjaDev();
+        return self::isNinjaProd() || self::isNinjaDev() || self::isNinjaLocal();
     }
 
     public static function isNinjaProd()
@@ -79,6 +79,11 @@ class Utils
         return env('NINJA_PROD') == 'true';
     }
 
+    public static function isNinjaLocal()
+    {
+        return env('NINJA_LOC') == 'true';
+    }
+
     public static function isNinjaDev()
     {
         return env('NINJA_DEV') == 'true';
@@ -86,7 +91,7 @@ class Utils
 
     public static function requireHTTPS()
     {
-        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
+        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.me' || Request::root() === 'http://ninja.dev:8000') {
             return false;
         }
 

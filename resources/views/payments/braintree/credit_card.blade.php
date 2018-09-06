@@ -4,8 +4,8 @@
     @parent
 
     <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
-    <script type="text/javascript" >
-        $(function() {
+    <script type="text/javascript">
+        $(function () {
             var $form = $('.payment-form');
             braintree.setup("{{ $transactionToken }}", "custom", {
                 id: "payment-form",
@@ -34,7 +34,7 @@
                         }
                     }
                 },
-                onError: function(e) {
+                onError: function (e) {
                     $form.find('button').prop('disabled', false);
                     // Show the errors on the form
                     if (e.details && e.details.invalidFieldKeys.length) {
@@ -54,14 +54,14 @@
                         $('#js-error-message').html(e.message).fadeIn();
                     }
                 },
-                onPaymentMethodReceived: function(e) {
+                onPaymentMethodReceived: function (e) {
                     // Insert the token into the form so it gets submitted to the server
                     $form.append($('<input type="hidden" name="sourceToken"/>').val(e.nonce));
                     // and submit
                     $form.get(0).submit();
                 }
             });
-            $('.payment-form').submit(function(event) {
+            $('.payment-form').submit(function (event) {
                 var $form = $(this);
 
                 // Disable the submit button to prevent repeated clicks

@@ -17,8 +17,8 @@
             widgetContainerSelector: '.payment-form',
             widgetColor: '#333',
             themeColor: '#3075dd',
-            buttonColor:'#51c470',
-            cardCharged: function(event){
+            buttonColor: '#51c470',
+            cardCharged: function (event) {
                 location.href = '{{ URL::to('/complete/'. $invitation->invitation_key . '/credit_card?token=' . $transactionToken) }}';
             }
         });

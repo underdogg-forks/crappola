@@ -1,11 +1,12 @@
 @if ($account->hasLogo())
     @if ($account->website)
         <a href="{{ $account->website }}" style="color: #19BB40; text-decoration: underline;">
-    @endif
+            @endif
 
-    <img src="{{ isset($message) ? $message->embed($account->getLogoURL()) : $account->getLogoURL() }}" style="max-height:50px; max-width:140px; margin-left: 33px;" />
+            <img src="{{ isset($message) ? $message->embed($account->getLogoURL()) : $account->getLogoURL() }}"
+                 style="max-height:50px; max-width:140px; margin-left: 33px;"/>
 
-    @if ($account->website)
+            @if ($account->website)
         </a>
     @endif
 @endif
