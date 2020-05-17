@@ -1,20 +1,46 @@
-<?php namespace App\Http\Middleware;
+<?php
+
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
 
-class VerifyCsrfToken extends BaseVerifier {
+/**
+ * Class VerifyCsrfToken.
+ */
+class VerifyCsrfToken extends BaseVerifier
+{
+    /**
+     * @var array
+     */
+    private $openRoutes = [
+        'complete*',
+        'signup/register',
+        'api/v1/*',
+        'hook/email_opened',
+        'hook/email_bounced',
+        'reseller_stats',
+        'payment_hook/*',
+        'buy_now*',
+        'hook/bot/*',
+    ];
 
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
-	 * @return mixed
-	 */
-	public function handle($request, Closure $next)
-	{
-		return parent::handle($request, $next);
-	}
+    /**
+     * Handle an incoming request.
+     *
+     * @param Request $request
+     * @param Closure $next
+     *
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        foreach ($this->openRoutes as $route) {
+            if ($request->is($route)) {
+                return $next($request);
+            }
+        }
 
+        return parent::handle($request, $next);
+    }
 }

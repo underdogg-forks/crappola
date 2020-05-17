@@ -1,5 +1,8 @@
 <?php
 
+// https://laracasts.com/discuss/channels/general-discussion/l5-maximum-function-nesting-level-of-100-reached-aborting/
+ini_set('xdebug.max_nesting_level', 256);
+
 define('LARAVEL_START', microtime(true));
 
 /*
@@ -27,7 +30,7 @@ require __DIR__.'/../vendor/autoload.php';
 |
 */
 
-$compiledPath = __DIR__.'/../storage/framework/compiled.php';
+$compiledPath = __DIR__.'/cache/compiled.php';
 
 if (file_exists($compiledPath))
 {

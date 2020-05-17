@@ -1,61 +1,162 @@
-@extends('app')
+@extends('login')
 
-@section('content')
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
-			<div class="panel panel-default">
-				<div class="panel-heading">Login</div>
-				<div class="panel-body">
-					@if (count($errors) > 0)
-						<div class="alert alert-danger">
-							<strong>Whoops!</strong> There were some problems with your input.<br><br>
-							<ul>
-								@foreach ($errors->all() as $error)
-									<li>{{ $error }}</li>
-								@endforeach
-							</ul>
-						</div>
-					@endif
+@section('form')
 
-					<form class="form-horizontal" role="form" method="POST" action="{{ url('/auth/login') }}">
-						<input type="hidden" name="_token" value="{{ csrf_token() }}">
+    @include('partials.warn_session', ['redirectTo' => '/logout?reason=inactive'])
 
-						<div class="form-group">
-							<label class="col-md-4 control-label">E-Mail Address</label>
-							<div class="col-md-6">
-								<input type="email" class="form-control" name="email" value="{{ old('email') }}">
-							</div>
-						</div>
+    <div class="container">
 
-						<div class="form-group">
-							<label class="col-md-4 control-label">Password</label>
-							<div class="col-md-6">
-								<input type="password" class="form-control" name="password">
-							</div>
-						</div>
+        {!! Former::open('login')
+                ->rules(['email' => 'required|email', 'password' => 'required'])
+                ->addClass('form-signin') !!}
 
-						<div class="form-group">
-							<div class="col-md-6 col-md-offset-4">
-								<div class="checkbox">
-									<label>
-										<input type="checkbox" name="remember"> Remember Me
-									</label>
-								</div>
-							</div>
-						</div>
+        <h2 class="form-signin-heading">
+            @if (strstr(session('url.intended'), 'time_tracker'))
+                {{ trans('texts.time_tracker_login') }}
+            @else
+                {{ trans('texts.account_login') }}
+            @endif
+        </h2>
+        <hr class="green">
 
-						<div class="form-group">
-							<div class="col-md-6 col-md-offset-4">
-								<button type="submit" class="btn btn-primary">Login</button>
+        @if (count($errors->all()))
+            <div class="alert alert-danger">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </div>
+        @endif
 
-								<a class="btn btn-link" href="{{ url('/password/email') }}">Forgot Your Password?</a>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+        @if (Session::has('warning'))
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+        @endif
+
+        @if (Session::has('message'))
+            <div class="alert alert-info">{!! Session::get('message') !!}</div>
+        @endif
+
+        @if (Session::has('error'))
+            <div class="alert alert-danger">
+                <li>{!! Session::get('error') !!}</li>
+            </div>
+        @endif
+
+        @if (env('REMEMBER_ME_ENABLED'))
+            {{ Former::populateField('remember', 'true') }}
+            {!! Former::hidden('remember')->raw() !!}
+        @endif
+
+        <div>
+            {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
+            {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
+        </div>
+
+        {!! Button::success(trans('texts.login'))
+                    ->withAttributes(['id' => 'loginButton', 'class' => 'green'])
+                    ->large()->submit()->block() !!}
+
+        @if (Utils::isOAuthEnabled())
+            <div class="row existing-accounts">
+                <p>{{ trans('texts.login_or_existing') }}</p>
+                @foreach (App\Services\AuthService::$providers as $provider)
+                    <div class="col-md-3 col-xs-6">
+                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-lg" title="{{ $provider }}"
+                           id="{{ strtolower($provider) }}LoginButton">
+                            @if($provider == SOCIAL_GITHUB)
+                                <i class="fa fa-github-alt"></i>
+                            @else
+                                <i class="fa fa-{{ strtolower($provider) }}"></i>
+                            @endif
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <div class="row meta">
+            @if (Utils::isWhiteLabel())
+                <center>
+                    <br/>{!! link_to('/recover_password', trans('texts.recover_password')) !!}
+                </center>
+            @else
+                <div class="col-md-7 col-sm-12">
+                    {!! link_to('/recover_password', trans('texts.recover_password')) !!}
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    @if (Utils::isTimeTracker())
+                        {!! link_to('#', trans('texts.self_host_login'), ['onclick' => 'setSelfHostUrl()']) !!}
+                    @else
+                        {!! link_to(NINJA_WEB_URL.'/knowledge-base/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
+                    @endif
+                </div>
+            @endif
+        </div>
+        {!! Former::close() !!}
+
+        @if (Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
+            <div class="row sign-up">
+                <div class="col-md-3 col-md-offset-3 col-xs-12">
+                    <h3>{{trans('texts.not_a_member_yet')}}</h3>
+                    <p>{{trans('texts.login_create_an_account')}}</p>
+                </div>
+                <div class="col-md-3 col-xs-12">
+                    {!! Button::primary(trans('texts.sign_up_now'))->asLinkTo(URL::to('/invoice_now?sign_up=true'))->withAttributes(['class' => 'blue'])->large()->submit()->block() !!}
+                </div>
+            </div>
+        @endif
+    </div>
+
+
+    <script type="text/javascript">
+        $(function() {
+            if ($('#email').val()) {
+                $('#password').focus();
+            } else {
+                $('#email').focus();
+            }
+
+            @if (Utils::isTimeTracker())
+                if (isStorageSupported()) {
+                    var selfHostUrl = localStorage.getItem('last:time_tracker:url');
+                    if (selfHostUrl) {
+                        location.href = selfHostUrl;
+                        return;
+                    }
+                    $('#email').change(function() {
+                        localStorage.setItem('last:time_tracker:email', $('#email').val());
+                    })
+                    var email = localStorage.getItem('last:time_tracker:email');
+                    if (email) {
+                        $('#email').val(email);
+                        $('#password').focus();
+                    }
+                }
+            @endif
+        })
+
+        @if (Utils::isTimeTracker())
+            function setSelfHostUrl() {
+                if (! isStorageSupported()) {
+                    swal("{{ trans('texts.local_storage_required') }}");
+                    return;
+                }
+                swal({
+                    title: "{{ trans('texts.set_self_hoat_url') }}",
+                    input: 'text',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                }).then(function (value) {
+                    if (! value || value.indexOf('http') !== 0) {
+                        swal("{{ trans('texts.invalid_url') }}")
+                        return;
+                    }
+                    value = value.replace(/\/+$/, '') + '/time_tracker';
+                    localStorage.setItem('last:time_tracker:url', value);
+                    location.reload();
+                }).catch(swal.noop);
+            }
+        @endif
+
+    </script>
+
 @endsection

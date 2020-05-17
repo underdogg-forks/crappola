@@ -1,38 +1,59 @@
-<?php namespace App\Http\Controllers\Auth;
+<?php
 
+namespace App\Http\Controllers\Auth;
+
+use Illuminate\Http\Request;
+use App\Ninja\Repositories\AccountRepository;
+use App\Services\AuthService;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Contracts\Auth\Registrar;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
+    /**
+     * @var AuthService
+     */
+    protected $authService;
 
-	/*
-	|--------------------------------------------------------------------------
-	| Registration & Login Controller
-	|--------------------------------------------------------------------------
-	|
-	| This controller handles the registration of new users, as well as the
-	| authentication of existing users. By default, this controller uses
-	| a simple trait to add these behaviors. Why don't you explore it?
-	|
-	*/
+    /**
+     * @var AccountRepository
+     */
+    protected $accountRepo;
 
-	use AuthenticatesAndRegistersUsers;
+    /**
+     * Create a new authentication controller instance.
+     *
+     * @param AccountRepository $repo
+     * @param AuthService       $authService
+     *
+     * @internal param \Illuminate\Contracts\Auth\Guard $auth
+     * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
+     */
+    public function __construct(AccountRepository $repo, AuthService $authService)
+    {
+        $this->accountRepo = $repo;
+        $this->authService = $authService;
+    }
 
-	/**
-	 * Create a new authentication controller instance.
-	 *
-	 * @param  \Illuminate\Contracts\Auth\Guard  $auth
-	 * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
-	 * @return void
-	 */
-	public function __construct(Guard $auth, Registrar $registrar)
-	{
-		$this->auth = $auth;
-		$this->registrar = $registrar;
+    /**
+     * @param $provider
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function oauthLogin($provider, Request $request)
+    {
+        return $this->authService->execute($provider, $request->filled('code'));
+    }
 
-		$this->middleware('guest', ['except' => 'getLogout']);
-	}
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function oauthUnlink()
+    {
+        $this->accountRepo->unlinkUserFromOauth(auth()->user());
 
+        session()->flash('message', trans('texts.updated_settings'));
+
+        return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
+    }
 }

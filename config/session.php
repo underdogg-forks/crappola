@@ -29,9 +29,9 @@ return [
 	|
 	*/
 
-	'lifetime' => 120,
+	'lifetime' => env('SESSION_LIFETIME', (60 * 8)),
 
-	'expire_on_close' => false,
+	'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', true),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ return [
 	|
 	*/
 
-	'encrypt' => false,
+	'encrypt' => env('SESSION_ENCRYPT', false),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -109,7 +109,7 @@ return [
 	|
 	*/
 
-	'cookie' => 'laravel_session',
+	'cookie' => 'ninja_session',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -135,7 +135,7 @@ return [
 	|
 	*/
 
-	'domain' => null,
+	'domain' => env('SESSION_DOMAIN', null),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -148,6 +148,6 @@ return [
 	|
 	*/
 
-	'secure' => false,
+	'secure' => env('SESSION_SECURE', false),
 
 ];

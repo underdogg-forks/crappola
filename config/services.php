@@ -14,24 +14,54 @@ return [
 	|
 	*/
 
-	'mailgun' => [
-		'domain' => '',
-		'secret' => '',
-	],
+    'postmark' => env('POSTMARK_API_TOKEN', ''),
 
-	'mandrill' => [
-		'secret' => '',
-	],
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN',''),
+        'secret' => env('MAILGUN_SECRET',''),
+    ],
 
-	'ses' => [
-		'key' => '',
-		'secret' => '',
-		'region' => 'us-east-1',
-	],
+    'mandrill' => [
+        'secret' => '',
+    ],
 
-	'stripe' => [
-		'model'  => 'User',
-		'secret' => '',
-	],
+    'ses' => [
+        'key' => env('SES_KEY', ''),
+        'secret' => env('SES_SECRET', ''),
+        'region' => env('SES_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'sparkpost' => [
+        'secret' => env('SPARKPOST_SECRET'),
+    ],
+
+    'stripe' => [
+        'model'  => 'User',
+        'secret' => '',
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_OAUTH_REDIRECT'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
+    ],
+
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
+    ],
 
 ];
