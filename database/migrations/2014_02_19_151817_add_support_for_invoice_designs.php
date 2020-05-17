@@ -35,7 +35,7 @@ class AddSupportForInvoiceDesigns extends Migration
         Schema::table('invoices', function ($table) {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });
-    
+
         Schema::table('accounts', function ($table) {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });

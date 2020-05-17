@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddRemember2faToken extends Migration
 {
@@ -74,7 +73,7 @@ class AddRemember2faToken extends Migration
             $table->string('date_interval')->nullable();
         });
 
-        DB::statement("update invoices, (
+        DB::statement('update invoices, (
             	select max(created_at) created_at, invoice_id
             	from activities
             	where activity_type_id = 6
@@ -83,9 +82,9 @@ class AddRemember2faToken extends Migration
             set invoices.last_sent_date = activities.created_at
             where invoices.id = activities.invoice_id
             and invoices.is_recurring = 0
-            and invoices.invoice_type_id = 1");
+            and invoices.invoice_type_id = 1');
 
-        DB::statement("update invoices, (
+        DB::statement('update invoices, (
             	select max(created_at) created_at, invoice_id
             	from activities
             	where activity_type_id = 20
@@ -94,7 +93,7 @@ class AddRemember2faToken extends Migration
             set invoices.last_sent_date = activities.created_at
             where invoices.id = activities.invoice_id
             and invoices.is_recurring = 0
-            and invoices.invoice_type_id = 2");
+            and invoices.invoice_type_id = 2');
 
         if (! Utils::isNinja()) {
             Schema::table('activities', function ($table) {
@@ -154,6 +153,5 @@ class AddRemember2faToken extends Migration
         Schema::table('frequencies', function ($table) {
             $table->dropColumn('date_interval');
         });
-
     }
 }

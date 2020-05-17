@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App;
 use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
-use App\Models\InvoiceDesign;
 use App\Models\Language;
 use Auth;
 use Cache;
@@ -40,7 +39,7 @@ class StartupCheck
         if (isset($_ENV['TRUSTED_PROXIES'])) {
             if (env('TRUSTED_PROXIES') == '*') {
                 $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')]);
-            } else{
+            } else {
                 $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
             }
         }
@@ -63,7 +62,7 @@ class StartupCheck
         if (Utils::isSelfHost()) {
             // Check if config:cache may have been run
             if (! env('APP_URL')) {
-                echo "<p>There appears to be a problem with your configuration, please check your .env file.</p>" .
+                echo '<p>(FROM StartupCheck) ), please check your .env file.</p>' .
                      "<p>If you've run 'php artisan config:cache' you will need to run 'php artisan config:clear'</p>.";
                 exit;
             }
@@ -126,15 +125,15 @@ class StartupCheck
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @CurlUtils::get(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @CurlUtils::get(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
                     if (version_compare(NINJA_VERSION, $data->version, '<')) {
                         $params = [
-                            'user_version' => NINJA_VERSION,
+                            'user_version'   => NINJA_VERSION,
                             'latest_version' => $data->version,
-                            'releases_link' => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
+                            'releases_link'  => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
                         ];
                         Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
                         Session::flash('news_feed_message', trans('texts.new_version_available', $params));

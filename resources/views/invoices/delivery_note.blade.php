@@ -28,7 +28,7 @@
     }
 
     function onDownloadClick() {
-		trackEvent('/activity', '/download_pdf');
+		//trackEvent('/activity', '/download_pdf');
 		var doc = generatePDF(invoice, invoiceDesign.javascript, true);
         doc.save('{{ str_replace(' ', '_', trans('texts.delivery_note')) }}-{{ $invoice->invoice_number }}.pdf');
 	}

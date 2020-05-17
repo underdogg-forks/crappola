@@ -18,11 +18,11 @@ class TrackLastSeenMessage extends Migration
         if (DB::table('payment_libraries')->count() > 0) {
             DB::table('gateways')->update(['recommended' => 0]);
             DB::table('gateways')->insert([
-                'name' => 'moolah',
-                'provider' => 'AuthorizeNet_AIM',
-                'sort_order' => 1,
-                'recommended' => 1,
-                'site_url' => 'https://invoiceninja.mymoolah.com/',
+                'name'               => 'moolah',
+                'provider'           => 'AuthorizeNet_AIM',
+                'sort_order'         => 1,
+                'recommended'        => 1,
+                'site_url'           => 'https://invoiceninja.mymoolah.com/',
                 'payment_library_id' => 1,
             ]);
         }

@@ -96,7 +96,8 @@ class EnterprisePlan extends Migration
             OR (a2.id IS NOT NULL AND a2.company_id IS NULL)
             OR (a3.id IS NOT NULL AND a3.company_id IS NULL)
             OR (a4.id IS NOT NULL AND a4.company_id IS NULL)
-            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)');
+            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)'
+        );
 
         if (count($group_accounts)) {
             foreach ($group_accounts as $group_account) {

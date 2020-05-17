@@ -30,7 +30,7 @@ class AddAffiliatePrice extends Migration
         Schema::table('affiliates', function ($table) {
             $table->dropColumn('price');
         });
-    
+
         Schema::table('licenses', function ($table) {
             $table->dropColumn('product_id');
         });

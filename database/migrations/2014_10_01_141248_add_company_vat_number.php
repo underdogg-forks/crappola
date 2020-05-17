@@ -14,7 +14,7 @@ class AddCompanyVatNumber extends Migration
         Schema::table('accounts', function ($table) {
             $table->string('vat_number')->nullable();
         });
-        
+
         Schema::table('clients', function ($table) {
             $table->string('vat_number')->nullable();
         });

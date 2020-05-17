@@ -1,9 +1,6 @@
 <?php
 
-use App\Libraries\Utils;
-
 return [
-
     'name' => env('APP_NAME', 'Invoice Ninja'),
 
     /*
@@ -115,10 +112,7 @@ return [
     */
 
     'providers' => [
-
-        /*
-         * Laravel Framework Service Providers...
-         */
+        // Laravel Framework Service Providers...
         'Illuminate\Auth\AuthServiceProvider',
         'Collective\Html\HtmlServiceProvider',
         'Illuminate\Bus\BusServiceProvider',
@@ -143,30 +137,26 @@ return [
         'Illuminate\Broadcasting\BroadcastServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
 
-        /*
-         * Additional Providers
-         */
+        // Additional Providers
         'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
         'Intervention\Image\ImageServiceProvider',
         'Webpatser\Countries\CountriesServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        'Laravel\Socialite\SocialiteServiceProvider',
-        'Jlapp\Swaggervel\SwaggervelServiceProvider',
+        //'Laravel\Socialite\SocialiteServiceProvider',
+        //'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
-        Websight\GcsProvider\CloudStorageServiceProvider::class,
-        'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
-        Codedge\Updater\UpdaterServiceProvider::class,
+        //Websight\GcsProvider\CloudStorageServiceProvider::class,
+        //'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
+        //Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
-        Barryvdh\Cors\ServiceProvider::class,
-        PragmaRX\Google2FALaravel\ServiceProvider::class,
+        //Barryvdh\Cors\ServiceProvider::class,
+        //PragmaRX\Google2FALaravel\ServiceProvider::class,
         'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
 
-        /*
-         * Application Service Providers...
-         */
+        // Application Service Providers...
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
         'App\Providers\ComposerServiceProvider',
@@ -176,7 +166,6 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
-
     ],
 
     /*
@@ -191,7 +180,6 @@ return [
     */
 
     'aliases' => [
-
         'App'             => 'Illuminate\Support\Facades\App',
         'Artisan'         => 'Illuminate\Support\Facades\Artisan',
         'Auth'            => 'Illuminate\Support\Facades\Auth',
@@ -231,50 +219,48 @@ return [
         // Added Class Aliases
         'Form'              => 'Collective\Html\FormFacade',
         'HTML'              => 'Collective\Html\HtmlFacade',
-        'SSH'              => 'Illuminate\Support\Facades\SSH',
-        'Alert'           => 'Bootstrapper\Facades\Alert',
-        'Badge'           => 'Bootstrapper\Facades\Badge',
-        'Breadcrumb'      => 'Bootstrapper\Facades\Breadcrumb',
-        'Button'          => 'Bootstrapper\Facades\Button',
-        'ButtonGroup'     => 'Bootstrapper\Facades\ButtonGroup',
-        'ButtonToolbar'   => 'Bootstrapper\Facades\ButtonToolbar',
-        'Carousel'        => 'Bootstrapper\Facades\Carousel',
-        'DropdownButton'  => 'Bootstrapper\Facades\DropdownButton',
-        'Helpers'         => 'Bootstrapper\Facades\Helpers',
-        'Icon'            => 'Bootstrapper\Facades\Icon',
-        'Label'           => 'Bootstrapper\Facades\Label',
-        'MediaObject'     => 'Bootstrapper\Facades\MediaObject',
-        'Navbar'          => 'Bootstrapper\Facades\Navbar',
-        'Navigation'      => 'Bootstrapper\Facades\Navigation',
-        'Paginator'       => 'Bootstrapper\Facades\Paginator',
-        'Progress'        => 'Bootstrapper\Facades\Progress',
-        'Tabbable'        => 'Bootstrapper\Facades\Tabbable',
-        'Table'           => 'Bootstrapper\Facades\Table',
-        'Thumbnail'       => 'Bootstrapper\Facades\Thumbnail',
-        'Typeahead'       => 'Bootstrapper\Facades\Typeahead',
-        'Typography'      => 'Bootstrapper\Facades\Typography',
-        'Former'          => 'Former\Facades\Former',
-        'Omnipay'         => 'Omnipay\Omnipay',
-        'CreditCard'      => 'Omnipay\Common\CreditCard',
-        'Image'           => 'Intervention\Image\Facades\Image',
-        'Countries'       => 'Webpatser\Countries\CountriesFacade',
-        'Carbon'          => 'Carbon\Carbon',
-        'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
-        'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
-        'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
-        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
-        'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
-        'Datatable' => 'Chumper\Datatable\Facades\DatatableFacade',
-        'Updater' => Codedge\Updater\UpdaterFacade::class,
-        'Module' => Nwidart\Modules\Facades\Module::class,
+        'SSH'               => 'Illuminate\Support\Facades\SSH',
+        'Alert'             => 'Bootstrapper\Facades\Alert',
+        'Badge'             => 'Bootstrapper\Facades\Badge',
+        'Breadcrumb'        => 'Bootstrapper\Facades\Breadcrumb',
+        'Button'            => 'Bootstrapper\Facades\Button',
+        'ButtonGroup'       => 'Bootstrapper\Facades\ButtonGroup',
+        'ButtonToolbar'     => 'Bootstrapper\Facades\ButtonToolbar',
+        'Carousel'          => 'Bootstrapper\Facades\Carousel',
+        'DropdownButton'    => 'Bootstrapper\Facades\DropdownButton',
+        'Helpers'           => 'Bootstrapper\Facades\Helpers',
+        'Icon'              => 'Bootstrapper\Facades\Icon',
+        'Label'             => 'Bootstrapper\Facades\Label',
+        'MediaObject'       => 'Bootstrapper\Facades\MediaObject',
+        'Navbar'            => 'Bootstrapper\Facades\Navbar',
+        'Navigation'        => 'Bootstrapper\Facades\Navigation',
+        'Paginator'         => 'Bootstrapper\Facades\Paginator',
+        'Progress'          => 'Bootstrapper\Facades\Progress',
+        'Tabbable'          => 'Bootstrapper\Facades\Tabbable',
+        'Table'             => 'Bootstrapper\Facades\Table',
+        'Thumbnail'         => 'Bootstrapper\Facades\Thumbnail',
+        'Typeahead'         => 'Bootstrapper\Facades\Typeahead',
+        'Typography'        => 'Bootstrapper\Facades\Typography',
+        'Former'            => 'Former\Facades\Former',
+        'Omnipay'           => 'Omnipay\Omnipay',
+        'CreditCard'        => 'Omnipay\Common\CreditCard',
+        'Image'             => 'Intervention\Image\Facades\Image',
+        'Countries'         => 'Webpatser\Countries\CountriesFacade',
+        'Carbon'            => 'Carbon\Carbon',
+        'Rocketeer'         => 'Rocketeer\Facades\Rocketeer',
+        'Socialite'         => 'Laravel\Socialite\Facades\Socialite',
+        'Excel'             => 'Maatwebsite\Excel\Facades\Excel',
+        'PushNotification'  => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
+        //'Crawler'           => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        'Datatable'         => 'Chumper\Datatable\Facades\DatatableFacade',
+        //'Updater'           => Codedge\Updater\UpdaterFacade::class,
+        'Module'            => Nwidart\Modules\Facades\Module::class,
 
-        'Utils' => App\Libraries\Utils::class,
+        'Utils'     => App\Libraries\Utils::class,
         'DateUtils' => App\Libraries\DateUtils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
         'CurlUtils' => App\Libraries\CurlUtils::class,
-        'Domain' => App\Constants\Domain::class,
+        'Domain'    => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-
     ],
-
 ];

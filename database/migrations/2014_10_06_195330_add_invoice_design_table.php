@@ -36,7 +36,7 @@ class AddInvoiceDesignTable extends Migration
 	      var left = layout.headerRight - invoice.imageWidth;
 	      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
 	    }
-	  
+
 	    if (!invoice.is_pro && logoImages.imageLogo1)
 	    {
 	      pageHeight=820;
@@ -60,8 +60,8 @@ class AddInvoiceDesignTable extends Migration
 	    var clientHeight = displayClient(doc, invoice, 220, 170, layout);
 	    var detailsHeight = Math.max(invoiceHeight, clientHeight);
 	    layout.tableTop = Math.max(layout.tableTop, layout.headerTop + detailsHeight + (3 * layout.rowHeight));
-	   
-	    doc.setLineWidth(0.3);        
+
+	    doc.setLineWidth(0.3);
 	    doc.setDrawColor(200,200,200);
 	    doc.line(layout.marginLeft - layout.tablePadding, layout.headerTop + 6, layout.marginRight + layout.tablePadding, layout.headerTop + 6);
 	    doc.line(layout.marginLeft - layout.tablePadding, layout.headerTop + detailsHeight + 14, layout.marginRight + layout.tablePadding, layout.headerTop + detailsHeight + 14);
@@ -103,7 +103,7 @@ class AddInvoiceDesignTable extends Migration
 	    doc.setFontSize(10);
 	    Msg = invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due;
 	    var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
-	    
+
 	    doc.text(TmpMsgX, y, Msg);
 
 	    SetPdfColor('LightBlue', doc, 'primary');
@@ -132,7 +132,7 @@ class AddInvoiceDesignTable extends Migration
 			    setDocHexDraw(doc, NINJA.primaryColor);
 			  } else {
 			    doc.setFillColor(46,43,43);
-			  }  
+			  }
 
 			  var x1 =0;
 			  var y1 = 0;
@@ -153,7 +153,7 @@ class AddInvoiceDesignTable extends Migration
 			  } else {
 			    doc.setFillColor(46,43,43);
 			    doc.setDrawColor(46,43,43);
-			  }  
+			  }
 
 			  // return doc.setTextColor(240,240,240);//select color Custom Report GRAY Colour
 			  var x1 = 0;//tableLeft-tablePadding ;
@@ -197,8 +197,8 @@ class AddInvoiceDesignTable extends Migration
 			  if (NINJA.secondaryColor) {
 			    setDocHexFill(doc, NINJA.secondaryColor);
 			  } else {
-			    doc.setFillColor(54,164,152);  
-			  }  
+			    doc.setFillColor(54,164,152);
+			  }
 
 			  GlobalY=190;
 			  doc.setLineWidth(0.5);
@@ -220,8 +220,8 @@ class AddInvoiceDesignTable extends Migration
 			  var z=GlobalY;
 			  z=z+30;
 
-			  doc.setFontSize('8');        
-			  SetPdfColor('Black',doc);			  
+			  doc.setFontSize('8');
+			  SetPdfColor('Black',doc);
         var clientHeight = displayClient(doc, invoice, layout.marginLeft, z, layout);
         layout.tableTop += Math.max(0, clientHeight - 75);
 			  marginLeft2=395;
@@ -283,7 +283,7 @@ class AddInvoiceDesignTable extends Migration
 	    } else {
 	      doc.setDrawColor(242,101,34);
 	      doc.setFillColor(242,101,34);
-	    }  
+	    }
 
 	    var x1 =0;
 	    var y1 = 0;
@@ -295,7 +295,7 @@ class AddInvoiceDesignTable extends Migration
 
 	    //second column
 	    doc.setFontType('bold');
-	    var name = invoice.account.name;    
+	    var name = invoice.account.name;
 	    if (name) {
 	        doc.setFontSize('30');
 	        doc.setFontType('bold');
@@ -309,7 +309,7 @@ class AddInvoiceDesignTable extends Migration
 	        doc.addImage(invoice.image, 'JPEG', layout.marginLeft, y);
 	    }
 
-	    // add footer 
+	    // add footer
 	    doc.setLineWidth(0.5);
 
 	    if (NINJA.primaryColor) {
@@ -318,7 +318,7 @@ class AddInvoiceDesignTable extends Migration
 	    } else {
 	      doc.setDrawColor(242,101,34);
 	      doc.setFillColor(242,101,34);
-	    }  
+	    }
 
 	    var x1 = 0;//tableLeft-tablePadding ;
 	    var y1 = 750;
@@ -338,12 +338,12 @@ class AddInvoiceDesignTable extends Migration
 	        doc.addImage(logoImages.imageLogo3, 'JPEG', 40, y, logoImages.imageLogoWidth3, logoImages.imageLogoHeight3);
 	    }
 
-	    doc.setFontSize(10);  
+	    doc.setFontSize(10);
 	    var marginLeft = 340;
 	    displayAccount(doc, invoice, marginLeft, 780, layout);
 
 
-	    SetPdfColor('White',doc);    
+	    SetPdfColor('White',doc);
 	    doc.setFontSize('8');
 	    var detailsHeight = displayInvoice(doc, invoice, layout.headerRight, layout.accountTop-10, layout);
 	    layout.headerTop = Math.max(layout.headerTop, detailsHeight + 50);
@@ -355,8 +355,8 @@ class AddInvoiceDesignTable extends Migration
 	    displayClient(doc, invoice, layout.headerRight, layout.headerTop, layout);
 
 
-	      
-	    SetPdfColor('White',doc);    
+
+	    SetPdfColor('White',doc);
 	    doc.setFontType('bold');
 
 	    doc.setLineWidth(0.3);
@@ -366,14 +366,14 @@ class AddInvoiceDesignTable extends Migration
 	    } else {
 	      doc.setDrawColor(63,60,60);
 	      doc.setFillColor(63,60,60);
-	    }  
+	    }
 
 	    var left = layout.marginLeft - layout.tablePadding;
 	    var top = layout.tableTop - layout.tablePadding;
 	    var width = layout.marginRight - (2 * layout.tablePadding);
 	    var height = 20;
 	    doc.rect(left, top, width, height, 'FD');
-	    
+
 
 	    displayInvoiceHeader(doc, invoice, layout);
 	    SetPdfColor('Black',doc);
@@ -395,13 +395,13 @@ class AddInvoiceDesignTable extends Migration
 	    } else {
 	      doc.setDrawColor(63,60,60);
 	      doc.setFillColor(63,60,60);
-	    }  
+	    }
 	    doc.rect(left, top, width, height, 'FD');
-	    
+
 	    doc.setFontType('bold');
 	    SetPdfColor('White', doc);
 	    doc.setFontSize(12);
-	    
+
 	    var label = invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due;
 	    var labelX = layout.unitCostRight-(doc.getStringUnitWidth(label) * doc.internal.getFontSize());
 	    doc.text(labelX, y+2, label);
@@ -417,8 +417,8 @@ class AddInvoiceDesignTable extends Migration
         DB::table('invoice_designs')->where('id', 4)->update([
             'javascript' => "  var client = invoice.client;
 		  var account = invoice.account;
-		  var currencyId = client.currency_id;  
-		  
+		  var currencyId = client.currency_id;
+
       layout.accountTop += 25;
       layout.headerTop += 25;
       layout.tableTop += 25;
@@ -427,18 +427,18 @@ class AddInvoiceDesignTable extends Migration
 		  {
 		    var left = layout.headerRight - invoice.imageWidth;
 		    doc.addImage(invoice.image, 'JPEG', left, 50);
-		  } 
-		  
+		  }
+
 		  /* table header */
 		  doc.setDrawColor(200,200,200);
 		  doc.setFillColor(230,230,230);
-		  
+
 		  var detailsHeight = getInvoiceDetailsHeight(invoice, layout);
 		  var left = layout.headerLeft - layout.tablePadding;
 		  var top = layout.headerTop + detailsHeight - layout.rowHeight - layout.tablePadding;
 		  var width = layout.headerRight - layout.headerLeft + (2 * layout.tablePadding);
 		  var height = layout.rowHeight + 1;
-		  doc.rect(left, top, width, height, 'FD'); 
+		  doc.rect(left, top, width, height, 'FD');
 
 		  doc.setFontSize(10);
 		  doc.setFontType('normal');
@@ -458,7 +458,7 @@ class AddInvoiceDesignTable extends Migration
 		  var top = layout.tableTop - layout.tablePadding;
 		  var width = layout.headerRight - layout.marginLeft + (2 * layout.tablePadding);
 		  var height = layout.rowHeight + 2;
-		  doc.rect(left, top, width, height, 'FD');   
+		  doc.rect(left, top, width, height, 'FD');
 
 		  displayInvoiceHeader(doc, invoice, layout);
 		  var y = displayInvoiceItems(doc, invoice, layout);
@@ -471,25 +471,24 @@ class AddInvoiceDesignTable extends Migration
 
 		  doc.setDrawColor(200,200,200);
 		  doc.setFillColor(230,230,230);
-		  
+
 		  var left = layout.footerLeft - layout.tablePadding;
 		  var top = y - layout.tablePadding;
 		  var width = layout.headerRight - layout.footerLeft + (2 * layout.tablePadding);
 		  var height = layout.rowHeight + 2;
-		  doc.rect(left, top, width, height, 'FD'); 
-		  
+		  doc.rect(left, top, width, height, 'FD');
+
 		  doc.setFontType('bold');
 		  doc.text(layout.footerLeft, y, invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due);
 
 		  total = formatMoney(invoice.balance_amount, currencyId);
 		  var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-		  doc.text(totalX, y, total);   
+		  doc.text(totalX, y, total);
 
 		  if (!invoice.is_pro) {
 		    doc.setFontType('normal');
 		    doc.text(layout.marginLeft, 790, 'Created by InvoiceNinja.com');
 		  }",
-          
         ]);
     }
 
