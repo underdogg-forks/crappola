@@ -51,7 +51,7 @@ class ResetPasswordController extends Controller
             session(['2fa:user:id' => $user->id]);
             return redirect('/validate_two_factor/' . $user->account->account_key);
         } else {
-            Event::fire(new UserLoggedIn());
+            Event::dispatch(new UserLoggedIn());
             return $this->traitSendResetResponse($response);
         }
     }

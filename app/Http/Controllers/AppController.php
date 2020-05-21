@@ -310,7 +310,7 @@ class AppController extends BaseController
                 Session::flush();
                 Artisan::call('migrate', ['--force' => true]);
                 Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
-                Event::fire(new UserSettingsChanged());
+                Event::dispatch(new UserSettingsChanged());
 
                 // legacy fix: check cipher is in .env file
                 if (! env('APP_CIPHER')) {
