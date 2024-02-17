@@ -112,6 +112,7 @@ class InitLookup extends Command
         foreach ($data as $accountKey => $subdomain) {
             LookupAccount::whereAccountKey($accountKey)->update(['subdomain' => $subdomain]);
         }
+        return 0;
     }
 
     private function initCompanies($dbServerId, $offset = 0)

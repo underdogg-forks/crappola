@@ -91,5 +91,6 @@ class ExportMigrations extends Command
         $zip->close();
 
         $this->info('User with id #' . $user->id . ' exported.');
+        return 0;
     }
 }

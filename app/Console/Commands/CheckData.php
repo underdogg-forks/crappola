@@ -108,7 +108,9 @@ class CheckData extends Command
             });
         } elseif (! $this->isValid) {
             throw new Exception("Check data failed!!\n" . $this->log);
+            return 1;
         }
+        return 0;
     }
 
     private function logMessage($str)

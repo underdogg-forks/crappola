@@ -61,6 +61,7 @@ class SendRecurringInvoices extends Command
         $this->createExpenses();
 
         $this->info(date('r') . ' Done');
+        return 0;
     }
 
     private function resetCounters()
