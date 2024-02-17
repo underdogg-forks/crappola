@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Industry;
 
 class IndustrySeeder extends Seeder

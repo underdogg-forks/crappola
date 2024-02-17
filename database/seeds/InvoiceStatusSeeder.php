@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\InvoiceStatus;
 
 class InvoiceStatusSeeder extends Seeder

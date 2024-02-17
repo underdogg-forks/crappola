@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 class UpdateSeeder extends Seeder
 {
     /**

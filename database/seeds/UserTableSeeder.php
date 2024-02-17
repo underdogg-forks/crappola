@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\Affiliate;

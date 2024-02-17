@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Timezone;
 
 class DatabaseSeeder extends Seeder
