@@ -74,8 +74,8 @@ class BankAccountController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $ids = request()->get('bulk_public_id');
         $count = $this->bankAccountService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_bank_account'));
@@ -85,9 +85,9 @@ class BankAccountController extends BaseController
 
     public function validateAccount()
     {
-        $publicId = Input::get('public_id');
-        $username = trim(Input::get('bank_username'));
-        $password = trim(Input::get('bank_password'));
+        $publicId = request()->get('public_id');
+        $username = trim(request()->get('bank_username'));
+        $password = trim(request()->get('bank_password'));
 
         if ($publicId) {
             $bankAccount = BankAccount::scope($publicId)->firstOrFail();
@@ -100,11 +100,11 @@ class BankAccountController extends BaseController
             $bankId = $bankAccount->bank_id;
         } else {
             $bankAccount = new BankAccount;
-            $bankAccount->bank_id = Input::get('bank_id');
+            $bankAccount->bank_id = request()->get('bank_id');
         }
 
-        $bankAccount->app_version = Input::get('app_version');
-        $bankAccount->ofx_version = Input::get('ofx_version');
+        $bankAccount->app_version = request()->get('app_version');
+        $bankAccount->ofx_version = request()->get('ofx_version');
 
         if ($publicId) {
             $bankAccount->save();
@@ -115,18 +115,18 @@ class BankAccountController extends BaseController
 
     public function store(CreateBankAccountRequest $request)
     {
-        $bankAccount = $this->bankAccountRepo->save(Input::all());
+        $bankAccount = $this->bankAccountRepo->save(request()->all());
 
-        $bankId = Input::get('bank_id');
-        $username = trim(Input::get('bank_username'));
-        $password = trim(Input::get('bank_password'));
+        $bankId = request()->get('bank_id');
+        $username = trim(request()->get('bank_username'));
+        $password = trim(request()->get('bank_password'));
 
         return json_encode($this->bankAccountService->loadBankAccounts($bankAccount, $username, $password, true));
     }
 
     public function importExpenses($bankId)
     {
-        return $this->bankAccountService->importExpenses($bankId, Input::all());
+        return $this->bankAccountService->importExpenses($bankId, request()->all());
     }
 
     public function showImportOFX()

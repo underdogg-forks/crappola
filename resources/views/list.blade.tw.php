@@ -44,7 +44,7 @@
 
 <div id="top_right_buttons" class="pull-right">
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
-        class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
+        class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ request()->get('filter') }}"/>
 
 	@if ($entityType == ENTITY_PROPOSAL)
 		{!! DropdownButton::normal(trans('texts.proposal_templates'))

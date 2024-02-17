@@ -86,7 +86,7 @@ class TaskController extends BaseController
      */
     public function getDatatable($clientPublicId = null, $projectPublicId = null)
     {
-        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, Input::get('sSearch'));
+        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, request()->get('sSearch'));
     }
 
     /**
@@ -126,8 +126,8 @@ class TaskController extends BaseController
 
         $data = [
             'task' => null,
-            'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
-            'projectPublicId' => Input::old('project_id') ? Input::old('project_id') : ($request->project_id ?: 0),
+            'clientPublicId' => request()->old('client') ? request()->old('client') : ($request->client_id ?: 0),
+            'projectPublicId' => request()->old('project_id') ? request()->old('project_id') : ($request->project_id ?: 0),
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
@@ -229,7 +229,7 @@ class TaskController extends BaseController
      */
     private function save($request, $publicId = null)
     {
-        $action = Input::get('action');
+        $action = request()->get('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -260,8 +260,8 @@ class TaskController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ?: (Input::get('id') ?: Input::get('ids'));
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ?: (request()->get('id') ?: request()->get('ids'));
         $referer = Request::server('HTTP_REFERER');
 
         if (in_array($action, ['resume', 'stop'])) {
@@ -317,7 +317,7 @@ class TaskController extends BaseController
             if ($action == 'invoice') {
                 return Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
             } else {
-                $invoiceId = Input::get('invoice_id');
+                $invoiceId = request()->get('invoice_id');
 
                 return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
             }

@@ -28,7 +28,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = Input::all();
+        $input = request()->all();
         $botUserId = $input['from']['id'];
 
         if (! $token = $this->authenticate($input)) {

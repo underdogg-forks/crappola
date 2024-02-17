@@ -68,7 +68,7 @@ class InvoiceController extends BaseController
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
     }
@@ -76,7 +76,7 @@ class InvoiceController extends BaseController
     public function getRecurringDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
 
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
@@ -317,7 +317,7 @@ class InvoiceController extends BaseController
         }
 
         return [
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
@@ -345,8 +345,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = Input::get('action');
-        $entityType = Input::get('entityType');
+        $action = request()->get('action');
+        $entityType = request()->get('entityType');
 
         $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
@@ -379,8 +379,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = Input::get('action');
-        $entityType = Input::get('entityType');
+        $action = request()->get('action');
+        $entityType = request()->get('entityType');
 
         $invoice = $this->invoiceService->save($data, $request->entity());
         $entityType = $invoice->getEntityType();
@@ -402,14 +402,14 @@ class InvoiceController extends BaseController
 
     private function emailInvoice($invoice)
     {
-        $reminder = Input::get('reminder');
-        $template = Input::get('template');
-        $pdfUpload = Utils::decodePDF(Input::get('pdfupload'));
+        $reminder = request()->get('reminder');
+        $template = request()->get('template');
+        $pdfUpload = Utils::decodePDF(request()->get('pdfupload'));
         $entityType = $invoice->getEntityType();
 
-        if (filter_var(Input::get('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(request()->get('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
             $account = Auth::user()->account;
-            $account->setTemplateDefaults(Input::get('template_type'), $template['subject'], $template['body']);
+            $account->setTemplateDefaults(request()->get('template_type'), $template['subject'], $template['body']);
         }
 
         if (! Auth::user()->confirmed) {
@@ -490,8 +490,8 @@ class InvoiceController extends BaseController
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
+        $action = request()->get('bulk_action') ?: request()->get('action');
+        $ids = request()->get('bulk_public_id') ?: (request()->get('public_id') ?: request()->get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {

@@ -20,6 +20,7 @@ use App\Models\GatewayType;
 use App\Services\PaymentService;
 use Auth;
 use DB;
+use Illuminate\Support\Arr;
 use Utils;
 
 class InvoiceRepository extends BaseRepository
@@ -470,11 +471,11 @@ class InvoiceRepository extends BaseRepository
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = array_get($data, 'frequency_id', FREQUENCY_MONTHLY);
-            $invoice->start_date = Utils::toSqlDate(array_get($data, 'start_date'));
-            $invoice->end_date = Utils::toSqlDate(array_get($data, 'end_date'));
+            $invoice->frequency_id = Arr::get($data, 'frequency_id', FREQUENCY_MONTHLY);
+            $invoice->start_date = Utils::toSqlDate(Arr::get($data, 'start_date'));
+            $invoice->end_date = Utils::toSqlDate(Arr::get($data, 'end_date'));
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
-            $invoice->auto_bill = array_get($data, 'auto_bill_id') ?: array_get($data, 'auto_bill', AUTO_BILL_OFF);
+            $invoice->auto_bill = Arr::get($data, 'auto_bill_id') ?: Arr::get($data, 'auto_bill', AUTO_BILL_OFF);
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS) {
                 $invoice->auto_bill = AUTO_BILL_OFF;
@@ -826,7 +827,7 @@ class InvoiceRepository extends BaseRepository
                 $invitation = Invitation::createNew($invoice);
                 $invitation->invoice_id = $invoice->id;
                 $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $invitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $invitation->save();
             } elseif (! in_array($contact->id, $sendInvoiceIds) && $invitation) {
                 $invitation->delete();
@@ -976,7 +977,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
-            $cloneInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $cloneInvitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $clone->invitations()->save($cloneInvitation);
         }
 
@@ -1155,7 +1156,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($recurInvoice->invitations as $recurInvitation) {
             $invitation = Invitation::createNew($recurInvitation);
             $invitation->contact_id = $recurInvitation->contact_id;
-            $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $invitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $invoice->invitations()->save($invitation);
         }
 

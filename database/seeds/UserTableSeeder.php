@@ -33,7 +33,7 @@ class UserTableSeeder extends Seeder
             'postal_code' => $faker->postcode,
             'currency_id' => DEFAULT_CURRENCY,
             'country_id' => Country::all()->random()->id,
-            'account_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
+            'account_key' => strtolower(Str::random(RANDOM_KEY_LENGTH)),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
@@ -102,7 +102,7 @@ class UserTableSeeder extends Seeder
             'email' => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary' => true,
             'send_invoice' => true,
-            'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
+            'contact_key' => strtolower(Str::random(RANDOM_KEY_LENGTH)),
         ]);
 
         Product::create([

@@ -16,7 +16,7 @@ return [
 
     'debug' => env('APP_DEBUG', ''),
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -165,7 +165,7 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
     ],
 
     /*

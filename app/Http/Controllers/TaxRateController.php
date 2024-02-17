@@ -81,8 +81,8 @@ class TaxRateController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $ids = request()->get('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));

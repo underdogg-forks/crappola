@@ -33,7 +33,7 @@ class EntityRequest extends Request
             }
         }
         if (! $publicId) {
-            $publicId = Input::get('public_id') ?: Input::get('id');
+            $publicId = request()->get('public_id') ?: request()->get('id');
         }
 
         if (! $publicId) {

@@ -72,7 +72,7 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
+        return $this->productService->getDatatable(Auth::user()->account_id, request()->get('sSearch'));
     }
 
     public function cloneProduct(ProductRequest $request, $publicId)
@@ -167,7 +167,7 @@ class ProductController extends BaseController
             $product = Product::createNew();
         }
 
-        $this->productRepo->save(Input::all(), $product);
+        $this->productRepo->save(request()->all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
@@ -189,8 +189,8 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();

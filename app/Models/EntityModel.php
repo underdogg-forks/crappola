@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use Str;
 use Auth;
 use Eloquent;
@@ -348,7 +349,7 @@ class EntityModel extends Eloquent
             'projects' => 'briefcase',
         ];
 
-        return array_get($icons, $entityType);
+        return Arr::get($icons, $entityType);
     }
 
     public function loadFromRequest()
@@ -433,9 +434,9 @@ class EntityModel extends Eloquent
                     $this->public_id = $nextId;
                     if (env('MULTI_DB_ENABLED')) {
                         if ($this->contact_key) {
-                            $this->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->contact_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
                         } elseif ($this->invitation_key) {
-                            $this->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
                         }
                     }
                     return $this->save($options);

@@ -91,18 +91,18 @@ class NinjaController extends BaseController
      */
     public function show_license_payment()
     {
-        if (Input::has('return_url')) {
-            session(['return_url' => Input::get('return_url')]);
+        if (request()->has('return_url')) {
+            session(['return_url' => request()->get('return_url')]);
         }
 
-        if (Input::has('affiliate_key')) {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first()) {
+        if (request()->has('affiliate_key')) {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', request()->get('affiliate_key'))->first()) {
                 session(['affiliate_id' => $affiliate->id]);
             }
         }
 
-        if (Input::has('product_id')) {
-            session(['product_id' => Input::get('product_id')]);
+        if (request()->has('product_id')) {
+            session(['product_id' => request()->get('product_id')]);
         } elseif (! Session::has('product_id')) {
             session(['product_id' => PRODUCT_ONE_CLICK_INSTALL]);
         }
@@ -111,8 +111,8 @@ class NinjaController extends BaseController
             return Utils::fatalError();
         }
 
-        if (Utils::isNinjaDev() && Input::has('test_mode')) {
-            session(['test_mode' => Input::get('test_mode')]);
+        if (Utils::isNinjaDev() && request()->has('test_mode')) {
+            session(['test_mode' => request()->get('test_mode')]);
         }
 
         $account = $this->accountRepo->getNinjaAccount();
@@ -167,7 +167,7 @@ class NinjaController extends BaseController
             'country_id' => 'required',
         ];
 
-        $validator = Validator::make(Input::all(), $rules);
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->to('license')
@@ -185,7 +185,7 @@ class NinjaController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
+                $details = self::getLicensePaymentDetails(request()->all(), $affiliate);
 
                 $gateway = Omnipay::create($accountGateway->gateway->provider);
                 $gateway->initialize((array) $accountGateway->getConfig());
@@ -203,9 +203,9 @@ class NinjaController extends BaseController
             $licenseKey = Utils::generateLicense();
 
             $license = new License();
-            $license->first_name = Input::get('first_name');
-            $license->last_name = Input::get('last_name');
-            $license->email = Input::get('email');
+            $license->first_name = request()->get('first_name');
+            $license->last_name = request()->get('last_name');
+            $license->email = request()->get('email');
             $license->transaction_reference = $ref;
             $license->license_key = $licenseKey;
             $license->affiliate_id = Session::get('affiliate_id');
@@ -241,8 +241,8 @@ class NinjaController extends BaseController
      */
     public function claim_license()
     {
-        $licenseKey = Input::get('license_key');
-        $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        $licenseKey = request()->get('license_key');
+        $productId = request()->get('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         // add in dashes
         if (strlen($licenseKey) == 20) {

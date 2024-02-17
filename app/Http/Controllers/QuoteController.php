@@ -60,7 +60,7 @@ class QuoteController extends BaseController
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
@@ -82,7 +82,7 @@ class QuoteController extends BaseController
         $data = [
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'method' => 'POST',
             'url' => 'invoices',
             'title' => trans('texts.new_quote'),
@@ -115,9 +115,9 @@ class QuoteController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');
+        $action = request()->get('bulk_action') ?: request()->get('action');
         ;
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
+        $ids = request()->get('bulk_public_id') ?: (request()->get('public_id') ?: request()->get('ids'));
 
         if ($action == 'convert') {
             $invoice = Invoice::with('invoice_items')->scope($ids)->firstOrFail();

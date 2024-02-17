@@ -107,8 +107,8 @@ class SubscriptionController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $ids = request()->get('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
@@ -137,7 +137,7 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(request()->all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);

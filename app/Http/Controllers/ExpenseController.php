@@ -61,7 +61,7 @@ class ExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->expenseService->getDatatable(Input::get('sSearch'));
+        return $this->expenseService->getDatatable(request()->get('sSearch'));
     }
 
     public function getDatatableVendor($vendorPublicId = null)
@@ -83,7 +83,7 @@ class ExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
+            'vendorPublicId' => request()->old('vendor') ? request()->old('vendor') : $request->vendor_id,
             'expense' => null,
             'method' => 'POST',
             'url' => 'expenses',
@@ -190,7 +190,7 @@ class ExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_expense'));
 
-        $action = Input::get('action');
+        $action = request()->get('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
@@ -227,8 +227,8 @@ class ExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
         $referer = Request::server('HTTP_REFERER');
 
         switch ($action) {
@@ -268,7 +268,7 @@ class ExpenseController extends BaseController
                             ->with('expenseCurrencyId', $currencyId)
                             ->with('expenses', $ids);
                 } else {
-                    $invoiceId = Input::get('invoice_id');
+                    $invoiceId = request()->get('invoice_id');
 
                     return Redirect::to("invoices/{$invoiceId}/edit")
                             ->with('expenseCurrencyId', $currencyId)
@@ -291,7 +291,7 @@ class ExpenseController extends BaseController
     private static function getViewModel($expense = false)
     {
         return [
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'account' => Auth::user()->account,
             'vendors' => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
             'clients' => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),

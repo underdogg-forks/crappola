@@ -106,7 +106,7 @@ class ProposalRepository extends BaseRepository
                 $proposalInvitation = ProposalInvitation::createNew();
                 $proposalInvitation->proposal_id = $proposal->id;
                 $proposalInvitation->contact_id = $invitation->contact_id;
-                $proposalInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $proposalInvitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $proposalInvitation->save();
             }
         }

@@ -44,7 +44,7 @@ class ProjectController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
         $userId = Auth::user()->filterIdByEntity(ENTITY_PROJECT);
 
         return $this->projectService->getDatatable($search, $userId);
@@ -114,7 +114,7 @@ class ProjectController extends BaseController
 
         Session::flash('message', trans('texts.updated_project'));
 
-        $action = Input::get('action');
+        $action = request()->get('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
             return self::bulk();
         }
@@ -124,8 +124,8 @@ class ProjectController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
 
         if ($action == 'invoice') {
             $data = [];

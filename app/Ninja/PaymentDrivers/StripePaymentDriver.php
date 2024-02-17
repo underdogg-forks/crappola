@@ -9,6 +9,7 @@ use App\Models\GatewayType;
 use Cache;
 use Exception;
 use App\Models\PaymentType;
+use Illuminate\Support\Arr;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
@@ -107,7 +108,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'limit=1'
         );
 
-        if (array_get($result, 'object') == 'list') {
+        if (Arr::get($result, 'object') == 'list') {
             return true;
         } else {
             return $result;
@@ -636,8 +637,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
-        $eventId = array_get($input, 'id');
-        $eventType = array_get($input, 'type');
+        $eventId = Arr::get($input, 'id');
+        $eventType = Arr::get($input, 'type');
 
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;

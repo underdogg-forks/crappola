@@ -131,8 +131,8 @@ class UserController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $id = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $id = request()->get('bulk_public_id');
 
         $user = User::where('account_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $id)
@@ -184,7 +184,7 @@ class UserController extends BaseController
             $rules['email'] = 'required|email|unique:users';
         }
 
-        $validator = Validator::make(Input::all(), $rules);
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
@@ -192,20 +192,20 @@ class UserController extends BaseController
                         ->withInput();
         }
 
-        if (! \App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
+        if (! \App\Models\LookupUser::validateField('email', request()->get('email'), $user)) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
         }
 
         if ($userPublicId) {
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(Input::get('email'));
+            $user->first_name = trim(request()->get('first_name'));
+            $user->last_name = trim(request()->get('last_name'));
+            $user->username = trim(request()->get('email'));
+            $user->email = trim(request()->get('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = boolval(Input::get('is_admin'));
-                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
+                $user->is_admin = boolval(request()->get('is_admin'));
+                $user->permissions = self::formatUserPermissions(request()->get('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
@@ -213,23 +213,23 @@ class UserController extends BaseController
 
             $user = new User();
             $user->account_id = Auth::user()->account_id;
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(Input::get('email'));
+            $user->first_name = trim(request()->get('first_name'));
+            $user->last_name = trim(request()->get('last_name'));
+            $user->username = trim(request()->get('email'));
+            $user->email = trim(request()->get('email'));
             $user->registered = true;
-            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->password = strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $user->public_id = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = boolval(Input::get('is_admin'));
-                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
+                $user->is_admin = boolval(request()->get('is_admin'));
+                $user->permissions = self::formatUserPermissions(request()->get('permissions'));
             }
         }
 
         $user->save();
 
-        if (! $user->confirmed && Input::get('action') === 'email') {
+        if (! $user->confirmed && request()->get('action') === 'email') {
             $this->userMailer->sendConfirmation($user, Auth::user());
             $message = trans('texts.sent_invite');
         } else {
@@ -306,14 +306,14 @@ class UserController extends BaseController
         // check the current password is correct
         if (! Auth::validate([
             'email' => Auth::user()->email,
-            'password' => Input::get('current_password'),
+            'password' => request()->get('current_password'),
         ])) {
             return trans('texts.password_error_incorrect');
         }
 
         // validate the new password
-        $password = Input::get('new_password');
-        $confirm = Input::get('confirm_password');
+        $password = request()->get('new_password');
+        $confirm = request()->get('confirm_password');
 
         if (strlen($password) < 6 || $password != $confirm) {
             return trans('texts.password_error_invalid');
@@ -340,7 +340,7 @@ class UserController extends BaseController
 
                 // regenerate token to prevent open pages
                 // from saving under the wrong account
-                Session::put('_token', str_random(40));
+                Session::put('_token', Str::random(40));
             }
         }
 
@@ -389,12 +389,12 @@ class UserController extends BaseController
 
     public function saveSidebarState()
     {
-        if (Input::has('show_left')) {
-            Session::put(SESSION_LEFT_SIDEBAR, boolval(Input::get('show_left')));
+        if (request()->has('show_left')) {
+            Session::put(SESSION_LEFT_SIDEBAR, boolval(request()->get('show_left')));
         }
 
-        if (Input::has('show_right')) {
-            Session::put(SESSION_RIGHT_SIDEBAR, boolval(Input::get('show_right')));
+        if (request()->has('show_right')) {
+            Session::put(SESSION_RIGHT_SIDEBAR, boolval(request()->get('show_right')));
         }
 
         return RESULT_SUCCESS;

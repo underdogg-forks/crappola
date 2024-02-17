@@ -50,7 +50,7 @@ class ProposalController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
         //$userId = Auth::user()->filterId();
         $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
@@ -117,7 +117,7 @@ class ProposalController extends BaseController
     public function store(CreateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input());
-        $action = Input::get('action');
+        $action = request()->get('action');
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
@@ -132,7 +132,7 @@ class ProposalController extends BaseController
     public function update(UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input(), $request->entity());
-        $action = Input::get('action');
+        $action = request()->get('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -150,8 +150,8 @@ class ProposalController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
+        $action = request()->get('bulk_action') ?: request()->get('action');
+        $ids = request()->get('bulk_public_id') ?: (request()->get('public_id') ?: request()->get('ids'));
 
         $count = $this->proposalService->bulk($ids, $action);
 

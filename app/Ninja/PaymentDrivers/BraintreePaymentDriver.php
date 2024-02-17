@@ -4,6 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 use Braintree\Customer;
 use Exception;
+use Illuminate\Support\Arr;
 use Session;
 use Utils;
 use App\Models\GatewayType;
@@ -81,7 +82,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
+        $deviceData = Arr::get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
 
         if ($deviceData) {
             $data['device_data'] = $deviceData;
@@ -136,8 +137,8 @@ class BraintreePaymentDriver extends BasePaymentDriver
     private function customerData()
     {
         return [
-            'firstName' => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
-            'lastName' => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
+            'firstName' => Arr::get($this->input, 'first_name') ?: $this->contact()->first_name,
+            'lastName' => Arr::get($this->input, 'last_name') ?: $this->contact()->last_name,
             'company' => $this->client()->name,
             'email' => $this->contact()->email,
             'phone' => $this->contact()->phone,

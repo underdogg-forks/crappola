@@ -92,24 +92,24 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, request()->get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
 
-        if (Input::get('filter_active')) {
+        if (request()->get('filter_active')) {
             $query->whereNull('deleted_at');
         }
 
-        if (Input::get('updated_at') > 0) {
-                $updatedAt = intval(Input::get('updated_at'));
+        if (request()->get('updated_at') > 0) {
+                $updatedAt = intval(request()->get('updated_at'));
                 $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
-        if (Input::get('client_id') > 0) {
-                $clientPublicId = Input::get('client_id');
+        if (request()->get('client_id') > 0) {
+                $clientPublicId = request()->get('client_id');
                 $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
              };
@@ -136,7 +136,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, request()->get('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -161,7 +161,7 @@ class BaseAPIController extends Controller
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = Input::get('per_page', DEFAULT_API_PAGE_SIZE);
+            $limit = request()->get('per_page', DEFAULT_API_PAGE_SIZE);
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }

@@ -46,7 +46,7 @@ class RecurringExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->recurringExpenseService->getDatatable($search, $userId);
@@ -61,7 +61,7 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
+            'vendorPublicId' => request()->old('vendor') ? request()->old('vendor') : $request->vendor_id,
             'expense' => null,
             'method' => 'POST',
             'url' => 'recurring_expenses',
@@ -113,7 +113,7 @@ class RecurringExpenseController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'account' => Auth::user()->account,
             'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
@@ -136,7 +136,7 @@ class RecurringExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_recurring_expense'));
 
-        if (in_array(Input::get('action'), ['archive', 'delete', 'restore'])) {
+        if (in_array(request()->get('action'), ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
 
@@ -145,8 +145,8 @@ class RecurringExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {

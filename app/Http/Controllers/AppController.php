@@ -16,6 +16,7 @@ use Config;
 use DB;
 use Event;
 use Exception;
+use Illuminate\Support\Str;
 use Input;
 use Redirect;
 use Response;
@@ -49,22 +50,22 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        if (Utils::isNinjaProd()) {
+        /*if (Utils::isNinjaProd()) {
             return Redirect::to('/');
         }
 
         $valid = false;
-        $test = Input::get('test');
+        $test = request()->get('test');
 
-        $app = Input::get('app');
-        $app['key'] = env('APP_KEY') ?: strtolower(str_random(RANDOM_KEY_LENGTH));
-        $app['debug'] = Input::get('debug') ? 'true' : 'false';
-        $app['https'] = Input::get('https') ? 'true' : 'false';
+        $app = request()->get('app');
+        $app['key'] = env('APP_KEY') ?: strtolower(Str::random(RANDOM_KEY_LENGTH));
+        $app['debug'] = true;
+        $app['https'] = request()->get('https') ? 'true' : 'false';
 
-        $database = Input::get('database');
+        $database = request()->get('database');
         $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
-        $mail = Input::get('mail');
+        $mail = request()->get('mail');
 
         if ($test == 'mail') {
             return self::testMail($mail);
@@ -82,8 +83,8 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $_ENV['APP_ENV'] = 'production';
-        $_ENV['APP_DEBUG'] = $app['debug'];
+        $_ENV['APP_ENV'] = 'local';
+        $_ENV['APP_DEBUG'] = true;
         $_ENV['APP_LOCALE'] = 'en';
         $_ENV['APP_URL'] = $app['url'];
         $_ENV['APP_KEY'] = $app['key'];
@@ -103,7 +104,7 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
-        $_ENV['PHANTOMJS_SECRET'] = strtolower(str_random(RANDOM_KEY_LENGTH));
+        $_ENV['PHANTOMJS_SECRET'] = strtolower(Str::random(RANDOM_KEY_LENGTH));
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
         $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
@@ -129,18 +130,21 @@ class AppController extends BaseController
             DB::unprepared(file_get_contents($sqlFile));
         }
 
-        Cache::flush();
+        Artisan::call('migrate');
+
+        Cache::flush();*/
+
         Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
 
         if (! Account::count()) {
-            $firstName = trim(Input::get('first_name'));
-            $lastName = trim(Input::get('last_name'));
-            $email = trim(strtolower(Input::get('email')));
-            $password = trim(Input::get('password'));
+            $firstName = trim(request()->get('first_name'));
+            $lastName = trim(request()->get('last_name'));
+            $email = trim(strtolower(request()->get('email')));
+            $password = trim(request()->get('password'));
             $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
 
             $user = $account->users()->first();
-            $user->acceptLatestTerms(request()->getClientIp());
+            //$user->acceptLatestTerms(request()->getClientIp());
             $user->save();
         }
 
@@ -163,13 +167,13 @@ class AppController extends BaseController
             return Redirect::to('/settings/system_settings');
         }
 
-        $app = Input::get('app');
-        $db = Input::get('database');
-        $mail = Input::get('mail');
+        $app = request()->get('app');
+        $db = request()->get('database');
+        $mail = request()->get('mail');
 
         $_ENV['APP_URL'] = $app['url'];
-        $_ENV['APP_DEBUG'] = Input::get('debug') ? 'true' : 'false';
-        $_ENV['REQUIRE_HTTPS'] = Input::get('https') ? 'true' : 'false';
+        $_ENV['APP_DEBUG'] = request()->get('debug') ? 'true' : 'false';
+        $_ENV['REQUIRE_HTTPS'] = request()->get('https') ? 'true' : 'false';
 
         $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
         $_ENV['DB_HOST'] = $db['type']['host'];
@@ -294,22 +298,22 @@ class AppController extends BaseController
                 set_time_limit(60 * 5);
                 $this->checkInnoDB();
 
-                $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+                /*$cacheCompiled = base_path('bootstrap/cache/compiled.php');
                 if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
                 $cacheServices = base_path('bootstrap/cache/services.json');
-                if (file_exists($cacheServices)) { unlink ($cacheServices); }
+                if (file_exists($cacheServices)) { unlink ($cacheServices); }*/
 
                 Artisan::call('clear-compiled');
                 Artisan::call('cache:clear');
-                Artisan::call('debugbar:clear');
+                //Artisan::call('debugbar:clear');
                 Artisan::call('route:clear');
                 Artisan::call('view:clear');
                 Artisan::call('config:clear');
                 Auth::logout();
                 Cache::flush();
                 Session::flush();
-                Artisan::call('migrate', ['--force' => true]);
-                Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
+                //Artisan::call('migrate', ['--force' => true]);
+                //Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
                 Event::dispatch(new UserSettingsChanged());
 
                 // legacy fix: check cipher is in .env file
@@ -359,15 +363,15 @@ class AppController extends BaseController
 
     public function emailBounced()
     {
-        $messageId = Input::get('MessageID');
-        $error = Input::get('Name') . ': ' . Input::get('Description');
+        $messageId = request()->get('MessageID');
+        $error = request()->get('Name') . ': ' . request()->get('Description');
 
         return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
     public function emailOpened()
     {
-        $messageId = Input::get('MessageID');
+        $messageId = request()->get('MessageID');
 
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
 
@@ -405,7 +409,7 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if (! hash_equals(Input::get('password') ?: '', env('RESELLER_PASSWORD'))) {
+        if (! hash_equals(request()->get('password') ?: '', env('RESELLER_PASSWORD'))) {
             sleep(3);
 
             return '';

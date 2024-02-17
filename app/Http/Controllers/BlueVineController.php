@@ -15,24 +15,24 @@ class BlueVineController extends BaseController
         $user = Auth::user();
 
         $data = [
-            'personal_user_full_name' => Input::get('name'),
-            'business_phone_number' => Input::get('phone'),
-            'email' => Input::get('email'),
-            'personal_fico_score' => intval(Input::get('fico_score')),
-            'business_annual_revenue' => intval(Input::get('annual_revenue')),
-            'business_monthly_average_bank_balance' => intval(Input::get('average_bank_balance')),
-            'business_inception_date' => date('Y-m-d', strtotime(Input::get('business_inception'))),
+            'personal_user_full_name' => request()->get('name'),
+            'business_phone_number' => request()->get('phone'),
+            'email' => request()->get('email'),
+            'personal_fico_score' => intval(request()->get('fico_score')),
+            'business_annual_revenue' => intval(request()->get('annual_revenue')),
+            'business_monthly_average_bank_balance' => intval(request()->get('average_bank_balance')),
+            'business_inception_date' => date('Y-m-d', strtotime(request()->get('business_inception'))),
             'partner_internal_business_id' => 'ninja_account_' . $user->account_id,
         ];
 
-        if (! empty(Input::get('quote_type_factoring'))) {
+        if (! empty(request()->get('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line'] = intval(Input::get('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line'] = intval(request()->get('desired_credit_limit')['invoice_factoring']);
         }
 
-        if (! empty(Input::get('quote_type_loc'))) {
+        if (! empty(request()->get('quote_type_loc'))) {
             $data['line_of_credit_offer'] = true;
-            $data['desired_credit_line_for_loc'] = intval(Input::get('desired_credit_limit')['line_of_credit']);
+            $data['desired_credit_line_for_loc'] = intval(request()->get('desired_credit_limit')['line_of_credit']);
         }
 
         $api_client = new \GuzzleHttp\Client();

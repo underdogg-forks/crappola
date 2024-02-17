@@ -66,13 +66,13 @@ class HomeController extends BaseController
     public function invoiceNow()
     {
         // Track the referral/campaign code
-        if (Input::has('rc')) {
-            session([SESSION_REFERRAL_CODE => Input::get('rc')]);
+        if (request()->has('rc')) {
+            session([SESSION_REFERRAL_CODE => request()->get('rc')]);
         }
 
         if (Auth::check()) {
-            $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
-            return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
+            $redirectTo = request()->get('redirect_to') ? SITE_URL . '/' . ltrim(request()->get('redirect_to'), '/') : 'invoices/create';
+            return Redirect::to($redirectTo)->with('sign_up', request()->get('sign_up'));
         } else {
             return View::make('public.invoice_now');
         }
@@ -115,7 +115,7 @@ class HomeController extends BaseController
      */
     public function logError()
     {
-        return Utils::logError(Input::get('error'), 'JavaScript');
+        return Utils::logError(request()->get('error'), 'JavaScript');
     }
 
     /**

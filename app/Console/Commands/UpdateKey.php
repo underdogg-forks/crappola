@@ -84,7 +84,7 @@ class UpdateKey extends Command
             Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
-            $key = str_random(32);
+            $key = Str::random(32);
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');

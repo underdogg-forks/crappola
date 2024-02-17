@@ -44,7 +44,7 @@ class ProposalSnippetController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalSnippetService->getDatatable($search, $userId);
@@ -107,7 +107,7 @@ class ProposalSnippetController extends BaseController
 
         Session::flash('message', trans('texts.updated_proposal_snippet'));
 
-        $action = Input::get('action');
+        $action = request()->get('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -117,8 +117,8 @@ class ProposalSnippetController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
 
         $count = $this->proposalSnippetService->bulk($ids, $action);
 

@@ -11,6 +11,7 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Jobs\DownloadInvoices;
 use Auth;
+use Illuminate\Support\Arr;
 use Utils;
 
 class InvoiceService extends BaseService
@@ -83,7 +84,7 @@ class InvoiceService extends BaseService
         if (isset($data['client'])) {
             $canSaveClient = false;
             $canViewClient = false;
-            $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
+            $clientPublicId = Arr::get($data, 'client.public_id') ?: Arr::get($data, 'client.id');
             if (empty($clientPublicId) || intval($clientPublicId) < 0) {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {

@@ -1,4 +1,4 @@
-<table class="w-full max-w-full mb-4 bg-transparent table-striped data-table {{ $class = str_random(8) }}">
+<table class="w-full max-w-full mb-4 bg-transparent table-striped data-table {{ $class = Str::random(8) }}">
     <colgroup>
         @for ($i = 0; $i < count($columns); $i++)
         <col class="con{{ $i }}" />

@@ -40,7 +40,7 @@ class ExpenseCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->categoryService->getDatatable(Input::get('sSearch'));
+        return $this->categoryService->getDatatable(request()->get('sSearch'));
     }
 
     public function create(ExpenseCategoryRequest $request)
@@ -89,8 +89,8 @@ class ExpenseCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {

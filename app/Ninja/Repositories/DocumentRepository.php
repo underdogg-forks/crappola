@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Document;
 use DB;
 use Form;
+use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
 use Utils;
 
@@ -84,7 +85,7 @@ class DocumentRepository extends BaseRepository
         }
 
         // don't allow a document to be linked to both an invoice and an expense
-        if (array_get($data, 'invoice_id') && array_get($data, 'expense_id')) {
+        if (Arr::get($data, 'invoice_id') && Arr::get($data, 'expense_id')) {
             unset($data['expense_id']);
         }
 
@@ -96,7 +97,7 @@ class DocumentRepository extends BaseRepository
 
         if ($isProposal) {
             $document->is_proposal = true;
-            $document->document_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $document->document_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
         }
 
         $disk = $document->getDisk();

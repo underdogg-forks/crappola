@@ -10,6 +10,7 @@ use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Support\Arr;
 use Input;
 use Log;
 use Request;
@@ -91,7 +92,7 @@ class Utils
 
     public static function isTimeTracker()
     {
-        return array_get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT;
+        return Arr::get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT;
     }
 
     public static function requireHTTPS()
@@ -437,7 +438,7 @@ class Utils
         ];
 
         if (static::isNinja()) {
-            $data['url'] = Input::get('url', Request::url());
+            $data['url'] = request()->get('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();
@@ -971,7 +972,7 @@ class Utils
     {
         $parts = [];
         for ($i = 0; $i < 5; $i++) {
-            $parts[] = strtoupper(str_random(4));
+            $parts[] = strtoupper(Str::random(4));
         }
 
         return implode('-', $parts);

@@ -58,14 +58,14 @@ class ReportController extends BaseController
             return redirect('/');
         }
 
-        $action = Input::get('action');
-        $format = Input::get('format');
+        $action = request()->get('action');
+        $format = request()->get('format');
 
-        if (Input::get('report_type')) {
-            $reportType = Input::get('report_type');
-            $dateField = Input::get('date_field');
-            $startDate = date_create(Input::get('start_date'));
-            $endDate = date_create(Input::get('end_date'));
+        if (request()->get('report_type')) {
+            $reportType = request()->get('report_type');
+            $dateField = request()->get('date_field');
+            $startDate = date_create(request()->get('start_date'));
+            $endDate = date_create(request()->get('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;

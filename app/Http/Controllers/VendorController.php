@@ -49,7 +49,7 @@ class VendorController extends BaseController
 
     public function getDatatable()
     {
-        return $this->vendorService->getDatatable(Input::get('sSearch'));
+        return $this->vendorService->getDatatable(request()->get('sSearch'));
     }
 
     /**
@@ -149,7 +149,7 @@ class VendorController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'account' => Auth::user()->account,
         ];
     }
@@ -172,8 +172,8 @@ class VendorController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_vendor', $count);

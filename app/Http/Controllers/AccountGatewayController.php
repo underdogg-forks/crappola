@@ -90,7 +90,7 @@ class AccountGatewayController extends BaseController
 
         $account = Auth::user()->account;
         $accountGatewaysIds = $account->gatewayIds();
-        $wepay = Input::get('wepay');
+        $wepay = request()->get('wepay');
 
         $data = self::getViewModel();
         $data['url'] = 'gateways';
@@ -158,8 +158,8 @@ class AccountGatewayController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $ids = request()->get('bulk_public_id');
         $count = $this->accountGatewayService->bulk($ids, $action);
 
         Session::flash('message', trans("texts.{$action}d_account_gateway"));
@@ -174,7 +174,7 @@ class AccountGatewayController extends BaseController
      */
     public function save($accountGatewayPublicId = false)
     {
-        $gatewayId = Input::get('primary_gateway_id') ?: Input::get('secondary_gateway_id');
+        $gatewayId = request()->get('primary_gateway_id') ?: request()->get('secondary_gateway_id');
         $gateway = Gateway::findOrFail($gatewayId);
 
         $rules = [];
@@ -208,8 +208,8 @@ class AccountGatewayController extends BaseController
             }
         }
 
-        $creditcards = Input::get('creditCardTypes');
-        $validator = Validator::make(Input::all(), $rules);
+        $creditcards = request()->get('creditCardTypes');
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             $url = $accountGatewayPublicId ? "/gateways/{$accountGatewayPublicId}/edit" : 'gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true');
@@ -250,7 +250,7 @@ class AccountGatewayController extends BaseController
 
             if ($gatewayId != GATEWAY_WEPAY) {
                 foreach ($fields as $field => $details) {
-                    $value = trim(Input::get($gateway->id . '_' . $field));
+                    $value = trim(request()->get($gateway->id . '_' . $field));
                     // if the new value is masked use the original value
                     if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                         $value = $oldConfig->$field;
@@ -265,28 +265,28 @@ class AccountGatewayController extends BaseController
                 $config = clone $oldConfig;
             }
 
-            $publishableKey = trim(Input::get('publishable_key'));
+            $publishableKey = trim(request()->get('publishable_key'));
             if ($publishableKey = str_replace('*', '', $publishableKey)) {
                 $config->publishableKey = $publishableKey;
             } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
                 $config->publishableKey = $oldConfig->publishableKey;
             }
 
-            $plaidClientId = trim(Input::get('plaid_client_id'));
+            $plaidClientId = trim(request()->get('plaid_client_id'));
             if (! $plaidClientId || $plaidClientId = str_replace('*', '', $plaidClientId)) {
                 $config->plaidClientId = $plaidClientId;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidClientId')) {
                 $config->plaidClientId = $oldConfig->plaidClientId;
             }
 
-            $plaidSecret = trim(Input::get('plaid_secret'));
+            $plaidSecret = trim(request()->get('plaid_secret'));
             if (! $plaidSecret || $plaidSecret = str_replace('*', '', $plaidSecret)) {
                 $config->plaidSecret = $plaidSecret;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidSecret')) {
                 $config->plaidSecret = $oldConfig->plaidSecret;
             }
 
-            $plaidPublicKey = trim(Input::get('plaid_public_key'));
+            $plaidPublicKey = trim(request()->get('plaid_public_key'));
             if (! $plaidPublicKey || $plaidPublicKey = str_replace('*', '', $plaidPublicKey)) {
                 $config->plaidPublicKey = $plaidPublicKey;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidPublicKey')) {
@@ -294,11 +294,11 @@ class AccountGatewayController extends BaseController
             }
 
             if ($gatewayId == GATEWAY_STRIPE) {
-                $config->enableAlipay = boolval(Input::get('enable_alipay'));
-                $config->enableSofort = boolval(Input::get('enable_sofort'));
-                $config->enableSepa = boolval(Input::get('enable_sepa'));
-                $config->enableBitcoin = boolval(Input::get('enable_bitcoin'));
-                $config->enableApplePay = boolval(Input::get('enable_apple_pay'));
+                $config->enableAlipay = boolval(request()->get('enable_alipay'));
+                $config->enableSofort = boolval(request()->get('enable_sofort'));
+                $config->enableSepa = boolval(request()->get('enable_sepa'));
+                $config->enableBitcoin = boolval(request()->get('enable_bitcoin'));
+                $config->enableApplePay = boolval(request()->get('enable_apple_pay'));
 
                 if ($config->enableApplePay && $uploadedFile = request()->file('apple_merchant_id')) {
                     $config->appleMerchantId = File::get($uploadedFile);
@@ -308,11 +308,11 @@ class AccountGatewayController extends BaseController
             }
 
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {
-                $config->enableAch = boolval(Input::get('enable_ach'));
+                $config->enableAch = boolval(request()->get('enable_ach'));
             }
 
             if ($gatewayId == GATEWAY_BRAINTREE) {
-                $config->enablePayPal = boolval(Input::get('enable_paypal'));
+                $config->enablePayPal = boolval(request()->get('enable_paypal'));
             }
 
             $cardCount = 0;
@@ -323,9 +323,9 @@ class AccountGatewayController extends BaseController
             }
 
             $accountGateway->accepted_credit_cards = $cardCount;
-            $accountGateway->show_address = Input::get('show_address') ? true : false;
-            $accountGateway->show_shipping_address = Input::get('show_shipping_address') ? true : false;
-            $accountGateway->update_address = Input::get('update_address') ? true : false;
+            $accountGateway->show_address = request()->get('show_address') ? true : false;
+            $accountGateway->show_shipping_address = request()->get('show_shipping_address') ? true : false;
+            $accountGateway->update_address = request()->get('update_address') ? true : false;
             $accountGateway->setConfig($config);
 
             if ($accountGatewayPublicId) {
@@ -395,7 +395,7 @@ class AccountGatewayController extends BaseController
             'country' => 'required|in:US,CA,GB',
         ];
 
-        $validator = Validator::make(Input::all(), $rules);
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             return Redirect::to('gateways/create')
@@ -404,9 +404,9 @@ class AccountGatewayController extends BaseController
         }
 
         if (! $user->email) {
-            $user->email = trim(Input::get('email'));
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
+            $user->email = trim(request()->get('email'));
+            $user->first_name = trim(request()->get('first_name'));
+            $user->last_name = trim(request()->get('last_name'));
             $user->save();
         }
 
@@ -416,9 +416,9 @@ class AccountGatewayController extends BaseController
             $userDetails = [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
-                'email' => Input::get('email'),
-                'first_name' => Input::get('first_name'),
-                'last_name' => Input::get('last_name'),
+                'email' => request()->get('email'),
+                'first_name' => request()->get('first_name'),
+                'last_name' => request()->get('last_name'),
                 'original_ip' => \Request::getClientIp(true),
                 'original_device' => \Request::server('HTTP_USER_AGENT'),
                 'tos_acceptance_time' => time(),
@@ -434,18 +434,18 @@ class AccountGatewayController extends BaseController
             $wepay = new WePay($accessToken);
 
             $accountDetails = [
-                'name' => Input::get('company_name'),
+                'name' => request()->get('company_name'),
                 'description' => trans('texts.wepay_account_description'),
                 'theme_object' => json_decode(WEPAY_THEME),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
                 'rbits' => $account->present()->rBits,
-                'country' => Input::get('country'),
+                'country' => request()->get('country'),
             ];
 
-            if (Input::get('country') == 'CA') {
+            if (request()->get('country') == 'CA') {
                 $accountDetails['currencies'] = ['CAD'];
-                $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
-            } elseif (Input::get('country') == 'GB') {
+                $accountDetails['country_options'] = ['debit_opt_in' => boolval(request()->get('debit_cards'))];
+            } elseif (request()->get('country') == 'GB') {
                 $accountDetails['currencies'] = ['GBP'];
             }
 
@@ -471,7 +471,7 @@ class AccountGatewayController extends BaseController
                 'accountId' => $wepayAccount->account_id,
                 'state' => $wepayAccount->state,
                 'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
-                'country' => Input::get('country'),
+                'country' => request()->get('country'),
             ]);
 
             if ($confirmationRequired) {
@@ -522,7 +522,7 @@ class AccountGatewayController extends BaseController
      */
     public function savePaymentGatewayLimits()
     {
-        $gateway_type_id = intval(Input::get('gateway_type_id'));
+        $gateway_type_id = intval(request()->get('gateway_type_id'));
         $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
 
         if (! $gateway_settings) {
@@ -530,14 +530,14 @@ class AccountGatewayController extends BaseController
             $gateway_settings->gateway_type_id = $gateway_type_id;
         }
 
-        $gateway_settings->min_limit = Input::get('limit_min_enable') ? intval(Input::get('limit_min')) : null;
-        $gateway_settings->max_limit = Input::get('limit_max_enable') ? intval(Input::get('limit_max')) : null;
+        $gateway_settings->min_limit = request()->get('limit_min_enable') ? intval(request()->get('limit_min')) : null;
+        $gateway_settings->max_limit = request()->get('limit_max_enable') ? intval(request()->get('limit_max')) : null;
 
         if ($gateway_settings->max_limit !== null && $gateway_settings->min_limit > $gateway_settings->max_limit) {
             $gateway_settings->max_limit = $gateway_settings->min_limit;
         }
 
-        $gateway_settings->fill(Input::all());
+        $gateway_settings->fill(request()->all());
         $gateway_settings->save();
 
         Session::flash('message', trans('texts.updated_settings'));

@@ -108,8 +108,8 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $ids = request()->get('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_token'));
@@ -134,18 +134,18 @@ class TokenController extends BaseController
                             ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(request()->all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
 
             if ($tokenPublicId) {
-                $token->name = trim(Input::get('name'));
+                $token->name = trim(request()->get('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(Input::get('name'));
-                $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $token->name = trim(request()->get('name'));
+                $token->token = strtolower(Str::random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();

@@ -57,7 +57,7 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        $search = Input::get('sSearch');
+        $search = request()->get('sSearch');
         $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
@@ -201,7 +201,7 @@ class ClientController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => request()->old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
             'customLabel1' => Auth::user()->account->customLabel('client1'),
@@ -227,8 +227,8 @@ class ClientController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));

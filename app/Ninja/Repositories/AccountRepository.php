@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\LookupUser;
 use Auth;
+use Illuminate\Support\Str;
 use Input;
 use Request;
 use Schema;
@@ -37,19 +38,19 @@ class AccountRepository
             }
 
             $company = new Company();
-            $company->utm_source = Input::get('utm_source');
-            $company->utm_medium = Input::get('utm_medium');
-            $company->utm_campaign = Input::get('utm_campaign');
-            $company->utm_term = Input::get('utm_term');
-            $company->utm_content = Input::get('utm_content');
+            $company->utm_source = request()->get('utm_source');
+            $company->utm_medium = request()->get('utm_medium');
+            $company->utm_campaign = request()->get('utm_campaign');
+            $company->utm_term = request()->get('utm_term');
+            $company->utm_content = request()->get('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
 
-            if (Input::get('utm_campaign')) {
-                if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
+            if (request()->get('utm_campaign')) {
+                if (env('PROMO_CAMPAIGN') && hash_equals(request()->get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(request()->get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
-                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(request()->get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
                     $company->applyFreeYear(2);
                 }
             } else {
@@ -62,7 +63,7 @@ class AccountRepository
 
         $account = new Account();
         $account->ip = Request::getClientIp();
-        $account->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+        $account->account_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
         $account->currency_id = DEFAULT_CURRENCY;
 
@@ -102,14 +103,14 @@ class AccountRepository
 
         $user = new User();
         if (! $firstName && ! $lastName && ! $email && ! $password) {
-            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->username = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->password = strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->username = strtolower(Str::random(RANDOM_KEY_LENGTH));
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
             if (! $password) {
-                $password = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $password = strtolower(Str::random(RANDOM_KEY_LENGTH));
             }
             $user->password = bcrypt($password);
         }
@@ -118,7 +119,7 @@ class AccountRepository
         $user->registered = ! Utils::isNinja() || $email;
 
         if (! $user->confirmed) {
-            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = strtolower(Str::random(RANDOM_KEY_LENGTH));
         }
 
         $account->users()->save($user);
@@ -423,7 +424,7 @@ class AccountRepository
         $invitation = Invitation::createNew($invoice);
         $invitation->invoice_id = $invoice->id;
         $invitation->contact_id = $client->contacts()->first()->id;
-        $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+        $invitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
         $invitation->save();
 
         return $invitation;
@@ -455,7 +456,7 @@ class AccountRepository
             $user->confirmed = true;
             $user->email = NINJA_ACCOUNT_EMAIL;
             $user->username = NINJA_ACCOUNT_EMAIL;
-            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->password = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $user->first_name = 'Invoice';
             $user->last_name = 'Ninja';
             $user->notify_sent = true;
@@ -498,7 +499,7 @@ class AccountRepository
             $contact->user_id = $ninjaUser->id;
             $contact->account_id = $ninjaAccount->id;
             $contact->public_id = $account->id;
-            $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $contact->contact_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $contact->is_primary = true;
             foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
                 $contact->$field = $account->users()->first()->$field;
@@ -779,7 +780,7 @@ class AccountRepository
 
             $token = AccountToken::createNew($user);
             $token->name = $name;
-            $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $token->token = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $token->save();
         }
     }

@@ -10,6 +10,7 @@ use App\Models\GatewayType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use Illuminate\Support\Arr;
 use Omnipay\Common\Item;
 use CreditCard;
 use DateTime;
@@ -644,7 +645,7 @@ class BasePaymentDriver
             return true;
         }
 
-        return boolval(array_get($this->input, 'token_billing'));
+        return boolval(Arr::get($this->input, 'token_billing'));
     }
 
     /*
@@ -977,7 +978,7 @@ class BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $this->input = $input;
-        $transRef = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
+        $transRef = Arr::get($this->input, 'token') ?: $this->invitation->transaction_reference;
 
         if (method_exists($this->gateway(), 'completePurchase')) {
             $details = $this->paymentDetails();

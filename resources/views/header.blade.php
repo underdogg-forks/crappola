@@ -173,8 +173,8 @@
 
     @yield('onReady')
 
-    @if (Input::has('focus'))
-        $('#{{ Input::get('focus') }}').focus();
+    @if (request()->has('focus'))
+        $('#{{ request()->get('focus') }}').focus();
     @endif
 
     // Focus the search input if the user clicks forward slash

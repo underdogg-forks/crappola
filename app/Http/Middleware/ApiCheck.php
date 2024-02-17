@@ -6,6 +6,7 @@ use App\Models\AccountToken;
 use Auth;
 use Cache;
 use Closure;
+use Illuminate\Support\Arr;
 use Request;
 use Response;
 use Session;
@@ -71,7 +72,7 @@ class ApiCheck
             return $next($request);
         }
 
-        $isMobileApp = strpos(array_get($_SERVER, 'HTTP_USER_AGENT'), '(dart:io)') !== false;
+        $isMobileApp = strpos(Arr::get($_SERVER, 'HTTP_USER_AGENT'), '(dart:io)') !== false;
 
         if (! Utils::hasFeature(FEATURE_API) && ! $hasApiSecret && ! $isMobileApp) {
             $error['error'] = ['message' => 'API requires pro plan'];
