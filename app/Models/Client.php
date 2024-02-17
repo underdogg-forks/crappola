@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\Traits\HasCustomMessages;
 use Utils;
