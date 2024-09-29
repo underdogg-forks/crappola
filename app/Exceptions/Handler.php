@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use App\Http\Requests\Request;
 use Exception;
+use Throwable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -39,11 +40,9 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param \Exception $e
-     *
      * @return bool|void
      */
-    public function report(Exception $e)
+    public function report(Throwable $e)
     {
         if (! $this->shouldReport($e)) {
             return false;
@@ -93,13 +92,9 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Exception               $e
-     *
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
         $value = \Request::header('X-Ninja-Token');
 

@@ -159,7 +159,6 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-
     ],
 
     /*
@@ -174,7 +173,6 @@ return [
     */
 
     'aliases' => [
-
         'App'             => 'Illuminate\Support\Facades\App',
         'Artisan'         => 'Illuminate\Support\Facades\Artisan',
         'Auth'            => 'Illuminate\Support\Facades\Auth',
@@ -256,7 +254,5 @@ return [
         'CurlUtils' => App\Libraries\CurlUtils::class,
         'Domain'    => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-
     ],
-
 ];
