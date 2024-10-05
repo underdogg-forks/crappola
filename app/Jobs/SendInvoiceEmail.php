@@ -75,14 +75,14 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     public function handle(ContactMailer $mailer): void
     {
         // send email as user
-        if (App::runningInConsole() && $this->userId) {
-            Auth::onceUsingId($this->userId);
+        if (\Illuminate\Support\Facades\App::runningInConsole() && $this->userId) {
+            \Illuminate\Support\Facades\Auth::onceUsingId($this->userId);
         }
 
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template, $this->proposal);
 
-        if (App::runningInConsole() && $this->userId) {
-            Auth::logout();
+        if (\Illuminate\Support\Facades\App::runningInConsole() && $this->userId) {
+            \Illuminate\Support\Facades\Auth::logout();
         }
     }
 

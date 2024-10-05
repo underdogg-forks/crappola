@@ -25,7 +25,7 @@ class QueryLogging
     {
         // Enable query logging for development
         if (Utils::isNinjaDev()) {
-            DB::enableQueryLog();
+            \Illuminate\Support\Facades\DB::enableQueryLog();
             $timeStart = microtime(true);
         }
 
@@ -34,11 +34,11 @@ class QueryLogging
         if (Utils::isNinjaDev()) {
             // hide requests made by debugbar
             if (mb_strstr($request->url(), '_debugbar') === false) {
-                $queries = DB::getQueryLog();
+                $queries = \Illuminate\Support\Facades\DB::getQueryLog();
                 $count = count($queries);
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
-                Log::info($request->method() . ' - ' . $request->url() . ": {$count} queries - " . $time);
+                \Illuminate\Support\Facades\Log::info($request->method() . ' - ' . $request->url() . ": {$count} queries - " . $time);
                 //Log::info($queries);
             }
         }

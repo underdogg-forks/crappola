@@ -49,28 +49,28 @@ class NinjaController extends BaseController
      */
     public function show_license_payment()
     {
-        if (Request::has('return_url')) {
-            session(['return_url' => Request::input('return_url')]);
+        if (\Illuminate\Support\Facades\Request::has('return_url')) {
+            session(['return_url' => \Illuminate\Support\Facades\Request::input('return_url')]);
         }
 
-        if (Request::has('affiliate_key')) {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', Request::input('affiliate_key'))->first()) {
+        if (\Illuminate\Support\Facades\Request::has('affiliate_key')) {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', \Illuminate\Support\Facades\Request::input('affiliate_key'))->first()) {
                 session(['affiliate_id' => $affiliate->id]);
             }
         }
 
-        if (Request::has('product_id')) {
-            session(['product_id' => Request::input('product_id')]);
-        } elseif ( ! Session::has('product_id')) {
+        if (\Illuminate\Support\Facades\Request::has('product_id')) {
+            session(['product_id' => \Illuminate\Support\Facades\Request::input('product_id')]);
+        } elseif ( ! \Illuminate\Support\Facades\Session::has('product_id')) {
             session(['product_id' => PRODUCT_ONE_CLICK_INSTALL]);
         }
 
-        if ( ! Session::get('affiliate_id')) {
+        if ( ! \Illuminate\Support\Facades\Session::get('affiliate_id')) {
             return Utils::fatalError();
         }
 
-        if (Utils::isNinjaDev() && Request::has('test_mode')) {
-            session(['test_mode' => Request::input('test_mode')]);
+        if (Utils::isNinjaDev() && \Illuminate\Support\Facades\Request::has('test_mode')) {
+            session(['test_mode' => \Illuminate\Support\Facades\Request::input('test_mode')]);
         }
 
         $account = $this->accountRepo->getNinjaAccount();
@@ -79,7 +79,7 @@ class NinjaController extends BaseController
         $gateway = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
-        $affiliate = Affiliate::find(Session::get('affiliate_id'));
+        $affiliate = Affiliate::find(\Illuminate\Support\Facades\Session::get('affiliate_id'));
 
         $data = [
             'showBreadcrumbs'         => false,
@@ -92,7 +92,7 @@ class NinjaController extends BaseController
             'account'                 => $account,
             'accountGateway'          => $accountGateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            'countries'               => Cache::get('countries'),
+            'countries'               => \Illuminate\Support\Facades\Cache::get('countries'),
             'currencyId'              => 1,
             'currencyCode'            => 'USD',
             'paymentTitle'            => $affiliate->payment_title,
@@ -100,7 +100,7 @@ class NinjaController extends BaseController
             'showAddress'             => true,
         ];
 
-        return View::make('payments.stripe.credit_card', $data);
+        return \Illuminate\Support\Facades\View::make('payments.stripe.credit_card', $data);
     }
 
     /**
@@ -108,7 +108,7 @@ class NinjaController extends BaseController
      */
     public function do_license_payment()
     {
-        $testMode = Session::get('test_mode') === 'true';
+        $testMode = \Illuminate\Support\Facades\Session::get('test_mode') === 'true';
 
         $rules = [
             'first_name'       => 'required',
@@ -125,7 +125,7 @@ class NinjaController extends BaseController
             'country_id'       => 'required',
         ];
 
-        $validator = Validator::make(Request::all(), $rules);
+        $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->to('license')
@@ -138,12 +138,12 @@ class NinjaController extends BaseController
         $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
 
         try {
-            $affiliate = Affiliate::find(Session::get('affiliate_id'));
+            $affiliate = Affiliate::find(\Illuminate\Support\Facades\Session::get('affiliate_id'));
 
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $details = self::getLicensePaymentDetails(Request::all(), $affiliate);
+                $details = self::getLicensePaymentDetails(\Illuminate\Support\Facades\Request::all(), $affiliate);
 
                 $gateway = Omnipay::create($accountGateway->gateway->provider);
                 $gateway->initialize((array) $accountGateway->getConfig());
@@ -161,13 +161,13 @@ class NinjaController extends BaseController
             $licenseKey = Utils::generateLicense();
 
             $license = new License();
-            $license->first_name = Request::input('first_name');
-            $license->last_name = Request::input('last_name');
-            $license->email = Request::input('email');
+            $license->first_name = \Illuminate\Support\Facades\Request::input('first_name');
+            $license->last_name = \Illuminate\Support\Facades\Request::input('last_name');
+            $license->email = \Illuminate\Support\Facades\Request::input('email');
             $license->transaction_reference = $ref;
             $license->license_key = $licenseKey;
-            $license->affiliate_id = Session::get('affiliate_id');
-            $license->product_id = Session::get('product_id');
+            $license->affiliate_id = \Illuminate\Support\Facades\Session::get('affiliate_id');
+            $license->product_id = \Illuminate\Support\Facades\Session::get('product_id');
             $license->save();
 
             $data = [
@@ -181,12 +181,12 @@ class NinjaController extends BaseController
             $name = "{$license->first_name} {$license->last_name}";
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
 
-            if (Session::has('return_url')) {
-                $data['redirectTo'] = Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . Session::get('product_id');
-                $data['message'] = 'Redirecting to ' . Session::get('return_url');
+            if (\Illuminate\Support\Facades\Session::has('return_url')) {
+                $data['redirectTo'] = \Illuminate\Support\Facades\Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . \Illuminate\Support\Facades\Session::get('product_id');
+                $data['message'] = 'Redirecting to ' . \Illuminate\Support\Facades\Session::get('return_url');
             }
 
-            return View::make('public.license', $data);
+            return \Illuminate\Support\Facades\View::make('public.license', $data);
         } catch (Exception $e) {
             $this->error('License-Uncaught', false, $accountGateway, $e);
 
@@ -199,8 +199,8 @@ class NinjaController extends BaseController
      */
     public function claim_license()
     {
-        $licenseKey = Request::input('license_key');
-        $productId = Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        $licenseKey = \Illuminate\Support\Facades\Request::input('license_key');
+        $productId = \Illuminate\Support\Facades\Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         // add in dashes
         if (mb_strlen($licenseKey) == 20) {
@@ -237,7 +237,7 @@ class NinjaController extends BaseController
 
     public function hideWhiteLabelMessage()
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $company = $user->account->company;
 
         $company->plan = null;
@@ -252,7 +252,7 @@ class NinjaController extends BaseController
             return redirect('/');
         }
 
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
         $url = NINJA_APP_URL . '/buy_now';
         $contactKey = $user->primaryAccount()->account_key;
@@ -320,8 +320,8 @@ class NinjaController extends BaseController
             'amount'    => $affiliate->price,
             'card'      => $card,
             'currency'  => 'USD',
-            'returnUrl' => URL::to('license_complete'),
-            'cancelUrl' => URL::to('/'),
+            'returnUrl' => \Illuminate\Support\Facades\URL::to('license_complete'),
+            'cancelUrl' => \Illuminate\Support\Facades\URL::to('/'),
         ];
     }
 
@@ -332,7 +332,7 @@ class NinjaController extends BaseController
             $message = $accountGateway->gateway->name . ': ';
         }
         $message .= $error ?: trans('texts.payment_error');
-        Session::flash('error', $message);
+        \Illuminate\Support\Facades\Session::flash('error', $message);
         Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

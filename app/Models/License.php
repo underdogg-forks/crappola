@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class License.
  */
-class License extends Eloquent
+class License extends \Illuminate\Database\Eloquent\Model
 {
     use SoftDeletes;
 

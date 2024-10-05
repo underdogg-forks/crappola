@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class UserAccount.
  */
-class UserAccount extends Eloquent
+class UserAccount extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

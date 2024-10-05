@@ -20,8 +20,8 @@ class ProposalTemplateRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('proposal_templates')
-            ->where('proposal_templates.account_id', '=', Auth::user()->account_id)
+        $query = \Illuminate\Support\Facades\DB::table('proposal_templates')
+            ->where('proposal_templates.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->select(
                 'proposal_templates.name',
                 'proposal_templates.public_id',

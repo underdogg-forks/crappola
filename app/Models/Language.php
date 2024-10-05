@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Language.
  */
-class Language extends Eloquent
+class Language extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

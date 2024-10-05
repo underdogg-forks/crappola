@@ -82,22 +82,22 @@ class AuthService
         $oauthUserId = $socialiteUser->id;
         $name = Utils::splitName($socialiteUser->name);
 
-        if (Auth::check()) {
-            $user = Auth::user();
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            $user = \Illuminate\Support\Facades\Auth::user();
             $isRegistered = $user->registered;
             $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
                 if ( ! $isRegistered) {
-                    Session::flash('warning', trans('texts.success_message'));
-                    Session::flash('onReady', 'handleSignedUp();');
+                    \Illuminate\Support\Facades\Session::flash('warning', trans('texts.success_message'));
+                    \Illuminate\Support\Facades\Session::flash('onReady', 'handleSignedUp();');
                 } else {
-                    Session::flash('message', trans('texts.updated_settings'));
+                    \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
                     return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
                 }
             } else {
-                Session::flash('error', $result);
+                \Illuminate\Support\Facades\Session::flash('error', $result);
             }
         } else {
             LookupUser::setServerByField('oauth_user_key', $providerId . '-' . $oauthUserId);
@@ -107,16 +107,16 @@ class AuthService
 
                     return redirect('/validate_two_factor/' . $user->account->account_key);
                 }
-                Auth::login($user);
+                \Illuminate\Support\Facades\Auth::login($user);
                 event(new UserLoggedIn());
             } else {
-                Session::flash('error', trans('texts.invalid_credentials'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.invalid_credentials'));
 
                 return redirect()->to('login');
             }
         }
 
-        $redirectTo = Request::input('redirect_to') ? SITE_URL . '/' . ltrim(Request::input('redirect_to'), '/') : 'dashboard';
+        $redirectTo = \Illuminate\Support\Facades\Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Illuminate\Support\Facades\Request::input('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }

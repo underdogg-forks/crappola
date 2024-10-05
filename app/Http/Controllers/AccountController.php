@@ -106,21 +106,21 @@ class AccountController extends BaseController
     {
         $user = false;
         $account = false;
-        $guestKey = Request::input('guest_key'); // local storage key to login until registered
+        $guestKey = \Illuminate\Support\Facades\Request::input('guest_key'); // local storage key to login until registered
 
-        if (Auth::check()) {
-            return Redirect::to('invoices/create');
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            return \Illuminate\Support\Facades\Redirect::to('invoices/create');
         }
 
         if ( ! Utils::isNinja() && Account::count() > 0) {
-            return Redirect::to('/login');
+            return \Illuminate\Support\Facades\Redirect::to('/login');
         }
 
         if ($guestKey) {
             $user = User::where('password', '=', $guestKey)->first();
 
             if ($user && $user->registered) {
-                return Redirect::to('/');
+                return \Illuminate\Support\Facades\Redirect::to('/');
             }
         }
 
@@ -129,22 +129,22 @@ class AccountController extends BaseController
             $user = $account->users()->first();
         }
 
-        Auth::login($user, true);
+        \Illuminate\Support\Facades\Auth::login($user, true);
         event(new UserSignedUp());
 
         if ($account && $account->language_id && $account->language_id != DEFAULT_LANGUAGE) {
             $link = link_to('/invoices/create?lang=en', 'click here');
             $message = sprintf('Your account language has been set automatically, %s to change to English', $link);
-            Session::flash('warning', $message);
+            \Illuminate\Support\Facades\Session::flash('warning', $message);
         }
 
-        if ($redirectTo = Request::input('redirect_to')) {
+        if ($redirectTo = \Illuminate\Support\Facades\Request::input('redirect_to')) {
             $redirectTo = SITE_URL . '/' . ltrim($redirectTo, '/');
         } else {
-            $redirectTo = Request::input('sign_up') ? 'dashboard' : 'invoices/create';
+            $redirectTo = \Illuminate\Support\Facades\Request::input('sign_up') ? 'dashboard' : 'invoices/create';
         }
 
-        return Redirect::to($redirectTo)->with('sign_up', Request::input('sign_up'));
+        return \Illuminate\Support\Facades\Redirect::to($redirectTo)->with('sign_up', \Illuminate\Support\Facades\Request::input('sign_up'));
     }
 
     /**
@@ -152,13 +152,13 @@ class AccountController extends BaseController
      */
     public function changePlan()
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
         $company = $account->company;
 
-        $plan = Request::input('plan');
-        $term = Request::input('plan_term');
-        $numUsers = Request::input('num_users');
+        $plan = \Illuminate\Support\Facades\Request::input('plan');
+        $term = \Illuminate\Support\Facades\Request::input('plan_term');
+        $numUsers = \Illuminate\Support\Facades\Request::input('num_users');
 
         if ($plan != PLAN_ENTERPRISE) {
             $numUsers = 1;
@@ -174,8 +174,8 @@ class AccountController extends BaseController
         $newPlan['price'] = Utils::getPlanPrice($newPlan);
         $credit = 0;
 
-        if ($plan == PLAN_FREE && $company->processRefund(Auth::user())) {
-            Session::flash('warning', trans('texts.plan_refunded'));
+        if ($plan == PLAN_FREE && $company->processRefund(\Illuminate\Support\Facades\Auth::user())) {
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.plan_refunded'));
         }
 
         if ($company->payment && ! empty($planDetails['paid']) && $plan != PLAN_FREE) {
@@ -195,7 +195,7 @@ class AccountController extends BaseController
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
 
-            return Redirect::to('view/' . $invitation->invitation_key);
+            return \Illuminate\Support\Facades\Redirect::to('view/' . $invitation->invitation_key);
         }
         if ($plan == PLAN_FREE) {
             $company->discount = 0;
@@ -214,9 +214,9 @@ class AccountController extends BaseController
         $company->plan = $plan;
         $company->save();
 
-        Session::flash('message', trans('texts.updated_plan'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_plan'));
 
-        return Redirect::to('settings/account_management');
+        return \Illuminate\Support\Facades\Redirect::to('settings/account_management');
     }
 
     /**
@@ -244,8 +244,8 @@ class AccountController extends BaseController
             }
         }
 
-        Session::put("entity_state_filter:{$entityType}", implode(',', $stateFilter));
-        Session::put("entity_status_filter:{$entityType}", implode(',', $statusFilter));
+        \Illuminate\Support\Facades\Session::put("entity_state_filter:{$entityType}", implode(',', $stateFilter));
+        \Illuminate\Support\Facades\Session::put("entity_status_filter:{$entityType}", implode(',', $statusFilter));
 
         return RESULT_SUCCESS;
     }
@@ -255,9 +255,9 @@ class AccountController extends BaseController
      */
     public function getSearchData()
     {
-        $data = $this->accountRepo->getSearchData(Auth::user());
+        $data = $this->accountRepo->getSearchData(\Illuminate\Support\Facades\Auth::user());
 
-        return Response::json($data);
+        return \Illuminate\Support\Facades\Response::json($data);
     }
 
     /**
@@ -267,12 +267,12 @@ class AccountController extends BaseController
      */
     public function showSection($section = false)
     {
-        if ( ! Auth::user()->is_admin) {
-            return Redirect::to('/settings/user_details');
+        if ( ! \Illuminate\Support\Facades\Auth::user()->is_admin) {
+            return \Illuminate\Support\Facades\Redirect::to('/settings/user_details');
         }
 
         if ( ! $section) {
-            return Redirect::to('/settings/' . ACCOUNT_COMPANY_DETAILS, 301);
+            return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_COMPANY_DETAILS, 301);
         }
 
         if ($section == ACCOUNT_COMPANY_DETAILS) {
@@ -291,7 +291,7 @@ class AccountController extends BaseController
             return self::showInvoiceSettings();
         }
         if ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
+            return \Illuminate\Support\Facades\View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         }
         if ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
@@ -323,12 +323,12 @@ class AccountController extends BaseController
         }
 
         $data = [
-            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'account' => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
             'title'   => trans("texts.{$section}"),
             'section' => $section,
         ];
 
-        return View::make($view, $data);
+        return \Illuminate\Support\Facades\View::make($view, $data);
     }
 
     /**
@@ -342,19 +342,19 @@ class AccountController extends BaseController
 
         $oauthLoginUrls = [];
         foreach (AuthService::$providers as $provider) {
-            $oauthLoginUrls[] = ['label' => $provider, 'url' => URL::to('/auth/' . mb_strtolower($provider))];
+            $oauthLoginUrls[] = ['label' => $provider, 'url' => \Illuminate\Support\Facades\URL::to('/auth/' . mb_strtolower($provider))];
         }
 
         $data = [
-            'account'           => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'account'           => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
             'title'             => trans('texts.user_details'),
-            'user'              => Auth::user(),
-            'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
+            'user'              => \Illuminate\Support\Facades\Auth::user(),
+            'oauthProviderName' => AuthService::getProviderName(\Illuminate\Support\Facades\Auth::user()->oauth_provider_id),
             'oauthLoginUrls'    => $oauthLoginUrls,
-            'referralCounts'    => $this->referralRepository->getCounts(Auth::user()->referral_code),
+            'referralCounts'    => $this->referralRepository->getCounts(\Illuminate\Support\Facades\Auth::user()->referral_code),
         ];
 
-        return View::make('accounts.user_details', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.user_details', $data);
     }
 
     /**
@@ -412,7 +412,7 @@ class AccountController extends BaseController
         // check subdomain is unique in the lookup tables
         if (request()->subdomain) {
             if ( ! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
-                return Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
+                return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
                     ->withError(trans('texts.subdomain_taken'))
                     ->withInput();
             }
@@ -464,12 +464,12 @@ class AccountController extends BaseController
      */
     public function updateDetails(UpdateAccountRequest $request)
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $this->accountRepo->save($request->input(), $account);
 
         // Logo image file
-        if ($uploaded = Request::file('logo')) {
-            $path = Request::file('logo')->getRealPath();
+        if ($uploaded = \Illuminate\Support\Facades\Request::file('logo')) {
+            $path = \Illuminate\Support\Facades\Request::file('logo')->getRealPath();
             $disk = $account->getLogoDisk();
             $extension = mb_strtolower($uploaded->getClientOriginalExtension());
 
@@ -480,7 +480,7 @@ class AccountController extends BaseController
             }
 
             if ( ! in_array($documentType, ['jpeg', 'png', 'gif'])) {
-                Session::flash('warning', 'Unsupported file type');
+                \Illuminate\Support\Facades\Session::flash('warning', 'Unsupported file type');
             } else {
                 $documentTypeData = Document::$types[$documentType];
 
@@ -488,7 +488,7 @@ class AccountController extends BaseController
                 $size = filesize($filePath);
 
                 if ($size / 1000 > MAX_DOCUMENT_SIZE) {
-                    Session::flash('error', trans('texts.logo_warning_too_large'));
+                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_too_large'));
                 } else {
                     if ($documentType != 'gif') {
                         $account->logo = $account->account_key . '.' . $documentType;
@@ -509,7 +509,7 @@ class AccountController extends BaseController
                             } else {
                                 if (Utils::isInterlaced($filePath)) {
                                     $account->clearLogo();
-                                    Session::flash('error', trans('texts.logo_warning_invalid'));
+                                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
                                 } else {
                                     $stream = fopen($filePath, 'r');
                                     $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
@@ -518,7 +518,7 @@ class AccountController extends BaseController
                             }
                         } catch (Exception $exception) {
                             $account->clearLogo();
-                            Session::flash('error', trans('texts.logo_warning_invalid'));
+                            \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
                         }
                     } else {
                         if (extension_loaded('fileinfo')) {
@@ -532,7 +532,7 @@ class AccountController extends BaseController
                             $account->logo_width = $image->width();
                             $account->logo_height = $image->height();
                         } else {
-                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
+                            \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_fileinfo'));
                         }
                     }
                 }
@@ -543,9 +543,9 @@ class AccountController extends BaseController
 
         event(new UserSettingsChanged());
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
     }
 
     /**
@@ -554,11 +554,11 @@ class AccountController extends BaseController
     public function saveUserDetails()
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $email = trim(mb_strtolower(Request::input('email')));
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('email')));
 
         if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
-            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
+            return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
         }
@@ -569,44 +569,44 @@ class AccountController extends BaseController
             $rules['phone'] = 'required';
         }
 
-        $validator = Validator::make(Request::all(), $rules);
+        $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
         if ($validator->fails()) {
-            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
+            return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
                 ->withErrors($validator)
                 ->withInput();
         }
-        $user->first_name = trim(Request::input('first_name'));
-        $user->last_name = trim(Request::input('last_name'));
+        $user->first_name = trim(\Illuminate\Support\Facades\Request::input('first_name'));
+        $user->last_name = trim(\Illuminate\Support\Facades\Request::input('last_name'));
         $user->username = $email;
         $user->email = $email;
-        $user->phone = trim(Request::input('phone'));
-        $user->dark_mode = Request::input('dark_mode');
+        $user->phone = trim(\Illuminate\Support\Facades\Request::input('phone'));
+        $user->dark_mode = \Illuminate\Support\Facades\Request::input('dark_mode');
 
-        if ( ! Auth::user()->is_admin) {
-            $user->notify_sent = Request::input('notify_sent');
-            $user->notify_viewed = Request::input('notify_viewed');
-            $user->notify_paid = Request::input('notify_paid');
-            $user->notify_approved = Request::input('notify_approved');
-            $user->only_notify_owned = Request::input('only_notify_owned');
+        if ( ! \Illuminate\Support\Facades\Auth::user()->is_admin) {
+            $user->notify_sent = \Illuminate\Support\Facades\Request::input('notify_sent');
+            $user->notify_viewed = \Illuminate\Support\Facades\Request::input('notify_viewed');
+            $user->notify_paid = \Illuminate\Support\Facades\Request::input('notify_paid');
+            $user->notify_approved = \Illuminate\Support\Facades\Request::input('notify_approved');
+            $user->only_notify_owned = \Illuminate\Support\Facades\Request::input('only_notify_owned');
         }
 
-        if ($user->google_2fa_secret && ! Request::input('enable_two_factor')) {
+        if ($user->google_2fa_secret && ! \Illuminate\Support\Facades\Request::input('enable_two_factor')) {
             $user->google_2fa_secret = null;
         }
 
         if (Utils::isNinja()) {
-            if (Request::input('referral_code') && ! $user->referral_code) {
-                $user->referral_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            if (\Illuminate\Support\Facades\Request::input('referral_code') && ! $user->referral_code) {
+                $user->referral_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             }
         }
 
         $user->save();
 
         event(new UserSettingsChanged());
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_USER_DETAILS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_USER_DETAILS);
     }
 
     /**
@@ -614,7 +614,7 @@ class AccountController extends BaseController
      */
     public function removeLogo()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         if ( ! Utils::isNinjaProd() && $account->hasLogo()) {
             $account->getLogoDisk()->delete($account->logo);
@@ -626,9 +626,9 @@ class AccountController extends BaseController
         $account->logo_height = null;
         $account->save();
 
-        Session::flash('message', trans('texts.removed_logo'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.removed_logo'));
 
-        return Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
     }
 
     /**
@@ -636,8 +636,8 @@ class AccountController extends BaseController
      */
     public function checkEmail()
     {
-        $email = trim(mb_strtolower(Request::input('email')));
-        $user = Auth::user();
+        $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('email')));
+        $user = \Illuminate\Support\Facades\Auth::user();
 
         if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return 'taken';
@@ -659,8 +659,8 @@ class AccountController extends BaseController
      */
     public function submitSignup()
     {
-        $user = Auth::user();
-        $ip = Request::getClientIp();
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $ip = \Illuminate\Support\Facades\Request::getClientIp();
         $account = $user->account;
 
         $rules = [
@@ -671,19 +671,19 @@ class AccountController extends BaseController
         ];
 
         if ( ! $user->registered) {
-            $rules['new_email'] .= ',' . Auth::user()->id . ',id';
+            $rules['new_email'] .= ',' . \Illuminate\Support\Facades\Auth::user()->id . ',id';
         }
 
-        $validator = Validator::make(Request::all(), $rules);
+        $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
         if ($validator->fails()) {
             return '';
         }
 
-        $firstName = trim(Request::input('new_first_name'));
-        $lastName = trim(Request::input('new_last_name'));
-        $email = trim(mb_strtolower(Request::input('new_email')));
-        $password = trim(Request::input('new_password'));
+        $firstName = trim(\Illuminate\Support\Facades\Request::input('new_first_name'));
+        $lastName = trim(\Illuminate\Support\Facades\Request::input('new_last_name'));
+        $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('new_email')));
+        $password = trim(\Illuminate\Support\Facades\Request::input('new_password'));
 
         if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return '';
@@ -695,9 +695,9 @@ class AccountController extends BaseController
             $newUser->acceptLatestTerms($ip)->save();
             $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
 
-            Session::flash('message', trans('texts.created_new_company'));
-            Session::put(SESSION_USER_ACCOUNTS, $users);
-            Auth::loginUsingId($newUser->id);
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_new_company'));
+            \Illuminate\Support\Facades\Session::put(SESSION_USER_ACCOUNTS, $users);
+            \Illuminate\Support\Facades\Auth::loginUsingId($newUser->id);
 
             return RESULT_SUCCESS;
         }
@@ -712,7 +712,7 @@ class AccountController extends BaseController
 
         $user->account->startTrial(PLAN_PRO);
 
-        if (Request::input('go_pro') == 'true') {
+        if (\Illuminate\Support\Facades\Request::input('go_pro') == 'true') {
             session([REQUESTED_PRO_PLAN => true]);
         }
 
@@ -725,17 +725,17 @@ class AccountController extends BaseController
     public function doRegister()
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
-        $email = trim(Request::input('email'));
+        $email = trim(\Illuminate\Support\Facades\Request::input('email'));
 
         if ( ! $email || $email == TEST_USERNAME) {
             return RESULT_FAILURE;
         }
 
         $license = new License();
-        $license->first_name = Request::input('first_name');
-        $license->last_name = Request::input('last_name');
+        $license->first_name = \Illuminate\Support\Facades\Request::input('first_name');
+        $license->last_name = \Illuminate\Support\Facades\Request::input('last_name');
         $license->email = $email;
-        $license->transaction_reference = Request::getClientIp();
+        $license->transaction_reference = \Illuminate\Support\Facades\Request::getClientIp();
         $license->license_key = Utils::generateLicense();
         $license->affiliate_id = $affiliate->id;
         $license->product_id = PRODUCT_SELF_HOST;
@@ -760,9 +760,9 @@ class AccountController extends BaseController
      */
     public function cancelAccount()
     {
-        if ($reason = trim(Request::input('reason'))) {
-            $email = Auth::user()->email;
-            $name = Auth::user()->getDisplayName();
+        if ($reason = trim(\Illuminate\Support\Facades\Request::input('reason'))) {
+            $email = \Illuminate\Support\Facades\Auth::user()->email;
+            $name = \Illuminate\Support\Facades\Auth::user()->getDisplayName();
 
             $data = [
                 'text' => $reason,
@@ -773,10 +773,10 @@ class AccountController extends BaseController
             $this->userMailer->sendTo(env('CONTACT_EMAIL', CONTACT_EMAIL), $email, $name, $subject, 'contact', $data);
         }
 
-        $user = Auth::user();
-        $account = Auth::user()->account;
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
-        Log::info("Canceled Account: {$account->name} - {$user->email}");
+        \Illuminate\Support\Facades\Log::info("Canceled Account: {$account->name} - {$user->email}");
         $type = $account->hasMultipleAccounts() ? 'company' : 'account';
         $subject = trans("texts.deleted_{$type}");
         $message = trans("texts.deleted_{$type}_details", ['account' => $account->getDisplayName()]);
@@ -785,7 +785,7 @@ class AccountController extends BaseController
         $refunded = false;
         if ( ! $account->hasMultipleAccounts()) {
             $company = $account->company;
-            $refunded = $company->processRefund(Auth::user());
+            $refunded = $company->processRefund(\Illuminate\Support\Facades\Auth::user());
 
             $ninjaClient = $this->accountRepo->getNinjaClient($account);
             dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
@@ -798,14 +798,14 @@ class AccountController extends BaseController
         $this->accountRepo->unlinkAccount($account);
         $account->forceDelete();
 
-        Auth::logout();
-        Session::flush();
+        \Illuminate\Support\Facades\Auth::logout();
+        \Illuminate\Support\Facades\Session::flush();
 
         if ($refunded) {
-            Session::flash('warning', trans('texts.plan_refunded'));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.plan_refunded'));
         }
 
-        return Redirect::to('/')->with('clearGuestKey', true);
+        return \Illuminate\Support\Facades\Redirect::to('/')->with('clearGuestKey', true);
     }
 
     /**
@@ -814,10 +814,10 @@ class AccountController extends BaseController
     public function resendConfirmation()
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $this->userMailer->sendConfirmation($user);
 
-        return Redirect::to('/settings/' . ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
+        return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
     }
 
     /**
@@ -843,7 +843,7 @@ class AccountController extends BaseController
             $section = ACCOUNT_COMPANY_DETAILS;
         }
 
-        return Redirect::to("/settings/{$section}/", 301);
+        return \Illuminate\Support\Facades\Redirect::to("/settings/{$section}/", 301);
     }
 
     /**
@@ -853,7 +853,7 @@ class AccountController extends BaseController
      */
     public function previewEmail(TemplateService $templateService)
     {
-        $template = Request::input('template');
+        $template = \Illuminate\Support\Facades\Request::input('template');
         $invitation = \App\Models\Invitation::scope()
             ->with('invoice.client.contacts')
             ->first();
@@ -863,7 +863,7 @@ class AccountController extends BaseController
         }
 
         /** @var \App\Models\Account $account */
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $invoice = $invitation->invoice;
 
         // replace the variables with sample data
@@ -883,7 +883,7 @@ class AccountController extends BaseController
             'entityType' => ENTITY_INVOICE,
         ]);
 
-        return Response::view($view, $data);
+        return \Illuminate\Support\Facades\Response::view($view, $data);
     }
 
     /**
@@ -892,16 +892,16 @@ class AccountController extends BaseController
     private function showSystemSettings()
     {
         if (Utils::isNinjaProd()) {
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         $data = [
-            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'account' => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
             'title'   => trans('texts.system_settings'),
             'section' => ACCOUNT_SYSTEM_SETTINGS,
         ];
 
-        return View::make('accounts.system_settings', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.system_settings', $data);
     }
 
     /**
@@ -909,7 +909,7 @@ class AccountController extends BaseController
      */
     private function showInvoiceSettings()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $recurringHours = [];
 
         for ($i = 0; $i < 24; $i++) {
@@ -922,13 +922,13 @@ class AccountController extends BaseController
         }
 
         $data = [
-            'account'        => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'account'        => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
             'title'          => trans('texts.invoice_settings'),
             'section'        => ACCOUNT_INVOICE_SETTINGS,
             'recurringHours' => $recurringHours,
         ];
 
-        return View::make('accounts.invoice_settings', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.invoice_settings', $data);
     }
 
     /**
@@ -937,18 +937,18 @@ class AccountController extends BaseController
     private function showCompanyDetails()
     {
         // check that logo is less than the max file size
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         if ($account->isLogoTooLarge()) {
-            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
         $data = [
-            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'sizes'   => Cache::get('sizes'),
+            'account' => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
+            'sizes'   => \Illuminate\Support\Facades\Cache::get('sizes'),
             'title'   => trans('texts.company_details'),
         ];
 
-        return View::make('accounts.details', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.details', $data);
     }
 
     /**
@@ -956,7 +956,7 @@ class AccountController extends BaseController
      */
     private function showAccountManagement()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $planDetails = $account->getPlanDetails(true, false);
         $portalLink = false;
 
@@ -974,7 +974,7 @@ class AccountController extends BaseController
             'title'       => trans('texts.account_management'),
         ];
 
-        return View::make('accounts.management', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.management', $data);
     }
 
     /**
@@ -983,16 +983,16 @@ class AccountController extends BaseController
     private function showLocalization()
     {
         $data = [
-            'account'         => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'timezones'       => Cache::get('timezones'),
-            'dateFormats'     => Cache::get('dateFormats'),
-            'datetimeFormats' => Cache::get('datetimeFormats'),
+            'account'         => Account::with('users')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id),
+            'timezones'       => \Illuminate\Support\Facades\Cache::get('timezones'),
+            'dateFormats'     => \Illuminate\Support\Facades\Cache::get('dateFormats'),
+            'datetimeFormats' => \Illuminate\Support\Facades\Cache::get('datetimeFormats'),
             'title'           => trans('texts.localization'),
             'weekdays'        => Utils::getTranslatedWeekdayNames(),
             'months'          => Utils::getMonthOptions(),
         ];
 
-        return View::make('accounts.localization', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.localization', $data);
     }
 
     /**
@@ -1002,9 +1002,9 @@ class AccountController extends BaseController
     {
         $account = auth()->user()->account;
 
-        return View::make('accounts.banks', [
+        return \Illuminate\Support\Facades\View::make('accounts.banks', [
             'title'              => trans('texts.bank_accounts'),
-            'advanced'           => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
+            'advanced'           => ! \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_EXPENSES),
             'warnPaymentGateway' => ! $account->account_gateways->count(),
         ]);
     }
@@ -1014,14 +1014,14 @@ class AccountController extends BaseController
      */
     private function showOnlinePayments()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $account->load('account_gateways');
         $count = $account->account_gateways->count();
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
             if ( ! $accountGateway->getPublishableKey()) {
-                Session::now('warning', trans('texts.missing_publishable_key'));
+                \Illuminate\Support\Facades\Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }
 
@@ -1030,11 +1030,11 @@ class AccountController extends BaseController
             $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
         }
 
-        return View::make('accounts.payments', [
+        return \Illuminate\Support\Facades\View::make('accounts.payments', [
             'showAdd'             => $count < count(Gateway::$alternate) + 1,
             'title'               => trans('texts.online_payments'),
             'tokenBillingOptions' => $tokenBillingOptions,
-            'currency'            => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
+            'currency'            => Utils::getFromCache(\Illuminate\Support\Facades\Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
             'taxRates'            => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
             'account'             => $account,
         ]);
@@ -1046,11 +1046,11 @@ class AccountController extends BaseController
     private function showProducts()
     {
         $data = [
-            'account' => Auth::user()->account,
+            'account' => \Illuminate\Support\Facades\Auth::user()->account,
             'title'   => trans('texts.product_library'),
         ];
 
-        return View::make('accounts.products', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.products', $data);
     }
 
     /**
@@ -1059,14 +1059,14 @@ class AccountController extends BaseController
     private function showTaxRates()
     {
         $data = [
-            'account'              => Auth::user()->account,
+            'account'              => \Illuminate\Support\Facades\Auth::user()->account,
             'title'                => trans('texts.tax_rates'),
             'taxRates'             => TaxRate::scope()->whereIsInclusive(false)->get(),
             'countInvoices'        => Invoice::scope()->withTrashed()->count(),
             'hasInclusiveTaxRates' => TaxRate::scope()->whereIsInclusive(true)->count() ? true : false,
         ];
 
-        return View::make('accounts.tax_rates', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.tax_rates', $data);
     }
 
     /**
@@ -1075,11 +1075,11 @@ class AccountController extends BaseController
     private function showPaymentTerms()
     {
         $data = [
-            'account' => Auth::user()->account,
+            'account' => \Illuminate\Support\Facades\Auth::user()->account,
             'title'   => trans('texts.payment_terms'),
         ];
 
-        return View::make('accounts.payment_terms', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.payment_terms', $data);
     }
 
     /**
@@ -1089,7 +1089,7 @@ class AccountController extends BaseController
      */
     private function showInvoiceDesign($section)
     {
-        $account = Auth::user()->account->load('country');
+        $account = \Illuminate\Support\Facades\Auth::user()->account->load('country');
 
         if ($invoice = Invoice::scope()->invoices()->orderBy('id')->first()) {
             $invoice->load('account', 'client.contacts', 'invoice_items');
@@ -1168,7 +1168,7 @@ class AccountController extends BaseController
         $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
         $data['title'] = trans('texts.invoice_design');
         $data['invoiceDesigns'] = InvoiceDesign::getDesigns();
-        $data['invoiceFonts'] = Cache::get('fonts');
+        $data['invoiceFonts'] = \Illuminate\Support\Facades\Cache::get('fonts');
         $data['section'] = $section;
         $data['pageSizes'] = array_combine(InvoiceDesign::$pageSizes, InvoiceDesign::$pageSizes);
 
@@ -1188,7 +1188,7 @@ class AccountController extends BaseController
             }
         }
 
-        return View::make("accounts.{$section}", $data);
+        return \Illuminate\Support\Facades\View::make("accounts.{$section}", $data);
     }
 
     /**
@@ -1196,7 +1196,7 @@ class AccountController extends BaseController
      */
     private function showClientPortal()
     {
-        $account = Auth::user()->account->load('country');
+        $account = \Illuminate\Support\Facades\Auth::user()->account->load('country');
         $css = $account->client_view_css ? $account->client_view_css : '';
 
         if (Utils::isNinja() && $css) {
@@ -1234,7 +1234,7 @@ class AccountController extends BaseController
             'gateway_types'          => $options,
         ];
 
-        return View::make('accounts.client_portal', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.client_portal', $data);
     }
 
     /**
@@ -1242,7 +1242,7 @@ class AccountController extends BaseController
      */
     private function showTemplates()
     {
-        $account = Auth::user()->account->load('country');
+        $account = \Illuminate\Support\Facades\Auth::user()->account->load('country');
         $data['account'] = $account;
         $data['templates'] = [];
         $data['defaultTemplates'] = [];
@@ -1258,7 +1258,7 @@ class AccountController extends BaseController
         }
         $data['title'] = trans('texts.email_templates');
 
-        return View::make('accounts.templates_and_reminders', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.templates_and_reminders', $data);
     }
 
     /**
@@ -1266,13 +1266,13 @@ class AccountController extends BaseController
      */
     private function saveAccountManagement()
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
-        $modules = Request::input('modules');
+        $modules = \Illuminate\Support\Facades\Request::input('modules');
 
         if (Utils::isSelfHost()) {
             // get all custom modules, including disabled
-            $custom_modules = collect(Request::input('custom_modules'))->each(function ($item, $key): void {
+            $custom_modules = collect(\Illuminate\Support\Facades\Request::input('custom_modules'))->each(function ($item, $key): void {
                 $module = Module::find($item);
                 if ($module && $module->disabled()) {
                     $module->enable();
@@ -1286,13 +1286,13 @@ class AccountController extends BaseController
             });
         }
 
-        $user->force_pdfjs = Request::input('force_pdfjs') ? true : false;
+        $user->force_pdfjs = \Illuminate\Support\Facades\Request::input('force_pdfjs') ? true : false;
         $user->save();
 
-        $account->live_preview = Request::input('live_preview') ? true : false;
+        $account->live_preview = \Illuminate\Support\Facades\Request::input('live_preview') ? true : false;
 
         // Automatically disable live preview when using a large font
-        $fonts = Cache::get('fonts')->filter(function ($font) use ($account) {
+        $fonts = \Illuminate\Support\Facades\Cache::get('fonts')->filter(function ($font) use ($account) {
             if ($font->google_font) {
                 return false;
             }
@@ -1301,15 +1301,15 @@ class AccountController extends BaseController
         });
         if ($account->live_preview && $fonts->count()) {
             $account->live_preview = false;
-            Session::flash('warning', trans('texts.live_preview_disabled'));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.live_preview_disabled'));
         }
 
         $account->enabled_modules = $modules ? array_sum($modules) : 0;
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_MANAGEMENT);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_MANAGEMENT);
     }
 
     /**
@@ -1317,21 +1317,21 @@ class AccountController extends BaseController
      */
     private function saveCustomizeDesign()
     {
-        $designId = (int) (Request::input('design_id')) ?: CUSTOM_DESIGN1;
+        $designId = (int) (\Illuminate\Support\Facades\Request::input('design_id')) ?: CUSTOM_DESIGN1;
         $field = 'custom_design' . ($designId - 10);
 
-        if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
-            $account = Auth::user()->account;
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
             if ( ! $account->custom_design1) {
                 $account->invoice_design_id = CUSTOM_DESIGN1;
             }
-            $account->{$field} = Request::input('custom_design');
+            $account->{$field} = \Illuminate\Support\Facades\Request::input('custom_design');
             $account->save();
 
-            Session::flash('message', trans('texts.updated_settings'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN . '?design_id=' . $designId);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN . '?design_id=' . $designId);
     }
 
     /**
@@ -1339,41 +1339,41 @@ class AccountController extends BaseController
      */
     private function saveEmailTemplates()
     {
-        if (Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
-            $account = Auth::user()->account;
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
 
             foreach (AccountEmailSettings::$templates as $type) {
                 $subjectField = "email_subject_{$type}";
-                $subject = Request::input($subjectField, $account->getEmailSubject($type));
+                $subject = \Illuminate\Support\Facades\Request::input($subjectField, $account->getEmailSubject($type));
                 $account->account_email_settings->{$subjectField} = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
 
                 $bodyField = "email_template_{$type}";
-                $body = Request::input($bodyField, $account->getEmailTemplate($type));
+                $body = \Illuminate\Support\Facades\Request::input($bodyField, $account->getEmailTemplate($type));
                 $account->account_email_settings->{$bodyField} = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
             foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
-                $account->{$enableField} = Request::input($enableField) ? true : false;
-                $account->{"num_days_{$type}"} = Request::input("num_days_{$type}");
-                $account->{"field_{$type}"} = Request::input("field_{$type}");
-                $account->{"direction_{$type}"} = Request::input("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Request::input("direction_{$type}");
+                $account->{$enableField} = \Illuminate\Support\Facades\Request::input($enableField) ? true : false;
+                $account->{"num_days_{$type}"} = \Illuminate\Support\Facades\Request::input("num_days_{$type}");
+                $account->{"field_{$type}"} = \Illuminate\Support\Facades\Request::input("field_{$type}");
+                $account->{"direction_{$type}"} = \Illuminate\Support\Facades\Request::input("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : \Illuminate\Support\Facades\Request::input("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
-                $account->account_email_settings->{"late_fee{$number}_amount"} = Request::input("late_fee{$number}_amount");
-                $account->account_email_settings->{"late_fee{$number}_percent"} = Request::input("late_fee{$number}_percent");
+                $account->account_email_settings->{"late_fee{$number}_amount"} = \Illuminate\Support\Facades\Request::input("late_fee{$number}_amount");
+                $account->account_email_settings->{"late_fee{$number}_percent"} = \Illuminate\Support\Facades\Request::input("late_fee{$number}_percent");
             }
 
-            $account->enable_reminder4 = Request::input('enable_reminder4') ? true : false;
-            $account->account_email_settings->frequency_id_reminder4 = Request::input('frequency_id_reminder4');
+            $account->enable_reminder4 = \Illuminate\Support\Facades\Request::input('enable_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_reminder4 = \Illuminate\Support\Facades\Request::input('frequency_id_reminder4');
 
             $account->save();
             $account->account_email_settings->save();
 
-            Session::flash('message', trans('texts.updated_settings'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_TEMPLATES_AND_REMINDERS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TEMPLATES_AND_REMINDERS);
     }
 
     /**
@@ -1381,13 +1381,13 @@ class AccountController extends BaseController
      */
     private function saveTaxRates()
     {
-        $account = Auth::user()->account;
-        $account->fill(Request::all());
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account->fill(\Illuminate\Support\Facades\Request::all());
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     /**
@@ -1395,17 +1395,17 @@ class AccountController extends BaseController
      */
     private function saveProducts()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
-        $account->show_product_notes = Request::input('show_product_notes') ? true : false;
-        $account->fill_products = Request::input('fill_products') ? true : false;
-        $account->update_products = Request::input('update_products') ? true : false;
-        $account->convert_products = Request::input('convert_products') ? true : false;
+        $account->show_product_notes = \Illuminate\Support\Facades\Request::input('show_product_notes') ? true : false;
+        $account->fill_products = \Illuminate\Support\Facades\Request::input('fill_products') ? true : false;
+        $account->update_products = \Illuminate\Support\Facades\Request::input('update_products') ? true : false;
+        $account->convert_products = \Illuminate\Support\Facades\Request::input('convert_products') ? true : false;
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
     /**
@@ -1413,66 +1413,66 @@ class AccountController extends BaseController
      */
     private function saveInvoiceSettings()
     {
-        if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             $rules = [];
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
-                if (Request::input("{$entityType}_number_type") == 'pattern') {
+                if (\Illuminate\Support\Facades\Request::input("{$entityType}_number_type") == 'pattern') {
                     $rules["{$entityType}_number_pattern"] = 'has_counter';
                 }
             }
-            if (Request::input('credit_number_enabled')) {
+            if (\Illuminate\Support\Facades\Request::input('credit_number_enabled')) {
                 $rules['credit_number_prefix'] = 'required_without:credit_number_pattern';
                 $rules['credit_number_pattern'] = 'required_without:credit_number_prefix';
             }
-            $validator = Validator::make(Request::all(), $rules);
+            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)
+                return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)
                     ->withErrors($validator)
                     ->withInput();
             }
-            $account = Auth::user()->account;
-            $account->custom_value1 = Request::input('custom_value1');
-            $account->custom_value2 = Request::input('custom_value2');
-            $account->custom_invoice_taxes1 = Request::input('custom_invoice_taxes1') ? true : false;
-            $account->custom_invoice_taxes2 = Request::input('custom_invoice_taxes2') ? true : false;
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
+            $account->custom_value1 = \Illuminate\Support\Facades\Request::input('custom_value1');
+            $account->custom_value2 = \Illuminate\Support\Facades\Request::input('custom_value2');
+            $account->custom_invoice_taxes1 = \Illuminate\Support\Facades\Request::input('custom_invoice_taxes1') ? true : false;
+            $account->custom_invoice_taxes2 = \Illuminate\Support\Facades\Request::input('custom_invoice_taxes2') ? true : false;
             $account->custom_fields = request()->custom_fields;
-            $account->invoice_number_padding = Request::input('invoice_number_padding');
-            $account->invoice_number_counter = Request::input('invoice_number_counter');
-            $account->quote_number_prefix = Request::input('quote_number_prefix');
-            $account->share_counter = Request::input('share_counter') ? true : false;
-            $account->invoice_terms = Request::input('invoice_terms');
-            $account->invoice_footer = Request::input('invoice_footer');
-            $account->quote_terms = Request::input('quote_terms');
-            $account->auto_convert_quote = Request::input('auto_convert_quote');
-            $account->auto_archive_quote = Request::input('auto_archive_quote');
-            $account->auto_archive_invoice = Request::input('auto_archive_invoice');
-            $account->auto_email_invoice = Request::input('auto_email_invoice');
-            $account->recurring_invoice_number_prefix = Request::input('recurring_invoice_number_prefix');
+            $account->invoice_number_padding = \Illuminate\Support\Facades\Request::input('invoice_number_padding');
+            $account->invoice_number_counter = \Illuminate\Support\Facades\Request::input('invoice_number_counter');
+            $account->quote_number_prefix = \Illuminate\Support\Facades\Request::input('quote_number_prefix');
+            $account->share_counter = \Illuminate\Support\Facades\Request::input('share_counter') ? true : false;
+            $account->invoice_terms = \Illuminate\Support\Facades\Request::input('invoice_terms');
+            $account->invoice_footer = \Illuminate\Support\Facades\Request::input('invoice_footer');
+            $account->quote_terms = \Illuminate\Support\Facades\Request::input('quote_terms');
+            $account->auto_convert_quote = \Illuminate\Support\Facades\Request::input('auto_convert_quote');
+            $account->auto_archive_quote = \Illuminate\Support\Facades\Request::input('auto_archive_quote');
+            $account->auto_archive_invoice = \Illuminate\Support\Facades\Request::input('auto_archive_invoice');
+            $account->auto_email_invoice = \Illuminate\Support\Facades\Request::input('auto_email_invoice');
+            $account->recurring_invoice_number_prefix = \Illuminate\Support\Facades\Request::input('recurring_invoice_number_prefix');
 
-            $account->client_number_prefix = trim(Request::input('client_number_prefix'));
-            $account->client_number_pattern = trim(Request::input('client_number_pattern'));
-            $account->client_number_counter = Request::input('client_number_counter');
-            $account->credit_number_counter = Request::input('credit_number_counter');
-            $account->credit_number_prefix = trim(Request::input('credit_number_prefix'));
-            $account->credit_number_pattern = trim(Request::input('credit_number_pattern'));
-            $account->reset_counter_frequency_id = Request::input('reset_counter_frequency_id');
-            $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Request::input('reset_counter_date')) : null;
+            $account->client_number_prefix = trim(\Illuminate\Support\Facades\Request::input('client_number_prefix'));
+            $account->client_number_pattern = trim(\Illuminate\Support\Facades\Request::input('client_number_pattern'));
+            $account->client_number_counter = \Illuminate\Support\Facades\Request::input('client_number_counter');
+            $account->credit_number_counter = \Illuminate\Support\Facades\Request::input('credit_number_counter');
+            $account->credit_number_prefix = trim(\Illuminate\Support\Facades\Request::input('credit_number_prefix'));
+            $account->credit_number_pattern = trim(\Illuminate\Support\Facades\Request::input('credit_number_pattern'));
+            $account->reset_counter_frequency_id = \Illuminate\Support\Facades\Request::input('reset_counter_frequency_id');
+            $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(\Illuminate\Support\Facades\Request::input('reset_counter_date')) : null;
 
-            if (Request::has('recurring_hour')) {
-                $account->recurring_hour = Request::input('recurring_hour');
+            if (\Illuminate\Support\Facades\Request::has('recurring_hour')) {
+                $account->recurring_hour = \Illuminate\Support\Facades\Request::input('recurring_hour');
             }
 
             if ( ! $account->share_counter) {
-                $account->quote_number_counter = Request::input('quote_number_counter');
+                $account->quote_number_counter = \Illuminate\Support\Facades\Request::input('quote_number_counter');
             }
 
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
-                if (Request::input("{$entityType}_number_type") == 'prefix') {
-                    $account->{"{$entityType}_number_prefix"} = trim(Request::input("{$entityType}_number_prefix"));
+                if (\Illuminate\Support\Facades\Request::input("{$entityType}_number_type") == 'prefix') {
+                    $account->{"{$entityType}_number_prefix"} = trim(\Illuminate\Support\Facades\Request::input("{$entityType}_number_prefix"));
                     $account->{"{$entityType}_number_pattern"} = null;
                 } else {
-                    $account->{"{$entityType}_number_pattern"} = trim(Request::input("{$entityType}_number_pattern"));
+                    $account->{"{$entityType}_number_pattern"} = trim(\Illuminate\Support\Facades\Request::input("{$entityType}_number_pattern"));
                     $account->{"{$entityType}_number_prefix"} = null;
                 }
             }
@@ -1480,15 +1480,15 @@ class AccountController extends BaseController
             if ( ! $account->share_counter
                 && $account->invoice_number_prefix == $account->quote_number_prefix
                 && $account->invoice_number_pattern == $account->quote_number_pattern) {
-                Session::flash('error', trans('texts.invalid_counter'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.invalid_counter'));
 
-                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)->withInput();
+                return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)->withInput();
             }
             $account->save();
-            Session::flash('message', trans('texts.updated_settings'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS);
     }
 
     /**
@@ -1496,36 +1496,36 @@ class AccountController extends BaseController
      */
     private function saveInvoiceDesign()
     {
-        if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
-            $account = Auth::user()->account;
-            $account->hide_quantity = Request::input('hide_quantity') ? true : false;
-            $account->hide_paid_to_date = Request::input('hide_paid_to_date') ? true : false;
-            $account->all_pages_header = Request::input('all_pages_header') ? true : false;
-            $account->all_pages_footer = Request::input('all_pages_footer') ? true : false;
-            $account->invoice_embed_documents = Request::input('invoice_embed_documents') ? true : false;
-            $account->header_font_id = Request::input('header_font_id');
-            $account->body_font_id = Request::input('body_font_id');
-            $account->primary_color = Request::input('primary_color');
-            $account->secondary_color = Request::input('secondary_color');
-            $account->invoice_design_id = Request::input('invoice_design_id');
-            $account->quote_design_id = Request::input('quote_design_id');
-            $account->font_size = (int) (Request::input('font_size'));
-            $account->page_size = Request::input('page_size');
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
+            $account->hide_quantity = \Illuminate\Support\Facades\Request::input('hide_quantity') ? true : false;
+            $account->hide_paid_to_date = \Illuminate\Support\Facades\Request::input('hide_paid_to_date') ? true : false;
+            $account->all_pages_header = \Illuminate\Support\Facades\Request::input('all_pages_header') ? true : false;
+            $account->all_pages_footer = \Illuminate\Support\Facades\Request::input('all_pages_footer') ? true : false;
+            $account->invoice_embed_documents = \Illuminate\Support\Facades\Request::input('invoice_embed_documents') ? true : false;
+            $account->header_font_id = \Illuminate\Support\Facades\Request::input('header_font_id');
+            $account->body_font_id = \Illuminate\Support\Facades\Request::input('body_font_id');
+            $account->primary_color = \Illuminate\Support\Facades\Request::input('primary_color');
+            $account->secondary_color = \Illuminate\Support\Facades\Request::input('secondary_color');
+            $account->invoice_design_id = \Illuminate\Support\Facades\Request::input('invoice_design_id');
+            $account->quote_design_id = \Illuminate\Support\Facades\Request::input('quote_design_id');
+            $account->font_size = (int) (\Illuminate\Support\Facades\Request::input('font_size'));
+            $account->page_size = \Illuminate\Support\Facades\Request::input('page_size');
             $account->background_image_id = Document::getPrivateId(request()->background_image_id);
 
             $labels = [];
             foreach (Account::$customLabels as $field) {
-                $labels[$field] = Request::input("labels_{$field}");
+                $labels[$field] = \Illuminate\Support\Facades\Request::input("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
-            $account->invoice_fields = Request::input('invoice_fields_json');
+            $account->invoice_fields = \Illuminate\Support\Facades\Request::input('invoice_fields_json');
 
             $account->save();
 
-            Session::flash('message', trans('texts.updated_settings'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_INVOICE_DESIGN);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_INVOICE_DESIGN);
     }
 
     /**
@@ -1533,22 +1533,22 @@ class AccountController extends BaseController
      */
     private function saveNotifications()
     {
-        $user = Auth::user();
-        $user->notify_sent = Request::input('notify_sent');
-        $user->notify_viewed = Request::input('notify_viewed');
-        $user->notify_paid = Request::input('notify_paid');
-        $user->notify_approved = Request::input('notify_approved');
-        $user->only_notify_owned = Request::input('only_notify_owned');
-        $user->slack_webhook_url = Request::input('slack_webhook_url');
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $user->notify_sent = \Illuminate\Support\Facades\Request::input('notify_sent');
+        $user->notify_viewed = \Illuminate\Support\Facades\Request::input('notify_viewed');
+        $user->notify_paid = \Illuminate\Support\Facades\Request::input('notify_paid');
+        $user->notify_approved = \Illuminate\Support\Facades\Request::input('notify_approved');
+        $user->only_notify_owned = \Illuminate\Support\Facades\Request::input('only_notify_owned');
+        $user->slack_webhook_url = \Illuminate\Support\Facades\Request::input('slack_webhook_url');
         $user->save();
 
         $account = $user->account;
         $account->fill(request()->all());
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_NOTIFICATIONS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_NOTIFICATIONS);
     }
 
     /**
@@ -1557,24 +1557,24 @@ class AccountController extends BaseController
     private function saveLocalization()
     {
         /** @var \App\Models\Account $account */
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
-        $account->timezone_id = Request::input('timezone_id') ? Request::input('timezone_id') : null;
-        $account->date_format_id = Request::input('date_format_id') ? Request::input('date_format_id') : null;
-        $account->datetime_format_id = Request::input('datetime_format_id') ? Request::input('datetime_format_id') : null;
-        $account->currency_id = Request::input('currency_id') ? Request::input('currency_id') : 1; // US Dollar
-        $account->language_id = Request::input('language_id') ? Request::input('language_id') : 1; // English
-        $account->military_time = Request::input('military_time') ? true : false;
-        $account->show_currency_code = Request::input('show_currency_code') ? true : false;
-        $account->start_of_week = Request::input('start_of_week') ? Request::input('start_of_week') : 0;
-        $account->financial_year_start = Request::input('financial_year_start') ? Request::input('financial_year_start') : null;
+        $account->timezone_id = \Illuminate\Support\Facades\Request::input('timezone_id') ? \Illuminate\Support\Facades\Request::input('timezone_id') : null;
+        $account->date_format_id = \Illuminate\Support\Facades\Request::input('date_format_id') ? \Illuminate\Support\Facades\Request::input('date_format_id') : null;
+        $account->datetime_format_id = \Illuminate\Support\Facades\Request::input('datetime_format_id') ? \Illuminate\Support\Facades\Request::input('datetime_format_id') : null;
+        $account->currency_id = \Illuminate\Support\Facades\Request::input('currency_id') ? \Illuminate\Support\Facades\Request::input('currency_id') : 1; // US Dollar
+        $account->language_id = \Illuminate\Support\Facades\Request::input('language_id') ? \Illuminate\Support\Facades\Request::input('language_id') : 1; // English
+        $account->military_time = \Illuminate\Support\Facades\Request::input('military_time') ? true : false;
+        $account->show_currency_code = \Illuminate\Support\Facades\Request::input('show_currency_code') ? true : false;
+        $account->start_of_week = \Illuminate\Support\Facades\Request::input('start_of_week') ? \Illuminate\Support\Facades\Request::input('start_of_week') : 0;
+        $account->financial_year_start = \Illuminate\Support\Facades\Request::input('financial_year_start') ? \Illuminate\Support\Facades\Request::input('financial_year_start') : null;
         $account->save();
 
         event(new UserSettingsChanged());
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_LOCALIZATION);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_LOCALIZATION);
     }
 
     /**
@@ -1582,18 +1582,18 @@ class AccountController extends BaseController
      */
     private function saveOnlinePayments()
     {
-        $account = Auth::user()->account;
-        $account->token_billing_type_id = Request::input('token_billing_type_id');
-        $account->auto_bill_on_due_date = (bool) (Request::input('auto_bill_on_due_date'));
-        $account->gateway_fee_enabled = (bool) (Request::input('gateway_fee_enabled'));
-        $account->send_item_details = (bool) (Request::input('send_item_details'));
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account->token_billing_type_id = \Illuminate\Support\Facades\Request::input('token_billing_type_id');
+        $account->auto_bill_on_due_date = (bool) (\Illuminate\Support\Facades\Request::input('auto_bill_on_due_date'));
+        $account->gateway_fee_enabled = (bool) (\Illuminate\Support\Facades\Request::input('gateway_fee_enabled'));
+        $account->send_item_details = (bool) (\Illuminate\Support\Facades\Request::input('send_item_details'));
 
         $account->save();
 
         event(new UserSettingsChanged());
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 }

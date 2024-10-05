@@ -377,7 +377,7 @@ class Document extends EntityModel
 }
 
 Document::deleted(function ($document): void {
-    $same_path_count = DB::table('documents')
+    $same_path_count = \Illuminate\Support\Facades\DB::table('documents')
         ->where('documents.account_id', '=', $document->account_id)
         ->where('documents.path', '=', $document->path)
         ->where('documents.disk', '=', $document->disk)
@@ -388,7 +388,7 @@ Document::deleted(function ($document): void {
     }
 
     if ($document->preview) {
-        $same_preview_count = DB::table('documents')
+        $same_preview_count = \Illuminate\Support\Facades\DB::table('documents')
             ->where('documents.account_id', '=', $document->account_id)
             ->where('documents.preview', '=', $document->preview)
             ->where('documents.disk', '=', $document->disk)

@@ -18,7 +18,7 @@ class PurgeAccountData extends Job
      */
     public function handle(UserMailer $userMailer): void
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
 
         if ( ! $user->is_admin) {
@@ -58,7 +58,7 @@ class PurgeAccountData extends Job
         ];
 
         foreach ($tables as $table) {
-            DB::table($table)->where('account_id', '=', $user->account_id)->delete();
+            \Illuminate\Support\Facades\DB::table($table)->where('account_id', '=', $user->account_id)->delete();
         }
 
         $account->invoice_number_counter = 1;
@@ -74,9 +74,9 @@ class PurgeAccountData extends Job
             config(['database.default' => DB_NINJA_LOOKUP]);
 
             $lookupAccount = LookupAccount::whereAccountKey($account->account_key)->firstOrFail();
-            DB::table('lookup_contacts')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
-            DB::table('lookup_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
-            DB::table('lookup_proposal_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
+            \Illuminate\Support\Facades\DB::table('lookup_contacts')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
+            \Illuminate\Support\Facades\DB::table('lookup_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
+            \Illuminate\Support\Facades\DB::table('lookup_proposal_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
 
             config(['database.default' => $current]);
         }

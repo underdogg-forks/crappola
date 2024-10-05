@@ -102,7 +102,7 @@ class StepsController extends BaseController
             'url' => 'nullable|url',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return back()
@@ -110,7 +110,7 @@ class StepsController extends BaseController
                 ->withInput();
         }
 
-        $account_settings = \Auth::user()->account->account_email_settings;
+        $account_settings = \Illuminate\Support\Facades\Auth::user()->account->account_email_settings;
 
         if (mb_strlen($request->input('url')) == 0) {
             $account_settings->is_disabled = false;
@@ -126,7 +126,7 @@ class StepsController extends BaseController
 
     public function disableForwarding()
     {
-        $account = \Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         $account_settings = $account->account_email_settings;
         $account_settings->forward_url_for_v5 = '';
@@ -367,7 +367,7 @@ class StepsController extends BaseController
             'Content-Type'        => 'application/json',
         ];
 
-        $account = \Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $gateway_reference = '';
 
         $ninja_client = Client::where('public_id', $account->id)->first();

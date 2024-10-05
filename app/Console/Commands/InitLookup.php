@@ -67,7 +67,7 @@ class InitLookup extends Command
         } else {
             config(['database.default' => $this->option('database')]);
 
-            $count = DB::table('companies')
+            $count = \Illuminate\Support\Facades\DB::table('companies')
                 ->where('id', '>=', $this->option('company_id') ?: 1)
                 ->count();
 
@@ -80,7 +80,7 @@ class InitLookup extends Command
 
         if ($this->option('validate')) {
             if ($errorEmail = env('ERROR_EMAIL')) {
-                Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
+                \Illuminate\Support\Facades\Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
                     $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
                         ->subject("Check-Lookups [{$database}]: " . mb_strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
@@ -109,7 +109,7 @@ class InitLookup extends Command
 
         config(['database.default' => $this->option('database')]);
 
-        $accounts = DB::table('accounts')
+        $accounts = \Illuminate\Support\Facades\DB::table('accounts')
             ->orderBy('id')
             ->where('subdomain', '!=', '')
             ->get(['account_key', 'subdomain']);
@@ -133,7 +133,7 @@ class InitLookup extends Command
 
         config(['database.default' => $this->option('database')]);
 
-        $companies = DB::table('companies')
+        $companies = \Illuminate\Support\Facades\DB::table('companies')
             ->offset($offset)
             ->limit((int) $this->option('page_size'))
             ->orderBy('id')
@@ -285,7 +285,7 @@ class InitLookup extends Command
 
         config(['database.default' => $this->option('database')]);
 
-        $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get([
+        $accounts = \Illuminate\Support\Facades\DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get([
             'id', 'account_key',
         ]);
         foreach ($accounts as $account) {
@@ -304,7 +304,7 @@ class InitLookup extends Command
             'tokens'      => [],
         ];
 
-        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get([
+        $users = \Illuminate\Support\Facades\DB::table('users')->whereAccountId($accountId)->orderBy('id')->get([
             'email',
             'id',
             'oauth_user_id',
@@ -320,7 +320,7 @@ class InitLookup extends Command
             ];
         }
 
-        $contacts = DB::table('contacts')->whereAccountId($accountId)->orderBy('id')->get([
+        $contacts = \Illuminate\Support\Facades\DB::table('contacts')->whereAccountId($accountId)->orderBy('id')->get([
             'contact_key',
         ]);
         foreach ($contacts as $contact) {
@@ -329,7 +329,7 @@ class InitLookup extends Command
             ];
         }
 
-        $invitations = DB::table('invitations')->whereAccountId($accountId)->orderBy('id')->get([
+        $invitations = \Illuminate\Support\Facades\DB::table('invitations')->whereAccountId($accountId)->orderBy('id')->get([
             'invitation_key',
             'message_id',
         ]);
@@ -340,7 +340,7 @@ class InitLookup extends Command
             ];
         }
 
-        $tokens = DB::table('account_tokens')->whereAccountId($accountId)->orderBy('id')->get([
+        $tokens = \Illuminate\Support\Facades\DB::table('account_tokens')->whereAccountId($accountId)->orderBy('id')->get([
             'token',
         ]);
         foreach ($tokens as $token) {
@@ -367,14 +367,14 @@ class InitLookup extends Command
 
     private function truncateTables(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-        DB::statement('truncate lookup_companies');
-        DB::statement('truncate lookup_accounts');
-        DB::statement('truncate lookup_users');
-        DB::statement('truncate lookup_contacts');
-        DB::statement('truncate lookup_invitations');
-        DB::statement('truncate lookup_proposal_invitations');
-        DB::statement('truncate lookup_account_tokens');
-        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_companies');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_accounts');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_users');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_contacts');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_invitations');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_proposal_invitations');
+        \Illuminate\Support\Facades\DB::statement('truncate lookup_account_tokens');
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 }

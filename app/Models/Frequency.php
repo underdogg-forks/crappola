@@ -9,7 +9,7 @@ use Str;
 /**
  * Class Frequency.
  */
-class Frequency extends Eloquent
+class Frequency extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -27,8 +27,8 @@ class Frequency extends Eloquent
     {
         $data = [];
 
-        foreach (Cache::get('frequencies') as $frequency) {
-            $name = Str::snake(str_replace(' ', '_', $frequency->name));
+        foreach (\Illuminate\Support\Facades\Cache::get('frequencies') as $frequency) {
+            $name = \Illuminate\Support\Str::snake(str_replace(' ', '_', $frequency->name));
             $data[$frequency->id] = trans('texts.freq_' . $name);
         }
 

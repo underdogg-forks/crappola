@@ -17,7 +17,7 @@ class BankAccountRepository extends BaseRepository
 
     public function find($accountId)
     {
-        return DB::table('bank_accounts')
+        return \Illuminate\Support\Facades\DB::table('bank_accounts')
             ->join('banks', 'banks.id', '=', 'bank_accounts.bank_id')
             ->where('bank_accounts.deleted_at', '=', null)
             ->where('bank_accounts.account_id', '=', $accountId)
@@ -32,10 +32,10 @@ class BankAccountRepository extends BaseRepository
     public function save($input)
     {
         $bankAccount = BankAccount::createNew();
-        $bankAccount->username = Crypt::encrypt(trim($input['bank_username']));
+        $bankAccount->username = \Illuminate\Support\Facades\Crypt::encrypt(trim($input['bank_username']));
         $bankAccount->fill($input);
 
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $account->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {

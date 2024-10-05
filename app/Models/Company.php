@@ -12,7 +12,7 @@ use Utils;
 /**
  * Class Company.
  */
-class Company extends Eloquent
+class Company extends \Illuminate\Database\Eloquent\Model
 {
     use PresentableTrait;
     use SoftDeletes;
@@ -188,7 +188,7 @@ class Company extends Eloquent
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
-                Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+                \Illuminate\Support\Facades\Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
 
                 return true;
             }

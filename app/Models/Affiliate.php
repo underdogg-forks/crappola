@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Affiliate.
  */
-class Affiliate extends Eloquent
+class Affiliate extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

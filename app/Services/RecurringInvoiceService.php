@@ -25,7 +25,7 @@ class RecurringInvoiceService extends BaseService
         $query = $this->invoiceRepo->getRecurringInvoices($accountId, $clientPublicId, $search);
 
         if ( ! Utils::hasPermission('view_recurring_invoice')) {
-            $query->where('invoices.user_id', '=', Auth::user()->id);
+            $query->where('invoices.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);

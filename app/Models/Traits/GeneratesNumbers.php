@@ -168,7 +168,7 @@ trait GeneratesNumbers
         $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (mb_strstr($pattern, '{$userId}')) {
-            $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
+            $userId = $entity->user ? $entity->user->public_id : (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->public_id : 0);
             $search[] = '{$userId}';
             $replace[] = str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }

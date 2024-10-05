@@ -25,14 +25,14 @@ class DatabaseLookup
             if ($code = $request->confirmation_code) {
                 LookupUser::setServerByField('confirmation_code', $code);
             } elseif (session(SESSION_DB_SERVER)) {
-                if (Auth::viaRemember()) {
-                    Auth::logout();
+                if (\Illuminate\Support\Facades\Auth::viaRemember()) {
+                    \Illuminate\Support\Facades\Auth::logout();
                 }
                 // do nothing
-            } elseif ( ! Auth::check() && $email = $request->email) {
+            } elseif ( ! \Illuminate\Support\Facades\Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
-                Auth::logout();
+                \Illuminate\Support\Facades\Auth::logout();
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
@@ -50,7 +50,7 @@ class DatabaseLookup
             } elseif ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }
@@ -61,7 +61,7 @@ class DatabaseLookup
             if ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }

@@ -9,7 +9,7 @@ use Utils;
 /**
  * Class Gateway.
  */
-class Gateway extends Eloquent
+class Gateway extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

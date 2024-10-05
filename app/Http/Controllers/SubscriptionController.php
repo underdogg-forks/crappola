@@ -38,7 +38,7 @@ class SubscriptionController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
@@ -46,7 +46,7 @@ class SubscriptionController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->subscriptionService->getDatatable(Auth::user()->account_id);
+        return $this->subscriptionService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
     /**
@@ -65,7 +65,7 @@ class SubscriptionController extends BaseController
             'title'        => trans('texts.edit_subscription'),
         ];
 
-        return View::make('accounts.subscription', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.subscription', $data);
     }
 
     /**
@@ -98,7 +98,7 @@ class SubscriptionController extends BaseController
             'title'        => trans('texts.add_subscription'),
         ];
 
-        return View::make('accounts.subscription', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.subscription', $data);
     }
 
     /**
@@ -106,14 +106,14 @@ class SubscriptionController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_subscription'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_subscription'));
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
@@ -123,7 +123,7 @@ class SubscriptionController extends BaseController
      */
     public function save($subscriptionPublicId = false)
     {
-        if (Auth::user()->account->hasFeature(FEATURE_API)) {
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
                 'event_id'   => 'required',
                 'target_url' => 'required|url',
@@ -136,10 +136,10 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = Validator::make(Request::all(), $rules);
+            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
+                return \Illuminate\Support\Facades\Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
             }
 
             $subscription->fill(request()->all());
@@ -151,7 +151,7 @@ class SubscriptionController extends BaseController
                 $message = trans('texts.created_subscription');
             }
 
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return redirect('/settings/api_tokens');

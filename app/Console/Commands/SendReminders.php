@@ -86,7 +86,7 @@ class SendReminders extends Command
         $this->info(date('r') . ' Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
+            \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject("SendReminders [{$database}]: Finished successfully");
@@ -136,9 +136,9 @@ class SendReminders extends Command
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
-                Auth::loginUsingId($invoice->activeUser()->id);
+                \Illuminate\Support\Facades\Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
-                Auth::logout();
+                \Illuminate\Support\Facades\Auth::logout();
             }
         }
     }
@@ -272,10 +272,10 @@ class SendReminders extends Command
                 }
             } else {
                 $this->info(date('r') . ' Error: failed to load exchange rates - ' . $response);
-                DB::table('currencies')->update(['exchange_rate' => 1]);
+                \Illuminate\Support\Facades\DB::table('currencies')->update(['exchange_rate' => 1]);
             }
         } else {
-            DB::table('currencies')->update(['exchange_rate' => 1]);
+            \Illuminate\Support\Facades\DB::table('currencies')->update(['exchange_rate' => 1]);
         }
 
         CurlUtils::get(SITE_URL . '?clear_cache=true');

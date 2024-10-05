@@ -82,7 +82,7 @@ class BaseRepository
         $entities = $this->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if (Auth::user()->can('edit', $entity)) {
+            if (\Illuminate\Support\Facades\Auth::user()->can('edit', $entity)) {
                 $this->{$action}($entity);
             }
         }

@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Country.
  */
-class Country extends Eloquent
+class Country extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

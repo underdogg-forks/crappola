@@ -74,7 +74,7 @@ class ExportController extends BaseController
         $manager->setSerializer(new ArraySerializer());
 
         // eager load data, include archived but exclude deleted
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $account->load(['clients' => function ($query): void {
             $query->withArchived()
                 ->with(['contacts', 'invoices' => function ($query): void {
@@ -118,7 +118,7 @@ class ExportController extends BaseController
      */
     private function returnXLS($request, $fileName)
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $data = $this->getData($request);
 
         return Excel::create($fileName, function ($excel) use ($user, $data): void {
@@ -159,7 +159,7 @@ class ExportController extends BaseController
      */
     private function getData($request)
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         $data = [
             'account'   => $account,

@@ -27,8 +27,8 @@ class ReportController extends BaseController
         $message = '';
         $fileName = storage_path() . '/dataviz_sample.txt';
 
-        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
-            $account = Account::where('id', '=', Auth::user()->account->id)
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
+            $account = Account::where('id', '=', \Illuminate\Support\Facades\Auth::user()->account->id)
                 ->with(['clients.invoices.invoice_items', 'clients.contacts', 'clients.currency'])
                 ->first();
             $account = $account->hideFieldsForViz();
@@ -45,7 +45,7 @@ class ReportController extends BaseController
             'message' => $message,
         ];
 
-        return View::make('reports.d3', $data);
+        return \Illuminate\Support\Facades\View::make('reports.d3', $data);
     }
 
     /**
@@ -53,18 +53,18 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
-        if ( ! Auth::user()->hasPermission('view_reports')) {
+        if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission('view_reports')) {
             return redirect('/');
         }
 
-        $action = Request::input('action');
-        $format = Request::input('format');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $format = \Illuminate\Support\Facades\Request::input('format');
 
-        if (Request::input('report_type')) {
-            $reportType = Request::input('report_type');
-            $dateField = Request::input('date_field');
-            $startDate = date_create(Request::input('start_date'));
-            $endDate = date_create(Request::input('end_date'));
+        if (\Illuminate\Support\Facades\Request::input('report_type')) {
+            $reportType = \Illuminate\Support\Facades\Request::input('report_type');
+            $dateField = \Illuminate\Support\Facades\Request::input('date_field');
+            $startDate = date_create(\Illuminate\Support\Facades\Request::input('start_date'));
+            $endDate = date_create(\Illuminate\Support\Facades\Request::input('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
@@ -94,10 +94,10 @@ class ReportController extends BaseController
             'reportTypes' => array_combine($reportTypes, Utils::trans($reportTypes)),
             'reportType'  => $reportType,
             'title'       => trans('texts.charts_and_reports'),
-            'account'     => Auth::user()->account,
+            'account'     => \Illuminate\Support\Facades\Auth::user()->account,
         ];
 
-        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
             $config = [
                 'date_field'      => $dateField,
@@ -136,7 +136,7 @@ class ReportController extends BaseController
 
         $params['scheduledReports'] = ScheduledReport::scope()->whereUserId(auth()->user()->id)->get();
 
-        return View::make('reports.report_builder', $params);
+        return \Illuminate\Support\Facades\View::make('reports.report_builder', $params);
     }
 
     public function showEmailReport()
@@ -157,7 +157,7 @@ class ReportController extends BaseController
 
     private function schedule($params, $options): void
     {
-        $validator = Validator::make(request()->all(), [
+        $validator = \Illuminate\Support\Facades\Validator::make(request()->all(), [
             'frequency' => 'required|in:daily,weekly,biweekly,monthly',
             'send_date' => 'required',
         ]);

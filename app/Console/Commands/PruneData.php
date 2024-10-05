@@ -47,12 +47,12 @@ class PruneData extends Command
                 and count(e.id) = 0
                 and count(u.id) = 0';
 
-        $results = DB::select($sql);
+        $results = \Illuminate\Support\Facades\DB::select($sql);
 
         foreach ($results as $result) {
             $this->info("Deleting company: {$result->id}");
             try {
-                DB::table('companies')
+                \Illuminate\Support\Facades\DB::table('companies')
                     ->where('id', '=', $result->id)
                     ->delete();
             } catch (\Illuminate\Database\QueryException $e) {

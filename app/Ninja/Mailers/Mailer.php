@@ -45,7 +45,7 @@ class Mailer
         $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
+            \Illuminate\Support\Facades\Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
         }
 
         // Optionally send for alternate domain
@@ -84,18 +84,18 @@ class Mailer
                     }
 
                     $fromEmail = config('mail.from.address');
-                    $app = App::getInstance();
+                    $app = \Illuminate\Support\Facades\App::getInstance();
                     $app->singleton('swift.transport', function ($app) {
                         return new \Illuminate\Mail\TransportManager($app);
                     });
                     $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                    Mail::setSwiftMailer($mailer);
+                    \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
                 }
             }
         }
 
         try {
-            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
+            $response = \Illuminate\Support\Facades\Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
                 $message->to($toEmail)
                     ->from($fromEmail, $fromName)
                     ->replyTo($replyEmail, $fromName)

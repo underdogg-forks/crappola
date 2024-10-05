@@ -129,7 +129,7 @@ class AccountGateway extends EntityModel
      */
     public function setConfig($config): void
     {
-        $this->config = Crypt::encrypt(json_encode($config));
+        $this->config = \Illuminate\Support\Facades\Crypt::encrypt(json_encode($config));
     }
 
     /**
@@ -137,7 +137,7 @@ class AccountGateway extends EntityModel
      */
     public function getConfig()
     {
-        return json_decode(Crypt::decrypt($this->config));
+        return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($this->config));
     }
 
     /**
@@ -292,7 +292,7 @@ class AccountGateway extends EntityModel
     {
         $account = $this->account ? $this->account : Account::find($this->account_id);
 
-        return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
+        return \Illuminate\Support\Facades\URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 
     public function isTestMode()

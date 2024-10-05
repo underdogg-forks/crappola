@@ -67,14 +67,14 @@ class ForgotPasswordController extends Controller
         } elseif ($accountKey = request()->account_key) {
             $account = Account::whereAccountKey($accountKey)->first();
         } else {
-            $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+            $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
             if ($subdomain && $subdomain != 'app') {
                 $account = Account::whereSubdomain($subdomain)->first();
             }
         }
 
         if ( ! $account || ! request()->email) {
-            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
+            return $this->sendResetLinkFailedResponse($request, \Illuminate\Support\Facades\Password::INVALID_USER);
         }
 
         $contact = Contact::where('email', '=', request()->email)
@@ -84,20 +84,20 @@ class ForgotPasswordController extends Controller
         if ($contact) {
             $contactId = $contact->id;
         } else {
-            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
+            return $this->sendResetLinkFailedResponse($request, \Illuminate\Support\Facades\Password::INVALID_USER);
         }
 
         $response = $this->broker()->sendResetLink(['id' => $contactId], function (Message $message): void {
             $message->subject($this->getEmailSubject());
         });
 
-        return $response == Password::RESET_LINK_SENT
+        return $response == \Illuminate\Support\Facades\Password::RESET_LINK_SENT
                     ? $this->sendResetLinkResponse($request, $response)
                     : $this->sendResetLinkFailedResponse($request, $response);
     }
 
     protected function broker()
     {
-        return Password::broker('clients');
+        return \Illuminate\Support\Facades\Password::broker('clients');
     }
 }

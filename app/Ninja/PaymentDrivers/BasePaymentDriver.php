@@ -100,15 +100,15 @@ class BasePaymentDriver
         $this->input = $input;
         $this->sourceId = $sourceId;
 
-        Session::put('invitation_key', $this->invitation->invitation_key);
-        Session::put($this->invitation->id . 'gateway_type', $this->gatewayType);
-        Session::put($this->invitation->id . 'payment_ref', $this->invoice()->id . '_' . uniqid());
+        \Illuminate\Support\Facades\Session::put('invitation_key', $this->invitation->invitation_key);
+        \Illuminate\Support\Facades\Session::put($this->invitation->id . 'gateway_type', $this->gatewayType);
+        \Illuminate\Support\Facades\Session::put($this->invitation->id . 'payment_ref', $this->invoice()->id . '_' . uniqid());
 
         $gateway = $this->accountGateway->gateway;
 
         if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
             // The customer must have hacked the URL
-            Session::flash('error', trans('texts.limits_not_met'));
+            \Illuminate\Support\Facades\Session::flash('error', trans('texts.limits_not_met'));
 
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
@@ -125,8 +125,8 @@ class BasePaymentDriver
         }
 
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
-            if (Session::has('error')) {
-                Session::reflash();
+            if (\Illuminate\Support\Facades\Session::has('error')) {
+                \Illuminate\Support\Facades\Session::reflash();
             } else {
                 try {
                     $this->completeOnsitePurchase();
@@ -139,7 +139,7 @@ class BasePaymentDriver
 
                     return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $this->invoice()->public_id);
                 }
-                Session::flash('message', trans('texts.applied_payment'));
+                \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_payment'));
             }
 
             return redirect()->to('view/' . $this->invitation->invitation_key);
@@ -400,7 +400,7 @@ class BasePaymentDriver
     {
         $paymentMethod = PaymentMethod::createNew($this->invitation);
         $paymentMethod->contact_id = $this->contact()->id;
-        $paymentMethod->ip = Request::ip();
+        $paymentMethod->ip = \Illuminate\Support\Facades\Request::ip();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
@@ -442,7 +442,7 @@ class BasePaymentDriver
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = $account->getDateTime()->format('Y-m-d');
-        $payment->ip = Request::ip();
+        $payment->ip = \Illuminate\Support\Facades\Request::ip();
 
         //Laravel 6 upgrade - uncommented this line as it was causing a failure
         // $payment = $this->creatingPayment($payment, $paymentMethod);
@@ -569,7 +569,7 @@ class BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $this->input = $input;
-        $transRef = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
+        $transRef = \Illuminate\Support\Arr::get($this->input, 'token') ?: $this->invitation->transaction_reference;
 
         if (method_exists($this->gateway(), 'completePurchase')) {
             $details = $this->paymentDetails();
@@ -621,7 +621,7 @@ class BasePaymentDriver
                 continue;
             }
 
-            $url = URL::to("/payment/{$this->invitation->invitation_key}/token/" . $paymentMethod->public_id);
+            $url = \Illuminate\Support\Facades\URL::to("/payment/{$this->invitation->invitation_key}/token/" . $paymentMethod->public_id);
 
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
                 if ($paymentMethod->bank_name) {
@@ -789,7 +789,7 @@ class BasePaymentDriver
 
             if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
-                Session::flash('error', trans('texts.limits_not_met'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.limits_not_met'));
 
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
@@ -800,7 +800,7 @@ class BasePaymentDriver
 
             if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
                 // The customer must have hacked the URL
-                Session::flash('error', trans('texts.limits_not_met'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.limits_not_met'));
 
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
@@ -848,9 +848,9 @@ class BasePaymentDriver
 
             // TODO move this to stripe driver
             if ($this->invitation->invoice->account->isNinjaAccount()) {
-                Session::flash('trackEventCategory', '/account');
-                Session::flash('trackEventAction', '/buy_pro_plan');
-                Session::flash('trackEventAmount', $payment->amount);
+                \Illuminate\Support\Facades\Session::flash('trackEventCategory', '/account');
+                \Illuminate\Support\Facades\Session::flash('trackEventAction', '/buy_pro_plan');
+                \Illuminate\Support\Facades\Session::flash('trackEventAmount', $payment->amount);
             }
 
             return $payment;
@@ -859,7 +859,7 @@ class BasePaymentDriver
             $this->invitation->transaction_reference = $ref;
             $this->invitation->save();
             //Session::put('transaction_reference', $ref);
-            Session::save();
+            \Illuminate\Support\Facades\Session::save();
             $response->redirect();
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
@@ -880,7 +880,7 @@ class BasePaymentDriver
             'description'     => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
             'transactionId'   => $invoice->invoice_number,
             'transactionType' => 'Purchase',
-            'clientIp'        => Request::getClientIp(),
+            'clientIp'        => \Illuminate\Support\Facades\Request::getClientIp(),
         ];
 
         if ($paymentMethod) {
@@ -911,7 +911,7 @@ class BasePaymentDriver
             return true;
         }
 
-        return (bool) (array_get($this->input, 'token_billing'));
+        return (bool) (\Illuminate\Support\Arr::get($this->input, 'token_billing'));
     }
 
     protected function checkCustomerExists($customer)
@@ -1014,7 +1014,7 @@ class BasePaymentDriver
     protected function paymentUrl($gatewayTypeAlias)
     {
         $account = $this->account();
-        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
+        $url = \Illuminate\Support\Facades\URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
 
         return $url;
     }

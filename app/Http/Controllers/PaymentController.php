@@ -65,7 +65,7 @@ class PaymentController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_PAYMENT,
             'datatable'  => new PaymentDatatable(),
             'title'      => trans('texts.payments'),
@@ -79,7 +79,7 @@ class PaymentController extends BaseController
      */
     public function getDatatable($clientPublicId = null)
     {
-        return $this->paymentService->getDatatable($clientPublicId, Request::input('sSearch'));
+        return $this->paymentService->getDatatable($clientPublicId, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     /**
@@ -98,8 +98,8 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
-        $invoicePublicId = Request::old('invoice') ? Request::old('invoice') : ($request->invoice_id ?: 0);
+        $clientPublicId = \Illuminate\Support\Facades\Request::old('client') ? \Illuminate\Support\Facades\Request::old('client') : ($request->client_id ?: 0);
+        $invoicePublicId = \Illuminate\Support\Facades\Request::old('invoice') ? \Illuminate\Support\Facades\Request::old('invoice') : ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
@@ -109,7 +109,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'account'         => Auth::user()->account,
+            'account'         => \Illuminate\Support\Facades\Auth::user()->account,
             'clientPublicId'  => $clientPublicId,
             'invoicePublicId' => $invoicePublicId,
             'invoice'         => null,
@@ -118,12 +118,12 @@ class PaymentController extends BaseController
             'method'          => 'POST',
             'url'             => 'payments',
             'title'           => trans('texts.new_payment'),
-            'paymentTypeId'   => Request::input('paymentTypeId'),
+            'paymentTypeId'   => \Illuminate\Support\Facades\Request::input('paymentTypeId'),
             'clients'         => Client::scope()->with('contacts')->orderBy('name')->get(),
             'totalCredit'     => $totalCredit,
         ];
 
-        return View::make('payments.edit', $data);
+        return \Illuminate\Support\Facades\View::make('payments.edit', $data);
     }
 
     /**
@@ -133,7 +133,7 @@ class PaymentController extends BaseController
      */
     public function show($publicId)
     {
-        Session::reflash();
+        \Illuminate\Support\Facades\Session::reflash();
 
         return redirect()->to("payments/{$publicId}/edit");
     }
@@ -170,7 +170,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'account'  => Auth::user()->account,
+            'account'  => \Illuminate\Support\Facades\Auth::user()->account,
             'client'   => null,
             'invoice'  => null,
             'invoices' => Invoice::scope()
@@ -184,11 +184,11 @@ class PaymentController extends BaseController
             'url'          => 'payments/' . $payment->public_id,
             'title'        => trans('texts.edit_payment'),
             'actions'      => $actions,
-            'paymentTypes' => Cache::get('paymentTypes'),
+            'paymentTypes' => \Illuminate\Support\Facades\Cache::get('paymentTypes'),
             'clients'      => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
-        return View::make('payments.edit', $data);
+        return \Illuminate\Support\Facades\View::make('payments.edit', $data);
     }
 
     /**
@@ -211,11 +211,11 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentService->save($input, null, $request->invoice);
 
-        if (Request::input('email_receipt')) {
+        if (\Illuminate\Support\Facades\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
-            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
+            \Illuminate\Support\Facades\Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
         } else {
-            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
+            \Illuminate\Support\Facades\Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
         }
 
         return url($payment->client->getRoute());
@@ -234,7 +234,7 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentRepo->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_payment'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_payment'));
 
         return redirect()->to($payment->getRoute());
     }
@@ -244,21 +244,21 @@ class PaymentController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();
             $this->contactMailer->sendPaymentConfirmation($payment);
-            Session::flash('message', trans('texts.emailed_payment'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_payment'));
         } else {
             $count = $this->paymentService->bulk($ids, $action, [
-                'refund_amount' => Request::input('refund_amount'),
-                'refund_email'  => Request::input('refund_email'),
+                'refund_amount' => \Illuminate\Support\Facades\Request::input('refund_amount'),
+                'refund_email'  => \Illuminate\Support\Facades\Request::input('refund_email'),
             ]);
             if ($count > 0) {
                 $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action . 'd_payment', $count);
-                Session::flash('message', $message);
+                \Illuminate\Support\Facades\Session::flash('message', $message);
             }
         }
 

@@ -43,21 +43,21 @@ class AppController extends BaseController
     public function doSetup()
     {
         if (Utils::isNinjaProd()) {
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         $valid = false;
-        $test = Request::input('test');
+        $test = \Illuminate\Support\Facades\Request::input('test');
 
-        $app = Request::input('app');
-        $app['key'] = env('APP_KEY') ?: mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-        $app['debug'] = Request::input('debug') ? 'true' : 'false';
-        $app['https'] = Request::input('https') ? 'true' : 'false';
+        $app = \Illuminate\Support\Facades\Request::input('app');
+        $app['key'] = env('APP_KEY') ?: mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+        $app['debug'] = \Illuminate\Support\Facades\Request::input('debug') ? 'true' : 'false';
+        $app['https'] = \Illuminate\Support\Facades\Request::input('https') ? 'true' : 'false';
 
-        $database = Request::input('database');
+        $database = \Illuminate\Support\Facades\Request::input('database');
         $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
-        $mail = Request::input('mail');
+        $mail = \Illuminate\Support\Facades\Request::input('mail');
 
         if ($test == 'mail') {
             return self::testMail($mail);
@@ -69,11 +69,11 @@ class AppController extends BaseController
             return $valid === true ? 'Success' : $valid;
         }
         if ( ! $valid) {
-            return Redirect::to('/setup')->withInput();
+            return \Illuminate\Support\Facades\Redirect::to('/setup')->withInput();
         }
 
         if (Utils::isDatabaseSetup() && Account::count() > 0) {
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         $_ENV['APP_ENV'] = 'production';
@@ -97,7 +97,7 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
-        $_ENV['PHANTOMJS_SECRET'] = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $_ENV['PHANTOMJS_SECRET'] = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
         $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
@@ -120,17 +120,17 @@ class AppController extends BaseController
         if ( ! Utils::isDatabaseSetup()) {
             // == DB Migrate & Seed == //
             $sqlFile = base_path() . '/database/setup.sql';
-            DB::unprepared(file_get_contents($sqlFile));
+            \Illuminate\Support\Facades\DB::unprepared(file_get_contents($sqlFile));
         }
 
-        Cache::flush();
-        Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
+        \Illuminate\Support\Facades\Cache::flush();
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
 
         if ( ! Account::count()) {
-            $firstName = trim(Request::input('first_name'));
-            $lastName = trim(Request::input('last_name'));
-            $email = trim(mb_strtolower(Request::input('email')));
-            $password = trim(Request::input('password'));
+            $firstName = trim(\Illuminate\Support\Facades\Request::input('first_name'));
+            $lastName = trim(\Illuminate\Support\Facades\Request::input('last_name'));
+            $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('email')));
+            $password = trim(\Illuminate\Support\Facades\Request::input('password'));
             $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
 
             $user = $account->users()->first();
@@ -138,20 +138,20 @@ class AppController extends BaseController
             $user->save();
         }
 
-        return Redirect::to('/login');
+        return \Illuminate\Support\Facades\Redirect::to('/login');
     }
 
     public function showSetup()
     {
         if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         if (file_exists(base_path() . '/.env')) {
             exit('Error: app is already configured, backup then delete the .env file to re-run the setup');
         }
 
-        return View::make('setup');
+        return \Illuminate\Support\Facades\View::make('setup');
     }
 
     public function updateSetup()
@@ -159,30 +159,30 @@ class AppController extends BaseController
         dd('here?');
 
         if (Utils::isNinjaProd()) {
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         dd('here?');
 
-        if ( ! Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
-            return Redirect::to('/');
+        if ( ! \Illuminate\Support\Facades\Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         dd('here?');
 
         if ( ! $canUpdateEnv = @fopen(base_path() . '/.env', 'w')) {
-            Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
+            \Illuminate\Support\Facades\Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
 
-            return Redirect::to('/settings/system_settings');
+            return \Illuminate\Support\Facades\Redirect::to('/settings/system_settings');
         }
 
-        $app = Request::input('app');
-        $db = Request::input('database');
-        $mail = Request::input('mail');
+        $app = \Illuminate\Support\Facades\Request::input('app');
+        $db = \Illuminate\Support\Facades\Request::input('database');
+        $mail = \Illuminate\Support\Facades\Request::input('mail');
 
         $_ENV['APP_URL'] = $app['url'];
-        $_ENV['APP_DEBUG'] = Request::input('debug') ? 'true' : 'false';
-        $_ENV['REQUIRE_HTTPS'] = Request::input('https') ? 'true' : 'false';
+        $_ENV['APP_DEBUG'] = \Illuminate\Support\Facades\Request::input('debug') ? 'true' : 'false';
+        $_ENV['REQUIRE_HTTPS'] = \Illuminate\Support\Facades\Request::input('https') ? 'true' : 'false';
 
         $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
         $_ENV['DB_HOST'] = $db['type']['host'];
@@ -223,9 +223,9 @@ class AppController extends BaseController
         fwrite($fp, $config);
         fclose($fp);
 
-        Session::flash('message', trans('texts.updated_settings'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('/settings/system_settings');
+        return \Illuminate\Support\Facades\Redirect::to('/settings/system_settings');
     }
 
     public function install()
@@ -233,18 +233,18 @@ class AppController extends BaseController
         if ( ! Utils::isNinjaProd() && ! Utils::isDatabaseSetup()) {
             try {
                 set_time_limit(60 * 5); // shouldn't take this long but just in case
-                Artisan::call('migrate', ['--force' => true]);
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
                 if (Industry::count() == 0) {
-                    Artisan::call('db:seed', ['--force' => true]);
+                    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
                 }
             } catch (Exception $e) {
                 Utils::logError($e);
 
-                return Response::make($e->getMessage(), 500);
+                return \Illuminate\Support\Facades\Response::make($e->getMessage(), 500);
             }
         }
 
-        return Redirect::to('/');
+        return \Illuminate\Support\Facades\Redirect::to('/');
     }
 
     public function update()
@@ -300,14 +300,14 @@ class AppController extends BaseController
         }*/
         //}
 
-        return Redirect::to('/?clear_cache=true');
+        return \Illuminate\Support\Facades\Redirect::to('/?clear_cache=true');
     }
 
     // MySQL changed the default table type from MyISAM to InnoDB
     // We need to make sure all tables are InnoDB to prevent migration failures
     public function checkInnoDB(): void
     {
-        $result = DB::select("SELECT engine
+        $result = \Illuminate\Support\Facades\DB::select("SELECT engine
                     FROM information_schema.TABLES
                     WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
 
@@ -321,7 +321,7 @@ class AppController extends BaseController
             return;
         }
 
-        $tables = DB::select('SHOW TABLES');
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
         $sql = "SET sql_mode = 'ALLOW_INVALID_DATES';\n";
 
         foreach ($tables as $table) {
@@ -329,20 +329,20 @@ class AppController extends BaseController
             $sql .= "ALTER TABLE {$table->{$fieldName}} engine=InnoDB;\n";
         }
 
-        DB::unprepared($sql);
+        \Illuminate\Support\Facades\DB::unprepared($sql);
     }
 
     public function emailBounced()
     {
-        $messageId = Request::input('MessageID');
-        $error = Request::input('Name') . ': ' . Request::input('Description');
+        $messageId = \Illuminate\Support\Facades\Request::input('MessageID');
+        $error = \Illuminate\Support\Facades\Request::input('Name') . ': ' . \Illuminate\Support\Facades\Request::input('Description');
 
         return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
     public function emailOpened()
     {
-        $messageId = Request::input('MessageID');
+        $messageId = \Illuminate\Support\Facades\Request::input('MessageID');
 
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
 
@@ -352,8 +352,8 @@ class AppController extends BaseController
     public function checkData()
     {
         try {
-            Artisan::call('ninja:check-data');
-            Artisan::call('ninja:init-lookup', ['--validate' => true]);
+            \Illuminate\Support\Facades\Artisan::call('ninja:check-data');
+            \Illuminate\Support\Facades\Artisan::call('ninja:init-lookup', ['--validate' => true]);
 
             // check error log is empty
             $errorLog = storage_path('logs/laravel-error.log');
@@ -380,14 +380,14 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if ( ! hash_equals(Request::input('password') ?: '', env('RESELLER_PASSWORD'))) {
+        if ( ! hash_equals(\Illuminate\Support\Facades\Request::input('password') ?: '', env('RESELLER_PASSWORD'))) {
             sleep(3);
 
             return '';
         }
 
         if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
-            $data = DB::table('accounts')
+            $data = \Illuminate\Support\Facades\DB::table('accounts')
                 ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
                 ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
                 ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
@@ -399,7 +399,7 @@ class AppController extends BaseController
                     'payments.amount',
                 ]);
         } else {
-            $data = DB::table('users')->count();
+            $data = \Illuminate\Support\Facades\DB::table('users')->count();
         }
 
         return json_encode($data);
@@ -439,9 +439,9 @@ class AppController extends BaseController
             exit('Invalid command: Valid options are send-invoices, send-reminders or update-key');
         }
 
-        Artisan::call('ninja:' . $command, $options);
+        \Illuminate\Support\Facades\Artisan::call('ninja:' . $command, $options);
 
-        return response(nl2br(Artisan::output()));
+        return response(nl2br(\Illuminate\Support\Facades\Artisan::output()));
     }
 
     public function redirect()
@@ -452,14 +452,14 @@ class AppController extends BaseController
     private function testDatabase($database)
     {
         $dbType = 'mysql'; // $database['default'];
-        Config::set('database.default', $dbType);
+        \Illuminate\Support\Facades\Config::set('database.default', $dbType);
         foreach ($database['connections'][$dbType] as $key => $val) {
-            Config::set("database.connections.{$dbType}.{$key}", $val);
+            \Illuminate\Support\Facades\Config::set("database.connections.{$dbType}.{$key}", $val);
         }
 
         try {
-            DB::reconnect();
-            $valid = DB::connection()->getDatabaseName() ? true : false;
+            \Illuminate\Support\Facades\DB::reconnect();
+            $valid = \Illuminate\Support\Facades\DB::connection()->getDatabaseName() ? true : false;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -473,11 +473,11 @@ class AppController extends BaseController
         $fromName = $mail['from']['name'];
 
         foreach ($mail as $key => $val) {
-            Config::set("mail.{$key}", $val);
+            \Illuminate\Support\Facades\Config::set("mail.{$key}", $val);
         }
 
-        Config::set('mail.from.address', $email);
-        Config::set('mail.from.name', $fromName);
+        \Illuminate\Support\Facades\Config::set('mail.from.address', $email);
+        \Illuminate\Support\Facades\Config::set('mail.from.name', $fromName);
 
         $data = [
             'text'      => 'Test email',

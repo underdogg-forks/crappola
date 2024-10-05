@@ -17,7 +17,7 @@ class ProposalTemplateDatatable extends EntityDatatable
             [
                 'name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
                         return link_to("proposals/templates/{$model->public_id}", $model->name)->toHtml();
                     }
 
@@ -45,28 +45,28 @@ class ProposalTemplateDatatable extends EntityDatatable
             [
                 trans('texts.edit_proposal_template'),
                 function ($model) {
-                    return URL::to("proposals/templates/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("proposals/templates/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model]);
                 },
             ],
             [
                 trans('texts.clone_proposal_template'),
                 function ($model) {
-                    return URL::to("proposals/templates/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("proposals/templates/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model]);
                 },
             ],
             [
                 trans('texts.new_proposal'),
                 function ($model) {
-                    return URL::to("proposals/create/0/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("proposals/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', [ENTITY_PROPOSAL, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', [ENTITY_PROPOSAL, $model]);
                 },
             ],
         ];

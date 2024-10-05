@@ -49,7 +49,7 @@ class UserApiController extends BaseAPIController
      */
     public function index()
     {
-        $users = User::whereAccountId(Auth::user()->account_id)
+        $users = User::whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id)
             ->withTrashed()
             ->orderBy('created_at', 'desc');
 
@@ -157,12 +157,12 @@ class UserApiController extends BaseAPIController
      */
     public function update(UpdateUserRequest $request, $userPublicId)
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
         if ($request->action == ACTION_ARCHIVE) {
             $this->userRepo->archive($user);
 
-            $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
+            $transformer = new UserTransformer(\Illuminate\Support\Facades\Auth::user()->account, $request->serializer);
             $data = $this->createItem($user, $transformer, 'users');
 
             return $this->response($data);
@@ -211,7 +211,7 @@ class UserApiController extends BaseAPIController
     {
         $user = $this->userRepo->save($request->input(), $user);
 
-        $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
+        $transformer = new UserTransformer(\Illuminate\Support\Facades\Auth::user()->account, $request->serializer);
         $data = $this->createItem($user, $transformer, 'users');
 
         return $this->response($data);

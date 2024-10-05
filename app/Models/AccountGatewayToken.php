@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class AccountGatewayToken.
  */
-class AccountGatewayToken extends Eloquent
+class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
 {
     use SoftDeletes;
 

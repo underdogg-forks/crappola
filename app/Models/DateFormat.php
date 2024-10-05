@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class DateFormat.
  */
-class DateFormat extends Eloquent
+class DateFormat extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

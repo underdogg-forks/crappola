@@ -23,8 +23,8 @@ class ProposalRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('proposals')
-            ->where('proposals.account_id', '=', Auth::user()->account_id)
+        $query = \Illuminate\Support\Facades\DB::table('proposals')
+            ->where('proposals.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
             ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -40,7 +40,7 @@ class ProposalRepository extends BaseRepository
                 'proposals.is_deleted',
                 'proposals.private_notes',
                 'proposals.html as content',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
                 'clients.user_id as client_user_id',
                 'clients.public_id as client_public_id',
                 'invoices.invoice_number as quote',
@@ -105,7 +105,7 @@ class ProposalRepository extends BaseRepository
                 $proposalInvitation = ProposalInvitation::createNew();
                 $proposalInvitation->proposal_id = $proposal->id;
                 $proposalInvitation->contact_id = $invitation->contact_id;
-                $proposalInvitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                $proposalInvitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
                 $proposalInvitation->save();
             }
         }

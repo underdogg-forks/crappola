@@ -122,7 +122,7 @@ class PaymentTermApiController extends BaseAPIController
     {
         $paymentTerm = PaymentTerm::createNew();
 
-        $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
+        $paymentTerm->num_days = Utils::parseInt(\Illuminate\Support\Facades\Request::input('num_days'));
         $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 

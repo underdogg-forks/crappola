@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Font.
  */
-class Font extends Eloquent
+class Font extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

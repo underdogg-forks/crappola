@@ -347,8 +347,8 @@ class Vendor extends EntityModel
      */
     public function getTotalExpenses()
     {
-        return DB::table('expenses')
-            ->select('expense_currency_id', DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
+        return \Illuminate\Support\Facades\DB::table('expenses')
+            ->select('expense_currency_id', \Illuminate\Support\Facades\DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
             ->whereVendorId($this->id)
             ->whereIsDeleted(false)
             ->groupBy('expense_currency_id')

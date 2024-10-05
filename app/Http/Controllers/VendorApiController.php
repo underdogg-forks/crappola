@@ -28,7 +28,7 @@ class VendorApiController extends BaseAPIController
     {
         $headers = Utils::getApiHeaders();
 
-        return Response::make('', 200, $headers);
+        return \Illuminate\Support\Facades\Response::make('', 200, $headers);
     }
 
     /**

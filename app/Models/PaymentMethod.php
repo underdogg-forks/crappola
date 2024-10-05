@@ -48,7 +48,7 @@ class PaymentMethod extends EntityModel
      */
     public static function lookupBankData($routingNumber)
     {
-        $cached = Cache::get('bankData:' . $routingNumber);
+        $cached = \Illuminate\Support\Facades\Cache::get('bankData:' . $routingNumber);
 
         if ($cached != null) {
             return $cached == false ? null : $cached;
@@ -101,11 +101,11 @@ class PaymentMethod extends EntityModel
         }
 
         if ( ! empty($data)) {
-            Cache::put('bankData:' . $routingNumber, $data, 5 * 60);
+            \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, $data, 5 * 60);
 
             return $data;
         }
-        Cache::put('bankData:' . $routingNumber, false, 5 * 60);
+        \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, false, 5 * 60);
     }
 
     /**

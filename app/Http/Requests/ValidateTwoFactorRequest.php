@@ -27,7 +27,7 @@ class ValidateTwoFactorRequest extends Request
         $factory->extend(
             'valid_token',
             function ($attribute, $value, $parameters, $validator) {
-                $secret = Crypt::decrypt($this->user->google_2fa_secret);
+                $secret = \Illuminate\Support\Facades\Crypt::decrypt($this->user->google_2fa_secret);
 
                 return Google2FA::verifyKey($secret, $value);
             },
@@ -39,7 +39,7 @@ class ValidateTwoFactorRequest extends Request
             function ($attribute, $value, $parameters, $validator) {
                 $key = $this->user->id . ':' . $value;
 
-                return ! Cache::has($key);
+                return ! \Illuminate\Support\Facades\Cache::has($key);
             },
             trans('texts.invalid_code')
         );

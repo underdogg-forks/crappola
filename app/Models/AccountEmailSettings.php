@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Account.
  */
-class AccountEmailSettings extends Eloquent
+class AccountEmailSettings extends \Illuminate\Database\Eloquent\Model
 {
     public static $templates = [
         TEMPLATE_INVOICE,

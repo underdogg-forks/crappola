@@ -26,7 +26,7 @@ class ProductRepository extends BaseRepository
 
     public function find($accountId, $filter = null)
     {
-        $query = DB::table('products')
+        $query = \Illuminate\Support\Facades\DB::table('products')
             ->where('products.account_id', '=', $accountId)
             ->select(
                 'products.public_id',
@@ -63,7 +63,7 @@ class ProductRepository extends BaseRepository
             // do nothing
         } elseif ($publicId) {
             $product = Product::scope($publicId)->withArchived()->firstOrFail();
-            Log::warning('Entity not set in product repo save');
+            \Illuminate\Support\Facades\Log::warning('Entity not set in product repo save');
         } else {
             $product = Product::createNew();
         }

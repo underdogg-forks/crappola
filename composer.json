@@ -78,6 +78,7 @@
         "phpspec/phpspec": "*",
         "phpunit/phpunit": "*",
         "rector/rector": "*",
+        "rector/type-perfect": "^1.0",
         "spatie/laravel-ignition": "*",
         "symfony/dom-crawler": "*"
     },

@@ -36,19 +36,19 @@ class AccountRepository
             }
 
             $company = new Company();
-            $company->utm_source = Request::input('utm_source');
-            $company->utm_medium = Request::input('utm_medium');
-            $company->utm_campaign = Request::input('utm_campaign');
-            $company->utm_term = Request::input('utm_term');
-            $company->utm_content = Request::input('utm_content');
-            $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
+            $company->utm_source = \Illuminate\Support\Facades\Request::input('utm_source');
+            $company->utm_medium = \Illuminate\Support\Facades\Request::input('utm_medium');
+            $company->utm_campaign = \Illuminate\Support\Facades\Request::input('utm_campaign');
+            $company->utm_term = \Illuminate\Support\Facades\Request::input('utm_term');
+            $company->utm_content = \Illuminate\Support\Facades\Request::input('utm_content');
+            $company->referral_code = \Illuminate\Support\Facades\Session::get(SESSION_REFERRAL_CODE);
 
-            if (Request::input('utm_campaign')) {
-                if (env('PROMO_CAMPAIGN') && hash_equals(Request::input('utm_campaign'), env('PROMO_CAMPAIGN'))) {
+            if (\Illuminate\Support\Facades\Request::input('utm_campaign')) {
+                if (env('PROMO_CAMPAIGN') && hash_equals(\Illuminate\Support\Facades\Request::input('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Request::input('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(\Illuminate\Support\Facades\Request::input('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
-                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Request::input('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(\Illuminate\Support\Facades\Request::input('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
                     $company->applyFreeYear(2);
                 }
             }
@@ -59,8 +59,8 @@ class AccountRepository
         }
 
         $account = new Account();
-        $account->ip = Request::getClientIp();
-        $account->account_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $account->ip = \Illuminate\Support\Facades\Request::getClientIp();
+        $account->account_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
         $account->currency_id = DEFAULT_CURRENCY;
 
@@ -100,14 +100,14 @@ class AccountRepository
 
         $user = new User();
         if ( ! $firstName && ! $lastName && ! $email && ! $password) {
-            $user->password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->username = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->password = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $user->username = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
             if ( ! $password) {
-                $password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                $password = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             }
             $user->password = bcrypt($password);
         }
@@ -116,7 +116,7 @@ class AccountRepository
         $user->registered = ! Utils::isNinja() || $email;
 
         if ( ! $user->confirmed) {
-            $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         }
 
         $account->users()->save($user);
@@ -138,7 +138,7 @@ class AccountRepository
 
     public function enablePlan($plan, $credit = 0)
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $client = $this->getNinjaClient($account);
         $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
@@ -227,7 +227,7 @@ class AccountRepository
         $invitation = Invitation::createNew($invoice);
         $invitation->invoice_id = $invoice->id;
         $invitation->contact_id = $client->contacts()->first()->id;
-        $invitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $invitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         $invitation->save();
 
         return $invitation;
@@ -259,7 +259,7 @@ class AccountRepository
         $user->confirmed = true;
         $user->email = NINJA_ACCOUNT_EMAIL;
         $user->username = NINJA_ACCOUNT_EMAIL;
-        $user->password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $user->password = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         $user->first_name = 'Invoice';
         $user->last_name = 'Ninja';
         $user->notify_sent = true;
@@ -301,7 +301,7 @@ class AccountRepository
             $contact->user_id = $ninjaUser->id;
             $contact->account_id = $ninjaAccount->id;
             $contact->public_id = $account->id;
-            $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $contact->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             $contact->is_primary = true;
             foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
                 $contact->{$field} = $account->users()->first()->{$field};
@@ -341,7 +341,7 @@ class AccountRepository
 
         if ( ! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,' . $user->id . ',id'];
-            $validator = Validator::make(['email' => $email], $rules);
+            $validator = \Illuminate\Support\Facades\Validator::make(['email' => $email], $rules);
 
             if ($validator->fails()) {
                 $messages = $validator->messages();
@@ -429,7 +429,7 @@ class AccountRepository
 
     public function findUserAccounts($userId1, $userId2 = false)
     {
-        if ( ! Schema::hasTable('user_accounts')) {
+        if ( ! \Illuminate\Support\Facades\Schema::hasTable('user_accounts')) {
             return false;
         }
 
@@ -583,7 +583,7 @@ class AccountRepository
 
             $token = AccountToken::createNew($user);
             $token->name = $name;
-            $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $token->token = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             $token->save();
         }
     }
@@ -604,7 +604,7 @@ class AccountRepository
 
     private function checkForSpammer(): void
     {
-        $ip = Request::getClientIp();
+        $ip = \Illuminate\Support\Facades\Request::getClientIp();
 
         // Apple's IP for their test accounts
         if ($ip == '17.200.11.44') {
@@ -789,7 +789,7 @@ class AccountRepository
             $data[] = [
                 'value'  => trans('texts.' . $feature[0]),
                 'tokens' => trans('texts.' . $feature[0]),
-                'url'    => URL::to($feature[1]),
+                'url'    => \Illuminate\Support\Facades\URL::to($feature[1]),
             ];
         }
 

@@ -33,7 +33,7 @@ class PasswordController extends Controller
         ];
 
         if ( ! session('contact_key')) {
-            return Redirect::to('/client/session_expired');
+            return \Illuminate\Support\Facades\Redirect::to('/client/session_expired');
         }
 
         return view('clientauth.reset')->with($data);

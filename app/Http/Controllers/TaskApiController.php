@@ -115,7 +115,7 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data = Request::all();
+        $data = \Illuminate\Support\Facades\Request::all();
         $taskId = $data['id'] ?? false;
 
         if (isset($data['client_id']) && $data['client_id']) {
@@ -155,7 +155,7 @@ class TaskApiController extends BaseAPIController
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
-        $transformer = new TaskTransformer(Auth::user()->account, Request::input('serializer'));
+        $transformer = new TaskTransformer(\Illuminate\Support\Facades\Auth::user()->account, \Illuminate\Support\Facades\Request::input('serializer'));
         $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);

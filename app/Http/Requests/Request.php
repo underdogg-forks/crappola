@@ -19,7 +19,7 @@ abstract class Request extends FormRequest
      *
      * @param \Illuminate\Validation\Factory $factory
      *
-     * @return \Illuminate\Validation\Validator
+     * @return \Illuminate\Contracts\Validation\Validator
      */
     public function validator($factory)
     {
@@ -71,7 +71,7 @@ abstract class Request extends FormRequest
             $message = json_encode($message, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
 
-            throw new ValidationException($validator, Response::make($message, 400, $headers));
+            throw new ValidationException($validator, \Illuminate\Support\Facades\Response::make($message, 400, $headers));
         }
     }
 }

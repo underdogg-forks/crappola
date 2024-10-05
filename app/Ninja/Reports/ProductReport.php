@@ -44,7 +44,7 @@ class ProductReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $subgroup = $this->options['subgroup'];
 

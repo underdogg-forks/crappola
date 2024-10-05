@@ -20,8 +20,8 @@ class ExpenseCategoryRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $query = DB::table('expense_categories')
-            ->where('expense_categories.account_id', '=', Auth::user()->account_id)
+        $query = \Illuminate\Support\Facades\DB::table('expense_categories')
+            ->where('expense_categories.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->select(
                 'expense_categories.name as category',
                 'expense_categories.public_id',

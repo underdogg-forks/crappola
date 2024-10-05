@@ -40,7 +40,7 @@ class ClientDatatable extends EntityDatatable
                 function ($model) {
                     return $model->id_number;
                 },
-                Auth::user()->account->clientNumbersEnabled(),
+                \Illuminate\Support\Facades\Auth::user()->account->clientNumbersEnabled(),
             ],
             [
                 'client_created_at',
@@ -69,11 +69,11 @@ class ClientDatatable extends EntityDatatable
             [
                 trans('texts.edit_client'),
                 function ($model) {
-                    if (Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
-                        return URL::to("clients/{$model->public_id}/edit");
+                    if (\Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
+                        return \Illuminate\Support\Facades\URL::to("clients/{$model->public_id}/edit");
                     }
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return URL::to("clients/{$model->public_id}");
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return \Illuminate\Support\Facades\URL::to("clients/{$model->public_id}");
                     }
                 },
             ],
@@ -82,34 +82,34 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE));
+                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE));
                 },
             ],
             [
                 trans('texts.new_task'),
                 function ($model) {
-                    return URL::to("tasks/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("tasks/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_TASK);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK);
                 },
             ],
             [
                 trans('texts.new_invoice'),
                 function ($model) {
-                    return URL::to("invoices/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("invoices/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_INVOICE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
                 trans('texts.new_quote'),
                 function ($model) {
-                    return URL::to("quotes/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_QUOTE);
+                    return \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_QUOTES) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [
@@ -117,34 +117,34 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)) && (Auth::user()->can('create', ENTITY_PAYMENT) || Auth::user()->can('create', ENTITY_CREDIT) || Auth::user()->can('create', ENTITY_EXPENSE));
+                    return (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE)) && (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CREDIT) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE));
                 },
             ],
             [
                 trans('texts.enter_payment'),
                 function ($model) {
-                    return URL::to("payments/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("payments/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_PAYMENT);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
             [
                 trans('texts.enter_credit'),
                 function ($model) {
-                    return URL::to("credits/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("credits/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_CREDIT);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CREDIT);
                 },
             ],
             [
                 trans('texts.enter_expense'),
                 function ($model) {
-                    return URL::to("expenses/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("expenses/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
         ];

@@ -33,7 +33,7 @@ class BaseController extends Controller
         }
 
         $isDatatable = filter_var(request()->datatable, FILTER_VALIDATE_BOOLEAN);
-        $referer = Request::server('HTTP_REFERER');
+        $referer = \Illuminate\Support\Facades\Request::server('HTTP_REFERER');
         $entityTypes = Utils::pluralizeEntityType($entityType);
 
         // when restoring redirect to entity

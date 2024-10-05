@@ -98,10 +98,10 @@ class CreateTestData extends Command
                 $this->faker->lastName,
                 $this->faker->safeEmail
             );
-            Auth::login($account->users[0]);
+            \Illuminate\Support\Facades\Auth::login($account->users[0]);
         } else {
             $this->info('Using first account...');
-            Auth::loginUsingId(1);
+            \Illuminate\Support\Facades\Auth::loginUsingId(1);
         }
 
         $this->createClients();

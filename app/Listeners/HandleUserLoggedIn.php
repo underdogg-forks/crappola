@@ -56,32 +56,32 @@ class HandleUserLoggedIn
             $user->save();
         }
 
-        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
-        Session::put(SESSION_USER_ACCOUNTS, $users);
-        HistoryUtils::loadHistory($users ?: Auth::user()->id);
+        $users = $this->accountRepo->loadAccounts(\Illuminate\Support\Facades\Auth::user()->id);
+        \Illuminate\Support\Facades\Session::put(SESSION_USER_ACCOUNTS, $users);
+        HistoryUtils::loadHistory($users ?: \Illuminate\Support\Facades\Auth::user()->id);
 
         $account->loadLocalizationSettings();
         session([SESSION_DB_SERVER => config('database.default')]);
 
         if (mb_strstr($_SERVER['HTTP_USER_AGENT'], 'iPhone') || mb_strstr($_SERVER['HTTP_USER_AGENT'], 'iPad')) {
-            Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_IOS_APP_URL, trans('texts.iphone_app'))]));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_IOS_APP_URL, trans('texts.iphone_app'))]));
         } elseif (mb_strstr($_SERVER['HTTP_USER_AGENT'], 'Android')) {
-            Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_ANDROID_APP_URL, trans('texts.android_app'))]));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_ANDROID_APP_URL, trans('texts.android_app'))]));
         }
 
         // if they're using Stripe make sure they're using Stripe.js
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
         if ($accountGateway && ! $accountGateway->getPublishableKey()) {
-            Session::flash('warning', trans('texts.missing_publishable_key'));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.missing_publishable_key'));
         } elseif ($account->isLogoTooLarge()) {
-            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
         if ( ! Utils::isNinja()) {
             // check custom gateway id is correct
             $gateway = Gateway::find(GATEWAY_CUSTOM1);
             if ( ! $gateway || $gateway->name !== 'Custom') {
-                Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
 
             // make sure APP_KEY and APP_CIPHER are in the .env file
@@ -100,9 +100,9 @@ class HandleUserLoggedIn
 
             // warn if using the default app key
             if (in_array(config('app.key'), ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
-                Session::flash('error', trans('texts.error_app_key_set_to_default'));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.error_app_key_set_to_default'));
             } elseif (in_array($appCipher, ['MCRYPT_RIJNDAEL_256', 'MCRYPT_RIJNDAEL_128'])) {
-                Session::flash('error', trans('texts.mcrypt_warning', ['command' => '<code>php artisan ninja:update-key --legacy=true</code>']));
+                \Illuminate\Support\Facades\Session::flash('error', trans('texts.mcrypt_warning', ['command' => '<code>php artisan ninja:update-key --legacy=true</code>']));
             }
         }
     }

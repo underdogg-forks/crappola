@@ -31,7 +31,7 @@ class RunReport extends Job
         $config['subgroup'] = ! empty($config['subgroup']) ? $config['subgroup'] : false; // don't yet support charts in export
 
         $isExport = $this->isExport;
-        $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
+        $reportClass = '\\App\\Ninja\\Reports\\' . \Illuminate\Support\Str::studly($reportType) . 'Report';
 
         if ( ! empty($config['range'])) {
             switch ($config['range']) {

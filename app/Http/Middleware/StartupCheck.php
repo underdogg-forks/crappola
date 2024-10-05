@@ -45,7 +45,7 @@ class StartupCheck
 
         // Ensure all request are over HTTPS in production
         if (Utils::requireHTTPS() && ! $request->secure()) {
-            return Redirect::secure($request->path());
+            return \Illuminate\Support\Facades\Redirect::secure($request->path());
         }
 
         // If the database doens't yet exist we'll skip the rest
@@ -77,7 +77,7 @@ class StartupCheck
                 fwrite($handle, NINJA_VERSION);
                 fclose($handle);
 
-                return Redirect::to('/update');
+                return \Illuminate\Support\Facades\Redirect::to('/update');
             }
         }
 
@@ -87,10 +87,10 @@ class StartupCheck
             }
         }
 
-        if (Auth::check()) {
-            $company = Auth::user()->account->company;
-            $count = Session::get(SESSION_COUNTER, 0);
-            Session::put(SESSION_COUNTER, ++$count);
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            $company = \Illuminate\Support\Facades\Auth::user()->account->company;
+            $count = \Illuminate\Support\Facades\Session::get(SESSION_COUNTER, 0);
+            \Illuminate\Support\Facades\Session::put(SESSION_COUNTER, ++$count);
 
             if (Utils::isNinja()) {
                 if (($coupon = request()->coupon) && ! $company->hasActivePlan()) {
@@ -98,28 +98,28 @@ class StartupCheck
                         if (hash_equals($coupon, $code)) {
                             $company->applyDiscount(.5);
                             $company->save();
-                            Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
+                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
                         }
                     }
                     if ($code = config('ninja.coupon_75_off')) {
                         if (hash_equals($coupon, $code)) {
                             $company->applyDiscount(.75);
                             $company->save();
-                            Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
+                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
                         }
                     }
                     if ($code = config('ninja.coupon_free_year')) {
                         if (hash_equals($coupon, $code)) {
                             $company->applyFreeYear();
                             $company->save();
-                            Session::flash('message', trans('texts.applied_free_year'));
+                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_free_year'));
                         }
                     }
                 }
             }
 
             // Check the application is up to date and for any news feed messages
-            if (isset($_SERVER['REQUEST_URI']) && ! Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && ! Session::has('news_feed_id')) {
+            if (isset($_SERVER['REQUEST_URI']) && ! Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && ! \Illuminate\Support\Facades\Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
@@ -134,61 +134,61 @@ class StartupCheck
                             'latest_version' => $data->version,
                             'releases_link'  => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
                         ];
-                        Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
-                        Session::flash('news_feed_message', trans('texts.new_version_available', $params));
+                        \Illuminate\Support\Facades\Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
+                        \Illuminate\Support\Facades\Session::flash('news_feed_message', trans('texts.new_version_available', $params));
                     } else {
-                        Session::put('news_feed_id', $data->id);
-                        if ($data->message && $data->id > Auth::user()->news_feed_id) {
-                            Session::flash('news_feed_message', $data->message);
+                        \Illuminate\Support\Facades\Session::put('news_feed_id', $data->id);
+                        if ($data->message && $data->id > \Illuminate\Support\Facades\Auth::user()->news_feed_id) {
+                            \Illuminate\Support\Facades\Session::flash('news_feed_message', $data->message);
                         }
                     }
                 } else {
-                    Session::put('news_feed_id', true);
+                    \Illuminate\Support\Facades\Session::put('news_feed_id', true);
                 }
             }
         }
 
         // Check if we're requesting to change the account's language
-        if (\Request::has('lang')) {
-            $locale = \Request::input('lang');
-            App::setLocale($locale);
+        if (\Illuminate\Support\Facades\Request::has('lang')) {
+            $locale = \Illuminate\Support\Facades\Request::input('lang');
+            \Illuminate\Support\Facades\App::setLocale($locale);
             session([SESSION_LOCALE => $locale]);
 
-            if (Auth::check()) {
+            if (\Illuminate\Support\Facades\Auth::check()) {
                 if ($language = Language::whereLocale($locale)->first()) {
-                    $account = Auth::user()->account;
+                    $account = \Illuminate\Support\Facades\Auth::user()->account;
                     $account->language_id = $language->id;
                     $account->save();
                 }
             }
-        } elseif (Auth::check()) {
-            $locale = Auth::user()->account->language ? Auth::user()->account->language->locale : DEFAULT_LOCALE;
-            App::setLocale($locale);
+        } elseif (\Illuminate\Support\Facades\Auth::check()) {
+            $locale = \Illuminate\Support\Facades\Auth::user()->account->language ? \Illuminate\Support\Facades\Auth::user()->account->language->locale : DEFAULT_LOCALE;
+            \Illuminate\Support\Facades\App::setLocale($locale);
         } elseif (session(SESSION_LOCALE)) {
-            App::setLocale(session(SESSION_LOCALE));
+            \Illuminate\Support\Facades\App::setLocale(session(SESSION_LOCALE));
         }
 
         // Make sure the account/user localization settings are in the session
-        if (Auth::check() && ! Session::has(SESSION_TIMEZONE)) {
-            Event::dispatch(new UserLoggedIn());
+        if (\Illuminate\Support\Facades\Auth::check() && ! \Illuminate\Support\Facades\Session::has(SESSION_TIMEZONE)) {
+            \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
         if ( ! Utils::isNinjaProd() && isset($_SERVER['REQUEST_URI'])) {
             $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
-            if ( ! $claimingLicense && \Request::has('license_key') && \Request::has('product_id')) {
-                $licenseKey = \Request::input('license_key');
-                $productId = \Request::input('product_id');
+            if ( ! $claimingLicense && \Illuminate\Support\Facades\Request::has('license_key') && \Illuminate\Support\Facades\Request::has('product_id')) {
+                $licenseKey = \Illuminate\Support\Facades\Request::input('license_key');
+                $productId = \Illuminate\Support\Facades\Request::input('product_id');
 
                 $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(CurlUtils::get($url));
 
                 if ($data == RESULT_FAILURE) {
-                    Session::flash('error', trans('texts.invalid_white_label_license'));
+                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.invalid_white_label_license'));
                 } elseif ($data) {
                     $date = date_create($data)->modify('+1 year');
                     if ($date < date_create()) {
-                        Session::flash('message', trans('texts.expired_white_label'));
+                        \Illuminate\Support\Facades\Session::flash('message', trans('texts.expired_white_label'));
                     } else {
                         $company->plan_term = PLAN_TERM_YEARLY;
                         $company->plan_paid = $data;
@@ -196,23 +196,23 @@ class StartupCheck
                         $company->plan = PLAN_WHITE_LABEL;
                         $company->save();
 
-                        Session::flash('message', trans('texts.bought_white_label'));
+                        \Illuminate\Support\Facades\Session::flash('message', trans('texts.bought_white_label'));
                     }
                 } else {
-                    Session::flash('error', trans('texts.white_label_license_error'));
+                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.white_label_license_error'));
                 }
             }
         }
 
         // Check data has been cached
         $cachedTables = unserialize(CACHED_TABLES);
-        if (\Request::has('clear_cache')) {
-            Session::flash('message', 'Cache cleared');
+        if (\Illuminate\Support\Facades\Request::has('clear_cache')) {
+            \Illuminate\Support\Facades\Session::flash('message', 'Cache cleared');
         }
         foreach ($cachedTables as $name => $class) {
-            if (\Request::has('clear_cache') || ! Cache::has($name)) {
+            if (\Illuminate\Support\Facades\Request::has('clear_cache') || ! \Illuminate\Support\Facades\Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if ( ! Schema::hasTable((new $class())->getTable())) {
+                if ( ! \Illuminate\Support\Facades\Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {
@@ -226,14 +226,14 @@ class StartupCheck
                 }
                 $tableData = $class::orderBy($orderBy)->get();
                 if ($tableData->count()) {
-                    Cache::forever($name, $tableData);
+                    \Illuminate\Support\Facades\Cache::forever($name, $tableData);
                 }
             }
         }
 
         // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
-            Session::flash('error', trans('texts.old_browser', ['link' => link_to(OUTDATE_BROWSER_URL, trans('texts.newer_browser'), ['target' => '_blank'])]));
+            \Illuminate\Support\Facades\Session::flash('error', trans('texts.old_browser', ['link' => link_to(OUTDATE_BROWSER_URL, trans('texts.newer_browser'), ['target' => '_blank'])]));
         }
 
         $response = $next($request);

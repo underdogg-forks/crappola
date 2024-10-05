@@ -212,7 +212,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return $statuses;
         }
 
-        foreach (Cache::get('invoiceStatus') as $status) {
+        foreach (\Illuminate\Support\Facades\Cache::get('invoiceStatus') as $status) {
             if ($entityType == ENTITY_QUOTE) {
                 if (in_array($status->id, [INVOICE_STATUS_PAID, INVOICE_STATUS_PARTIAL])) {
                     continue;

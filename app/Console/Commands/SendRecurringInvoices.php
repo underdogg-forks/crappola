@@ -120,7 +120,7 @@ class SendRecurringInvoices extends Command
             }
 
             $account->loadLocalizationSettings($recurInvoice->client);
-            Auth::loginUsingId($recurInvoice->activeUser()->id);
+            \Illuminate\Support\Facades\Auth::loginUsingId($recurInvoice->activeUser()->id);
 
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
@@ -135,7 +135,7 @@ class SendRecurringInvoices extends Command
                 Utils::logError($exception);
             }
 
-            Auth::logout();
+            \Illuminate\Support\Facades\Auth::logout();
         }
     }
 

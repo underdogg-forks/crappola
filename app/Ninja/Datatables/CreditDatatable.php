@@ -18,7 +18,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
@@ -29,7 +29,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                     }
                 },
@@ -37,7 +37,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'balance',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                     }
                 },
@@ -45,7 +45,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'credit_date',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
                     }
 
@@ -55,7 +55,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return e($model->public_notes);
                     }
                 },
@@ -63,7 +63,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'private_notes',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return e($model->private_notes);
                     }
                 },
@@ -77,19 +77,19 @@ class CreditDatatable extends EntityDatatable
             [
                 trans('texts.edit_credit'),
                 function ($model) {
-                    return URL::to("credits/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("credits/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_CREDIT, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model]);
                 },
             ],
             [
                 trans('texts.apply_credit'),
                 function ($model) {
-                    return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
+                    return \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_PAYMENT);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
         ];

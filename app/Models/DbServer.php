@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class ExpenseCategory.
  */
-class DbServer extends Eloquent
+class DbServer extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

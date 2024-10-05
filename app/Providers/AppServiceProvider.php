@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapThree();
 
         // support selecting job database
-        Queue::before(function (JobProcessing $event): void {
+        \Illuminate\Support\Facades\Queue::before(function (JobProcessing $event): void {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);
             if (count($matches)) {
@@ -50,26 +50,26 @@ class AppServiceProvider extends ServiceProvider
 
         Form::macro('nav_link', function ($url, $text) {
             //$class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
-            $class = (Request::is($url) || Request::is($url . '/*')) ? ' class="active"' : '';
+            $class = (\Illuminate\Support\Facades\Request::is($url) || \Illuminate\Support\Facades\Request::is($url . '/*')) ? ' class="active"' : '';
             $title = trans("texts.{$text}") . Utils::getProLabel($text);
 
-            return '<li' . $class . '><a href="' . URL::to($url) . '">' . $title . '</a></li>';
+            return '<li' . $class . '><a href="' . \Illuminate\Support\Facades\URL::to($url) . '">' . $title . '</a></li>';
         });
 
         Form::macro('tab_link', function ($url, $text, $active = false) {
             $class = $active ? ' class="active"' : '';
 
-            return '<li' . $class . '><a href="' . URL::to($url) . '" data-toggle="tab">' . $text . '</a></li>';
+            return '<li' . $class . '><a href="' . \Illuminate\Support\Facades\URL::to($url) . '" data-toggle="tab">' . $text . '</a></li>';
         });
 
         Form::macro('menu_link', function ($type) {
             $types = $type . 's';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
-            $class = (Request::is($types) || Request::is('*' . $type . '*')) && ! Request::is('*settings*') ? ' active' : '';
+            $class = (\Illuminate\Support\Facades\Request::is($types) || \Illuminate\Support\Facades\Request::is('*' . $type . '*')) && ! \Illuminate\Support\Facades\Request::is('*settings*') ? ' active' : '';
 
             return '<li class="dropdown ' . $class . '">
-                    <a href="' . URL::to($types) . '" class="dropdown-toggle">' . trans("texts.{$types}") . '</a>
+                    <a href="' . \Illuminate\Support\Facades\URL::to($types) . '" class="dropdown-toggle">' . trans("texts.{$types}") . '</a>
                    </li>';
         });
 
@@ -159,11 +159,11 @@ class AppServiceProvider extends ServiceProvider
             return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$size[$factor];
         });
 
-        Validator::extend('positive', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('positive', function ($attribute, $value, $parameters) {
             return Utils::parseFloat($value) >= 0;
         });
 
-        Validator::extend('has_credit', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('has_credit', function ($attribute, $value, $parameters) {
             $publicClientId = $parameters[0];
             $amount = $parameters[1];
 
@@ -174,7 +174,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // check that the time log elements don't overlap
-        Validator::extend('time_log', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('time_log', function ($attribute, $value, $parameters) {
             $lastTime = 0;
             $value = json_decode($value);
             array_multisort($value);
@@ -195,7 +195,7 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
-        Validator::extend('has_counter', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('has_counter', function ($attribute, $value, $parameters) {
             if ( ! $value) {
                 return true;
             }
@@ -207,7 +207,7 @@ class AppServiceProvider extends ServiceProvider
             return (mb_strstr($value, '{$idNumber}') !== false || mb_strstr($value, '{$clientIdNumber}') != false) && (mb_strstr($value, '{$clientCounter}'));
         });
 
-        Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
             $total = 0;
             foreach ($value as $item) {
                 $qty = ! empty($item['qty']) ? Utils::parseFloat($item['qty']) : 1;
@@ -218,7 +218,7 @@ class AppServiceProvider extends ServiceProvider
             return $total <= MAX_INVOICE_AMOUNT;
         });
 
-        Validator::extend('valid_subdomain', function ($attribute, $value, $parameters) {
+        \Illuminate\Support\Facades\Validator::extend('valid_subdomain', function ($attribute, $value, $parameters) {
             return ! in_array($value, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents', 'download']);
         });
     }

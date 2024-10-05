@@ -62,7 +62,7 @@ class PaymentTermService extends BaseService
             [
                 uctrans('texts.edit_payment_terms'),
                 function ($model) {
-                    return URL::to("payment_terms/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("payment_terms/{$model->public_id}/edit");
                 },
             ],
         ];

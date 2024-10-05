@@ -37,7 +37,7 @@ class ProjectController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_PROJECT,
             'datatable'  => new ProjectDatatable(),
             'title'      => trans('texts.projects'),
@@ -46,8 +46,8 @@ class ProjectController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
-        $userId = Auth::user()->filterIdByEntity(ENTITY_PROJECT);
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROJECT);
 
         return $this->projectService->getDatatable($search, $userId);
     }
@@ -66,7 +66,7 @@ class ProjectController extends BaseController
             'chartData'       => null,
         ];
 
-        return View::make('projects.show', $data);
+        return \Illuminate\Support\Facades\View::make('projects.show', $data);
     }
 
     public function create(ProjectRequest $request)
@@ -81,7 +81,7 @@ class ProjectController extends BaseController
             'clientPublicId' => $request->client_id,
         ];
 
-        return View::make('projects.edit', $data);
+        return \Illuminate\Support\Facades\View::make('projects.edit', $data);
     }
 
     public function edit(ProjectRequest $request)
@@ -98,14 +98,14 @@ class ProjectController extends BaseController
             'clientPublicId' => $project->client ? $project->client->public_id : null,
         ];
 
-        return View::make('projects.edit', $data);
+        return \Illuminate\Support\Facades\View::make('projects.edit', $data);
     }
 
     public function store(CreateProjectRequest $request)
     {
         $project = $this->projectService->save($request->input());
 
-        Session::flash('message', trans('texts.created_project'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_project'));
 
         return redirect()->to($project->getRoute());
     }
@@ -114,9 +114,9 @@ class ProjectController extends BaseController
     {
         $project = $this->projectService->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_project'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_project'));
 
-        $action = Request::input('action');
+        $action = \Illuminate\Support\Facades\Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
             return self::bulk();
         }
@@ -126,8 +126,8 @@ class ProjectController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'invoice') {
             $data = [];
@@ -170,7 +170,7 @@ class ProjectController extends BaseController
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
             $message = trans("texts.{$field}", ['count' => $count]);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return redirect()->to('/projects');

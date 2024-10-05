@@ -8,7 +8,7 @@ use Str;
 /**
  * Class InvoiceStatus.
  */
-class InvoiceStatus extends Eloquent
+class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -42,6 +42,6 @@ class InvoiceStatus extends Eloquent
      */
     public function getTranslatedName()
     {
-        return trans('texts.status_' . Str::slug($this->name, '_'));
+        return trans('texts.status_' . \Illuminate\Support\Str::slug($this->name, '_'));
     }
 }

@@ -28,7 +28,7 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = 'user')
     {
-        $authenticated = Auth::guard($guard)->check();
+        $authenticated = \Illuminate\Support\Facades\Auth::guard($guard)->check();
         $invitationKey = $request->invitation_key ?: $request->proposal_invitation_key;
 
         if ($guard == 'client') {
@@ -48,15 +48,15 @@ class Authenticate
                     if ($contact && $contact->id != $invitation->contact_id) {
                         // This is a different client; reauthenticate
                         $authenticated = false;
-                        Auth::guard($guard)->logout();
+                        \Illuminate\Support\Facades\Auth::guard($guard)->logout();
                     }
-                    Session::put('contact_key', $invitation->contact->contact_key);
+                    \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key);
                 }
             }
 
             if ( ! empty($request->contact_key)) {
                 $contact_key = $request->contact_key;
-                Session::put('contact_key', $contact_key);
+                \Illuminate\Support\Facades\Session::put('contact_key', $contact_key);
             } else {
                 $contact_key = session('contact_key');
             }
@@ -66,15 +66,15 @@ class Authenticate
                 $contact = $this->getContact($contact_key);
             } elseif ($invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key))) {
                 $contact = $invitation->contact;
-                Session::put('contact_key', $contact->contact_key);
+                \Illuminate\Support\Facades\Session::put('contact_key', $contact->contact_key);
             }
             if ( ! $contact) {
-                return Redirect::to('client/login');
+                return \Illuminate\Support\Facades\Redirect::to('client/login');
             }
 
             $account = $contact->account;
 
-            if (Auth::guard('user')->check() && Auth::user('user')->account_id == $account->id) {
+            if (\Illuminate\Support\Facades\Auth::guard('user')->check() && \Illuminate\Support\Facades\Auth::user('user')->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }

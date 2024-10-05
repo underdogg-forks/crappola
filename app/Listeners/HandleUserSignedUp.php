@@ -44,7 +44,7 @@ class HandleUserSignedUp
      */
     public function handle(UserSignedUp $event): void
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
         if (Utils::isNinjaProd() && ! $user->confirmed) {
             $this->userMailer->sendConfirmation($user);

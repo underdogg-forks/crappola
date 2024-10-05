@@ -21,7 +21,7 @@ class TaxRateRepository extends BaseRepository
 
     public function find($accountId)
     {
-        return DB::table('tax_rates')
+        return \Illuminate\Support\Facades\DB::table('tax_rates')
             ->where('tax_rates.account_id', '=', $accountId)
             ->where('tax_rates.deleted_at', '=', null)
             ->select(
@@ -39,7 +39,7 @@ class TaxRateRepository extends BaseRepository
             // do nothing
         } elseif (isset($data['public_id'])) {
             $taxRate = TaxRate::scope($data['public_id'])->firstOrFail();
-            Log::warning('Entity not set in tax rate repo save');
+            \Illuminate\Support\Facades\Log::warning('Entity not set in tax rate repo save');
         } else {
             $taxRate = TaxRate::createNew();
         }

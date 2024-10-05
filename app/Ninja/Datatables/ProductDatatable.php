@@ -14,7 +14,7 @@ class ProductDatatable extends EntityDatatable
 
     public function columns()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         return [
             [
@@ -65,16 +65,16 @@ class ProductDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_product'),
                 function ($model) {
-                    return URL::to("products/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/edit");
                 },
             ],
             [
                 trans('texts.clone_product'),
                 function ($model) {
-                    return URL::to("products/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_PRODUCT);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT);
                 },
             ],
             [
@@ -83,7 +83,7 @@ class ProductDatatable extends EntityDatatable
                     return "javascript:submitForm_product('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];

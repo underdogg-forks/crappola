@@ -133,7 +133,7 @@ class PaymentService extends BaseService
             $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
             //$message .= $exception->getTraceAsString();
             Utils::logError($message, 'PHP', true);
-            if (App::runningInConsole()) {
+            if (\Illuminate\Support\Facades\App::runningInConsole()) {
                 $mailer = app('App\Ninja\Mailers\UserMailer');
                 $mailer->sendMessage($invoice->user, $subject, $message, [
                     'invoice' => $invoice,
@@ -166,7 +166,7 @@ class PaymentService extends BaseService
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
         if ( ! Utils::hasPermission('view_payment')) {
-            $query->where('payments.user_id', '=', Auth::user()->id);
+            $query->where('payments.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
@@ -183,7 +183,7 @@ class PaymentService extends BaseService
             $successful = 0;
 
             foreach ($payments as $payment) {
-                if (Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
+                if (\Illuminate\Support\Facades\Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
                     $amount = ! empty($params['refund_amount']) ? (float) ($params['refund_amount']) : null;
                     $sendEmail = ! empty($params['refund_email']) ? (bool) ($params['refund_email']) : false;
                     $paymentDriver = false;

@@ -49,11 +49,11 @@ class ClientApiController extends BaseAPIController
             ->orderBy('updated_at', 'desc')
             ->withTrashed();
 
-        if ($email = Request::input('email')) {
+        if ($email = \Illuminate\Support\Facades\Request::input('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email): void {
                 $query->where('email', $email);
             });
-        } elseif ($idNumber = Request::input('id_number')) {
+        } elseif ($idNumber = \Illuminate\Support\Facades\Request::input('id_number')) {
             $clients = $clients->whereIdNumber($idNumber);
         }
 

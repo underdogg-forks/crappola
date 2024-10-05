@@ -28,7 +28,7 @@ class PaymentTermDatatable extends EntityDatatable
             [
                 trans('texts.edit_payment_term'),
                 function ($model) {
-                    return URL::to("payment_terms/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("payment_terms/{$model->public_id}/edit");
                 },
             ],
         ];

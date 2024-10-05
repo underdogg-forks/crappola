@@ -250,7 +250,7 @@ class InvoicePresenter extends EntityPresenter
             ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans('texts.clone_invoice')],
         ];
 
-        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+        if (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE)) {
             $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans('texts.clone_quote')];
         }
 

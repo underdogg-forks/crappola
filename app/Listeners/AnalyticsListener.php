@@ -41,7 +41,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($account->isNinjaAccount() && App::runningInConsole()) {
+        if ($account->isNinjaAccount() && \Illuminate\Support\Facades\App::runningInConsole()) {
             $item .= ' [R]';
         }
 

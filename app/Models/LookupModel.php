@@ -8,7 +8,7 @@ use Eloquent;
 /**
  * Class ExpenseCategory.
  */
-class LookupModel extends Eloquent
+class LookupModel extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -62,7 +62,7 @@ class LookupModel extends Eloquent
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
-        if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
+        if (env('MULTI_DB_CACHE_ENABLED') && $server = \Illuminate\Support\Facades\Cache::get($key)) {
             static::setDbServer($server);
 
             return;
@@ -94,7 +94,7 @@ class LookupModel extends Eloquent
                 abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
-            Cache::put($key, $server, 120 * 60);
+            \Illuminate\Support\Facades\Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }

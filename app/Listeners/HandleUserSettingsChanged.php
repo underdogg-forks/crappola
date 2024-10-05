@@ -34,21 +34,21 @@ class HandleUserSettingsChanged
      */
     public function handle(UserSettingsChanged $event): void
     {
-        if ( ! Auth::check()) {
+        if ( ! \Illuminate\Support\Facades\Auth::check()) {
             return;
         }
 
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $account->loadLocalizationSettings();
 
-        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
-        Session::put(SESSION_USER_ACCOUNTS, $users);
+        $users = $this->accountRepo->loadAccounts(\Illuminate\Support\Facades\Auth::user()->id);
+        \Illuminate\Support\Facades\Session::put(SESSION_USER_ACCOUNTS, $users);
 
         if ($event->user && $event->user->confirmed && $event->user->isEmailBeingChanged()) {
             $this->userMailer->sendConfirmation($event->user);
             $this->userMailer->sendEmailChanged($event->user);
 
-            Session::flash('warning', trans('texts.verify_email'));
+            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.verify_email'));
         }
     }
 }

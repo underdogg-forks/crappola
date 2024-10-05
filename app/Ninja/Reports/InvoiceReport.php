@@ -47,11 +47,11 @@ class InvoiceReport extends AbstractReport
 
     public function run(): void
     {
-        if ( ! Auth::user()) {
+        if ( ! \Illuminate\Support\Facades\Auth::user()) {
             return;
         }
 
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];

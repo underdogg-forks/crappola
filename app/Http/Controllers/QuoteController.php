@@ -61,8 +61,8 @@ class QuoteController extends BaseController
 
     public function getDatatable($clientPublicId = null)
     {
-        $accountId = Auth::user()->account_id;
-        $search = Request::input('sSearch');
+        $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
@@ -70,10 +70,10 @@ class QuoteController extends BaseController
     public function create(QuoteRequest $request, $clientPublicId = 0)
     {
         if ( ! Utils::hasFeature(FEATURE_QUOTES)) {
-            return Redirect::to('/invoices/create');
+            return \Illuminate\Support\Facades\Redirect::to('/invoices/create');
         }
 
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $clientId = null;
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
@@ -84,29 +84,29 @@ class QuoteController extends BaseController
         $data = [
             'entityType' => $invoice->getEntityType(),
             'invoice'    => $invoice,
-            'data'       => Request::old('data'),
+            'data'       => \Illuminate\Support\Facades\Request::old('data'),
             'method'     => 'POST',
             'url'        => 'invoices',
             'title'      => trans('texts.new_quote'),
         ];
         $data = array_merge($data, self::getViewModel());
 
-        return View::make('invoices.edit', $data);
+        return \Illuminate\Support\Facades\View::make('invoices.edit', $data);
     }
 
     public function bulk()
     {
-        $action = Request::input('bulk_action') ?: Request::input('action');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action') ?: \Illuminate\Support\Facades\Request::input('action');
 
-        $ids = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id') ?: (\Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids'));
 
         if ($action == 'convert') {
             $invoice = Invoice::with('invoice_items')->scope($ids)->firstOrFail();
             $clone = $this->invoiceService->convertQuote($invoice);
 
-            Session::flash('message', trans('texts.converted_to_invoice'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.converted_to_invoice'));
 
-            return Redirect::to('invoices/' . $clone->public_id);
+            return \Illuminate\Support\Facades\Redirect::to('invoices/' . $clone->public_id);
         }
 
         $count = $this->invoiceService->bulk($ids, $action);
@@ -120,7 +120,7 @@ class QuoteController extends BaseController
                 $key = "{$action}d_quote";
             }
             $message = Utils::pluralize($key, $count);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return $this->returnBulk(ENTITY_QUOTE, $action, $ids);
@@ -144,30 +144,30 @@ class QuoteController extends BaseController
         }
 
         if ($invoiceInvitationKey = $this->invoiceService->approveQuote($invoice, $invitation)) {
-            Session::flash('message', trans('texts.quote_is_approved'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.quote_is_approved'));
 
-            return Redirect::to("view/{$invoiceInvitationKey}");
+            return \Illuminate\Support\Facades\Redirect::to("view/{$invoiceInvitationKey}");
         }
 
-        return Redirect::to("view/{$invitationKey}");
+        return \Illuminate\Support\Facades\Redirect::to("view/{$invitationKey}");
     }
 
     private static function getViewModel()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         return [
             'entityType'     => ENTITY_QUOTE,
-            'account'        => Auth::user()->account->load('country'),
+            'account'        => \Illuminate\Support\Facades\Auth::user()->account->load('country'),
             'products'       => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $account->present()->taxRateOptions,
             'clients'        => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates'       => TaxRate::scope()->orderBy('name')->get(),
-            'sizes'          => Cache::get('sizes'),
-            'paymentTerms'   => Cache::get('paymentTerms'),
+            'sizes'          => \Illuminate\Support\Facades\Cache::get('sizes'),
+            'paymentTerms'   => \Illuminate\Support\Facades\Cache::get('paymentTerms'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
-            'invoiceFonts'   => Cache::get('fonts'),
-            'invoiceLabels'  => Auth::user()->account->getInvoiceLabels(),
+            'invoiceFonts'   => \Illuminate\Support\Facades\Cache::get('fonts'),
+            'invoiceLabels'  => \Illuminate\Support\Facades\Auth::user()->account->getInvoiceLabels(),
             'isRecurring'    => false,
             'expenses'       => collect(),
         ];

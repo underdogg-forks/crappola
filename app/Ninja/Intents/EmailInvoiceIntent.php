@@ -12,7 +12,7 @@ class EmailInvoiceIntent extends InvoiceIntent
     {
         $invoice = $this->stateInvoice();
 
-        if ( ! Auth::user()->can('edit', $invoice)) {
+        if ( ! \Illuminate\Support\Facades\Auth::user()->can('edit', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
@@ -21,9 +21,9 @@ class EmailInvoiceIntent extends InvoiceIntent
 
         $message = trans('texts.bot_emailed_' . $invoice->getEntityType());
 
-        if (Auth::user()->notify_viewed) {
+        if (\Illuminate\Support\Facades\Auth::user()->notify_viewed) {
             $message .= '<br/>' . trans('texts.bot_emailed_notify_viewed');
-        } elseif (Auth::user()->notify_paid) {
+        } elseif (\Illuminate\Support\Facades\Auth::user()->notify_paid) {
             $message .= '<br/>' . trans('texts.bot_emailed_notify_paid');
         }
 

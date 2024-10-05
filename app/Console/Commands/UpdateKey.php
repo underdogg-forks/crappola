@@ -70,7 +70,7 @@ class UpdateKey extends Command
             if ($legacy) {
                 $twoFactorSecrets[$user->id] = $legacy->decrypt($user->google_2fa_secret);
             } else {
-                $twoFactorSecrets[$user->id] = Crypt::decrypt($user->google_2fa_secret);
+                $twoFactorSecrets[$user->id] = \Illuminate\Support\Facades\Crypt::decrypt($user->google_2fa_secret);
             }
         }
 
@@ -81,10 +81,10 @@ class UpdateKey extends Command
         if ($key = $this->option('key')) {
             $key = base64_decode(str_replace('base64:', '', $key));
         } elseif ($envWriteable) {
-            Artisan::call('key:generate');
+            \Illuminate\Support\Facades\Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
-            $key = str_random(32);
+            $key = \Illuminate\Support\Str::random(32);
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');

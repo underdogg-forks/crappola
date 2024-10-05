@@ -32,9 +32,9 @@ class InvoiceListener
         }
 
         // Make sure the account has the same design set as the invoice does
-        if (Auth::check()) {
+        if (\Illuminate\Support\Facades\Auth::check()) {
             $invoice = $event->invoice;
-            $account = Auth::user()->account;
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
 
             if ($invoice->invoice_design_id && $account->invoice_design_id != $invoice->invoice_design_id) {
                 $account->invoice_design_id = $invoice->invoice_design_id;

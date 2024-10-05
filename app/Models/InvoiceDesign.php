@@ -9,7 +9,7 @@ use Eloquent;
 /**
  * Class InvoiceDesign.
  */
-class InvoiceDesign extends Eloquent
+class InvoiceDesign extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -72,13 +72,13 @@ class InvoiceDesign extends Eloquent
      */
     public static function getDesigns()
     {
-        $account = Auth::user()->account;
-        $designs = Cache::get('invoiceDesigns');
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $designs = \Illuminate\Support\Facades\Cache::get('invoiceDesigns');
 
         $data = collect();
 
         foreach ($designs as $design) {
-            if ($design->id <= Auth::user()->maxInvoiceDesignId()) {
+            if ($design->id <= \Illuminate\Support\Facades\Auth::user()->maxInvoiceDesignId()) {
                 $data->push($design);
             }
 

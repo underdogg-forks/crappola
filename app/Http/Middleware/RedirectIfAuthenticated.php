@@ -40,7 +40,7 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next, $guard = null)
     {
         if (auth()->guard($guard)->check()) {
-            Session::reflash();
+            \Illuminate\Support\Facades\Session::reflash();
 
             switch ($guard) {
                 case 'client':

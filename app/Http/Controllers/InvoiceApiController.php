@@ -66,12 +66,12 @@ class InvoiceApiController extends BaseAPIController
             ->orderBy('updated_at', 'desc');
 
         // Filter by invoice number
-        if ($invoiceNumber = Request::input('invoice_number')) {
+        if ($invoiceNumber = \Illuminate\Support\Facades\Request::input('invoice_number')) {
             $invoices->whereInvoiceNumber($invoiceNumber);
         }
 
         // Fllter by status
-        if ($statusId = Request::input('status_id')) {
+        if ($statusId = \Illuminate\Support\Facades\Request::input('status_id')) {
             $invoices->where('invoice_status_id', '>=', $statusId);
         }
 
@@ -145,7 +145,7 @@ class InvoiceApiController extends BaseAPIController
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
-        $data = Request::all();
+        $data = \Illuminate\Support\Facades\Request::all();
         $error = null;
 
         if (isset($data['email'])) {
@@ -155,7 +155,7 @@ class InvoiceApiController extends BaseAPIController
             })->first();
 
             if ( ! $client) {
-                $validator = Validator::make(['email' => $email], ['email' => 'email']);
+                $validator = \Illuminate\Support\Facades\Validator::make(['email' => $email], ['email' => 'email']);
                 if ($validator->fails()) {
                     $messages = $validator->messages();
 
@@ -272,7 +272,7 @@ class InvoiceApiController extends BaseAPIController
         $headers = Utils::getApiHeaders();
         $response = json_encode(['message' => RESULT_SUCCESS], JSON_PRETTY_PRINT);
 
-        return Response::make($response, 200, $headers);
+        return \Illuminate\Support\Facades\Response::make($response, 200, $headers);
     }
 
     /**
@@ -386,7 +386,7 @@ class InvoiceApiController extends BaseAPIController
 
     private function prepareData($data, $client)
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $account->loadLocalizationSettings($client);
 
         // set defaults for optional fields
@@ -437,7 +437,7 @@ class InvoiceApiController extends BaseAPIController
         } else {
             foreach ($data['invoice_items'] as $index => $item) {
                 // check for multiple products
-                if ($productKey = array_get($item, 'product_key')) {
+                if ($productKey = \Illuminate\Support\Arr::get($item, 'product_key')) {
                     $parts = explode(',', $productKey);
                     if (count($parts) > 1 && Product::findProductByKey($parts[0])) {
                         foreach ($parts as $index => $productKey) {

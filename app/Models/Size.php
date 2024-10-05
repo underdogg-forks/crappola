@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Size.
  */
-class Size extends Eloquent
+class Size extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

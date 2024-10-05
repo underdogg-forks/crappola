@@ -60,7 +60,7 @@ class ResetPasswordController extends Controller
 
             return redirect('/validate_two_factor/' . $user->account->account_key);
         }
-        Event::dispatch(new UserLoggedIn());
+        \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
 
         return $this->traitSendResetResponse($request, $response);
     }

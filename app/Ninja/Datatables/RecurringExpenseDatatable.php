@@ -20,7 +20,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
+                        if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
                             return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
                         }
 
@@ -35,7 +35,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                             return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                         }
 
@@ -90,7 +90,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 'category',
                 function ($model) {
                     $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
-                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
                         return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
                     }
 
@@ -112,10 +112,10 @@ class RecurringExpenseDatatable extends EntityDatatable
             [
                 trans('texts.edit_recurring_expense'),
                 function ($model) {
-                    return URL::to("recurring_expenses/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("recurring_expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]);
                 },
             ],
         ];

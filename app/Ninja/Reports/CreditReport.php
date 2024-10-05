@@ -21,7 +21,7 @@ class CreditReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()

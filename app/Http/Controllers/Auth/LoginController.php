@@ -105,7 +105,7 @@ class LoginController extends Controller
             }
             */
         } else {
-            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Request::getClientIp(), array_get($_SERVER, 'HTTP_USER_AGENT'));
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), \Illuminate\Support\Arr::get($_SERVER, 'HTTP_USER_AGENT'));
             if (config('app.log') == 'single') {
                 file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             } else {
@@ -144,16 +144,16 @@ class LoginController extends Controller
         $key = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
-        Cache::add($key, true, 4 * 60);
+        \Illuminate\Support\Facades\Cache::add($key, true, 4 * 60);
 
         //login and redirect user
         auth()->loginUsingId($userId);
-        Event::dispatch(new UserLoggedIn());
+        \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
 
         if ($trust = request()->trust) {
             $user = auth()->user();
             if ( ! $user->remember_2fa_token) {
-                $user->remember_2fa_token = Str::random(60);
+                $user->remember_2fa_token = \Illuminate\Support\Str::random(60);
                 $user->save();
             }
             $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
@@ -185,7 +185,7 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ( ! empty($reason) && Lang::has("texts.{$reason}_logout")) {
+        if ( ! empty($reason) && \Illuminate\Support\Facades\Lang::has("texts.{$reason}_logout")) {
             session()->flash('warning', trans("texts.{$reason}_logout"));
         }
 
@@ -221,7 +221,7 @@ class LoginController extends Controller
         if ($user->google_2fa_secret) {
             $cookie = false;
             if ($user->remember_2fa_token) {
-                $cookie = Cookie::get('remember_2fa_' . sha1($user->id));
+                $cookie = \Illuminate\Support\Facades\Cookie::get('remember_2fa_' . sha1($user->id));
             }
 
             if ($cookie && hash_equals($user->remember_2fa_token, $cookie)) {
@@ -234,7 +234,7 @@ class LoginController extends Controller
             }
         }
 
-        Event::dispatch(new UserLoggedIn());
+        \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
 
         return redirect()->intended($this->redirectTo);
     }

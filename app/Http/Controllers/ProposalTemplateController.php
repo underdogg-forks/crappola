@@ -35,7 +35,7 @@ class ProposalTemplateController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL_TEMPLATE,
             'datatable'  => new ProposalTemplateDatatable(),
             'title'      => trans('texts.proposal_templates'),
@@ -44,8 +44,8 @@ class ProposalTemplateController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
-        $userId = Auth::user()->filterId();
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterId();
 
         return $this->proposalTemplateService->getDatatable($search, $userId);
     }
@@ -59,12 +59,12 @@ class ProposalTemplateController extends BaseController
             'title'    => trans('texts.new_proposal_template'),
         ]);
 
-        return View::make('proposals/templates/edit', $data);
+        return \Illuminate\Support\Facades\View::make('proposals/templates/edit', $data);
     }
 
     public function show($publicId)
     {
-        Session::reflash();
+        \Illuminate\Support\Facades\Session::reflash();
 
         return redirect("proposals/templates/{$publicId}/edit");
     }
@@ -93,7 +93,7 @@ class ProposalTemplateController extends BaseController
             'title'    => trans('texts.edit_proposal_template'),
         ]);
 
-        return View::make('proposals/templates/edit', $data);
+        return \Illuminate\Support\Facades\View::make('proposals/templates/edit', $data);
     }
 
     public function cloneProposal(ProposalTemplateRequest $request, $publicId)
@@ -105,7 +105,7 @@ class ProposalTemplateController extends BaseController
     {
         $proposalTemplate = $this->proposalTemplateService->save($request->input());
 
-        Session::flash('message', trans('texts.created_proposal_template'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal_template'));
 
         return redirect()->to($proposalTemplate->getRoute());
     }
@@ -114,9 +114,9 @@ class ProposalTemplateController extends BaseController
     {
         $proposalTemplate = $this->proposalTemplateService->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_proposal_template'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal_template'));
 
-        $action = Request::input('action');
+        $action = \Illuminate\Support\Facades\Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -126,15 +126,15 @@ class ProposalTemplateController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
             $message = trans("texts.{$field}", ['count' => $count]);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/templates');

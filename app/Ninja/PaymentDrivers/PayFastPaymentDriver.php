@@ -11,7 +11,7 @@ class PayFastPaymentDriver extends BasePaymentDriver
     public function completeOffsitePurchase($input): void
     {
         parent::completeOffsitePurchase([
-            'token' => Request::query('pt'),
+            'token' => \Illuminate\Support\Facades\Request::query('pt'),
         ]);
     }
 

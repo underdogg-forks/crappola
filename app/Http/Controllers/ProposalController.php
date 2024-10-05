@@ -42,7 +42,7 @@ class ProposalController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL,
             'datatable'  => new ProposalDatatable(),
             'title'      => trans('texts.proposals'),
@@ -51,9 +51,9 @@ class ProposalController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
         //$userId = Auth::user()->filterId();
-        $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
         return $this->proposalService->getDatatable($search, $userId);
     }
@@ -70,12 +70,12 @@ class ProposalController extends BaseController
             'templatePublicId' => $request->proposal_template_id,
         ]);
 
-        return View::make('proposals.edit', $data);
+        return \Illuminate\Support\Facades\View::make('proposals.edit', $data);
     }
 
     public function show($publicId)
     {
-        Session::reflash();
+        \Illuminate\Support\Facades\Session::reflash();
 
         return redirect("proposals/{$publicId}/edit");
     }
@@ -95,19 +95,19 @@ class ProposalController extends BaseController
             'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
         ]);
 
-        return View::make('proposals.edit', $data);
+        return \Illuminate\Support\Facades\View::make('proposals.edit', $data);
     }
 
     public function store(CreateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input());
-        $action = Request::input('action');
+        $action = \Illuminate\Support\Facades\Request::input('action');
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
-            Session::flash('message', trans('texts.emailed_proposal'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_proposal'));
         } else {
-            Session::flash('message', trans('texts.created_proposal'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal'));
         }
 
         return redirect()->to($proposal->getRoute());
@@ -116,7 +116,7 @@ class ProposalController extends BaseController
     public function update(UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input(), $request->entity());
-        $action = Request::input('action');
+        $action = \Illuminate\Support\Facades\Request::input('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -124,9 +124,9 @@ class ProposalController extends BaseController
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
-            Session::flash('message', trans('texts.emailed_proposal'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_proposal'));
         } else {
-            Session::flash('message', trans('texts.updated_proposal'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal'));
         }
 
         return redirect()->to($proposal->getRoute());
@@ -134,15 +134,15 @@ class ProposalController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('bulk_action') ?: Request::input('action');
-        $ids = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action') ?: \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id') ?: (\Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids'));
 
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_proposal" : "{$action}d_proposals";
             $message = trans("texts.{$field}", ['count' => $count]);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals');

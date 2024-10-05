@@ -19,7 +19,7 @@ class ProposalSnippetDatatable extends EntityDatatable
                 function ($model) {
                     $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
 
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model])) {
                         return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
                     }
 
@@ -29,7 +29,7 @@ class ProposalSnippetDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
                         return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category ?: ' ')->toHtml();
                     }
 
@@ -57,10 +57,10 @@ class ProposalSnippetDatatable extends EntityDatatable
             [
                 trans('texts.edit_proposal_snippet'),
                 function ($model) {
-                    return URL::to("proposals/snippets/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("proposals/snippets/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
                 },
             ],
         ];

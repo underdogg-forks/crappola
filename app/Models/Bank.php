@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Bank.
  */
-class Bank extends Eloquent
+class Bank extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

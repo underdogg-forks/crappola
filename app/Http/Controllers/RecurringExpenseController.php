@@ -38,7 +38,7 @@ class RecurringExpenseController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_RECURRING_EXPENSE,
             'datatable'  => new RecurringExpenseDatatable(),
             'title'      => trans('texts.recurring_expenses'),
@@ -47,8 +47,8 @@ class RecurringExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
-        $userId = Auth::user()->filterId();
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterId();
 
         return $this->recurringExpenseService->getDatatable($search, $userId);
     }
@@ -62,7 +62,7 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId'   => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
+            'vendorPublicId'   => \Illuminate\Support\Facades\Request::old('vendor') ? \Illuminate\Support\Facades\Request::old('vendor') : $request->vendor_id,
             'expense'          => null,
             'method'           => 'POST',
             'url'              => 'recurring_expenses',
@@ -76,7 +76,7 @@ class RecurringExpenseController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        return View::make('expenses.edit', $data);
+        return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
 
     public function edit(RecurringExpenseRequest $request)
@@ -108,14 +108,14 @@ class RecurringExpenseController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        return View::make('expenses.edit', $data);
+        return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
 
     public function store(CreateRecurringExpenseRequest $request)
     {
         $recurringExpense = $this->recurringExpenseService->save($request->input());
 
-        Session::flash('message', trans('texts.created_recurring_expense'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_recurring_expense'));
 
         return redirect()->to($recurringExpense->getRoute());
     }
@@ -124,9 +124,9 @@ class RecurringExpenseController extends BaseController
     {
         $recurringExpense = $this->recurringExpenseService->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_recurring_expense'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_recurring_expense'));
 
-        if (in_array(Request::input('action'), ['archive', 'delete', 'restore'])) {
+        if (in_array(\Illuminate\Support\Facades\Request::input('action'), ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
 
@@ -135,14 +135,14 @@ class RecurringExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
             $message = trans("texts.{$field}", ['count' => $count]);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return $this->returnBulk($this->entityType, $action, $ids);
@@ -151,9 +151,9 @@ class RecurringExpenseController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data'        => Request::old('data'),
-            'account'     => Auth::user()->account,
-            'categories'  => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
+            'data'        => \Illuminate\Support\Facades\Request::old('data'),
+            'account'     => \Illuminate\Support\Facades\Auth::user()->account,
+            'categories'  => ExpenseCategory::whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates'    => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
             'isRecurring' => true,
         ];

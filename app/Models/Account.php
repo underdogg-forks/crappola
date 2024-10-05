@@ -23,7 +23,7 @@ use Utils;
 /**
  * Class Account.
  */
-class Account extends Eloquent
+class Account extends \Illuminate\Database\Eloquent\Model
 {
     use GeneratesNumbers;
     use HasCustomMessages;
@@ -971,7 +971,7 @@ class Account extends Eloquent
             $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
         }
 
-        foreach (Cache::get('gateways') as $gateway) {
+        foreach (\Illuminate\Support\Facades\Cache::get('gateways') as $gateway) {
             $paymentDriverClass = AccountGateway::paymentDriverClass($gateway->provider);
             $paymentDriver = new $paymentDriverClass();
             $available = true;
@@ -1116,10 +1116,10 @@ class Account extends Eloquent
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
         $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
-        Session::put(SESSION_TIMEZONE, $timezone);
+        \Illuminate\Support\Facades\Session::put(SESSION_TIMEZONE, $timezone);
 
-        Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
-        Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
+        \Illuminate\Support\Facades\Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
+        \Illuminate\Support\Facades\Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 
         //php 7.3
         // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
@@ -1130,19 +1130,19 @@ class Account extends Eloquent
 
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
-        Session::put(SESSION_CURRENCY, $currencyId);
-        Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
-        Session::put(SESSION_LOCALE, $locale);
+        \Illuminate\Support\Facades\Session::put(SESSION_CURRENCY, $currencyId);
+        \Illuminate\Support\Facades\Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
+        \Illuminate\Support\Facades\Session::put(SESSION_LOCALE, $locale);
 
-        App::setLocale($locale);
+        \Illuminate\Support\Facades\App::setLocale($locale);
 
         $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
         if ($this->military_time) {
             $format = str_replace('g:i a', 'H:i', $format);
         }
-        Session::put(SESSION_DATETIME_FORMAT, $format);
+        \Illuminate\Support\Facades\Session::put(SESSION_DATETIME_FORMAT, $format);
 
-        Session::put('start_of_week', $this->start_of_week);
+        \Illuminate\Support\Facades\Session::put('start_of_week', $this->start_of_week);
     }
 
     /**
@@ -1967,7 +1967,7 @@ Account::updated(function ($account): void {
         return;
     }
 
-    Event::dispatch(new UserSettingsChanged());
+    \Illuminate\Support\Facades\Event::dispatch(new UserSettingsChanged());
 });
 
 Account::deleted(function ($account): void {

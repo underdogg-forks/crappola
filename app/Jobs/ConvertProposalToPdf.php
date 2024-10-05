@@ -27,7 +27,7 @@ class ConvertProposalToPdf extends Job
         $link = $proposal->getLink(true, true);
         $phantomjsSecret = env('PHANTOMJS_SECRET');
         $phantomjsLink = sprintf('%s?phantomjs=true&phantomjs_secret=%s', $link, $phantomjsSecret);
-        $filename = sprintf('%s/storage/app/%s.pdf', base_path(), mb_strtolower(str_random(RANDOM_KEY_LENGTH)));
+        $filename = sprintf('%s/storage/app/%s.pdf', base_path(), mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH)));
 
         try {
             $pdf = CurlUtils::renderPDF($phantomjsLink, $filename);

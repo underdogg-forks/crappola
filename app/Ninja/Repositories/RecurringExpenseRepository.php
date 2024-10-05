@@ -28,8 +28,8 @@ class RecurringExpenseRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $accountid = Auth::user()->account_id;
-        $query = DB::table('recurring_expenses')
+        $accountid = \Illuminate\Support\Facades\Auth::user()->account_id;
+        $query = \Illuminate\Support\Facades\DB::table('recurring_expenses')
             ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -68,7 +68,7 @@ class RecurringExpenseRepository extends BaseRepository
                 'vendors.name as vendor_name',
                 'vendors.public_id as vendor_public_id',
                 'vendors.user_id as vendor_user_id',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
                 'clients.user_id as client_user_id',
                 'contacts.first_name',
@@ -100,7 +100,7 @@ class RecurringExpenseRepository extends BaseRepository
         } elseif ($publicId) {
             $expense = RecurringExpense::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
-                Log::warning('Entity not set in expense repo save');
+                \Illuminate\Support\Facades\Log::warning('Entity not set in expense repo save');
             }
         } else {
             $expense = RecurringExpense::createNew();
@@ -124,7 +124,7 @@ class RecurringExpenseRepository extends BaseRepository
         }
 
         if ( ! $expense->expense_currency_id) {
-            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
+            $expense->expense_currency_id = \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
         }
 
         /*

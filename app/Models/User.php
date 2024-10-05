@@ -88,7 +88,7 @@ class User extends Authenticatable
         // if the user changes their email then they need to reconfirm it
         if ($user->isEmailBeingChanged()) {
             $user->confirmed = 0;
-            $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         }
     }
 
@@ -258,7 +258,7 @@ class User extends Authenticatable
      */
     public function getRequestsCount()
     {
-        return Session::get(SESSION_COUNTER, 0);
+        return \Illuminate\Support\Facades\Session::get(SESSION_COUNTER, 0);
     }
 
     /**
@@ -317,7 +317,7 @@ class User extends Authenticatable
         ];
 
         foreach ($keys as $key) {
-            Session::forget($key);
+            \Illuminate\Support\Facades\Session::forget($key);
         }
     }
 

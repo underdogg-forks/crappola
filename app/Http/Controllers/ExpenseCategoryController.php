@@ -33,7 +33,7 @@ class ExpenseCategoryController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE_CATEGORY,
             'datatable'  => new ExpenseCategoryDatatable(),
             'title'      => trans('texts.expense_categories'),
@@ -42,7 +42,7 @@ class ExpenseCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->categoryService->getDatatable(Request::input('sSearch'));
+        return $this->categoryService->getDatatable(\Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function create(ExpenseCategoryRequest $request)
@@ -54,7 +54,7 @@ class ExpenseCategoryController extends BaseController
             'title'    => trans('texts.new_category'),
         ];
 
-        return View::make('expense_categories.edit', $data);
+        return \Illuminate\Support\Facades\View::make('expense_categories.edit', $data);
     }
 
     public function edit(ExpenseCategoryRequest $request)
@@ -68,14 +68,14 @@ class ExpenseCategoryController extends BaseController
             'title'    => trans('texts.edit_category'),
         ];
 
-        return View::make('expense_categories.edit', $data);
+        return \Illuminate\Support\Facades\View::make('expense_categories.edit', $data);
     }
 
     public function store(CreateExpenseCategoryRequest $request)
     {
         $category = $this->categoryRepo->save($request->input());
 
-        Session::flash('message', trans('texts.created_expense_category'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_expense_category'));
 
         return redirect()->to($category->getRoute());
     }
@@ -84,21 +84,21 @@ class ExpenseCategoryController extends BaseController
     {
         $category = $this->categoryRepo->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_expense_category'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_expense_category'));
 
         return redirect()->to($category->getRoute());
     }
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
             $message = trans("texts.{$field}", ['count' => $count]);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return redirect()->to('/expense_categories');

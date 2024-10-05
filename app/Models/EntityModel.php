@@ -12,7 +12,7 @@ use Validator;
 /**
  * Class EntityModel.
  */
-class EntityModel extends Eloquent
+class EntityModel extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -78,9 +78,9 @@ class EntityModel extends Eloquent
         if ($context) {
             $user = $context instanceof User ? $context : $context->user;
             $account = $context->account;
-        } elseif (Auth::check()) {
-            $user = Auth::user();
-            $account = Auth::user()->account;
+        } elseif (\Illuminate\Support\Facades\Auth::check()) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
         } else {
             Utils::fatalError();
         }
@@ -173,14 +173,14 @@ class EntityModel extends Eloquent
 
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
-        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
+        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), \Illuminate\Support\Str::studly($entityType));
         if ( ! class_exists($requestClass)) {
-            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
+            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), \Illuminate\Support\Str::studly($entityType));
         }
 
         $request = new $requestClass();
         $request->setUserResolver(function () {
-            return Auth::user();
+            return \Illuminate\Support\Facades\Auth::user();
         });
         $request->setEntity($entity);
         $request->replace($data);
@@ -189,7 +189,7 @@ class EntityModel extends Eloquent
             return trans('texts.not_allowed');
         }
 
-        $validator = Validator::make($data, $request->rules());
+        $validator = \Illuminate\Support\Facades\Validator::make($data, $request->rules());
 
         if ($validator->fails()) {
             return $validator->messages()->first();
@@ -220,7 +220,7 @@ class EntityModel extends Eloquent
             'projects'           => 'briefcase',
         ];
 
-        return array_get($icons, $entityType);
+        return \Illuminate\Support\Arr::get($icons, $entityType);
     }
 
     public static function getFormUrl($entityType)
@@ -314,7 +314,7 @@ class EntityModel extends Eloquent
         }
 
         if ( ! $accountId) {
-            $accountId = Auth::user()->account_id;
+            $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
         }
 
         $query->where($this->getTable() . '.account_id', '=', $accountId);
@@ -327,12 +327,12 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && method_exists($this, 'getEntityType')
-            && ! Auth::user()->hasPermission('view_' . $this->getEntityType())
+        if (\Illuminate\Support\Facades\Auth::check() && method_exists($this, 'getEntityType')
+            && ! \Illuminate\Support\Facades\Auth::user()->hasPermission('view_' . $this->getEntityType())
             && $this->getEntityType() != ENTITY_TAX_RATE
             && $this->getEntityType() != ENTITY_DOCUMENT
             && $this->getEntityType() != ENTITY_INVITATION) {
-            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
+            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
         }
 
         return $query;
@@ -439,9 +439,9 @@ class EntityModel extends Eloquent
                     $this->public_id = $nextId;
                     if (env('MULTI_DB_ENABLED')) {
                         if ($this->contact_key) {
-                            $this->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
                         } elseif ($this->invitation_key) {
-                            $this->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
                         }
                     }
 

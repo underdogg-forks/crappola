@@ -229,7 +229,7 @@ class BankAccountService extends BaseService
 
         // look up bank account name
         foreach ($bankAccounts as $bankAccount) {
-            if (Hash::check($account->id, $bankAccount->account_number)) {
+            if (\Illuminate\Support\Facades\Hash::check($account->id, $bankAccount->account_number)) {
                 $obj->account_name = $bankAccount->account_name;
             }
         }
@@ -286,7 +286,7 @@ class BankAccountService extends BaseService
             $transaction->vendor = $vendor ? $vendor->name : $this->prepareValue($vendorName);
             $transaction->info = $this->prepareValue(mb_substr($transaction->name, 20));
             $transaction->memo = $this->prepareValue($transaction->memo);
-            $transaction->date = Auth::user()->account->formatDate($transaction->date);
+            $transaction->date = \Illuminate\Support\Facades\Auth::user()->account->formatDate($transaction->date);
             $transaction->amount *= -1;
             $account->transactions[] = $transaction;
         }

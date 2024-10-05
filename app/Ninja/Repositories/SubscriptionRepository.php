@@ -13,7 +13,7 @@ class SubscriptionRepository extends BaseRepository
 
     public function find($accountId)
     {
-        $query = DB::table('subscriptions')
+        $query = \Illuminate\Support\Facades\DB::table('subscriptions')
             ->where('subscriptions.account_id', '=', $accountId)
             ->whereNull('subscriptions.deleted_at')
             ->select(

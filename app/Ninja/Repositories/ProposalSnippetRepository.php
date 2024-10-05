@@ -20,9 +20,9 @@ class ProposalSnippetRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('proposal_snippets')
+        $query = \Illuminate\Support\Facades\DB::table('proposal_snippets')
             ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
-            ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
+            ->where('proposal_snippets.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->select(
                 'proposal_snippets.name',
                 'proposal_snippets.public_id',

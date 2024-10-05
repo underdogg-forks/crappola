@@ -667,7 +667,7 @@ if ( ! defined('APP_NAME')) {
 
     function uctrans($text, $data = [])
     {
-        $locale = Session::get(SESSION_LOCALE);
+        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
         return $locale == 'en' ? ucwords($text) : $text;
@@ -675,7 +675,7 @@ if ( ! defined('APP_NAME')) {
 
     function utrans($text, $data = [])
     {
-        $locale = Session::get(SESSION_LOCALE);
+        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
         return $locale == 'en' ? mb_strtoupper($text) : $text;
@@ -684,7 +684,7 @@ if ( ! defined('APP_NAME')) {
     // optional trans: only return the string if it's translated
     function otrans($text)
     {
-        $locale = Session::get(SESSION_LOCALE);
+        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
 
         if ($locale == 'en') {
             return trans($text);

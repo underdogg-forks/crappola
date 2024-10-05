@@ -47,7 +47,7 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+        $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
         $hasAccountIndentifier = request()->account_key || ($subdomain && ! in_array($subdomain, ['www', 'app']));
 
         if ( ! session('contact_key')) {
@@ -115,7 +115,7 @@ class LoginController extends Controller
             } elseif ($accountKey = request()->account_key) {
                 $account = Account::whereAccountKey($accountKey)->first();
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain && $subdomain != 'app') {
                     $account = Account::whereSubdomain($subdomain)->first();
                 }

@@ -22,7 +22,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if (Auth::user()->viewModel($model, $entityType)) {
+                    if (\Illuminate\Support\Facades\Auth::user()->viewModel($model, $entityType)) {
                         $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
 
                         return $this->addNote($str, $model->private_notes);
@@ -34,7 +34,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     }
 
@@ -99,25 +99,25 @@ class InvoiceDatatable extends EntityDatatable
             [
                 trans('texts.clone_invoice'),
                 function ($model) {
-                    return URL::to("invoices/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_INVOICE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
                 trans('texts.clone_quote'),
                 function ($model) {
-                    return URL::to("quotes/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("quotes/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_QUOTE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [
                 trans("texts.{$entityType}_history"),
                 function ($model) use ($entityType) {
-                    return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
                 },
             ],
             [
@@ -134,7 +134,7 @@ class InvoiceDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
+                    return \Illuminate\Support\Facades\Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
                 },
             ],
             [
@@ -143,7 +143,7 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->is_public && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                    return ! $model->is_public && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
                 },
             ],
             [
@@ -152,34 +152,34 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
                 },
             ],
             [
                 trans('texts.enter_payment'),
                 function ($model) {
-                    return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('create', ENTITY_PAYMENT);
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
             [
                 trans('texts.view_invoice'),
                 function ($model) {
-                    return URL::to("invoices/{$model->quote_invoice_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]);
                 },
             ],
             [
                 trans('texts.new_proposal'),
                 function ($model) {
-                    return URL::to("proposals/create/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("proposals/create/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && Auth::user()->can('create', ENTITY_PROPOSAL);
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PROPOSAL);
                 },
             ],
             [
@@ -188,7 +188,7 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:submitForm_quote('convert', {$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
                 },
             ],
         ];

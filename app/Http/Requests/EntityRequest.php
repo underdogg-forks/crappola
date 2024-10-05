@@ -33,7 +33,7 @@ class EntityRequest extends Request
             }
         }
         if ( ! $publicId) {
-            $publicId = \Request::input('public_id') ?: \Request::input('id');
+            $publicId = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('id');
         }
 
         if ( ! $publicId) {

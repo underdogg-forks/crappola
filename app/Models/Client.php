@@ -281,7 +281,7 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                $contact->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             }
         }
 
@@ -329,7 +329,7 @@ class Client extends EntityModel
      */
     public function getTotalCredit()
     {
-        return DB::table('credits')
+        return \Illuminate\Support\Facades\DB::table('credits')
             ->where('client_id', '=', $this->id)
             ->whereNull('deleted_at')
             ->sum('balance');

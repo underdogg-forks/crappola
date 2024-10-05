@@ -25,7 +25,7 @@ class DashboardController extends BaseController
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $viewAll = $user->hasPermission('view_reports');
         $userId = $user->id;
         $account = $user->account;
@@ -85,8 +85,8 @@ class DashboardController extends BaseController
             'showBlueVinePromo'     => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,
             'showExpenses'          => $expenses->count() && $account->isModuleEnabled(ENTITY_EXPENSE),
-            'headerClass'           => in_array(App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
-            'footerClass'           => in_array(App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
+            'headerClass'           => in_array(\Illuminate\Support\Facades\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
+            'footerClass'           => in_array(\Illuminate\Support\Facades\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
         ];
 
         if ($showBlueVinePromo) {
@@ -109,20 +109,20 @@ class DashboardController extends BaseController
             $data['usdLast12Months'] = $usdLast12Months;
         }
 
-        return View::make('dashboard', $data);
+        return \Illuminate\Support\Facades\View::make('dashboard', $data);
     }
 
     public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
     {
         $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
-        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
+        $data = $this->dashboardRepo->chartData(\Illuminate\Support\Facades\Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
 
         return json_encode($data);
     }
 
     private function getCurrencyCodes()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
 
         // get client/invoice currencies

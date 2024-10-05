@@ -52,7 +52,7 @@ class UserDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_user'),
                 function ($model) {
-                    return URL::to("users/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("users/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return $model->public_id;
@@ -61,7 +61,7 @@ class UserDatatable extends EntityDatatable
             [
                 uctrans('texts.send_invite'),
                 function ($model) {
-                    return URL::to("send_confirmation/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("send_confirmation/{$model->public_id}");
                 },
                 function ($model) {
                     return $model->public_id && ! $model->confirmed;

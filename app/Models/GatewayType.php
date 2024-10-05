@@ -9,7 +9,7 @@ use Utils;
 /**
  * Class GatewayType.
  */
-class GatewayType extends Eloquent
+class GatewayType extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -23,7 +23,7 @@ class GatewayType extends Eloquent
 
     public static function getIdFromAlias($alias)
     {
-        return Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
+        return \Illuminate\Support\Facades\Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
     }
 
     /**

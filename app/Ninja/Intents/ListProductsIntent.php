@@ -9,7 +9,7 @@ class ListProductsIntent extends ProductIntent
 {
     public function process()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $products = Product::scope()
             ->orderBy('product_key')
             ->limit(5)

@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Industry.
  */
-class Industry extends Eloquent
+class Industry extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

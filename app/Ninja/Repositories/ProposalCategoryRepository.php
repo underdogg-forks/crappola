@@ -20,8 +20,8 @@ class ProposalCategoryRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('proposal_categories')
-            ->where('proposal_categories.account_id', '=', Auth::user()->account_id)
+        $query = \Illuminate\Support\Facades\DB::table('proposal_categories')
+            ->where('proposal_categories.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->select(
                 'proposal_categories.name',
                 'proposal_categories.public_id',

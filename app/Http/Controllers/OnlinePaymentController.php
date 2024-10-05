@@ -90,7 +90,7 @@ class OnlinePaymentController extends BaseController
         $account->loadLocalizationSettings($invitation->invoice->client);
 
         if ( ! $gatewayTypeAlias) {
-            $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
+            $gatewayTypeId = \Illuminate\Support\Facades\Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
         } else {
@@ -113,7 +113,7 @@ class OnlinePaymentController extends BaseController
         }
 
         try {
-            return $paymentDriver->startPurchase(Request::all(), $sourceId);
+            return $paymentDriver->startPurchase(\Illuminate\Support\Facades\Request::all(), $sourceId);
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
         }
@@ -137,7 +137,7 @@ class OnlinePaymentController extends BaseController
         } elseif ($gatewayTypeAlias) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
         } else {
-            $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
+            $gatewayTypeId = \Illuminate\Support\Facades\Session::get($invitation->id . 'gateway_type');
         }
 
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
@@ -162,9 +162,9 @@ class OnlinePaymentController extends BaseController
                 return redirect('/client/dashboard')->withMessage(trans('texts.updated_payment_details'));
             }
             if ($paymentDriver->isTwoStep()) {
-                Session::flash('warning', trans('texts.bank_account_verification_next_steps'));
+                \Illuminate\Support\Facades\Session::flash('warning', trans('texts.bank_account_verification_next_steps'));
             } else {
-                Session::flash('message', trans('texts.applied_payment'));
+                \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_payment'));
             }
 
             return $this->completePurchase($invitation);
@@ -187,12 +187,12 @@ class OnlinePaymentController extends BaseController
             return redirect()->to(NINJA_WEB_URL, 301);
         }
 
-        $invitationKey = $invitationKey ?: Session::get('invitation_key');
+        $invitationKey = $invitationKey ?: \Illuminate\Support\Facades\Session::get('invitation_key');
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
             ->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
         if ( ! $gatewayTypeAlias) {
-            $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
+            $gatewayTypeId = \Illuminate\Support\Facades\Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
         } else {
@@ -201,13 +201,13 @@ class OnlinePaymentController extends BaseController
 
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if ($error = Request::input('error_description') ?: Request::input('error')) {
+        if ($error = \Illuminate\Support\Facades\Request::input('error_description') ?: \Illuminate\Support\Facades\Request::input('error')) {
             return $this->error($paymentDriver, $error);
         }
 
         try {
-            if ($paymentDriver->completeOffsitePurchase(Request::all())) {
-                Session::flash('message', trans('texts.applied_payment'));
+            if ($paymentDriver->completeOffsitePurchase(\Illuminate\Support\Facades\Request::all())) {
+                \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_payment'));
             }
 
             return $this->completePurchase($invitation, true);
@@ -286,7 +286,7 @@ class OnlinePaymentController extends BaseController
         $paymentDriver = $accountGateway->paymentDriver();
 
         try {
-            $result = $paymentDriver->handleWebHook(Request::all());
+            $result = $paymentDriver->handleWebHook(\Illuminate\Support\Facades\Request::all());
 
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
@@ -304,17 +304,17 @@ class OnlinePaymentController extends BaseController
             return redirect()->to(NINJA_WEB_URL, 301);
         }
 
-        $account = Account::whereAccountKey(Request::input('account_key'))->first();
-        $redirectUrl = Request::input('redirect_url');
-        $failureUrl = URL::previous();
+        $account = Account::whereAccountKey(\Illuminate\Support\Facades\Request::input('account_key'))->first();
+        $redirectUrl = \Illuminate\Support\Facades\Request::input('redirect_url');
+        $failureUrl = \Illuminate\Support\Facades\URL::previous();
 
         if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$failureUrl}/?error=invalid account");
         }
 
-        Auth::onceUsingId($account->users[0]->id);
+        \Illuminate\Support\Facades\Auth::onceUsingId($account->users[0]->id);
         $account->loadLocalizationSettings();
-        $product = Product::scope(Request::input('product_id'))->first();
+        $product = Product::scope(\Illuminate\Support\Facades\Request::input('product_id'))->first();
 
         if ( ! $product) {
             return redirect()->to("{$failureUrl}/?error=invalid product");
@@ -322,7 +322,7 @@ class OnlinePaymentController extends BaseController
 
         // check for existing client using contact_key
         $client = false;
-        if ($contactKey = Request::input('contact_key')) {
+        if ($contactKey = \Illuminate\Support\Facades\Request::input('contact_key')) {
             $client = Client::scope()->whereHas('contacts', function ($query) use ($contactKey): void {
                 $query->where('contact_key', $contactKey);
             })->first();
@@ -334,7 +334,7 @@ class OnlinePaymentController extends BaseController
                 'email'      => 'email|string|max:100',
             ];
 
-            $validator = Validator::make(Request::all(), $rules);
+            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
             if ($validator->fails()) {
                 return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
             }
@@ -358,17 +358,17 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id'          => $client->id,
-            'is_recurring'       => filter_var(Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
-            'is_public'          => filter_var(Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
-            'frequency_id'       => Request::input('frequency_id'),
-            'auto_bill_id'       => Request::input('auto_bill_id'),
-            'start_date'         => Request::input('start_date', date('Y-m-d')),
+            'is_recurring'       => filter_var(\Illuminate\Support\Facades\Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'is_public'          => filter_var(\Illuminate\Support\Facades\Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'frequency_id'       => \Illuminate\Support\Facades\Request::input('frequency_id'),
+            'auto_bill_id'       => \Illuminate\Support\Facades\Request::input('auto_bill_id'),
+            'start_date'         => \Illuminate\Support\Facades\Request::input('start_date', date('Y-m-d')),
             'tax_rate1'          => $account->tax_rate1,
             'tax_name1'          => $account->tax_name1 ?: '',
             'tax_rate2'          => $account->tax_rate2,
             'tax_name2'          => $account->tax_name2 ?: '',
-            'custom_text_value1' => Request::input('custom_invoice1'),
-            'custom_text_value2' => Request::input('custom_invoice2'),
+            'custom_text_value1' => \Illuminate\Support\Facades\Request::input('custom_invoice1'),
+            'custom_text_value2' => \Illuminate\Support\Facades\Request::input('custom_invoice2'),
             'invoice_items'      => [[
                 'product_key'   => $product->product_key,
                 'notes'         => $product->notes,
@@ -378,8 +378,8 @@ class OnlinePaymentController extends BaseController
                 'tax_name1'     => $product->tax_name1 ?: '',
                 'tax_rate2'     => $product->tax_rate2,
                 'tax_name2'     => $product->tax_name2 ?: '',
-                'custom_value1' => Request::input('custom_product1') ?: $product->custom_value1,
-                'custom_value2' => Request::input('custom_product2') ?: $product->custom_value2,
+                'custom_value1' => \Illuminate\Support\Facades\Request::input('custom_product1') ?: $product->custom_value1,
+                'custom_value2' => \Illuminate\Support\Facades\Request::input('custom_product2') ?: $product->custom_value2,
             ]],
         ];
         $invoice = $invoiceService->save($data);
@@ -399,7 +399,7 @@ class OnlinePaymentController extends BaseController
             $link = $invitation->getLink();
         }
 
-        if (filter_var(Request::input('return_link'), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(\Illuminate\Support\Facades\Request::input('return_link'), FILTER_VALIDATE_BOOLEAN)) {
             return $link;
         }
 
@@ -409,7 +409,7 @@ class OnlinePaymentController extends BaseController
     public function showAppleMerchantId(): void
     {
         if (Utils::isNinja()) {
-            $subdomain = Utils::getSubdomain(Request::server('HTTP_HOST'));
+            $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
             if ( ! $subdomain || $subdomain == 'app') {
                 exit('Invalid subdomain');
             }
@@ -469,7 +469,7 @@ class OnlinePaymentController extends BaseController
         }
 
         $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $displayError);
-        Session::flash('error', $message);
+        \Illuminate\Support\Facades\Session::flash('error', $message);
 
         $message = sprintf('Payment Error [%s]: %s', $paymentDriver->providerName(), $logError);
         Utils::logError($message, 'PHP', true);

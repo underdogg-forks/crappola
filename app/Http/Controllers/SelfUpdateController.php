@@ -56,7 +56,7 @@ class SelfUpdateController extends BaseController
     {
         $this->updater->source()->update();
 
-        return Redirect::to('/');
+        return \Illuminate\Support\Facades\Redirect::to('/');
     }
 
     public function download(): void

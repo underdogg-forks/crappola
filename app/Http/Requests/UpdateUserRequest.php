@@ -15,7 +15,7 @@ class UpdateUserRequest extends EntityRequest
      */
     public function authorize()
     {
-        return Auth::user()->is_admin || $this->user()->id == Auth::user()->id;
+        return \Illuminate\Support\Facades\Auth::user()->is_admin || $this->user()->id == \Illuminate\Support\Facades\Auth::user()->id;
     }
 
     /**
@@ -26,7 +26,7 @@ class UpdateUserRequest extends EntityRequest
     public function rules()
     {
         return [
-            'email'      => 'email|required|unique:users,email,' . Auth::user()->id . ',id',
+            'email'      => 'email|required|unique:users,email,' . \Illuminate\Support\Facades\Auth::user()->id . ',id',
             'first_name' => 'required',
             'last_name'  => 'required',
         ];

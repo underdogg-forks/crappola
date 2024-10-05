@@ -106,7 +106,7 @@ class AbstractReport
     // convert the date format to one supported by tablesorter
     public function convertDateFormat()
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $format = $account->getMomentDateFormat();
         $format = mb_strtolower($format);
         $format = str_replace('do', '', $format);
@@ -258,7 +258,7 @@ class AbstractReport
 
     protected function addToTotals($currencyId, $field, $value, $dimension = false): void
     {
-        $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
+        $currencyId = $currencyId ?: \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
 
         if ( ! isset($this->totals[$currencyId][$dimension])) {
             $this->totals[$currencyId][$dimension] = [];

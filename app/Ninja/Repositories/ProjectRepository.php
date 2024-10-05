@@ -21,8 +21,8 @@ class ProjectRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = DB::table('projects')
-            ->where('projects.account_id', '=', Auth::user()->account_id)
+        $query = \Illuminate\Support\Facades\DB::table('projects')
+            ->where('projects.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
@@ -41,7 +41,7 @@ class ProjectRepository extends BaseRepository
                 'projects.due_date',
                 'projects.budgeted_hours',
                 'projects.private_notes',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
                 'clients.public_id as client_public_id'
             );

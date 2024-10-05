@@ -55,7 +55,7 @@ class EntityTransformer extends TransformerAbstract
     {
         $data = [
             'account_key' => $this->account->account_key,
-            'is_owner'    => (bool) (Auth::check() && Auth::user()->owns($entity)),
+            'is_owner'    => (bool) (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->owns($entity)),
         ];
 
         if ($entity->relationLoaded('user')) {

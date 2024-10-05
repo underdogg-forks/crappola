@@ -48,7 +48,7 @@ class ClientController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_CLIENT,
             'datatable'  => new ClientDatatable(),
             'title'      => trans('texts.clients'),
@@ -58,8 +58,8 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        $search = Request::input('sSearch');
-        $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
+        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
     }
@@ -73,7 +73,7 @@ class ClientController extends BaseController
     {
         $client = $this->clientService->save($request->input());
 
-        Session::flash('message', trans('texts.created_client'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_client'));
 
         return redirect()->to($client->getRoute());
     }
@@ -88,23 +88,23 @@ class ClientController extends BaseController
     public function show(ClientRequest $request)
     {
         $client = $request->entity();
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
 
         //$user->can('view', [ENTITY_CLIENT, $client]);
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/invoices/create/' . $client->public_id)];
         }
         if ($user->can('create', ENTITY_TASK)) {
-            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => \Illuminate\Support\Facades\URL::to('/tasks/create/' . $client->public_id)];
         }
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
-            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => \Illuminate\Support\Facades\URL::to('/quotes/create/' . $client->public_id)];
         }
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/recurring_invoices/create/' . $client->public_id)];
         }
 
         if ( ! empty($actionLinks)) {
@@ -112,15 +112,15 @@ class ClientController extends BaseController
         }
 
         if ($user->can('create', ENTITY_PAYMENT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => \Illuminate\Support\Facades\URL::to('/payments/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_CREDIT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => \Illuminate\Support\Facades\URL::to('/credits/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_EXPENSE)) {
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => \Illuminate\Support\Facades\URL::to('/expenses/create/' . $client->public_id)];
         }
 
         $token = $client->getGatewayToken();
@@ -140,7 +140,7 @@ class ClientController extends BaseController
             'gatewayName'          => $token ? $token->gatewayName() : false,
         ];
 
-        return View::make('clients.show', $data);
+        return \Illuminate\Support\Facades\View::make('clients.show', $data);
     }
 
     /**
@@ -152,8 +152,8 @@ class ClientController extends BaseController
     {
         //Auth::user()->can('create', ENTITY_CLIENT);
 
-        if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . ' clients']);
+        if (Client::scope()->withTrashed()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+            return \Illuminate\Support\Facades\View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . \Illuminate\Support\Facades\Auth::user()->getMaxNumClients() . ' clients']);
         }
 
         $data = [
@@ -165,7 +165,7 @@ class ClientController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        return View::make('clients.edit', $data);
+        return \Illuminate\Support\Facades\View::make('clients.edit', $data);
     }
 
     /**
@@ -188,13 +188,13 @@ class ClientController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        if (Auth::user()->account->isNinjaAccount()) {
+        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount()) {
             if ($account = Account::whereId($client->public_id)->first()) {
                 $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 
-        return View::make('clients.edit', $data);
+        return \Illuminate\Support\Facades\View::make('clients.edit', $data);
     }
 
     /**
@@ -208,15 +208,15 @@ class ClientController extends BaseController
     {
         $client = $this->clientService->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_client'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_client'));
 
         return redirect()->to($client->getRoute());
     }
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
@@ -225,7 +225,7 @@ class ClientController extends BaseController
         $count = $this->clientService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_client', $count);
-        Session::flash('message', $message);
+        \Illuminate\Support\Facades\Session::flash('message', $message);
 
         if ($action == 'purge') {
             return redirect('dashboard')->withMessage($message);
@@ -239,7 +239,7 @@ class ClientController extends BaseController
         $statusId = request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
 
         if ( ! $startDate) {
@@ -279,11 +279,11 @@ class ClientController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data'         => Request::old('data'),
-            'account'      => Auth::user()->account,
-            'sizes'        => Cache::get('sizes'),
-            'customLabel1' => Auth::user()->account->customLabel('client1'),
-            'customLabel2' => Auth::user()->account->customLabel('client2'),
+            'data'         => \Illuminate\Support\Facades\Request::old('data'),
+            'account'      => \Illuminate\Support\Facades\Auth::user()->account,
+            'sizes'        => \Illuminate\Support\Facades\Cache::get('sizes'),
+            'customLabel1' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client1'),
+            'customLabel2' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client2'),
         ];
     }
 }

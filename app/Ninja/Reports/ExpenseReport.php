@@ -49,7 +49,7 @@ class ExpenseReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];
         $with = ['client.contacts', 'vendor'];

@@ -28,7 +28,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = Request::all();
+        $input = \Illuminate\Support\Facades\Request::all();
         $botUserId = $input['from']['id'];
 
         if ( ! $token = $this->authenticate($input)) {
@@ -78,7 +78,7 @@ class BotController extends Controller
                             return SkypeResponse::message(trans('texts.not_authorized'));
                         }
 
-                        Auth::onceUsingId($user->id);
+                        \Illuminate\Support\Facades\Auth::onceUsingId($user->id);
                         $user->account->loadLocalizationSettings();
 
                         $data = $this->parseMessage($text);
@@ -125,7 +125,7 @@ class BotController extends Controller
             return false;
         }
 
-        if ($token = Cache::get('msbot_token')) {
+        if ($token = \Illuminate\Support\Facades\Cache::get('msbot_token')) {
             return $token;
         }
 
@@ -139,7 +139,7 @@ class BotController extends Controller
         $response = json_decode($response);
 
         $expires = ($response->expires_in / 60) - 5;
-        Cache::put('msbot_token', $response->access_token, $expires);
+        \Illuminate\Support\Facades\Cache::put('msbot_token', $response->access_token, $expires);
 
         return $response->access_token;
     }
@@ -211,7 +211,7 @@ class BotController extends Controller
 
         // delete any expired codes
         SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '<', DB::raw('now() - INTERVAL 10 MINUTE'))
+            ->where('created_at', '<', \Illuminate\Support\Facades\DB::raw('now() - INTERVAL 10 MINUTE'))
             ->delete();
 
         if (SecurityCode::whereBotUserId($botUserId)->first()) {
@@ -245,7 +245,7 @@ class BotController extends Controller
         }
 
         $code = SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '>', DB::raw('now() - INTERVAL 10 MINUTE'))
+            ->where('created_at', '>', \Illuminate\Support\Facades\DB::raw('now() - INTERVAL 10 MINUTE'))
             ->where('attempts', '<', 5)
             ->first();
 

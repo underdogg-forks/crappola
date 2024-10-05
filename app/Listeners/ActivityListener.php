@@ -395,7 +395,7 @@ class ActivityListener
             $event->payment->amount * -1,
             $event->payment->amount,
             false,
-            App::runningInConsole() ? 'auto_billed' : ''
+            \Illuminate\Support\Facades\App::runningInConsole() ? 'auto_billed' : ''
         );
     }
 

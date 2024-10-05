@@ -55,8 +55,8 @@ class ExpenseRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $accountid = Auth::user()->account_id;
-        $query = DB::table('expenses')
+        $accountid = \Illuminate\Support\Facades\Auth::user()->account_id;
+        $query = \Illuminate\Support\Facades\DB::table('expenses')
             ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -72,13 +72,13 @@ class ExpenseRepository extends BaseRepository
                     ->orWhere('contacts.is_primary', '=', null);
             })
             ->select(
-                DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) status'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) status'),
                 'expenses.account_id',
                 'expenses.amount',
                 'expenses.deleted_at',
                 'expenses.exchange_rate',
                 'expenses.expense_date as expense_date_sql',
-                DB::raw('CONCAT(expenses.expense_date, expenses.created_at) as expense_date'),
+                \Illuminate\Support\Facades\DB::raw('CONCAT(expenses.expense_date, expenses.created_at) as expense_date'),
                 'expenses.id',
                 'expenses.is_deleted',
                 'expenses.private_notes',
@@ -103,7 +103,7 @@ class ExpenseRepository extends BaseRepository
                 'vendors.name as vendor_name',
                 'vendors.public_id as vendor_public_id',
                 'vendors.user_id as vendor_user_id',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
                 'clients.user_id as client_user_id',
                 'contacts.first_name',
@@ -167,7 +167,7 @@ class ExpenseRepository extends BaseRepository
         } elseif ($publicId) {
             $expense = Expense::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
-                Log::warning('Entity not set in expense repo save');
+                \Illuminate\Support\Facades\Log::warning('Entity not set in expense repo save');
             }
         } else {
             $expense = Expense::createNew();
@@ -188,10 +188,10 @@ class ExpenseRepository extends BaseRepository
         }
 
         if ( ! $expense->expense_currency_id) {
-            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
+            $expense->expense_currency_id = \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
         }
         if ( ! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = Auth::user()->account->getCurrencyId();
+            $expense->invoice_currency_id = \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
         }
 
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
@@ -209,7 +209,7 @@ class ExpenseRepository extends BaseRepository
             // check document completed upload before user submitted form
             if ($document_id) {
                 $document = Document::scope($document_id)->first();
-                if ($document && Auth::user()->can('edit', $document)) {
+                if ($document && \Illuminate\Support\Facades\Auth::user()->can('edit', $document)) {
                     $document->invoice_id = null;
                     $document->expense_id = $expense->id;
                     $document->save();

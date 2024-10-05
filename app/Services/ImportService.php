@@ -213,7 +213,7 @@ class ImportService
                 }
             }
 
-            $account = Auth::user()->account;
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
             $account->fill($settings);
             $account->save();
 
@@ -287,7 +287,7 @@ class ImportService
             }
         }
 
-        File::delete($fileName);
+        \Illuminate\Support\Facades\File::delete($fileName);
 
         return $this->results;
     }
@@ -366,8 +366,8 @@ class ImportService
             $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
 
             if ($entityType === ENTITY_CLIENT) {
-                if (count($data[$entityType]['data']) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
-                    throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+                if (count($data[$entityType]['data']) + Client::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+                    throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
                 }
             }
         }
@@ -535,7 +535,7 @@ class ImportService
             }
         }
 
-        File::delete($fileName);
+        \Illuminate\Support\Facades\File::delete($fileName);
 
         return $results;
     }
@@ -667,8 +667,8 @@ class ImportService
     private function checkClientCount($count): void
     {
         $totalClients = $count + Client::scope()->withTrashed()->count();
-        if ($totalClients > Auth::user()->getMaxNumClients()) {
-            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+        if ($totalClients > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+            throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
         }
     }
 
@@ -780,7 +780,7 @@ class ImportService
         $source = IMPORT_CSV;
 
         $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
-        $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, $timestamp, $entityType);
+        $fileName = sprintf('%s/%s_%s_%s.csv', $path, \Illuminate\Support\Facades\Auth::user()->account_id, $timestamp, $entityType);
         $data = $this->getCsvData($fileName);
         $this->checkData($entityType, count($data));
         $this->initMaps();
@@ -820,7 +820,7 @@ class ImportService
             }
         }
 
-        File::delete($fileName);
+        \Illuminate\Support\Facades\File::delete($fileName);
 
         return $results;
     }
@@ -935,13 +935,13 @@ class ImportService
             $this->addProductToMaps($product);
         }
 
-        $countries = Cache::get('countries');
+        $countries = \Illuminate\Support\Facades\Cache::get('countries');
         foreach ($countries as $country) {
             $this->maps['countries'][mb_strtolower($country->name)] = $country->id;
             $this->maps['countries2'][mb_strtolower($country->iso_3166_2)] = $country->id;
         }
 
-        $currencies = Cache::get('currencies');
+        $currencies = \Illuminate\Support\Facades\Cache::get('currencies');
         foreach ($currencies as $currency) {
             $this->maps['currencies'][mb_strtolower($currency->code)] = $currency->id;
         }

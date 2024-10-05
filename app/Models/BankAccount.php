@@ -39,7 +39,7 @@ class BankAccount extends EntityModel
      */
     public function getUsername()
     {
-        return Crypt::decrypt($this->username);
+        return \Illuminate\Support\Facades\Crypt::decrypt($this->username);
     }
 
     /**
@@ -47,7 +47,7 @@ class BankAccount extends EntityModel
      */
     public function setUsername($value): void
     {
-        $this->username = Crypt::encrypt($value);
+        $this->username = \Illuminate\Support\Facades\Crypt::encrypt($value);
     }
 
     /**

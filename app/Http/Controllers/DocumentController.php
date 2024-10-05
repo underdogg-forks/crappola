@@ -37,11 +37,11 @@ class DocumentController extends BaseController
                 'Content-Length' => $document->size,
             ];
 
-            $response = Response::stream(function () use ($stream): void {
+            $response = \Illuminate\Support\Facades\Response::stream(function () use ($stream): void {
                 fpassthru($stream);
             }, 200, $headers);
         } else {
-            $response = Response::make($document->getRaw(), 200);
+            $response = \Illuminate\Support\Facades\Response::make($document->getRaw(), 200);
             $response->header('content-type', Document::$types[$document->type]['mime']);
         }
 
@@ -58,7 +58,7 @@ class DocumentController extends BaseController
         $document = $request->entity();
 
         if (empty($document->preview)) {
-            return Response::view('error', ['error' => 'Preview does not exist!'], 404);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Preview does not exist!'], 404);
         }
 
         $direct_url = $document->getDirectPreviewUrl();
@@ -67,7 +67,7 @@ class DocumentController extends BaseController
         }
 
         $previewType = pathinfo($document->preview, PATHINFO_EXTENSION);
-        $response = Response::make($document->getRawPreview(), 200);
+        $response = \Illuminate\Support\Facades\Response::make($document->getRawPreview(), 200);
         $response->header('content-type', Document::$types[$previewType]['mime']);
 
         return $response;
@@ -82,12 +82,12 @@ class DocumentController extends BaseController
         }
 
         if ( ! $document->isPDFEmbeddable()) {
-            return Response::view('error', ['error' => 'Image does not exist!'], 404);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
-        $response = Response::make($content, 200);
+        $response = \Illuminate\Support\Facades\Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
 
@@ -99,7 +99,7 @@ class DocumentController extends BaseController
         $result = $this->documentRepo->upload($request->all(), $doc_array);
 
         if (is_string($result)) {
-            return Response::json([
+            return \Illuminate\Support\Facades\Response::json([
                 'error' => $result,
                 'code'  => 400,
             ], 400);
@@ -118,7 +118,7 @@ class DocumentController extends BaseController
             ];
         }
 
-        return Response::json($response, 200);
+        return \Illuminate\Support\Facades\Response::json($response, 200);
     }
 
     public function delete(UpdateDocumentRequest $request)

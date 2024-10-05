@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class PaymentLibrary.
  */
-class PaymentLibrary extends Eloquent
+class PaymentLibrary extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

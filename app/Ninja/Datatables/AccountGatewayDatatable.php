@@ -50,14 +50,14 @@ class AccountGatewayDatatable extends EntityDatatable
 
                     try {
                         if ($wepayState == 'action_required') {
-                            $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(URL::to('gateways'));
+                            $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(\Illuminate\Support\Facades\URL::to('gateways'));
                             $linkText .= ' <span style="color:#d9534f">(' . trans('texts.action_required') . ')</span>';
                             $url = $updateUri;
                             $html = "<a href=\"{$url}\">{$linkText}</a>";
                             $model->setupUrl = $url;
                         } elseif ($wepayState == 'pending') {
                             $linkText .= ' (' . trans('texts.resend_confirmation_email') . ')';
-                            $model->resendConfirmationUrl = $url = URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
+                            $model->resendConfirmationUrl = $url = \Illuminate\Support\Facades\URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
                             $html = link_to($url, $linkText)->toHtml();
                         }
                     } catch (WePayException $ex) {
@@ -152,7 +152,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ], [
                 uctrans('texts.edit_gateway'),
                 function ($model) {
-                    return URL::to("gateways/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("gateways/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return ! $model->deleted_at;
@@ -190,7 +190,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ],
         ];
 
-        foreach (Cache::get('gatewayTypes') as $gatewayType) {
+        foreach (\Illuminate\Support\Facades\Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
                 trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
                 function () use ($gatewayType) {

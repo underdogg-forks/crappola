@@ -57,7 +57,7 @@ class InvoiceService extends BaseService
     {
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
-            dispatch(new DownloadInvoices(Auth::user(), $invoices));
+            dispatch(new DownloadInvoices(\Illuminate\Support\Facades\Auth::user(), $invoices));
 
             return count($invoices);
         }
@@ -76,13 +76,13 @@ class InvoiceService extends BaseService
         if (isset($data['client'])) {
             $canSaveClient = false;
             $canViewClient = false;
-            $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
+            $clientPublicId = \Illuminate\Support\Arr::get($data, 'client.public_id') ?: \Illuminate\Support\Arr::get($data, 'client.id');
             if (empty($clientPublicId) || (int) $clientPublicId < 0) {
-                $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
+                $canSaveClient = \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $client = Client::scope($clientPublicId)->first();
-                $canSaveClient = Auth::user()->can('edit', $client);
-                $canViewClient = Auth::user()->can('view', $client);
+                $canSaveClient = \Illuminate\Support\Facades\Auth::user()->can('edit', $client);
+                $canViewClient = \Illuminate\Support\Facades\Auth::user()->can('view', $client);
             }
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
@@ -153,7 +153,7 @@ class InvoiceService extends BaseService
             ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
         if ( ! Utils::hasPermission('view_' . $entityType)) {
-            $query->where('invoices.user_id', '=', Auth::user()->id);
+            $query->where('invoices.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);

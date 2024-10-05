@@ -25,7 +25,7 @@ class PaymentReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
         $subgroup = $this->options['subgroup'];

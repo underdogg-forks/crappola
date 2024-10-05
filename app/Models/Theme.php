@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class Theme.
  */
-class Theme extends Eloquent
+class Theme extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool

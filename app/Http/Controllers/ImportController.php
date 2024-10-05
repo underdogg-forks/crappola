@@ -22,11 +22,11 @@ class ImportController extends BaseController
 
     public function doImport(Request $request)
     {
-        if ( ! Auth::user()->confirmed) {
+        if ( ! \Illuminate\Support\Facades\Auth::user()->confirmed) {
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
         }
 
-        $source = \Request::input('source');
+        $source = \Illuminate\Support\Facades\Request::input('source');
         $files = [];
         $timestamp = time();
 
@@ -51,30 +51,30 @@ class ImportController extends BaseController
                     }
                 }
 
-                $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
+                $newFileName = sprintf('%s_%s_%s.%s', \Illuminate\Support\Facades\Auth::user()->account_id, $timestamp, $fileName, $extension);
                 $file->move($destinationPath, $newFileName);
                 $files[$entityType] = $destinationPath . '/' . $newFileName;
             }
         }
 
         if ( ! count($files)) {
-            Session::flash('error', trans('texts.select_file'));
+            \Illuminate\Support\Facades\Session::flash('error', trans('texts.select_file'));
 
-            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+            return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
 
         try {
             if ($source === IMPORT_CSV) {
                 $data = $this->importService->mapCSV($files);
 
-                return View::make('accounts.import_map', [
+                return \Illuminate\Support\Facades\View::make('accounts.import_map', [
                     'data'      => $data,
                     'timestamp' => $timestamp,
                 ]);
             }
             if ($source === IMPORT_JSON) {
-                $includeData = filter_var(\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
-                $includeSettings = filter_var(\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
+                $includeData = filter_var(\Illuminate\Support\Facades\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
+                $includeSettings = filter_var(\Illuminate\Support\Facades\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
                 if (config('queue.default') === 'sync') {
                     $results = $this->importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
                     $message = $this->importService->presentResults($results, $includeSettings);
@@ -84,7 +84,7 @@ class ImportController extends BaseController
                         'include_data'     => $includeData,
                         'include_settings' => $includeSettings,
                     ];
-                    $this->dispatch(new ImportData(Auth::user(), IMPORT_JSON, $settings));
+                    $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), IMPORT_JSON, $settings));
                     $message = trans('texts.import_started');
                 }
             } else {
@@ -96,7 +96,7 @@ class ImportController extends BaseController
                         'files'  => $files,
                         'source' => $source,
                     ];
-                    $this->dispatch(new ImportData(Auth::user(), false, $settings));
+                    $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), false, $settings));
                     $message = trans('texts.import_started');
                 }
             }
@@ -104,18 +104,18 @@ class ImportController extends BaseController
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);
         } catch (Exception $exception) {
             Utils::logError($exception);
-            Session::flash('error', $exception->getMessage());
+            \Illuminate\Support\Facades\Session::flash('error', $exception->getMessage());
 
-            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+            return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
 
     public function doImportCSV()
     {
         try {
-            $map = \Request::input('map');
-            $headers = \Request::input('headers');
-            $timestamp = \Request::input('timestamp');
+            $map = \Illuminate\Support\Facades\Request::input('map');
+            $headers = \Illuminate\Support\Facades\Request::input('headers');
+            $timestamp = \Illuminate\Support\Facades\Request::input('timestamp');
 
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);
@@ -126,16 +126,16 @@ class ImportController extends BaseController
                     'map'       => $map,
                     'headers'   => $headers,
                 ];
-                $this->dispatch(new ImportData(Auth::user(), IMPORT_CSV, $settings));
+                $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), IMPORT_CSV, $settings));
                 $message = trans('texts.import_started');
             }
 
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);
         } catch (Exception $exception) {
             Utils::logError($exception);
-            Session::flash('error', $exception->getMessage());
+            \Illuminate\Support\Facades\Session::flash('error', $exception->getMessage());
 
-            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+            return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
 
@@ -144,13 +144,13 @@ class ImportController extends BaseController
         try {
             $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
             foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE, ENTITY_PRODUCT] as $entityType) {
-                $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, request()->timestamp, $entityType);
-                File::delete($fileName);
+                $fileName = sprintf('%s/%s_%s_%s.csv', $path, \Illuminate\Support\Facades\Auth::user()->account_id, request()->timestamp, $entityType);
+                \Illuminate\Support\Facades\File::delete($fileName);
             }
         } catch (Exception $exception) {
             Utils::logError($exception);
         }
 
-        return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+        return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 }

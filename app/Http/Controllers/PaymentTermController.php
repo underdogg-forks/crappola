@@ -37,7 +37,7 @@ class PaymentTermController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }
 
     /**
@@ -45,7 +45,7 @@ class PaymentTermController extends BaseController
      */
     public function getDatatable()
     {
-        $accountId = Auth::user()->account_id;
+        $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
 
         return $this->paymentTermService->getDatatable($accountId);
     }
@@ -64,7 +64,7 @@ class PaymentTermController extends BaseController
             'title'       => trans('texts.edit_payment_term'),
         ];
 
-        return View::make('accounts.payment_term', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.payment_term', $data);
     }
 
     /**
@@ -79,7 +79,7 @@ class PaymentTermController extends BaseController
             'title'       => trans('texts.create_payment_term'),
         ];
 
-        return View::make('accounts.payment_term', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.payment_term', $data);
     }
 
     /**
@@ -105,13 +105,13 @@ class PaymentTermController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->paymentTermService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_payment_term'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_payment_term'));
 
-        return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }
 
     /**
@@ -127,13 +127,13 @@ class PaymentTermController extends BaseController
             $paymentTerm = PaymentTerm::createNew();
         }
 
-        $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
+        $paymentTerm->num_days = Utils::parseInt(\Illuminate\Support\Facades\Request::input('num_days'));
         $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 
         $message = $publicId ? trans('texts.updated_payment_term') : trans('texts.created_payment_term');
-        Session::flash('message', $message);
+        \Illuminate\Support\Facades\Session::flash('message', $message);
 
-        return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }
 }

@@ -125,7 +125,7 @@ class PaymentApiController extends BaseAPIController
 
         $payment = $this->paymentService->save($request->input(), null, $request->invoice);
 
-        if (Request::input('email_receipt')) {
+        if (\Illuminate\Support\Facades\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
@@ -177,7 +177,7 @@ class PaymentApiController extends BaseAPIController
         $data['public_id'] = $publicId;
         $payment = $this->paymentRepo->save($data, $request->entity());
 
-        if (Request::input('email_receipt')) {
+        if (\Illuminate\Support\Facades\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 

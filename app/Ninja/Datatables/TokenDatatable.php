@@ -32,7 +32,7 @@ class TokenDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_token'),
                 function ($model) {
-                    return URL::to("tokens/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("tokens/{$model->public_id}/edit");
                 },
             ],
         ];

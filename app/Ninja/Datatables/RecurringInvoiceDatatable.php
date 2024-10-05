@@ -83,28 +83,28 @@ class RecurringInvoiceDatatable extends EntityDatatable
             [
                 trans('texts.edit_invoice'),
                 function ($model) {
-                    return URL::to("invoices/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]);
                 },
             ],
             [
                 trans('texts.clone_invoice'),
                 function ($model) {
-                    return URL::to("invoices/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_INVOICE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
                 trans('texts.clone_quote'),
                 function ($model) {
-                    return URL::to("quotes/{$model->public_id}/clone");
+                    return \Illuminate\Support\Facades\URL::to("quotes/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_QUOTE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
         ];

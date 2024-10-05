@@ -101,7 +101,7 @@ class SendRenewalInvoices extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
+            \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject("SendRenewalInvoices [{$database}]: Finished successfully");

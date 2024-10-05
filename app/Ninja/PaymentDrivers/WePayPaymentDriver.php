@@ -234,7 +234,7 @@ class WePayPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        if ($transactionId = Session::get($this->invitation->id . 'payment_ref')) {
+        if ($transactionId = \Illuminate\Support\Facades\Session::get($this->invitation->id . 'payment_ref')) {
             $data['transaction_id'] = $transactionId;
         }
 

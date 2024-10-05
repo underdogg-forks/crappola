@@ -18,7 +18,7 @@ class PaymentRepository extends BaseRepository
 
     public function find($clientPublicId = null, $filter = null)
     {
-        $query = DB::table('payments')
+        $query = \Illuminate\Support\Facades\DB::table('payments')
             ->join('accounts', 'accounts.id', '=', 'payments.account_id')
             ->join('clients', 'clients.id', '=', 'payments.client_id')
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -27,20 +27,20 @@ class PaymentRepository extends BaseRepository
             ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
             ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
             ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-            ->where('payments.account_id', '=', Auth::user()->account_id)
+            ->where('payments.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->where('contacts.is_primary', '=', true)
             ->where('contacts.deleted_at', '=', null)
             ->where('invoices.is_deleted', '=', false)
             ->select(
                 'payments.public_id',
-                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'payments.transaction_reference',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
                 'clients.user_id as client_user_id',
                 'payments.amount',
-                DB::raw('CONCAT(payments.payment_date, payments.created_at) as date'),
+                \Illuminate\Support\Facades\DB::raw('CONCAT(payments.payment_date, payments.created_at) as date'),
                 'payments.payment_date',
                 'payments.payment_status_id',
                 'payments.payment_type_id',
@@ -99,7 +99,7 @@ class PaymentRepository extends BaseRepository
 
     public function findForContact($contactId = null, $filter = null)
     {
-        $query = DB::table('payments')
+        $query = \Illuminate\Support\Facades\DB::table('payments')
             ->join('accounts', 'accounts.id', '=', 'payments.account_id')
             ->join('clients', 'clients.id', '=', 'payments.client_id')
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -117,12 +117,12 @@ class PaymentRepository extends BaseRepository
             ->where('invoices.is_public', '=', true)
             ->where('invitations.contact_id', '=', $contactId)
             ->select(
-                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'invitations.invitation_key',
                 'payments.public_id',
                 'payments.transaction_reference',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
                 'payments.amount',
                 'payments.payment_date',
@@ -162,13 +162,13 @@ class PaymentRepository extends BaseRepository
         } elseif ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
-                Log::warning('Entity not set in payment repo save');
+                \Illuminate\Support\Facades\Log::warning('Entity not set in payment repo save');
             }
         } else {
             $payment = Payment::createNew();
 
-            if (Auth::check() && Auth::user()->account->payment_type_id) {
-                $payment->payment_type_id = Auth::user()->account->payment_type_id;
+            if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->account->payment_type_id) {
+                $payment->payment_type_id = \Illuminate\Support\Facades\Auth::user()->account->payment_type_id;
             }
         }
 

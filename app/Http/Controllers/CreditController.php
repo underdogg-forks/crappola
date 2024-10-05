@@ -39,7 +39,7 @@ class CreditController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_CREDIT,
             'datatable'  => new CreditDatatable(),
             'title'      => trans('texts.credits'),
@@ -48,13 +48,13 @@ class CreditController extends BaseController
 
     public function getDatatable($clientPublicId = null)
     {
-        return $this->creditService->getDatatable($clientPublicId, Request::input('sSearch'));
+        return $this->creditService->getDatatable($clientPublicId, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function create(CreditRequest $request)
     {
         $data = [
-            'clientPublicId' => Request::old('client') ? Request::old('client') : ($request->client_id ?: 0),
+            'clientPublicId' => \Illuminate\Support\Facades\Request::old('client') ? \Illuminate\Support\Facades\Request::old('client') : ($request->client_id ?: 0),
             'credit'         => null,
             'method'         => 'POST',
             'url'            => 'credits',
@@ -62,7 +62,7 @@ class CreditController extends BaseController
             'clients'        => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
-        return View::make('credits.edit', $data);
+        return \Illuminate\Support\Facades\View::make('credits.edit', $data);
     }
 
     public function edit($publicId)
@@ -83,7 +83,7 @@ class CreditController extends BaseController
             'clients'        => null,
         ];
 
-        return View::make('credits.edit', $data);
+        return \Illuminate\Support\Facades\View::make('credits.edit', $data);
     }
 
     /**
@@ -93,9 +93,9 @@ class CreditController extends BaseController
      */
     public function show($publicId)
     {
-        Session::reflash();
+        \Illuminate\Support\Facades\Session::reflash();
 
-        return Redirect::to("credits/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to("credits/{$publicId}/edit");
     }
 
     public function update(UpdateCreditRequest $request)
@@ -112,13 +112,13 @@ class CreditController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
             $message = Utils::pluralize($action . 'd_credit', $count);
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
         return $this->returnBulk(ENTITY_CREDIT, $action, $ids);
@@ -126,10 +126,10 @@ class CreditController extends BaseController
 
     private function save($credit = null)
     {
-        $credit = $this->creditService->save(Request::all(), $credit);
+        $credit = $this->creditService->save(\Illuminate\Support\Facades\Request::all(), $credit);
 
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
-        Session::flash('message', $message);
+        \Illuminate\Support\Facades\Session::flash('message', $message);
 
         return redirect()->to("clients/{$credit->client->public_id}#credits");
     }

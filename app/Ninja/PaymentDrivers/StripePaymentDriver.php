@@ -105,7 +105,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'limit=1'
         );
 
-        if (array_get($result, 'object') == 'list') {
+        if (\Illuminate\Support\Arr::get($result, 'object') == 'list') {
             return true;
         }
 
@@ -161,7 +161,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $this->prepareStripeAPI();
 
             // Get information about the currency we're using.
-            $currency = Cache::get('currencies')->where('code', mb_strtoupper($data['currency']))->first();
+            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->where('code', mb_strtoupper($data['currency']))->first();
 
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
@@ -224,9 +224,9 @@ class StripePaymentDriver extends BasePaymentDriver
                 $payment = $this->createPayment($ref, $paymentMethod);
 
                 if ($this->invitation->invoice->account->isNinjaAccount()) {
-                    Session::flash('trackEventCategory', '/account');
-                    Session::flash('trackEventAction', '/buy_pro_plan');
-                    Session::flash('trackEventAmount', $payment->amount);
+                    \Illuminate\Support\Facades\Session::flash('trackEventCategory', '/account');
+                    \Illuminate\Support\Facades\Session::flash('trackEventAction', '/buy_pro_plan');
+                    \Illuminate\Support\Facades\Session::flash('trackEventAmount', $payment->amount);
                 }
 
                 if ($intent->setup_future_usage == 'off_session') {
@@ -448,8 +448,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
-        $eventId = array_get($input, 'id');
-        $eventType = array_get($input, 'type');
+        $eventId = \Illuminate\Support\Arr::get($input, 'id');
+        $eventType = \Illuminate\Support\Arr::get($input, 'type');
 
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
@@ -651,7 +651,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
             $paymentMethod->status = $source['status'];
-            $currency = Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
+            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
 
             if ($currency) {
                 $paymentMethod->currency_id = $currency->id;

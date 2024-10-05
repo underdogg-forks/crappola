@@ -38,7 +38,7 @@ class TokenController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
@@ -46,7 +46,7 @@ class TokenController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->tokenService->getDatatable(Auth::user()->id);
+        return $this->tokenService->getDatatable(\Illuminate\Support\Facades\Auth::user()->id);
     }
 
     /**
@@ -56,7 +56,7 @@ class TokenController extends BaseController
      */
     public function edit($publicId)
     {
-        $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
+        $token = AccountToken::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
@@ -66,7 +66,7 @@ class TokenController extends BaseController
             'title'  => trans('texts.edit_token'),
         ];
 
-        return View::make('accounts.token', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.token', $data);
     }
 
     /**
@@ -99,7 +99,7 @@ class TokenController extends BaseController
             'title'  => trans('texts.add_token'),
         ];
 
-        return View::make('accounts.token', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.token', $data);
     }
 
     /**
@@ -107,13 +107,13 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_token'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_token'));
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
@@ -123,28 +123,28 @@ class TokenController extends BaseController
      */
     public function save($tokenPublicId = false)
     {
-        if (Auth::user()->account->hasFeature(FEATURE_API)) {
+        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
                 'name' => 'required',
             ];
 
             if ($tokenPublicId) {
-                $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
+                $token = AccountToken::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
                     ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
-            $validator = Validator::make(Request::all(), $rules);
+            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
+                return \Illuminate\Support\Facades\Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
 
             if ($tokenPublicId) {
-                $token->name = trim(Request::input('name'));
+                $token->name = trim(\Illuminate\Support\Facades\Request::input('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(Request::input('name'));
-                $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                $token->name = trim(\Illuminate\Support\Facades\Request::input('name'));
+                $token->token = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();
@@ -155,9 +155,9 @@ class TokenController extends BaseController
                 $message = trans('texts.created_token');
             }
 
-            Session::flash('message', $message);
+            \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 }

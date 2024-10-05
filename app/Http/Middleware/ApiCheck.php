@@ -34,7 +34,7 @@ class ApiCheck
         $hasApiSecret = false;
 
         if ($secret = env(API_SECRET)) {
-            $requestSecret = Request::header('X-Ninja-Secret') ?: ($request->api_secret ?: '');
+            $requestSecret = \Illuminate\Support\Facades\Request::header('X-Ninja-Secret') ?: ($request->api_secret ?: '');
             $hasApiSecret = hash_equals($requestSecret, $secret);
         } elseif (Utils::isSelfHost()) {
             $hasApiSecret = true;
@@ -46,15 +46,15 @@ class ApiCheck
                 sleep(ERROR_DELAY);
                 $error['error'] = ['message' => 'Invalid value for API_SECRET'];
 
-                return Response::json($error, 403, $headers);
+                return \Illuminate\Support\Facades\Response::json($error, 403, $headers);
             }
         } else {
             // check for a valid token
-            $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
+            $token = AccountToken::where('token', '=', \Illuminate\Support\Facades\Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
 
             // check if user is archived
             if ($token && $token->user) {
-                Auth::onceUsingId($token->user_id);
+                \Illuminate\Support\Facades\Auth::onceUsingId($token->user_id);
                 session(['token_id' => $token->id]);
             } elseif ($hasApiSecret && $request->is('api/v1/ping')) {
                 // do nothing: allow ping with api_secret or account token
@@ -62,7 +62,7 @@ class ApiCheck
                 sleep(ERROR_DELAY);
                 $error['error'] = ['message' => 'Invalid token'];
 
-                return Response::json($error, 403, $headers);
+                return \Illuminate\Support\Facades\Response::json($error, 403, $headers);
             }
         }
 
@@ -70,20 +70,20 @@ class ApiCheck
             return $next($request);
         }
 
-        $isMobileApp = str_contains(array_get($_SERVER, 'HTTP_USER_AGENT'), '(dart:io)');
+        $isMobileApp = str_contains(\Illuminate\Support\Arr::get($_SERVER, 'HTTP_USER_AGENT'), '(dart:io)');
 
         if ( ! Utils::hasFeature(FEATURE_API) && ! $hasApiSecret && ! $isMobileApp) {
             $error['error'] = ['message' => 'API requires pro plan'];
 
-            return Response::json($error, 403, $headers);
+            return \Illuminate\Support\Facades\Response::json($error, 403, $headers);
         }
-        $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
+        $key = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->id : $request->getClientIp();
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $hour = 60 * 60;
         $hour_limit = 1000;
-        $hour_throttle = Cache::get("hour_throttle:{$key}", null);
-        $last_api_request = Cache::get("last_api_request:{$key}", 0);
+        $hour_throttle = \Illuminate\Support\Facades\Cache::get("hour_throttle:{$key}", null);
+        $last_api_request = \Illuminate\Support\Facades\Cache::get("last_api_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;
 
         if (null === $hour_throttle) {
@@ -100,11 +100,11 @@ class ApiCheck
             $wait = ceil($new_hour_throttle - $hour);
             sleep(1);
 
-            return Response::json("Please wait {$wait} second(s)", 403, $headers);
+            return \Illuminate\Support\Facades\Response::json("Please wait {$wait} second(s)", 403, $headers);
         }
 
-        Cache::put("hour_throttle:{$key}", $new_hour_throttle, 60 * 60);
-        Cache::put("last_api_request:{$key}", time(), 60 * 60);
+        \Illuminate\Support\Facades\Cache::put("hour_throttle:{$key}", $new_hour_throttle, 60 * 60);
+        \Illuminate\Support\Facades\Cache::put("last_api_request:{$key}", time(), 60 * 60);
 
         return $next($request);
     }

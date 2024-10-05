@@ -84,7 +84,7 @@ class HistoryUtils
 
     public static function deleteHistory(EntityModel $entity): void
     {
-        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $remove = [];
 
@@ -101,7 +101,7 @@ class HistoryUtils
             array_splice($history[$entity->account_id], $remove[$i], 1);
         }
 
-        Session::put(RECENTLY_VIEWED, $history);
+        \Illuminate\Support\Facades\Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function trackViewed(EntityModel $entity): void
@@ -127,7 +127,7 @@ class HistoryUtils
         }
 
         $object = static::convertToObject($entity);
-        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $data = [];
 
@@ -156,7 +156,7 @@ class HistoryUtils
 
         $history[$entity->account_id] = $data;
 
-        Session::put(RECENTLY_VIEWED, $history);
+        \Illuminate\Support\Facades\Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function renderHtml($accountId)
@@ -165,7 +165,7 @@ class HistoryUtils
         $clientMap = [];
         $str = '';
 
-        $history = Session::get(RECENTLY_VIEWED, []);
+        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED, []);
         $history = $history[$accountId] ?? [];
 
         foreach ($history as $item) {

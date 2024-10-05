@@ -64,8 +64,8 @@ class ImportData extends Job implements ShouldQueue
     {
         $includeSettings = false;
 
-        if (App::runningInConsole()) {
-            Auth::onceUsingId($this->user->id);
+        if (\Illuminate\Support\Facades\App::runningInConsole()) {
+            \Illuminate\Support\Facades\Auth::onceUsingId($this->user->id);
             $this->user->account->loadLocalizationSettings();
         }
 
@@ -96,8 +96,8 @@ class ImportData extends Job implements ShouldQueue
 
         $userMailer->sendMessage($this->user, $subject, $message);
 
-        if (App::runningInConsole()) {
-            Auth::logout();
+        if (\Illuminate\Support\Facades\App::runningInConsole()) {
+            \Illuminate\Support\Facades\Auth::logout();
         }
     }
 }

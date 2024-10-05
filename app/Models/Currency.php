@@ -8,7 +8,7 @@ use Str;
 /**
  * Class Currency.
  */
-class Currency extends Eloquent
+class Currency extends \Illuminate\Database\Eloquent\Model
 {
     /**
      * @var bool
@@ -36,6 +36,6 @@ class Currency extends Eloquent
      */
     public function getTranslatedName()
     {
-        return trans('texts.currency_' . Str::slug($this->name, '_'));
+        return trans('texts.currency_' . \Illuminate\Support\Str::slug($this->name, '_'));
     }
 }

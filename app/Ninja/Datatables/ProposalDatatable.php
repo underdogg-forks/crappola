@@ -18,7 +18,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'quote',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_QUOTE, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_QUOTE, $model])) {
                         return link_to("quotes/{$model->invoice_public_id}", $model->invoice_number)->toHtml();
                     }
 
@@ -28,7 +28,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'client',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return link_to("clients/{$model->client_public_id}", $model->client)->toHtml();
                     }
 
@@ -38,7 +38,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'template',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
                         return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template ?: ' ')->toHtml();
                     }
 
@@ -48,7 +48,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'created_at',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL, $model])) {
+                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model])) {
                         return link_to("proposals/{$model->public_id}/edit", Utils::timestampToDateString(strtotime($model->created_at)))->toHtml();
                     }
 
@@ -76,10 +76,10 @@ class ProposalDatatable extends EntityDatatable
             [
                 trans('texts.edit_proposal'),
                 function ($model) {
-                    return URL::to("proposals/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("proposals/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model]);
                 },
             ],
         ];

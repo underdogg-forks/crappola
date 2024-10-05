@@ -34,12 +34,12 @@ class BankAccountController extends BaseController
 
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_BANKS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
     public function getDatatable()
     {
-        return $this->bankAccountService->getDatatable(Auth::user()->account_id);
+        return $this->bankAccountService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
     public function edit($publicId)
@@ -48,11 +48,11 @@ class BankAccountController extends BaseController
 
         $data = [
             'title'       => trans('texts.edit_bank_account'),
-            'banks'       => Cache::get('banks'),
+            'banks'       => \Illuminate\Support\Facades\Cache::get('banks'),
             'bankAccount' => $bankAccount,
         ];
 
-        return View::make('accounts.bank_account', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
     }
 
     public function update($publicId)
@@ -66,29 +66,29 @@ class BankAccountController extends BaseController
     public function create()
     {
         $data = [
-            'banks'       => Cache::get('banks'),
+            'banks'       => \Illuminate\Support\Facades\Cache::get('banks'),
             'bankAccount' => null,
         ];
 
-        return View::make('accounts.bank_account', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
     }
 
     public function bulk()
     {
-        $action = \Request::input('bulk_action');
-        $ids = \Request::input('bulk_public_id');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->bankAccountService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_bank_account'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_bank_account'));
 
-        return Redirect::to('settings/' . ACCOUNT_BANKS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
     public function validateAccount()
     {
-        $publicId = \Request::input('public_id');
-        $username = trim(\Request::input('bank_username'));
-        $password = trim(\Request::input('bank_password'));
+        $publicId = \Illuminate\Support\Facades\Request::input('public_id');
+        $username = trim(\Illuminate\Support\Facades\Request::input('bank_username'));
+        $password = trim(\Illuminate\Support\Facades\Request::input('bank_password'));
 
         if ($publicId) {
             $bankAccount = BankAccount::scope($publicId)->firstOrFail();
@@ -96,16 +96,16 @@ class BankAccountController extends BaseController
                 $bankAccount->setUsername($username);
                 $bankAccount->save();
             } else {
-                $username = Crypt::decrypt($username);
+                $username = \Illuminate\Support\Facades\Crypt::decrypt($username);
             }
             $bankId = $bankAccount->bank_id;
         } else {
             $bankAccount = new BankAccount();
-            $bankAccount->bank_id = \Request::input('bank_id');
+            $bankAccount->bank_id = \Illuminate\Support\Facades\Request::input('bank_id');
         }
 
-        $bankAccount->app_version = \Request::input('app_version');
-        $bankAccount->ofx_version = \Request::input('ofx_version');
+        $bankAccount->app_version = \Illuminate\Support\Facades\Request::input('app_version');
+        $bankAccount->ofx_version = \Illuminate\Support\Facades\Request::input('ofx_version');
 
         if ($publicId) {
             $bankAccount->save();
@@ -118,9 +118,9 @@ class BankAccountController extends BaseController
     {
         $bankAccount = $this->bankAccountRepo->save(Request::all());
 
-        $bankId = \Request::input('bank_id');
-        $username = trim(\Request::input('bank_username'));
-        $password = trim(\Request::input('bank_password'));
+        $bankId = \Illuminate\Support\Facades\Request::input('bank_id');
+        $username = trim(\Illuminate\Support\Facades\Request::input('bank_username'));
+        $password = trim(\Illuminate\Support\Facades\Request::input('bank_password'));
 
         return json_encode($this->bankAccountService->loadBankAccounts($bankAccount, $username, $password, true));
     }
@@ -137,12 +137,12 @@ class BankAccountController extends BaseController
 
     public function doImportOFX(Request $request)
     {
-        $file = File::get($request->file('ofx_file'));
+        $file = \Illuminate\Support\Facades\File::get($request->file('ofx_file'));
 
         try {
             $data = $this->bankAccountService->parseOFX($file);
         } catch (Exception $e) {
-            Session::now('error', trans('texts.ofx_parse_failed'));
+            \Illuminate\Support\Facades\Session::now('error', trans('texts.ofx_parse_failed'));
             Utils::logError($e);
 
             return view('accounts.import_ofx');
@@ -154,6 +154,6 @@ class BankAccountController extends BaseController
             'transactions' => json_encode([$data]),
         ];
 
-        return View::make('accounts.bank_account', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
     }
 }

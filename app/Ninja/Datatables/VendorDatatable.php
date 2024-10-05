@@ -56,10 +56,10 @@ class VendorDatatable extends EntityDatatable
             [
                 trans('texts.edit_vendor'),
                 function ($model) {
-                    return URL::to("vendors/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("vendors/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_VENDOR, $model]);
+                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model]);
                 },
             ],
             [
@@ -67,16 +67,16 @@ class VendorDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('create', ENTITY_EXPENSE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
             [
                 trans('texts.enter_expense'),
                 function ($model) {
-                    return URL::to("expenses/create/0/{$model->public_id}");
+                    return \Illuminate\Support\Facades\URL::to("expenses/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
         ];

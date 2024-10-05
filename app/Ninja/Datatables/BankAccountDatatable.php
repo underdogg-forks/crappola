@@ -32,7 +32,7 @@ class BankAccountDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_bank_account'),
                 function ($model) {
-                    return URL::to("bank_accounts/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("bank_accounts/{$model->public_id}/edit");
                 },
             ],
         ];

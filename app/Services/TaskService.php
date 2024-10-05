@@ -46,7 +46,7 @@ class TaskService extends BaseService
         $query = $this->taskRepo->find($clientPublicId, $projectPublicId, $search);
 
         if ( ! Utils::hasPermission('view_task')) {
-            $query->where('tasks.user_id', '=', Auth::user()->id);
+            $query->where('tasks.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);

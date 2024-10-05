@@ -35,7 +35,7 @@ class TaskReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];

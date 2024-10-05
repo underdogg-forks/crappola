@@ -101,7 +101,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        $value = \Request::header('X-Ninja-Token');
+        $value = \Illuminate\Support\Facades\Request::header('X-Ninja-Token');
 
         if ($e instanceof ModelNotFoundException) {
             if (isset($value) && mb_strlen($value) > 1) {
@@ -111,7 +111,7 @@ class Handler extends ExceptionHandler
                 return Response::make($response, 404, $headers);
             }
 
-            return Redirect::to('/');
+            return \Illuminate\Support\Facades\Redirect::to('/');
         }
 
         if ( ! class_exists('Utils')) {
@@ -191,7 +191,7 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        $guard = array_get($exception->guards(), 0);
+        $guard = \Illuminate\Support\Arr::get($exception->guards(), 0);
 
         switch ($guard) {
             case 'client':

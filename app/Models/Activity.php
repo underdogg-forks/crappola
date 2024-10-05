@@ -9,7 +9,7 @@ use Laracasts\Presenter\PresentableTrait;
 /**
  * Class Activity.
  */
-class Activity extends Eloquent
+class Activity extends \Illuminate\Database\Eloquent\Model
 {
     use PresentableTrait;
 
@@ -30,7 +30,7 @@ class Activity extends Eloquent
      */
     public function scopeScope($query)
     {
-        return $query->whereAccountId(Auth::user()->account_id);
+        return $query->whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
     /**

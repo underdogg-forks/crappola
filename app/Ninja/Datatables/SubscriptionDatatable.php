@@ -32,7 +32,7 @@ class SubscriptionDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_subscription'),
                 function ($model) {
-                    return URL::to("subscriptions/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("subscriptions/{$model->public_id}/edit");
                 },
             ],
         ];

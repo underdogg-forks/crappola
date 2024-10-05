@@ -7,7 +7,11 @@ use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php80\Rector\Class_\StringableForToStringRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
+use Rector\Php81\Rector\Class_\SpatieEnumClassToEnumRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
+use Rector\Set\ValueObject\LevelSetList;
+use Rector\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationRector;
+use RectorLaravel\Rector\Class_\AnonymousMigrationsRector;
 use RectorLaravel\Set\LaravelLevelSetList;
 use RectorLaravel\Set\LaravelSetList;
 
@@ -20,14 +24,21 @@ return RectorConfig::configure()
         MixedTypeRector::class,
         StringableForToStringRector::class,
         NullToStrictStringFuncCallArgRector::class,
+        SpatieEnumClassToEnumRector::class,
     ])
     ->withPaths([
         __DIR__ . '/app',
         __DIR__ . '/Modules',
     ])
+    ->withRules([
+        //AnonymousMigrationsRector::class,
+        //AddReturnTypeDeclarationRector::class
+    ])
     ->withSets([
-        LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
-        LaravelLevelSetList::UP_TO_LARAVEL_80,
+        LevelSetList::UP_TO_PHP_81,
+        //SpatieEnumClassToEnumRector::class,
+        //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
+        //LaravelLevelSetList::UP_TO_LARAVEL_80,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
     ]);

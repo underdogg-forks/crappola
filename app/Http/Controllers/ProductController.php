@@ -50,7 +50,7 @@ class ProductController extends BaseController
      */
     public function index()
     {
-        return View::make('list_wrapper', [
+        return \Illuminate\Support\Facades\View::make('list_wrapper', [
             'entityType' => ENTITY_PRODUCT,
             'datatable'  => new ProductDatatable(),
             'title'      => trans('texts.products'),
@@ -60,9 +60,9 @@ class ProductController extends BaseController
 
     public function show($publicId)
     {
-        Session::reflash();
+        \Illuminate\Support\Facades\Session::reflash();
 
-        return Redirect::to("products/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to("products/{$publicId}/edit");
     }
 
     /**
@@ -70,7 +70,7 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id, Request::input('sSearch'));
+        return $this->productService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function cloneProduct(ProductRequest $request, $publicId)
@@ -85,9 +85,9 @@ class ProductController extends BaseController
      */
     public function edit(ProductRequest $request, $publicId, $clone = false)
     {
-        Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
+        \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
 
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         if ($clone) {
@@ -111,7 +111,7 @@ class ProductController extends BaseController
             'title'    => trans('texts.edit_product'),
         ];
 
-        return View::make('accounts.product', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.product', $data);
     }
 
     /**
@@ -119,7 +119,7 @@ class ProductController extends BaseController
      */
     public function create(ProductRequest $request)
     {
-        $account = Auth::user()->account;
+        $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         $data = [
             'account'  => $account,
@@ -130,7 +130,7 @@ class ProductController extends BaseController
             'title'    => trans('texts.create_product'),
         ];
 
-        return View::make('accounts.product', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.product', $data);
     }
 
     /**
@@ -156,8 +156,8 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action = \Illuminate\Support\Facades\Request::input('action');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();
@@ -171,7 +171,7 @@ class ProductController extends BaseController
         $count = $this->productService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_product', $count);
-        Session::flash('message', $message);
+        \Illuminate\Support\Facades\Session::flash('message', $message);
 
         return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }
@@ -189,10 +189,10 @@ class ProductController extends BaseController
             $product = Product::createNew();
         }
 
-        $this->productRepo->save(Request::all(), $product);
+        $this->productRepo->save(\Illuminate\Support\Facades\Request::all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
-        Session::flash('message', $message);
+        \Illuminate\Support\Facades\Session::flash('message', $message);
 
         $action = request('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {

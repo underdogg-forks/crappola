@@ -82,14 +82,14 @@ class ClientPortalController extends BaseController
             return redirect(request()->url() . (request()->borderless ? '?borderless=true' : ''));
         }
 
-        if ( ! $account->checkSubdomain(Request::server('HTTP_HOST'))) {
+        if ( ! $account->checkSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'))) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
             ]);
         }
 
-        if ( ! Request::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
-            && ( ! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
+        if ( ! \Illuminate\Support\Facades\Request::has('phantomjs') && ! session('silent:' . $client->id) && ! \Illuminate\Support\Facades\Session::has($invitation->invitation_key)
+            && ( ! \Illuminate\Support\Facades\Auth::check() || \Illuminate\Support\Facades\Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
             } else {
@@ -97,8 +97,8 @@ class ClientPortalController extends BaseController
             }
         }
 
-        Session::put($invitation->invitation_key, true); // track this invitation has been seen
-        Session::put('contact_key', $invitation->contact->contact_key); // track current contact
+        \Illuminate\Support\Facades\Session::put($invitation->invitation_key, true); // track this invitation has been seen
+        \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key); // track current contact
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -142,11 +142,11 @@ class ClientPortalController extends BaseController
             if (array_key_exists('gatewayTypeId', $paymentTypes[0]) && in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
                 // do nothing
             } elseif ( ! $account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
-                $paymentURL = URL::to($paymentURL);
+                $paymentURL = \Illuminate\Support\Facades\URL::to($paymentURL);
             }
         }
 
-        if ( ! Request::has('phantomjs')) {
+        if ( ! \Illuminate\Support\Facades\Request::has('phantomjs')) {
             if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
                 $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
             }
@@ -177,7 +177,7 @@ class ClientPortalController extends BaseController
             'contact'         => $contact,
             'paymentTypes'    => $paymentTypes,
             'paymentURL'      => $paymentURL,
-            'phantomjs'       => Request::has('phantomjs'),
+            'phantomjs'       => \Illuminate\Support\Facades\Request::has('phantomjs'),
             'gatewayTypeId'   => count($paymentTypes) == 1 ? $gatewayTypeIdCast : false,
         ];
 
@@ -195,12 +195,12 @@ class ClientPortalController extends BaseController
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
 
             if (count($zipDocs) > 1) {
-                $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
+                $data['documentsZipURL'] = \Illuminate\Support\Facades\URL::to("client/documents/{$invitation->invitation_key}");
                 $data['documentsZipSize'] = $size;
             }
         }
 
-        return View::make(request()->borderless ? 'invoices.view_borderless' : 'invoices.view', $data);
+        return \Illuminate\Support\Facades\View::make(request()->borderless ? 'invoices.view_borderless' : 'invoices.view', $data);
     }
 
     public function download($invitationKey)
@@ -231,7 +231,7 @@ class ClientPortalController extends BaseController
             return RESULT_FAILURE;
         }
 
-        if ($signature = Request::input('signature')) {
+        if ($signature = \Illuminate\Support\Facades\Request::input('signature')) {
             $invitation->signature_base64 = $signature;
             $invitation->signature_date = date_create();
             $invitation->save();
@@ -248,7 +248,7 @@ class ClientPortalController extends BaseController
             if ( ! $contact = Contact::where('contact_key', '=', $contactKey)->first()) {
                 return $this->returnError();
             }
-            Session::put('contact_key', $contactKey); // track current contact
+            \Illuminate\Support\Facades\Session::put('contact_key', $contactKey); // track current contact
         } elseif ( ! $contact = $this->getContact()) {
             return $this->returnError();
         }
@@ -395,7 +395,7 @@ class ClientPortalController extends BaseController
             return '';
         }
 
-        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_INVOICE, Request::input('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_INVOICE, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function recurringInvoiceDatatable()
@@ -438,7 +438,7 @@ class ClientPortalController extends BaseController
         if ( ! $contact = $this->getContact()) {
             return $this->returnError();
         }
-        $payments = $this->paymentRepo->findForContact($contact->id, Request::input('sSearch'));
+        $payments = $this->paymentRepo->findForContact($contact->id, \Illuminate\Support\Facades\Request::input('sSearch'));
 
         return Datatable::query($payments)
             ->addColumn('invoice_number', function ($model) {
@@ -495,7 +495,7 @@ class ClientPortalController extends BaseController
             return false;
         }
 
-        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, Request::input('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function creditIndex()
@@ -604,7 +604,7 @@ class ClientPortalController extends BaseController
             return false;
         }
 
-        return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Request::input('sSearch'));
+        return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, \Illuminate\Support\Facades\Request::input('sSearch'));
     }
 
     public function getDocumentVFSJS($publicId, $name)
@@ -616,7 +616,7 @@ class ClientPortalController extends BaseController
         $document = Document::scope($publicId, $contact->account_id)->first();
 
         if ( ! $document->isPDFEmbeddable()) {
-            return Response::view('error', ['error' => 'Image does not exist!'], 404);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $authorized = false;
@@ -627,7 +627,7 @@ class ClientPortalController extends BaseController
         }
 
         if ( ! $authorized) {
-            return Response::view('error', ['error' => 'Not authorized'], 403);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Not authorized'], 403);
         }
 
         if (mb_substr($name, -3) == '.js') {
@@ -636,7 +636,7 @@ class ClientPortalController extends BaseController
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
-        $response = Response::make($content, 200);
+        $response = \Illuminate\Support\Facades\Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
 
@@ -649,19 +649,19 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        Session::put('contact_key', $invitation->contact->contact_key); // track current contact
+        \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key); // track current contact
 
         $invoice = $invitation->invoice;
 
         $toZip = $this->getInvoiceZipDocuments($invoice);
 
         if ( ! count($toZip)) {
-            return Response::view('error', ['error' => 'No documents small enough'], 404);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'No documents small enough'], 404);
         }
 
         $zip = new ZipArchive($invitation->account->name . ' Invoice ' . $invoice->invoice_number . '.zip');
 
-        return Response::stream(function () use ($toZip, $zip): void {
+        return \Illuminate\Support\Facades\Response::stream(function () use ($toZip, $zip): void {
             foreach ($toZip as $name => $document) {
                 $fileStream = $document->getStream();
                 if ($fileStream) {
@@ -685,7 +685,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        Session::put('contact_key', $invitation->contact->contact_key); // track current contact
+        \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key); // track current contact
 
         $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
@@ -700,7 +700,7 @@ class ClientPortalController extends BaseController
         }
 
         if ( ! $authorized) {
-            return Response::view('error', ['error' => 'Not authorized'], 403);
+            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Not authorized'], 403);
         }
 
         return DocumentController::getDownloadResponse($document);
@@ -734,9 +734,9 @@ class ClientPortalController extends BaseController
 
     public function verifyPaymentMethod()
     {
-        $publicId = Request::input('source_id');
-        $amount1 = Request::input('verification1');
-        $amount2 = Request::input('verification2');
+        $publicId = \Illuminate\Support\Facades\Request::input('source_id');
+        $amount1 = \Illuminate\Support\Facades\Request::input('verification1');
+        $amount2 = \Illuminate\Support\Facades\Request::input('verification2');
 
         if ( ! $contact = $this->getContact()) {
             return $this->returnError();
@@ -749,9 +749,9 @@ class ClientPortalController extends BaseController
         $result = $paymentDriver->verifyBankAccount($client, $publicId, $amount1, $amount2);
 
         if (is_string($result)) {
-            Session::flash('error', $result);
+            \Illuminate\Support\Facades\Session::flash('error', $result);
         } else {
-            Session::flash('message', trans('texts.payment_method_verified'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.payment_method_verified'));
         }
 
         return redirect()->to($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
@@ -773,9 +773,9 @@ class ClientPortalController extends BaseController
 
         try {
             $paymentDriver->removePaymentMethod($paymentMethod);
-            Session::flash('message', trans('texts.payment_method_removed'));
+            \Illuminate\Support\Facades\Session::flash('message', trans('texts.payment_method_removed'));
         } catch (Exception $exception) {
-            Session::flash('error', $exception->getMessage());
+            \Illuminate\Support\Facades\Session::flash('error', $exception->getMessage());
         }
 
         return redirect()->to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
@@ -790,21 +790,21 @@ class ClientPortalController extends BaseController
         $client = $contact->client;
         $account = $client->account;
 
-        $validator = Validator::make(Request::all(), ['source' => 'required']);
+        $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), ['source' => 'required']);
         if ($validator->fails()) {
-            return Redirect::to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
+            return \Illuminate\Support\Facades\Redirect::to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
         }
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
         $paymentMethod = PaymentMethod::clientId($client->id)
-            ->wherePublicId(Request::input('source'))
+            ->wherePublicId(\Illuminate\Support\Facades\Request::input('source'))
             ->firstOrFail();
 
         $customer = $paymentDriver->customer($client->id);
         $customer->default_payment_method_id = $paymentMethod->id;
         $customer->save();
 
-        Session::flash('message', trans('texts.payment_method_set_as_default'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.payment_method_set_as_default'));
 
         return redirect()->to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
     }
@@ -817,14 +817,14 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
 
-        $validator = Validator::make(Request::all(), ['public_id' => 'required']);
+        $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), ['public_id' => 'required']);
 
         if ($validator->fails()) {
-            return Redirect::to('client/invoices/recurring');
+            return \Illuminate\Support\Facades\Redirect::to('client/invoices/recurring');
         }
 
-        $publicId = Request::input('public_id');
-        $enable = Request::input('enable');
+        $publicId = \Illuminate\Support\Facades\Request::input('public_id');
+        $enable = \Illuminate\Support\Facades\Request::input('enable');
         $invoice = $client->invoices()->where('public_id', (int) $publicId)->first();
 
         if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
@@ -832,7 +832,7 @@ class ClientPortalController extends BaseController
             $invoice->save();
         }
 
-        return Redirect::to('client/invoices/recurring');
+        return \Illuminate\Support\Facades\Redirect::to('client/invoices/recurring');
     }
 
     public function showDetails()
@@ -1066,7 +1066,7 @@ class ClientPortalController extends BaseController
         }
         $message .= $error ?: trans('texts.payment_method_error');
 
-        Session::flash('error', $message);
+        \Illuminate\Support\Facades\Session::flash('error', $message);
         Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

@@ -29,12 +29,12 @@ class TaxRateController extends BaseController
 
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function getDatatable()
     {
-        return $this->taxRateService->getDatatable(Auth::user()->account_id);
+        return $this->taxRateService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
     public function edit($publicId)
@@ -46,7 +46,7 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.edit_tax_rate'),
         ];
 
-        return View::make('accounts.tax_rate', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.tax_rate', $data);
     }
 
     public function create()
@@ -58,35 +58,35 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.create_tax_rate'),
         ];
 
-        return View::make('accounts.tax_rate', $data);
+        return \Illuminate\Support\Facades\View::make('accounts.tax_rate', $data);
     }
 
     public function store(CreateTaxRateRequest $request)
     {
         $this->taxRateRepo->save($request->input());
 
-        Session::flash('message', trans('texts.created_tax_rate'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_tax_rate'));
 
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
         $this->taxRateRepo->save($request->input(), $request->entity());
 
-        Session::flash('message', trans('texts.updated_tax_rate'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_tax_rate'));
 
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
+        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_tax_rate'));
+        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_tax_rate'));
 
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 }

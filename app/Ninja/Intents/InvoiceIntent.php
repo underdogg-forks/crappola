@@ -35,7 +35,7 @@ class InvoiceIntent extends BaseIntent
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        if ( ! Auth::user()->can('view', $invoice)) {
+        if ( ! \Illuminate\Support\Facades\Auth::user()->can('view', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 

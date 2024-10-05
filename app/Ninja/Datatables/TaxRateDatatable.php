@@ -42,7 +42,7 @@ class TaxRateDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_tax_rate'),
                 function ($model) {
-                    return URL::to("tax_rates/{$model->public_id}/edit");
+                    return \Illuminate\Support\Facades\URL::to("tax_rates/{$model->public_id}/edit");
                 },
             ],
         ];

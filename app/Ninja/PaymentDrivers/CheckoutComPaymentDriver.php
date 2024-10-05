@@ -37,7 +37,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails();
 
-        if ($ref = array_get($this->input, 'token')) {
+        if ($ref = \Illuminate\Support\Arr::get($this->input, 'token')) {
             $data['transactionReference'] = $ref;
         }
 
