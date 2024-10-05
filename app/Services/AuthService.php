@@ -23,7 +23,7 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    private \App\Ninja\Repositories\AccountRepository $accountRepo;
+    private readonly \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     /**
      * AuthService constructor.

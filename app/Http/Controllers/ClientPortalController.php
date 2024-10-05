@@ -23,11 +23,11 @@ use Utils;
 
 class ClientPortalController extends BaseController
 {
-    private \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    private readonly \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    private \App\Ninja\Repositories\PaymentRepository $paymentRepo;
+    private readonly \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
-    private \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    private readonly \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(
         InvoiceRepository $invoiceRepo,

@@ -47,5 +47,4 @@ return RectorConfig::configure()
         LaravelLevelSetList::UP_TO_LARAVEL_80,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
-        //SetList::NAMING,
     ]);
