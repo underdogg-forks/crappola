@@ -9,7 +9,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "codeception/c3": true
+            "codeception/c3": true,
+            "phpstan/extension-installer": true
         }
     },
     "minimum-stability": "dev",
@@ -25,7 +26,7 @@
         "barracudanetworks/archivestream-php": "*",
         "barryvdh/laravel-cors": "*",
         "cerdic/css-tidy": "*",
-        "chumper/datatable": "dev-laravel7-support",
+        "chumper/datatable": "dev-laravel-8-beyond",
         "cleverit/ubl_invoice": "*",
         "codedge/laravel-selfupdater": "*",
         "doctrine/dbal": "*",
@@ -38,7 +39,7 @@
         "jaybizzle/laravel-crawler-detect": "*",
         "jlapp/swaggervel": "*",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "^7.0",
+        "laravel/framework": "^8.0",
         "laravel/helpers": "*",
         "laravel/legacy-encrypter": "*",
         "laravel/socialite": "*",
@@ -139,7 +140,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/turbo124/chumper-datatable"
+            "url": "https://github.com/underdogg-forks/chumper-datatable"
         },
         {
             "type": "vcs",
