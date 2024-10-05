@@ -29,21 +29,23 @@ return RectorConfig::configure()
     ])
     ->withPaths([
         __DIR__ . '/app',
-        __DIR__ . '/database/migrations',
         __DIR__ . '/Modules',
     ])
     ->withRules([
         //AnonymousMigrationsRector::class,
-        AddReturnTypeDeclarationRector::class,
+        //AddReturnTypeDeclarationRector::class,
     ])
     ->withSets([
         //LevelSetList::UP_TO_PHP_81,
-        SetList::TYPE_DECLARATION,
+        //SetList::TYPE_DECLARATION,
         //SetList::EARLY_RETURN,
         //SetList::CARBON,
-        //SpatieEnumClassToEnumRector::class,
+        //SetList::CODE_QUALITY,
+        //SetList::CODING_STYLE,
+        //SetList::DEAD_CODE,
         //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
-        //LaravelLevelSetList::UP_TO_LARAVEL_80,
+        LaravelLevelSetList::UP_TO_LARAVEL_80,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
+        //SetList::NAMING,
     ]);
