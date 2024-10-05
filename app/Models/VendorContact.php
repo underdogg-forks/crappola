@@ -34,11 +34,6 @@ class VendorContact extends EntityModel
     public static $fieldPhone = 'phone';
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $table = 'vendor_contacts';
@@ -53,6 +48,7 @@ class VendorContact extends EntityModel
         'phone',
         'send_invoice',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

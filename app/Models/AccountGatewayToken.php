@@ -19,12 +19,7 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
-    protected $casts = [];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @var array

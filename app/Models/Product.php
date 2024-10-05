@@ -14,11 +14,6 @@ class Product extends EntityModel
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProductPresenter::class;
@@ -38,6 +33,7 @@ class Product extends EntityModel
         'custom_value1',
         'custom_value2',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return array

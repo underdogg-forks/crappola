@@ -12,11 +12,6 @@ class AccountGatewaySettings extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['updated_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'fee_amount',
         'fee_percent',
@@ -30,6 +25,7 @@ class AccountGatewaySettings extends EntityModel
      * @var bool
      */
     protected static $hasPublicId = false;
+    protected $casts = ['updated_at' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

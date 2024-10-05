@@ -39,14 +39,10 @@ class Payment extends EntityModel
     ];
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\PaymentPresenter::class;
+    protected $casts = ['deleted_at' => 'datetime'];
 
     public static function calcStatusLabel($statusId, $statusName, $amount)
     {

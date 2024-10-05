@@ -20,11 +20,6 @@ class PaymentMethod extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $hidden = ['id'];
 
     /**
@@ -39,6 +34,7 @@ class PaymentMethod extends EntityModel
         'email',
         'currency_id',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @param $routingNumber

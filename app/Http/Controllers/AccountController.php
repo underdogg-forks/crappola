@@ -782,7 +782,7 @@ class AccountController extends BaseController
             $refunded = $company->processRefund(\Illuminate\Support\Facades\Auth::user());
 
             $ninjaClient = $this->accountRepo->getNinjaClient($account);
-            dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
+            dispatch_sync(new \App\Jobs\PurgeClientData($ninjaClient));
         }
 
         Document::scope()->each(function ($item, $key): void {

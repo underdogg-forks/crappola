@@ -19,16 +19,12 @@ class Subscription extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'event_id',
         'target_url',
         'format',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

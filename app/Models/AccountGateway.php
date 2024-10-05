@@ -23,14 +23,10 @@ class AccountGateway extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $hidden = [
         'config',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @param $provider

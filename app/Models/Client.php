@@ -25,11 +25,6 @@ class Client extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'id_number',
@@ -64,6 +59,7 @@ class Client extends EntityModel
         'send_reminders',
         'custom_messages',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return array

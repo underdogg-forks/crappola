@@ -149,7 +149,7 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }

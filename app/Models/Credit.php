@@ -15,11 +15,6 @@ class Credit extends EntityModel
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\CreditPresenter::class;
@@ -31,6 +26,7 @@ class Credit extends EntityModel
         'public_notes',
         'private_notes',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

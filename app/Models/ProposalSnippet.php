@@ -16,11 +16,6 @@ class ProposalSnippet extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'icon',
@@ -34,6 +29,7 @@ class ProposalSnippet extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProposalSnippetPresenter::class;
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

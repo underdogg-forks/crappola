@@ -16,10 +16,7 @@ class PaymentTerm extends EntityModel
      */
     public $timestamps = true;
 
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     public static function getSelectOptions()
     {

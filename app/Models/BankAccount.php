@@ -14,16 +14,12 @@ class BankAccount extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'bank_id',
         'app_version',
         'ofx_version',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

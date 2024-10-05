@@ -63,7 +63,7 @@ class ContactMailer extends Mailer
         $ublString = false;
 
         if ($account->attachUBL() && ! $proposal) {
-            $ublString = dispatch_now(new ConvertInvoiceToUbl($invoice));
+            $ublString = dispatch_sync(new ConvertInvoiceToUbl($invoice));
         }
 
         $documentStrings = [];

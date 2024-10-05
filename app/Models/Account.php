@@ -201,11 +201,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $hidden = ['ip'];
 
     /**
@@ -337,6 +332,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         'custom_value2',
         'custom_messages',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

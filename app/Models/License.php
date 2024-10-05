@@ -16,8 +16,5 @@ class License extends \Illuminate\Database\Eloquent\Model
      */
     public $timestamps = true;
 
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+    protected $casts = ['deleted_at' => 'datetime'];
 }

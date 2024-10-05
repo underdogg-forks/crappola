@@ -14,11 +14,6 @@ class Proposal extends EntityModel
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProposalPresenter::class;
@@ -31,6 +26,7 @@ class Proposal extends EntityModel
         'html',
         'css',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @var string

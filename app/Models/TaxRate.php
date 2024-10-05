@@ -14,16 +14,12 @@ class TaxRate extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'rate',
         'is_inclusive',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return bool|string

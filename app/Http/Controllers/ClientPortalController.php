@@ -907,7 +907,7 @@ class ClientPortalController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch_now(new GenerateStatementData($client, request()->all(), $contact));
+            return dispatch_sync(new GenerateStatementData($client, request()->all(), $contact));
         }
 
         $data = [

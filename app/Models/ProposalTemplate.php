@@ -16,11 +16,6 @@ class ProposalTemplate extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'private_notes',
@@ -32,6 +27,7 @@ class ProposalTemplate extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProposalTemplatePresenter::class;
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

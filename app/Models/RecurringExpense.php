@@ -20,11 +20,6 @@ class RecurringExpense extends EntityModel
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ExpensePresenter::class;
@@ -51,6 +46,7 @@ class RecurringExpense extends EntityModel
         //'end_date',
         'frequency_id',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

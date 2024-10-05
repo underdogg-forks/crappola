@@ -42,10 +42,10 @@ return RectorConfig::configure()
         //SetList::EARLY_RETURN,
         //SetList::CARBON,
         //SetList::CODE_QUALITY,
-        SetList::CODING_STYLE,
+        //SetList::CODING_STYLE,
         //SetList::DEAD_CODE,
         //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
-        //LaravelLevelSetList::UP_TO_LARAVEL_80,
+        LaravelLevelSetList::UP_TO_LARAVEL_100,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
     ]);

@@ -17,11 +17,6 @@ class Project extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'task_rate',
@@ -36,6 +31,7 @@ class Project extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProjectPresenter::class;
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

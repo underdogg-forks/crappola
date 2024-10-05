@@ -70,11 +70,6 @@ class Vendor extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'id_number',
@@ -93,6 +88,7 @@ class Vendor extends EntityModel
         'custom_value1',
         'custom_value2',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return array

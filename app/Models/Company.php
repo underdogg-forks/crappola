@@ -32,14 +32,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
         'plan_expires',
     ];
 
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-    ];
+    protected $casts = ['deleted_at' => 'datetime', 'promo_expires' => 'datetime', 'discount_expires' => 'datetime'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

@@ -21,11 +21,6 @@ class InvoiceItem extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
@@ -34,6 +29,7 @@ class InvoiceItem extends EntityModel
         'invoice_item_type_id',
         'discount',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

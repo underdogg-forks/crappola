@@ -75,7 +75,7 @@ class ClientRepository extends BaseRepository
 
     public function purge($client): void
     {
-        dispatch(new PurgeClientData($client));
+        dispatch_sync(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)

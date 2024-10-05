@@ -45,11 +45,6 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'first_name',
         'last_name',
@@ -69,6 +64,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         'remember_token',
         'confirmation_code',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

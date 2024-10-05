@@ -16,14 +16,10 @@ class ProposalCategory extends EntityModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @var string

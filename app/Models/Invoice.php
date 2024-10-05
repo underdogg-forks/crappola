@@ -73,11 +73,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
@@ -96,6 +91,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'has_tasks'               => 'boolean',
         'client_enable_auto_bill' => 'boolean',
         'has_expenses'            => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     /**

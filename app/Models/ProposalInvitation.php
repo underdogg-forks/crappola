@@ -13,10 +13,7 @@ class ProposalInvitation extends EntityModel
     use Inviteable;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * @return mixed

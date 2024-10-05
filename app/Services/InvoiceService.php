@@ -47,7 +47,7 @@ class InvoiceService extends BaseService
     {
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
-            dispatch(new DownloadInvoices(\Illuminate\Support\Facades\Auth::user(), $invoices));
+            dispatch_sync(new DownloadInvoices(\Illuminate\Support\Facades\Auth::user(), $invoices));
 
             return count($invoices);
         }
