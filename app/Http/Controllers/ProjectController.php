@@ -53,14 +53,14 @@ class ProjectController extends BaseController
     {
         $account = auth()->user()->account;
         $project = $request->entity();
-        $chartData = dispatch_now(new GenerateProjectChartData($project));
+        //$chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
             'account' => auth()->user()->account,
             'project' => $project,
             'title' => trans('texts.view_project'),
             'showBreadcrumbs' => false,
-            'chartData' => $chartData,
+            'chartData' => null,
         ];
 
         return View::make('projects.show', $data);
