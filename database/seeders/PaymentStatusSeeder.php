@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class PaymentStatusSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         Eloquent::unguard();
 
@@ -16,7 +16,7 @@ class PaymentStatusSeeder extends Seeder
         Eloquent::reguard();
     }
 
-    private function createPaymentStatuses()
+    private function createPaymentStatuses(): void
     {
         $statuses = [
             ['id' => '1', 'name' => 'Pending'],

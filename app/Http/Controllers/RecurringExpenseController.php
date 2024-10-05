@@ -13,15 +13,16 @@ use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\RecurringExpenseService;
 use Auth;
+use Request;
 use Session;
 use View;
-use Cache;
-use Request;
 
 class RecurringExpenseController extends BaseController
 {
     protected $recurringExpenseRepo;
+
     protected $recurringExpenseService;
+
     protected $entityType = ENTITY_RECURRING_EXPENSE;
 
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, RecurringExpenseService $recurringExpenseService)
@@ -39,14 +40,14 @@ class RecurringExpenseController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => ENTITY_RECURRING_EXPENSE,
-            'datatable' => new RecurringExpenseDatatable(),
-            'title' => trans('texts.recurring_expenses'),
+            'datatable'  => new RecurringExpenseDatatable(),
+            'title'      => trans('texts.recurring_expenses'),
         ]);
     }
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Request::input('sSearch');
+        $search = Request::input('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->recurringExpenseService->getDatatable($search, $userId);
@@ -61,15 +62,15 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId' => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
-            'expense' => null,
-            'method' => 'POST',
-            'url' => 'recurring_expenses',
-            'title' => trans('texts.new_expense'),
-            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
-            'vendor' => $vendor,
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $request->client_id,
+            'vendorPublicId'   => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
+            'expense'          => null,
+            'method'           => 'POST',
+            'url'              => 'recurring_expenses',
+            'title'            => trans('texts.new_expense'),
+            'vendors'          => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
+            'vendor'           => $vendor,
+            'clients'          => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clientPublicId'   => $request->client_id,
             'categoryPublicId' => $request->category_id,
         ];
 
@@ -83,7 +84,7 @@ class RecurringExpenseController extends BaseController
         $expense = $request->entity();
 
         $actions = [];
-        if (! $expense->trashed()) {
+        if ( ! $expense->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_expense')];
         } else {
@@ -91,34 +92,23 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendor' => null,
-            'expense' => $expense,
-            'entity' => $expense,
-            'method' => 'PUT',
-            'url' => 'recurring_expenses/'.$expense->public_id,
-            'title' => 'Edit Expense',
-            'actions' => $actions,
-            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
-            'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $expense->client ? $expense->client->public_id : null,
+            'vendor'           => null,
+            'expense'          => $expense,
+            'entity'           => $expense,
+            'method'           => 'PUT',
+            'url'              => 'recurring_expenses/' . $expense->public_id,
+            'title'            => 'Edit Expense',
+            'actions'          => $actions,
+            'vendors'          => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
+            'vendorPublicId'   => $expense->vendor ? $expense->vendor->public_id : null,
+            'clients'          => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clientPublicId'   => $expense->client ? $expense->client->public_id : null,
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
         $data = array_merge($data, self::getViewModel());
 
         return View::make('expenses.edit', $data);
-    }
-
-    private static function getViewModel()
-    {
-        return [
-            'data' => Request::old('data'),
-            'account' => Auth::user()->account,
-            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
-            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
-            'isRecurring' => true,
-        ];
     }
 
     public function store(CreateRecurringExpenseRequest $request)
@@ -136,7 +126,7 @@ class RecurringExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_recurring_expense'));
 
-        if (in_array(\Request::input('action'), ['archive', 'delete', 'restore'])) {
+        if (in_array(Request::input('action'), ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
 
@@ -145,16 +135,27 @@ class RecurringExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = \Request::input('action');
-        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
-            $message = trans("texts.$field", ['count' => $count]);
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return $this->returnBulk($this->entityType, $action, $ids);
+    }
+
+    private static function getViewModel()
+    {
+        return [
+            'data'        => Request::old('data'),
+            'account'     => Auth::user()->account,
+            'categories'  => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
+            'taxRates'    => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
+            'isRecurring' => true,
+        ];
     }
 }

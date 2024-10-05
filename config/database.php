@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | PDO Fetch Style
@@ -45,7 +44,6 @@ return [
     */
 
     'connections' => [
-
         // single database setup
         'mysql' => [
             'driver'    => 'mysql',
@@ -103,7 +101,6 @@ return [
             'strict'    => env('DB_STRICT', false),
             'engine'    => 'InnoDB',
         ],
-
     ],
 
     /*
@@ -131,7 +128,6 @@ return [
     */
 
     'redis' => [
-
         'cluster' => false,
         'client'  => 'predis',
 
@@ -140,7 +136,5 @@ return [
             'port'     => 6379,
             'database' => 0,
         ],
-
     ],
-
 ];

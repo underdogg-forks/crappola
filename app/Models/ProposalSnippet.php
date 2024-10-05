@@ -10,8 +10,8 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalSnippet extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var array

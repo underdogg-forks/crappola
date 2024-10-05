@@ -9,9 +9,9 @@ class AddTasks extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('tasks', function ($table) {
+        Schema::create('tasks', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -29,7 +29,7 @@ class AddTasks extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            
+
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });
@@ -46,7 +46,7 @@ class AddTasks extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('tasks');
     }

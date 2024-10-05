@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Module Namespace
@@ -24,22 +23,22 @@ return [
 
     'stubs' => [
         'enabled' => true,
-        'path' => base_path() . '/app/Console/Commands/stubs',
-        'files' => [
-            'start' => 'start.php',
-            'routes' => 'Http/routes.php',
-            'json' => 'module.json',
-            'views/master' => 'Resources/views/layouts/master.blade.php',
+        'path'    => base_path() . '/app/Console/Commands/stubs',
+        'files'   => [
+            'start'           => 'start.php',
+            'routes'          => 'Http/routes.php',
+            'json'            => 'module.json',
+            'views/master'    => 'Resources/views/layouts/master.blade.php',
             'scaffold/config' => 'Config/config.php',
-            'composer' => 'composer.json',
+            'composer'        => 'composer.json',
         ],
         'replacements' => [
-            'start' => ['LOWER_NAME'],
-            'routes' => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
-            'json' => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
-            'views/master' => ['STUDLY_NAME'],
+            'start'           => ['LOWER_NAME'],
+            'routes'          => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
+            'json'            => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
+            'views/master'    => ['STUDLY_NAME'],
             'scaffold/config' => ['STUDLY_NAME'],
-            'composer' => [
+            'composer'        => [
                 'LOWER_NAME',
                 'STUDLY_NAME',
                 'VENDOR',
@@ -92,30 +91,30 @@ return [
         */
 
         'generator' => [
-            'assets' => 'Assets',
-            'config' => 'Config',
-            'command' => 'Console',
-            'event' => 'Events',
-            'listener' => 'Events/Handlers',
-            'migration' => 'Database/Migrations',
-            'model' => 'Models',
-            'repository' => 'Repositories',
-            'seeder' => 'Database/Seeders',
-            'controller' => 'Http/Controllers',
-            'filter' => 'Http/Middleware',
-            'request' => 'Http/Requests',
-            'provider' => 'Providers',
-            'lang' => 'Resources/lang/en',
-            'views' => 'Resources/views',
-            'test' => 'Tests',
-            'jobs' => 'Jobs',
-            'emails' => 'Emails',
-            'notifications' => 'Notifications',
-            'datatable' => 'Datatables',
-            'policy' => 'Policies',
-            'presenter' => 'Presenters',
+            'assets'         => 'Assets',
+            'config'         => 'Config',
+            'command'        => 'Console',
+            'event'          => 'Events',
+            'listener'       => 'Events/Handlers',
+            'migration'      => 'Database/Migrations',
+            'model'          => 'Models',
+            'repository'     => 'Repositories',
+            'seeder'         => 'Database/Seeders',
+            'controller'     => 'Http/Controllers',
+            'filter'         => 'Http/Middleware',
+            'request'        => 'Http/Requests',
+            'provider'       => 'Providers',
+            'lang'           => 'Resources/lang/en',
+            'views'          => 'Resources/views',
+            'test'           => 'Tests',
+            'jobs'           => 'Jobs',
+            'emails'         => 'Emails',
+            'notifications'  => 'Notifications',
+            'datatable'      => 'Datatables',
+            'policy'         => 'Policies',
+            'presenter'      => 'Presenters',
             'api-controller' => 'Http/ApiControllers',
-            'transformer' => 'Transformers',
+            'transformer'    => 'Transformers',
         ],
     ],
     /*
@@ -130,7 +129,7 @@ return [
 
     'scan' => [
         'enabled' => false,
-        'paths' => [
+        'paths'   => [
             base_path('vendor/*/*'),
         ],
     ],
@@ -146,7 +145,7 @@ return [
     'composer' => [
         'vendor' => 'invoiceninja',
         'author' => [
-            'name' => 'Hillel Coren',
+            'name'  => 'Hillel Coren',
             'email' => 'contact@invoiceninja.com',
         ],
     ],
@@ -159,8 +158,8 @@ return [
     |
     */
     'cache' => [
-        'enabled' => false,
-        'key' => 'laravel-modules',
+        'enabled'  => false,
+        'key'      => 'laravel-modules',
         'lifetime' => 60,
     ],
     /*

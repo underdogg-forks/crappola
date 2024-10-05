@@ -37,15 +37,7 @@ class ClientService extends BaseService
     }
 
     /**
-     * @return ClientRepository
-     */
-    protected function getRepo()
-    {
-        return $this->clientRepo;
-    }
-
-    /**
-     * @param $data
+     * @param      $data
      * @param null $client
      *
      * @return mixed|null
@@ -72,5 +64,13 @@ class ClientService extends BaseService
         $query = $this->clientRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return ClientRepository
+     */
+    protected function getRepo()
+    {
+        return $this->clientRepo;
     }
 }

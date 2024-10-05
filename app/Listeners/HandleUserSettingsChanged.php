@@ -32,9 +32,9 @@ class HandleUserSettingsChanged
      *
      * @return void
      */
-    public function handle(UserSettingsChanged $event)
+    public function handle(UserSettingsChanged $event): void
     {
-        if (! Auth::check()) {
+        if ( ! Auth::check()) {
             return;
         }
 

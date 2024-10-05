@@ -11,27 +11,27 @@ class ProfitAndLossReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'type' => [],
+            'type'   => [],
             'client' => [],
             'vendor' => [],
             'amount' => [],
-            'date' => [],
-            'notes' => [],
+            'date'   => [],
+            'notes'  => [],
         ];
     }
 
-    public function run()
+    public function run(): void
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
-                        ->orderBy('payment_date', 'desc')
-                        ->with('client.contacts', 'invoice', 'user')
-                        ->withArchived()
-                        ->excludeFailed()
-                        ->where('payment_date', '>=', $this->startDate)
-                        ->where('payment_date', '<=', $this->endDate);
+            ->orderBy('payment_date', 'desc')
+            ->with('client.contacts', 'invoice', 'user')
+            ->withArchived()
+            ->excludeFailed()
+            ->where('payment_date', '>=', $this->startDate)
+            ->where('payment_date', '<=', $this->endDate);
 
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
@@ -61,11 +61,11 @@ class ProfitAndLossReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->with('client.contacts', 'vendor')
-                        ->withArchived()
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
+            ->orderBy('expense_date', 'desc')
+            ->with('client.contacts', 'vendor')
+            ->withArchived()
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
 
         foreach ($expenses->get() as $expense) {
             $client = $expense->client;

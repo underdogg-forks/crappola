@@ -8,13 +8,16 @@ use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
+use Request;
 use Session;
 use View;
 
 class ExpenseCategoryController extends BaseController
 {
     protected $categoryRepo;
+
     protected $categoryService;
+
     protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
@@ -32,23 +35,23 @@ class ExpenseCategoryController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE_CATEGORY,
-            'datatable' => new ExpenseCategoryDatatable(),
-            'title' => trans('texts.expense_categories'),
+            'datatable'  => new ExpenseCategoryDatatable(),
+            'title'      => trans('texts.expense_categories'),
         ]);
     }
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->categoryService->getDatatable(\Request::input('sSearch'));
+        return $this->categoryService->getDatatable(Request::input('sSearch'));
     }
 
     public function create(ExpenseCategoryRequest $request)
     {
         $data = [
             'category' => null,
-            'method' => 'POST',
-            'url' => 'expense_categories',
-            'title' => trans('texts.new_category'),
+            'method'   => 'POST',
+            'url'      => 'expense_categories',
+            'title'    => trans('texts.new_category'),
         ];
 
         return View::make('expense_categories.edit', $data);
@@ -60,9 +63,9 @@ class ExpenseCategoryController extends BaseController
 
         $data = [
             'category' => $category,
-            'method' => 'PUT',
-            'url' => 'expense_categories/' . $category->public_id,
-            'title' => trans('texts.edit_category'),
+            'method'   => 'PUT',
+            'url'      => 'expense_categories/' . $category->public_id,
+            'title'    => trans('texts.edit_category'),
         ];
 
         return View::make('expense_categories.edit', $data);
@@ -88,13 +91,13 @@ class ExpenseCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = \Request::input('action');
-        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
-            $message = trans("texts.$field", ['count' => $count]);
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 

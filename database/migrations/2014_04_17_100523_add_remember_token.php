@@ -9,9 +9,9 @@ class AddRememberToken extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->string('remember_token', 100)->nullable();
         });
     }
@@ -21,9 +21,9 @@ class AddRememberToken extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('remember_token');
         });
     }

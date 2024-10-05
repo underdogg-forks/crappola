@@ -21,7 +21,7 @@ class UpdateProposalRequest extends ProposalRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

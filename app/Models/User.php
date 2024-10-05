@@ -5,36 +5,34 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
-use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
-use App\Models\LookupUser;
-use Illuminate\Notifications\Notifiable;
 
 /**
  * Class User.
  */
 class User extends Authenticatable
 {
+    use Notifiable;
     use PresentableTrait;
     use SoftDeletes;
-    use Notifiable;
-
-    /**
-     * @var string
-     */
-    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
 
     /**
      * @var array
      */
     public static $all_permissions = [
         'create_all' => 0b0001,
-        'view_all' => 0b0010,
-        'edit_all' => 0b0100,
+        'view_all'   => 0b0010,
+        'edit_all'   => 0b0100,
     ];
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
 
     /**
      * The database table used by the model.
@@ -79,6 +77,37 @@ class User extends Authenticatable
     protected $dates = ['deleted_at'];
 
     /**
+     * @param $user
+     */
+    public static function onUpdatingUser($user): void
+    {
+        if ($user->password != $user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+
+        // if the user changes their email then they need to reconfirm it
+        if ($user->isEmailBeingChanged()) {
+            $user->confirmed = 0;
+            $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        }
+    }
+
+    /**
+     * @param $user
+     */
+    public static function onUpdatedUser($user): void
+    {
+        if ( ! $user->getOriginal('email')
+            || $user->getOriginal('email') == TEST_USERNAME
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
+            event(new UserSignedUp());
+        }
+
+        event(new UserSettingsChanged($user));
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account()
@@ -97,7 +126,7 @@ class User extends Authenticatable
     /**
      * @param $value
      */
-    public function setEmailAttribute($value)
+    public function setEmailAttribute($value): void
     {
         $this->attributes['email'] = $this->attributes['username'] = $value;
     }
@@ -150,7 +179,6 @@ class User extends Authenticatable
     public function isTrusted()
     {
         if (Utils::isSelfHost()) {
-            true;
         }
 
         return $this->account->isPro() && ! $this->account->isTrial();
@@ -197,11 +225,12 @@ class User extends Authenticatable
     {
         if ($this->getFullName()) {
             return $this->getFullName();
-        } elseif ($this->email) {
-            return $this->email;
-        } else {
-            return trans('texts.guest');
         }
+        if ($this->email) {
+            return $this->email;
+        }
+
+        return trans('texts.guest');
     }
 
     /**
@@ -210,10 +239,10 @@ class User extends Authenticatable
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
-        } else {
-            return '';
+            return $this->first_name . ' ' . $this->last_name;
         }
+
+        return '';
     }
 
     /**
@@ -242,9 +271,9 @@ class User extends Authenticatable
     {
         if ($this->email) {
             return parent::afterSave($success = true, $forced = false);
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -275,7 +304,7 @@ class User extends Authenticatable
         return MAX_NUM_VENDORS;
     }
 
-    public function clearSession()
+    public function clearSession(): void
     {
         $keys = [
             SESSION_USER_ACCOUNTS,
@@ -293,45 +322,12 @@ class User extends Authenticatable
     }
 
     /**
-     * @param $user
-     */
-    public static function onUpdatingUser($user)
-    {
-        if ($user->password != $user->getOriginal('password')) {
-            $user->failed_logins = 0;
-        }
-
-        // if the user changes their email then they need to reconfirm it
-        if ($user->isEmailBeingChanged()) {
-            $user->confirmed = 0;
-            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
-        }
-    }
-
-    /**
-     * @param $user
-     */
-    public static function onUpdatedUser($user)
-    {
-        if (! $user->getOriginal('email')
-            || $user->getOriginal('email') == TEST_USERNAME
-            || $user->getOriginal('username') == TEST_USERNAME
-            || $user->getOriginal('email') == 'tests@bitrock.com') {
-            event(new UserSignedUp());
-        }
-
-        event(new UserSettingsChanged($user));
-    }
-
-    /**
      * @return bool
      */
     public function isEmailBeingChanged()
     {
         return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');
     }
-
-
 
     /**
      * Checks to see if the user has the required permission.
@@ -341,38 +337,33 @@ class User extends Authenticatable
      *
      * @return bool
      */
-
     public function hasPermission($permission, $requireAll = false)
     {
         if ($this->is_admin) {
             return true;
-        } elseif (is_string($permission)) {
-
-            if( is_array(json_decode($this->permissions,1)) && in_array($permission, json_decode($this->permissions,1)) ) {
+        }
+        if (is_string($permission)) {
+            if (is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
                 return true;
             }
-
         } elseif (is_array($permission)) {
+            if ($requireAll) {
+                return count(array_intersect($permission, json_decode($this->permissions, 1))) == count($permission);
+            }
 
-            if ($requireAll)
-                return count(array_intersect($permission, json_decode($this->permissions,1))) == count( $permission );
-            else
-                return count(array_intersect($permission, json_decode($this->permissions,1))) > 0;
-
+            return count(array_intersect($permission, json_decode($this->permissions, 1))) > 0;
         }
 
         return false;
     }
 
-
     public function viewModel($model, $entityType)
     {
-        if($this->hasPermission('view_'.$entityType))
+        if ($this->hasPermission('view_' . $entityType)) {
             return true;
-        elseif($model->user_id == $this->id)
-            return true;
-        else
-            return false;
+        }
+
+        return (bool) ($model->user_id == $this->id);
     }
 
     /**
@@ -400,9 +391,10 @@ class User extends Authenticatable
 
     public function caddAddUsers()
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
-        } elseif (! $this->hasFeature(FEATURE_USERS)) {
+        }
+        if ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -420,7 +412,7 @@ class User extends Authenticatable
     public function canCreateOrEdit($entityType, $entity = false)
     {
         return ($entity && $this->can('edit', $entity))
-            || (! $entity && $this->can('create', $entityType));
+            || ( ! $entity && $this->can('create', $entityType));
     }
 
     public function primaryAccount()
@@ -428,7 +420,7 @@ class User extends Authenticatable
         return $this->account->company->accounts->sortBy('id')->first();
     }
 
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification($token): void
     {
         //$this->notify(new ResetPasswordNotification($token));
         app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
@@ -441,7 +433,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if (! NINJA_TERMS_VERSION) {
+        if ( ! NINJA_TERMS_VERSION) {
             return true;
         }
 
@@ -464,7 +456,7 @@ class User extends Authenticatable
 
     public function shouldNotify($invoice)
     {
-        if (! $this->email || ! $this->confirmed) {
+        if ( ! $this->email || ! $this->confirmed) {
             return false;
         }
 
@@ -472,11 +464,7 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->only_notify_owned && ! $this->ownsEntity($invoice)) {
-            return false;
-        }
-
-        return true;
+        return ! ($this->only_notify_owned && ! $this->ownsEntity($invoice));
     }
 
     public function permissionsMap()
@@ -484,7 +472,7 @@ class User extends Authenticatable
         $data = [];
         $permissions = json_decode($this->permissions);
 
-        if (! $permissions) {
+        if ( ! $permissions) {
             return $data;
         }
 
@@ -496,20 +484,19 @@ class User extends Authenticatable
 
     public function eligibleForMigration()
     {
-        return is_null($this->public_id) || $this->public_id == 0;
+        return null === $this->public_id || $this->public_id == 0;
     }
 }
 
-User::created(function ($user)
-{
+User::created(function ($user): void {
     LookupUser::createNew($user->account->account_key, [
-        'email' => $user->email,
-        'user_id' => $user->id,
+        'email'             => $user->email,
+        'user_id'           => $user->id,
         'confirmation_code' => $user->confirmation_code,
     ]);
 });
 
-User::updating(function ($user) {
+User::updating(function ($user): void {
     User::onUpdatingUser($user);
 
     $dirty = $user->getDirty();
@@ -522,19 +509,18 @@ User::updating(function ($user) {
     }
 });
 
-User::updated(function ($user) {
+User::updated(function ($user): void {
     User::onUpdatedUser($user);
 });
 
-User::deleted(function ($user)
-{
-    if (! $user->email) {
+User::deleted(function ($user): void {
+    if ( ! $user->email) {
         return;
     }
 
     if ($user->forceDeleting) {
         LookupUser::deleteWhere([
-            'email' => $user->email
+            'email' => $user->email,
         ]);
     }
 });

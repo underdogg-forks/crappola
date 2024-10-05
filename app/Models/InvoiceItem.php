@@ -24,14 +24,6 @@ class InvoiceItem extends EntityModel
     protected $dates = ['deleted_at'];
 
     /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_INVOICE_ITEM;
-    }
-
-    /**
      * @var array
      */
     protected $fillable = [
@@ -42,6 +34,14 @@ class InvoiceItem extends EntityModel
         'invoice_item_type_id',
         'discount',
     ];
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -111,7 +111,7 @@ class InvoiceItem extends EntityModel
         return $this->getPreTaxAmount() + $this->getTaxAmount();
     }
 
-    public function markFeePaid()
+    public function markFeePaid(): void
     {
         if ($this->invoice_item_type_id == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
             $this->invoice_item_type_id = INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
@@ -146,5 +146,4 @@ class InvoiceItem extends EntityModel
 
         return $cost;
     }
-
 }

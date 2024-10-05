@@ -21,7 +21,7 @@ class UpdateProjectRequest extends ProjectRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

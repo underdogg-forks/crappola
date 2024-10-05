@@ -13,6 +13,7 @@ class Affiliate extends Eloquent
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var bool
      */

@@ -29,7 +29,7 @@ class DashboardApiController extends BaseAPIController
         // optimization for new mobile app
         if (request()->only_activity) {
             return $this->response([
-                'id' => 1,
+                'id'         => 1,
                 'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
             ]);
         }
@@ -43,16 +43,16 @@ class DashboardApiController extends BaseAPIController
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
 
         $data = [
-            'id' => 1,
-            'paidToDate' => (float) ($paidToDate->count() && $paidToDate[0]->value ? $paidToDate[0]->value : 0),
-            'paidToDateCurrency' => (int) ($paidToDate->count() && $paidToDate[0]->currency_id ? $paidToDate[0]->currency_id : $defaultCurrency),
-            'balances' => (float) ($balances->count() && $balances[0]->value ? $balances[0]->value : 0),
-            'balancesCurrency' => (int) ($balances->count() && $balances[0]->currency_id ? $balances[0]->currency_id : $defaultCurrency),
-            'averageInvoice' => (float) ($averageInvoice->count() && $averageInvoice[0]->invoice_avg ? $averageInvoice[0]->invoice_avg : 0),
+            'id'                     => 1,
+            'paidToDate'             => (float) ($paidToDate->count() && $paidToDate[0]->value ? $paidToDate[0]->value : 0),
+            'paidToDateCurrency'     => (int) ($paidToDate->count() && $paidToDate[0]->currency_id ? $paidToDate[0]->currency_id : $defaultCurrency),
+            'balances'               => (float) ($balances->count() && $balances[0]->value ? $balances[0]->value : 0),
+            'balancesCurrency'       => (int) ($balances->count() && $balances[0]->currency_id ? $balances[0]->currency_id : $defaultCurrency),
+            'averageInvoice'         => (float) ($averageInvoice->count() && $averageInvoice[0]->invoice_avg ? $averageInvoice[0]->invoice_avg : 0),
             'averageInvoiceCurrency' => (int) ($averageInvoice->count() && $averageInvoice[0]->currency_id ? $averageInvoice[0]->currency_id : $defaultCurrency),
-            'invoicesSent' => (int) ($metrics ? $metrics->invoices_sent : 0),
-            'activeClients' => (int) ($metrics ? $metrics->active_clients : 0),
-            'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
+            'invoicesSent'           => (int) ($metrics ? $metrics->invoices_sent : 0),
+            'activeClients'          => (int) ($metrics ? $metrics->active_clients : 0),
+            'activities'             => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
         ];
 
         return $this->response($data);

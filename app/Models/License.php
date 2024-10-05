@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class License extends Eloquent
 {
+    use SoftDeletes;
+
     /**
      * @var bool
      */
     public $timestamps = true;
-    use SoftDeletes;
+
     /**
      * @var array
      */

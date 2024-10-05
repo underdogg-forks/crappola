@@ -19,7 +19,7 @@ class InvoiceCard
 
         $this->setTitle(trans('texts.invoice_for_client', [
             'invoice' => link_to($invoice->getRoute(), $invoice->invoice_number),
-            'client' => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName()),
+            'client'  => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName()),
         ]));
 
         $this->addFact(trans('texts.email'), HTML::mailto($invoice->client->contacts[0]->email)->toHtml());
@@ -42,7 +42,7 @@ class InvoiceCard
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if (floatval($invoice->amount)) {
+        if ((float) ($invoice->amount)) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
@@ -50,17 +50,17 @@ class InvoiceCard
         }
     }
 
-    public function setTitle($title)
+    public function setTitle($title): void
     {
         $this->content->title = $title;
     }
 
-    public function setTotal($value)
+    public function setTotal($value): void
     {
         $this->content->total = $value;
     }
 
-    public function addFact($key, $value)
+    public function addFact($key, $value): void
     {
         $fact = new stdClass();
         $fact->key = $key;
@@ -69,12 +69,12 @@ class InvoiceCard
         $this->content->facts[] = $fact;
     }
 
-    public function addItem($item, $account)
+    public function addItem($item, $account): void
     {
         $this->content->items[] = new InvoiceItemCard($item, $account);
     }
 
-    public function addButton($type, $title, $value, $url = false)
+    public function addButton($type, $title, $value, $url = false): void
     {
         $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }

@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use App\Events\UserLoggedIn;
-use App\Ninja\Repositories\AccountRepository;
 use App\Models\LookupUser;
+use App\Ninja\Repositories\AccountRepository;
 use Auth;
+use Request;
 use Session;
 use Socialite;
 use Utils;
@@ -15,11 +16,6 @@ use Utils;
  */
 class AuthService
 {
-    /**
-     * @var AccountRepository
-     */
-    private $accountRepo;
-
     /**
      * @var array
      */
@@ -31,6 +27,11 @@ class AuthService
     ];
 
     /**
+     * @var AccountRepository
+     */
+    private $accountRepo;
+
+    /**
      * AuthService constructor.
      *
      * @param AccountRepository $repo
@@ -40,8 +41,26 @@ class AuthService
         $this->accountRepo = $repo;
     }
 
-    public static function getProviders()
+    public static function getProviders(): void {}
+
+    /**
+     * @param $provider
+     *
+     * @return mixed
+     */
+    public static function getProviderId($provider)
     {
+        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers));
+    }
+
+    /**
+     * @param $providerId
+     *
+     * @return mixed|string
+     */
+    public static function getProviderName($providerId)
+    {
+        return $providerId ? self::$providers[$providerId] : '';
     }
 
     /**
@@ -52,7 +71,7 @@ class AuthService
      */
     public function execute($provider, $hasCode)
     {
-        if (! $hasCode) {
+        if ( ! $hasCode) {
             return $this->getAuthorization($provider);
         }
 
@@ -69,7 +88,7 @@ class AuthService
             $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
-                if (! $isRegistered) {
+                if ( ! $isRegistered) {
                     Session::flash('warning', trans('texts.success_message'));
                     Session::flash('onReady', 'handleSignedUp();');
                 } else {
@@ -85,11 +104,11 @@ class AuthService
             if ($user = $this->accountRepo->findUserByOauth($providerId, $oauthUserId)) {
                 if ($user->google_2fa_secret) {
                     session(['2fa:user:id' => $user->id]);
+
                     return redirect('/validate_two_factor/' . $user->account->account_key);
-                } else {
-                    Auth::login($user);
-                    event(new UserLoggedIn());
                 }
+                Auth::login($user);
+                event(new UserLoggedIn());
             } else {
                 Session::flash('error', trans('texts.invalid_credentials'));
 
@@ -97,7 +116,7 @@ class AuthService
             }
         }
 
-        $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'dashboard';
+        $redirectTo = Request::input('redirect_to') ? SITE_URL . '/' . ltrim(Request::input('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }
@@ -110,25 +129,5 @@ class AuthService
     private function getAuthorization($provider)
     {
         return Socialite::driver($provider)->redirect();
-    }
-
-    /**
-     * @param $provider
-     *
-     * @return mixed
-     */
-    public static function getProviderId($provider)
-    {
-        return array_search(strtolower($provider), array_map('strtolower', self::$providers));
-    }
-
-    /**
-     * @param $providerId
-     *
-     * @return mixed|string
-     */
-    public static function getProviderName($providerId)
-    {
-        return $providerId ? self::$providers[$providerId] : '';
     }
 }

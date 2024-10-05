@@ -21,7 +21,7 @@ class UpdateProposalSnippetRequest extends ProposalSnippetRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

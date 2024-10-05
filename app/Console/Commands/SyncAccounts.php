@@ -4,13 +4,10 @@ namespace App\Console\Commands;
 
 use App\Libraries\Utils;
 use App\Models\Company;
-use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 
 class SyncAccounts extends Command
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -24,6 +21,7 @@ class SyncAccounts extends Command
      * @var string
      */
     protected $description = 'Sync accounts to v5 - (Hosted function only)';
+
     /**
      * Create a new command instance.
      *
@@ -41,9 +39,9 @@ class SyncAccounts extends Command
      */
     public function handle()
     {
-
-        if(!Utils::isNinjaProd())
+        if ( ! Utils::isNinjaProd()) {
             return;
+        }
 
         config(['database.default' => DB_NINJA_1]);
 
@@ -52,30 +50,27 @@ class SyncAccounts extends Command
         config(['database.default' => DB_NINJA_2]);
 
         $this->updateAccounts();
-
     }
 
-    private function updateAccounts()
+    private function updateAccounts(): void
     {
         $data = [];
 
         $a = Company::whereIn('plan', ['pro', 'enterprise'])
-                            ->with('accounts')
-                            ->cursor()->each(function ($company) use ($data){
+            ->with('accounts')
+            ->cursor()->each(function ($company) use ($data): void {
+                $accounts = $company->accounts->pluck('account_key');
 
-                                $accounts = $company->accounts->pluck('account_key');
-
-                                $data[] = [
-                                    'plan' => $company->plan,
-                                    'plan_term' => $company->plan_term,
-                                    'plan_started' => $company->plan_started,
-                                    'plan_paid' => $company->plan_paid,
-                                    'plan_expires' => $company->plan_expires,
-                                    'num_users' => $company->num_users,
-                                    'accounts' => $accounts
-                                ];
-
-                            });
+                $data[] = [
+                    'plan'         => $company->plan,
+                    'plan_term'    => $company->plan_term,
+                    'plan_started' => $company->plan_started,
+                    'plan_paid'    => $company->plan_paid,
+                    'plan_expires' => $company->plan_expires,
+                    'num_users'    => $company->num_users,
+                    'accounts'     => $accounts,
+                ];
+            });
 
         //post DATA
     }

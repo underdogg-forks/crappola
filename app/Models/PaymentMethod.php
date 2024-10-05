@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Cache;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use stdClass;
 
 /**
  * Class PaymentMethod.
@@ -40,6 +41,72 @@ class PaymentMethod extends EntityModel
         'currency_id',
     ];
 
+    /**
+     * @param $routingNumber
+     *
+     * @return mixed|null|stdClass|string
+     */
+    public static function lookupBankData($routingNumber)
+    {
+        $cached = Cache::get('bankData:' . $routingNumber);
+
+        if ($cached != null) {
+            return $cached == false ? null : $cached;
+        }
+
+        $dataPath = base_path('app/Ninja/PaymentDrivers/FedACHdir.txt');
+
+        if ( ! file_exists($dataPath) || ! $size = filesize($dataPath)) {
+            return 'Invalid data file';
+        }
+
+        $lineSize = 157;
+        $numLines = $size / $lineSize;
+
+        if ($numLines % 1 != 0) {
+            // The number of lines should be an integer
+            return 'Invalid data file';
+        }
+
+        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
+        $file = fopen($dataPath, 'r');
+
+        // Binary search
+        $low = 0;
+        $high = $numLines - 1;
+        while ($low <= $high) {
+            $mid = floor(($low + $high) / 2);
+
+            fseek($file, $mid * $lineSize);
+            $thisNumber = fread($file, 9);
+
+            if ($thisNumber > $routingNumber) {
+                $high = $mid - 1;
+            } elseif ($thisNumber < $routingNumber) {
+                $low = $mid + 1;
+            } else {
+                $data = new stdClass();
+                $data->routing_number = $thisNumber;
+
+                fseek($file, 26, SEEK_CUR);
+
+                $data->name = trim(fread($file, 36));
+                $data->address = trim(fread($file, 36));
+                $data->city = trim(fread($file, 20));
+                $data->state = fread($file, 2);
+                $data->zip = fread($file, 5) . '-' . fread($file, 4);
+                $data->phone = fread($file, 10);
+                break;
+            }
+        }
+
+        if ( ! empty($data)) {
+            Cache::put('bankData:' . $routingNumber, $data, 5 * 60);
+
+            return $data;
+        }
+        Cache::put('bankData:' . $routingNumber, false, 5 * 60);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -90,12 +157,12 @@ class PaymentMethod extends EntityModel
     }
 
     /**
-     * @return mixed|null|\stdClass|string
+     * @return mixed|null|stdClass|string
      */
     public function getBankDataAttribute()
     {
-        if (! $this->routing_number) {
-            return null;
+        if ( ! $this->routing_number) {
+            return;
         }
 
         return static::lookupBankData($this->routing_number);
@@ -134,7 +201,7 @@ class PaymentMethod extends EntityModel
      */
     public function scopeClientId($query, $clientId)
     {
-        $query->whereHas('contact', function ($query) use ($clientId) {
+        $query->whereHas('contact', function ($query) use ($clientId): void {
             $query->withTrashed()->whereClientId($clientId);
         });
     }
@@ -143,7 +210,7 @@ class PaymentMethod extends EntityModel
      * @param $query
      * @param $isBank
      */
-    public function scopeIsBankAccount($query, $isBank)
+    public function scopeIsBankAccount($query, $isBank): void
     {
         if ($isBank) {
             $query->where('payment_type_id', '=', PAYMENT_TYPE_ACH);
@@ -157,77 +224,7 @@ class PaymentMethod extends EntityModel
      */
     public function imageUrl()
     {
-        return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', strtolower($this->payment_type->name))));
-    }
-
-    /**
-     * @param $routingNumber
-     *
-     * @return mixed|null|\stdClass|string
-     */
-    public static function lookupBankData($routingNumber)
-    {
-        $cached = Cache::get('bankData:'.$routingNumber);
-
-        if ($cached != null) {
-            return $cached == false ? null : $cached;
-        }
-
-        $dataPath = base_path('app/Ninja/PaymentDrivers/FedACHdir.txt');
-
-        if (! file_exists($dataPath) || ! $size = filesize($dataPath)) {
-            return 'Invalid data file';
-        }
-
-        $lineSize = 157;
-        $numLines = $size / $lineSize;
-
-        if ($numLines % 1 != 0) {
-            // The number of lines should be an integer
-            return 'Invalid data file';
-        }
-
-        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
-        $file = fopen($dataPath, 'r');
-
-        // Binary search
-        $low = 0;
-        $high = $numLines - 1;
-        while ($low <= $high) {
-            $mid = floor(($low + $high) / 2);
-
-            fseek($file, $mid * $lineSize);
-            $thisNumber = fread($file, 9);
-
-            if ($thisNumber > $routingNumber) {
-                $high = $mid - 1;
-            } elseif ($thisNumber < $routingNumber) {
-                $low = $mid + 1;
-            } else {
-                $data = new \stdClass();
-                $data->routing_number = $thisNumber;
-
-                fseek($file, 26, SEEK_CUR);
-
-                $data->name = trim(fread($file, 36));
-                $data->address = trim(fread($file, 36));
-                $data->city = trim(fread($file, 20));
-                $data->state = fread($file, 2);
-                $data->zip = fread($file, 5).'-'.fread($file, 4);
-                $data->phone = fread($file, 10);
-                break;
-            }
-        }
-
-        if (! empty($data)) {
-            Cache::put('bankData:'.$routingNumber, $data, 5 * 60);
-
-            return $data;
-        } else {
-            Cache::put('bankData:'.$routingNumber, false, 5 * 60);
-
-            return null;
-        }
+        return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', mb_strtolower($this->payment_type->name))));
     }
 
     /**
@@ -245,15 +242,16 @@ class PaymentMethod extends EntityModel
     {
         if ($this->payment_type_id == PAYMENT_TYPE_ACH) {
             return GATEWAY_TYPE_BANK_TRANSFER;
-        } elseif ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
-            return GATEWAY_TYPE_PAYPAL;
-        } else {
-            return GATEWAY_TYPE_TOKEN;
         }
+        if ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
+            return GATEWAY_TYPE_PAYPAL;
+        }
+
+        return GATEWAY_TYPE_TOKEN;
     }
 }
 
-PaymentMethod::deleting(function ($paymentMethod) {
+PaymentMethod::deleting(function ($paymentMethod): void {
     $accountGatewayToken = $paymentMethod->account_gateway_token;
     if ($accountGatewayToken && $accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
         $newDefault = $accountGatewayToken->payment_methods->first(function ($paymentMethdod) use ($accountGatewayToken) {

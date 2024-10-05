@@ -97,6 +97,7 @@
             "Modules\\": "Modules/"
         },
         "files": [
+            "app/helpers.php",
             "app/Libraries/lib_autolink.php",
             "app/Libraries/OFX.php"
         ]

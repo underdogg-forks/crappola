@@ -11,10 +11,10 @@ class InvitationTransformer extends EntityTransformer
         $invitation->setRelation('account', $this->account);
 
         return [
-            'id' => (int) $invitation->public_id,
-            'key' => $invitation->getName(),
-            'link' => $invitation->getLink(),
-            'sent_date' => $invitation->sent_date ?: '',
+            'id'          => (int) $invitation->public_id,
+            'key'         => $invitation->getName(),
+            'link'        => $invitation->getLink(),
+            'sent_date'   => $invitation->sent_date ?: '',
             'viewed_date' => $invitation->sent_date ?: '',
         ];
     }

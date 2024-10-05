@@ -8,6 +8,7 @@ use App\Traits\GenerateMigrationResources;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ExportMigrations extends Command
 {
@@ -46,43 +47,45 @@ class ExportMigrations extends Command
     {
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
 
-        if($this->option('user')) {
+        if ($this->option('user')) {
             $record = User::on(DB_NINJA_1)->find($this->option('user'));
 
-            if($record)
+            if ($record) {
                 return $this->export($record);
+            }
 
             $record = User::on(DB_NINJA_2)->find($this->option('user'));
 
-            if($record)
+            if ($record) {
                 return $this->export($record);
+            }
 
-            
             $this->info('I could not find that user - sorry');
+
             return;
         }
 
-
-        if($this->option('email')) {
+        if ($this->option('email')) {
             $record = User::on(DB_NINJA_1)->where('email', $this->option('email'))->first();
 
-            if($record)
+            if ($record) {
                 return $this->export($record);
+            }
 
             $record = User::on(DB_NINJA_2)->where('email', $this->option('email'))->first();
 
-            if($record)
+            if ($record) {
                 return $this->export($record);
+            }
 
-            
             $this->info('I could not find that user by email - sorry');
+
             return;
         }
 
-        if($this->option('random')){
-
-            User::all()->random(200)->each(function ($user){
-                 $this->export($user);
+        if ($this->option('random')) {
+            User::all()->random(200)->each(function ($user): void {
+                $this->export($user);
             });
 
             return;
@@ -90,13 +93,13 @@ class ExportMigrations extends Command
 
         $users = User::all();
 
-        foreach($users as $user) {
+        foreach ($users as $user) {
             Auth::login($user);
             $this->export($user);
         }
     }
 
-    private function export($user)
+    private function export($user): void
     {
         $this->account = $user->account;
         Auth::login($user);
@@ -104,42 +107,42 @@ class ExportMigrations extends Command
         $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+        $output = fopen('php://output', 'w') || Utils::fatalError();
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
         $data['data'] = [
-            'account' => $this->getAccount(),
-            'company' => $this->getCompany(),
-            'users' => $this->getUsers(),
-            'tax_rates' => $this->getTaxRates(),
-            'payment_terms' => $this->getPaymentTerms(),
-            'clients' => $this->getClients(),
-            'company_gateways' => $this->getCompanyGateways(),
+            'account'               => $this->getAccount(),
+            'company'               => $this->getCompany(),
+            'users'                 => $this->getUsers(),
+            'tax_rates'             => $this->getTaxRates(),
+            'payment_terms'         => $this->getPaymentTerms(),
+            'clients'               => $this->getClients(),
+            'company_gateways'      => $this->getCompanyGateways(),
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
-            'vendors' => $this->getVendors(),
-            'projects' => $this->getProjects(),
-            'products' => $this->getProducts(),
-            'credits' => $this->getCreditsNotes(),
-            'invoices' => $this->getInvoices(),
-            'recurring_expenses' => $this->getRecurringExpenses(),
-            'recurring_invoices' => $this->getRecurringInvoices(),
-            'quotes' => $this->getQuotes(),
-            'payments' => $this->getPayments(),
-            'documents' => $this->getDocuments(),
-            'expense_categories' => $this->getExpenseCategories(),
-            'task_statuses' => $this->getTaskStatuses(),
-            'expenses' => $this->getExpenses(),
-            'tasks' => $this->getTasks(),
-            'documents' => $this->getDocuments(),
-            'ninja_tokens' => $this->getNinjaToken(),
+            'vendors'               => $this->getVendors(),
+            'projects'              => $this->getProjects(),
+            'products'              => $this->getProducts(),
+            'credits'               => $this->getCreditsNotes(),
+            'invoices'              => $this->getInvoices(),
+            'recurring_expenses'    => $this->getRecurringExpenses(),
+            'recurring_invoices'    => $this->getRecurringInvoices(),
+            'quotes'                => $this->getQuotes(),
+            'payments'              => $this->getPayments(),
+            'documents'             => $this->getDocuments(),
+            'expense_categories'    => $this->getExpenseCategories(),
+            'task_statuses'         => $this->getTaskStatuses(),
+            'expenses'              => $this->getExpenses(),
+            'tasks'                 => $this->getTasks(),
+            'documents'             => $this->getDocuments(),
+            'ninja_tokens'          => $this->getNinjaToken(),
         ];
 
         Storage::makeDirectory('migrations');
         $file = storage_path("migrations/{$fileName}.zip");
 
-        $zip = new \ZipArchive();
-        $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip = new ZipArchive();
+        $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
         $zip->close();
 

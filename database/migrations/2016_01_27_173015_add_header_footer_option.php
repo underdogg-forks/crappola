@@ -9,28 +9,28 @@ class AddHeaderFooterOption extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('all_pages_footer');
             $table->boolean('all_pages_header');
             $table->boolean('show_currency_code');
             $table->date('pro_plan_trial')->nullable();
         });
 
-        Schema::table('gateways', function ($table) {
+        Schema::table('gateways', function ($table): void {
             $table->boolean('is_offsite');
             $table->boolean('is_secure');
         });
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function ($table): void {
             if (Schema::hasColumn('expenses', 'transaction_id')) {
                 $table->string('transaction_id')->nullable()->change();
                 $table->unsignedInteger('bank_id')->nullable()->change();
             }
         });
 
-        Schema::table('vendors', function ($table) {
+        Schema::table('vendors', function ($table): void {
             if (Schema::hasColumn('vendors', 'transaction_name')) {
                 $table->string('transaction_name')->nullable()->change();
             }
@@ -42,16 +42,16 @@ class AddHeaderFooterOption extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('all_pages_footer');
             $table->dropColumn('all_pages_header');
             $table->dropColumn('show_currency_code');
             $table->dropColumn('pro_plan_trial');
         });
 
-        Schema::table('gateways', function ($table) {
+        Schema::table('gateways', function ($table): void {
             $table->dropColumn('is_offsite');
             $table->dropColumn('is_secure');
         });

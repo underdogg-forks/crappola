@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App;
 use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
-use App\Models\InvoiceDesign;
 use App\Models\Language;
 use Auth;
 use Cache;
@@ -38,9 +37,9 @@ class StartupCheck
         // set TRUSTED_PROXIES=* if you want to trust every proxy.
         if (isset($_ENV['TRUSTED_PROXIES'])) {
             if (env('TRUSTED_PROXIES') == '*') {
-                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')],Request::HEADER_X_FORWARDED_ALL);
-            } else{
-                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))),Request::HEADER_X_FORWARDED_ALL);
+                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')], Request::HEADER_X_FORWARDED_ALL);
+            } else {
+                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))), Request::HEADER_X_FORWARDED_ALL);
             }
         }
 
@@ -50,19 +49,19 @@ class StartupCheck
         }
 
         // If the database doens't yet exist we'll skip the rest
-        if (! Utils::isNinja() && ! Utils::isDatabaseSetup()) {
+        if ( ! Utils::isNinja() && ! Utils::isDatabaseSetup()) {
             return $next($request);
         }
 
         // Check to prevent headless browsers from triggering activity
-        if (Utils::isNinja() && ! $request->phantomjs && strpos($request->header('User-Agent'), 'Headless') !== false) {
+        if (Utils::isNinja() && ! $request->phantomjs && str_contains($request->header('User-Agent'), 'Headless')) {
             abort(403);
         }
 
         if (Utils::isSelfHost()) {
             // Check if config:cache may have been run
-            if (! env('APP_URL')) {
-                echo "<p>There appears to be a problem with your configuration, please check your .env file.</p>" .
+            if ( ! env('APP_URL')) {
+                echo '<p>There appears to be a problem with your configuration, please check your .env file.</p>' .
                      "<p>If you've run 'php artisan config:cache' you will need to run 'php artisan config:clear'</p>.";
                 exit;
             }
@@ -125,15 +124,15 @@ class StartupCheck
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @CurlUtils::get(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @CurlUtils::get(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
                     if (version_compare(NINJA_VERSION, $data->version, '<')) {
                         $params = [
-                            'user_version' => NINJA_VERSION,
+                            'user_version'   => NINJA_VERSION,
                             'latest_version' => $data->version,
-                            'releases_link' => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
+                            'releases_link'  => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
                         ];
                         Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
                         Session::flash('news_feed_message', trans('texts.new_version_available', $params));
@@ -175,9 +174,9 @@ class StartupCheck
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
-        if (! Utils::isNinjaProd() && isset($_SERVER['REQUEST_URI'])) {
+        if ( ! Utils::isNinjaProd() && isset($_SERVER['REQUEST_URI'])) {
             $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
-            if (! $claimingLicense && \Request::has('license_key') && \Request::has('product_id')) {
+            if ( ! $claimingLicense && \Request::has('license_key') && \Request::has('product_id')) {
                 $licenseKey = \Request::input('license_key');
                 $productId = \Request::input('product_id');
 
@@ -213,7 +212,7 @@ class StartupCheck
         foreach ($cachedTables as $name => $class) {
             if (\Request::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
+                if ( ! Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {

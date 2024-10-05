@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class PaymentTermsSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         Eloquent::unguard();
 
@@ -16,7 +16,7 @@ class PaymentTermsSeeder extends Seeder
         ];
 
         foreach ($paymentTerms as $paymentTerm) {
-            if (! DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->first()) {
+            if ( ! DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->first()) {
                 PaymentTerm::create($paymentTerm);
             }
         }

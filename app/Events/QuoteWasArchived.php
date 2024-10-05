@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasArchived extends Event
 {
     use SerializesModels;
+
     public $quote;
 
     /**

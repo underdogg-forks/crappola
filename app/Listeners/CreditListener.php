@@ -30,7 +30,7 @@ class CreditListener
     /**
      * @param PaymentWasDeleted $event
      */
-    public function deletedPayment(PaymentWasDeleted $event)
+    public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
 

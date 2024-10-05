@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddDefaultRates extends Migration
@@ -10,25 +9,25 @@ class AddDefaultRates extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->decimal('task_rate', 12, 4)->default(0);
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->decimal('task_rate', 12, 4)->default(0);
         });
 
-        Schema::table('projects', function ($table) {
+        Schema::table('projects', function ($table): void {
             $table->decimal('task_rate', 12, 4)->default(0);
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->date('partial_due_date')->nullable();
         });
 
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->string('google_2fa_secret')->nullable();
         });
 
@@ -48,25 +47,25 @@ class AddDefaultRates extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('task_rate');
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->dropColumn('task_rate');
         });
 
-        Schema::table('projects', function ($table) {
+        Schema::table('projects', function ($table): void {
             $table->dropColumn('task_rate');
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->dropColumn('partial_due_date');
         });
 
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('google_2fa_secret');
         });
     }

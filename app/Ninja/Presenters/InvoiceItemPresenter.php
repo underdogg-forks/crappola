@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Presenters;
 
-use Str;
 use stdClass;
 
 class InvoiceItemPresenter extends EntityPresenter
@@ -11,8 +10,8 @@ class InvoiceItemPresenter extends EntityPresenter
     {
         $data = new stdClass();
         $data->description = $this->entity->notes;
-        $data->item_price = floatval($this->entity->cost);
-        $data->quantity = floatval($this->entity->qty);
+        $data->item_price = (float) ($this->entity->cost);
+        $data->quantity = (float) ($this->entity->qty);
         $data->amount = round($data->item_price * $data->quantity, 2);
 
         return $data;

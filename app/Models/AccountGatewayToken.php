@@ -11,14 +11,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AccountGatewayToken extends Eloquent
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+
     /**
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     /**
      * @var array
@@ -119,15 +121,19 @@ class AccountGatewayToken extends Eloquent
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             return "https://dashboard.stripe.com/customers/{$this->token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+        }
+        if ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
+
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
-            $testMode = $accountGateway->getConfigField('testMode');
-            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
-        } else {
-            return false;
         }
+        if ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+            $testMode = $accountGateway->getConfigField('testMode');
+
+            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
+        }
+
+        return false;
     }
 }

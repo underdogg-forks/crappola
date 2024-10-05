@@ -42,7 +42,7 @@ class SelfUpdateController extends BaseController
             [
                 'versionInstalled' => $versionInstalled,
                 'versionAvailable' => $this->updater->source()->getVersionAvailable(),
-                'updateAvailable' => $updateAvailable,
+                'updateAvailable'  => $updateAvailable,
             ]
         );
     }
@@ -59,7 +59,7 @@ class SelfUpdateController extends BaseController
         return Redirect::to('/');
     }
 
-    public function download()
+    public function download(): void
     {
         $this->updater->source()->fetch();
     }

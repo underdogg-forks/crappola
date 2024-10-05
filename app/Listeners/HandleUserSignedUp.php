@@ -42,7 +42,7 @@ class HandleUserSignedUp
      *
      * @return void
      */
-    public function handle(UserSignedUp $event)
+    public function handle(UserSignedUp $event): void
     {
         $user = Auth::user();
 

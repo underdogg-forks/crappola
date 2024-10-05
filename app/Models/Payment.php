@@ -10,6 +10,7 @@ use App\Events\PaymentWasVoided;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use stdClass;
 
 /**
  * Class Payment.
@@ -18,6 +19,15 @@ class Payment extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
+
+    public static $statusClasses = [
+        PAYMENT_STATUS_PENDING            => 'info',
+        PAYMENT_STATUS_COMPLETED          => 'success',
+        PAYMENT_STATUS_FAILED             => 'danger',
+        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
+        PAYMENT_STATUS_VOIDED             => 'default',
+        PAYMENT_STATUS_REFUNDED           => 'default',
+    ];
 
     /**
      * @var array
@@ -29,23 +39,31 @@ class Payment extends EntityModel
         'exchange_currency_id',
     ];
 
-    public static $statusClasses = [
-        PAYMENT_STATUS_PENDING => 'info',
-        PAYMENT_STATUS_COMPLETED => 'success',
-        PAYMENT_STATUS_FAILED => 'danger',
-        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
-        PAYMENT_STATUS_VOIDED => 'default',
-        PAYMENT_STATUS_REFUNDED => 'default',
-    ];
-
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\PaymentPresenter';
+
+    public static function calcStatusLabel($statusId, $statusName, $amount)
+    {
+        if ($statusId == PAYMENT_STATUS_PARTIALLY_REFUNDED) {
+            return trans('texts.status_partially_refunded_amount', [
+                'amount' => $amount,
+            ]);
+        }
+
+        return trans('texts.status_' . mb_strtolower($statusName));
+    }
+
+    public static function calcStatusClass($statusId)
+    {
+        return static::$statusClasses[$statusId];
+    }
 
     /**
      * @return mixed
@@ -231,7 +249,7 @@ class Payment extends EntityModel
             return false;
         }
 
-        if (! $amount) {
+        if ( ! $amount) {
             $amount = $this->amount;
         }
 
@@ -267,7 +285,7 @@ class Payment extends EntityModel
         return true;
     }
 
-    public function markComplete()
+    public function markComplete(): void
     {
         $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
         $this->save();
@@ -277,7 +295,7 @@ class Payment extends EntityModel
     /**
      * @param string $failureMessage
      */
-    public function markFailed($failureMessage = '')
+    public function markFailed($failureMessage = ''): void
     {
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
         $this->gateway_error = $failureMessage;
@@ -315,12 +333,12 @@ class Payment extends EntityModel
     }
 
     /**
-     * @return mixed|null|\stdClass|string
+     * @return mixed|null|stdClass|string
      */
     public function getBankDataAttribute()
     {
-        if (! $this->routing_number) {
-            return null;
+        if ( ! $this->routing_number) {
+            return;
         }
 
         return PaymentMethod::lookupBankData($this->routing_number);
@@ -351,22 +369,6 @@ class Payment extends EntityModel
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 
-    public static function calcStatusLabel($statusId, $statusName, $amount)
-    {
-        if ($statusId == PAYMENT_STATUS_PARTIALLY_REFUNDED) {
-            return trans('texts.status_partially_refunded_amount', [
-                'amount' => $amount,
-            ]);
-        } else {
-            return trans('texts.status_' . strtolower($statusName));
-        }
-    }
-
-    public static function calcStatusClass($statusId)
-    {
-        return static::$statusClasses[$statusId];
-    }
-
     public function statusClass()
     {
         return static::calcStatusClass($this->payment_status_id);
@@ -382,17 +384,16 @@ class Payment extends EntityModel
     public function invoiceJsonBackup()
     {
         $activity = Activity::wherePaymentId($this->id)
-                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-                        ->get(['json_backup'])
-                        ->first();
+            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+            ->get(['json_backup'])
+            ->first();
 
         return $activity->json_backup;
     }
 }
 
-Payment::creating(function ($payment) {
-});
+Payment::creating(function ($payment): void {});
 
-Payment::created(function ($payment) {
+Payment::created(function ($payment): void {
     event(new PaymentWasCreated($payment));
 });

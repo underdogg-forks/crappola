@@ -42,7 +42,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
         $logFile = storage_path() . '/logs/cron.log';
 
@@ -57,19 +57,16 @@ class Kernel extends ConsoleKernel
             ->sendOutputTo($logFile)
             ->daily();
 
-        if(Utils::isNinjaProd())
-        {
-
+        if (Utils::isNinjaProd()) {
             $schedule
                 ->command('ninja:sync-v5')
                 ->withoutOverlapping()
-                ->daily();        
-            
-            
+                ->daily();
+
             // $schedule
             //     ->command('ninja:force-migrate-v5')
             //     ->everyMinute()
-            //     ->withoutOverlapping();   
+            //     ->withoutOverlapping();
         }
     }
 }

@@ -13,14 +13,15 @@ use Utils;
  */
 class Expense extends EntityModel
 {
+    use PresentableTrait;
     // Expenses
     use SoftDeletes;
-    use PresentableTrait;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
@@ -75,17 +76,68 @@ class Expense extends EntityModel
     public static function getImportMap()
     {
         return [
-            'amount|total' => 'amount',
-            'category' => 'expense_category',
-            'client' => 'client',
-            'vendor' => 'vendor',
+            'amount|total'          => 'amount',
+            'category'              => 'expense_category',
+            'client'                => 'client',
+            'vendor'                => 'vendor',
             'notes|details^private' => 'public_notes',
-            'notes|details^public' => 'private_notes',
-            'date^payment' => 'expense_date',
-            'payment type' => 'payment_type',
-            'payment date' => 'payment_date',
-            'reference' => 'transaction_reference',
+            'notes|details^public'  => 'private_notes',
+            'date^payment'          => 'expense_date',
+            'payment type'          => 'payment_type',
+            'payment date'          => 'payment_date',
+            'reference'             => 'transaction_reference',
         ];
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
+        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
+        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
+        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
+
+        return $statuses;
+    }
+
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'billed';
+            }
+        } elseif ($shouldBeInvoiced) {
+            $label = 'pending';
+        } else {
+            $label = 'logged';
+        }
+
+        $label = trans("texts.{$label}");
+
+        if ($paymentDate) {
+            $label = trans('texts.paid') . ' | ' . $label;
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                return 'default';
+            }
+
+            return 'success';
+        } elseif ($shouldBeInvoiced) {
+            return 'warning';
+        }
+
+        return 'primary';
     }
 
     /**
@@ -160,7 +212,6 @@ class Expense extends EntityModel
         return $this->belongsTo('App\Models\RecurringExpense')->withTrashed();
     }
 
-
     /**
      * @return mixed
      */
@@ -168,11 +219,12 @@ class Expense extends EntityModel
     {
         if ($this->transaction_id) {
             return $this->transaction_id;
-        } elseif ($this->public_notes) {
-            return Utils::truncateString($this->public_notes, 16);
-        } else {
-            return '#' . $this->public_id;
         }
+        if ($this->public_notes) {
+            return Utils::truncateString($this->public_notes, 16);
+        }
+
+        return '#' . $this->public_id;
     }
 
     /**
@@ -248,7 +300,7 @@ class Expense extends EntityModel
     }
 
     /**
-     * @param $query
+     * @param      $query
      * @param null $bankdId
      *
      * @return mixed
@@ -272,58 +324,6 @@ class Expense extends EntityModel
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }
 
-    public static function getStatuses($entityType = false)
-    {
-        $statuses = [];
-        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
-        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
-        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
-        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
-
-
-        return $statuses;
-    }
-
-    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                $label = 'invoiced';
-            } else {
-                $label = 'billed';
-            }
-        } elseif ($shouldBeInvoiced) {
-            $label = 'pending';
-        } else {
-            $label = 'logged';
-        }
-
-        $label = trans("texts.{$label}");
-
-        if ($paymentDate) {
-            $label = trans('texts.paid') . ' | ' . $label;
-        }
-
-        return $label;
-    }
-
-    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                return 'default';
-            } else {
-                return 'success';
-            }
-        } elseif ($shouldBeInvoiced) {
-            return 'warning';
-        } else {
-            return 'primary';
-        }
-    }
-
     public function statusClass()
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
@@ -339,22 +339,22 @@ class Expense extends EntityModel
     }
 }
 
-Expense::creating(function ($expense) {
+Expense::creating(function ($expense): void {
     $expense->setNullValues();
 });
 
-Expense::created(function ($expense) {
+Expense::created(function ($expense): void {
     event(new ExpenseWasCreated($expense));
 });
 
-Expense::updating(function ($expense) {
+Expense::updating(function ($expense): void {
     $expense->setNullValues();
 });
 
-Expense::updated(function ($expense) {
+Expense::updated(function ($expense): void {
     event(new ExpenseWasUpdated($expense));
 });
 
-Expense::deleting(function ($expense) {
+Expense::deleting(function ($expense): void {
     $expense->setNullValues();
 });

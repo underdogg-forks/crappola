@@ -10,12 +10,12 @@ class ReferralRepository
     public function getCounts($referralCode)
     {
         $counts = [
-            'free' => 0,
-            'pro' => 0,
+            'free'       => 0,
+            'pro'        => 0,
             'enterprise' => 0,
         ];
 
-        if (! $referralCode) {
+        if ( ! $referralCode) {
             return $counts;
         }
 

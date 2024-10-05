@@ -9,7 +9,7 @@ class SetupCountriesTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         // Creates the users table
         /*
@@ -40,7 +40,7 @@ class SetupCountriesTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         //Schema::drop('countries');
     }

@@ -28,7 +28,7 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->website) {
+        if ( ! $client->website) {
             return '';
         }
 
@@ -50,7 +50,7 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->payment_terms) {
+        if ( ! $client->payment_terms) {
             return '';
         }
 
@@ -98,22 +98,21 @@ class ClientPresenter extends EntityPresenter
 
         if ($city || $state || $postalCode) {
             return Utils::cityStateZip($city, $state, $postalCode, $swap);
-        } else {
-            return false;
         }
-    }
 
+        return false;
+    }
 
     /**
      * @return string
      */
     public function taskRate()
     {
-      if (floatval($this->entity->task_rate)) {
-          return Utils::roundSignificant($this->entity->task_rate);
-      } else {
-          return '';
-      }
+        if ((float) ($this->entity->task_rate)) {
+            return Utils::roundSignificant($this->entity->task_rate);
+        }
+
+        return '';
     }
 
     /**
@@ -121,11 +120,10 @@ class ClientPresenter extends EntityPresenter
      */
     public function defaultTaskRate()
     {
-      if ($rate = $this->taskRate()) {
-          return $rate;
-      } else {
-          return $this->entity->account->present()->taskRate;
-      }
-    }
+        if ($rate = $this->taskRate()) {
+            return $rate;
+        }
 
+        return $this->entity->account->present()->taskRate;
+    }
 }

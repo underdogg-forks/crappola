@@ -10,15 +10,15 @@ class ClientReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
-            'client' => [],
-            'amount' => [],
-            'paid' => [],
-            'balance' => [],
-            'id_number' => ['columnSelector-false'],
-            'vat_number' => ['columnSelector-false'],
-            'public_notes' => ['columnSelector-false'],
+            'client'        => [],
+            'amount'        => [],
+            'paid'          => [],
+            'balance'       => [],
+            'id_number'     => ['columnSelector-false'],
+            'vat_number'    => ['columnSelector-false'],
+            'public_notes'  => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
-            'user' => ['columnSelector-false'],
+            'user'          => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
@@ -34,22 +34,22 @@ class ClientReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with(['contacts', 'user'])
-                        ->with(['invoices' => function ($query) {
-                            $query->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->withArchived();
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with(['contacts', 'user'])
+            ->with(['invoices' => function ($query): void {
+                $query->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('is_recurring', '=', false)
+                    ->withArchived();
+            }]);
 
         foreach ($clients->get() as $client) {
             $amount = 0;

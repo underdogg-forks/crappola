@@ -9,9 +9,9 @@ class AddTokens extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('account_tokens', function ($table) {
+        Schema::create('account_tokens', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id');
@@ -23,12 +23,12 @@ class AddTokens extends Migration
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             $table->unsignedInteger('public_id')->nullable();
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->unsignedInteger('token_id')->nullable();
         });
     }
@@ -38,11 +38,11 @@ class AddTokens extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('account_tokens');
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->dropColumn('token_id');
         });
     }

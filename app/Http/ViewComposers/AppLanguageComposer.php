@@ -13,7 +13,7 @@ class AppLanguageComposer
      *
      * @return void
      */
-    public function compose(View $view)
+    public function compose(View $view): void
     {
         $view->with('appLanguage', $this->getLanguage());
     }

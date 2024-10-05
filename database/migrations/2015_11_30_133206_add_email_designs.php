@@ -9,9 +9,9 @@ class AddEmailDesigns extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->smallInteger('email_design_id')->default(1);
             $table->boolean('enable_email_markup')->default(false);
             $table->string('website')->nullable();
@@ -23,9 +23,9 @@ class AddEmailDesigns extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('email_design_id');
             $table->dropColumn('enable_email_markup');
             $table->dropColumn('website');

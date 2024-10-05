@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
-use Auth;
+use Request;
 use Response;
 use Utils;
 
@@ -17,18 +17,18 @@ class IntegrationController extends BaseAPIController
      */
     public function subscribe()
     {
-        $eventId = Utils::lookupEventId(trim(\Request::input('event')));
+        $eventId = Utils::lookupEventId(trim(Request::input('event')));
 
-        if (! $eventId) {
+        if ( ! $eventId) {
             return Response::json('Event is invalid', 500);
         }
 
         $subscription = Subscription::createNew();
         $subscription->event_id = $eventId;
-        $subscription->target_url = trim(\Request::input('target_url'));
+        $subscription->target_url = trim(Request::input('target_url'));
         $subscription->save();
 
-        if (! $subscription->id) {
+        if ( ! $subscription->id) {
             return Response::json('Failed to create subscription', 500);
         }
 

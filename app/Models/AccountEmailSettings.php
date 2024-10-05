@@ -9,6 +9,18 @@ use Eloquent;
  */
 class AccountEmailSettings extends Eloquent
 {
+    public static $templates = [
+        TEMPLATE_INVOICE,
+        TEMPLATE_QUOTE,
+        TEMPLATE_PROPOSAL,
+        //TEMPLATE_PARTIAL,
+        TEMPLATE_PAYMENT,
+        TEMPLATE_REMINDER1,
+        TEMPLATE_REMINDER2,
+        TEMPLATE_REMINDER3,
+        TEMPLATE_REMINDER4,
+    ];
+
     /**
      * @var array
      */
@@ -34,17 +46,4 @@ class AccountEmailSettings extends Eloquent
         'late_fee3_amount',
         'late_fee3_percent',
     ];
-
-    public static $templates = [
-        TEMPLATE_INVOICE,
-        TEMPLATE_QUOTE,
-        TEMPLATE_PROPOSAL,
-        //TEMPLATE_PARTIAL,
-        TEMPLATE_PAYMENT,
-        TEMPLATE_REMINDER1,
-        TEMPLATE_REMINDER2,
-        TEMPLATE_REMINDER3,
-        TEMPLATE_REMINDER4,
-    ];
-
 }

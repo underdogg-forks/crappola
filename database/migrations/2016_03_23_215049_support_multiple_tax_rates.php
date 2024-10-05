@@ -9,21 +9,21 @@ class SupportMultipleTaxRates extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             if (Schema::hasColumn('invoices', 'tax_rate')) {
                 $table->decimal('tax_rate', 13, 3)->change();
             }
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             if (Schema::hasColumn('invoice_items', 'tax_rate')) {
                 $table->decimal('tax_rate', 13, 3)->change();
             }
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             if (Schema::hasColumn('invoices', 'tax_rate')) {
                 $table->renameColumn('tax_rate', 'tax_rate1');
                 $table->renameColumn('tax_name', 'tax_name1');
@@ -32,7 +32,7 @@ class SupportMultipleTaxRates extends Migration
             $table->decimal('tax_rate2', 13, 3);
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             if (Schema::hasColumn('invoice_items', 'tax_rate')) {
                 $table->renameColumn('tax_rate', 'tax_rate1');
                 $table->renameColumn('tax_name', 'tax_name1');
@@ -41,7 +41,7 @@ class SupportMultipleTaxRates extends Migration
             $table->decimal('tax_rate2', 13, 3);
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('enable_client_portal_dashboard')->default(true);
         });
     }
@@ -51,9 +51,9 @@ class SupportMultipleTaxRates extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->decimal('tax_rate1', 13, 2)->change();
             $table->renameColumn('tax_rate1', 'tax_rate');
             $table->renameColumn('tax_name1', 'tax_name');
@@ -61,7 +61,7 @@ class SupportMultipleTaxRates extends Migration
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->decimal('tax_rate1', 13, 2)->change();
             $table->renameColumn('tax_rate1', 'tax_rate');
             $table->renameColumn('tax_name1', 'tax_name');
@@ -69,7 +69,7 @@ class SupportMultipleTaxRates extends Migration
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('enable_client_portal_dashboard');
         });
     }

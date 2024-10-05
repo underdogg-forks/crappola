@@ -2,18 +2,18 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
 use Artisan;
 use Crypt;
+use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
 use Laravel\LegacyEncrypter\McryptEncrypter;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Class UpdateKey
+ * Class UpdateKey.
  */
 class UpdateKey extends Command
 {
@@ -27,7 +27,7 @@ class UpdateKey extends Command
      */
     protected $description = 'Update application key';
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running UpdateKey...');
 
@@ -35,7 +35,7 @@ class UpdateKey extends Command
             config(['database.default' => $database]);
         }
 
-        if (! env('APP_KEY') || ! env('APP_CIPHER')) {
+        if ( ! env('APP_KEY') || ! env('APP_CIPHER')) {
             $this->info(date('r') . ' Error: app key and cipher are not set');
             exit;
         }

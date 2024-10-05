@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddMigrationFlagForCompaniesTable extends Migration
 {
@@ -11,10 +10,10 @@ class AddMigrationFlagForCompaniesTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('companies', function ($table) {
-             $table->boolean('is_migrated')->default(false);
+        Schema::table('companies', function ($table): void {
+            $table->boolean('is_migrated')->default(false);
         });
     }
 
@@ -23,8 +22,5 @@ class AddMigrationFlagForCompaniesTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        //
-    }
+    public function down(): void {}
 }

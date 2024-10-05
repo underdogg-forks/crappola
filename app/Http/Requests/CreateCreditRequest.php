@@ -23,7 +23,7 @@ class CreateCreditRequest extends CreditRequest
     {
         return [
             'client_id' => 'required',
-            'amount' => 'required|positive',
+            'amount'    => 'required|positive',
         ];
     }
 }

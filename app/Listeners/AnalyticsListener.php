@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App;
 use App\Events\PaymentWasCreated;
 use Utils;
 
@@ -13,7 +14,7 @@ class AnalyticsListener
     /**
      * @param PaymentWasCreated $event
      */
-    public function trackRevenue(PaymentWasCreated $event)
+    public function trackRevenue(PaymentWasCreated $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -31,7 +32,7 @@ class AnalyticsListener
             }
         }
 
-        if (! $analyticsId) {
+        if ( ! $analyticsId) {
             return;
         }
 
@@ -40,7 +41,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($account->isNinjaAccount() && \App::runningInConsole()) {
+        if ($account->isNinjaAccount() && App::runningInConsole()) {
             $item .= ' [R]';
         }
 
@@ -56,16 +57,16 @@ class AnalyticsListener
     /**
      * @param $data
      */
-    private function sendAnalytics($data)
+    private function sendAnalytics($data): void
     {
         $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [
-            CURLOPT_URL => GOOGLE_ANALYITCS_URL,
+            CURLOPT_URL            => GOOGLE_ANALYITCS_URL,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
+            CURLOPT_POST           => 'POST',
+            CURLOPT_POSTFIELDS     => $data,
         ];
 
         curl_setopt_array($curl, $opts);

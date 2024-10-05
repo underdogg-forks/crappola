@@ -14,6 +14,7 @@ use Utils;
 class TaskService extends BaseService
 {
     protected $datatableService;
+
     protected $taskRepo;
 
     /**
@@ -26,14 +27,6 @@ class TaskService extends BaseService
     {
         $this->taskRepo = $taskRepo;
         $this->datatableService = $datatableService;
-    }
-
-    /**
-     * @return TaskRepository
-     */
-    protected function getRepo()
-    {
-        return $this->taskRepo;
     }
 
     /**
@@ -52,10 +45,18 @@ class TaskService extends BaseService
 
         $query = $this->taskRepo->find($clientPublicId, $projectPublicId, $search);
 
-        if (! Utils::hasPermission('view_task')) {
+        if ( ! Utils::hasPermission('view_task')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return TaskRepository
+     */
+    protected function getRepo()
+    {
+        return $this->taskRepo;
     }
 }

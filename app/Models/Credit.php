@@ -11,13 +11,14 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Credit extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
@@ -108,9 +109,8 @@ class Credit extends EntityModel
     }
 }
 
-Credit::creating(function ($credit) {
-});
+Credit::creating(function ($credit): void {});
 
-Credit::created(function ($credit) {
+Credit::created(function ($credit): void {
     event(new CreditWasCreated($credit));
 });

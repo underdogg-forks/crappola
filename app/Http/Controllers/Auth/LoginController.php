@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Utils;
-use Illuminate\Http\Request;
+use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Models\User;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Event;
 use Cache;
+use Cookie;
+use Event;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Lang;
 use Str;
-use Cookie;
-use App\Events\UserLoggedIn;
-use App\Http\Requests\ValidateTwoFactorRequest;
+use Utils;
 
 class LoginController extends Controller
 {
@@ -57,7 +57,7 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        if (! Utils::isNinja() && ! User::count()) {
+        if ( ! Utils::isNinja() && ! User::count()) {
             return redirect()->to('/setup');
         }
 
@@ -66,7 +66,7 @@ class LoginController extends Controller
             $requestURL = request()->url();
             $loginURL = SITE_URL . '/login';
             $subdomain = Utils::getSubdomain(request()->url());
-            if ($requestURL != $loginURL && ! strstr($subdomain, 'webapp-')) {
+            if ($requestURL != $loginURL && ! mb_strstr($subdomain, 'webapp-')) {
                 return redirect()->to($loginURL);
             }
         }
@@ -86,6 +86,7 @@ class LoginController extends Controller
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             session()->flash('error', trans('texts.invalid_credentials'));
+
             return redirect()->to('login');
         }
 
@@ -120,51 +121,6 @@ class LoginController extends Controller
     }
 
     /**
-     * Get the failed login response instance.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        return redirect()->back()
-            ->withInput($request->only($this->username(), 'remember'))
-            ->withErrors([
-                $this->username() => trans('texts.invalid_credentials'),
-            ]);
-    }
-
-    /**
-     * Send the post-authentication response.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
-     * @return \Illuminate\Http\Response
-     */
-    private function authenticated(Request $request, Authenticatable $user)
-    {
-        if ($user->google_2fa_secret) {
-            $cookie = false;
-            if ($user->remember_2fa_token) {
-                $cookie = Cookie::get('remember_2fa_' . sha1($user->id));
-            }
-
-            if ($cookie && hash_equals($user->remember_2fa_token, $cookie)) {
-                // do nothing
-            } else {
-                auth()->logout();
-                session()->put('2fa:user:id', $user->id);
-                return redirect('/validate_two_factor/' . $user->account->account_key);
-            }
-        }
-
-        Event::dispatch(new UserLoggedIn());
-
-        return redirect()->intended($this->redirectTo);
-    }
-
-    /**
-     *
      * @return \Illuminate\Http\Response
      */
     public function getValidateToken()
@@ -177,8 +133,8 @@ class LoginController extends Controller
     }
 
     /**
+     * @param App\Http\Requests\ValidateSecretRequest $request
      *
-     * @param  App\Http\Requests\ValidateSecretRequest $request
      * @return \Illuminate\Http\Response
      */
     public function postValidateToken(ValidateTwoFactorRequest $request)
@@ -196,7 +152,7 @@ class LoginController extends Controller
 
         if ($trust = request()->trust) {
             $user = auth()->user();
-            if (! $user->remember_2fa_token) {
+            if ( ! $user->remember_2fa_token) {
                 $user->remember_2fa_token = Str::random(60);
                 $user->save();
             }
@@ -217,7 +173,7 @@ class LoginController extends Controller
                 $account = auth()->user()->account;
                 app('App\Ninja\Repositories\AccountRepository')->unlinkAccount($account);
 
-                if (! $account->hasMultipleAccounts()) {
+                if ( ! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
                 }
                 $account->forceDelete();
@@ -229,10 +185,57 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if (!empty($reason) && Lang::has("texts.{$reason}_logout")) {
+        if ( ! empty($reason) && Lang::has("texts.{$reason}_logout")) {
             session()->flash('warning', trans("texts.{$reason}_logout"));
         }
 
         return $response;
+    }
+
+    /**
+     * Get the failed login response instance.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+                $this->username() => trans('texts.invalid_credentials'),
+            ]);
+    }
+
+    /**
+     * Send the post-authentication response.
+     *
+     * @param \Illuminate\Http\Request                   $request
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     *
+     * @return \Illuminate\Http\Response
+     */
+    private function authenticated(Request $request, Authenticatable $user)
+    {
+        if ($user->google_2fa_secret) {
+            $cookie = false;
+            if ($user->remember_2fa_token) {
+                $cookie = Cookie::get('remember_2fa_' . sha1($user->id));
+            }
+
+            if ($cookie && hash_equals($user->remember_2fa_token, $cookie)) {
+                // do nothing
+            } else {
+                auth()->logout();
+                session()->put('2fa:user:id', $user->id);
+
+                return redirect('/validate_two_factor/' . $user->account->account_key);
+            }
+        }
+
+        Event::dispatch(new UserLoggedIn());
+
+        return redirect()->intended($this->redirectTo);
     }
 }

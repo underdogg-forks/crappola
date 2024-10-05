@@ -3,21 +3,21 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Task;
-use Utils;
 use Auth;
+use Utils;
 
 class TaskReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client' => [],
-            'start_date' => [],
-            'project' => [],
+            'client'      => [],
+            'start_date'  => [],
+            'project'     => [],
             'description' => [],
-            'duration' => [],
-            'amount' => [],
-            'user' => ['columnSelector-false'],
+            'duration'    => [],
+            'amount'      => [],
+            'user'        => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
@@ -33,7 +33,7 @@ class TaskReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
         $account = Auth::user()->account;
         $startDate = date_create($this->startDate);
@@ -41,10 +41,10 @@ class TaskReport extends AbstractReport
         $subgroup = $this->options['subgroup'];
 
         $tasks = Task::scope()
-                    ->orderBy('created_at', 'desc')
-                    ->with('client.contacts', 'project', 'account', 'user')
-                    ->withArchived()
-                    ->dateRange($startDate, $endDate);
+            ->orderBy('created_at', 'desc')
+            ->with('client.contacts', 'project', 'account', 'user')
+            ->withArchived()
+            ->dateRange($startDate, $endDate);
 
         foreach ($tasks->get() as $task) {
             $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));

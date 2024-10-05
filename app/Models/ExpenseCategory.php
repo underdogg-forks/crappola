@@ -10,9 +10,9 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ExpenseCategory extends EntityModel
 {
+    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
 
     /**
      * @var array

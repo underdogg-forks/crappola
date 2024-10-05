@@ -13,22 +13,22 @@ class HeroCard
         $this->content->buttons = [];
     }
 
-    public function setTitle($title)
+    public function setTitle($title): void
     {
         $this->content->title = $title;
     }
 
-    public function setSubitle($subtitle)
+    public function setSubitle($subtitle): void
     {
         $this->content->subtitle = $subtitle;
     }
 
-    public function setText($text)
+    public function setText($text): void
     {
         $this->content->text = $text;
     }
 
-    public function addButton($type, $title, $value, $url = false)
+    public function addButton($type, $title, $value, $url = false): void
     {
         $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }

@@ -17,7 +17,7 @@ class PaymillPaymentDriver extends BasePaymentDriver
             return $data;
         }
 
-        if (! empty($this->input['sourceToken'])) {
+        if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
         }

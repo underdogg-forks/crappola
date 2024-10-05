@@ -9,9 +9,9 @@ class OneClickInstall extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('affiliates', function ($table) {
+        Schema::create('affiliates', function ($table): void {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -23,7 +23,7 @@ class OneClickInstall extends Migration
             $table->text('payment_subtitle');
         });
 
-        Schema::create('licenses', function ($table) {
+        Schema::create('licenses', function ($table): void {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -46,7 +46,7 @@ class OneClickInstall extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('licenses');
         Schema::dropIfExists('affiliates');

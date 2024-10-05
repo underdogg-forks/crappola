@@ -1,21 +1,19 @@
 <?php
 
-use App\Models\Credit;
 use Faker\Factory;
-use Codeception\Util\Fixtures;
 
 class CreditCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $I): void
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function create(AcceptanceTester $I)
+    public function create(AcceptanceTester $I): void
     {
         $note = $this->faker->catchPhrase;
         $clientEmail = $this->faker->safeEmail;
@@ -35,11 +33,10 @@ class CreditCest
         $I->click('Save');
 
         $I->see('Successfully created credit');
-        $I->seeInDatabase('credits', array('private_notes' => $note));
-    
+        $I->seeInDatabase('credits', ['private_notes' => $note]);
+
         $I->amOnPage('/credits');
         $I->seeCurrentUrlEquals('/credits');
         $I->see($clientEmail);
     }
-    
 }

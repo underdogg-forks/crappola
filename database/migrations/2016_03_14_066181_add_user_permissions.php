@@ -9,9 +9,9 @@ class AddUserPermissions extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->boolean('is_admin')->default(true);
             $table->unsignedInteger('permissions')->default(0);
         });
@@ -22,9 +22,9 @@ class AddUserPermissions extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('is_admin');
             $table->dropColumn('permissions');
         });

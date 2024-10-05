@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddGatewayFeeLocation extends Migration
@@ -10,14 +9,14 @@ class AddGatewayFeeLocation extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->integer('invoice_number_counter')->default(1)->nullable();
             $table->integer('quote_number_counter')->default(1)->nullable();
         });
 
-        Schema::table('credits', function ($table) {
+        Schema::table('credits', function ($table): void {
             $table->text('public_notes')->nullable();
         });
 
@@ -27,7 +26,7 @@ class AddGatewayFeeLocation extends Migration
             set invoice_item_type_id = 2
             where invoices.has_tasks = 1');
 
-        Schema::create('account_email_settings', function ($table) {
+        Schema::create('account_email_settings', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->timestamps();
@@ -83,7 +82,7 @@ class AddGatewayFeeLocation extends Migration
                 email_template_reminder3
             from accounts;');
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('email_subject_invoice');
             $table->dropColumn('email_subject_quote');
             $table->dropColumn('email_subject_payment');
@@ -111,17 +110,15 @@ class AddGatewayFeeLocation extends Migration
             }
         });
 
-
-        if (! Schema::hasColumn('accounts', 'gateway_fee_enabled')) {
-            Schema::table('accounts', function ($table) {
+        if ( ! Schema::hasColumn('accounts', 'gateway_fee_enabled')) {
+            Schema::table('accounts', function ($table): void {
                 $table->boolean('gateway_fee_enabled')->default(0);
             });
         }
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->date('reset_counter_date')->nullable();
         });
-
     }
 
     /**
@@ -129,19 +126,19 @@ class AddGatewayFeeLocation extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('gateway_fee_enabled');
             $table->dropColumn('reset_counter_date');
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->dropColumn('invoice_number_counter');
             $table->dropColumn('quote_number_counter');
         });
 
-        Schema::table('credits', function ($table) {
+        Schema::table('credits', function ($table): void {
             $table->dropColumn('public_notes');
         });
 

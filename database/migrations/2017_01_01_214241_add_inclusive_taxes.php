@@ -9,15 +9,15 @@ class AddInclusiveTaxes extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (! Schema::hasColumn('tax_rates', 'is_inclusive')) {
-            Schema::table('tax_rates', function ($table) {
+        if ( ! Schema::hasColumn('tax_rates', 'is_inclusive')) {
+            Schema::table('tax_rates', function ($table): void {
                 $table->boolean('is_inclusive')->default(false);
             });
         }
 
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
         });
 
@@ -25,7 +25,7 @@ class AddInclusiveTaxes extends Migration
             LEFT JOIN accounts ON accounts.company_id = companies.id AND accounts.bluevine_status IS NOT NULL
             SET companies.bluevine_status = accounts.bluevine_status');
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('bluevine_status');
             $table->text('bcc_email')->nullable();
             $table->text('client_number_prefix')->nullable();
@@ -35,11 +35,11 @@ class AddInclusiveTaxes extends Migration
             $table->tinyInteger('payment_terms')->nullable();
         });
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->text('notes')->nullable();
         });
 
-        Schema::table('date_formats', function ($table) {
+        Schema::table('date_formats', function ($table): void {
             $table->string('format_moment')->nullable();
         });
     }
@@ -49,17 +49,17 @@ class AddInclusiveTaxes extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('tax_rates', function ($table) {
+        Schema::table('tax_rates', function ($table): void {
             $table->dropColumn('is_inclusive');
         });
 
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->dropColumn('bluevine_status');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
             if (Schema::hasColumn('accounts', 'bcc_email')) {
                 $table->dropColumn('bcc_email');
@@ -71,11 +71,11 @@ class AddInclusiveTaxes extends Migration
             $table->dropColumn('payment_terms');
         });
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->dropColumn('notes');
         });
 
-        Schema::table('date_formats', function ($table) {
+        Schema::table('date_formats', function ($table): void {
             $table->dropColumn('format_moment');
         });
     }

@@ -9,9 +9,9 @@ class AddInvoiceFontSupport extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('fonts', function ($t) {
+        Schema::create('fonts', function ($t): void {
             $t->increments('id');
 
             $t->string('name');
@@ -31,7 +31,7 @@ class AddInvoiceFontSupport extends Migration
         //$seeder = new FontsSeeder();
         //$seeder->run();
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->unsignedInteger('header_font_id')->default(1);
             $table->unsignedInteger('body_font_id')->default(1);
         });
@@ -49,17 +49,17 @@ class AddInvoiceFontSupport extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasColumn('accounts', 'header_font_id')) {
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 //$table->dropForeign('accounts_header_font_id_foreign');
                 $table->dropColumn('header_font_id');
             });
         }
 
         if (Schema::hasColumn('accounts', 'body_font_id')) {
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 //$table->dropForeign('accounts_body_font_id_foreign');
                 $table->dropColumn('body_font_id');
             });

@@ -21,7 +21,7 @@ class UpdateProposalTemplateRequest extends ProposalTemplateRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

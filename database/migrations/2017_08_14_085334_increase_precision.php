@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class IncreasePrecision extends Migration
@@ -10,22 +9,21 @@ class IncreasePrecision extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->decimal('cost', 15, 4)->change();
             $table->decimal('qty', 15, 4)->default(0)->change();
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->decimal('cost', 15, 4)->change();
             $table->decimal('qty', 15, 4)->default(0)->change();
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->integer('credit_number_counter')->default(1)->nullable();
         });
-
     }
 
     /**
@@ -33,9 +31,9 @@ class IncreasePrecision extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->dropColumn('credit_number_counter');
         });
     }

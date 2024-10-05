@@ -2,9 +2,9 @@
 
 namespace App\Http\ViewComposers;
 
-use Illuminate\View\View;
-use App\Models\ProposalSnippet;
 use App\Models\Document;
+use App\Models\ProposalSnippet;
+use Illuminate\View\View;
 
 /**
  * ClientPortalHeaderComposer.php.
@@ -20,7 +20,7 @@ class ProposalComposer
      *
      * @return void
      */
-    public function compose(View $view)
+    public function compose(View $view): void
     {
         $snippets = ProposalSnippet::scope()
             ->with('proposal_category')
@@ -28,7 +28,6 @@ class ProposalComposer
             ->get();
 
         $view->with('snippets', $snippets);
-
 
         $documents = Document::scope()
             ->whereNull('invoice_id')
@@ -38,7 +37,7 @@ class ProposalComposer
         $data = [];
         foreach ($documents as $document) {
             $data[] = [
-                'src' => $document->getProposalUrl(),
+                'src'       => $document->getProposalUrl(),
                 'public_id' => $document->public_id,
             ];
         }

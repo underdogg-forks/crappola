@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class FixPaymentContactForeignKey extends Migration
 {
@@ -11,18 +10,18 @@ class FixPaymentContactForeignKey extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         try {
-            Schema::table('payments', function ($table) {
+            Schema::table('payments', function ($table): void {
                 $table->dropForeign('payments_contact_id_foreign');
             });
 
-            Schema::table('payments', function ($table) {
+            Schema::table('payments', function ($table): void {
                 $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             });
 
-            Schema::table('licenses', function ($table) {
+            Schema::table('licenses', function ($table): void {
                 $table->unsignedInteger('affiliate_id')->nullable()->change();
                 $table->string('first_name')->nullable()->change();
                 $table->string('last_name')->nullable()->change();
@@ -41,8 +40,5 @@ class FixPaymentContactForeignKey extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        //
-    }
+    public function down(): void {}
 }

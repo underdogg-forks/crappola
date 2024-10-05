@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Libraries\Utils;
 use Illuminate\Http\Request as InputRequest;
-use Response;
 
 class RegisterRequest extends Request
 {
@@ -31,10 +29,10 @@ class RegisterRequest extends Request
     public function rules()
     {
         $rules = [
-            'email' => 'email|required|unique:users',
+            'email'      => 'email|required|unique:users',
             'first_name' => 'required',
-            'last_name' => 'required',
-            'password' => 'required',
+            'last_name'  => 'required',
+            'password'   => 'required',
         ];
 
         return $rules;

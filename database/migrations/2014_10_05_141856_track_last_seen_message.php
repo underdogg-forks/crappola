@@ -9,20 +9,20 @@ class TrackLastSeenMessage extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->unsignedInteger('news_feed_id')->nullable();
         });
 
         if (DB::table('payment_libraries')->count() > 0) {
             DB::table('gateways')->update(['recommended' => 0]);
             DB::table('gateways')->insert([
-                'name' => 'moolah',
-                'provider' => 'AuthorizeNet_AIM',
-                'sort_order' => 1,
-                'recommended' => 1,
-                'site_url' => 'https://invoiceninja.mymoolah.com/',
+                'name'               => 'moolah',
+                'provider'           => 'AuthorizeNet_AIM',
+                'sort_order'         => 1,
+                'recommended'        => 1,
+                'site_url'           => 'https://invoiceninja.mymoolah.com/',
                 'payment_library_id' => 1,
             ]);
         }
@@ -33,9 +33,9 @@ class TrackLastSeenMessage extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('news_feed_id');
         });
     }

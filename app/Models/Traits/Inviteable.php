@@ -20,7 +20,7 @@ trait Inviteable
      */
     public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -67,8 +67,8 @@ trait Inviteable
         foreach ($statuses as $status) {
             $field = "{$status}_date";
             $date = '';
-            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
-                $date = Utils::dateToString($this->$field);
+            if ($this->{$field} && $this->field != '0000-00-00 00:00:00') {
+                $date = Utils::dateToString($this->{$field});
                 $hasValue = true;
                 $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
@@ -77,7 +77,6 @@ trait Inviteable
         return $hasValue ? implode('<br/>', $parts) : false;
 
         // return $hasValue ? implode($parts, '<br/>') : false;
-
     }
 
     /**
@@ -91,7 +90,7 @@ trait Inviteable
     /**
      * @param null $messageId
      */
-    public function markSent($messageId = null)
+    public function markSent($messageId = null): void
     {
         $this->message_id = $messageId;
         $this->email_error = null;
@@ -104,7 +103,7 @@ trait Inviteable
         return $this->sent_date && $this->sent_date != '0000-00-00 00:00:00';
     }
 
-    public function markViewed()
+    public function markViewed(): void
     {
         $this->viewed_date = Carbon::now()->toDateTimeString();
         $this->save();

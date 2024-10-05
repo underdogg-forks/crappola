@@ -24,7 +24,9 @@ abstract class Request extends FormRequest
     public function validator($factory)
     {
         return $factory->make(
-            $this->sanitizeInput(), $this->container->call([$this, 'rules']), $this->messages()
+            $this->sanitizeInput(),
+            $this->container->call([$this, 'rules']),
+            $this->messages()
         );
     }
 
@@ -56,18 +58,18 @@ abstract class Request extends FormRequest
         return $this->all();
     }
 
-    protected function failedValidation(Validator $validator)
+    protected function failedValidation(Validator $validator): void
     {
-        /* If the user is not validating from a mobile app - pass through parent::response */
+        // If the user is not validating from a mobile app - pass through parent::response
         if ( ! request()->api_secret) {
             parent::failedValidation($validator);
         }
 
-        /* If the user is validating from a mobile app - pass through first error string and return error */
+        // If the user is validating from a mobile app - pass through first error string and return error
         if ($value = $validator->getMessageBag()->first()) {
             $message['error'] = ['message' => $value];
-            $message          = json_encode($message, JSON_PRETTY_PRINT);
-            $headers          = Utils::getApiHeaders();
+            $message = json_encode($message, JSON_PRETTY_PRINT);
+            $headers = Utils::getApiHeaders();
 
             throw new ValidationException($validator, Response::make($message, 400, $headers));
         }

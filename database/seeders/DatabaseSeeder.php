@@ -12,12 +12,13 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->command->info('Running DatabaseSeeder');
 
         if (Timezone::count()) {
             $this->command->info('Skipping: already run');
+
             return;
         }
 

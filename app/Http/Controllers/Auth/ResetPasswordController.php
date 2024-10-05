@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Event;
-use Illuminate\Http\Request;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
+use Event;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\Request;
 
 class ResetPasswordController extends Controller
 {
@@ -42,6 +42,14 @@ class ResetPasswordController extends Controller
         $this->middleware('guest');
     }
 
+    public function showResetForm(Request $request, $token = null)
+    {
+        return view('auth.passwords.reset')->with([
+            'token' => $token,
+            'url'   => '/password/reset',
+        ]);
+    }
+
     protected function sendResetResponse(Request $request, $response)
     {
         $user = auth()->user();
@@ -49,18 +57,11 @@ class ResetPasswordController extends Controller
         if ($user->google_2fa_secret) {
             auth()->logout();
             session(['2fa:user:id' => $user->id]);
-            return redirect('/validate_two_factor/' . $user->account->account_key);
-        } else {
-            Event::dispatch(new UserLoggedIn());
-            return $this->traitSendResetResponse($request, $response);
-        }
-    }
 
-    public function showResetForm(Request $request, $token = null)
-    {
-        return view('auth.passwords.reset')->with([
-            'token' => $token,
-            'url' => '/password/reset'
-        ]);
+            return redirect('/validate_two_factor/' . $user->account->account_key);
+        }
+        Event::dispatch(new UserLoggedIn());
+
+        return $this->traitSendResetResponse($request, $response);
     }
 }

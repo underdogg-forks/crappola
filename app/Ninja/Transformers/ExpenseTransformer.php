@@ -34,7 +34,6 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="vendor_id", type="integer", example=1)
      */
-
     protected array $availableIncludes = [
         'documents',
     ];
@@ -50,7 +49,7 @@ class ExpenseTransformer extends EntityTransformer
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
 
-        $expense->documents->each(function ($document) use ($expense) {
+        $expense->documents->each(function ($document) use ($expense): void {
             $document->setRelation('expense', $expense);
             $document->setRelation('invoice', $expense->invoice);
         });
@@ -61,34 +60,34 @@ class ExpenseTransformer extends EntityTransformer
     public function transform(Expense $expense)
     {
         return array_merge($this->getDefaults($expense), [
-            'id' => (int) $expense->public_id,
-            'private_notes' => $expense->private_notes,
-            'public_notes' => $expense->public_notes,
-            'should_be_invoiced' => (bool) $expense->should_be_invoiced,
-            'updated_at' => $this->getTimestamp($expense->updated_at),
-            'archived_at' => $this->getTimestamp($expense->deleted_at),
-            'transaction_id' => $expense->transaction_id ?: '',
+            'id'                    => (int) $expense->public_id,
+            'private_notes'         => $expense->private_notes,
+            'public_notes'          => $expense->public_notes,
+            'should_be_invoiced'    => (bool) $expense->should_be_invoiced,
+            'updated_at'            => $this->getTimestamp($expense->updated_at),
+            'archived_at'           => $this->getTimestamp($expense->deleted_at),
+            'transaction_id'        => $expense->transaction_id ?: '',
             'transaction_reference' => $expense->transaction_reference ?: '',
-            'bank_id' => (int) ($expense->bank_id ?: 0),
-            'expense_currency_id' => (int) ($expense->expense_currency_id ?: 0),
-            'expense_category_id' => (int) ($expense->expense_category ? $expense->expense_category->public_id : 0),
-            'amount' => (float) $expense->amount,
-            'expense_date' => $expense->expense_date ?: '',
-            'payment_date' => $expense->payment_date ?: '',
-            'invoice_documents' => (bool) $expense->invoice_documents,
-            'payment_type_id' => (int) $expense->payment_type_id,
-            'exchange_rate' => (float) $expense->exchange_rate,
-            'invoice_currency_id' => (int) $expense->invoice_currency_id,
-            'is_deleted' => (bool) $expense->is_deleted,
-            'tax_name1' => $expense->tax_name1 ?: '',
-            'tax_name2' => $expense->tax_name2 ?: '',
-            'tax_rate1' => (float) ($expense->tax_rate1 ?: 0),
-            'tax_rate2' => (float) ($expense->tax_rate2 ?: 0),
-            'client_id' => (int) ($this->client ? $this->client->public_id : (isset($expense->client->public_id) ? $expense->client->public_id : 0)),
-            'invoice_id' => (int) (isset($expense->invoice->public_id) ? $expense->invoice->public_id : 0),
-            'vendor_id' => (int) (isset($expense->vendor->public_id) ? $expense->vendor->public_id : 0),
-            'custom_value1' => $expense->custom_value1 ?: '',
-            'custom_value2' => $expense->custom_value2 ?: '',
+            'bank_id'               => (int) ($expense->bank_id ?: 0),
+            'expense_currency_id'   => (int) ($expense->expense_currency_id ?: 0),
+            'expense_category_id'   => (int) ($expense->expense_category ? $expense->expense_category->public_id : 0),
+            'amount'                => (float) $expense->amount,
+            'expense_date'          => $expense->expense_date ?: '',
+            'payment_date'          => $expense->payment_date ?: '',
+            'invoice_documents'     => (bool) $expense->invoice_documents,
+            'payment_type_id'       => (int) $expense->payment_type_id,
+            'exchange_rate'         => (float) $expense->exchange_rate,
+            'invoice_currency_id'   => (int) $expense->invoice_currency_id,
+            'is_deleted'            => (bool) $expense->is_deleted,
+            'tax_name1'             => $expense->tax_name1 ?: '',
+            'tax_name2'             => $expense->tax_name2 ?: '',
+            'tax_rate1'             => (float) ($expense->tax_rate1 ?: 0),
+            'tax_rate2'             => (float) ($expense->tax_rate2 ?: 0),
+            'client_id'             => (int) ($this->client ? $this->client->public_id : ($expense->client->public_id ?? 0)),
+            'invoice_id'            => (int) ($expense->invoice->public_id ?? 0),
+            'vendor_id'             => (int) ($expense->vendor->public_id ?? 0),
+            'custom_value1'         => $expense->custom_value1 ?: '',
+            'custom_value2'         => $expense->custom_value2 ?: '',
         ]);
     }
 }

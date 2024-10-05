@@ -2,11 +2,10 @@
 
 namespace App\Listeners;
 
-use Illuminate\Queue\Events\JobExceptionOccurred;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceWasEmailed;
+use App\Events\InvoiceWasUpdated;
 use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
@@ -15,6 +14,7 @@ use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
 use App\Models\Activity;
 use Auth;
+use Illuminate\Queue\Events\JobExceptionOccurred;
 use Utils;
 
 /**
@@ -25,7 +25,7 @@ class InvoiceListener
     /**
      * @param InvoiceWasCreated $event
      */
-    public function createdInvoice(InvoiceWasCreated $event)
+    public function createdInvoice(InvoiceWasCreated $event): void
     {
         if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
             return;
@@ -46,7 +46,7 @@ class InvoiceListener
     /**
      * @param InvoiceWasUpdated $event
      */
-    public function updatedInvoice(InvoiceWasUpdated $event)
+    public function updatedInvoice(InvoiceWasUpdated $event): void
     {
         $invoice = $event->invoice;
         $invoice->updatePaidStatus(false, false);
@@ -55,7 +55,7 @@ class InvoiceListener
     /**
      * @param InvoiceInvitationWasViewed $event
      */
-    public function viewedInvoice(InvoiceInvitationWasViewed $event)
+    public function viewedInvoice(InvoiceInvitationWasViewed $event): void
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
@@ -64,7 +64,7 @@ class InvoiceListener
     /**
      * @param InvoiceWasEmailed $event
      */
-    public function emailedInvoice(InvoiceWasEmailed $event)
+    public function emailedInvoice(InvoiceWasEmailed $event): void
     {
         $invoice = $event->invoice;
         $invoice->last_sent_date = date('Y-m-d');
@@ -74,7 +74,7 @@ class InvoiceListener
     /**
      * @param PaymentWasCreated $event
      */
-    public function createdPayment(PaymentWasCreated $event)
+    public function createdPayment(PaymentWasCreated $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -86,8 +86,8 @@ class InvoiceListener
 
         // store a backup of the invoice
         $activity = Activity::wherePaymentId($payment->id)
-                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-                        ->first();
+            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+            ->first();
         $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
         $activity->save();
 
@@ -100,7 +100,7 @@ class InvoiceListener
     /**
      * @param PaymentWasDeleted $event
      */
-    public function deletedPayment(PaymentWasDeleted $event)
+    public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
 
@@ -118,7 +118,7 @@ class InvoiceListener
     /**
      * @param PaymentWasRefunded $event
      */
-    public function refundedPayment(PaymentWasRefunded $event)
+    public function refundedPayment(PaymentWasRefunded $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -131,7 +131,7 @@ class InvoiceListener
     /**
      * @param PaymentWasVoided $event
      */
-    public function voidedPayment(PaymentWasVoided $event)
+    public function voidedPayment(PaymentWasVoided $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -144,7 +144,7 @@ class InvoiceListener
     /**
      * @param PaymentFailed $event
      */
-    public function failedPayment(PaymentFailed $event)
+    public function failedPayment(PaymentFailed $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -157,9 +157,9 @@ class InvoiceListener
     /**
      * @param PaymentWasRestored $event
      */
-    public function restoredPayment(PaymentWasRestored $event)
+    public function restoredPayment(PaymentWasRestored $event): void
     {
-        if (! $event->fromDeleted) {
+        if ( ! $event->fromDeleted) {
             return;
         }
 
@@ -176,7 +176,7 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    public function jobFailed(JobExceptionOccurred $exception)
+    public function jobFailed(JobExceptionOccurred $exception): void
     {
         /*
         if ($errorEmail = env('ERROR_EMAIL')) {

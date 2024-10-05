@@ -10,9 +10,9 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends EntityModel
 {
+    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
 
     /**
      * @var array
@@ -79,7 +79,7 @@ class Project extends EntityModel
 
     public function scopeDateRange($query, $startDate, $endDate)
     {
-        return $query->where(function ($query) use ($startDate, $endDate) {
+        return $query->where(function ($query) use ($startDate, $endDate): void {
             $query->whereBetween('due_date', [$startDate, $endDate]);
         });
     }
@@ -90,10 +90,10 @@ class Project extends EntityModel
     }
 }
 
-Project::creating(function ($project) {
+Project::creating(function ($project): void {
     $project->setNullValues();
 });
 
-Project::updating(function ($project) {
+Project::updating(function ($project): void {
     $project->setNullValues();
 });

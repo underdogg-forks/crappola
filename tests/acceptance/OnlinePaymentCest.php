@@ -1,20 +1,19 @@
 /<?php
 
-use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class OnlinePaymentCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $I): void
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function onlinePayment(AcceptanceTester $I)
+    public function onlinePayment(AcceptanceTester $I): void
     {
         $I->wantTo('test an online payment');
 
@@ -62,5 +61,5 @@ class OnlinePaymentCest
         $invoiceId = $I->grabFromDatabase('invoices', 'public_id', ['recurring_invoice_id' => $invoiceId]);
 
         $I->seeInDatabase('invoices', ['client_id' => $clientId, 'public_id' => $invoiceId, 'balance' => 0]);
-   }
+    }
 }

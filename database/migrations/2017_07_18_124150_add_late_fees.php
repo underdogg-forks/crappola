@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddLateFees extends Migration
@@ -10,9 +9,9 @@ class AddLateFees extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->decimal('late_fee1_amount', 13, 2)->nullable();
             $table->decimal('late_fee1_percent', 13, 3)->nullable();
             $table->decimal('late_fee2_amount', 13, 2)->nullable();
@@ -21,7 +20,7 @@ class AddLateFees extends Migration
             $table->decimal('late_fee3_percent', 13, 3)->nullable();
         });
 
-        Schema::table('documents', function ($table) {
+        Schema::table('documents', function ($table): void {
             $table->boolean('is_default')->default(false)->nullable();
         });
     }
@@ -31,9 +30,9 @@ class AddLateFees extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->dropColumn('late_fee1_amount');
             $table->dropColumn('late_fee1_percent');
             $table->dropColumn('late_fee2_amount');
@@ -42,7 +41,7 @@ class AddLateFees extends Migration
             $table->dropColumn('late_fee3_percent');
         });
 
-        Schema::table('documents', function ($table) {
+        Schema::table('documents', function ($table): void {
             $table->dropColumn('is_default');
         });
     }

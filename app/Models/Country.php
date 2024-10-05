@@ -32,7 +32,7 @@ class Country extends Eloquent
      * @var array
      */
     protected $casts = [
-        'swap_postal_code' => 'boolean',
+        'swap_postal_code'     => 'boolean',
         'swap_currency_symbol' => 'boolean',
     ];
 

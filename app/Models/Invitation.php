@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\LookupInvitation;
 use App\Models\Traits\Inviteable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Utils;
 
 /**
@@ -12,8 +11,8 @@ use Utils;
  */
 class Invitation extends EntityModel
 {
-    use SoftDeletes;
     use Inviteable;
+    use SoftDeletes;
 
     /**
      * @var array
@@ -62,7 +61,7 @@ class Invitation extends EntityModel
 
     public function signatureDiv()
     {
-        if (! $this->signature_base64) {
+        if ( ! $this->signature_base64) {
             return false;
         }
 
@@ -70,22 +69,20 @@ class Invitation extends EntityModel
     }
 }
 
-Invitation::creating(function ($invitation)
-{
+Invitation::creating(function ($invitation): void {
     LookupInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
 
-Invitation::updating(function ($invitation) {
+Invitation::updating(function ($invitation): void {
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
         LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
     }
 });
 
-Invitation::deleted(function ($invitation)
-{
+Invitation::deleted(function ($invitation): void {
     if ($invitation->forceDeleting) {
         LookupInvitation::deleteWhere([
             'invitation_key' => $invitation->invitation_key,

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TaxRate extends EntityModel
 {
     use SoftDeletes;
+
     /**
      * @var array
      */
@@ -25,6 +26,14 @@ class TaxRate extends EntityModel
     ];
 
     /**
+     * @return bool|string
+     */
+    public function __toString()
+    {
+        return sprintf('%s: %s%%', $this->name, $this->rate);
+    }
+
+    /**
      * @return mixed
      */
     public function getEntityType()
@@ -38,13 +47,5 @@ class TaxRate extends EntityModel
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function __toString()
-    {
-        return sprintf('%s: %s%%', $this->name, $this->rate);
     }
 }

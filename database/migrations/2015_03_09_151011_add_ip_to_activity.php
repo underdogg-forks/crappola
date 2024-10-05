@@ -9,9 +9,9 @@ class AddIpToActivity extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->string('ip')->nullable();
         });
     }
@@ -21,9 +21,9 @@ class AddIpToActivity extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->dropColumn('ip');
         });
     }

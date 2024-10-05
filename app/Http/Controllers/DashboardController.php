@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
@@ -64,28 +65,28 @@ class DashboardController extends BaseController
         }
 
         $data = [
-            'account' => $user->account,
-            'user' => $user,
-            'paidToDate' => $paidToDate,
-            'balances' => $balances,
-            'averageInvoice' => $averageInvoice,
-            'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
-            'activeClients' => $metrics ? $metrics->active_clients : 0,
-            'activities' => $activities,
-            'pastDue' => $pastDue,
-            'upcoming' => $upcoming,
-            'payments' => $payments,
-            'title' => trans('texts.dashboard'),
-            'hasQuotes' => $hasQuotes,
-            'showBreadcrumbs' => false,
-            'currencies' => $this->getCurrencyCodes(),
-            'expenses' => $expenses,
-            'tasks' => $tasks,
-            'showBlueVinePromo' => $showBlueVinePromo,
+            'account'               => $user->account,
+            'user'                  => $user,
+            'paidToDate'            => $paidToDate,
+            'balances'              => $balances,
+            'averageInvoice'        => $averageInvoice,
+            'invoicesSent'          => $metrics ? $metrics->invoices_sent : 0,
+            'activeClients'         => $metrics ? $metrics->active_clients : 0,
+            'activities'            => $activities,
+            'pastDue'               => $pastDue,
+            'upcoming'              => $upcoming,
+            'payments'              => $payments,
+            'title'                 => trans('texts.dashboard'),
+            'hasQuotes'             => $hasQuotes,
+            'showBreadcrumbs'       => false,
+            'currencies'            => $this->getCurrencyCodes(),
+            'expenses'              => $expenses,
+            'tasks'                 => $tasks,
+            'showBlueVinePromo'     => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,
-            'showExpenses' => $expenses->count() && $account->isModuleEnabled(ENTITY_EXPENSE),
-            'headerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
-            'footerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
+            'showExpenses'          => $expenses->count() && $account->isModuleEnabled(ENTITY_EXPENSE),
+            'headerClass'           => in_array(App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
+            'footerClass'           => in_array(App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
         ];
 
         if ($showBlueVinePromo) {
@@ -111,6 +112,14 @@ class DashboardController extends BaseController
         return View::make('dashboard', $data);
     }
 
+    public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
+    {
+        $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
+        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
+
+        return json_encode($data);
+    }
+
     private function getCurrencyCodes()
     {
         $account = Auth::user()->account;
@@ -123,8 +132,8 @@ class DashboardController extends BaseController
             ->get(['currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds) {
-            $currencyId = intval($item['currency_id']);
+        array_map(function ($item) use (&$currencyIds): void {
+            $currencyId = (int) ($item['currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;
             }
@@ -137,8 +146,8 @@ class DashboardController extends BaseController
             ->get(['expense_currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds) {
-            $currencyId = intval($item['expense_currency_id']);
+        array_map(function ($item) use (&$currencyIds): void {
+            $currencyId = (int) ($item['expense_currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;
             }
@@ -150,13 +159,5 @@ class DashboardController extends BaseController
         }
 
         return $currencies;
-    }
-
-    public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
-    {
-        $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
-        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
-
-        return json_encode($data);
     }
 }

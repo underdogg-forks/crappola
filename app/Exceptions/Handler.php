@@ -3,8 +3,8 @@
 namespace App\Exceptions;
 
 use App\Http\Requests\Request;
+use Crawler;
 use Exception;
-use Throwable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Response;
 use Redirect;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 use Utils;
 
 /**
@@ -44,16 +45,16 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $e)
     {
-        if (! $this->shouldReport($e)) {
+        if ( ! $this->shouldReport($e)) {
             return false;
         }
 
         // if these classes don't exist the install is broken, maybe due to permissions
-        if (! class_exists('Utils') || ! class_exists('Crawler')) {
+        if ( ! class_exists('Utils') || ! class_exists('Crawler')) {
             return parent::report($e);
         }
 
-        if (\Crawler::isCrawler()) {
+        if (Crawler::isCrawler()) {
             return false;
         }
 
@@ -61,7 +62,7 @@ class Handler extends ExceptionHandler
         if ($e instanceof NotFoundHttpException) {
             // The logo can take a few seconds to get synced between servers
             // TODO: remove once we're using cloud storage for logos
-            if (Utils::isNinja() && strpos(request()->url(), '/logo/') !== false) {
+            if (Utils::isNinja() && str_contains(request()->url(), '/logo/')) {
                 return false;
             }
             // Log 404s to a separate file
@@ -71,12 +72,14 @@ class Handler extends ExceptionHandler
             } else {
                 Utils::logError('[not found] ' . $errorStr);
             }
+
             return false;
-        } elseif ($e instanceof HttpResponseException) {
+        }
+        if ($e instanceof HttpResponseException) {
             return false;
         }
 
-        if (! Utils::isTravis()) {
+        if ( ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
             $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
             if (config('app.log') == 'single') {
@@ -84,14 +87,16 @@ class Handler extends ExceptionHandler
             } else {
                 Utils::logError('[stacktrace] ' . $stacktrace);
             }
+
             return false;
-        } else {
-            return parent::report($e);
         }
+
+        return parent::report($e);
     }
 
     /**
      * Render an exception into an HTTP response.
+     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Throwable $e)
@@ -99,30 +104,29 @@ class Handler extends ExceptionHandler
         $value = \Request::header('X-Ninja-Token');
 
         if ($e instanceof ModelNotFoundException) {
-
-            if( isset($value) && strlen($value) > 1 ){
+            if (isset($value) && mb_strlen($value) > 1) {
                 $headers = \App\Libraries\Utils::getApiHeaders();
                 $response = json_encode(['message' => 'record does not exist'], JSON_PRETTY_PRINT);
 
                 return Response::make($response, 404, $headers);
             }
-            else
-                return Redirect::to('/');
+
+            return Redirect::to('/');
         }
 
-        if (! class_exists('Utils')) {
+        if ( ! class_exists('Utils')) {
             return parent::render($request, $e);
         }
 
         if ($e instanceof TokenMismatchException) {
-            if (! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
+            if ( ! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
                 return redirect()
-                        ->back()
-                        ->withInput($request->except('password', '_token'))
-                        ->with([
-                            'warning' => trans('texts.token_expired'),
-                        ]);
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->with([
+                        'warning' => trans('texts.token_expired'),
+                    ]);
             }
         }
 
@@ -141,7 +145,7 @@ class Handler extends ExceptionHandler
                     }
                     break;
 
-                // internal error
+                    // internal error
                 case '500':
                     if ($request->header('X-Ninja-Token') != '') {
                         //API request which produces 500 error
@@ -153,7 +157,6 @@ class Handler extends ExceptionHandler
                         return response()->make($error, 500, $headers);
                     }
                     break;
-
             }
         }
 
@@ -164,21 +167,22 @@ class Handler extends ExceptionHandler
             && ! ($e instanceof \Illuminate\Validation\ValidationException)
             && ! ($e instanceof ValidationException)) {
             $data = [
-                'error' => get_class($e),
+                'error'      => get_class($e),
                 'hideHeader' => true,
             ];
 
             return response()->view('error', $data, 500);
-        } else {
-            return parent::render($request, $e);
         }
+
+        return parent::render($request, $e);
     }
 
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @param \Illuminate\Http\Request                 $request
+     * @param \Illuminate\Auth\AuthenticationException $exception
+     *
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
