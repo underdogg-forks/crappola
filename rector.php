@@ -7,38 +7,27 @@ use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php80\Rector\Class_\StringableForToStringRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
-use Rector\Php80\Rector\FunctionLike\UnionTypesRector;
-use Rector\Php81\Rector\ClassConst\FinalizePublicClassConstantRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
-use Rector\TypeDeclaration\Rector\FunctionLike\ReturnTypeDeclarationRector;
+use RectorLaravel\Set\LaravelLevelSetList;
+use RectorLaravel\Set\LaravelSetList;
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->skip([
-        __DIR__ . '/application/modules/**/views/*',
-        __DIR__ . '/storage',
-        __DIR__ . '/uploads',
-        __DIR__ . '/application/cache',
-        __DIR__ . '/application/core',
-        __DIR__ . '/application/helpers/country-list',
-        __DIR__ . '/application/language',
-        __DIR__ . '/application/logs',
-        __DIR__ . '/application/third_party',
+return RectorConfig::configure()
+    ->withSkip([
         ClassOnObjectRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
-        FinalizePublicClassConstantRector::class,
         FunctionArgumentDefaultValueReplacerRector::class,
         IsCountableRector::class,
         MixedTypeRector::class,
         StringableForToStringRector::class,
         NullToStrictStringFuncCallArgRector::class,
-        UnionTypesRector::class,
-    ]);
-    $rectorConfig->paths([
+    ])
+    ->withPaths([
         __DIR__ . '/app',
-        __DIR__ . '/src',
         __DIR__ . '/Modules',
+    ])
+    ->withSets([
+        LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
+        LaravelLevelSetList::UP_TO_LARAVEL_80,
+        //LaravelSetList::LARAVEL_CODE_QUALITY,
+        //LaravelSetList::LARAVEL_COLLECTION,
     ]);
-    $rectorConfig->rule(
-        ReturnTypeDeclarationRector::class
-    );
-};

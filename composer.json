@@ -69,6 +69,7 @@
         "barryvdh/laravel-ide-helper": "*",
         "codeception/c3": "*",
         "codeception/codeception": "*",
+        "driftingly/rector-laravel": "^1.2",
         "fakerphp/faker": "*",
         "filp/whoops": "*",
         "laravel/pint": "^1.18",
@@ -76,7 +77,7 @@
         "nunomaduro/collision": "^6.1",
         "phpspec/phpspec": "*",
         "phpunit/phpunit": "*",
-        "rector/rector": "0.14.8",
+        "rector/rector": "*",
         "spatie/laravel-ignition": "*",
         "symfony/dom-crawler": "*"
     },
