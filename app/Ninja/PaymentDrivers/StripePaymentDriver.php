@@ -151,7 +151,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return;
+            return null;
         }
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent']) || ! empty($data['token'])) {
@@ -217,7 +217,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 throw new PaymentActionRequiredException(['payment_intent' => $intent]);
             }
             if ($intent->status == 'succeeded') {
-                $ref = ! empty($intent->charges->data) ? $intent->charges->data[0]->id : null;
+                $ref = empty($intent->charges->data) ? null : $intent->charges->data[0]->id;
 
                 $payment = $this->createPayment($ref, $paymentMethod);
 
@@ -269,7 +269,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent'])) {
             // Using the PaymentIntent API; we'll save the details later.
-            return;
+            return null;
         }
 
         $data['description'] = $client->getDisplayName();
@@ -339,7 +339,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'amounts[]=' . (int) $amount1 . '&amounts[]=' . (int) $amount2
         );
 
-        if (is_string($result) && $result != 'This bank account has already been verified.') {
+        if (is_string($result) && $result !== 'This bank account has already been verified.') {
             return $result;
         }
 
@@ -553,7 +553,7 @@ class StripePaymentDriver extends BasePaymentDriver
             ->fetchCustomer(['customerReference' => $customer->token])
             ->send();
 
-        return ! ( ! $response->isSuccessful());
+        return (bool) $response->isSuccessful();
 
         /*
         $this->tokenResponse = $response->getData();
@@ -614,7 +614,7 @@ class StripePaymentDriver extends BasePaymentDriver
         if ( ! empty($data['object']) && ($data['object'] == 'card' || $data['object'] == 'bank_account')) {
             $source = $data;
         } elseif ( ! empty($data['object']) && $data['object'] == 'customer') {
-            $sources = ! empty($data['sources']) ? $data['sources'] : $data['cards'];
+            $sources = empty($data['sources']) ? $data['cards'] : $data['sources'];
             $source = reset($sources['data']);
         } elseif ( ! empty($data['source'])) {
             $source = $data['source'];
@@ -722,9 +722,9 @@ class StripePaymentDriver extends BasePaymentDriver
             $body = json_decode($response->getBody(), true);
 
             if ($body && ! empty($body['message'])) {
-                throw new Exception($body['message']);
+                throw new Exception($body['message'], $e->getCode(), $e);
             }
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 }

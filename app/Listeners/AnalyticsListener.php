@@ -23,12 +23,10 @@ class AnalyticsListener
 
         if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
             $analyticsId = env('ANALYTICS_KEY');
+        } elseif (Utils::isNinja()) {
+            $analyticsId = $account->analytics_key;
         } else {
-            if (Utils::isNinja()) {
-                $analyticsId = $account->analytics_key;
-            } else {
-                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
-            }
+            $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
         }
 
         if ( ! $analyticsId) {

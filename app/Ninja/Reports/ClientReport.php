@@ -58,11 +58,7 @@ class ClientReport extends AbstractReport
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
 
-                if ($subgroup == 'country') {
-                    $dimension = $client->present()->country;
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'country' ? $client->present()->country : $this->getDimension($client);
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
 

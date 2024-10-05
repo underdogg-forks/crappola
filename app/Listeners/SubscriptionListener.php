@@ -229,7 +229,7 @@ class SubscriptionListener
         $this->checkSubscriptions(EVENT_DELETE_TASK, $event->task, $transformer);
     }
 
-    private static function notifySubscription($subscription, $data): void
+    private function notifySubscription($subscription, $data): void
     {
         $curl = curl_init();
         $jsonEncodedData = json_encode($data);
@@ -300,7 +300,7 @@ class SubscriptionListener
                     $data = $ublData;
                     break;
             }
-            self::notifySubscription($subscription, $data);
+            $this->notifySubscription($subscription, $data);
         }
     }
 }

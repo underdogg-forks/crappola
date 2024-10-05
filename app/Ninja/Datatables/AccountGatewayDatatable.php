@@ -121,7 +121,7 @@ class AccountGatewayDatatable extends EntityDatatable
                         $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
 
                         if (count($gatewayTypes) > 1) {
-                            if ($html) {
+                            if ($html !== '' && $html !== '0') {
                                 $html .= '<br>';
                             }
                             $html .= $gatewayType->name . ' &mdash; ';

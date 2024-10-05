@@ -159,7 +159,7 @@ trait HasRecurrence
     {
         // expenses don't have an is_public flag
         if ($this->is_recurring && ! $this->is_public) {
-            return;
+            return null;
         }
 
         if ($this->start_date && ! $this->last_sent_date) {
@@ -169,11 +169,11 @@ trait HasRecurrence
         }
 
         if ( ! $schedule = $this->getSchedule()) {
-            return;
+            return null;
         }
 
         if (count($schedule) < 2) {
-            return;
+            return null;
         }
 
         return $schedule[1]->getStart();

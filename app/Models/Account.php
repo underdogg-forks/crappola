@@ -620,7 +620,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     {
         $labels = $this->custom_fields;
 
-        return ! empty($labels->{$field}) ? $labels->{$field} : '';
+        return empty($labels->{$field}) ? '' : $labels->{$field};
     }
 
     /**
@@ -742,7 +742,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     public function getDate($date = 'now')
     {
         if ( ! $date) {
-            return;
+            return null;
         }
         if ( ! $date instanceof DateTime) {
             return new DateTime($date);
@@ -816,11 +816,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
 
     public function formatNumber($amount, $precision = 0)
     {
-        if ($this->currency_id) {
-            $currencyId = $this->currency_id;
-        } else {
-            $currencyId = DEFAULT_CURRENCY;
-        }
+        $currencyId = $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY;
 
         return Utils::formatNumber($amount, $currencyId, $precision);
     }
@@ -851,7 +847,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDate($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomDateFormat());
@@ -867,7 +863,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomDateTimeFormat());
@@ -883,7 +879,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomTimeFormat());
@@ -1059,6 +1055,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
                 return $token->token;
             }
         }
+        return null;
     }
 
     /**
@@ -1262,6 +1259,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             default:
                 return false;
         }
+        return null;
     }
 
     public function isPaid()
@@ -1326,7 +1324,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
         if ( ! $this->company) {
-            return;
+            return null;
         }
 
         $plan = $this->company->plan;
@@ -1334,7 +1332,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $trial_plan = $this->company->trial_plan;
 
         if (( ! $plan || $plan == PLAN_FREE) && ( ! $trial_plan || ! $include_trial)) {
-            return;
+            return null;
         }
 
         $trial_active = false;
@@ -1362,7 +1360,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         }
 
         if ( ! $include_inactive && ! $plan_active && ! $trial_active) {
-            return;
+            return null;
         }
 
         // Should we show plan details or trial details?
@@ -1370,26 +1368,24 @@ class Account extends \Illuminate\Database\Eloquent\Model
             $use_plan = true;
         } elseif ( ! $plan && $trial_plan) {
             $use_plan = false;
-        } else {
+        } elseif ($plan_active && $trial_active === false) {
             // There is both a plan and a trial
-            if ( ! empty($plan_active) && empty($trial_active)) {
+            $use_plan = true;
+        } elseif ($plan_active === false && $trial_active) {
+            $use_plan = false;
+        } elseif ( $plan_active && $trial_active) {
+            // Both are active; use whichever is a better plan
+            if ($plan == PLAN_ENTERPRISE) {
                 $use_plan = true;
-            } elseif (empty($plan_active) && ! empty($trial_active)) {
+            } elseif ($trial_plan == PLAN_ENTERPRISE) {
                 $use_plan = false;
-            } elseif ( ! empty($plan_active) && ! empty($trial_active)) {
-                // Both are active; use whichever is a better plan
-                if ($plan == PLAN_ENTERPRISE) {
-                    $use_plan = true;
-                } elseif ($trial_plan == PLAN_ENTERPRISE) {
-                    $use_plan = false;
-                } else {
-                    // They're both the same; show the plan
-                    $use_plan = true;
-                }
             } else {
-                // Neither are active; use whichever expired most recently
-                $use_plan = $plan_expires >= $trial_expires;
+                // They're both the same; show the plan
+                $use_plan = true;
             }
+        } else {
+            // Neither are active; use whichever expired most recently
+            $use_plan = $plan_expires >= $trial_expires;
         }
 
         if ($use_plan) {
@@ -1565,13 +1561,13 @@ class Account extends \Illuminate\Database\Eloquent\Model
     }
 
     /**
-     * @return bool|void
+     * @return bool|null
      */
     public function getTokenGateway()
     {
         $gatewayId = $this->getTokenGatewayId();
         if ( ! $gatewayId) {
-            return;
+            return null;
         }
 
         return $this->getGatewayConfig($gatewayId);
@@ -1661,7 +1657,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             $headerFont = $this->getHeaderFontCss();
 
             $css = 'body{' . $bodyFont . '}';
-            if ($headerFont != $bodyFont) {
+            if ($headerFont !== $bodyFont) {
                 $css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{' . $headerFont . '}';
             }
 
@@ -1867,7 +1863,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         } elseif ($this->payment_terms != 0) {
             $numDays = $this->defaultDaysDue();
         } else {
-            return;
+            return null;
         }
 
         return Carbon::now()->addDays($numDays)->format('Y-m-d');
@@ -1927,11 +1923,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
                 return $this->iframe_url;
             }
 
-            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
-                $url = $this->present()->clientPortalLink();
-            } else {
-                $url = url('/');
-            }
+            $url = Utils::isNinjaProd() && ! Utils::isReseller() ? $this->present()->clientPortalLink() : url('/');
 
             if ($this->subdomain) {
                 return Utils::replaceSubdomain($url, $this->subdomain);

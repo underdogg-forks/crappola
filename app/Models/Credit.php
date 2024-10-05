@@ -100,7 +100,7 @@ class Credit extends EntityModel
             $this->balance = 0;
         } else {
             $applied = $amount;
-            $this->balance = $this->balance - $amount;
+            $this->balance -= $amount;
         }
 
         $this->save();

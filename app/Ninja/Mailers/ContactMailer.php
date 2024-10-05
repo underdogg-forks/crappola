@@ -40,11 +40,7 @@ class ContactMailer extends Mailer
 
         $invoice->load('invitations', 'client.language', 'account');
 
-        if ($proposal) {
-            $entityType = ENTITY_PROPOSAL;
-        } else {
-            $entityType = $invoice->getEntityType();
-        }
+        $entityType = $proposal ? ENTITY_PROPOSAL : $invoice->getEntityType();
 
         $client = $invoice->client;
         $account = $invoice->account;
@@ -58,8 +54,8 @@ class ContactMailer extends Mailer
         }
 
         $account->loadLocalizationSettings($client);
-        $emailTemplate = ! empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = ! empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate = empty($template['body']) ? $account->getEmailTemplate($reminder ?: $entityType) : $template['body'];
+        $emailSubject = empty($template['subject']) ? $account->getEmailSubject($reminder ?: $entityType) : $template['subject'];
 
         $sent = false;
         $pdfString = false;
@@ -110,7 +106,7 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings();
 
-        if ($sent === true && ! $proposal) {
+        if ($sent && ! $proposal) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteWasEmailed($invoice, $reminder));
             } else {

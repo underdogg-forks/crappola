@@ -28,7 +28,7 @@ class ProjectPresenter extends EntityPresenter
      */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate) !== 0.0) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 

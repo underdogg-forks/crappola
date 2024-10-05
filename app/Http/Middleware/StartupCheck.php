@@ -76,10 +76,8 @@ class StartupCheck
             }
         }
 
-        if (env('MULTI_DB_ENABLED')) {
-            if ($server = session(SESSION_DB_SERVER)) {
-                config(['database.default' => $server]);
-            }
+        if (env('MULTI_DB_ENABLED') && ($server = session(SESSION_DB_SERVER))) {
+            config(['database.default' => $server]);
         }
 
         if (\Illuminate\Support\Facades\Auth::check()) {
@@ -87,29 +85,21 @@ class StartupCheck
             $count = \Illuminate\Support\Facades\Session::get(SESSION_COUNTER, 0);
             \Illuminate\Support\Facades\Session::put(SESSION_COUNTER, ++$count);
 
-            if (Utils::isNinja()) {
-                if (($coupon = request()->coupon) && ! $company->hasActivePlan()) {
-                    if ($code = config('ninja.coupon_50_off')) {
-                        if (hash_equals($coupon, $code)) {
-                            $company->applyDiscount(.5);
-                            $company->save();
-                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
-                        }
-                    }
-                    if ($code = config('ninja.coupon_75_off')) {
-                        if (hash_equals($coupon, $code)) {
-                            $company->applyDiscount(.75);
-                            $company->save();
-                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
-                        }
-                    }
-                    if ($code = config('ninja.coupon_free_year')) {
-                        if (hash_equals($coupon, $code)) {
-                            $company->applyFreeYear();
-                            $company->save();
-                            \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_free_year'));
-                        }
-                    }
+            if (Utils::isNinja() && (($coupon = request()->coupon) && ! $company->hasActivePlan())) {
+                if (($code = config('ninja.coupon_50_off')) && hash_equals($coupon, $code)) {
+                    $company->applyDiscount(.5);
+                    $company->save();
+                    \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
+                }
+                if (($code = config('ninja.coupon_75_off')) && hash_equals($coupon, $code)) {
+                    $company->applyDiscount(.75);
+                    $company->save();
+                    \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
+                }
+                if (($code = config('ninja.coupon_free_year')) && hash_equals($coupon, $code)) {
+                    $company->applyFreeYear();
+                    $company->save();
+                    \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_free_year'));
                 }
             }
 
@@ -149,12 +139,10 @@ class StartupCheck
             \Illuminate\Support\Facades\App::setLocale($locale);
             session([SESSION_LOCALE => $locale]);
 
-            if (\Illuminate\Support\Facades\Auth::check()) {
-                if ($language = Language::whereLocale($locale)->first()) {
-                    $account = \Illuminate\Support\Facades\Auth::user()->account;
-                    $account->language_id = $language->id;
-                    $account->save();
-                }
+            if (\Illuminate\Support\Facades\Auth::check() && ($language = Language::whereLocale($locale)->first())) {
+                $account = \Illuminate\Support\Facades\Auth::user()->account;
+                $account->language_id = $language->id;
+                $account->save();
             }
         } elseif (\Illuminate\Support\Facades\Auth::check()) {
             $locale = \Illuminate\Support\Facades\Auth::user()->account->language ? \Illuminate\Support\Facades\Auth::user()->account->language->locale : DEFAULT_LOCALE;
@@ -178,9 +166,9 @@ class StartupCheck
                 $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(CurlUtils::get($url));
 
-                if ($data == RESULT_FAILURE) {
+                if ($data === RESULT_FAILURE) {
                     \Illuminate\Support\Facades\Session::flash('error', trans('texts.invalid_white_label_license'));
-                } elseif ($data) {
+                } elseif ($data !== '' && $data !== '0') {
                     $date = date_create($data)->modify('+1 year');
                     if ($date < date_create()) {
                         \Illuminate\Support\Facades\Session::flash('message', trans('texts.expired_white_label'));

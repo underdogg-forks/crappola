@@ -11,6 +11,8 @@ use App\Ninja\Repositories\AccountRepository;
  */
 class HandleUserSettingsChanged
 {
+    public $accountRepo;
+    public $userMailer;
     /**
      * Create the event handler.
      *

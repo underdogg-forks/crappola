@@ -20,6 +20,7 @@ use Utils;
 
 class ConvertInvoiceToUbl extends Job
 {
+    public $invoice;
     public const INVOICE_TYPE_STANDARD = 380;
 
     public const INVOICE_TYPE_CREDIT = 381;

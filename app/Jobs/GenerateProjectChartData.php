@@ -8,6 +8,7 @@ use stdClass;
 
 class GenerateProjectChartData extends Job
 {
+    public $project;
     public function __construct($project)
     {
         $this->project = $project;
@@ -31,7 +32,7 @@ class GenerateProjectChartData extends Job
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if ( ! count($parts)) {
+            if ( count($parts) === 0) {
                 continue;
             }
 

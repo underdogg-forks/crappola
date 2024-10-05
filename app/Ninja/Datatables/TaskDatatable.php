@@ -112,7 +112,7 @@ class TaskDatatable extends EntityDatatable
             ];
         }
 
-        if (count($actions)) {
+        if ($actions !== []) {
             $actions[] = DropdownButton::DIVIDER;
         }
 

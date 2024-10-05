@@ -7,6 +7,7 @@ use Utils;
 
 class PurgeClientData extends Job
 {
+    public $client;
     public function __construct($client)
     {
         $this->client = $client;

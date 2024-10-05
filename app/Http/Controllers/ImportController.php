@@ -10,6 +10,7 @@ use Utils;
 
 class ImportController extends BaseController
 {
+    public $importService;
     public function __construct(ImportService $importService)
     {
         $this->importService = $importService;
@@ -33,17 +34,15 @@ class ImportController extends BaseController
                 $extension = mb_strtolower($file->getClientOriginalExtension());
 
                 if ($source === IMPORT_CSV) {
-                    if ($extension != 'csv') {
+                    if ($extension !== 'csv') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
                 } elseif ($source === IMPORT_JSON) {
-                    if ($extension != 'json') {
+                    if ($extension !== 'json') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
-                } else {
-                    if ( ! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
-                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
-                    }
+                } elseif (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                    return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                 }
 
                 $newFileName = sprintf('%s_%s_%s.%s', \Illuminate\Support\Facades\Auth::user()->account_id, $timestamp, $fileName, $extension);
@@ -52,7 +51,7 @@ class ImportController extends BaseController
             }
         }
 
-        if ( ! count($files)) {
+        if ( $files === []) {
             \Illuminate\Support\Facades\Session::flash('error', trans('texts.select_file'));
 
             return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
@@ -82,18 +81,16 @@ class ImportController extends BaseController
                     $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), IMPORT_JSON, $settings));
                     $message = trans('texts.import_started');
                 }
+            } elseif (config('queue.default') === 'sync') {
+                $results = $this->importService->importFiles($source, $files);
+                $message = $this->importService->presentResults($results);
             } else {
-                if (config('queue.default') === 'sync') {
-                    $results = $this->importService->importFiles($source, $files);
-                    $message = $this->importService->presentResults($results);
-                } else {
-                    $settings = [
-                        'files'  => $files,
-                        'source' => $source,
-                    ];
-                    $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), false, $settings));
-                    $message = trans('texts.import_started');
-                }
+                $settings = [
+                    'files'  => $files,
+                    'source' => $source,
+                ];
+                $this->dispatch(new ImportData(\Illuminate\Support\Facades\Auth::user(), false, $settings));
+                $message = trans('texts.import_started');
             }
 
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);

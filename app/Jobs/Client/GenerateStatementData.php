@@ -9,6 +9,9 @@ use Utils;
 
 class GenerateStatementData
 {
+    public $client;
+    public $options;
+    public $contact;
     public function __construct($client, $options, $contact = false)
     {
         $this->client = $client;

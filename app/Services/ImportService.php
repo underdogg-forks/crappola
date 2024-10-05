@@ -39,6 +39,15 @@ use Utils;
  */
 class ImportService
 {
+    public $fractal;
+    public $paymentRepo;
+    /**
+     * @var \App\Ninja\Repositories\ExpenseRepository
+     */
+    public $expenseRepo;
+    public $vendorRepo;
+    public $expenseCategoryRepo;
+    public $taxRateRepository;
     /**
      * @var array
      */
@@ -345,10 +354,8 @@ class ImportService
 
             $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
 
-            if ($entityType === ENTITY_CLIENT) {
-                if (count($data[$entityType]['data']) + Client::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
-                    throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
-                }
+            if ($entityType === ENTITY_CLIENT && count($data[$entityType]['data']) + Client::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+                throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
             }
         }
 
@@ -370,7 +377,7 @@ class ImportService
         $hasHeaders = false;
         $mapped = [];
 
-        if (count($data) > 0) {
+        if ($data !== []) {
             $headers = $data[0];
             foreach ($headers as $title) {
                 if (mb_strpos(mb_strtolower($title), 'name') > 0) {
@@ -378,8 +385,9 @@ class ImportService
                     break;
                 }
             }
+            $counter = count($headers);
 
-            for ($i = 0; $i < count($headers); $i++) {
+            for ($i = 0; $i < $counter; $i++) {
                 $title = mb_strtolower($headers[$i]);
                 $mapped[$i] = '';
 
@@ -448,15 +456,15 @@ class ImportService
         }
 
         foreach ($results as $entityType => $entityResults) {
-            if ($count = count($entityResults[RESULT_SUCCESS])) {
+            if (($count = count($entityResults[RESULT_SUCCESS])) !== 0) {
                 $message .= trans("texts.created_{$entityType}s", ['count' => $count]) . '<br/>';
             }
-            if (count($entityResults[RESULT_FAILURE])) {
+            if (count($entityResults[RESULT_FAILURE]) > 0) {
                 $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
             }
         }
 
-        if (count($skipped)) {
+        if ($skipped !== []) {
             $message .= '<p/>' . trans('texts.failed_to_import') . '<br/>';
             foreach ($skipped as $skip) {
                 $message .= json_encode($skip) . '<br/>';
@@ -548,12 +556,10 @@ class ImportService
                     $data['expense_category_id'] = $category->id;
                 }
             }
-            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
-                if ( ! $transformer->getVendorId($vendorName)) {
-                    $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
-                    $this->addVendorToMaps($vendor);
-                    $data['vendor_id'] = $vendor->id;
-                }
+            if (! empty($row->vendor) && ($vendorName = trim($row->vendor)) && ! $transformer->getVendorId($vendorName)) {
+                $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
+                $this->addVendorToMaps($vendor);
+                $data['vendor_id'] = $vendor->id;
             }
         }
 
@@ -689,7 +695,7 @@ class ImportService
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
-        if (count($data) > 0) {
+        if ($data !== []) {
             $headers = $data[0];
 
             // Remove Invoice Ninja headers
@@ -950,7 +956,7 @@ class ImportService
      */
     private function addInvoiceToMaps(Invoice $invoice): void
     {
-        if ($number = mb_strtolower(trim($invoice->invoice_number))) {
+        if (($number = mb_strtolower(trim($invoice->invoice_number))) !== '' && ($number = mb_strtolower(trim($invoice->invoice_number))) !== '0') {
             $this->maps['invoices'][$number] = $invoice;
             $this->maps['invoice'][$number] = $invoice->id;
             $this->maps['invoice_client'][$number] = $invoice->client_id;
@@ -963,16 +969,16 @@ class ImportService
      */
     private function addClientToMaps(Client $client): void
     {
-        if ($name = mb_strtolower(trim($client->name))) {
+        if (($name = mb_strtolower(trim($client->name))) !== '' && ($name = mb_strtolower(trim($client->name))) !== '0') {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
         if ($client->contacts->count()) {
             $contact = $client->contacts[0];
-            if ($email = mb_strtolower(trim($contact->email))) {
+            if (($email = mb_strtolower(trim($contact->email))) !== '' && ($email = mb_strtolower(trim($contact->email))) !== '0') {
                 $this->maps['client'][$email] = $client->id;
             }
-            if ($name = mb_strtolower(trim($contact->getFullName()))) {
+            if (($name = mb_strtolower(trim($contact->getFullName()))) !== '' && ($name = mb_strtolower(trim($contact->getFullName()))) !== '0') {
                 $this->maps['client'][$name] = $client->id;
             }
             $this->maps['client_ids'][$client->public_id] = $client->id;
@@ -993,7 +999,7 @@ class ImportService
      */
     private function addContactToMaps(Contact $contact): void
     {
-        if ($key = mb_strtolower(trim($contact->email))) {
+        if (($key = mb_strtolower(trim($contact->email))) !== '' && ($key = mb_strtolower(trim($contact->email))) !== '0') {
             $this->maps['contact'][$key] = $contact;
         }
     }
@@ -1003,7 +1009,7 @@ class ImportService
      */
     private function addProductToMaps(Product $product): void
     {
-        if ($key = mb_strtolower(trim($product->product_key))) {
+        if (($key = mb_strtolower(trim($product->product_key))) !== '' && ($key = mb_strtolower(trim($product->product_key))) !== '0') {
             $this->maps['product'][$key] = $product;
         }
     }
@@ -1020,7 +1026,7 @@ class ImportService
 
     private function addExpenseCategoryToMaps(ExpenseCategory $category): void
     {
-        if ($name = mb_strtolower($category->name)) {
+        if (($name = mb_strtolower($category->name)) !== '' && ($name = mb_strtolower($category->name)) !== '0') {
             $this->maps['expense_category'][$name] = $category->id;
         }
     }
@@ -1030,7 +1036,7 @@ class ImportService
         $isEmpty = true;
 
         foreach ($row as $key => $val) {
-            if (trim($val)) {
+            if (trim($val) !== '' && trim($val) !== '0') {
                 $isEmpty = false;
             }
         }

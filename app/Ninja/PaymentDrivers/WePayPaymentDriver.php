@@ -133,7 +133,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         $accountId = $accountGateway->account_id;
 
         foreach (array_keys($input) as $key) {
-            if ('_id' == mb_substr($key, -3)) {
+            if ('_id' === mb_substr($key, -3)) {
                 $objectType = mb_substr($key, 0, -3);
                 $objectId = $input[$key];
                 break;
@@ -144,7 +144,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             throw new Exception('Could not find object id parameter');
         }
 
-        if ($objectType == 'credit_card') {
+        if ($objectType === 'credit_card') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
 
             if ( ! $paymentMethod) {
@@ -165,7 +165,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             return 'Processed successfully';
         }
-        if ($objectType == 'account') {
+        if ($objectType === 'account') {
             $config = $accountGateway->getConfig();
             if ($config->accountId != $objectId) {
                 throw new Exception('Unknown account');
@@ -186,7 +186,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             return ['message' => 'Processed successfully'];
         }
-        if ($objectType == 'checkout') {
+        if ($objectType === 'checkout') {
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
 
             if ( ! $payment) {

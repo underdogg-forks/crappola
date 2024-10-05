@@ -362,6 +362,7 @@ trait PresentsInvoice
         if ($designId == CUSTOM_DESIGN3) {
             return $this->custom_design3;
         }
+        return null;
     }
 
     public function hasInvoiceField(string $type, $field): bool
@@ -378,7 +379,7 @@ trait PresentsInvoice
         foreach ($fields as $section => $sectionFields) {
             foreach ($sectionFields as $index => $field) {
                 [$entityType, $fieldName] = explode('.', $field);
-                if (mb_substr($fieldName, 0, 6) == 'custom') {
+                if (mb_substr($fieldName, 0, 6) === 'custom') {
                     $fields[$section][$field] = $labels[$field];
                 } elseif (in_array($field, ['client.phone', 'client.email'])) {
                     $fields[$section][$field] = trans('texts.contact_' . $fieldName);

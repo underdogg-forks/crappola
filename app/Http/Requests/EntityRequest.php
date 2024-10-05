@@ -37,7 +37,7 @@ class EntityRequest extends Request
         }
 
         if ( ! $publicId) {
-            return;
+            return null;
         }
 
         if (method_exists($class, 'trashed')) {
@@ -65,6 +65,7 @@ class EntityRequest extends Request
         } else {
             return $this->user()->can('create', $this->entityType);
         }
+        return null;
     }
 
     public function rules(): array

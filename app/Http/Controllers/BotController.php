@@ -64,24 +64,22 @@ class BotController extends Controller
                         $response = SkypeResponse::message(trans('texts.invalid_code'));
                     }
                     // regular chat message
+                } elseif ($text === 'help') {
+                    $response = SkypeResponse::message(trans('texts.bot_help_message'));
+                } elseif ($text === 'status') {
+                    $response = SkypeResponse::message(trans('texts.intent_not_supported'));
                 } else {
-                    if ($text === 'help') {
-                        $response = SkypeResponse::message(trans('texts.bot_help_message'));
-                    } elseif ($text == 'status') {
-                        $response = SkypeResponse::message(trans('texts.intent_not_supported'));
-                    } else {
-                        if ( ! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
-                            return SkypeResponse::message(trans('texts.not_authorized'));
-                        }
-
-                        \Illuminate\Support\Facades\Auth::onceUsingId($user->id);
-                        $user->account->loadLocalizationSettings();
-
-                        $data = $this->parseMessage($text);
-                        $intent = BaseIntent::createIntent($platform, $state, $data);
-                        $response = $intent->process();
-                        $state = $intent->getState();
+                    if ( ! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
+                        return SkypeResponse::message(trans('texts.not_authorized'));
                     }
+
+                    \Illuminate\Support\Facades\Auth::onceUsingId($user->id);
+                    $user->account->loadLocalizationSettings();
+
+                    $data = $this->parseMessage($text);
+                    $intent = BaseIntent::createIntent($platform, $state, $data);
+                    $response = $intent->process();
+                    $state = $intent->getState();
                 }
             }
 

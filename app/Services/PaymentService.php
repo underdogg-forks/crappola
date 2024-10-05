@@ -14,6 +14,12 @@ use Utils;
 
 class PaymentService extends BaseService
 {
+    public $datatableService;
+    public $paymentRepo;
+    /**
+     * @var \App\Ninja\Repositories\AccountRepository
+     */
+    public $accountRepo;
     /**
      * PaymentService constructor.
      *
@@ -182,8 +188,8 @@ class PaymentService extends BaseService
 
             foreach ($payments as $payment) {
                 if (\Illuminate\Support\Facades\Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
-                    $amount = ! empty($params['refund_amount']) ? (float) ($params['refund_amount']) : null;
-                    $sendEmail = ! empty($params['refund_email']) ? (bool) ($params['refund_email']) : false;
+                    $amount = empty($params['refund_amount']) ? null : (float) ($params['refund_amount']);
+                    $sendEmail = empty($params['refund_email']) ? false : (bool) ($params['refund_email']);
                     $paymentDriver = false;
                     $refunded = false;
 

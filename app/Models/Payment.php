@@ -341,7 +341,7 @@ class Payment extends EntityModel
     public function getBankDataAttribute()
     {
         if ( ! $this->routing_number) {
-            return;
+            return null;
         }
 
         return PaymentMethod::lookupBankData($this->routing_number);

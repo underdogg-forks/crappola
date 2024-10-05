@@ -76,11 +76,7 @@ class TaskReport extends AbstractReport
             $this->addToTotals($currencyId, 'duration', $duration);
             $this->addToTotals($currencyId, 'amount', $amount);
 
-            if ($subgroup == 'project') {
-                $dimension = $task->present()->project;
-            } else {
-                $dimension = $this->getDimension($task);
-            }
+            $dimension = $subgroup == 'project' ? $task->present()->project : $this->getDimension($task);
             $this->addChartData($dimension, $task->created_at, round($duration / 60 / 60, 2));
         }
     }

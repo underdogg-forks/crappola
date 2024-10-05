@@ -24,6 +24,7 @@ use Utils;
  */
 class SendReminders extends Command
 {
+    public $userMailer;
     /**
      * @var string
      */

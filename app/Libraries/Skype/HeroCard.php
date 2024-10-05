@@ -6,9 +6,16 @@ use stdClass;
 
 class HeroCard
 {
+    /**
+     * @var string
+     */
+    public $contentType = 'application/vnd.microsoft.card.hero';
+    /**
+     * @var stdClass
+     */
+    public $content;
     public function __construct()
     {
-        $this->contentType = 'application/vnd.microsoft.card.hero';
         $this->content = new stdClass();
         $this->content->buttons = [];
     }

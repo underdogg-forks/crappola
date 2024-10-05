@@ -85,7 +85,7 @@ class ExpenseController extends BaseController
             'categoryPublicId' => $request->category_id,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
@@ -161,7 +161,7 @@ class ExpenseController extends BaseController
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
-        $data = array_merge($data, self::getViewModel($expense));
+        $data = array_merge($data, $this->getViewModel($expense));
 
         return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
@@ -289,7 +289,7 @@ class ExpenseController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to("expenses/{$publicId}/edit");
     }
 
-    private static function getViewModel($expense = false): array
+    private function getViewModel($expense = false): array
     {
         return [
             'data'        => \Illuminate\Support\Facades\Request::old('data'),

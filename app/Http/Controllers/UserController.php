@@ -320,20 +320,17 @@ class UserController extends BaseController
         $referer = \Illuminate\Support\Facades\Request::header('referer');
         $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
 
-        if ($account) {
-            if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
-                \Illuminate\Support\Facades\Auth::loginUsingId($newUserId);
-                \Illuminate\Support\Facades\Auth::user()->account->loadLocalizationSettings();
-
-                // regenerate token to prevent open pages
-                // from saving under the wrong account
-                \Illuminate\Support\Facades\Session::put('_token', \Illuminate\Support\Str::random(40));
-            }
+        if ($account && ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId))) {
+            \Illuminate\Support\Facades\Auth::loginUsingId($newUserId);
+            \Illuminate\Support\Facades\Auth::user()->account->loadLocalizationSettings();
+            // regenerate token to prevent open pages
+            // from saving under the wrong account
+            \Illuminate\Support\Facades\Session::put('_token', \Illuminate\Support\Str::random(40));
         }
 
         // If the user is looking at an entity redirect to the dashboard
         preg_match('/\/[0-9*][\/edit]*$/', $referer, $matches);
-        if (count($matches)) {
+        if ($matches !== []) {
             return \Illuminate\Support\Facades\Redirect::to('/dashboard');
         }
 

@@ -216,7 +216,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                     continue;
                 }
             } elseif ($entityType == ENTITY_INVOICE) {
-                if (in_array($status->id, [INVOICE_STATUS_APPROVED])) {
+                if ($status->id == INVOICE_STATUS_APPROVED) {
                     continue;
                 }
             }
@@ -237,11 +237,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getRoute(): string
     {
-        if ($this->is_recurring) {
-            $entityType = 'recurring_invoice';
-        } else {
-            $entityType = $this->getEntityType();
-        }
+        $entityType = $this->is_recurring ? 'recurring_invoice' : $this->getEntityType();
 
         return "/{$entityType}s/{$this->public_id}/edit";
     }
@@ -559,7 +555,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function scopeStatusIds($query, $statusIds)
     {
-        if ( ! $statusIds || (is_array($statusIds) && ! count($statusIds))) {
+        if ( ! $statusIds || (is_array($statusIds) && $statusIds === [])) {
             return $query;
         }
 
@@ -766,7 +762,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        $this->balance = $this->balance + $balanceAdjustment;
+        $this->balance += $balanceAdjustment;
 
         if ($this->partial > 0) {
             $this->partial = $partial;
@@ -784,10 +780,8 @@ class Invoice extends EntityModel implements BalanceAffecting
         $this->save();
 
         // mark fees as paid
-        if ($balanceAdjustment != 0 && $this->account->gateway_fee_enabled) {
-            if ($invoiceItem = $this->getGatewayFeeItem()) {
-                $invoiceItem->markFeePaid();
-            }
+        if ($balanceAdjustment != 0 && $this->account->gateway_fee_enabled && ($invoiceItem = $this->getGatewayFeeItem())) {
+            $invoiceItem->markFeePaid();
         }
     }
 
@@ -1213,6 +1207,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         // Couldn't calculate one
+        return null;
     }
 
     /**
@@ -1224,7 +1219,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getPrettySchedule($min = 0, $max = 10)
     {
         if ( ! $schedule = $this->getSchedule()) {
-            return;
+            return null;
         }
 
         $dates = [];
@@ -1507,11 +1502,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getAutoBillEnabled()
     {
-        if ( ! $this->is_recurring) {
-            $recurInvoice = $this->recurring_invoice;
-        } else {
-            $recurInvoice = $this;
-        }
+        $recurInvoice = $this->is_recurring ? $this : $this->recurring_invoice;
 
         if ( ! $recurInvoice) {
             return false;

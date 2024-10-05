@@ -107,7 +107,7 @@ class VendorController extends BaseController
             'title'  => trans('texts.new_vendor'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
     }
@@ -130,12 +130,10 @@ class VendorController extends BaseController
             'title'  => trans('texts.edit_vendor'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
-        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
-                $data['planDetails'] = $account->getPlanDetails(false, false);
-            }
+        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
+            $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
         return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
@@ -169,7 +167,7 @@ class VendorController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel(): array
+    private function getViewModel(): array
     {
         return [
             'data'    => \Illuminate\Support\Facades\Request::old('data'),

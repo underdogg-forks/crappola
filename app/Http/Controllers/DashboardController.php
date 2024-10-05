@@ -12,6 +12,7 @@ use Utils;
  */
 class DashboardController extends BaseController
 {
+    public $dashboardRepo;
     public function __construct(DashboardRepository $dashboardRepo)
     {
         $this->dashboardRepo = $dashboardRepo;

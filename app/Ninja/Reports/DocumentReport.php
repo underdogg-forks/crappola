@@ -43,11 +43,7 @@ class DocumentReport extends AbstractReport
                 ->where('expense_date', '<=', $this->endDate)
                 ->get();
 
-            if ($records) {
-                $records = $records->merge($expenses);
-            } else {
-                $records = $expenses;
-            }
+            $records = $records ? $records->merge($expenses) : $expenses;
         }
 
         if ($this->isExport && $exportFormat == 'zip') {

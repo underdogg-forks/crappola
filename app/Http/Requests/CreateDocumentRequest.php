@@ -19,6 +19,7 @@ class CreateDocumentRequest extends DocumentRequest
         if ($this->user()->hasFeature(FEATURE_DOCUMENTS)) {
             return true;
         }
+        return null;
     }
 
     /**

@@ -19,6 +19,7 @@ use Utils;
  */
 class SendRecurringInvoices extends Command
 {
+    public $recurringExpenseRepo;
     /**
      * @var string
      */

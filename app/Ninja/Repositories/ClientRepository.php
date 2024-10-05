@@ -102,7 +102,7 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = mb_strtolower($data['currency_code']);
-            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) == $currencyCode)->first();
+            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
             if ($currency) {
                 $data['currency_id'] = $currency->id;
             }
@@ -111,7 +111,7 @@ class ClientRepository extends BaseRepository
         // convert country code to id
         if (isset($data['country_code'])) {
             $countryCode = mb_strtolower($data['country_code']);
-            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode)->first();
+            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['country_id'] = $country->id;
             }
@@ -120,7 +120,7 @@ class ClientRepository extends BaseRepository
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
             $countryCode = mb_strtolower($data['shipping_country_code']);
-            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode)->first();
+            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['shipping_country_id'] = $country->id;
             }

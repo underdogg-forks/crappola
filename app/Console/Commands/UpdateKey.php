@@ -49,19 +49,11 @@ class UpdateKey extends Command
         $twoFactorSecrets = [];
 
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
-            if ($legacy) {
-                $gatewayConfigs[$gateway->id] = json_decode($legacy->decrypt($gateway->config));
-            } else {
-                $gatewayConfigs[$gateway->id] = $gateway->getConfig();
-            }
+            $gatewayConfigs[$gateway->id] = $legacy ? json_decode($legacy->decrypt($gateway->config)) : $gateway->getConfig();
         }
 
         foreach (BankAccount::withTrashed()->get() as $bank) {
-            if ($legacy) {
-                $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
-            } else {
-                $bankUsernames[$bank->id] = $bank->getUsername();
-            }
+            $bankUsernames[$bank->id] = $legacy ? $legacy->decrypt($bank->username) : $bank->getUsername();
         }
 
         foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
@@ -114,12 +106,10 @@ class UpdateKey extends Command
             } else {
                 $message .= 'the key';
             }
+        } elseif ($legacy) {
+            $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
         } else {
-            if ($legacy) {
-                $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
-            } else {
-                $message .= 'the data, make sure to set the new key: ' . $key;
-            }
+            $message .= 'the data, make sure to set the new key: ' . $key;
         }
         $this->info($message);
     }

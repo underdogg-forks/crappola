@@ -123,7 +123,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function getDisplayName()
     {
-        if ($this->getFullName()) {
+        if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
             return $this->getFullName();
         }
 

@@ -147,7 +147,7 @@ class HomeController extends BaseController
         $message = request()->contact_us_message;
 
         if (request()->include_errors) {
-            $message .= "\n\n" . join("\n", Utils::getErrors());
+            $message .= "\n\n" . implode("\n", Utils::getErrors());
         }
 
         \Illuminate\Support\Facades\Mail::raw($message, function ($message): void {

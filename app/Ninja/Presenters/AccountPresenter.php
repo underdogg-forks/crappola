@@ -58,7 +58,7 @@ class AccountPresenter extends Presenter
      */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate) !== 0.0) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 
@@ -248,10 +248,8 @@ class AccountPresenter extends Presenter
             if ( ! $account->subdomain) {
                 $url .= '?account_key=' . $account->account_key;
             }
-        } else {
-            if (Account::count() > 1) {
-                $url .= '?account_key=' . $account->account_key;
-            }
+        } elseif (Account::count() > 1) {
+            $url .= '?account_key=' . $account->account_key;
         }
 
         return $url;

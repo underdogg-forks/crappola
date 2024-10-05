@@ -104,6 +104,7 @@ class PushService
                 return $this->entityViewedMessage($invoice);
                 break;
         }
+        return null;
     }
 
     /**

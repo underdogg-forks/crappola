@@ -8,6 +8,7 @@ use Utils;
 
 class BaseController extends Controller
 {
+    public $layout;
     use AuthorizesRequests;
     use DispatchesJobs;
 
@@ -47,7 +48,7 @@ class BaseController extends Controller
             return redirect("{$entityTypes}");
             // when viewing individual entity
         }
-        if (count($ids)) {
+        if ($ids !== []) {
             return redirect("{$entityTypes}/" . $ids[0] . '/edit');
         }
 

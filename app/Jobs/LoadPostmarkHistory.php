@@ -7,10 +7,13 @@ use stdClass;
 
 class LoadPostmarkHistory extends Job
 {
+    public $email;
+    public $bounceId = false;
+    public $account;
+    public $postmark;
     public function __construct($email)
     {
         $this->email = $email;
-        $this->bounceId = false;
     }
 
     /**
@@ -30,7 +33,7 @@ class LoadPostmarkHistory extends Job
             $str .= $this->loadEmailEvents();
         }
 
-        if ( ! $str) {
+        if ( $str === '' || $str === '0') {
             $str = trans('texts.no_messages_found');
         }
 

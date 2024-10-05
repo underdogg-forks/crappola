@@ -60,7 +60,7 @@ class ClientPresenter extends EntityPresenter
     public function address(string $addressType = ADDRESS_BILLING, $showHeader = false): string
     {
         $str = '';
-        $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
+        $prefix = $addressType === ADDRESS_BILLING ? '' : 'shipping_';
         $client = $this->entity;
 
         if ($address1 = $client->{$prefix . 'address1'}) {
@@ -108,7 +108,7 @@ class ClientPresenter extends EntityPresenter
      */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate) !== 0.0) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 

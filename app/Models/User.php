@@ -222,7 +222,7 @@ class User extends Authenticatable
      */
     public function getDisplayName()
     {
-        if ($this->getFullName()) {
+        if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
             return $this->getFullName();
         }
         if ($this->email) {
@@ -347,10 +347,10 @@ class User extends Authenticatable
             }
         } elseif (is_array($permission)) {
             if ($requireAll) {
-                return count(array_intersect($permission, json_decode($this->permissions, 1))) == count($permission);
+                return count(array_intersect($permission, json_decode($this->permissions, 1))) === count($permission);
             }
 
-            return count(array_intersect($permission, json_decode($this->permissions, 1))) > 0;
+            return array_intersect($permission, json_decode($this->permissions, 1)) !== [];
         }
 
         return false;
@@ -435,7 +435,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if ( ! NINJA_TERMS_VERSION) {
+        if ( NINJA_TERMS_VERSION === '') {
             return true;
         }
 

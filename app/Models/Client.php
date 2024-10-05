@@ -309,8 +309,8 @@ class Client extends EntityModel
             return;
         }
 
-        $this->balance = $this->balance + $balanceAdjustment;
-        $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
+        $this->balance += $balanceAdjustment;
+        $this->paid_to_date += $paidToDateAdjustment;
 
         $this->save();
     }
@@ -371,6 +371,7 @@ class Client extends EntityModel
         if ($contact = $this->getPrimaryContact()) {
             return $contact->getDisplayName();
         }
+        return null;
     }
 
     /**
@@ -594,11 +595,10 @@ class Client extends EntityModel
 
     public function firstInvitationKey()
     {
-        if ($invoice = $this->invoices->first()) {
-            if ($invitation = $invoice->invitations->first()) {
-                return $invitation->invitation_key;
-            }
+        if (($invoice = $this->invoices->first()) && ($invitation = $invoice->invitations->first())) {
+            return $invitation->invitation_key;
         }
+        return null;
     }
 }
 

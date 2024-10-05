@@ -8,6 +8,10 @@ use Utils;
 
 class ExportReportResults extends Job
 {
+    public $user;
+    public $format;
+    public $reportType;
+    public $params;
     public function __construct($user, $format, $reportType, $params)
     {
         $this->user = $user;
@@ -52,7 +56,7 @@ class ExportReportResults extends Job
         );
 
         $summary = [];
-        if (count(array_values($totals))) {
+        if (array_values($totals) !== []) {
             $summary[] = array_merge([
                 trans('texts.totals'),
             ], array_map(fn ($key) => trans("texts.{$key}"), array_keys(array_values(array_values($totals)[0])[0])));
@@ -63,11 +67,7 @@ class ExportReportResults extends Job
                 $tmp = [];
                 $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
                 foreach ($val as $field => $value) {
-                    if ($field == 'duration') {
-                        $tmp[] = Utils::formatTime($value);
-                    } else {
-                        $tmp[] = Utils::formatMoney($value, $currencyId);
-                    }
+                    $tmp[] = $field == 'duration' ? Utils::formatTime($value) : Utils::formatMoney($value, $currencyId);
                 }
                 $summary[] = $tmp;
             }
@@ -98,7 +98,7 @@ class ExportReportResults extends Job
                 $sheet->setAutoSize(true);
             });
 
-            if (count($summary)) {
+            if ($summary !== []) {
                 $excel->sheet(trans('texts.totals'), function ($sheet) use ($summary, $format): void {
                     $sheet->setOrientation('landscape');
                     $sheet->freezeFirstRow();

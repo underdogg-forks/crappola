@@ -50,6 +50,7 @@ use Utils;
  */
 class BaseAPIController extends Controller
 {
+    public $entityType;
     protected \League\Fractal\Manager $manager;
 
     protected $serializer;
@@ -217,21 +218,21 @@ class BaseAPIController extends Controller
         $included = explode(',', $included);
 
         foreach ($included as $include) {
-            if ($include == 'invoices') {
+            if ($include === 'invoices') {
                 $data[] = 'invoices.invoice_items';
                 $data[] = 'invoices.client.contacts';
-            } elseif ($include == 'invoice') {
+            } elseif ($include === 'invoice') {
                 $data[] = 'invoice.invoice_items';
                 $data[] = 'invoice.client.contacts';
-            } elseif ($include == 'client') {
+            } elseif ($include === 'client') {
                 $data[] = 'client.contacts';
-            } elseif ($include == 'clients') {
+            } elseif ($include === 'clients') {
                 $data[] = 'clients.contacts';
-            } elseif ($include == 'vendors') {
+            } elseif ($include === 'vendors') {
                 $data[] = 'vendors.vendor_contacts';
-            } elseif ($include == 'documents' && $this->entityType == ENTITY_INVOICE) {
+            } elseif ($include === 'documents' && $this->entityType == ENTITY_INVOICE) {
                 $data[] = 'documents.expense';
-            } elseif ($include) {
+            } elseif ($include !== '' && $include !== '0') {
                 $data[] = $include;
             }
         }

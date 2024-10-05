@@ -99,7 +99,7 @@ class VendorContact extends EntityModel
      */
     public function getDisplayName()
     {
-        if ($this->getFullName()) {
+        if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
             return $this->getFullName();
         }
 

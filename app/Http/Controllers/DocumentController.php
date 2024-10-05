@@ -76,7 +76,7 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (mb_substr($name, -3) == '.js') {
+        if (mb_substr($name, -3) === '.js') {
             $name = mb_substr($name, 0, -3);
         }
 

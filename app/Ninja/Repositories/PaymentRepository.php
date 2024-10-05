@@ -224,6 +224,7 @@ class PaymentRepository extends BaseRepository
         }
 
         parent::delete($payment);
+        return null;
     }
 
     public function restore($payment)
@@ -233,5 +234,6 @@ class PaymentRepository extends BaseRepository
         }
 
         parent::restore($payment);
+        return null;
     }
 }

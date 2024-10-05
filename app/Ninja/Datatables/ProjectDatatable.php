@@ -47,7 +47,7 @@ class ProjectDatatable extends EntityDatatable
             ],
             [
                 'task_rate',
-                fn ($model) => (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '',
+                fn ($model) => (float) ($model->task_rate) !== 0.0 ? Utils::formatMoney($model->task_rate) : '',
             ],
         ];
     }

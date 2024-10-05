@@ -24,10 +24,10 @@ class UserMailer extends Mailer
 
         $data = [
             'user'              => $user,
-            'invitationMessage' => $invitor ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : '',
+            'invitationMessage' => $invitor instanceof \App\Models\User ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : '',
         ];
 
-        if ($invitor) {
+        if ($invitor instanceof \App\Models\User) {
             $fromEmail = $invitor->email;
             $fromName = $invitor->getDisplayName();
         } else {
@@ -97,7 +97,7 @@ class UserMailer extends Mailer
             'account'       => $account,
         ];
 
-        if ($payment) {
+        if ($payment instanceof \App\Models\Payment) {
             $data['payment'] = $payment;
             $data['paymentAmount'] = $account->formatMoney($payment->amount, $client);
         }

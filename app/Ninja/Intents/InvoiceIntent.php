@@ -8,6 +8,11 @@ use Exception;
 
 class InvoiceIntent extends BaseIntent
 {
+    /**
+     * @var mixed
+     */
+    public $invoiceRepo;
+    public $data;
     protected $fieldMap = [
         'deposit' => 'partial',
         'due'     => 'due_date',
@@ -122,7 +127,7 @@ class InvoiceIntent extends BaseIntent
         }
 
         if (count($statusIds) || $this->hasField('Filter', 'all')) {
-            session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
+            session(['entity_status_filter:' . $entityType => implode(',', $statusIds)]);
         }
     }
 }

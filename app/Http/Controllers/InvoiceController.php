@@ -153,7 +153,7 @@ class InvoiceController extends BaseController
             'client'               => $invoice->client,
             'isRecurring'          => $invoice->is_recurring,
             'lastSent'             => $lastSent, ];
-        $data = array_merge($data, self::getViewModel($invoice));
+        $data = array_merge($data, $this->getViewModel($invoice));
 
         if ($invoice->isSent() && $invoice->getAutoBillEnabled() && ! $invoice->isPaid()) {
             $data['autoBillChangeWarning'] = $invoice->client->autoBillLater();
@@ -228,7 +228,7 @@ class InvoiceController extends BaseController
             'url'        => 'invoices',
             'title'      => trans('texts.new_invoice'),
         ];
-        $data = array_merge($data, self::getViewModel($invoice));
+        $data = array_merge($data, $this->getViewModel($invoice));
 
         return \Illuminate\Support\Facades\View::make('invoices.edit', $data);
     }
@@ -490,7 +490,7 @@ class InvoiceController extends BaseController
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }
 
-    private static function getViewModel($invoice): array
+    private function getViewModel($invoice): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
@@ -525,11 +525,7 @@ class InvoiceController extends BaseController
 
         $ends = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
         for ($i = 1; $i < 31; $i++) {
-            if ($i >= 11 && $i <= 13) {
-                $ordinal = $i . 'th';
-            } else {
-                $ordinal = $i . $ends[$i % 10];
-            }
+            $ordinal = $i >= 11 && $i <= 13 ? $i . 'th' : $i . $ends[$i % 10];
 
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
             $str = trans('texts.day_of_month', ['ordinal' => $ordinal]);
@@ -625,6 +621,7 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
+        return null;
     }
 
     private function emailRecurringInvoice(&$invoice)

@@ -137,11 +137,7 @@ class SubscriptionController extends BaseController
             $subscription->fill(request()->all());
             $subscription->save();
 
-            if ($subscriptionPublicId) {
-                $message = trans('texts.updated_subscription');
-            } else {
-                $message = trans('texts.created_subscription');
-            }
+            $message = $subscriptionPublicId ? trans('texts.updated_subscription') : trans('texts.created_subscription');
 
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }

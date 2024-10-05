@@ -161,10 +161,8 @@ trait SendsEmails
                         || $invoice->due_date == $date) {
                         return "reminder{$i}";
                     }
-                } else {
-                    if ($invoice->invoice_date == $date) {
-                        return "reminder{$i}";
-                    }
+                } elseif ($invoice->invoice_date == $date) {
+                    return "reminder{$i}";
                 }
             }
         }

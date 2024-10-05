@@ -22,6 +22,8 @@ use Utils;
 
 class InvoiceRepository extends BaseRepository
 {
+    public $paymentService;
+    public $paymentRepo;
     protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo, PaymentRepository $paymentRepo)
@@ -328,18 +330,10 @@ class InvoiceRepository extends BaseRepository
                     $class = 'success';
                 } elseif (Invoice::calcIsOverdue($model->balance, $model->due_date)) {
                     $class = 'danger';
-                    if ($entityType == ENTITY_INVOICE) {
-                        $label = trans('texts.past_due');
-                    } else {
-                        $label = trans('texts.expired');
-                    }
+                    $label = $entityType == ENTITY_INVOICE ? trans('texts.past_due') : trans('texts.expired');
                 } else {
                     $class = 'default';
-                    if ($entityType == ENTITY_INVOICE) {
-                        $label = trans('texts.unpaid');
-                    } else {
-                        $label = trans('texts.pending');
-                    }
+                    $label = $entityType == ENTITY_INVOICE ? trans('texts.unpaid') : trans('texts.pending');
                 }
 
                 return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
@@ -356,11 +350,11 @@ class InvoiceRepository extends BaseRepository
     public function save(array $data, ?Invoice $invoice = null)
     {
         /** @var Account $account */
-        $account = $invoice ? $invoice->account : \Illuminate\Support\Facades\Auth::user()->account;
+        $account = $invoice instanceof \App\Models\Invoice ? $invoice->account : \Illuminate\Support\Facades\Auth::user()->account;
         $publicId = $data['public_id'] ?? false;
         $isNew = ! $publicId || (int) $publicId < 0;
 
-        if ($invoice) {
+        if ($invoice instanceof \App\Models\Invoice) {
             // do nothing
             $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
@@ -376,7 +370,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
 
             // set the default due date
-            if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
+            if ($entityType === ENTITY_INVOICE && empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
@@ -433,7 +427,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         }
         if (isset($data['is_amount_discount'])) {
-            $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
+            $invoice->is_amount_discount = (bool) $data['is_amount_discount'];
         }
 
         if (isset($data['invoice_date_sql'])) {
@@ -459,7 +453,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->frequency_id = \Illuminate\Support\Arr::get($data, 'frequency_id', FREQUENCY_MONTHLY);
             $invoice->start_date = Utils::toSqlDate(\Illuminate\Support\Arr::get($data, 'start_date'));
             $invoice->end_date = Utils::toSqlDate(\Illuminate\Support\Arr::get($data, 'end_date'));
-            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
+            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'];
             $invoice->auto_bill = \Illuminate\Support\Arr::get($data, 'auto_bill_id') ?: \Illuminate\Support\Arr::get($data, 'auto_bill', AUTO_BILL_OFF);
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS) {
@@ -628,11 +622,7 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        if ($publicId) {
-            $invoice->balance = round($total - ($invoice->amount - $invoice->balance), 2);
-        } else {
-            $invoice->balance = $total;
-        }
+        $invoice->balance = $publicId ? round($total - ($invoice->amount - $invoice->balance), 2) : $total;
 
         if (isset($data['partial'])) {
             $invoice->partial = max(0, min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
@@ -712,35 +702,33 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            if (\Illuminate\Support\Facades\Auth::check()) {
-                if ($productKey = trim($item['product_key'])) {
-                    if ($account->update_products
-                        && ! $invoice->has_tasks
-                        && ! $invoice->has_expenses
-                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
-                    ) {
-                        $product = Product::findProductByKey($productKey);
-                        if ( ! $product) {
-                            if (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT)) {
-                                $product = Product::createNew();
-                                $product->product_key = trim($item['product_key']);
-                            } else {
-                                $product = null;
-                            }
+            if (\Illuminate\Support\Facades\Auth::check() && ($productKey = trim($item['product_key']))) {
+                if ($account->update_products
+                    && ! $invoice->has_tasks
+                    && ! $invoice->has_expenses
+                    && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
+                ) {
+                    $product = Product::findProductByKey($productKey);
+                    if ( ! $product) {
+                        if (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT)) {
+                            $product = Product::createNew();
+                            $product->product_key = trim($item['product_key']);
+                        } else {
+                            $product = null;
                         }
-                        if ($product && (\Illuminate\Support\Facades\Auth::user()->can('edit', $product))) {
-                            $product->notes = ($task || $expense) ? '' : $item['notes'];
-                            if ( ! $account->convert_products) {
-                                $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
-                            }
-                            $product->tax_name1 = $item['tax_name1'] ?? null;
-                            $product->tax_rate1 = $item['tax_rate1'] ?? 0;
-                            $product->tax_name2 = $item['tax_name2'] ?? null;
-                            $product->tax_rate2 = $item['tax_rate2'] ?? 0;
-                            $product->custom_value1 = $item['custom_value1'] ?? null;
-                            $product->custom_value2 = $item['custom_value2'] ?? null;
-                            $product->save();
+                    }
+                    if ($product && (\Illuminate\Support\Facades\Auth::user()->can('edit', $product))) {
+                        $product->notes = ($task || $expense) ? '' : $item['notes'];
+                        if ( ! $account->convert_products) {
+                            $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
                         }
+                        $product->tax_name1 = $item['tax_name1'] ?? null;
+                        $product->tax_rate1 = $item['tax_rate1'] ?? 0;
+                        $product->tax_name2 = $item['tax_name2'] ?? null;
+                        $product->tax_rate2 = $item['tax_rate2'] ?? 0;
+                        $product->custom_value1 = $item['custom_value1'] ?? null;
+                        $product->custom_value2 = $item['custom_value2'] ?? null;
+                        $product->save();
                     }
                 }
             }
@@ -942,7 +930,7 @@ class InvoiceRepository extends BaseRepository
     public function markPaid(Invoice $invoice)
     {
         if ( ! $invoice->canBePaid()) {
-            return;
+            return null;
         }
 
         $invoice->markSentIfUnsent();
@@ -1092,13 +1080,11 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date) {
-            // autoBillInvoice will check for ACH, so we're not checking here
-            if ($this->paymentService->autoBillInvoice($invoice)) {
-                // update the invoice reference to match its actual state
-                // this is to ensure a 'payment received' email is sent
-                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
-            }
+        // autoBillInvoice will check for ACH, so we're not checking here
+        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date && $this->paymentService->autoBillInvoice($invoice)) {
+            // update the invoice reference to match its actual state
+            // this is to ensure a 'payment received' email is sent
+            $invoice->invoice_status_id = INVOICE_STATUS_PAID;
         }
 
         $this->dispatchEvents($invoice);
@@ -1125,7 +1111,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if ( ! count($dates)) {
+        if ( $dates === []) {
             return collect();
         }
 
@@ -1226,6 +1212,7 @@ class InvoiceRepository extends BaseRepository
         $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
+        return null;
     }
 
     public function setGatewayFee($invoice, $gatewayTypeId): void
@@ -1317,7 +1304,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         // if no contacts are selected auto-select the first to ensure there's an invitation
-        if ( ! count($sendInvoiceIds)) {
+        if ( $sendInvoiceIds === []) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }
 
@@ -1349,12 +1336,10 @@ class InvoiceRepository extends BaseRepository
             } else {
                 event(new QuoteItemsWereUpdated($invoice));
             }
+        } elseif ($invoice->wasRecentlyCreated) {
+            event(new InvoiceItemsWereCreated($invoice));
         } else {
-            if ($invoice->wasRecentlyCreated) {
-                event(new InvoiceItemsWereCreated($invoice));
-            } else {
-                event(new InvoiceItemsWereUpdated($invoice));
-            }
+            event(new InvoiceItemsWereUpdated($invoice));
         }
     }
 }

@@ -49,7 +49,7 @@ class TaskPresenter extends EntityPresenter
             $str .= "## {$project}\n\n";
         }
 
-        if ($description = trim($this->entity->description)) {
+        if (($description = trim($this->entity->description)) !== '' && ($description = trim($this->entity->description)) !== '0') {
             $str .= $description . "\n\n";
         }
 
@@ -58,11 +58,7 @@ class TaskPresenter extends EntityPresenter
 
         foreach ($parts as $part) {
             $start = $part[0];
-            if (count($part) == 1 || ! $part[1]) {
-                $end = time();
-            } else {
-                $end = $part[1];
-            }
+            $end = count($part) == 1 || ! $part[1] ? time() : $part[1];
 
             $start = $account->formatDateTime('@' . (int) $start);
             $end = $account->formatTime('@' . (int) $end);
@@ -84,7 +80,7 @@ class TaskPresenter extends EntityPresenter
         if ($project = $this->project()) {
             $data->title .= ' | ' . $project;
         }
-        if ($description = $this->description()) {
+        if (($description = $this->description()) !== '' && ($description = $this->description()) !== '0') {
             $data->title .= ' | ' . $description;
         }
         $data->allDay = false;
@@ -96,7 +92,7 @@ class TaskPresenter extends EntityPresenter
         }
 
         $parts = json_decode($task->time_log) ?: [];
-        if (count($parts)) {
+        if (count($parts) > 0) {
             $first = $parts[0];
             $start = $first[0];
             $date->setTimestamp($start);

@@ -108,7 +108,7 @@ class LoginController extends Controller
                 Utils::logError('[failed login] ' . $stacktrace);
             }
             if ($user) {
-                $user->failed_logins = $user->failed_logins + 1;
+                $user->failed_logins += 1;
                 $user->save();
             }
         }
@@ -181,7 +181,7 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ( ! empty($reason) && \Illuminate\Support\Facades\Lang::has("texts.{$reason}_logout")) {
+        if ( $reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has("texts.{$reason}_logout")) {
             session()->flash('warning', trans("texts.{$reason}_logout"));
         }
 

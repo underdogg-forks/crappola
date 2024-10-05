@@ -131,7 +131,7 @@ class ExportController extends BaseController
                 ->setManager('')
                 ->setCompany($user->account->getDisplayName());
 
-            foreach ($data as $key => $val) {
+            foreach (array_keys($data) as $key) {
                 if ($key === 'account') {
                     continue;
                 }

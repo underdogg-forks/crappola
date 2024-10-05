@@ -36,7 +36,7 @@ class ProductPresenter extends EntityPresenter
             if (auth()->user()->can('create', ENTITY_INVOICE)) {
                 $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_product')];
             }
-            if (count($actions)) {
+            if ($actions !== []) {
                 $actions[] = DropdownButton::DIVIDER;
             }
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_product')];

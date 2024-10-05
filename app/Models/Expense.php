@@ -91,25 +91,13 @@ class Expense extends EntityModel
 
     public static function getStatuses($entityType = false): array
     {
-        $statuses = [];
-        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
-        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
-        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
-        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
-
-        return $statuses;
+        return [EXPENSE_STATUS_LOGGED => trans('texts.logged'), EXPENSE_STATUS_PENDING => trans('texts.pending'), EXPENSE_STATUS_INVOICED => trans('texts.invoiced'), EXPENSE_STATUS_BILLED => trans('texts.billed'), EXPENSE_STATUS_PAID => trans('texts.paid'), EXPENSE_STATUS_UNPAID => trans('texts.unpaid')];
     }
 
     public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
     {
         if ($invoiceId) {
-            if ((float) $balance > 0) {
-                $label = 'invoiced';
-            } else {
-                $label = 'billed';
-            }
+            $label = (float) $balance > 0 ? 'invoiced' : 'billed';
         } elseif ($shouldBeInvoiced) {
             $label = 'pending';
         } else {

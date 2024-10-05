@@ -8,6 +8,11 @@ use stdClass;
 
 class LoadPostmarkStats extends Job
 {
+    public $startDate;
+    public $endDate;
+    public $response;
+    public $postmark;
+    public $account;
     public function __construct($startDate, $endDate)
     {
         $this->startDate = $startDate;
@@ -52,14 +57,14 @@ class LoadPostmarkStats extends Job
             $endDate->modify('-1 day');
             $records = [];
 
-            if ($eventType == 'sent') {
+            if ($eventType === 'sent') {
                 $response = $this->postmark->getOutboundSendStatistics($this->account->account_key, request()->start_date, request()->end_date);
             } else {
                 $response = $this->postmark->getOutboundOpenStatistics($this->account->account_key, request()->start_date, request()->end_date);
             }
 
             foreach ($response->days as $key => $val) {
-                $field = $eventType == 'opened' ? 'unique' : $eventType;
+                $field = $eventType === 'opened' ? 'unique' : $eventType;
                 $data[$val['date']] = $val[$field];
             }
 
@@ -67,14 +72,14 @@ class LoadPostmarkStats extends Job
                 $date = $day->format('Y-m-d');
                 $records[] = $data[$date] ?? 0;
 
-                if ($eventType == 'sent') {
+                if ($eventType === 'sent') {
                     $labels[] = $day->format('m/d/Y');
                 }
             }
 
-            if ($eventType == 'sent') {
+            if ($eventType === 'sent') {
                 $color = '51,122,183';
-            } elseif ($eventType == 'opened') {
+            } elseif ($eventType === 'opened') {
                 $color = '54,193,87';
             } elseif ($eventType == 'bounced') {
                 $color = '128,128,128';

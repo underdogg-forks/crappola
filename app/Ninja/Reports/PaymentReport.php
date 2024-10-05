@@ -80,11 +80,7 @@ class PaymentReport extends AbstractReport
                 }
             }
 
-            if ($subgroup == 'method') {
-                $dimension = $payment->present()->method;
-            } else {
-                $dimension = $this->getDimension($payment);
-            }
+            $dimension = $subgroup == 'method' ? $payment->present()->method : $this->getDimension($payment);
 
             $convertedAmount = $currencyType == 'converted' ? ($invoice->amount * $payment->exchange_rate) : $invoice->amount;
             $this->addChartData($dimension, $payment->payment_date, $convertedAmount);

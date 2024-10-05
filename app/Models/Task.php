@@ -42,7 +42,7 @@ class Task extends EntityModel
     {
         $parts = json_decode($task->time_log) ?: [];
 
-        if (count($parts)) {
+        if (count($parts) > 0) {
             return Utils::timestampToDateTimeString($parts[0][0]);
         }
 
@@ -61,11 +61,7 @@ class Task extends EntityModel
 
         foreach ($parts as $part) {
             $startTime = $part[0];
-            if (count($part) == 1 || ! $part[1]) {
-                $endTime = time();
-            } else {
-                $endTime = $part[1];
-            }
+            $endTime = count($part) == 1 || ! $part[1] ? time() : $part[1];
 
             if ($startTimeCutoff) {
                 $startTime = max($startTime, $startTimeCutoff);
@@ -101,11 +97,7 @@ class Task extends EntityModel
     public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
     {
         if ($invoiceNumber) {
-            if ((float) $balance > 0) {
-                $label = trans('texts.invoiced');
-            } else {
-                $label = trans('texts.paid');
-            }
+            $label = (float) $balance > 0 ? trans('texts.invoiced') : trans('texts.paid');
         } elseif ($taskStatus) {
             $label = $taskStatus;
         } else {
@@ -122,7 +114,7 @@ class Task extends EntityModel
     public static function calcStatusClass($isRunning, $balance, $invoiceNumber): string
     {
         if ($invoiceNumber) {
-            if ((float) $balance) {
+            if ((float) $balance !== 0.0) {
                 return 'default';
             }
 
@@ -203,7 +195,7 @@ class Task extends EntityModel
     {
         $parts = json_decode($this->time_log) ?: [];
 
-        if (count($parts)) {
+        if (count($parts) > 0) {
             $index = count($parts) - 1;
 
             return $parts[$index][0];

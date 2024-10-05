@@ -121,7 +121,7 @@ class BaseRepository
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if ( ! in_array($table, ['users'])) {
+                        if ( $table != 'users') {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });

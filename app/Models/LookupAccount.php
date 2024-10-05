@@ -73,11 +73,7 @@ class LookupAccount extends LookupModel
 
         $lookupAccount = self::where($field, '=', $value)->first();
 
-        if ($account) {
-            $isValid = ! $lookupAccount || ($lookupAccount->account_key == $account->account_key);
-        } else {
-            $isValid = ! $lookupAccount;
-        }
+        $isValid = $account ? ! $lookupAccount || ($lookupAccount->account_key == $account->account_key) : ! $lookupAccount;
 
         config(['database.default' => $current]);
 

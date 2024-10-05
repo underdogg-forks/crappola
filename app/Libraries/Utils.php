@@ -39,6 +39,7 @@ class Utils
         } catch (Exception) {
             return false;
         }
+        return null;
     }
 
     public static function isDownForMaintenance(): bool
@@ -103,7 +104,7 @@ class Utils
 
     public static function isReseller(): bool
     {
-        return self::getResllerType() ? true : false;
+        return (bool) self::getResllerType();
     }
 
     public static function isRootFolder(): bool
@@ -366,7 +367,7 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                if (mb_substr($field, 0, 1) == '-') {
+                if (mb_substr($field, 0, 1) === '-') {
                     $data[] = mb_substr($field, 1);
                 } elseif ($module) {
                     $data[] = mtrans($module, $field);
@@ -424,6 +425,7 @@ class Utils
         } else {
             \Illuminate\Support\Facades\Log::error($error . "\n", $data);
         }
+        return null;
     }
 
     public static function prepareErrorData($context): array
@@ -500,11 +502,12 @@ class Utils
     {
         $cache = \Illuminate\Support\Facades\Cache::get($type);
 
-        $data = $cache->filter(fn ($item): bool => mb_strtolower($item->name) == trim(mb_strtolower($name)));
+        $data = $cache->filter(fn ($item): bool => mb_strtolower($item->name) === trim(mb_strtolower($name)));
 
         if ($record = $data->first()) {
             return $record->id;
         }
+        return null;
     }
 
     /**
@@ -551,7 +554,7 @@ class Utils
         if ( ! $cache) {
             static::logError("Cache for {$type} is not set");
 
-            return;
+            return null;
         }
 
         $data = $cache->filter(fn ($item): bool => $item->id == $id);
@@ -634,10 +637,8 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
-        if ( ! self::isNinjaProd()) {
-            if ($module = Module::find($type)) {
-                return $module->get('plural', $type);
-            }
+        if ( !self::isNinjaProd() && ($module = Module::find($type))) {
+            return $module->get('plural', $type);
         }
 
         if ($type === ENTITY_EXPENSE_CATEGORY) {
@@ -670,22 +671,22 @@ class Utils
     {
         $number = preg_replace('/[^\d]/', '', $number);
 
-        if (preg_match('/^3[47][0-9]{13}$/', $number)) {
+        if (preg_match('/^3[47]\d{13}$/', $number)) {
             return 'American Express';
         }
-        if (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/', $number)) {
+        if (preg_match('/^3(?:0[0-5]|[68]\d)\d{11}$/', $number)) {
             return 'Diners Club';
         }
-        if (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/', $number)) {
+        if (preg_match('/^6(?:011|5\d\d)\d{12}$/', $number)) {
             return 'Discover';
         }
         if (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/', $number)) {
             return 'JCB';
         }
-        if (preg_match('/^5[1-5][0-9]{14}$/', $number)) {
+        if (preg_match('/^5[1-5]\d{14}$/', $number)) {
             return 'MasterCard';
         }
-        if (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $number)) {
+        if (preg_match('/^4\d{12}(?:\d{3})?$/', $number)) {
             return 'Visa';
         }
 
@@ -739,11 +740,7 @@ class Utils
             return false;
         }
 
-        if ($date instanceof DateTime) {
-            $dateTime = $date;
-        } else {
-            $dateTime = new DateTime($date);
-        }
+        $dateTime = $date instanceof DateTime ? $date : new DateTime($date);
 
         $timestamp = $dateTime->getTimestamp();
         $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -770,7 +767,7 @@ class Utils
     public static function toSqlDate($date, $formatResult = true)
     {
         if ( ! $date) {
-            return;
+            return null;
         }
 
         $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -843,7 +840,8 @@ class Utils
         }
 
         $variables = ['MONTH', 'QUARTER', 'YEAR'];
-        for ($i = 0; $i < count($variables); $i++) {
+        $counter = count($variables);
+        for ($i = 0; $i < $counter; $i++) {
             $variable = $variables[$i];
             $regExp = '/:' . $variable . '[+-]?[\d]*/';
             preg_match_all($regExp, $str, $matches);
@@ -877,8 +875,9 @@ class Utils
     public static function getMonthOptions(): array
     {
         $months = [];
+        $counter = count(static::$months);
 
-        for ($i = 1; $i <= count(static::$months); $i++) {
+        for ($i = 1; $i <= $counter; $i++) {
             $month = static::$months[$i - 1];
             $number = $i < 10 ? '0' . $i : $i;
             $months["2000-{$number}-01"] = trans("texts.{$month}");
@@ -1104,11 +1103,7 @@ class Utils
         $subdomain = '';
 
         if (isset($parts['host']) || isset($parts['path'])) {
-            if (isset($parts['host'])) {
-                $host = explode('.', $parts['host']);
-            } else {
-                $host = explode('.', $parts['path']);
-            }
+            $host = isset($parts['host']) ? explode('.', $parts['host']) : explode('.', $parts['path']);
             if (count($host) > 2) {
                 $subdomain = $host[0];
             }
@@ -1146,7 +1141,7 @@ class Utils
     {
         $parsedUrl = parse_url($domain);
         $host = explode('.', $parsedUrl['host']);
-        if (count($host) > 0) {
+        if ($host !== []) {
             $oldSubdomain = $host[0];
             $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
         }
@@ -1157,7 +1152,7 @@ class Utils
     public static function splitName($name): array
     {
         $name = trim($name);
-        $lastName = ( ! str_contains($name, ' ')) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+        $lastName = ( str_contains($name, ' ')) ? preg_replace('#.*\s([\w-]*)$#', '$1', $name) : '';
         $firstName = trim(preg_replace('#' . preg_quote($lastName, '/') . '#', '', $name));
 
         return [$firstName, $lastName];
@@ -1216,7 +1211,7 @@ class Utils
 
         $link = e($link);
         $title = $link;
-        if (mb_substr($link, 0, 4) != 'http') {
+        if (mb_substr($link, 0, 4) !== 'http') {
             $link = 'http://' . $link;
         }
 
@@ -1314,7 +1309,7 @@ class Utils
         $part = str_replace('#', '> ', $part);
         $part = str_replace(['.html', '-', '_'], ' ', $part);
 
-        if ($part) {
+        if ($part !== '' && $part !== '0') {
             return trans('texts.user_guide') . ': ' . ucwords($part);
         }
 
@@ -1510,15 +1505,16 @@ class Utils
     private static function getDatePart(string $part, int $offset, $locale)
     {
         $offset = (int) $offset;
-        if ($part == 'MONTH') {
+        if ($part === 'MONTH') {
             return self::getMonth($offset, $locale);
         }
-        if ($part == 'QUARTER') {
+        if ($part === 'QUARTER') {
             return self::getQuarter($offset);
         }
-        if ($part == 'YEAR') {
+        if ($part === 'YEAR') {
             return self::getYear($offset);
         }
+        return null;
     }
 
     private static function getMonth(int $offset, $locale)
@@ -1527,7 +1523,7 @@ class Utils
         $month = (int) (date('n')) - 1;
 
         $month += $offset;
-        $month = $month % 12;
+        $month %= 12;
 
         if ($month < 0) {
             $month += 12;
@@ -1541,7 +1537,7 @@ class Utils
         $month = (int) (date('n')) - 1;
         $quarter = floor(($month + 3) / 3);
         $quarter += $offset;
-        $quarter = $quarter % 4;
+        $quarter %= 4;
         if ($quarter == 0) {
             $quarter = 4;
         }

@@ -72,15 +72,11 @@ class AbstractReport
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';
-            } elseif (in_array($field, ['age'])) {
+            } elseif ($field == 'age') {
                 $class[] = 'group-number-30';
             }
 
-            if ( ! in_array('custom', $class)) {
-                $label = trans("texts.{$field}");
-            } else {
-                $label = $field;
-            }
+            $label = in_array('custom', $class) ? $field : trans("texts.{$field}");
             $class = count($class) ? implode(' ', $class) : 'group-false';
 
             $columns_labeled[] = [
@@ -121,23 +117,23 @@ class AbstractReport
         $phpParts = [];
 
         foreach (mb_str_split($format) as $letter) {
-            if ($lastLetter && $letter == $lastLetter) {
+            if ($lastLetter && $letter === $lastLetter) {
                 continue;
             }
             $lastLetter = $letter;
-            if ($letter == 'm') {
+            if ($letter === 'm') {
                 $reportParts[] = 'mm';
                 $phpParts[] = 'm';
-            } elseif ($letter == 'd') {
+            } elseif ($letter === 'd') {
                 $reportParts[] = 'dd';
                 $phpParts[] = 'd';
-            } elseif ($letter == 'y') {
+            } elseif ($letter === 'y') {
                 $reportParts[] = 'yyyy';
                 $phpParts[] = 'Y';
             }
         }
 
-        return join('', $reportParts);
+        return implode('', $reportParts);
     }
 
     public function chartGroupBy(): string
@@ -168,11 +164,11 @@ class AbstractReport
             // round dates to match grouping
             $intervalStartDate->hour(0)->minute(0)->second(0);
             $intervalEndDate->hour(24)->minute(0)->second(0);
-            if ($groupBy == 'MONTHYEAR' || $groupBy == 'YEAR') {
+            if ($groupBy === 'MONTHYEAR' || $groupBy === 'YEAR') {
                 $intervalStartDate->day(1);
                 $intervalEndDate->addMonth(1)->day(1);
             }
-            if ($groupBy == 'YEAR') {
+            if ($groupBy === 'YEAR') {
                 $intervalStartDate->month(1);
                 $intervalEndDate->month(12);
             }
@@ -290,6 +286,7 @@ class AbstractReport
 
             return trans('texts.unset');
         }
+        return null;
     }
 
     protected function addChartData($dimension, $date, $amount): void
@@ -314,7 +311,7 @@ class AbstractReport
         }
 
         $groupBy = $this->chartGroupBy();
-        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
+        $dateFormat = $groupBy === 'DAY' ? 'z' : ($groupBy === 'MONTH' ? 'm' : '');
 
         return $date->format('Y' . $dateFormat);
     }

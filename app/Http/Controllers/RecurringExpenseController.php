@@ -70,7 +70,7 @@ class RecurringExpenseController extends BaseController
             'categoryPublicId' => $request->category_id,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
@@ -102,7 +102,7 @@ class RecurringExpenseController extends BaseController
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
@@ -144,7 +144,7 @@ class RecurringExpenseController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel(): array
+    private function getViewModel(): array
     {
         return [
             'data'        => \Illuminate\Support\Facades\Request::old('data'),

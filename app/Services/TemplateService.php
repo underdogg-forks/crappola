@@ -22,12 +22,12 @@ class TemplateService
         $invitation = $data['invitation'];
 
         /** @var \App\Models\Account $account */
-        $account = ! empty($data['account']) ? $data['account'] : $invitation->account;
+        $account = empty($data['account']) ? $invitation->account : $data['account'];
 
         /** @var \App\Models\Client $client */
-        $client = ! empty($data['client']) ? $data['client'] : $invitation->invoice->client;
+        $client = empty($data['client']) ? $invitation->invoice->client : $data['client'];
 
-        $amount = ! empty($data['amount']) ? $data['amount'] : $invitation->invoice->getRequestedAmount();
+        $amount = empty($data['amount']) ? $invitation->invoice->getRequestedAmount() : $data['amount'];
 
         // check if it's a proposal
         if ($invitation->proposal) {

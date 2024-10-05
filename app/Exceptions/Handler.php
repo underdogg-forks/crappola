@@ -117,16 +117,14 @@ class Handler extends ExceptionHandler
             return parent::render($request, $e);
         }
 
-        if ($e instanceof TokenMismatchException) {
-            if ( ! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
-                // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
-                return redirect()
-                    ->back()
-                    ->withInput($request->except('password', '_token'))
-                    ->with([
-                        'warning' => trans('texts.token_expired'),
-                    ]);
-            }
+        if ($e instanceof TokenMismatchException && ! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
+            // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
+            return redirect()
+                ->back()
+                ->withInput($request->except('password', '_token'))
+                ->with([
+                    'warning' => trans('texts.token_expired'),
+                ]);
         }
 
         if ($this->isHttpException($e)) {

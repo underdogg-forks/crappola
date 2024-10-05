@@ -97,7 +97,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if ( $field === '' || $field === '0') {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -119,14 +119,14 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if ( $field === '' || $field === '0') {
                 continue;
             }
             $parts = explode(':', $field);
             $field = $parts[0];
             $type = $parts[1];
 
-            if ($type == 'text') {
+            if ($type === 'text') {
                 $str .= "{!! Former::textarea('" . $field . "') !!}\n";
             } else {
                 $str .= "{!! Former::text('" . $field . "') !!}\n";
@@ -143,7 +143,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if ( $field === '' || $field === '0') {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -160,7 +160,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if ( $field === '' || $field === '0') {
                 continue;
             }
             $field = explode(':', $field)[0];

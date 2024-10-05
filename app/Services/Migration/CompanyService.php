@@ -7,6 +7,7 @@ use Exception;
 
 class CompanyService
 {
+    public $errors;
     protected $isSuccessful;
 
     protected $companies = [];

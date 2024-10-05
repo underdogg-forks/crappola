@@ -28,7 +28,7 @@ class DashboardRepository
         $startDate = date_create($startDate);
         $endDate = date_create($endDate);
         $groupBy = mb_strtoupper($groupBy);
-        if ($groupBy == 'DAY') {
+        if ($groupBy === 'DAY') {
             $groupBy = 'DAYOFYEAR';
         }
 
@@ -53,7 +53,7 @@ class DashboardRepository
                 $balance += $item->balance ?? 0;
             }, $records);
 
-            $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
+            $padding = $groupBy === 'DAYOFYEAR' ? 'day' : ($groupBy === 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 ' . $padding);
             $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
             $period = new DatePeriod($startDate, $interval, $endDate);
@@ -61,11 +61,11 @@ class DashboardRepository
             $records = [];
 
             foreach ($period as $d) {
-                $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                if ($groupBy == 'DAYOFYEAR') {
+                $dateFormat = $groupBy === 'DAYOFYEAR' ? 'z' : ($groupBy === 'WEEK' ? 'W' : 'n');
+                if ($groupBy === 'DAYOFYEAR') {
                     // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
                     $date = $d->format('Y') . ($d->format($dateFormat) + 1);
-                } elseif ($groupBy == 'WEEK' && ($d->format($dateFormat) < 10)) {
+                } elseif ($groupBy === 'WEEK' && ($d->format($dateFormat) < 10)) {
                     // PHP zero pads the week
                     $date = $d->format('Y') . round($d->format($dateFormat));
                 } else {
@@ -73,16 +73,16 @@ class DashboardRepository
                 }
                 $records[] = $data[$date] ?? 0;
 
-                if ($entityType == ENTITY_INVOICE) {
+                if ($entityType === ENTITY_INVOICE) {
                     $labels[] = $d->format('m/d/Y');
                 }
             }
 
-            if ($entityType == ENTITY_INVOICE) {
+            if ($entityType === ENTITY_INVOICE) {
                 $color = '51,122,183';
-            } elseif ($entityType == ENTITY_PAYMENT) {
+            } elseif ($entityType === ENTITY_PAYMENT) {
                 $color = '54,193,87';
-            } elseif ($entityType == ENTITY_EXPENSE) {
+            } elseif ($entityType === ENTITY_EXPENSE) {
                 $color = '128,128,128';
             }
 
@@ -95,13 +95,13 @@ class DashboardRepository
             $record->backgroundColor = "rgba({$color}, 0.1)";
             $datasets[] = $record;
 
-            if ($entityType == ENTITY_INVOICE) {
+            if ($entityType === ENTITY_INVOICE) {
                 $totals->invoices = array_sum($data);
                 $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
                 $totals->balance = $balance;
-            } elseif ($entityType == ENTITY_PAYMENT) {
+            } elseif ($entityType === ENTITY_PAYMENT) {
                 $totals->revenue = array_sum($data);
-            } elseif ($entityType == ENTITY_EXPENSE) {
+            } elseif ($entityType === ENTITY_EXPENSE) {
                 //$totals->profit = $totals->revenue - array_sum($data);
                 $totals->expenses = array_sum($data);
             }
@@ -387,7 +387,7 @@ class DashboardRepository
             ->where($entityType . 's.' . $entityType . '_date', '<=', $endDate->format('Y-m-d'))
             ->groupBy($groupBy);
 
-        if ($entityType == ENTITY_EXPENSE) {
+        if ($entityType === ENTITY_EXPENSE) {
             $records->where('expenses.expense_currency_id', '=', $currencyId);
         } elseif ($currencyId == $account->getCurrencyId()) {
             $records->whereRaw("(clients.currency_id = {$currencyId} or coalesce(clients.currency_id, 0) = 0)");
@@ -395,17 +395,17 @@ class DashboardRepository
             $records->where('clients.currency_id', '=', $currencyId);
         }
 
-        if ($entityType == ENTITY_INVOICE) {
+        if ($entityType === ENTITY_INVOICE) {
             $records->select(\Illuminate\Support\Facades\DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                 ->where('invoices.is_public', '=', true)
                 ->where('is_recurring', '=', false);
-        } elseif ($entityType == ENTITY_PAYMENT) {
+        } elseif ($entityType === ENTITY_PAYMENT) {
             $records->select(\Illuminate\Support\Facades\DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                 ->where('invoices.is_deleted', '=', false)
                 ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
-        } elseif ($entityType == ENTITY_EXPENSE) {
+        } elseif ($entityType === ENTITY_EXPENSE) {
             $records->select(\Illuminate\Support\Facades\DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, ' . $timeframe . ' as ' . $groupBy));
         }
 

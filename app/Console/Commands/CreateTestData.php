@@ -22,6 +22,16 @@ use Utils;
  */
 class CreateTestData extends Command
 {
+    public $faker;
+    public $clientRepo;
+    public $invoiceRepo;
+    public $paymentRepo;
+    public $vendorRepo;
+    public $expenseRepo;
+    public $taskRepo;
+    public $projectRepo;
+    public $accountRepo;
+    public $count;
     /**
      * @var string
      */
@@ -108,6 +118,7 @@ class CreateTestData extends Command
         $this->createOtherObjects();
 
         $this->info('Done');
+        return null;
     }
 
     /**

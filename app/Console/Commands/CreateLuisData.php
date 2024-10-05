@@ -13,6 +13,8 @@ use Utils;
  */
 class CreateLuisData extends Command
 {
+    public $faker;
+    public $fakerField;
     /**
      * @var string
      */

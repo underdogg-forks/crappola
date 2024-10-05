@@ -32,7 +32,7 @@ class ExpenseTransformer extends BaseTransformer
                 'payment_type_id'       => isset($data->payment_type) ? Utils::lookupIdInCache($data->payment_type, 'paymentTypes') : null,
                 'payment_date'          => isset($data->payment_date) ? date('Y-m-d', strtotime($data->payment_date)) : null,
                 'transaction_reference' => $this->getString($data, 'transaction_reference'),
-                'should_be_invoiced'    => $clientId ? true : false,
+                'should_be_invoiced'    => (bool) $clientId,
             ];
         });
     }

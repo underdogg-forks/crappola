@@ -143,7 +143,7 @@ class AccountGatewayController extends BaseController
         if ($gatewayId != GATEWAY_WEPAY) {
             foreach ($fields as $field => $details) {
                 if ( ! in_array($field, $optional)) {
-                    if (mb_strtolower($gateway->name) == 'beanstream') {
+                    if (mb_strtolower($gateway->name) === 'beanstream') {
                         if (in_array($field, ['merchant_id', 'passCode'])) {
                             $rules[$gateway->id . '_' . $field] = 'required';
                         }
@@ -213,7 +213,7 @@ class AccountGatewayController extends BaseController
         }
 
         $publishableKey = trim(\Illuminate\Support\Facades\Request::input('publishable_key'));
-        if ($publishableKey = str_replace('*', '', $publishableKey)) {
+        if (($publishableKey = str_replace('*', '', $publishableKey)) !== '' && ($publishableKey = str_replace('*', '', $publishableKey)) !== '0') {
             $config->publishableKey = $publishableKey;
         } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
             $config->publishableKey = $oldConfig->publishableKey;
@@ -270,9 +270,9 @@ class AccountGatewayController extends BaseController
         }
 
         $accountGateway->accepted_credit_cards = $cardCount;
-        $accountGateway->show_address = \Illuminate\Support\Facades\Request::input('show_address') ? true : false;
-        $accountGateway->show_shipping_address = \Illuminate\Support\Facades\Request::input('show_shipping_address') ? true : false;
-        $accountGateway->update_address = \Illuminate\Support\Facades\Request::input('update_address') ? true : false;
+        $accountGateway->show_address = (bool) \Illuminate\Support\Facades\Request::input('show_address');
+        $accountGateway->show_shipping_address = (bool) \Illuminate\Support\Facades\Request::input('show_shipping_address');
+        $accountGateway->update_address = (bool) \Illuminate\Support\Facades\Request::input('update_address');
         $accountGateway->setConfig($config);
 
         if ($accountGatewayPublicId) {
@@ -347,7 +347,7 @@ class AccountGatewayController extends BaseController
     protected function getWePayUpdateUri($accountGateway)
     {
         if ($accountGateway->gateway_id != GATEWAY_WEPAY) {
-            return;
+            return null;
         }
 
         $wepay = Utils::setupWePay($accountGateway);
@@ -435,7 +435,7 @@ class AccountGatewayController extends BaseController
                 $wepay->request('user/send_confirmation/', []);
                 $confirmationRequired = true;
             } catch (WePayException $ex) {
-                if ($ex->getMessage() == 'This access_token is already approved.') {
+                if ($ex->getMessage() === 'This access_token is already approved.') {
                     $confirmationRequired = false;
                 } else {
                     throw $ex;

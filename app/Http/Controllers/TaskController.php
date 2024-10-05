@@ -119,7 +119,7 @@ class TaskController extends BaseController
             'datetimeFormat'  => \Illuminate\Support\Facades\Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('tasks.edit', $data);
     }
@@ -175,7 +175,7 @@ class TaskController extends BaseController
             'datetimeFormat'  => \Illuminate\Support\Facades\Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel($task));
+        $data = array_merge($data, $this->getViewModel($task));
 
         return \Illuminate\Support\Facades\View::make('tasks.edit', $data);
     }
@@ -276,7 +276,7 @@ class TaskController extends BaseController
     /**
      * @return array
      */
-    private static function getViewModel($task = false): array
+    private function getViewModel($task = false): array
     {
         return [
             'clients'  => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),

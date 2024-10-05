@@ -54,11 +54,7 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($client->currency_id, 'expenses', 0, $payment->present()->month);
             $this->addToTotals($client->currency_id, 'profit', $payment->getCompletedAmount(), $payment->present()->month);
 
-            if ($subgroup == 'type') {
-                $dimension = trans('texts.payment');
-            } else {
-                $dimension = $this->getDimension($payment);
-            }
+            $dimension = $subgroup == 'type' ? trans('texts.payment') : $this->getDimension($payment);
             $this->addChartData($dimension, $payment->payment_date, $payment->getCompletedAmount());
         }
 
@@ -85,11 +81,7 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
             $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
 
-            if ($subgroup == 'type') {
-                $dimension = trans('texts.expense');
-            } else {
-                $dimension = $this->getDimension($expense);
-            }
+            $dimension = $subgroup == 'type' ? trans('texts.expense') : $this->getDimension($expense);
             $this->addChartData($dimension, $expense->expense_date, $expense->amountWithTax());
         }
 

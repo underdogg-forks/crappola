@@ -134,7 +134,7 @@ class BasePaymentDriver
                 }
 
                 if ($redirectUrl = session('redirect_url:' . $this->invitation->invitation_key)) {
-                    $separator = ! str_contains($redirectUrl, '?') ? '?' : '&';
+                    $separator = str_contains($redirectUrl, '?') ? '&' : '?';
 
                     return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $this->invoice()->public_id);
                 }
@@ -150,7 +150,7 @@ class BasePaymentDriver
         }
 
         $data = [
-            'details'                 => ! empty($input['details']) ? json_decode($input['details']) : false,
+            'details'                 => empty($input['details']) ? false : json_decode($input['details']),
             'accountGateway'          => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
             'gateway'                 => $gateway,
@@ -276,7 +276,7 @@ class BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return;
+            return null;
         }
 
         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
@@ -474,20 +474,16 @@ class BasePaymentDriver
                     $plan = mb_strtolower($matches[1]);
                     $term = mb_strtolower($matches[2]);
                     $price = $invoice_item->cost;
-                    if ($plan == PLAN_ENTERPRISE) {
+                    if ($plan === PLAN_ENTERPRISE) {
                         preg_match('/###[\d]* [\w]* (\d*)/', $invoice_item->notes, $numUserMatches);
-                        if (count($numUserMatches)) {
-                            $numUsers = $numUserMatches[1];
-                        } else {
-                            $numUsers = 5;
-                        }
+                        $numUsers = count($numUserMatches) ? $numUserMatches[1] : 5;
                     } else {
                         $numUsers = 1;
                     }
                 }
             }
 
-            if ( ! empty($plan)) {
+            if ( $plan !== '' && $plan !== '0') {
                 $account = Account::with('users')->find($invoice->client->public_id);
                 $company = $account->company;
 
@@ -517,7 +513,7 @@ class BasePaymentDriver
                 $company->plan_price = $price;
                 $company->num_users = $numUsers;
                 $company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
-                    ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+                    ->modify($term === PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
                 if ($company->hasActivePromo()) {
                     $company->discount_expires = date_create()->modify('1 year')->format('Y-m-d');
@@ -533,11 +529,7 @@ class BasePaymentDriver
 
     public function refundPayment($payment, $amount = 0)
     {
-        if ($amount) {
-            $amount = min($amount, $payment->getCompletedAmount());
-        } else {
-            $amount = $payment->getCompletedAmount();
-        }
+        $amount = $amount ? min($amount, $payment->getCompletedAmount()) : $payment->getCompletedAmount();
 
         if ($payment->is_deleted) {
             return false;
@@ -591,7 +583,7 @@ class BasePaymentDriver
         $this->updateClientFromOffsite($transRef, $paymentRef);
 
         // check invoice still has balance
-        if ( ! (float) ($this->invoice()->balance)) {
+        if ( (float) ($this->invoice()->balance) === 0.0) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
         }
 
@@ -629,11 +621,7 @@ class BasePaymentDriver
             $url = \Illuminate\Support\Facades\URL::to("/payment/{$this->invitation->invitation_key}/token/" . $paymentMethod->public_id);
 
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
-                if ($paymentMethod->bank_name) {
-                    $label = $paymentMethod->bank_name;
-                } else {
-                    $label = trans('texts.use_bank_on_file');
-                }
+                $label = $paymentMethod->bank_name ? $paymentMethod->bank_name : trans('texts.use_bank_on_file');
             } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
                 $label = 'PayPal: ' . $paymentMethod->email;
             } else {
@@ -680,11 +668,7 @@ class BasePaymentDriver
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
-                if ($custom = $this->account()->getLabel($gatewayTypeAlias)) {
-                    $label = $custom;
-                } else {
-                    $label = trans("texts.{$gatewayTypeAlias}");
-                }
+                $label = ($custom = $this->account()->getLabel($gatewayTypeAlias)) ? $custom : trans("texts.{$gatewayTypeAlias}");
             }
 
             $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
@@ -815,7 +799,7 @@ class BasePaymentDriver
         }
 
         if ($this->isTwoStep() || request()->capture) {
-            return;
+            return null;
         }
 
         // prepare and process payment
@@ -872,6 +856,7 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+        return null;
     }
 
     protected function paymentDetails($paymentMethod = false): array
@@ -1036,7 +1021,7 @@ class BasePaymentDriver
         foreach ($invoice->invoice_items as $invoiceItem) {
             // Some gateways require quantity is an integer
             if ((float) ($invoiceItem->qty) != (int) ($invoiceItem->qty)) {
-                return;
+                return null;
             }
 
             $item = new Item([

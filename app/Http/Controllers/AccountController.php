@@ -376,6 +376,7 @@ class AccountController extends BaseController
         if ($section === ACCOUNT_MANAGEMENT) {
             return self::saveAccountManagement();
         }
+        return null;
     }
 
     /**
@@ -386,12 +387,10 @@ class AccountController extends BaseController
         $account = $request->user()->account;
 
         // check subdomain is unique in the lookup tables
-        if (request()->subdomain) {
-            if ( ! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
-                return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
-                    ->withError(trans('texts.subdomain_taken'))
-                    ->withInput();
-            }
+        if (request()->subdomain && ! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
+            return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
+                ->withError(trans('texts.subdomain_taken'))
+                ->withInput();
         }
 
         (bool) $fireUpdateSubdomainEvent = false;
@@ -465,52 +464,44 @@ class AccountController extends BaseController
 
                 if ($size / 1000 > MAX_DOCUMENT_SIZE) {
                     \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_too_large'));
-                } else {
-                    if ($documentType != 'gif') {
-                        $account->logo = $account->account_key . '.' . $documentType;
+                } elseif ($documentType != 'gif') {
+                    $account->logo = $account->account_key . '.' . $documentType;
+                    try {
+                        $imageSize = getimagesize($filePath);
+                        $account->logo_width = $imageSize[0];
+                        $account->logo_height = $imageSize[1];
+                        $account->logo_size = $size;
 
-                        try {
-                            $imageSize = getimagesize($filePath);
-                            $account->logo_width = $imageSize[0];
-                            $account->logo_height = $imageSize[1];
-                            $account->logo_size = $size;
-
-                            // make sure image isn't interlaced
-                            if (extension_loaded('fileinfo')) {
-                                $image = Image::make($path);
-                                $image->interlace(false);
-                                $imageStr = (string) $image->encode($documentType);
-                                $disk->put($account->logo, $imageStr);
-                                $account->logo_size = mb_strlen($imageStr);
-                            } else {
-                                if (Utils::isInterlaced($filePath)) {
-                                    $account->clearLogo();
-                                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
-                                } else {
-                                    $stream = fopen($filePath, 'r');
-                                    $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
-                                    fclose($stream);
-                                }
-                            }
-                        } catch (Exception) {
+                        // make sure image isn't interlaced
+                        if (extension_loaded('fileinfo')) {
+                            $image = Image::make($path);
+                            $image->interlace(false);
+                            $imageStr = (string) $image->encode($documentType);
+                            $disk->put($account->logo, $imageStr);
+                            $account->logo_size = mb_strlen($imageStr);
+                        } elseif (Utils::isInterlaced($filePath)) {
                             $account->clearLogo();
                             \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
-                        }
-                    } else {
-                        if (extension_loaded('fileinfo')) {
-                            $account->logo = $account->account_key . '.png';
-                            $image = Image::make($path);
-                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
-                            $imageStr = (string) $image->encode('png');
-                            $disk->put($account->logo, $imageStr);
-
-                            $account->logo_size = mb_strlen($imageStr);
-                            $account->logo_width = $image->width();
-                            $account->logo_height = $image->height();
                         } else {
-                            \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_fileinfo'));
+                            $stream = fopen($filePath, 'r');
+                            $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
+                            fclose($stream);
                         }
+                    } catch (Exception) {
+                        $account->clearLogo();
+                        \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
                     }
+                } elseif (extension_loaded('fileinfo')) {
+                    $account->logo = $account->account_key . '.png';
+                    $image = Image::make($path);
+                    $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
+                    $imageStr = (string) $image->encode('png');
+                    $disk->put($account->logo, $imageStr);
+                    $account->logo_size = mb_strlen($imageStr);
+                    $account->logo_width = $image->width();
+                    $account->logo_height = $image->height();
+                } else {
+                    \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_fileinfo'));
                 }
             }
 
@@ -571,10 +562,8 @@ class AccountController extends BaseController
             $user->google_2fa_secret = null;
         }
 
-        if (Utils::isNinja()) {
-            if (\Illuminate\Support\Facades\Request::input('referral_code') && ! $user->referral_code) {
-                $user->referral_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
-            }
+        if (Utils::isNinja() && (\Illuminate\Support\Facades\Request::input('referral_code') && ! $user->referral_code)) {
+            $user->referral_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
         }
 
         $user->save();
@@ -736,7 +725,7 @@ class AccountController extends BaseController
      */
     public function cancelAccount()
     {
-        if ($reason = trim(\Illuminate\Support\Facades\Request::input('reason'))) {
+        if (($reason = trim(\Illuminate\Support\Facades\Request::input('reason'))) !== '' && ($reason = trim(\Illuminate\Support\Facades\Request::input('reason'))) !== '0') {
             $email = \Illuminate\Support\Facades\Auth::user()->email;
             $name = \Illuminate\Support\Facades\Auth::user()->getDisplayName();
 
@@ -889,11 +878,7 @@ class AccountController extends BaseController
         $recurringHours = [];
 
         for ($i = 0; $i < 24; $i++) {
-            if ($account->military_time) {
-                $format = 'H:i';
-            } else {
-                $format = 'g:i a';
-            }
+            $format = $account->military_time ? 'H:i' : 'g:i a';
             $recurringHours[$i] = date($format, strtotime("{$i}:00"));
         }
 
@@ -995,10 +980,8 @@ class AccountController extends BaseController
         $count = $account->account_gateways->count();
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
-        if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
-            if ( ! $accountGateway->getPublishableKey()) {
-                \Illuminate\Support\Facades\Session::now('warning', trans('texts.missing_publishable_key'));
-            }
+        if (($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) && ! $accountGateway->getPublishableKey()) {
+            \Illuminate\Support\Facades\Session::now('warning', trans('texts.missing_publishable_key'));
         }
 
         $tokenBillingOptions = [];
@@ -1039,7 +1022,7 @@ class AccountController extends BaseController
             'title'                => trans('texts.tax_rates'),
             'taxRates'             => TaxRate::scope()->whereIsInclusive(false)->get(),
             'countInvoices'        => Invoice::scope()->withTrashed()->count(),
-            'hasInclusiveTaxRates' => TaxRate::scope()->whereIsInclusive(true)->count() ? true : false,
+            'hasInclusiveTaxRates' => (bool) TaxRate::scope()->whereIsInclusive(true)->count(),
         ];
 
         return \Illuminate\Support\Facades\View::make('accounts.tax_rates', $data);
@@ -1157,11 +1140,7 @@ class AccountController extends BaseController
         }
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
-            if ($custom = $account->getCustomDesign(request()->design_id)) {
-                $data['customDesign'] = $custom;
-            } else {
-                $data['customDesign'] = $design;
-            }
+            $data['customDesign'] = ($custom = $account->getCustomDesign(request()->design_id)) ? $custom : $design;
         }
 
         return \Illuminate\Support\Facades\View::make("accounts.{$section}", $data);
@@ -1262,10 +1241,10 @@ class AccountController extends BaseController
             });
         }
 
-        $user->force_pdfjs = \Illuminate\Support\Facades\Request::input('force_pdfjs') ? true : false;
+        $user->force_pdfjs = (bool) \Illuminate\Support\Facades\Request::input('force_pdfjs');
         $user->save();
 
-        $account->live_preview = \Illuminate\Support\Facades\Request::input('live_preview') ? true : false;
+        $account->live_preview = (bool) \Illuminate\Support\Facades\Request::input('live_preview');
 
         // Automatically disable live preview when using a large font
         $fonts = \Illuminate\Support\Facades\Cache::get('fonts')->filter(function ($font) use ($account): bool {
@@ -1330,7 +1309,7 @@ class AccountController extends BaseController
 
             foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
-                $account->{$enableField} = \Illuminate\Support\Facades\Request::input($enableField) ? true : false;
+                $account->{$enableField} = (bool) \Illuminate\Support\Facades\Request::input($enableField);
                 $account->{"num_days_{$type}"} = \Illuminate\Support\Facades\Request::input("num_days_{$type}");
                 $account->{"field_{$type}"} = \Illuminate\Support\Facades\Request::input("field_{$type}");
                 $account->{"direction_{$type}"} = \Illuminate\Support\Facades\Request::input("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : \Illuminate\Support\Facades\Request::input("direction_{$type}");
@@ -1340,7 +1319,7 @@ class AccountController extends BaseController
                 $account->account_email_settings->{"late_fee{$number}_percent"} = \Illuminate\Support\Facades\Request::input("late_fee{$number}_percent");
             }
 
-            $account->enable_reminder4 = \Illuminate\Support\Facades\Request::input('enable_reminder4') ? true : false;
+            $account->enable_reminder4 = (bool) \Illuminate\Support\Facades\Request::input('enable_reminder4');
             $account->account_email_settings->frequency_id_reminder4 = \Illuminate\Support\Facades\Request::input('frequency_id_reminder4');
 
             $account->save();
@@ -1373,10 +1352,10 @@ class AccountController extends BaseController
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
-        $account->show_product_notes = \Illuminate\Support\Facades\Request::input('show_product_notes') ? true : false;
-        $account->fill_products = \Illuminate\Support\Facades\Request::input('fill_products') ? true : false;
-        $account->update_products = \Illuminate\Support\Facades\Request::input('update_products') ? true : false;
-        $account->convert_products = \Illuminate\Support\Facades\Request::input('convert_products') ? true : false;
+        $account->show_product_notes = (bool) \Illuminate\Support\Facades\Request::input('show_product_notes');
+        $account->fill_products = (bool) \Illuminate\Support\Facades\Request::input('fill_products');
+        $account->update_products = (bool) \Illuminate\Support\Facades\Request::input('update_products');
+        $account->convert_products = (bool) \Illuminate\Support\Facades\Request::input('convert_products');
         $account->save();
 
         \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
@@ -1410,13 +1389,13 @@ class AccountController extends BaseController
             $account = \Illuminate\Support\Facades\Auth::user()->account;
             $account->custom_value1 = \Illuminate\Support\Facades\Request::input('custom_value1');
             $account->custom_value2 = \Illuminate\Support\Facades\Request::input('custom_value2');
-            $account->custom_invoice_taxes1 = \Illuminate\Support\Facades\Request::input('custom_invoice_taxes1') ? true : false;
-            $account->custom_invoice_taxes2 = \Illuminate\Support\Facades\Request::input('custom_invoice_taxes2') ? true : false;
+            $account->custom_invoice_taxes1 = (bool) \Illuminate\Support\Facades\Request::input('custom_invoice_taxes1');
+            $account->custom_invoice_taxes2 = (bool) \Illuminate\Support\Facades\Request::input('custom_invoice_taxes2');
             $account->custom_fields = request()->custom_fields;
             $account->invoice_number_padding = \Illuminate\Support\Facades\Request::input('invoice_number_padding');
             $account->invoice_number_counter = \Illuminate\Support\Facades\Request::input('invoice_number_counter');
             $account->quote_number_prefix = \Illuminate\Support\Facades\Request::input('quote_number_prefix');
-            $account->share_counter = \Illuminate\Support\Facades\Request::input('share_counter') ? true : false;
+            $account->share_counter = (bool) \Illuminate\Support\Facades\Request::input('share_counter');
             $account->invoice_terms = \Illuminate\Support\Facades\Request::input('invoice_terms');
             $account->invoice_footer = \Illuminate\Support\Facades\Request::input('invoice_footer');
             $account->quote_terms = \Illuminate\Support\Facades\Request::input('quote_terms');
@@ -1474,11 +1453,11 @@ class AccountController extends BaseController
     {
         if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = \Illuminate\Support\Facades\Auth::user()->account;
-            $account->hide_quantity = \Illuminate\Support\Facades\Request::input('hide_quantity') ? true : false;
-            $account->hide_paid_to_date = \Illuminate\Support\Facades\Request::input('hide_paid_to_date') ? true : false;
-            $account->all_pages_header = \Illuminate\Support\Facades\Request::input('all_pages_header') ? true : false;
-            $account->all_pages_footer = \Illuminate\Support\Facades\Request::input('all_pages_footer') ? true : false;
-            $account->invoice_embed_documents = \Illuminate\Support\Facades\Request::input('invoice_embed_documents') ? true : false;
+            $account->hide_quantity = (bool) \Illuminate\Support\Facades\Request::input('hide_quantity');
+            $account->hide_paid_to_date = (bool) \Illuminate\Support\Facades\Request::input('hide_paid_to_date');
+            $account->all_pages_header = (bool) \Illuminate\Support\Facades\Request::input('all_pages_header');
+            $account->all_pages_footer = (bool) \Illuminate\Support\Facades\Request::input('all_pages_footer');
+            $account->invoice_embed_documents = (bool) \Illuminate\Support\Facades\Request::input('invoice_embed_documents');
             $account->header_font_id = \Illuminate\Support\Facades\Request::input('header_font_id');
             $account->body_font_id = \Illuminate\Support\Facades\Request::input('body_font_id');
             $account->primary_color = \Illuminate\Support\Facades\Request::input('primary_color');
@@ -1540,8 +1519,8 @@ class AccountController extends BaseController
         $account->datetime_format_id = \Illuminate\Support\Facades\Request::input('datetime_format_id') ?: null;
         $account->currency_id = \Illuminate\Support\Facades\Request::input('currency_id') ?: 1; // US Dollar
         $account->language_id = \Illuminate\Support\Facades\Request::input('language_id') ?: 1; // English
-        $account->military_time = \Illuminate\Support\Facades\Request::input('military_time') ? true : false;
-        $account->show_currency_code = \Illuminate\Support\Facades\Request::input('show_currency_code') ? true : false;
+        $account->military_time = (bool) \Illuminate\Support\Facades\Request::input('military_time');
+        $account->show_currency_code = (bool) \Illuminate\Support\Facades\Request::input('show_currency_code');
         $account->start_of_week = \Illuminate\Support\Facades\Request::input('start_of_week') ?: 0;
         $account->financial_year_start = \Illuminate\Support\Facades\Request::input('financial_year_start') ?: null;
         $account->save();

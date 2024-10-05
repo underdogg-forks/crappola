@@ -62,7 +62,7 @@ class PaymentMethod extends EntityModel
         $lineSize = 157;
         $numLines = $size / $lineSize;
 
-        if ($numLines % 1 != 0) {
+        if ($numLines % 1 !== 0) {
             // The number of lines should be an integer
             return 'Invalid data file';
         }
@@ -105,6 +105,7 @@ class PaymentMethod extends EntityModel
             return $data;
         }
         \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, false, 5 * 60);
+        return null;
     }
 
     /**
@@ -161,7 +162,7 @@ class PaymentMethod extends EntityModel
     public function getBankDataAttribute()
     {
         if ( ! $this->routing_number) {
-            return;
+            return null;
         }
 
         return static::lookupBankData($this->routing_number);

@@ -37,11 +37,7 @@ abstract class Request extends FormRequest
      */
     protected function sanitizeInput()
     {
-        if (method_exists($this, 'sanitize')) {
-            $input = $this->container->call([$this, 'sanitize']);
-        } else {
-            $input = $this->all();
-        }
+        $input = method_exists($this, 'sanitize') ? $this->container->call([$this, 'sanitize']) : $this->all();
 
         // autoload referenced entities
         foreach ($this->autoload as $entityType) {

@@ -152,10 +152,10 @@ trait GenerateMigrationResources
             'late_fee_percent1'               => $this->account->account_email_settings->late_fee1_percent ?: 0,
             'late_fee_percent2'               => $this->account->account_email_settings->late_fee2_percent ?: 0,
             'late_fee_percent3'               => $this->account->account_email_settings->late_fee3_percent ?: 0,
-            'enable_reminder1'                => $this->account->enable_reminder1 ? true : false,
-            'enable_reminder2'                => $this->account->enable_reminder2 ? true : false,
-            'enable_reminder3'                => $this->account->enable_reminder3 ? true : false,
-            'enable_reminder_endless'         => $this->account->enable_reminder4 ? true : false,
+            'enable_reminder1'                => (bool) $this->account->enable_reminder1,
+            'enable_reminder2'                => (bool) $this->account->enable_reminder2,
+            'enable_reminder3'                => (bool) $this->account->enable_reminder3,
+            'enable_reminder_endless'         => (bool) $this->account->enable_reminder4,
             'num_days_reminder1'              => $this->account->num_days_reminder1 ?: 0,
             'num_days_reminder2'              => $this->account->num_days_reminder2 ?: 0,
             'num_days_reminder3'              => $this->account->num_days_reminder3 ?: 0,
@@ -605,7 +605,7 @@ trait GenerateMigrationResources
                 'email'             => $contact->email,
                 'is_primary'        => (bool) $contact->is_primary,
                 'send_email'        => (bool) $contact->send_invoice,
-                'confirmed'         => $contact->confirmation_token ? true : false,
+                'confirmed'         => (bool) $contact->confirmation_token,
                 'email_verified_at' => $contact->created_at ? Carbon::parse($contact->created_at)->toDateTimeString() : null,
                 'last_login'        => $contact->last_login,
                 'password'          => $contact->password,
@@ -977,7 +977,7 @@ trait GenerateMigrationResources
                 'email'             => $contact->email,
                 'is_primary'        => (bool) $contact->is_primary,
                 'send_email'        => (bool) $contact->send_invoice ?: true,
-                'confirmed'         => $contact->confirmation_token ? true : false,
+                'confirmed'         => (bool) $contact->confirmation_token,
                 'email_verified_at' => $contact->created_at->toDateTimeString(),
                 'last_login'        => $contact->last_login,
                 'password'          => $contact->password ?: '',
@@ -1162,6 +1162,7 @@ trait GenerateMigrationResources
         if ($next_send_date = $invoice->getNextSendDate()) {
             return $next_send_date->format('Y-m-d');
         }
+        return null;
     }
 
     // Determine the number of remaining cycles
@@ -1211,7 +1212,7 @@ trait GenerateMigrationResources
         $due_date_parts = explode('-', $invoice->due_date);
 
         if (is_array($due_date_parts) && count($due_date_parts) >= 3) {
-            if ($due_date_parts[2] == '00') {
+            if ($due_date_parts[2] === '00') {
                 return '0';
             }
 
@@ -1757,7 +1758,8 @@ trait GenerateMigrationResources
                 'in_progress',
                 'done',
             ];
-            for ($i = 0; $i < count($defaults); $i++) {
+            $counter = count($defaults);
+            for ($i = 0; $i < $counter; $i++) {
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;

@@ -30,17 +30,13 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Queue::before(function (JobProcessing $event): void {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);
-            if (count($matches)) {
+            if ($matches !== []) {
                 config(['database.default' => $matches[0]]);
             }
         });
 
         Form::macro('image_data', function ($image, $contents = false): string {
-            if ( ! $contents) {
-                $contents = file_get_contents($image);
-            } else {
-                $contents = $image;
-            }
+            $contents = $contents ? $image : file_get_contents($image);
 
             return $contents ? 'data:image/jpeg;base64,' . base64_encode($contents) : '';
         });
@@ -108,25 +104,22 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $crumbs = array_values($crumbs);
-            for ($i = 0; $i < count($crumbs); $i++) {
+            $counter = count($crumbs);
+            for ($i = 0; $i < $counter; $i++) {
                 $crumb = trim($crumbs[$i]);
-                if ( ! $crumb) {
+                if ( $crumb === '' || $crumb === '0') {
                     continue;
                 }
-                if ($crumb == 'company') {
+                if ($crumb === 'company') {
                     return '';
                 }
 
-                if ( ! Utils::isNinjaProd() && $module = Module::find($crumb)) {
-                    $name = mtrans($crumb);
-                } else {
-                    $name = trans("texts.{$crumb}");
-                }
+                $name = ! Utils::isNinjaProd() && $module = Module::find($crumb) ? mtrans($crumb) : trans("texts.{$crumb}");
 
                 if ($i == count($crumbs) - 1) {
                     $str .= "<li class='active'>{$name}</li>";
                 } else {
-                    if (count($crumbs) > 2 && $crumbs[1] == 'proposals' && $crumb != 'proposals') {
+                    if (count($crumbs) > 2 && $crumbs[1] === 'proposals' && $crumb !== 'proposals') {
                         $crumb = 'proposals/' . $crumb;
                     }
                     $str .= '<li>' . link_to($crumb, $name) . '</li>';
@@ -199,8 +192,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters): bool {
             $total = 0;
             foreach ($value as $item) {
-                $qty = ! empty($item['qty']) ? Utils::parseFloat($item['qty']) : 1;
-                $cost = ! empty($item['cost']) ? Utils::parseFloat($item['cost']) : 1;
+                $qty = empty($item['qty']) ? 1 : Utils::parseFloat($item['qty']);
+                $cost = empty($item['cost']) ? 1 : Utils::parseFloat($item['cost']);
                 $total += $qty * $cost;
             }
 

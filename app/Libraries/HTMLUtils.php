@@ -35,7 +35,7 @@ class HTMLUtils
         $css = $purifier->context->get('StyleBlocks');
 
         // Get the first style block
-        return count($css) ? $css[0] : '';
+        return count($css) > 0 ? $css[0] : '';
     }
 
     public static function sanitizeHTML($html)

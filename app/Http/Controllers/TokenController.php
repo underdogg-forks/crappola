@@ -140,11 +140,7 @@ class TokenController extends BaseController
 
             $token->save();
 
-            if ($tokenPublicId) {
-                $message = trans('texts.updated_token');
-            } else {
-                $message = trans('texts.created_token');
-            }
+            $message = $tokenPublicId ? trans('texts.updated_token') : trans('texts.created_token');
 
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }

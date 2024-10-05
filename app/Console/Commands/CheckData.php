@@ -586,11 +586,7 @@ class CheckData extends Command
             foreach ($entityTypes as $entityType) {
                 $tableName = Utils::pluralizeEntityType($entityType);
                 $field = $entityType;
-                if ($table == 'accounts') {
-                    $accountId = 'id';
-                } else {
-                    $accountId = 'account_id';
-                }
+                $accountId = $table === 'accounts' ? 'id' : 'account_id';
                 $records = \Illuminate\Support\Facades\DB::table($table)
                     ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
                     ->where("{$table}.{$accountId}", '!=', \Illuminate\Support\Facades\DB::raw("{$tableName}.account_id"))

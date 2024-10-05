@@ -173,7 +173,7 @@ class DocumentRepository extends BaseRepository
         $document->hash = $hash;
         $document->name = mb_substr($name, -255);
 
-        if ( ! empty($imageSize)) {
+        if ( $imageSize !== [] && $imageSize !== false) {
             $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }
@@ -181,8 +181,8 @@ class DocumentRepository extends BaseRepository
         $document->save();
         $doc_array = $document->toArray();
 
-        if ( ! empty($base64)) {
-            $mime = Document::$types[ ! empty($previewType) ? $previewType : $documentType]['mime'];
+        if ( $base64 !== '' && $base64 !== '0') {
+            $mime = Document::$types[ $previewType === '' || $previewType === '0' ? $documentType : $previewType]['mime'];
             $doc_array['base64'] = 'data:' . $mime . ';base64,' . $base64;
         }
 

@@ -81,15 +81,13 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
         // to see if there was whitespace before this match
         //
 
-        if ($ok) {
-            if ($pre) {
-                if ( ! preg_match('![\s\(\[\{>]$!s', $pre)) {
-                    //echo "fail 2 at $cursor ($pre)<br />\n";
+        if ($ok !== 0 && $pre) {
+            if ( ! preg_match('![\s\(\[\{>]$!s', $pre)) {
+                //echo "fail 2 at $cursor ($pre)<br />\n";
 
-                    $ok = 0;
-                    $cursor += $fail_len;
-                    $buffer .= $fail_text;
-                }
+                $ok = 0;
+                $cursor += $fail_len;
+                $buffer .= $fail_text;
             }
         }
 
@@ -97,7 +95,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
         // we want to autolink here - find the extent of the url
         //
 
-        if ($ok) {
+        if ($ok !== 0) {
             if (preg_match('/^([a-z0-9\-\.\/\-_%~!?=,:;&+*#@\(\)\$]+)/i', $post, $matches)) {
                 $url = $hit . $matches[1];
 
@@ -134,10 +132,8 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                     $link_url = $force_prefix . $link_url;
                 }
 
-                if ($GLOBALS['autolink_options']['strip_protocols']) {
-                    if (preg_match('!^(http|https)://!i', $display_url, $m)) {
-                        $display_url = mb_substr($display_url, mb_strlen($m[1]) + 3);
-                    }
+                if ($GLOBALS['autolink_options']['strip_protocols'] && preg_match('!^(http|https)://!i', $display_url, $m)) {
+                    $display_url = mb_substr($display_url, mb_strlen($m[1]) + 3);
                 }
 
                 $display_url = autolink_label($display_url, $limit);
@@ -246,7 +242,7 @@ function autolink_email($text, $tagfill = ''): string
         // check backwards
         //
 
-        if ($ok) {
+        if ($ok !== 0) {
             if (preg_match("!({$atom}(\.{$atom})*)\$!", $pre, $matches)) {
                 // move matched part of address into $hit
 
@@ -268,7 +264,7 @@ function autolink_email($text, $tagfill = ''): string
         // check forwards
         //
 
-        if ($ok) {
+        if ($ok !== 0) {
             if (preg_match("!^({$atom}(\.{$atom})*)!", $post, $matches)) {
                 // move matched part of address into $hit
 
@@ -289,7 +285,7 @@ function autolink_email($text, $tagfill = ''): string
         // commit
         //
 
-        if ($ok) {
+        if ($ok !== 0) {
             $cursor += mb_strlen($pre) + mb_strlen($hit);
             $buffer .= $pre;
             $buffer .= "<a href=\"mailto:{$hit}\"{$tagfill}>{$hit}</a>";

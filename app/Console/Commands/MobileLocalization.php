@@ -79,7 +79,7 @@ class MobileLocalization extends Command
 
             foreach ($resources as $key => $val) {
                 $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
-                if (mb_substr($text, 0, 6) == 'texts.') {
+                if (mb_substr($text, 0, 6) === 'texts.') {
                     $text = $resources->{$key};
                 }
 

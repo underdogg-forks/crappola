@@ -87,11 +87,7 @@ class ProductReport extends AbstractReport
 
                     $this->data[] = $row;
 
-                    if ($subgroup == 'product') {
-                        $dimension = $item->product_key;
-                    } else {
-                        $dimension = $this->getDimension($client);
-                    }
+                    $dimension = $subgroup == 'product' ? $item->product_key : $this->getDimension($client);
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
                 }

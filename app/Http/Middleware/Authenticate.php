@@ -105,10 +105,8 @@ class Authenticate
                     if ($account && Utils::getSubdomain() == 'app') {
                         $url .= '?account_key=' . $account->account_key;
                     }
-                } else {
-                    if ($account && Account::count() > 1) {
-                        $url .= '?account_key=' . $account->account_key;
-                    }
+                } elseif ($account && Account::count() > 1) {
+                    $url .= '?account_key=' . $account->account_key;
                 }
             } else {
                 $url = '/login';
@@ -144,6 +142,7 @@ class Authenticate
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
         }
+        return null;
     }
 
     /**
@@ -157,5 +156,6 @@ class Authenticate
         if ($contact && ! $contact->is_deleted) {
             return $contact;
         }
+        return null;
     }
 }

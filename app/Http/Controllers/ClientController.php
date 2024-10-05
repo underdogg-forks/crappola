@@ -159,7 +159,7 @@ class ClientController extends BaseController
             'title'  => trans('texts.new_client'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('clients.edit', $data);
     }
@@ -182,12 +182,10 @@ class ClientController extends BaseController
             'title'  => trans('texts.edit_client'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
-        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
-                $data['planDetails'] = $account->getPlanDetails(false, false);
-            }
+        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
+            $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
         return \Illuminate\Support\Facades\View::make('clients.edit', $data);
@@ -272,7 +270,7 @@ class ClientController extends BaseController
         return response()->json($result);
     }
 
-    private static function getViewModel(): array
+    private function getViewModel(): array
     {
         return [
             'data'         => \Illuminate\Support\Facades\Request::old('data'),

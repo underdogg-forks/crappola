@@ -45,10 +45,8 @@ class PermissionsRequired
         $actions = $route->getAction();
 
         // Check if we have any permissions to check the user has.
-        if ($permissions = ! empty($actions['permissions']) ? $actions['permissions'] : null) {
-            if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
-                return response('Unauthorized.', 401);
-            }
+        if (($permissions = empty($actions['permissions']) ? null : $actions['permissions']) && ! \Illuminate\Support\Facades\Auth::user()->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
+            return response('Unauthorized.', 401);
         }
 
         // Check controller permissions

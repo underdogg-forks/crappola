@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 
 class ForceMigration extends Command
 {
+    public $log;
     // define('DB_NINJA_1', 'db-ninja-1');
     // define('DB_NINJA_2', 'db-ninja-2');
 
@@ -107,6 +108,7 @@ class ForceMigration extends Command
         //                   ->first();
 
         // return $company;
+        return null;
     }
 
     private function logMessage(string $str): void

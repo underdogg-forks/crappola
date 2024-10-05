@@ -200,7 +200,7 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = ! empty($input['document_ids']) ? array_map('intval', $input['document_ids']) : [];
+        $document_ids = empty($input['document_ids']) ? [] : array_map('intval', $input['document_ids']);
 
         foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form

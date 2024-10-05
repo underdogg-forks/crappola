@@ -57,5 +57,6 @@ class ClientPortalHeaderComposer
         $view->with('hasCredits', $client->creditsWithBalance->count());
         $view->with('hasDocuments', $hasDocuments);
         $view->with('hasPaymentMethods', $hasPaymentMethods);
+        return null;
     }
 }

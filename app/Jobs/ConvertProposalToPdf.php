@@ -8,6 +8,7 @@ use Utils;
 
 class ConvertProposalToPdf extends Job
 {
+    public $proposal;
     public function __construct($proposal)
     {
         $this->proposal = $proposal;

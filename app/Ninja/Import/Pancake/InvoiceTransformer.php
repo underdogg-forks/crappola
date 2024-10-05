@@ -35,8 +35,8 @@ class InvoiceTransformer extends BaseTransformer
         return new Item($data, fn ($data): array => [
             'client_id'        => $clientId,
             'invoice_number'   => $this->getInvoiceNumber($data->invoice),
-            'invoice_date'     => ! empty($data->date_of_creation) ? date('Y-m-d', strtotime($data->date_of_creation)) : null,
-            'due_date'         => ! empty($data->due_date) ? date('Y-m-d', strtotime($data->due_date)) : null,
+            'invoice_date'     => empty($data->date_of_creation) ? null : date('Y-m-d', strtotime($data->date_of_creation)),
+            'due_date'         => empty($data->due_date) ? null : date('Y-m-d', strtotime($data->due_date)),
             'paid'             => (float) $data->amount_paid,
             'public_notes'     => $this->getString($data, 'notes'),
             'private_notes'    => $this->getString($data, 'description'),

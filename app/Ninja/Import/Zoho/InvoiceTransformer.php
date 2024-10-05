@@ -41,9 +41,9 @@ class InvoiceTransformer extends BaseTransformer
                         'notes'       => $this->getString($data, 'item_desc'),
                         'cost'        => (float) $data->item_price,
                         'qty'         => (float) $data->quantity,
-                        'tax_name1'   => (float) $data->item_tax1 ? trans('texts.tax') : '',
+                        'tax_name1'   => (float) $data->item_tax1 !== 0.0 ? trans('texts.tax') : '',
                         'tax_rate1'   => (float) $data->item_tax1,
-                        'tax_name2'   => (float) $data->item_tax2 ? trans('texts.tax') : '',
+                        'tax_name2'   => (float) $data->item_tax2 !== 0.0 ? trans('texts.tax') : '',
                         'tax_rate2'   => (float) $data->item_tax2,
                     ],
                 ],
@@ -51,15 +51,15 @@ class InvoiceTransformer extends BaseTransformer
 
             // we don't support line item discounts so we need to include
             // the discount as a separate line item
-            if ((float) $data->discount_amount) {
+            if ((float) $data->discount_amount !== 0.0) {
                 $invoice['invoice_items'][] = [
                     'product_key' => '',
                     'notes'       => trans('texts.discount'),
                     'cost'        => (float) $data->discount_amount * -1,
                     'qty'         => 1,
-                    'tax_name1'   => (float) $data->item_tax1 ? trans('texts.tax') : '',
+                    'tax_name1'   => (float) $data->item_tax1 !== 0.0 ? trans('texts.tax') : '',
                     'tax_rate1'   => (float) $data->item_tax1,
-                    'tax_name2'   => (float) $data->item_tax2 ? trans('texts.tax') : '',
+                    'tax_name2'   => (float) $data->item_tax2 !== 0.0 ? trans('texts.tax') : '',
                     'tax_rate2'   => (float) $data->item_tax2,
                 ];
             }

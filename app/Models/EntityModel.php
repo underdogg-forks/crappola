@@ -45,7 +45,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      */
     public function __call($method, $params)
     {
-        if (count(config('modules.relations'))) {
+        if (count(config('modules.relations')) > 0) {
             $entityType = $this->getEntityType();
 
             if ($entityType) {
@@ -103,7 +103,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     public static function getPrivateId($publicId)
     {
         if ( ! $publicId) {
-            return;
+            return null;
         }
 
         $className = static::class;
@@ -122,10 +122,8 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      */
     public static function getClassName($entityType): string
     {
-        if ( ! Utils::isNinjaProd()) {
-            if ($module = Module::find($entityType)) {
-                return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
-            }
+        if ( !Utils::isNinjaProd() && ($module = Module::find($entityType))) {
+            return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
         }
 
         if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {

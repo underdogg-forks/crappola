@@ -83,7 +83,7 @@ class QuoteController extends BaseController
             'url'        => 'invoices',
             'title'      => trans('texts.new_quote'),
         ];
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return \Illuminate\Support\Facades\View::make('invoices.edit', $data);
     }
@@ -146,7 +146,7 @@ class QuoteController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to("view/{$invitationKey}");
     }
 
-    private static function getViewModel(): array
+    private function getViewModel(): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 

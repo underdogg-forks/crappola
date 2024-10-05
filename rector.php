@@ -44,7 +44,7 @@ return RectorConfig::configure()
         //SetList::CODING_STYLE,
         //SetList::DEAD_CODE,
         //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
-        LaravelLevelSetList::UP_TO_LARAVEL_80,
+        //LaravelLevelSetList::UP_TO_LARAVEL_80,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
     ]);

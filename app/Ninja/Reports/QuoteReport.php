@@ -107,11 +107,7 @@ class QuoteReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
 
-                if ($subgroup == 'status') {
-                    $dimension = $invoice->statusLabel();
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'status' ? $invoice->statusLabel() : $this->getDimension($client);
 
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }

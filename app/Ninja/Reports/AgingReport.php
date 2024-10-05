@@ -56,11 +56,7 @@ class AgingReport extends AbstractReport
                 //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
 
-                if ($subgroup == 'age') {
-                    $dimension = trans('texts.' . $invoice->present()->ageGroup);
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'age' ? trans('texts.' . $invoice->present()->ageGroup) : $this->getDimension($client);
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->balance);
             }
         }

@@ -64,7 +64,7 @@ class NotificationListener
      */
     public function viewedInvoice(InvoiceInvitationWasViewed $event): void
     {
-        if ( ! (float) ($event->invoice->balance)) {
+        if ( (float) ($event->invoice->balance) === 0.0) {
             return;
         }
 

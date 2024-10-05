@@ -10,11 +10,7 @@ class ListPaymentIntent extends BaseIntent
     {
         $this->loadStates(ENTITY_PAYMENT);
 
-        if ($client = $this->requestClient()) {
-            $url = $client->present()->url . '#payments';
-        } else {
-            $url = '/payments';
-        }
+        $url = ($client = $this->requestClient()) ? $client->present()->url . '#payments' : '/payments';
 
         return redirect($url);
     }

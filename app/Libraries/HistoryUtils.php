@@ -86,8 +86,9 @@ class HistoryUtils
         $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $remove = [];
+        $counter = count($accountHistory);
 
-        for ($i = 0; $i < count($accountHistory); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $item = $accountHistory[$i];
             if ($entity->equalTo($item)) {
                 $remove[] = $i;
@@ -129,16 +130,18 @@ class HistoryUtils
         $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $data = [];
+        // Add to the list and make sure to only show each item once
+        $counter = count($accountHistory);
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i < count($accountHistory); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
                 continue;
             }
 
-            array_push($data, $item);
+            $data[] = $item;
 
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
@@ -190,7 +193,7 @@ class HistoryUtils
                     $button = '';
                 }
 
-                $padding = $str ? 16 : 0;
+                $padding = $str !== '' && $str !== '0' ? 16 : 0;
                 $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }

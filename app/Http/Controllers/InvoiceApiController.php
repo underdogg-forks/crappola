@@ -20,6 +20,10 @@ use Utils;
 
 class InvoiceApiController extends BaseAPIController
 {
+    public $clientRepo;
+    public $paymentRepo;
+    public $invoiceService;
+    public $paymentService;
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     protected $entityType = ENTITY_INVOICE;
@@ -379,6 +383,7 @@ class InvoiceApiController extends BaseAPIController
             return $this->fileReponse($invoice->getFileName(), $pdfString);
         }
         abort(404);
+        return null;
     }
 
     private function prepareData($data, $client)

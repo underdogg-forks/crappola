@@ -40,10 +40,8 @@ class NinjaController extends BaseController
             session(['return_url' => \Illuminate\Support\Facades\Request::input('return_url')]);
         }
 
-        if (\Illuminate\Support\Facades\Request::has('affiliate_key')) {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', \Illuminate\Support\Facades\Request::input('affiliate_key'))->first()) {
-                session(['affiliate_id' => $affiliate->id]);
-            }
+        if (\Illuminate\Support\Facades\Request::has('affiliate_key') && ($affiliate = Affiliate::where('affiliate_key', '=', \Illuminate\Support\Facades\Request::input('affiliate_key'))->first())) {
+            session(['affiliate_id' => $affiliate->id]);
         }
 
         if (\Illuminate\Support\Facades\Request::has('product_id')) {
@@ -208,7 +206,7 @@ class NinjaController extends BaseController
 
         if ($license) {
             if ($license->transaction_reference != 'TEST_MODE') {
-                $license->is_claimed = $license->is_claimed + 1;
+                $license->is_claimed += 1;
                 $license->save();
             }
 

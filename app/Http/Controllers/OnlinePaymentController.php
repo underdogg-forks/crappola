@@ -379,11 +379,7 @@ class OnlinePaymentController extends BaseController
             session(['redirect_url:' . $invitation->invitation_key => $redirectUrl]);
         }
 
-        if ($gatewayTypeAlias) {
-            $link = $invitation->getLink('payment') . "/{$gatewayTypeAlias}";
-        } else {
-            $link = $invitation->getLink();
-        }
+        $link = $gatewayTypeAlias ? $invitation->getLink('payment') . "/{$gatewayTypeAlias}" : $invitation->getLink();
 
         if (filter_var(\Illuminate\Support\Facades\Request::input('return_link'), FILTER_VALIDATE_BOOLEAN)) {
             return $link;
@@ -425,7 +421,7 @@ class OnlinePaymentController extends BaseController
             return response()->json(RESULT_SUCCESS);
         }
         if ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
-            $separator = ! str_contains($redirectUrl, '?') ? '?' : '&';
+            $separator = str_contains($redirectUrl, '?') ? '&' : '?';
 
             return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $invitation->invoice->public_id);
         }

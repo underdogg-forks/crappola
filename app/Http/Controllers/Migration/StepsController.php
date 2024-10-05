@@ -111,11 +111,7 @@ class StepsController extends BaseController
 
         $account_settings = \Illuminate\Support\Facades\Auth::user()->account->account_email_settings;
 
-        if (mb_strlen($request->input('url')) == 0) {
-            $account_settings->is_disabled = false;
-        } else {
-            $account_settings->is_disabled = true;
-        }
+        $account_settings->is_disabled = mb_strlen($request->input('url')) != 0;
 
         $account_settings->forward_url_for_v5 = rtrim($request->input('url'), '/');
         $account_settings->save();
@@ -271,11 +267,7 @@ class StepsController extends BaseController
         $redirect = true;
 
         foreach ($this->access[$step]['steps'] as $step) {
-            if (session()->has($step)) {
-                $redirect = false;
-            } else {
-                $redirect = true;
-            }
+            $redirect = !(bool) session()->has($step);
         }
 
         return $redirect;
@@ -413,11 +405,7 @@ class StepsController extends BaseController
 
             $account_settings = $account->account_email_settings;
 
-            if (mb_strlen($forwarding_url) == 0) {
-                $account_settings->is_disabled = false;
-            } else {
-                $account_settings->is_disabled = true;
-            }
+            $account_settings->is_disabled = mb_strlen($forwarding_url) != 0;
 
             $account_settings->forward_url_for_v5 = rtrim($forwarding_url, '/');
             $account_settings->save();

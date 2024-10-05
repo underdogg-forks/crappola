@@ -23,6 +23,13 @@ use Utils;
 
 class ClientPortalController extends BaseController
 {
+    public $activityRepo;
+    /**
+     * @var \App\Services\PaymentService
+     */
+    public $paymentService;
+    public $creditRepo;
+    public $taskRepo;
     private readonly \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     private readonly \App\Ninja\Repositories\PaymentRepository $paymentRepo;
@@ -59,12 +66,7 @@ class ClientPortalController extends BaseController
 
         // Forward requests from V4 to V5 if the domain is set
         if (mb_strlen($account->account_email_settings->forward_url_for_v5) > 1) {
-            if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-                $entity = 'quote';
-            } else {
-                $entity = 'invoice';
-            }
-
+            $entity = $invoice->isType(INVOICE_TYPE_QUOTE) ? 'quote' : 'invoice';
             return redirect($account->account_email_settings->forward_url_for_v5 . '/client/' . $entity . '/' . $invitationKey);
         }
 
@@ -148,7 +150,7 @@ class ClientPortalController extends BaseController
             }
         }
 
-        $showApprove = $invoice->quote_invoice_id ? false : true;
+        $showApprove = !(bool) $invoice->quote_invoice_id;
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
         }
@@ -173,14 +175,12 @@ class ClientPortalController extends BaseController
             'gatewayTypeId'   => count($paymentTypes) == 1 ? $gatewayTypeIdCast : false,
         ];
 
-        if ($invoice->canBePaid()) {
-            if ($paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD)) {
-                $data += [
-                    'transactionToken' => $paymentDriver->createTransactionToken(),
-                    'partialView'      => $paymentDriver->partialView(),
-                    'accountGateway'   => $paymentDriver->accountGateway,
-                ];
-            }
+        if ($invoice->canBePaid() && ($paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD))) {
+            $data += [
+                'transactionToken' => $paymentDriver->createTransactionToken(),
+                'partialView'      => $paymentDriver->partialView(),
+                'accountGateway'   => $paymentDriver->accountGateway,
+            ];
         }
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()) {
@@ -604,7 +604,7 @@ class ClientPortalController extends BaseController
             return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Not authorized'], 403);
         }
 
-        if (mb_substr($name, -3) == '.js') {
+        if (mb_substr($name, -3) === '.js') {
             $name = mb_substr($name, 0, -3);
         }
 
@@ -629,7 +629,7 @@ class ClientPortalController extends BaseController
 
         $toZip = $this->getInvoiceZipDocuments($invoice);
 
-        if ( ! count($toZip)) {
+        if ( $toZip === []) {
             return \Illuminate\Support\Facades\Response::view('error', ['error' => 'No documents small enough'], 404);
         }
 
@@ -802,7 +802,7 @@ class ClientPortalController extends BaseController
         $invoice = $client->invoices()->where('public_id', (int) $publicId)->first();
 
         if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
-            $invoice->client_enable_auto_bill = $enable ? true : false;
+            $invoice->client_enable_auto_bill = (bool) $enable;
             $invoice->save();
         }
 

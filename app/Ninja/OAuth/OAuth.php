@@ -31,7 +31,7 @@ class OAuth
                 return $this;
 
             default:
-                return;
+                return null;
                 break;
         }
     }
@@ -45,7 +45,7 @@ class OAuth
 
         LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);
 
-        if ($this->providerInstance) {
+        if ($this->providerInstance instanceof \App\Ninja\OAuth\Providers\Google) {
             $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->providerId)->first();
         }
 

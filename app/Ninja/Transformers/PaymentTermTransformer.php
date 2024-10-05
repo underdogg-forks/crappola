@@ -9,6 +9,7 @@ use App\Models\PaymentTerm;
  */
 class PaymentTermTransformer extends EntityTransformer
 {
+    public $paymentTerm;
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="num_days", type="number", format="integer", example=10, readOnly=true)
@@ -28,7 +29,7 @@ class PaymentTermTransformer extends EntityTransformer
             'name'        => trans('texts.payment_terms_net') . ' ' . $paymentTerm->getNumDays(),
             'updated_at'  => $this->getTimestamp($paymentTerm->updated_at),
             'archived_at' => $this->getTimestamp($paymentTerm->deleted_at),
-            'is_default'  => (bool) $paymentTerm->account_id == 0 ? true : false,
+            'is_default'  => (bool) $paymentTerm->account_id == 0,
         ]);
     }
 }

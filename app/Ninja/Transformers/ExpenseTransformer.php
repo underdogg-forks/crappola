@@ -9,6 +9,7 @@ use App\Models\Expense;
  */
 class ExpenseTransformer extends EntityTransformer
 {
+    public $client;
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="private_notes", type="string", example="Notes...")

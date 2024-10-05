@@ -59,33 +59,31 @@ class Mailer
 
     private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
     {
-        if (Utils::isSelfHost()) {
-            if (isset($data['account'])) {
-                $account = $data['account'];
-                if (env($account->id . '_MAIL_FROM_ADDRESS')) {
-                    $fields = [
-                        'driver',
-                        'host',
-                        'port',
-                        'from.address',
-                        'from.name',
-                        'encryption',
-                        'username',
-                        'password',
-                    ];
-                    foreach ($fields as $field) {
-                        $envKey = mb_strtoupper(str_replace('.', '_', $field));
-                        if ($value = env($account->id . '_MAIL_' . $envKey)) {
-                            config(['mail.' . $field => $value]);
-                        }
+        if (Utils::isSelfHost() && isset($data['account'])) {
+            $account = $data['account'];
+            if (env($account->id . '_MAIL_FROM_ADDRESS')) {
+                $fields = [
+                    'driver',
+                    'host',
+                    'port',
+                    'from.address',
+                    'from.name',
+                    'encryption',
+                    'username',
+                    'password',
+                ];
+                foreach ($fields as $field) {
+                    $envKey = mb_strtoupper(str_replace('.', '_', $field));
+                    if ($value = env($account->id . '_MAIL_' . $envKey)) {
+                        config(['mail.' . $field => $value]);
                     }
-
-                    $fromEmail = config('mail.from.address');
-                    $app = \Illuminate\Support\Facades\App::getInstance();
-                    $app->singleton('swift.transport', fn ($app): \Illuminate\Mail\TransportManager => new \Illuminate\Mail\TransportManager($app));
-                    $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                    \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
                 }
+
+                $fromEmail = config('mail.from.address');
+                $app = \Illuminate\Support\Facades\App::getInstance();
+                $app->singleton('swift.transport', fn ($app): \Illuminate\Mail\TransportManager => new \Illuminate\Mail\TransportManager($app));
+                $mailer = new Swift_Mailer($app['swift.transport']->driver());
+                \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
             }
         }
 

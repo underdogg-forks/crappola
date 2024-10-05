@@ -389,6 +389,7 @@ class AccountRepository
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
+        return null;
     }
 
     public function findUserByOauth($providerId, $oauthUserId)

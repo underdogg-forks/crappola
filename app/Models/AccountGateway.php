@@ -105,13 +105,7 @@ class AccountGateway extends EntityModel
     public function isGateway($gatewayId)
     {
         if (is_array($gatewayId)) {
-            foreach ($gatewayId as $id) {
-                if ($this->gateway_id == $id) {
-                    return true;
-                }
-            }
-
-            return false;
+            return in_array($this->gateway_id, $gatewayId);
         }
 
         return $this->gateway_id == $gatewayId;
@@ -275,12 +269,12 @@ class AccountGateway extends EntityModel
     public function getPlaidEnvironment()
     {
         if ( ! $this->getPlaidClientId()) {
-            return;
+            return null;
         }
 
         $stripe_key = $this->getPublishableKey();
 
-        return mb_substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
+        return mb_substr(trim($stripe_key), 0, 8) === 'pk_test_' ? 'tartan' : 'production';
     }
 
     /**

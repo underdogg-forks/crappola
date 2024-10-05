@@ -9,6 +9,7 @@ use stdClass;
 
 class BaseIntent
 {
+    public $data;
     protected $state;
 
     protected $parameters;
@@ -36,10 +37,8 @@ class BaseIntent
         if ( ! $this->hasField('Filter', 'all')) {
             $url = url()->previous();
             preg_match('/clients\/(\d*)/', $url, $matches);
-            if (count($matches) >= 2) {
-                if ($client = Client::scope($matches[1])->first()) {
-                    $this->state->current->client = $client;
-                }
+            if (count($matches) >= 2 && ($client = Client::scope($matches[1])->first())) {
+                $this->state->current->client = $client;
             }
         }
 
@@ -48,7 +47,7 @@ class BaseIntent
 
     public static function createIntent($platform, $state, $data)
     {
-        if ( ! count($data->intents)) {
+        if ( count($data->intents) === 0) {
             throw new Exception(trans('texts.intent_not_found'));
         }
 
@@ -67,7 +66,7 @@ class BaseIntent
         }
         $entityType = $entityType ?: 'client';
         $entityType = ucwords(mb_strtolower($entityType));
-        if ($entityType == 'Recurring') {
+        if ($entityType === 'Recurring') {
             $entityType = 'RecurringInvoice';
         }
         $intent = str_replace('Entity', $entityType, $intent);
@@ -123,7 +122,7 @@ class BaseIntent
     {
         $entities = $this->state->current->{$entityType};
 
-        return count($entities) ? $entities[0] : false;
+        return count($entities) > 0 ? $entities[0] : false;
     }
 
     public function previousStateEntities($entityType)
@@ -173,7 +172,7 @@ class BaseIntent
         $states = array_filter($this->getFields('Filter'), fn ($state): bool => in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]));
 
         if (count($states) || $this->hasField('Filter', 'all')) {
-            session(['entity_state_filter:' . $entityType => join(',', $states)]);
+            session(['entity_state_filter:' . $entityType => implode(',', $states)]);
         }
     }
 
@@ -185,7 +184,7 @@ class BaseIntent
             return $fieldValue && $fieldValue == $value;
         }
 
-        return $fieldValue ? true : false;
+        return (bool) $fieldValue;
     }
 
     protected function requestClient()

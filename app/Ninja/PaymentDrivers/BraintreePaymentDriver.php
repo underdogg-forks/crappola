@@ -49,7 +49,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             Session::put($this->invitation->id . 'device_data', $input['device_data']);
             */
 
-            $data['details'] = ! empty($input['device_data']) ? json_decode($input['device_data']) : false;
+            $data['details'] = empty($input['device_data']) ? false : json_decode($input['device_data']);
         }
 
         return $data;
@@ -191,7 +191,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $paymentMethod->email = $response->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_PAYPAL;
         } else {
-            return;
+            return null;
         }
 
         return $paymentMethod;

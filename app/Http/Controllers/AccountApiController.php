@@ -83,7 +83,7 @@ class AccountApiController extends BaseAPIController
         }
         error_log('login failed');
         if ($user) {
-            $user->failed_logins = $user->failed_logins + 1;
+            $user->failed_logins += 1;
             $user->save();
         }
         sleep(ERROR_DELAY);
@@ -141,8 +141,9 @@ class AccountApiController extends BaseAPIController
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices, true);
+        $counter = count($devices);
 
-        for ($x = 0; $x < count($devices); $x++) {
+        for ($x = 0; $x < $counter; $x++) {
             if ($devices[$x]['email'] == $request->email) {
                 $devices[$x]['token'] = $request->token; //update
                 $devices[$x]['device'] = $request->device;
@@ -179,8 +180,9 @@ class AccountApiController extends BaseAPIController
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         $devices = json_decode($account->devices, true);
+        $counter = count($devices);
 
-        for ($x = 0; $x < count($devices); $x++) {
+        for ($x = 0; $x < $counter; $x++) {
             if ($request->token == $devices[$x]['token']) {
                 unset($devices[$x]);
             }
@@ -201,8 +203,9 @@ class AccountApiController extends BaseAPIController
         if (count($devices) < 1) {
             return $this->errorResponse(['message' => 'No registered devices.'], 400);
         }
+        $counter = count($devices);
 
-        for ($x = 0; $x < count($devices); $x++) {
+        for ($x = 0; $x < $counter; $x++) {
             if ($devices[$x]['email'] == \Illuminate\Support\Facades\Auth::user()->username) {
                 $newDevice = [
                     'token'           => $devices[$x]['token'],
@@ -222,6 +225,7 @@ class AccountApiController extends BaseAPIController
                 return $this->response($newDevice);
             }
         }
+        return null;
     }
 
     public function oauthLogin(Request $request)

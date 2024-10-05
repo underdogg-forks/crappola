@@ -39,7 +39,8 @@ class TaskKanbanController extends BaseController
                 'in_progress',
                 'done',
             ];
-            for ($i = 0; $i < count($defaults); $i++) {
+            $counter = count($defaults);
+            for ($i = 0; $i < $counter; $i++) {
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;

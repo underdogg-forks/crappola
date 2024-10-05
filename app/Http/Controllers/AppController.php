@@ -310,11 +310,7 @@ class AppController extends BaseController
                     FROM information_schema.TABLES
                     WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
 
-        if (property_exists($result[0], 'engine')) {
-            $engine = $result[0]->engine;
-        } else {
-            $engine = $result[0]->ENGINE;
-        }
+        $engine = property_exists($result[0], 'engine') ? $result[0]->engine : $result[0]->ENGINE;
 
         if (count($result) && $engine == 'InnoDB') {
             return;
@@ -374,7 +370,7 @@ class AppController extends BaseController
 
         $errors = Utils::getErrors();
 
-        return view('errors.list', compact('errors'));
+        return view('errors.list', ['errors' => $errors]);
     }
 
     public function stats()
@@ -458,7 +454,7 @@ class AppController extends BaseController
 
         try {
             \Illuminate\Support\Facades\DB::reconnect();
-            $valid = \Illuminate\Support\Facades\DB::connection()->getDatabaseName() ? true : false;
+            $valid = (bool) \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
         } catch (Exception $e) {
             return $e->getMessage();
         }
