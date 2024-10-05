@@ -36,6 +36,7 @@
         "guzzlehttp/guzzle": "^7.9",
         "guzzlehttp/psr7": "*",
         "intervention/image": "*",
+        "intervention/image-laravel": "*",
         "jlapp/swaggervel": "*",
         "laracasts/presenter": "dev-master",
         "laravel/framework": "^9.0",
@@ -56,12 +57,12 @@
         "simshaun/recurr": "dev-master",
         "stripe/stripe-php": "*",
         "symfony/css-selector": "*",
-        "therobfonz/laravel-mandrill-driver": "*",
-        "vemcogroup/laravel-sparkpost-driver": "^5.0",
-        "webpatser/laravel-countries": "dev-master#75992ad",
         "symfony/http-client": "*",
         "symfony/mailer": "*",
-        "symfony/postmark-mailer": "*"
+        "symfony/postmark-mailer": "*",
+        "therobfonz/laravel-mandrill-driver": "*",
+        "vemcogroup/laravel-sparkpost-driver": "^5.0",
+        "webpatser/laravel-countries": "dev-master#75992ad"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",
