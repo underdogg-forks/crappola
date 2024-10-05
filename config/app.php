@@ -140,7 +140,6 @@ return [
         'Laravel\Socialite\SocialiteServiceProvider',
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
-        Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider::class,
         Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
         Fruitcake\Cors\CorsServiceProvider::class,
