@@ -242,7 +242,6 @@ return [
         'Rocketeer'      => 'Rocketeer\Facades\Rocketeer',
         'Socialite'      => 'Laravel\Socialite\Facades\Socialite',
         'Excel'          => 'Maatwebsite\Excel\Facades\Excel',
-        'Crawler'        => Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect::class,
         'Datatable'      => 'Chumper\Datatable\Facades\DatatableFacade',
         'Updater'        => Codedge\Updater\UpdaterFacade::class,
         'Module'         => Nwidart\Modules\Facades\Module::class,
