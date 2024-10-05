@@ -90,7 +90,7 @@ class MakeClass extends GeneratorCommand
         return \Illuminate\Support\Str::studly($this->argument('prefix')) . \Illuminate\Support\Str::studly($this->argument('name')) . Str::studly($this->argument('class'));
     }
 
-    protected function getColumns()
+    protected function getColumns(): string
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
@@ -112,7 +112,7 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getFormFields()
+    protected function getFormFields(): string
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
@@ -136,7 +136,7 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getDatabaseFields($module)
+    protected function getDatabaseFields($module): string
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
@@ -153,7 +153,7 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getTransformerFields($module)
+    protected function getTransformerFields($module): string
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);

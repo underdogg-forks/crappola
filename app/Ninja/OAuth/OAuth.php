@@ -15,9 +15,9 @@ class OAuth
 
     public const SOCIAL_LINKEDIN = 4;
 
-    private $providerInstance;
+    private ?\App\Ninja\OAuth\Providers\Google $providerInstance = null;
 
-    private $providerId;
+    private ?int $providerId = null;
 
     public function __construct() {}
 

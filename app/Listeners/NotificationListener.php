@@ -21,20 +21,11 @@ use App\Services\PushService;
  */
 class NotificationListener
 {
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
-    /**
-     * @var PushService
-     */
-    protected $pushService;
+    protected \App\Services\PushService $pushService;
 
     /**
      * NotificationListener constructor.
@@ -124,7 +115,7 @@ class NotificationListener
      * @param      $type
      * @param null $payment
      */
-    private function sendNotifications(Invoice $invoice, $type, $payment = null, $notes = false): void
+    private function sendNotifications(Invoice $invoice, string $type, $payment = null, $notes = false): void
     {
         foreach ($invoice->account->users as $user) {
             if ($user->{"notify_{$type}"}) {

@@ -14,7 +14,7 @@ class InvoiceRequest extends EntityRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         $invoice = parent::entity();
 

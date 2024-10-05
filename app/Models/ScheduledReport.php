@@ -26,7 +26,7 @@ class ScheduledReport extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -34,7 +34,7 @@ class ScheduledReport extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     public function updateSendDate(): void

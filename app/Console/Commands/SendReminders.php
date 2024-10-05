@@ -13,12 +13,9 @@ use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\PaymentService;
-use Auth;
 use DateTime;
-use DB;
 use Exception;
 use Illuminate\Console\Command;
-use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -37,20 +34,14 @@ class SendReminders extends Command
      */
     protected $description = 'Send reminder emails';
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     /**
      * @var accountRepository
      */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
     /**
      * SendReminders constructor.
@@ -129,11 +120,18 @@ class SendReminders extends Command
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
             //21-03-2023 adjustment here
-            if ($invoice->isPaid() || ! $invoice->account || $invoice->account->is_deleted) {
+            if ($invoice->isPaid()) {
                 // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
-
+            if ( ! $invoice->account) {
+                // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+                continue;
+            }
+            if ($invoice->account->is_deleted) {
+                // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+                continue;
+            }
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
                 \Illuminate\Support\Facades\Auth::loginUsingId($invoice->activeUser()->id);
@@ -149,10 +147,12 @@ class SendReminders extends Command
         $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
-
+            if ($account->account_email_settings->is_disabled) {
+                continue;
+            }
             $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
             $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
@@ -176,10 +176,12 @@ class SendReminders extends Command
         $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
-
+            if ($account->account_email_settings->is_disabled) {
+                continue;
+            }
             // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
@@ -221,8 +223,10 @@ class SendReminders extends Command
             $user = $scheduledReport->user;
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
-
-            if ( ! $account->hasFeature(FEATURE_REPORTS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_REPORTS)) {
+                continue;
+            }
+            if ($account->account_email_settings->is_disabled) {
                 continue;
             }
 

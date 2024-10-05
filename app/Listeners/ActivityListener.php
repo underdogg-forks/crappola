@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App;
 use App\Events\ClientWasArchived;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
@@ -51,10 +50,7 @@ use App\Ninja\Repositories\ActivityRepository;
  */
 class ActivityListener
 {
-    /**
-     * @var ActivityRepository
-     */
-    protected $activityRepo;
+    protected \App\Ninja\Repositories\ActivityRepository $activityRepo;
 
     /**
      * ActivityListener constructor.

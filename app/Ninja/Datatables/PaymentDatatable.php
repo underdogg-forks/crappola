@@ -4,8 +4,6 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Payment;
 use App\Models\PaymentMethod;
-use Auth;
-use URL;
 use Utils;
 
 class PaymentDatatable extends EntityDatatable
@@ -20,7 +18,7 @@ class PaymentDatatable extends EntityDatatable
         GATEWAY_WEPAY,
     ];
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -54,9 +52,7 @@ class PaymentDatatable extends EntityDatatable
             ],
             [
                 'method',
-                function ($model) {
-                    return $model->account_gateway_id ? $model->gateway_name : ($model->payment_type ? trans('texts.payment_type_' . $model->payment_type) : '');
-                },
+                fn ($model) => $model->account_gateway_id ? $model->gateway_name : ($model->payment_type ? trans('texts.payment_type_' . $model->payment_type) : ''),
             ],
             [
                 'source',
@@ -117,54 +113,42 @@ class PaymentDatatable extends EntityDatatable
             ],
             [
                 'status',
-                function ($model) {
-                    return self::getStatusLabel($model);
-                },
+                fn ($model) => self::getStatusLabel($model),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_payment'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("payments/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PAYMENT, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("payments/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PAYMENT, $model]),
             ],
             [
                 trans('texts.email_payment'),
-                function ($model) {
-                    return "javascript:submitForm_payment('email', {$model->public_id})";
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_payment('email', {$model->public_id})",
+                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model]),
             ],
             [
                 trans('texts.refund_payment'),
-                function ($model) {
+                function ($model): string {
                     $max_refund = $model->amount - $model->refunded;
                     $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
-                    $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
+                    $symbol = Utils::getFromCache($model->currency_id ?: 1, 'currencies')->symbol;
                     $local = in_array($model->gateway_id, [GATEWAY_BRAINTREE, GATEWAY_STRIPE, GATEWAY_WEPAY]) || ! $model->gateway_id ? 0 : 1;
 
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}', {$local})";
                 },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model])
-                        && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
-                        && $model->refunded < $model->amount;
-                },
+                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model])
+                    && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
+                    && $model->refunded < $model->amount,
             ],
         ];
     }
 
-    private function getStatusLabel($model)
+    private function getStatusLabel($model): string
     {
         $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
         $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);

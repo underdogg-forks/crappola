@@ -18,11 +18,11 @@ use GuzzleHttp\RequestOptions;
 
 class AuthService
 {
-    protected $username;
+    protected string $username;
 
-    protected $password;
+    protected string $password;
 
-    protected $apiSecret;
+    protected ?string $apiSecret;
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
@@ -41,14 +41,14 @@ class AuthService
         $this->apiSecret = $apiSecret;
     }
 
-    public function endpoint(string $endpoint)
+    public function endpoint(string $endpoint): static
     {
         $this->endpoint = $endpoint;
 
         return $this;
     }
 
-    public function start()
+    public function start(): static
     {
         $data = [
             'email'    => $this->username,
@@ -128,7 +128,7 @@ class AuthService
         return $this->errors;
     }
 
-    private function getHeaders()
+    private function getHeaders(): array
     {
         $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
@@ -142,12 +142,12 @@ class AuthService
         return $headers;
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
         return $this->endpoint . $this->uri;
     }
 
-    private function processErrors($errors): void
+    private function processErrors(\Psr\Http\Message\StreamInterface $errors): void
     {
         $array = (array) $errors;
 

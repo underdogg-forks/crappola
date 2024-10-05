@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SupportTokenBilling extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -48,4 +47,4 @@ class SupportTokenBilling extends Migration
 
         Schema::drop('account_gateway_tokens');
     }
-}
+};

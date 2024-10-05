@@ -3,9 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Invoice;
-use Auth;
 use DropdownButton;
-use URL;
 use Utils;
 
 class InvoiceDatatable extends EntityDatatable
@@ -14,7 +12,7 @@ class InvoiceDatatable extends EntityDatatable
 
     public $sortCol = 3;
 
-    public function columns()
+    public function columns(): array
     {
         $entityType = $this->entityType;
 
@@ -44,33 +42,27 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'date',
-                function ($model) {
-                    return Utils::fromSqlDate($model->invoice_date);
-                },
+                fn ($model) => Utils::fromSqlDate($model->invoice_date),
             ],
             [
                 'amount',
-                function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-                },
+                fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id),
             ],
             [
                 'balance',
-                function ($model) {
-                    return $model->partial > 0 ?
-                        trans(
-                            'texts.partial_remaining',
-                            [
-                                'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                                'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
-                        ) :
-                        Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-                },
+                fn ($model) => $model->partial > 0 ?
+                    trans(
+                        'texts.partial_remaining',
+                        [
+                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
+                    ) :
+                    Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
                 $entityType == ENTITY_INVOICE,
             ],
             [
                 $entityType == ENTITY_INVOICE ? 'due_date' : 'valid_until',
-                function ($model) {
+                function ($model): string {
                     $str = '';
                     if ($model->partial_due_date) {
                         $str = Utils::fromSqlDate($model->partial_due_date);
@@ -84,117 +76,76 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'status',
-                function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
-                },
+                fn ($model) => $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         $entityType = $this->entityType;
 
         return [
             [
                 trans('texts.clone_invoice'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/clone");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
             [
                 trans('texts.clone_quote'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("quotes/{$model->public_id}/clone");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("quotes/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE),
             ],
             [
                 trans("texts.{$entityType}_history"),
-                function ($model) use ($entityType) {
-                    return \Illuminate\Support\Facades\URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}"),
             ],
             [
                 trans('texts.delivery_note'),
-                function ($model) {
-                    return url("invoices/delivery_note/{$model->public_id}");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE;
-                },
+                fn ($model)       => url("invoices/delivery_note/{$model->public_id}"),
+                fn ($model): bool => $entityType == ENTITY_INVOICE,
             ],
             [
-                '--divider--', function () {
-                    return false;
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
-                },
+                '--divider--', fn (): bool => false,
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->canCreateOrEdit(ENTITY_INVOICE),
             ],
             [
                 trans('texts.mark_sent'),
-                function ($model) use ($entityType) {
-                    return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
-                },
-                function ($model) {
-                    return ! $model->is_public && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_{$entityType}('markSent', {$model->public_id})",
+                fn ($model): bool   => ! $model->is_public && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.mark_paid'),
-                function ($model) use ($entityType) {
-                    return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})",
+                fn ($model): bool   => $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.enter_payment'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}/{$model->public_id}"),
+                fn ($model): bool => $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
             ],
             [
                 trans('texts.view_invoice'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("invoices/{$model->quote_invoice_id}/edit");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("invoices/{$model->quote_invoice_id}/edit"),
+                fn ($model): bool => $entityType == ENTITY_QUOTE && $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.new_proposal'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("proposals/create/{$model->public_id}");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PROPOSAL);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("proposals/create/{$model->public_id}"),
+                fn ($model): bool => $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PROPOSAL),
             ],
             [
                 trans('texts.convert_to_invoice'),
-                function ($model) {
-                    return "javascript:submitForm_quote('convert', {$model->public_id})";
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_quote('convert', {$model->public_id})",
+                fn ($model): bool   => $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
             ],
         ];
     }
 
-    public function bulkActions()
+    /**
+     * @return mixed[]
+     */
+    public function bulkActions(): array
     {
         $actions = [];
 
@@ -229,7 +180,7 @@ class InvoiceDatatable extends EntityDatatable
         return $actions;
     }
 
-    private function getStatusLabel($model)
+    private function getStatusLabel($model): string
     {
         $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->partial_due_date ?: $model->due_date_sql, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);

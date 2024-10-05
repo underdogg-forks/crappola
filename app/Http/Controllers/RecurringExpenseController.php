@@ -12,16 +12,12 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\RecurringExpenseService;
-use Auth;
-use Request;
-use Session;
-use View;
 
 class RecurringExpenseController extends BaseController
 {
-    protected $recurringExpenseRepo;
+    protected \App\Ninja\Repositories\RecurringExpenseRepository $recurringExpenseRepo;
 
-    protected $recurringExpenseService;
+    protected \App\Services\RecurringExpenseService $recurringExpenseService;
 
     protected $entityType = ENTITY_RECURRING_EXPENSE;
 
@@ -62,7 +58,7 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId'   => \Illuminate\Support\Facades\Request::old('vendor') ? \Illuminate\Support\Facades\Request::old('vendor') : $request->vendor_id,
+            'vendorPublicId'   => \Illuminate\Support\Facades\Request::old('vendor') ?: $request->vendor_id,
             'expense'          => null,
             'method'           => 'POST',
             'url'              => 'recurring_expenses',
@@ -136,7 +132,7 @@ class RecurringExpenseController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
@@ -148,7 +144,7 @@ class RecurringExpenseController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel()
+    private static function getViewModel(): array
     {
         return [
             'data'        => \Illuminate\Support\Facades\Request::old('data'),

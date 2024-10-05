@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceFooter extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -35,4 +34,4 @@ class AddInvoiceFooter extends Migration
             $table->dropColumn('invoice_footer');
         });
     }
-}
+};

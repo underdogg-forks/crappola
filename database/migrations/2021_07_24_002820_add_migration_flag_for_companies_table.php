@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddMigrationFlagForCompaniesTable extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -23,4 +22,4 @@ class AddMigrationFlagForCompaniesTable extends Migration
      * @return void
      */
     public function down(): void {}
-}
+};

@@ -4,8 +4,7 @@ use App\Models\Subscription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddSubdomainToLookups extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -149,4 +148,4 @@ class AddSubdomainToLookups extends Migration
             $table->dropColumn('inclusive_taxes');
         });
     }
-}
+};

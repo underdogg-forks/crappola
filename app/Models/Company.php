@@ -3,10 +3,8 @@
 namespace App\Models;
 
 use Carbon;
-use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use Log;
 use Utils;
 
 /**
@@ -20,7 +18,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\CompanyPresenter';
+    protected $presenter = \App\Ninja\Presenters\CompanyPresenter::class;
 
     /**
      * @var array
@@ -48,7 +46,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
      */
     public function accounts()
     {
-        return $this->hasMany('App\Models\Account');
+        return $this->hasMany(\App\Models\Account::class);
     }
 
     /**
@@ -56,7 +54,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
      */
     public function payment()
     {
-        return $this->belongsTo('App\Models\Payment');
+        return $this->belongsTo(\App\Models\Payment::class);
     }
 
     public function hasActivePromo()
@@ -102,7 +100,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
         return Carbon::parse($this->plan_expires)->diffInDays(Carbon::today());
     }
 
-    public function hasActivePlan()
+    public function hasActivePlan(): bool
     {
         return $this->plan_expires && Carbon::parse($this->plan_expires) >= Carbon::today();
     }
@@ -116,7 +114,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
         return Carbon::parse($this->plan_expires) < Carbon::today();
     }
 
-    public function hasEarnedPromo()
+    public function hasEarnedPromo(): bool
     {
         if ( ! Utils::isNinjaProd() || Utils::isPro()) {
             return false;
@@ -144,7 +142,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
         ];
 
         foreach ($discounts as $weeks => $promo) {
-            list($discount, $validFor) = $promo;
+            [$discount, $validFor] = $promo;
             $difference = $this->created_at->diffInWeeks();
             if ($difference >= $weeks && $discount > $this->discount) {
                 $this->discount = $discount;
@@ -169,7 +167,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
         return $account->getPlanDetails($includeInactive, $includeTrial);
     }
 
-    public function processRefund($user)
+    public function processRefund($user): bool
     {
         if ( ! $this->payment) {
             return false;
@@ -183,7 +181,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
             $deadline->modify('+30 days');
 
             if ($deadline >= date_create()) {
-                $accountRepo = app('App\Ninja\Repositories\AccountRepository');
+                $accountRepo = app(\App\Ninja\Repositories\AccountRepository::class);
                 $ninjaAccount = $accountRepo->getNinjaAccount();
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);

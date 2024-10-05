@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateVendorIntent extends BaseIntent
 {
-    public function process()
+    public function process(): void
     {
         $url = '/vendors/create';
 

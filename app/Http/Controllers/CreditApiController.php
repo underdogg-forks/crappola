@@ -11,7 +11,7 @@ use Response;
 
 class CreditApiController extends BaseAPIController
 {
-    protected $creditRepo;
+    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
 
     protected $entityType = ENTITY_CREDIT;
 

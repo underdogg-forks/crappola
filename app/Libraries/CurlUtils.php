@@ -16,7 +16,7 @@ class CurlUtils
         return self::exec('GET', $url, null, $headers);
     }
 
-    public static function exec($method, $url, $data, $headers = false)
+    public static function exec($method, $url, $data, $headers = false): bool|string
     {
         $curl = curl_init();
 
@@ -68,7 +68,7 @@ class CurlUtils
         return false;
     }
 
-    public static function renderPDF($url, $filename)
+    public static function renderPDF($url, $filename): false|string
     {
         if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;

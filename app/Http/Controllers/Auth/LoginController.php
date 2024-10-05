@@ -7,13 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Models\User;
 use Cache;
-use Cookie;
-use Event;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Lang;
-use Str;
 use Utils;
 
 class LoginController extends Controller
@@ -71,7 +67,7 @@ class LoginController extends Controller
             }
         }
 
-        return self::showLoginForm($request);
+        return self::showLoginForm();
     }
 
     /**
@@ -171,7 +167,7 @@ class LoginController extends Controller
         if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
             if (request()->force_logout) {
                 $account = auth()->user()->account;
-                app('App\Ninja\Repositories\AccountRepository')->unlinkAccount($account);
+                app(\App\Ninja\Repositories\AccountRepository::class)->unlinkAccount($account);
 
                 if ( ! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();

@@ -10,15 +10,9 @@ use App\Ninja\Repositories\SubscriptionRepository;
  */
 class SubscriptionService extends BaseService
 {
-    /**
-     * @var SubscriptionRepository
-     */
-    protected $subscriptionRepo;
+    protected \App\Ninja\Repositories\SubscriptionRepository $subscriptionRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * SubscriptionService constructor.

@@ -21,7 +21,7 @@ class ProjectTransformer extends EntityTransformer
      * @SWG\Property(property="private_notes", type="string", format="Sample notes", example=10)
      * @SWG\Property(property="budgeted_hours", type="number", format="float", example=10)
      */
-    public function transform(Project $project)
+    public function transform(Project $project): array
     {
         return array_merge($this->getDefaults($project), [
             'id'             => (int) $project->public_id,

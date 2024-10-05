@@ -27,7 +27,7 @@ class RecurringExpense extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
+    protected $presenter = \App\Ninja\Presenters\ExpensePresenter::class;
 
     /**
      * @var array
@@ -57,7 +57,7 @@ class RecurringExpense extends EntityModel
      */
     public function expense_category()
     {
-        return $this->belongsTo('App\Models\ExpenseCategory')->withTrashed();
+        return $this->belongsTo(\App\Models\ExpenseCategory::class)->withTrashed();
     }
 
     /**
@@ -65,7 +65,7 @@ class RecurringExpense extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -73,7 +73,7 @@ class RecurringExpense extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -81,7 +81,7 @@ class RecurringExpense extends EntityModel
      */
     public function vendor()
     {
-        return $this->belongsTo('App\Models\Vendor')->withTrashed();
+        return $this->belongsTo(\App\Models\Vendor::class)->withTrashed();
     }
 
     /**
@@ -89,7 +89,7 @@ class RecurringExpense extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
@@ -115,7 +115,7 @@ class RecurringExpense extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/recurring_expenses/{$this->public_id}/edit";
     }
@@ -123,12 +123,12 @@ class RecurringExpense extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_RECURRING_EXPENSE;
     }
 
-    public function amountWithTax()
+    public function amountWithTax(): float|int|array
     {
         return $this->amount + Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }

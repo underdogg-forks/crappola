@@ -19,7 +19,7 @@ class CreateProposalCategoryRequest extends ProposalCategoryRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => sprintf('required|unique:proposal_categories,name,,id,account_id,%s', $this->user()->account_id),

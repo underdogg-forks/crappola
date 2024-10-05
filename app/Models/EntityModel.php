@@ -2,12 +2,8 @@
 
 namespace App\Models;
 
-use Auth;
-use Eloquent;
 use Module;
-use Str;
 use Utils;
-use Validator;
 
 /**
  * Class EntityModel.
@@ -70,9 +66,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      *
      * @return mixed
      */
-    public static function createNew($context = null)
+    public static function createNew($context = null): static
     {
-        $className = get_called_class();
+        $className = static::class;
         $entity = new $className();
 
         if ($context) {
@@ -110,7 +106,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
 
         if (method_exists($className, 'trashed')) {
             return $className::scope($publicId)->withTrashed()->value('id');
@@ -124,7 +120,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      *
      * @return string
      */
-    public static function getClassName($entityType)
+    public static function getClassName($entityType): string
     {
         if ( ! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {
@@ -144,12 +140,13 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      *
      * @return string
      */
-    public static function getTransformerName($entityType)
+    public static function getTransformerName($entityType): string
     {
-        if ( ! Utils::isNinjaProd()) {
-            if ($module = Module::find($entityType)) {
-                return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
-            }
+        if (Utils::isNinjaProd()) {
+            return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
+        }
+        if ($module = Module::find($entityType)) {
+            return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
         }
 
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
@@ -166,7 +163,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     public static function validate($data, $entityType = false, $entity = false)
     {
         if ( ! $entityType) {
-            $className = get_called_class();
+            $className = static::class;
             $entityBlank = new $className();
             $entityType = $entityBlank->getEntityType();
         }
@@ -179,9 +176,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         }
 
         $request = new $requestClass();
-        $request->setUserResolver(function () {
-            return \Illuminate\Support\Facades\Auth::user();
-        });
+        $request->setUserResolver(fn () => \Illuminate\Support\Facades\Auth::user());
         $request->setEntity($entity);
         $request->replace($data);
 
@@ -232,7 +227,10 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return Utils::pluralizeEntityType($entityType);
     }
 
-    public static function getStates($entityType = false)
+    /**
+     * @return mixed[]
+     */
+    public static function getStates($entityType = false): array
     {
         $data = [];
 
@@ -243,7 +241,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return $data;
     }
 
-    public static function getStatuses($entityType = false)
+    public static function getStatuses($entityType = false): array
     {
         return [];
     }
@@ -265,12 +263,12 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function getActivityKey()
+    public function getActivityKey(): string
     {
         return '[' . $this->getEntityType() . ':' . $this->public_id . ':' . $this->getDisplayName() . ']';
     }
 
-    public function entityKey()
+    public function entityKey(): string
     {
         return $this->public_id . ':' . $this->getEntityType();
     }
@@ -280,7 +278,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return $this->getEntityType();
     }
 
-    public function isEntityType($type)
+    public function isEntityType($type): bool
     {
         return $this->getEntityType() === $type;
     }
@@ -387,7 +385,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function getKeyField()
+    public function getKeyField(): string
     {
         $class = get_class($this);
         $parts = explode('\\', $class);
@@ -406,7 +404,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     }
 
     // isDirty return true if the field's new value is the same as the old one
-    public function isChanged()
+    public function isChanged(): bool
     {
         foreach ($this->fillable as $field) {
             if ($this->{$field} != $this->getOriginal($field)) {
@@ -417,12 +415,12 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return false;
     }
 
-    public function statusClass()
+    public function statusClass(): string
     {
         return '';
     }
 
-    public function statusLabel()
+    public function statusLabel(): string
     {
         return '';
     }
@@ -461,9 +459,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
     }
 
-    private static function getNextPublicId($accountId)
+    private static function getNextPublicId($accountId): int|float
     {
-        $className = get_called_class();
+        $className = static::class;
 
         if (method_exists($className, 'trashed')) {
             $lastEntity = $className::whereAccountId($accountId)->withTrashed();

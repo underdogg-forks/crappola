@@ -6,14 +6,11 @@ use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
-use Auth;
-use DB;
-use Log;
 use Utils;
 
 class ExpenseRepository extends BaseRepository
 {
-    protected $documentRepo;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -21,9 +18,9 @@ class ExpenseRepository extends BaseRepository
     }
 
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Expense';
+        return \App\Models\Expense::class;
     }
 
     public function all()

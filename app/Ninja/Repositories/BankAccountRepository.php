@@ -4,15 +4,12 @@ namespace App\Ninja\Repositories;
 
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
-use Auth;
-use Crypt;
-use DB;
 
 class BankAccountRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\BankAccount';
+        return \App\Models\BankAccount::class;
     }
 
     public function find($accountId)
@@ -29,7 +26,7 @@ class BankAccountRepository extends BaseRepository
             );
     }
 
-    public function save($input)
+    public function save(array $input)
     {
         $bankAccount = BankAccount::createNew();
         $bankAccount->username = \Illuminate\Support\Facades\Crypt::encrypt(trim($input['bank_username']));
@@ -39,10 +36,12 @@ class BankAccountRepository extends BaseRepository
         $account->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {
-            if ( ! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
+            if ( ! isset($data['include'])) {
                 continue;
             }
-
+            if ( ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
+                continue;
+            }
             $subaccount = BankSubaccount::createNew();
             $subaccount->account_name = trim($data['account_name']);
             $subaccount->account_number = trim($data['hashed_account_number']);

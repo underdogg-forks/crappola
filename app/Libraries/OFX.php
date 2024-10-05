@@ -26,7 +26,7 @@ class OFX
         $this->request = $request;
     }
 
-    public static function closeTags($x)
+    public static function closeTags($x): string|array|null
     {
         $x = preg_replace('/\s+/', '', $x);
 
@@ -56,7 +56,7 @@ class OFX
         $this->responseBody = '<OFX>' . $tmp[1];
     }
 
-    public function xml()
+    public function xml(): SimpleXMLElement
     {
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);

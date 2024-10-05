@@ -4,17 +4,14 @@ namespace App\Ninja\Repositories;
 
 use App\Models\Client;
 use App\Models\Credit;
-use Auth;
 use Datatable;
-use DB;
-use Log;
 use Utils;
 
 class CreditRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Credit';
+        return \App\Models\Credit::class;
     }
 
     public function find($clientPublicId = null, $filter = null)
@@ -82,18 +79,10 @@ class CreditRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('credit_date', function ($model) {
-                return Utils::fromSqlDate($model->credit_date);
-            })
-            ->addColumn('amount', function ($model) {
-                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-            })
-            ->addColumn('balance', function ($model) {
-                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-            })
-            ->addColumn('public_notes', function ($model) {
-                return e($model->public_notes);
-            })
+            ->addColumn('credit_date', fn ($model) => Utils::fromSqlDate($model->credit_date))
+            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
+            ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
+            ->addColumn('public_notes', fn ($model) => e($model->public_notes))
             ->make();
 
         return $table;

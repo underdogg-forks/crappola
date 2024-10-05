@@ -10,17 +10,14 @@ use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
-use Auth;
 use Carbon;
-use Crypt;
 use Google2FA;
 use Illuminate\Http\Request;
-use Response;
 use Utils;
 
 class AccountApiController extends BaseAPIController
 {
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     public function __construct(AccountRepository $accountRepo)
     {
@@ -261,7 +258,7 @@ class AccountApiController extends BaseAPIController
         //stubbed for iOS callbacks
     }
 
-    public function upgrade(Request $request)
+    public function upgrade(Request $request): string
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $account = $user->account;
@@ -307,7 +304,7 @@ class AccountApiController extends BaseAPIController
         return '{"message":"success"}';
     }
 
-    private function processLogin(Request $request, $createToken = true)
+    private function processLogin(Request $request, bool $createToken = true)
     {
         // Create a new token only if one does not already exist
         $user = \Illuminate\Support\Facades\Auth::user();

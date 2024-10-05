@@ -19,7 +19,7 @@ class CreateProposalRequest extends ProposalRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'invoice_id' => 'required',

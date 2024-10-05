@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPageSize extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -70,4 +69,4 @@ class AddPageSize extends Migration
 
         Schema::dropIfExists('expense_categories');
     }
-}
+};

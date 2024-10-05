@@ -2,13 +2,11 @@
 
 namespace App\Ninja\Repositories;
 
-use DB;
-
 class UserRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\User';
+        return \App\Models\User::class;
     }
 
     public function find($accountId)

@@ -19,7 +19,7 @@ class CreateCreditRequest extends CreditRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'client_id' => 'required',

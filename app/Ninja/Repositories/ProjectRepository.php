@@ -3,15 +3,13 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Project;
-use Auth;
-use DB;
 use Utils;
 
 class ProjectRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Project';
+        return \App\Models\Project::class;
     }
 
     public function all()

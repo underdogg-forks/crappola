@@ -17,18 +17,13 @@ use App\Models\Language;
 use App\Models\LookupUser;
 use App\Models\User;
 use App\Models\UserAccount;
-use Auth;
-use Request;
-use Schema;
 use Session;
 use stdClass;
-use URL;
 use Utils;
-use Validator;
 
 class AccountRepository
 {
-    public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false)
+    public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false): \App\Models\Account
     {
         if ( ! $company) {
             if (Utils::isNinja()) {
@@ -145,7 +140,7 @@ class AccountRepository
         return $invitation;
     }
 
-    public function createNinjaCredit($client, $amount)
+    public function createNinjaCredit($client, $amount): \App\Models\Credit
     {
         $account = $this->getNinjaAccount();
 
@@ -163,7 +158,7 @@ class AccountRepository
         return $credit;
     }
 
-    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0)
+    public function createNinjaInvoice($client, $clientAccount, array $plan, $credit = 0)
     {
         $term = $plan['term'];
         $plan_cost = $plan['price'];
@@ -328,7 +323,7 @@ class AccountRepository
         $user->save();
     }
 
-    public function updateUserFromOauth($user, $firstName, $lastName, $email, $providerId, $oauthUserId)
+    public function updateUserFromOauth($user, $firstName, $lastName, $email, string $providerId, string $oauthUserId)
     {
         if ( ! LookupUser::validateField('oauth_user_key', $providerId . '-' . $oauthUserId)) {
             return trans('texts.oauth_taken');
@@ -474,7 +469,7 @@ class AccountRepository
         return $users->get();
     }
 
-    public function prepareUsersData($record)
+    public function prepareUsersData($record): false|array
     {
         if ( ! $record) {
             return false;
@@ -625,7 +620,7 @@ class AccountRepository
         }
     }
 
-    private function getAccountSearchData($user)
+    private function getAccountSearchData($user): array
     {
         $account = $user->account;
 

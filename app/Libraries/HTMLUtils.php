@@ -62,7 +62,7 @@ class HTMLUtils
         return $previous;
     }
 
-    public static function getEnvForAccount($field, $default = '')
+    public static function getEnvForAccount(string $field, $default = '')
     {
         $key = '';
 

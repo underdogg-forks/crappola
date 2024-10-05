@@ -14,14 +14,14 @@ class PaymentTermTransformer extends EntityTransformer
      * @SWG\Property(property="num_days", type="number", format="integer", example=10, readOnly=true)
      * @SWG\Property(property="name", type="string", example="Net 7")
      */
-    public function __construct($account = null, $serializer = null, $paymentTerm = null)
+    public function __construct(?\App\Models\Account $account = null, $serializer = null, $paymentTerm = null)
     {
         parent::__construct($account, $serializer);
 
         $this->paymentTerm = $paymentTerm;
     }
 
-    public function transform(PaymentTerm $paymentTerm)
+    public function transform(PaymentTerm $paymentTerm): array
     {
         return array_merge($this->getDefaults($paymentTerm), [
             'num_days'    => (int) $paymentTerm->num_days,

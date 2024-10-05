@@ -48,7 +48,7 @@ class ForceMigration extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->option('database')) {
             $this->db = $this->option('database');
@@ -109,7 +109,7 @@ class ForceMigration extends Command
         // return $company;
     }
 
-    private function logMessage($str): void
+    private function logMessage(string $str): void
     {
         $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);

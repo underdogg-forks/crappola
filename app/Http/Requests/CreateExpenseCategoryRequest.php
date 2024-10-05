@@ -21,7 +21,7 @@ class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => sprintf('required|unique:expense_categories,name,,id,account_id,%s', $this->user()->account_id),

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -42,7 +41,7 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
      */
     public function payment_methods()
     {
-        return $this->hasMany('App\Models\PaymentMethod');
+        return $this->hasMany(\App\Models\PaymentMethod::class);
     }
 
     /**
@@ -50,7 +49,7 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
      */
     public function account_gateway()
     {
-        return $this->belongsTo('App\Models\AccountGateway');
+        return $this->belongsTo(\App\Models\AccountGateway::class);
     }
 
     /**
@@ -58,7 +57,7 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact');
+        return $this->belongsTo(\App\Models\Contact::class);
     }
 
     /**
@@ -66,13 +65,13 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
      */
     public function default_payment_method()
     {
-        return $this->hasOne('App\Models\PaymentMethod', 'id', 'default_payment_method_id');
+        return $this->hasOne(\App\Models\PaymentMethod::class, 'id', 'default_payment_method_id');
     }
 
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_CUSTOMER;
     }
@@ -115,7 +114,7 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool|string
      */
-    public function gatewayLink()
+    public function gatewayLink(): string|false
     {
         $accountGateway = $this->account_gateway;
 

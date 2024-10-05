@@ -6,7 +6,7 @@ use App\Libraries\Skype\SkypeResponse;
 
 class DownloadInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $invoice = $this->invoice();
 

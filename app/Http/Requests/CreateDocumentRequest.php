@@ -26,7 +26,7 @@ class CreateDocumentRequest extends DocumentRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             //'file' => 'mimes:jpg'

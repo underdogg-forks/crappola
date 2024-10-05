@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddProPlan extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddProPlan extends Migration
             $table->dropColumn('pro_plan_paid');
         });
     }
-}
+};

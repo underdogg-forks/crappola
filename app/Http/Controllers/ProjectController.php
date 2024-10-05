@@ -11,16 +11,12 @@ use App\Models\Project;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
-use Auth;
-use Request;
-use Session;
-use View;
 
 class ProjectController extends BaseController
 {
-    protected $projectRepo;
+    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
 
-    protected $projectService;
+    protected \App\Services\ProjectService $projectService;
 
     protected $entityType = ENTITY_PROJECT;
 
@@ -127,7 +123,7 @@ class ProjectController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'invoice') {
             $data = [];

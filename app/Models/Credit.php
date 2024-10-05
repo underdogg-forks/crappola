@@ -22,7 +22,7 @@ class Credit extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
+    protected $presenter = \App\Ninja\Presenters\CreditPresenter::class;
 
     /**
      * @var array
@@ -37,7 +37,7 @@ class Credit extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -45,7 +45,7 @@ class Credit extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -53,7 +53,7 @@ class Credit extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -61,13 +61,13 @@ class Credit extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return '';
     }
@@ -75,7 +75,7 @@ class Credit extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/credits/{$this->public_id}";
     }
@@ -83,7 +83,7 @@ class Credit extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_CREDIT;
     }

@@ -44,7 +44,7 @@ class Cloudflare
         }
     }
 
-    public static function getDNSRecord($zone, $aRecord)
+    public static function getDNSRecord(string $zone, string $aRecord)
     {
         //harvest the zone_name
         $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&per_page=1';
@@ -68,7 +68,7 @@ class Cloudflare
         return 0;
     }
 
-    private static function curlCloudFlare($requestType, $url, $jsonEncodedData)
+    private static function curlCloudFlare(string $requestType, string $url, $jsonEncodedData)
     {
         $curl = curl_init();
         $opts = [

@@ -3,7 +3,6 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
-use Auth;
 use Carbon;
 use DropdownButton;
 use stdClass;
@@ -61,7 +60,7 @@ class InvoicePresenter extends EntityPresenter
         return $account->formatMoney($invoice->getRequestedAmount(), $invoice->client);
     }
 
-    public function balanceDueLabel()
+    public function balanceDueLabel(): string
     {
         if ($this->entity->partial > 0) {
             return 'partial_due';
@@ -91,7 +90,7 @@ class InvoicePresenter extends EntityPresenter
         return $date->diffInDays();
     }
 
-    public function ageGroup()
+    public function ageGroup(): string
     {
         $age = $this->age();
 
@@ -132,7 +131,7 @@ class InvoicePresenter extends EntityPresenter
     }
 
     // https://schema.org/PaymentStatusType
-    public function paymentStatus()
+    public function paymentStatus(): string
     {
         if ( ! $this->entity->balance) {
             return 'PaymentComplete';
@@ -216,12 +215,12 @@ class InvoicePresenter extends EntityPresenter
         return trans('texts.auto_bill_notification', $data);
     }
 
-    public function skypeBot()
+    public function skypeBot(): \App\Libraries\Skype\InvoiceCard
     {
         return new InvoiceCard($this->entity);
     }
 
-    public function rBits()
+    public function rBits(): array
     {
         $properties = new stdClass();
         $properties->terms_text = $this->entity->terms;
@@ -241,7 +240,7 @@ class InvoicePresenter extends EntityPresenter
         return [$data];
     }
 
-    public function moreActions()
+    public function moreActions(): array
     {
         $invoice = $this->entity;
         $entityType = $invoice->getEntityType();
@@ -308,7 +307,7 @@ class InvoicePresenter extends EntityPresenter
         return $actions;
     }
 
-    public function gatewayFee($gatewayTypeId = false)
+    public function gatewayFee($gatewayTypeId = false): string
     {
         $invoice = $this->entity;
         $account = $invoice->account;
@@ -349,15 +348,13 @@ class InvoicePresenter extends EntityPresenter
         $account = $invoice->account;
 
         if ($account->hasMultipleAccounts()) {
-            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
-        } else {
-            $link = $invoice->present()->url;
+            return url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
         }
 
-        return $link;
+        return $invoice->present()->url;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $invoice = $this->entity;

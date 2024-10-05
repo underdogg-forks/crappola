@@ -9,7 +9,7 @@ class UpdateContactRequest extends ContactRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -19,7 +19,7 @@ class UpdateContactRequest extends ContactRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'first_name' => 'required',

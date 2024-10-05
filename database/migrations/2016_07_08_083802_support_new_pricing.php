@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class SupportNewPricing extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -95,4 +94,4 @@ class SupportNewPricing extends Migration
         Schema::drop('jobs');
         Schema::drop('failed_jobs');
     }
-}
+};

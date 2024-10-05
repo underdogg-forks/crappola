@@ -39,7 +39,7 @@ class PaymentTerm extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PAYMENT_TERM;
     }

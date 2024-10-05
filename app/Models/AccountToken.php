@@ -19,7 +19,7 @@ class AccountToken extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_TOKEN;
     }
@@ -29,7 +29,7 @@ class AccountToken extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -37,7 +37,7 @@ class AccountToken extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 }
 

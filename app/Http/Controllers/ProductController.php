@@ -10,27 +10,16 @@ use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
-use Auth;
-use Redirect;
-use Request;
-use Session;
 use Utils;
-use View;
 
 /**
  * Class ProductController.
  */
 class ProductController extends BaseController
 {
-    /**
-     * @var ProductService
-     */
-    protected $productService;
+    protected \App\Services\ProductService $productService;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected \App\Ninja\Repositories\ProductRepository $productRepo;
 
     /**
      * ProductController constructor.
@@ -83,7 +72,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(ProductRequest $request, $publicId, $clone = false)
+    public function edit(ProductRequest $request, string $publicId, $clone = false)
     {
         \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
 
@@ -157,7 +146,7 @@ class ProductController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();

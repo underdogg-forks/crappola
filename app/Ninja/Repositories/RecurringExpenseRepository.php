@@ -4,17 +4,14 @@ namespace App\Ninja\Repositories;
 
 use App\Models\Expense;
 use App\Models\RecurringExpense;
-use Auth;
-use DB;
-use Log;
 use Utils;
 
 class RecurringExpenseRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\RecurringExpense';
+        return \App\Models\RecurringExpense::class;
     }
 
     public function all()

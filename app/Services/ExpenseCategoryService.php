@@ -10,15 +10,9 @@ use App\Ninja\Repositories\ExpenseCategoryRepository;
  */
 class ExpenseCategoryService extends BaseService
 {
-    /**
-     * @var ExpenseCategoryRepository
-     */
-    protected $categoryRepo;
+    protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

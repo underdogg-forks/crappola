@@ -23,10 +23,11 @@ class MigrationLookup
         if (auth()->user()->id >= config('ninja.migration_user_start') &&
            auth()->user()->id <= config('ninja.migration_user_end') &&
            ( ! auth()->user()->account->company->plan_expires || Carbon::parse(auth()->user()->account->company->plan_expires)->lt(now()))) {
-            if ($guard == 'user') {
-                if (request()->is('migration/*') || request()->is('settings/*')) {
-                    return $next($request);
-                }
+            if ($guard != 'user') {
+                return redirect('/settings/account_management')->with('warning', $this->silo);
+            }
+            if (request()->is('migration/*') || request()->is('settings/*')) {
+                return $next($request);
             }
 
             return redirect('/settings/account_management')->with('warning', $this->silo);

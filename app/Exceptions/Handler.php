@@ -12,7 +12,6 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Response;
-use Redirect;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -193,14 +192,10 @@ class Handler extends ExceptionHandler
 
         $guard = \Illuminate\Support\Arr::get($exception->guards(), 0);
 
-        switch ($guard) {
-            case 'client':
-                $url = '/client/login';
-                break;
-            default:
-                $url = '/login';
-                break;
-        }
+        $url = match ($guard) {
+            'client' => '/client/login',
+            default  => '/login',
+        };
 
         return redirect()->guest($url);
     }

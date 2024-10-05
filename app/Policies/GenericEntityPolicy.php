@@ -22,7 +22,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function editByOwner(User $user, $entityType, $ownerUserId)
+    public static function editByOwner(User $user, $entityType, $ownerUserId): mixed
     {
         $className = static::className($entityType);
         if (method_exists($className, 'editByOwner')) {
@@ -56,7 +56,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function create(User $user, $entityType)
+    public static function create(User $user, string $entityType): bool
     {
         /*
         $className = static::className($entityType);
@@ -75,7 +75,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function view(User $user, $entityType)
+    public static function view(User $user, string $entityType): bool
     {
         /*
         $className = static::className($entityType);
@@ -101,8 +101,11 @@ class GenericEntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
+        if ($user->hasPermission('edit_' . $entityType)) {
+            return true;
+        }
 
-        return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
+        return $user->owns($item);
     }
 
     /**
@@ -118,7 +121,7 @@ class GenericEntityPolicy
         return $user->account->isModuleEnabled($entityType);
     }
 
-    private static function className($entityType)
+    private static function className($entityType): string
     {
         if ( ! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {

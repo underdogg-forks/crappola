@@ -15,7 +15,7 @@ class DocumentPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public static function create(User $user, $item): bool
     {
         return ! empty($user);
     }

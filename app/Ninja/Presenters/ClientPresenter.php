@@ -46,7 +46,7 @@ class ClientPresenter extends EntityPresenter
         return $account->formatMoney($client->paid_to_date, $client);
     }
 
-    public function paymentTerms()
+    public function paymentTerms(): string
     {
         $client = $this->entity;
 
@@ -57,7 +57,7 @@ class ClientPresenter extends EntityPresenter
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
 
-    public function address($addressType = ADDRESS_BILLING, $showHeader = false)
+    public function address(string $addressType = ADDRESS_BILLING, $showHeader = false): string
     {
         $str = '';
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
@@ -77,7 +77,7 @@ class ClientPresenter extends EntityPresenter
         }
 
         if ($str && $showHeader) {
-            $str = '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
+            return '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
         }
 
         return $str;

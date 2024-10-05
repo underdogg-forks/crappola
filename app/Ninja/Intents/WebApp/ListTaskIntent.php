@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListTaskIntent extends BaseIntent
 {
-    public function process()
+    public function process(): void
     {
         $this->loadStates(ENTITY_TASK);
 

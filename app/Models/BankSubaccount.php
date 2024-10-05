@@ -19,7 +19,7 @@ class BankSubaccount extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_BANK_SUBACCOUNT;
     }
@@ -29,6 +29,6 @@ class BankSubaccount extends EntityModel
      */
     public function bank_account()
     {
-        return $this->belongsTo('App\Models\BankAccount');
+        return $this->belongsTo(\App\Models\BankAccount::class);
     }
 }

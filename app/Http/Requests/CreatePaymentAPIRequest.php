@@ -21,7 +21,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->invoice_id || ! $this->amount) {
             return [

@@ -5,9 +5,6 @@ namespace App\Services;
 use App\Events\UserLoggedIn;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
-use Request;
-use Session;
 use Socialite;
 use Utils;
 
@@ -26,10 +23,7 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    /**
-     * @var AccountRepository
-     */
-    private $accountRepo;
+    private \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     /**
      * AuthService constructor.
@@ -48,7 +42,7 @@ class AuthService
      *
      * @return mixed
      */
-    public static function getProviderId($provider)
+    public static function getProviderId($provider): int|string|false
     {
         return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers));
     }

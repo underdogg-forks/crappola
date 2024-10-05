@@ -7,24 +7,19 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
-use Auth;
 use Password;
 use Redirect;
-use Request;
-use Session;
 use Utils;
-use Validator;
-use View;
 
 class UserController extends BaseController
 {
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
-    protected $userService;
+    protected \App\Services\UserService $userService;
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
@@ -72,7 +67,7 @@ class UserController extends BaseController
         return redirect("users/{$publicId}/edit");
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $user = User::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->where('public_id', '=', $publicId)
@@ -379,7 +374,7 @@ class UserController extends BaseController
         return \Illuminate\Support\Facades\View::make('users.account_management');
     }
 
-    public function saveSidebarState()
+    public function saveSidebarState(): string
     {
         if (\Illuminate\Support\Facades\Request::has('show_left')) {
             \Illuminate\Support\Facades\Session::put(SESSION_LEFT_SIDEBAR, (bool) (\Illuminate\Support\Facades\Request::input('show_left')));

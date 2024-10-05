@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -135,7 +134,7 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_DOCUMENT;
     }
@@ -161,7 +160,7 @@ class Document extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -169,7 +168,7 @@ class Document extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -177,7 +176,7 @@ class Document extends EntityModel
      */
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense')->withTrashed();
+        return $this->belongsTo(\App\Models\Expense::class)->withTrashed();
     }
 
     /**
@@ -185,7 +184,7 @@ class Document extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -201,7 +200,7 @@ class Document extends EntityModel
      */
     public function setDiskAttribute($value): void
     {
-        $this->attributes['disk'] = $value ? $value : env('DOCUMENT_FILESYSTEM', 'documents');
+        $this->attributes['disk'] = $value ?: env('DOCUMENT_FILESYSTEM', 'documents');
     }
 
     /**
@@ -297,7 +296,7 @@ class Document extends EntityModel
     /**
      * @return bool
      */
-    public function isPDFEmbeddable()
+    public function isPDFEmbeddable(): bool
     {
         return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
     }

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSvLanguage extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -40,4 +39,4 @@ class AddSvLanguage extends Migration
             $language->delete();
         }
     }
-}
+};

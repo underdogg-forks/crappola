@@ -8,7 +8,6 @@ use App\Models\Invoice;
 use App\Models\RecurringExpense;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\RecurringExpenseRepository;
-use Auth;
 use DateTime;
 use Exception;
 use Illuminate\Console\Command;
@@ -30,10 +29,7 @@ class SendRecurringInvoices extends Command
      */
     protected $description = 'Send recurring invoices';
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     /**
      * SendRecurringInvoices constructor.
@@ -151,8 +147,10 @@ class SendRecurringInvoices extends Command
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
-
-            if ( ! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
+            if ( ! $shouldSendToday) {
+                continue;
+            }
+            if ($expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 

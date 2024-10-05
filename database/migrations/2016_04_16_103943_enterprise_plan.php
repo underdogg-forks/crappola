@@ -4,8 +4,7 @@ use App\Models\Account;
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
 
-class EnterprisePlan extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -232,4 +231,4 @@ class EnterprisePlan extends Migration
             }
         }
     }
-}
+};

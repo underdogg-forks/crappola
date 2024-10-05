@@ -6,7 +6,6 @@ use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
-use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -28,12 +27,9 @@ class SendRenewalInvoices extends Command
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     /**
      * SendRenewalInvoices constructor.
@@ -74,13 +70,21 @@ class SendRenewalInvoices extends Command
             $plan['term'] = $company->plan_term;
             $plan['num_users'] = $company->num_users;
             $plan['price'] = min($company->plan_price, Utils::getPlanPrice($plan));
-
-            if ($plan['plan'] == PLAN_FREE || ! $plan['plan'] || ! $plan['term'] || ! $plan['price']) {
+            if ($plan['plan'] == PLAN_FREE) {
+                continue;
+            }
+            if ( ! $plan['plan']) {
+                continue;
+            }
+            if ( ! $plan['term']) {
+                continue;
+            }
+            if ( ! $plan['price']) {
                 continue;
             }
 
             $client = $this->accountRepo->getNinjaClient($account);
-            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0, false);
+            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0);
 
             // set the due date to 10 days from now
             $invoice = $invitation->invoice;

@@ -13,7 +13,6 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Utils;
@@ -157,15 +156,15 @@ class CreateTestData extends Command
     /**
      * @param $client
      */
-    private function createInvoices($client, $isQuote = false): void
+    private function createInvoices($client, bool $isQuote = false): void
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'is_public'        => true,
                 'is_quote'         => $isQuote,
                 'client_id'        => $client->id,
-                'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
-                'due_date_sql'     => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'invoice_date_sql' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
+                'due_date_sql'     => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
                 'invoice_items'    => [[
                     'product_key' => $this->faker->word,
                     'qty'         => $this->faker->randomDigit + 1,
@@ -193,7 +192,7 @@ class CreateTestData extends Command
             'invoice_id'       => $invoice->id,
             'client_id'        => $client->id,
             'amount'           => $this->faker->randomFloat(2, 0, $invoice->amount),
-            'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+            'payment_date_sql' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
         ];
 
         $payment = $this->paymentRepo->save($data);
@@ -210,7 +209,7 @@ class CreateTestData extends Command
         $project = $this->projectRepo->save($data);
 
         for ($i = 0; $i < $this->count; $i++) {
-            $startTime = date_create()->modify(rand(-100, 100) . ' days')->format('U');
+            $startTime = date_create()->modify(random_int(-100, 100) . ' days')->format('U');
             $endTime = $startTime + (60 * 60 * 2);
             $timeLog = "[[{$startTime},{$endTime}]]";
             $data = [
@@ -258,7 +257,7 @@ class CreateTestData extends Command
             $data = [
                 'vendor_id'    => $vendor->id,
                 'amount'       => $this->faker->randomFloat(2, 1, 10),
-                'expense_date' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'expense_date' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
                 'public_notes' => '',
             ];
 
@@ -279,7 +278,7 @@ class CreateTestData extends Command
         $this->createProject('Project 2', 2);
     }
 
-    private function createTaxRate($name, $rate, $publicId): void
+    private function createTaxRate(string $name, int $rate, int $publicId): void
     {
         $taxRate = new TaxRate();
         $taxRate->name = $name;
@@ -290,7 +289,7 @@ class CreateTestData extends Command
         $taxRate->save();
     }
 
-    private function createCategory($name, $publicId): void
+    private function createCategory(string $name, int $publicId): void
     {
         $category = new ExpenseCategory();
         $category->name = $name;
@@ -300,7 +299,7 @@ class CreateTestData extends Command
         $category->save();
     }
 
-    private function createProject($name, $publicId): void
+    private function createProject(string $name, int $publicId): void
     {
         $project = new Project();
         $project->name = $name;

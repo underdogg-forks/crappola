@@ -8,7 +8,7 @@ use Exception;
 
 class UpdateInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $invoice = $this->stateInvoice();
         $invoiceItems = $this->requestInvoiceItems();
@@ -40,9 +40,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $invoiceItems = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
-        $invoiceItemIds = array_map(function ($item) {
-            return $item['public_id'];
-        }, $invoiceItems);
+        $invoiceItemIds = array_map(fn ($item) => $item['public_id'], $invoiceItems);
 
         $this->setStateEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 

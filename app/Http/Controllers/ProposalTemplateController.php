@@ -9,16 +9,12 @@ use App\Models\ProposalTemplate;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
-use Auth;
-use Request;
-use Session;
-use View;
 
 class ProposalTemplateController extends BaseController
 {
-    protected $proposalTemplateRepo;
+    protected \App\Ninja\Repositories\ProposalTemplateRepository $proposalTemplateRepo;
 
-    protected $proposalTemplateService;
+    protected \App\Services\ProposalTemplateService $proposalTemplateService;
 
     protected $entityType = ENTITY_PROPOSAL_TEMPLATE;
 
@@ -127,7 +123,7 @@ class ProposalTemplateController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
@@ -140,7 +136,7 @@ class ProposalTemplateController extends BaseController
         return redirect()->to('/proposals/templates');
     }
 
-    private function getViewmodel()
+    private function getViewmodel(): array
     {
         $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
         $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();

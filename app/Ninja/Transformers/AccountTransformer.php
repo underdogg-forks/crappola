@@ -145,7 +145,7 @@ class AccountTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(Account $account)
+    public function transform(Account $account): array
     {
         return [
             'account_key'                     => $account->account_key,

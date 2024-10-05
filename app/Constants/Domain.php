@@ -8,24 +8,21 @@ class Domain
 
     public const INVOICE_SERVICES = 2;
 
-    public static function getDomainFromId($id)
+    public static function getDomainFromId($id): string
     {
-        switch ($id) {
-            case static::INVOICENINJA_COM:
-                return 'invoiceninja.com';
-            case static::INVOICE_SERVICES:
-                return 'invoice.services';
-        }
-
-        return 'invoiceninja.com';
+        return match ($id) {
+            static::INVOICENINJA_COM => 'invoiceninja.com',
+            static::INVOICE_SERVICES => 'invoice.services',
+            default                  => 'invoiceninja.com',
+        };
     }
 
-    public static function getLinkFromId($id)
+    public static function getLinkFromId($id): string
     {
         return 'https://app.' . static::getDomainFromId($id);
     }
 
-    public static function getEmailFromId($id)
+    public static function getEmailFromId($id): string
     {
         return 'maildelivery@' . static::getDomainFromId($id);
     }

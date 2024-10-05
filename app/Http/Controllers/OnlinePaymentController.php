@@ -16,35 +16,21 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
-use Auth;
 use Carbon;
 use Crawler;
 use Exception;
-use Request;
-use Session;
-use URL;
 use Utils;
-use Validator;
 
 /**
  * Class OnlinePaymentController.
  */
 class OnlinePaymentController extends BaseController
 {
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     /**
      * OnlinePaymentController constructor.
@@ -433,7 +419,7 @@ class OnlinePaymentController extends BaseController
         exit;
     }
 
-    private function completePurchase($invitation, $isOffsite = false)
+    private function completePurchase($invitation, bool $isOffsite = false)
     {
         if (request()->wantsJson()) {
             return response()->json(RESULT_SUCCESS);
@@ -458,7 +444,7 @@ class OnlinePaymentController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function error($paymentDriver, $exception, $showPayment = false)
+    private function error($paymentDriver, $exception, bool $showPayment = false)
     {
         if (is_string($exception)) {
             $displayError = $exception;

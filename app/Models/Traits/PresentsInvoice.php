@@ -205,7 +205,7 @@ trait PresentsInvoice
         return $this->applyLabels($fields);
     }
 
-    public function hasCustomLabel($field)
+    public function hasCustomLabel($field): bool
     {
         $custom = (array) json_decode($this->invoice_labels);
 
@@ -229,7 +229,7 @@ trait PresentsInvoice
     /**
      * @return array
      */
-    public function getInvoiceLabels()
+    public function getInvoiceLabels(): array
     {
         $data = [];
         $custom = (array) json_decode($this->invoice_labels);
@@ -364,20 +364,20 @@ trait PresentsInvoice
         }
     }
 
-    public function hasInvoiceField($type, $field)
+    public function hasInvoiceField(string $type, $field): bool
     {
         $fields = $this->getInvoiceFields();
 
         return isset($fields[$type . '_fields'][$field]);
     }
 
-    private function applyLabels($fields)
+    private function applyLabels(array $fields): array
     {
         $labels = $this->getInvoiceLabels();
 
         foreach ($fields as $section => $sectionFields) {
             foreach ($sectionFields as $index => $field) {
-                list($entityType, $fieldName) = explode('.', $field);
+                [$entityType, $fieldName] = explode('.', $field);
                 if (mb_substr($fieldName, 0, 6) == 'custom') {
                     $fields[$section][$field] = $labels[$field];
                 } elseif (in_array($field, ['client.phone', 'client.email'])) {

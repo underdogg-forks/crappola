@@ -59,7 +59,7 @@ class VendorContact extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -67,7 +67,7 @@ class VendorContact extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -75,13 +75,13 @@ class VendorContact extends EntityModel
      */
     public function vendor()
     {
-        return $this->belongsTo('App\Models\Vendor')->withTrashed();
+        return $this->belongsTo(\App\Models\Vendor::class)->withTrashed();
     }
 
     /**
      * @return mixed
      */
-    public function getPersonType()
+    public function getPersonType(): string
     {
         return PERSON_VENDOR_CONTACT;
     }
@@ -109,7 +109,7 @@ class VendorContact extends EntityModel
     /**
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {
             return $this->first_name . ' ' . $this->last_name;

@@ -28,7 +28,7 @@ class TaxRate extends EntityModel
     /**
      * @return bool|string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('%s: %s%%', $this->name, $this->rate);
     }
@@ -36,7 +36,7 @@ class TaxRate extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_TAX_RATE;
     }
@@ -46,6 +46,6 @@ class TaxRate extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 }

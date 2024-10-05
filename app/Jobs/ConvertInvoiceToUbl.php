@@ -84,7 +84,7 @@ class ConvertInvoiceToUbl extends Job
         }
     }
 
-    private function createParty($company, $user)
+    private function createParty($company, $user): \CleverIt\UBL\Invoice\Party
     {
         $party = new Party();
         $party->setName($company->name);

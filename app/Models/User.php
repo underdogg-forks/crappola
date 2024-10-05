@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
-use Session;
 
 /**
  * Class User.
@@ -32,7 +31,7 @@ class User extends Authenticatable
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
+    protected $presenter = \App\Ninja\Presenters\UserPresenter::class;
 
     /**
      * The database table used by the model.
@@ -112,7 +111,7 @@ class User extends Authenticatable
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -120,7 +119,7 @@ class User extends Authenticatable
      */
     public function theme()
     {
-        return $this->belongsTo('App\Models\Theme');
+        return $this->belongsTo(\App\Models\Theme::class);
     }
 
     /**
@@ -142,7 +141,7 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
-    public function getPersonType()
+    public function getPersonType(): string
     {
         return PERSON_USER;
     }
@@ -176,7 +175,7 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
-    public function isTrusted()
+    public function isTrusted(): bool
     {
         if (Utils::isSelfHost()) {
         }
@@ -213,7 +212,7 @@ class User extends Authenticatable
     /**
      * @return int
      */
-    public function maxInvoiceDesignId()
+    public function maxInvoiceDesignId(): int
     {
         return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 13 : COUNT_FREE_DESIGNS;
     }
@@ -236,7 +235,7 @@ class User extends Authenticatable
     /**
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {
             return $this->first_name . ' ' . $this->last_name;
@@ -248,7 +247,7 @@ class User extends Authenticatable
     /**
      * @return bool
      */
-    public function showGreyBackground()
+    public function showGreyBackground(): bool
     {
         return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
@@ -279,7 +278,7 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
-    public function getMaxNumClients()
+    public function getMaxNumClients(): int
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
             return MAX_NUM_CLIENTS_PRO;
@@ -295,7 +294,7 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
-    public function getMaxNumVendors()
+    public function getMaxNumVendors(): int
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
             return MAX_NUM_VENDORS_PRO;
@@ -324,7 +323,7 @@ class User extends Authenticatable
     /**
      * @return bool
      */
-    public function isEmailBeingChanged()
+    public function isEmailBeingChanged(): bool
     {
         return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');
     }
@@ -357,7 +356,7 @@ class User extends Authenticatable
         return false;
     }
 
-    public function viewModel($model, $entityType)
+    public function viewModel($model, string $entityType)
     {
         if ($this->hasPermission('view_' . $entityType)) {
             return true;
@@ -371,7 +370,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function owns($entity)
+    public function owns($entity): bool
     {
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
@@ -384,7 +383,7 @@ class User extends Authenticatable
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
-    public function filterIdByEntity($entity)
+    public function filterIdByEntity(string $entity)
     {
         return $this->hasPermission('view_' . $entity) ? false : $this->id;
     }
@@ -411,8 +410,11 @@ class User extends Authenticatable
 
     public function canCreateOrEdit($entityType, $entity = false)
     {
-        return ($entity && $this->can('edit', $entity))
-            || ( ! $entity && $this->can('create', $entityType));
+        if ($entity && $this->can('edit', $entity)) {
+            return true;
+        }
+
+        return ! $entity && $this->can('create', $entityType);
     }
 
     public function primaryAccount()
@@ -423,7 +425,7 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token): void
     {
         //$this->notify(new ResetPasswordNotification($token));
-        app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
+        app(\App\Ninja\Mailers\UserMailer::class)->sendPasswordReset($this, $token);
     }
 
     public function routeNotificationForSlack()
@@ -440,7 +442,7 @@ class User extends Authenticatable
         return $this->accepted_terms_version == NINJA_TERMS_VERSION;
     }
 
-    public function acceptLatestTerms($ip)
+    public function acceptLatestTerms($ip): static
     {
         $this->accepted_terms_version = NINJA_TERMS_VERSION;
         $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
@@ -449,7 +451,7 @@ class User extends Authenticatable
         return $this;
     }
 
-    public function ownsEntity($entity)
+    public function ownsEntity($entity): bool
     {
         return $entity->user_id == $this->id;
     }
@@ -467,7 +469,10 @@ class User extends Authenticatable
         return ! ($this->only_notify_owned && ! $this->ownsEntity($invoice));
     }
 
-    public function permissionsMap()
+    /**
+     * @return mixed[]
+     */
+    public function permissionsMap(): array
     {
         $data = [];
         $permissions = json_decode($this->permissions);
@@ -482,7 +487,7 @@ class User extends Authenticatable
         return array_combine($keys, $values);
     }
 
-    public function eligibleForMigration()
+    public function eligibleForMigration(): bool
     {
         return null === $this->public_id || $this->public_id == 0;
     }

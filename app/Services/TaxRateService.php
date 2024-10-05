@@ -10,15 +10,9 @@ use App\Ninja\Repositories\TaxRateRepository;
  */
 class TaxRateService extends BaseService
 {
-    /**
-     * @var TaxRateRepository
-     */
-    protected $taxRateRepo;
+    protected \App\Ninja\Repositories\TaxRateRepository $taxRateRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * TaxRateService constructor.

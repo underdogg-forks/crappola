@@ -19,7 +19,7 @@ class CreateProposalSnippetRequest extends ProposalSnippetRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => sprintf('required|unique:proposal_snippets,name,,id,account_id,%s', $this->user()->account_id),

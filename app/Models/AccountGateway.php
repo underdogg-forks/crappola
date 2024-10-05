@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use Crypt;
 use HTMLUtils;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use URL;
 use Utils;
 
 /**
@@ -39,7 +37,7 @@ class AccountGateway extends EntityModel
      *
      * @return string
      */
-    public static function paymentDriverClass($provider)
+    public static function paymentDriverClass($provider): string
     {
         $folder = 'App\\Ninja\\PaymentDrivers\\';
         $provider = str_replace('\\', '', $provider);
@@ -56,7 +54,7 @@ class AccountGateway extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_ACCOUNT_GATEWAY;
     }
@@ -66,13 +64,13 @@ class AccountGateway extends EntityModel
      */
     public function gateway()
     {
-        return $this->belongsTo('App\Models\Gateway');
+        return $this->belongsTo(\App\Models\Gateway::class);
     }
 
     /**
      * @return array
      */
-    public function getCreditcardTypes()
+    public function getCreditcardTypes(): array
     {
         $flags = unserialize(CREDIT_CARDS);
         $arrayOfImages = [];
@@ -119,7 +117,7 @@ class AccountGateway extends EntityModel
         return $this->gateway_id == $gatewayId;
     }
 
-    public function isCustom()
+    public function isCustom(): bool
     {
         return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }
@@ -135,7 +133,7 @@ class AccountGateway extends EntityModel
     /**
      * @return mixed
      */
-    public function getConfig()
+    public function getConfig(): mixed
     {
         return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($this->config));
     }
@@ -174,7 +172,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getAchEnabled()
+    public function getAchEnabled(): bool
     {
         return ! empty($this->getConfigField('enableAch'));
     }
@@ -182,7 +180,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getApplePayEnabled()
+    public function getApplePayEnabled(): bool
     {
         return ! empty($this->getConfigField('enableApplePay'));
     }
@@ -190,7 +188,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getAlipayEnabled()
+    public function getAlipayEnabled(): bool
     {
         return ! empty($this->getConfigField('enableAlipay'));
     }
@@ -198,7 +196,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getSofortEnabled()
+    public function getSofortEnabled(): bool
     {
         return ! empty($this->getConfigField('enableSofort'));
     }
@@ -206,7 +204,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getSepaEnabled()
+    public function getSepaEnabled(): bool
     {
         return ! empty($this->getConfigField('enableSepa'));
     }
@@ -214,7 +212,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getBitcoinEnabled()
+    public function getBitcoinEnabled(): bool
     {
         return ! empty($this->getConfigField('enableBitcoin'));
     }
@@ -222,7 +220,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getPayPalEnabled()
+    public function getPayPalEnabled(): bool
     {
         return ! empty($this->getConfigField('enablePayPal'));
     }
@@ -266,7 +264,7 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
-    public function getPlaidEnabled()
+    public function getPlaidEnabled(): bool
     {
         return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
     }
@@ -290,7 +288,7 @@ class AccountGateway extends EntityModel
      */
     public function getWebhookUrl()
     {
-        $account = $this->account ? $this->account : Account::find($this->account_id);
+        $account = $this->account ?: Account::find($this->account_id);
 
         return \Illuminate\Support\Facades\URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
@@ -316,7 +314,7 @@ class AccountGateway extends EntityModel
             $text = HTMLUtils::sanitizeHTML($text);
         }
 
-        $templateService = app('App\Services\TemplateService');
+        $templateService = app(\App\Services\TemplateService::class);
         $text = $templateService->processVariables($text, ['invitation' => $invitation]);
 
         return $text;

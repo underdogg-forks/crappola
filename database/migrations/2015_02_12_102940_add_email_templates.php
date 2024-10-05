@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddEmailTemplates extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -33,4 +32,4 @@ class AddEmailTemplates extends Migration
             });
         }
     }
-}
+};

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use Carbon;
-use Str;
 
 class RunReport extends Job
 {
@@ -20,7 +19,7 @@ class RunReport extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): false|object
     {
         if ( ! $this->user->hasPermission('view_reports')) {
             return false;

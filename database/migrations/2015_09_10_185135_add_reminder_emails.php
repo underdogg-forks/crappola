@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddReminderEmails extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -65,4 +64,4 @@ class AddReminderEmails extends Migration
             $table->dropColumn('num_days_reminder3');
         });
     }
-}
+};

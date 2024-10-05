@@ -11,15 +11,9 @@ use App\Ninja\Repositories\ProposalCategoryRepository;
  */
 class ProposalCategoryService extends BaseService
 {
-    /**
-     * @var ProposalCategoryRepository
-     */
-    protected $proposalCategoryRepo;
+    protected \App\Ninja\Repositories\ProposalCategoryRepository $proposalCategoryRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

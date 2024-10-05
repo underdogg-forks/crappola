@@ -2,21 +2,18 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
-
 class ProposalSnippetDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public $sortCol = 1;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'name',
-                function ($model) {
+                function ($model): string {
                     $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
 
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model])) {
@@ -38,30 +35,22 @@ class ProposalSnippetDatatable extends EntityDatatable
             ],
             [
                 'content',
-                function ($model) {
-                    return $this->showWithTooltip(strip_tags($model->content));
-                },
+                fn ($model) => $this->showWithTooltip(strip_tags($model->content)),
             ],
             [
                 'private_notes',
-                function ($model) {
-                    return $this->showWithTooltip($model->private_notes);
-                },
+                fn ($model) => $this->showWithTooltip($model->private_notes),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_proposal_snippet'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("proposals/snippets/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("proposals/snippets/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]),
             ],
         ];
     }

@@ -13,7 +13,7 @@ use Utils;
 
 class VendorApiController extends BaseAPIController
 {
-    protected $vendorRepo;
+    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
     protected $entityType = ENTITY_VENDOR;
 

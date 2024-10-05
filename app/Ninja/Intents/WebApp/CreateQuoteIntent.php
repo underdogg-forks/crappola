@@ -7,7 +7,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateQuoteIntent extends BaseIntent
 {
-    public function process()
+    public function process(): void
     {
         $client = $this->requestClient();
         $clientPublicId = $client ? $client->public_id : null;

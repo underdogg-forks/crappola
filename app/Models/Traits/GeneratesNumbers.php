@@ -4,7 +4,6 @@ namespace App\Models\Traits;
 
 use App\Models\Client;
 use App\Models\Invoice;
-use Auth;
 use Carbon;
 
 /**
@@ -123,7 +122,7 @@ trait GeneratesNumbers
      *
      * @return bool
      */
-    public function hasNumberPattern($entityType)
+    public function hasNumberPattern($entityType): bool
     {
         return $this->getNumberPattern($entityType) ? true : false;
     }
@@ -266,20 +265,24 @@ trait GeneratesNumbers
 
     public function usesInvoiceCounter()
     {
-        return ! $this->hasNumberPattern(ENTITY_INVOICE) || str_contains($this->invoice_number_pattern, '{$counter}');
+        if ( ! $this->hasNumberPattern(ENTITY_INVOICE)) {
+            return true;
+        }
+
+        return str_contains($this->invoice_number_pattern, '{$counter}');
     }
 
-    public function usesClientInvoiceCounter()
+    public function usesClientInvoiceCounter(): bool
     {
         return str_contains($this->invoice_number_pattern, '{$clientCounter}');
     }
 
-    public function clientNumbersEnabled()
+    public function clientNumbersEnabled(): bool
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter > 0;
     }
 
-    public function creditNumbersEnabled()
+    public function creditNumbersEnabled(): bool
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->credit_number_counter > 0;
     }

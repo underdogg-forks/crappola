@@ -13,13 +13,8 @@ use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Auth;
-use Cache;
 use DropdownButton;
-use Request;
-use Session;
 use Utils;
-use View;
 
 class PaymentController extends BaseController
 {
@@ -28,20 +23,11 @@ class PaymentController extends BaseController
      */
     protected $entityType = ENTITY_PAYMENT;
 
-    /**
-     * @var PaymentRepository
-     */
-    protected $paymentRepo;
+    protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
     /**
      * PaymentController constructor.
@@ -98,8 +84,8 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = \Illuminate\Support\Facades\Request::old('client') ? \Illuminate\Support\Facades\Request::old('client') : ($request->client_id ?: 0);
-        $invoicePublicId = \Illuminate\Support\Facades\Request::old('invoice') ? \Illuminate\Support\Facades\Request::old('invoice') : ($request->invoice_id ?: 0);
+        $clientPublicId = \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0);
+        $invoicePublicId = \Illuminate\Support\Facades\Request::old('invoice') ?: ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
@@ -245,7 +231,7 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();

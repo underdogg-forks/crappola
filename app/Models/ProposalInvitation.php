@@ -21,7 +21,7 @@ class ProposalInvitation extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROPOSAL_INVITATION;
     }
@@ -31,7 +31,7 @@ class ProposalInvitation extends EntityModel
      */
     public function proposal()
     {
-        return $this->belongsTo('App\Models\Proposal')->withTrashed();
+        return $this->belongsTo(\App\Models\Proposal::class)->withTrashed();
     }
 
     /**
@@ -39,7 +39,7 @@ class ProposalInvitation extends EntityModel
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact')->withTrashed();
+        return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
     /**
@@ -47,7 +47,7 @@ class ProposalInvitation extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -55,7 +55,7 @@ class ProposalInvitation extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 }
 

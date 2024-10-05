@@ -13,7 +13,6 @@ use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
 use App\Models\Activity;
-use Auth;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Utils;
 
@@ -92,7 +91,7 @@ class InvoiceListener
         $activity->save();
 
         if ($invoice->balance == 0 && $payment->account->auto_archive_invoice) {
-            $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
             $invoiceRepo->archive($invoice);
         }
     }

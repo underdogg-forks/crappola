@@ -86,7 +86,7 @@ class LookupAccount extends LookupModel
 
     public function lookupCompany()
     {
-        return $this->belongsTo('App\Models\LookupCompany');
+        return $this->belongsTo(\App\Models\LookupCompany::class);
     }
 
     public function getDbServer()

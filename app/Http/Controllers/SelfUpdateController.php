@@ -3,15 +3,11 @@
 namespace App\Http\Controllers;
 
 use Codedge\Updater\UpdaterManager;
-use Redirect;
 use Utils;
 
 class SelfUpdateController extends BaseController
 {
-    /**
-     * @var UpdaterManager
-     */
-    protected $updater;
+    protected \Codedge\Updater\UpdaterManager $updater;
 
     /**
      * SelfUpdateController constructor.

@@ -14,17 +14,14 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
 use Auth;
-use Request;
-use Session;
-use View;
 
 class ProposalController extends BaseController
 {
-    protected $proposalRepo;
+    protected \App\Ninja\Repositories\ProposalRepository $proposalRepo;
 
-    protected $proposalService;
+    protected \App\Services\ProposalService $proposalService;
 
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
     protected $entityType = ENTITY_PROPOSAL;
 
@@ -157,7 +154,7 @@ class ProposalController extends BaseController
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    private function getViewmodel($proposal = false)
+    private function getViewmodel($proposal = false): array
     {
         $account = auth()->user()->account;
         $templates = ProposalTemplate::whereAccountId($account->id)->withActiveOrSelected($proposal ? $proposal->proposal_template_id : false)->orderBy('name')->get();

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceTypeSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -39,4 +38,4 @@ class AddInvoiceTypeSupport extends Migration
             $table->dropColumn('enable_second_tax_rate');
         });
     }
-}
+};

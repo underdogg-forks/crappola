@@ -4,14 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
-use Auth;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Request;
-use Response;
 use Utils;
 
 /**
@@ -53,7 +50,7 @@ use Utils;
  */
 class BaseAPIController extends Controller
 {
-    protected $manager;
+    protected \League\Fractal\Manager $manager;
 
     protected $serializer;
 
@@ -242,7 +239,7 @@ class BaseAPIController extends Controller
         return $data;
     }
 
-    protected function fileReponse($name, $data)
+    protected function fileReponse(string $name, $data)
     {
         header('Content-Type: application/pdf');
         header('Content-Length: ' . mb_strlen($data));

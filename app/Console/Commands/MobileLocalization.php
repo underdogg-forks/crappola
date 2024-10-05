@@ -36,18 +36,14 @@ class MobileLocalization extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));
 
-        switch ($type) {
-            case 'laravel':
-                $this->laravelResources();
-                break;
-            default:
-                $this->flutterResources();
-                break;
-        }
+        match ($type) {
+            'laravel' => $this->laravelResources(),
+            default   => $this->flutterResources(),
+        };
     }
 
     protected function getOptions()
@@ -98,7 +94,7 @@ class MobileLocalization extends Command
         }
     }
 
-    private function getResources()
+    private function getResources(): mixed
     {
         $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App;
 use App\Libraries\CurlUtils;
 use App\Models\Contact;
 use App\Models\Invitation;
@@ -11,7 +10,6 @@ use Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
-use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -134,7 +132,7 @@ class CheckData extends Command
         ];
     }
 
-    private function logMessage($str): void
+    private function logMessage(string $str): void
     {
         $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);

@@ -4,14 +4,13 @@ namespace App\Services;
 
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
 use App\Ninja\Repositories\InvoiceRepository;
-use Auth;
 use Utils;
 
 class RecurringInvoiceService extends BaseService
 {
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     public function __construct(InvoiceRepository $invoiceRepo, DatatableService $datatableService)
     {

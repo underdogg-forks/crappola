@@ -11,10 +11,8 @@ use App\Ninja\Datatables\BankAccountDatatable;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
 use Carbon;
 use Exception;
-use Hash;
 use stdClass;
 use Utils;
 
@@ -23,25 +21,13 @@ use Utils;
  */
 class BankAccountService extends BaseService
 {
-    /**
-     * @var BankAccountRepository
-     */
-    protected $bankAccountRepo;
+    protected \App\Ninja\Repositories\BankAccountRepository $bankAccountRepo;
 
-    /**
-     * @var ExpenseRepository
-     */
-    protected $expenseRepo;
+    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
 
-    /**
-     * @var VendorRepository
-     */
-    protected $vendorRepo;
+    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * BankAccountService constructor.
@@ -67,7 +53,7 @@ class BankAccountService extends BaseService
      *
      * @return array|bool
      */
-    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true)
+    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true): false|array
     {
         if ( ! $bankAccount || ! $username || ! $password) {
             return false;
@@ -206,9 +192,7 @@ class BankAccountService extends BaseService
             ->withTrashed()
             ->get(['transaction_id'])
             ->toArray();
-        $expenses = array_flip(array_map(function ($val) {
-            return $val['transaction_id'];
-        }, $expenses));
+        $expenses = array_flip(array_map(fn ($val) => $val['transaction_id'], $expenses));
 
         return $expenses;
     }
@@ -245,7 +229,7 @@ class BankAccountService extends BaseService
         $obj->balance = Utils::formatMoney($account->ledgerBalance, CURRENCY_DOLLAR);
 
         if ($includeTransactions) {
-            $obj = $this->parseTransactions($obj, $account->response, $expenses, $vendorMap);
+            return $this->parseTransactions($obj, $account->response, $expenses, $vendorMap);
         }
 
         return $obj;
@@ -259,7 +243,7 @@ class BankAccountService extends BaseService
      *
      * @return mixed
      */
-    private function parseTransactions($account, $data, $expenses, $vendorMap)
+    private function parseTransactions(stdClass $account, $data, $expenses, $vendorMap): stdClass
     {
         $ofxParser = new \OfxParser\Parser();
         $ofx = $ofxParser->loadFromString($data);
@@ -299,7 +283,7 @@ class BankAccountService extends BaseService
      *
      * @return string
      */
-    private function prepareValue($value)
+    private function prepareValue($value): string
     {
         return ucwords(mb_strtolower(trim($value)));
     }
@@ -307,7 +291,7 @@ class BankAccountService extends BaseService
     /**
      * @return array
      */
-    private function createVendorMap()
+    private function createVendorMap(): array
     {
         $vendorMap = [];
         $vendors = Vendor::scope()
@@ -321,7 +305,7 @@ class BankAccountService extends BaseService
         return $vendorMap;
     }
 
-    private function determineInfoField($value)
+    private function determineInfoField($value): string
     {
         if (preg_match("/^[0-9\-\(\)\.]+$/", $value)) {
             return 'work_phone';

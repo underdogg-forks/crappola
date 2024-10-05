@@ -126,7 +126,7 @@ class ClientTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(Client $client)
+    public function transform(Client $client): array
     {
         return array_merge($this->getDefaults($client), [
             'id'                     => (int) $client->public_id,

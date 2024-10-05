@@ -9,7 +9,6 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Carbon;
 use Illuminate\Console\Command;
-use Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -30,17 +29,11 @@ class ChargeRenewalInvoices extends Command
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
     /**
      * ChargeRenewalInvoices constructor.
@@ -85,7 +78,10 @@ class ChargeRenewalInvoices extends Command
             }
 
             $company = $account->company;
-            if ( ! $company->plan || $company->plan == PLAN_FREE) {
+            if ( ! $company->plan) {
+                continue;
+            }
+            if ($company->plan == PLAN_FREE) {
                 continue;
             }
 

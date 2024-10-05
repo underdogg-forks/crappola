@@ -24,12 +24,12 @@ class ExpenseCategory extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
+    protected $presenter = \App\Ninja\Presenters\EntityPresenter::class;
 
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_EXPENSE_CATEGORY;
     }
@@ -39,13 +39,13 @@ class ExpenseCategory extends EntityModel
      */
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense');
+        return $this->belongsTo(\App\Models\Expense::class);
     }
 
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/expense_categories/{$this->public_id}/edit";
     }

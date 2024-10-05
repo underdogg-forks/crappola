@@ -73,7 +73,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_CONTACT;
     }
@@ -83,7 +83,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -91,7 +91,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -99,13 +99,13 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
      * @return mixed
      */
-    public function getPersonType()
+    public function getPersonType(): string
     {
         return PERSON_CONTACT;
     }
@@ -163,7 +163,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     /**
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {
             return trim($this->first_name . ' ' . $this->last_name);
@@ -175,7 +175,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     /**
      * @return string
      */
-    public function getLinkAttribute()
+    public function getLinkAttribute(): string
     {
         if ( ! $this->account) {
             $this->load('account');
@@ -207,7 +207,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function sendPasswordResetNotification($token): void
     {
         //$this->notify(new ResetPasswordNotification($token));
-        app('App\Ninja\Mailers\ContactMailer')->sendPasswordReset($this, $token);
+        app(\App\Ninja\Mailers\ContactMailer::class)->sendPasswordReset($this, $token);
     }
 }
 

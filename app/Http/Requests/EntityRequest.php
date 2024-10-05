@@ -67,7 +67,7 @@ class EntityRequest extends Request
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [];
     }

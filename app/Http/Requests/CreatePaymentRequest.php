@@ -21,7 +21,7 @@ class CreatePaymentRequest extends PaymentRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $input = $this->input();
         $this->invoice = $invoice = Invoice::scope($input['invoice'])

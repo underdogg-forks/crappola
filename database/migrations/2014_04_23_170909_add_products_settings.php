@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddProductsSettings extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -32,4 +31,4 @@ class AddProductsSettings extends Migration
             $table->dropColumn('update_products');
         });
     }
-}
+};

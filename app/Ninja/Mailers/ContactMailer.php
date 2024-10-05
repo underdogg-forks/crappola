@@ -8,17 +8,12 @@ use App\Jobs\ConvertInvoiceToUbl;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;
-use Cache;
 use HTMLUtils;
-use Mail;
 use Utils;
 
 class ContactMailer extends Mailer
 {
-    /**
-     * @var TemplateService
-     */
-    protected $templateService;
+    protected \App\Services\TemplateService $templateService;
 
     /**
      * ContactMailer constructor.
@@ -246,7 +241,7 @@ class ContactMailer extends Mailer
      *
      * @return string
      */
-    protected function generatePassword($length = 9)
+    protected function generatePassword($length = 9): string
     {
         $sets = [
             'abcdefghjkmnpqrstuvwxyz',
@@ -287,8 +282,8 @@ class ContactMailer extends Mailer
         $body,
         $subject,
         $reminder,
-        $isFirst,
-        $extra
+        bool $isFirst,
+        array $extra
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -380,7 +375,7 @@ class ContactMailer extends Mailer
         return $response;
     }
 
-    private function isThrottled($account)
+    private function isThrottled($account): bool
     {
         if (Utils::isSelfHost()) {
             return false;

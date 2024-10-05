@@ -4,22 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
-use Auth;
 use Redirect;
-use Request;
-use Session;
-use Validator;
-use View;
 
 /**
  * Class SubscriptionController.
  */
 class SubscriptionController extends BaseController
 {
-    /**
-     * @var SubscriptionService
-     */
-    protected $subscriptionService;
+    protected \App\Services\SubscriptionService $subscriptionService;
 
     /**
      * SubscriptionController constructor.
@@ -54,7 +46,7 @@ class SubscriptionController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $subscription = Subscription::scope($publicId)->firstOrFail();
 

@@ -25,7 +25,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'payments.credit_card',
                 'invited.details',
             ],
-            'App\Http\ViewComposers\TranslationComposer'
+            \App\Http\ViewComposers\TranslationComposer::class
         );
 
         view()->composer(
@@ -33,14 +33,14 @@ class ComposerServiceProvider extends ServiceProvider
                 'header',
                 'tasks.edit',
             ],
-            'App\Http\ViewComposers\AppLanguageComposer'
+            \App\Http\ViewComposers\AppLanguageComposer::class
         );
 
         view()->composer(
             [
                 'public.header',
             ],
-            'App\Http\ViewComposers\ClientPortalHeaderComposer'
+            \App\Http\ViewComposers\ClientPortalHeaderComposer::class
         );
 
         view()->composer(
@@ -49,7 +49,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'proposals.templates.edit',
                 'proposals.snippets.edit',
             ],
-            'App\Http\ViewComposers\ProposalComposer'
+            \App\Http\ViewComposers\ProposalComposer::class
         );
     }
 

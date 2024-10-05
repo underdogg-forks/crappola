@@ -10,10 +10,7 @@ use App\Ninja\Repositories\TaxRateRepository;
 
 class TaxRateApiController extends BaseAPIController
 {
-    /**
-     * @var TaxRateRepository
-     */
-    protected $taxRateRepo;
+    protected \App\Ninja\Repositories\TaxRateRepository $taxRateRepo;
 
     /**
      * @var string

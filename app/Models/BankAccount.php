@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -29,7 +28,7 @@ class BankAccount extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_BANK_ACCOUNT;
     }
@@ -55,7 +54,7 @@ class BankAccount extends EntityModel
      */
     public function bank()
     {
-        return $this->belongsTo('App\Models\Bank');
+        return $this->belongsTo(\App\Models\Bank::class);
     }
 
     /**
@@ -63,6 +62,6 @@ class BankAccount extends EntityModel
      */
     public function bank_subaccounts()
     {
-        return $this->hasMany('App\Models\BankSubaccount');
+        return $this->hasMany(\App\Models\BankSubaccount::class);
     }
 }

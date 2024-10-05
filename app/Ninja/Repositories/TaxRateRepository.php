@@ -3,15 +3,13 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\TaxRate;
-use DB;
-use Log;
 use Utils;
 
 class TaxRateRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\TaxRate';
+        return \App\Models\TaxRate::class;
     }
 
     public function all()

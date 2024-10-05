@@ -10,15 +10,9 @@ use App\Ninja\Repositories\UserRepository;
  */
 class UserService extends BaseService
 {
-    /**
-     * @var UserRepository
-     */
-    protected $userRepo;
+    protected \App\Ninja\Repositories\UserRepository $userRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * UserService constructor.

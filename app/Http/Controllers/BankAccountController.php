@@ -7,22 +7,15 @@ use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
-use Auth;
-use Cache;
-use Crypt;
 use Exception;
-use File;
 use Illuminate\Http\Request;
-use Redirect;
-use Session;
 use Utils;
-use View;
 
 class BankAccountController extends BaseController
 {
-    protected $bankAccountService;
+    protected \App\Services\BankAccountService $bankAccountService;
 
-    protected $bankAccountRepo;
+    protected \App\Ninja\Repositories\BankAccountRepository $bankAccountRepo;
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {

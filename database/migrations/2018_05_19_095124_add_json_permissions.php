@@ -4,8 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddJsonPermissions extends Migration
-{
+return new class () extends Migration {
     /**
      * @var array
      */
@@ -103,9 +102,9 @@ class AddJsonPermissions extends Migration
      *
      * @param mixed $value
      *
-     * @return mixed
+     * @return mixed[]
      */
-    protected function getPermissions($value)
+    protected function getPermissions($value): array
     {
         $permissions = [];
         foreach (static::$all_permissions as $permission => $bitmask) {
@@ -116,4 +115,4 @@ class AddJsonPermissions extends Migration
 
         return $permissions;
     }
-}
+};

@@ -8,7 +8,7 @@ class ActivityDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACTIVITY;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -63,15 +63,11 @@ class ActivityDatatable extends EntityDatatable
             ],
             [
                 'balance',
-                function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-                },
+                fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
             ],
             [
                 'adjustment',
-                function ($model) {
-                    return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
-                },
+                fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '',
             ],
         ];
     }

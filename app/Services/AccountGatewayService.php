@@ -10,15 +10,9 @@ use App\Ninja\Repositories\AccountGatewayRepository;
  */
 class AccountGatewayService extends BaseService
 {
-    /**
-     * @var AccountGatewayRepository
-     */
-    protected $accountGatewayRepo;
+    protected \App\Ninja\Repositories\AccountGatewayRepository $accountGatewayRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * AccountGatewayService constructor.

@@ -3,8 +3,6 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Expense;
-use Auth;
-use URL;
 use Utils;
 
 class ExpenseDatatable extends EntityDatatable
@@ -13,7 +11,7 @@ class ExpenseDatatable extends EntityDatatable
 
     public $sortCol = 3;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -84,62 +82,42 @@ class ExpenseDatatable extends EntityDatatable
             ],
             [
                 'public_notes',
-                function ($model) {
-                    return $this->showWithTooltip($model->public_notes);
-                },
+                fn ($model) => $this->showWithTooltip($model->public_notes),
             ],
             [
                 'status',
-                function ($model) {
-                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date);
-                },
+                fn ($model) => self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_expense'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("expenses/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("expenses/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE, $model]),
             ],
             [
                 trans('texts.clone_expense'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("expenses/{$model->public_id}/clone");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("expenses/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
             ],
             [
                 trans('texts.view_invoice'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("/invoices/{$model->invoice_public_id}/edit");
-                },
-                function ($model) {
-                    return $model->invoice_public_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("/invoices/{$model->invoice_public_id}/edit"),
+                fn ($model): bool => $model->invoice_public_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.invoice_expense'),
-                function ($model) {
-                    return "javascript:submitForm_expense('invoice', {$model->public_id})";
-                },
-                function ($model) {
-                    return ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
-                },
+                fn ($model): string => "javascript:submitForm_expense('invoice', {$model->public_id})",
+                fn ($model): bool   => ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }
 
-    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate)
+    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate): string
     {
         $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
         $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);

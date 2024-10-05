@@ -46,9 +46,7 @@ class ExportReportResults extends Job
         //Get labeled header
         $data = array_merge(
             [
-                array_map(function ($col) {
-                    return $col['label'];
-                }, $report->tableHeaderArray()),
+                array_map(fn ($col) => $col['label'], $report->tableHeaderArray()),
             ],
             $data
         );
@@ -57,9 +55,7 @@ class ExportReportResults extends Job
         if (count(array_values($totals))) {
             $summary[] = array_merge([
                 trans('texts.totals'),
-            ], array_map(function ($key) {
-                return trans("texts.{$key}");
-            }, array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(fn ($key) => trans("texts.{$key}"), array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {

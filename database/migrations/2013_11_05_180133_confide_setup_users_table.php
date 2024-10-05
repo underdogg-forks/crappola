@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ConfideSetupUsersTable extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -518,4 +517,4 @@ class ConfideSetupUsersTable extends Migration
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payment_types');
     }
-}
+};

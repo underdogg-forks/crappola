@@ -9,7 +9,7 @@ class UpdateProposalTemplateRequest extends ProposalTemplateRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -19,7 +19,7 @@ class UpdateProposalTemplateRequest extends ProposalTemplateRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->entity()) {
             return [];

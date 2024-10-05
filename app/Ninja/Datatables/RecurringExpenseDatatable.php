@@ -4,7 +4,6 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Expense;
 use Auth;
-use URL;
 use Utils;
 
 class RecurringExpenseDatatable extends EntityDatatable
@@ -13,7 +12,7 @@ class RecurringExpenseDatatable extends EntityDatatable
 
     public $sortCol = 3;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -99,24 +98,18 @@ class RecurringExpenseDatatable extends EntityDatatable
             ],
             [
                 'public_notes',
-                function ($model) {
-                    return $this->showWithTooltip($model->public_notes, 100);
-                },
+                fn ($model) => $this->showWithTooltip($model->public_notes, 100),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_recurring_expense'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("recurring_expenses/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("recurring_expenses/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]),
             ],
         ];
     }

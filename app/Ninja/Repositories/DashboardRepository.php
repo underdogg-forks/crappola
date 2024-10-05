@@ -7,7 +7,7 @@ use App\Models\Invoice;
 use App\Models\Task;
 use DateInterval;
 use DatePeriod;
-use DB;
+use DateTime;
 use stdClass;
 
 class DashboardRepository
@@ -22,7 +22,7 @@ class DashboardRepository
      *
      * @return array
      */
-    public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses)
+    public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses): stdClass
     {
         $accountId = $account->id;
         $startDate = date_create($startDate);
@@ -368,7 +368,7 @@ class DashboardRepository
             ->get();
     }
 
-    private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
+    private function rawChartData(string $entityType, $account, string $groupBy, DateTime|bool $startDate, DateTime|bool $endDate, $currencyId)
     {
         if ( ! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
             return [];

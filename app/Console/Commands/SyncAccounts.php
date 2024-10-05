@@ -37,7 +37,7 @@ class SyncAccounts extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         if ( ! Utils::isNinjaProd()) {
             return;

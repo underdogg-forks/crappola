@@ -10,16 +10,12 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
-use Auth;
-use Request;
-use Session;
-use View;
 
 class ProposalCategoryController extends BaseController
 {
-    protected $proposalCategoryRepo;
+    protected \App\Ninja\Repositories\ProposalCategoryRepository $proposalCategoryRepo;
 
-    protected $proposalCategoryService;
+    protected \App\Services\ProposalCategoryService $proposalCategoryService;
 
     protected $entityType = ENTITY_PROPOSAL_CATEGORY;
 
@@ -115,7 +111,7 @@ class ProposalCategoryController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 

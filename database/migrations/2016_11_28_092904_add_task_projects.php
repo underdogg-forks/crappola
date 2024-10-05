@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddTaskProjects extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -102,4 +101,4 @@ class AddTaskProjects extends Migration
             $table->dropColumn('is_public');
         });
     }
-}
+};

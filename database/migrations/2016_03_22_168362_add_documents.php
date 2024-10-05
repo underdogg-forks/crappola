@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDocuments extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -68,4 +67,4 @@ class AddDocuments extends Migration
 
         Schema::dropIfExists('documents');
     }
-}
+};

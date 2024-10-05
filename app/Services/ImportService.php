@@ -25,11 +25,9 @@ use App\Ninja\Repositories\TaxRateRepository;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use Auth;
-use Cache;
 use Carbon;
 use Excel;
 use Exception;
-use File;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Fractal\Manager;
@@ -85,40 +83,22 @@ class ImportService
      */
     protected $transformer;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    /**
-     * @var ClientRepository
-     */
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
-    /**
-     * @var CustomerRepository
-     */
-    protected $customerRepo;
+    protected \App\Ninja\Repositories\CustomerRepository $customerRepo;
 
-    /**
-     * @var ContactRepository
-     */
-    protected $contactRepo;
+    protected \App\Ninja\Repositories\ContactRepository $contactRepo;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected \App\Ninja\Repositories\ProductRepository $productRepo;
 
     /**
      * @var array
      */
     protected $processedRows = [];
 
-    /**
-     * @var array
-     */
-    private $maps = [];
+    private array $maps = [];
 
     /**
      * ImportService constructor.
@@ -165,7 +145,7 @@ class ImportService
      *
      * @return string
      */
-    public static function getTransformerClassName($source, $entityType)
+    public static function getTransformerClassName(string $source, $entityType): string
     {
         return 'App\\Ninja\\Import\\' . $source . '\\' . ucwords($entityType) . 'Transformer';
     }
@@ -297,7 +277,7 @@ class ImportService
      *
      * @return mixed
      */
-    public function removeIdFields($array)
+    public function removeIdFields(array $array): array
     {
         foreach ($array as $key => $val) {
             if (is_array($val)) {
@@ -316,7 +296,7 @@ class ImportService
      *
      * @return array
      */
-    public function importFiles($source, $files)
+    public function importFiles($source, $files): array
     {
         $results = [];
         $imported_files = null;
@@ -336,7 +316,7 @@ class ImportService
      *
      * @return array
      */
-    public function mapCSV(array $files)
+    public function mapCSV(array $files): array
     {
         $data = [];
 
@@ -432,7 +412,7 @@ class ImportService
                 }
                 try {
                     $date = new Carbon($row[$index]);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $data['warning'] = 'invalid_date';
                 }
             }
@@ -447,7 +427,7 @@ class ImportService
      *
      * @return array
      */
-    public function importCSV(array $maps, $headers, $timestamp)
+    public function importCSV(array $maps, array $headers, $timestamp): array
     {
         $results = [];
 
@@ -458,7 +438,7 @@ class ImportService
         return $results;
     }
 
-    public function presentResults($results, $includeSettings = false)
+    public function presentResults($results, $includeSettings = false): string
     {
         $message = '';
         $skipped = [];
@@ -493,7 +473,7 @@ class ImportService
      *
      * @return array
      */
-    private function execute($source, $entityType, $fileName)
+    private function execute($source, $entityType, $fileName): array
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -547,9 +527,9 @@ class ImportService
      *
      * @return bool|mixed
      */
-    private function transformRow($source, $entityType, $row)
+    private function transformRow($source, $entityType, $row): bool|int|string|null
     {
-        $transformer = $this->getTransformer($source, $entityType, $this->maps);
+        $transformer = static::getTransformer($source, $entityType, $this->maps);
         $resource = $transformer->transform($row);
 
         if ( ! $resource) {
@@ -603,9 +583,7 @@ class ImportService
             $this->processedRows[] = $data;
         }
 
-        end($this->processedRows);
-
-        return key($this->processedRows);
+        return array_key_last($this->processedRows);
     }
 
     /**
@@ -648,7 +626,7 @@ class ImportService
      *
      * @throws Exception
      */
-    private function checkData($entityType, $count): void
+    private function checkData($entityType, int $count): void
     {
         if (Utils::isNinja() && $count > MAX_IMPORT_ROWS) {
             throw new Exception(trans('texts.limit_import_rows', ['count' => MAX_IMPORT_ROWS]));
@@ -664,7 +642,7 @@ class ImportService
      *
      * @throws Exception
      */
-    private function checkClientCount($count): void
+    private function checkClientCount(int $count): void
     {
         $totalClients = $count + Client::scope()->withTrashed()->count();
         if ($totalClients > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
@@ -680,7 +658,7 @@ class ImportService
      */
     private function createPayment($source, $row, $clientId, $invoiceId, $invoicePublicId): void
     {
-        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
+        $paymentTransformer = static::getTransformer($source, ENTITY_PAYMENT, $this->maps);
 
         $row->client_id = $clientId;
         $row->invoice_id = $invoiceId;
@@ -695,7 +673,10 @@ class ImportService
         }
     }
 
-    private function getCsvData($fileName)
+    /**
+     * @return mixed[]
+     */
+    private function getCsvData($fileName): array
     {
         $this->checkForFile($fileName);
 
@@ -731,14 +712,14 @@ class ImportService
      *
      * @return bool
      */
-    private function checkForMatch($column, $pattern)
+    private function checkForMatch($column, $pattern): bool
     {
         if (str_starts_with($column, 'sec')) {
             return false;
         }
 
         if (mb_strpos($pattern, '^')) {
-            list($include, $exclude) = explode('^', $pattern);
+            [$include, $exclude] = explode('^', $pattern);
             $includes = explode('|', $include);
             $excludes = explode('|', $exclude);
         } else {
@@ -771,7 +752,7 @@ class ImportService
      *
      * @return array
      */
-    private function executeCSV($entityType, $map, $hasHeaders, $timestamp)
+    private function executeCSV(int|string $entityType, $map, $hasHeaders, $timestamp): array
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -832,7 +813,7 @@ class ImportService
      *
      * @return stdClass
      */
-    private function convertToObject($entityType, $data, $map)
+    private function convertToObject(int|string $entityType, $data, $map): stdClass
     {
         $obj = new stdClass();
         $class = 'App\\Models\\' . ucwords($entityType);
@@ -871,7 +852,7 @@ class ImportService
      * @param $entityType
      * @param $data
      */
-    private function addFailure($entityType, $data): void
+    private function addFailure(string $entityType, $data): void
     {
         $this->results[$entityType][RESULT_FAILURE][] = $data;
     }
@@ -1057,7 +1038,7 @@ class ImportService
         return $isEmpty;
     }
 
-    private function checkForFile($fileName)
+    private function checkForFile(string $fileName): bool
     {
         $counter = 0;
 

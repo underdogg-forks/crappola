@@ -11,7 +11,7 @@ class CreateInvoiceRequest extends InvoiceRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         if (request()->input('is_quote')) {
             return $this->user()->can('create', ENTITY_QUOTE);
@@ -31,7 +31,7 @@ class CreateInvoiceRequest extends InvoiceRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'client'         => 'required',

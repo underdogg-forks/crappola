@@ -33,7 +33,7 @@ class Subscription extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_SUBSCRIPTION;
     }
@@ -43,6 +43,6 @@ class Subscription extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 }

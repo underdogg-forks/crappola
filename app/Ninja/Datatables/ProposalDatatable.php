@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
 use Utils;
 
 class ProposalDatatable extends EntityDatatable
@@ -12,7 +10,7 @@ class ProposalDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -57,30 +55,22 @@ class ProposalDatatable extends EntityDatatable
             ],
             [
                 'content',
-                function ($model) {
-                    return $this->showWithTooltip(strip_tags($model->content));
-                },
+                fn ($model) => $this->showWithTooltip(strip_tags($model->content)),
             ],
             [
                 'private_notes',
-                function ($model) {
-                    return $this->showWithTooltip($model->private_notes);
-                },
+                fn ($model) => $this->showWithTooltip($model->private_notes),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_proposal'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("proposals/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("proposals/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model]),
             ],
         ];
     }

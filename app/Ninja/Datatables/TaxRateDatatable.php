@@ -2,26 +2,20 @@
 
 namespace App\Ninja\Datatables;
 
-use URL;
-
 class TaxRateDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TAX_RATE;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'name',
-                function ($model) {
-                    return link_to("tax_rates/{$model->public_id}/edit", $model->name)->toHtml();
-                },
+                fn ($model) => link_to("tax_rates/{$model->public_id}/edit", $model->name)->toHtml(),
             ],
             [
                 'rate',
-                function ($model) {
-                    return ($model->rate + 0) . '%';
-                },
+                fn ($model): string => ($model->rate + 0) . '%',
             ],
             [
                 'type',
@@ -36,14 +30,12 @@ class TaxRateDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 uctrans('texts.edit_tax_rate'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("tax_rates/{$model->public_id}/edit");
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("tax_rates/{$model->public_id}/edit"),
             ],
         ];
     }

@@ -12,7 +12,7 @@ class SaveClientPortalSettings extends Request
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->is_admin && $this->user()->isPro();
     }
@@ -22,7 +22,7 @@ class SaveClientPortalSettings extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
 

@@ -6,10 +6,7 @@ use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
-use Auth;
 use Closure;
-use Redirect;
-use Session;
 use Utils;
 
 /**
@@ -74,7 +71,7 @@ class Authenticate
 
             $account = $contact->account;
 
-            if (\Illuminate\Support\Facades\Auth::guard('user')->check() && \Illuminate\Support\Facades\Auth::user('user')->account_id == $account->id) {
+            if (\Illuminate\Support\Facades\Auth::guard('user')->check() && \Illuminate\Support\Facades\Auth::user()->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }
@@ -135,7 +132,7 @@ class Authenticate
         }
 
         // check for extra params at end of value (from website feature)
-        list($key) = explode('&', $key);
+        [$key] = explode('&', $key);
         $key = mb_substr($key, 0, RANDOM_KEY_LENGTH);
 
         if ($isProposal) {

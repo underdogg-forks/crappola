@@ -6,7 +6,7 @@ class ProductIntent extends BaseIntent
 {
     public function __construct($state, $data)
     {
-        $this->productRepo = app('App\Ninja\Repositories\ProductRepository');
+        $this->productRepo = app(\App\Ninja\Repositories\ProductRepository::class);
 
         parent::__construct($state, $data);
     }

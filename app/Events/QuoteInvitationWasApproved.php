@@ -10,6 +10,9 @@ class QuoteInvitationWasApproved extends Event
 {
     use SerializesModels;
 
+    /**
+     * @var \App\Models\Invoice
+     */
     public $quote;
 
     /**

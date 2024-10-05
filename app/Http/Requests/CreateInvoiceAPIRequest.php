@@ -9,7 +9,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->can('create', ENTITY_INVOICE);
     }
@@ -19,7 +19,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'email'          => 'required_without:client_id',

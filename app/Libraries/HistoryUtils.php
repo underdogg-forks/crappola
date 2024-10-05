@@ -4,7 +4,6 @@ namespace App\Libraries;
 
 use App\Models\Activity;
 use App\Models\EntityModel;
-use Session;
 use stdClass;
 
 class HistoryUtils
@@ -159,7 +158,7 @@ class HistoryUtils
         \Illuminate\Support\Facades\Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function renderHtml($accountId)
+    public static function renderHtml($accountId): string
     {
         $lastClientId = false;
         $clientMap = [];
@@ -207,7 +206,7 @@ class HistoryUtils
         return $str;
     }
 
-    private static function convertToObject($entity)
+    private static function convertToObject(\App\Models\EntityModel $entity): stdClass
     {
         $object = new stdClass();
         $object->id = $entity->id;

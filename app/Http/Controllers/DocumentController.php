@@ -7,11 +7,10 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Response;
 
 class DocumentController extends BaseController
 {
-    protected $documentRepo;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     protected $entityType = ENTITY_DOCUMENT;
 
@@ -121,7 +120,7 @@ class DocumentController extends BaseController
         return \Illuminate\Support\Facades\Response::json($response, 200);
     }
 
-    public function delete(UpdateDocumentRequest $request)
+    public function delete(UpdateDocumentRequest $request): string
     {
         $request->entity()->delete();
 

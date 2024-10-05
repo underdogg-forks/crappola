@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddProPlanDiscount extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,4 +30,4 @@ class AddProPlanDiscount extends Migration
             $table->dropColumn('promo_expires');
         });
     }
-}
+};

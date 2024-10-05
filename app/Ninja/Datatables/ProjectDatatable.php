@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
 use Utils;
 
 class ProjectDatatable extends EntityDatatable
@@ -12,7 +10,7 @@ class ProjectDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -41,45 +39,31 @@ class ProjectDatatable extends EntityDatatable
             ],
             [
                 'due_date',
-                function ($model) {
-                    return Utils::fromSqlDate($model->due_date);
-                },
+                fn ($model) => Utils::fromSqlDate($model->due_date),
             ],
             [
                 'budgeted_hours',
-                function ($model) {
-                    return $model->budgeted_hours ?: '';
-                },
+                fn ($model) => $model->budgeted_hours ?: '',
             ],
             [
                 'task_rate',
-                function ($model) {
-                    return (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
-                },
+                fn ($model) => (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '',
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_project'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("projects/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROJECT, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("projects/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROJECT, $model]),
             ],
             [
                 trans('texts.invoice_project'),
-                function ($model) {
-                    return "javascript:submitForm_project('invoice', {$model->public_id})";
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
-                },
+                fn ($model): string => "javascript:submitForm_project('invoice', {$model->public_id})",
+                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }

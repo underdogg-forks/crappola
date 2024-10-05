@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDefaultTaxRates extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,4 +36,4 @@ class AddDefaultTaxRates extends Migration
             $table->dropColumn('default_tax_rate_id');
         });
     }
-}
+};

@@ -9,15 +9,9 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    /**
-     * @var AuthService
-     */
-    protected $authService;
+    protected \App\Services\AuthService $authService;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     /**
      * Create a new authentication controller instance.

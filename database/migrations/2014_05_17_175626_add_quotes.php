@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddQuotes extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,4 +30,4 @@ class AddQuotes extends Migration
             $table->dropColumn('quote_invoice_id');
         });
     }
-}
+};

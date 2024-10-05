@@ -9,7 +9,7 @@ class UpdateProductRequest extends ProductRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -19,7 +19,7 @@ class UpdateProductRequest extends ProductRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'product_key' => 'required',

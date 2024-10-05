@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Cache;
-use Eloquent;
-
 /**
  * Class ExpenseCategory.
  */
@@ -15,7 +12,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
      */
     public $timestamps = false;
 
-    public static function createNew($accountKey, $data): void
+    public static function createNew(string $accountKey, array $data): void
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -57,7 +54,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
         $className = str_replace('Lookup', '', $className);
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
@@ -102,7 +99,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
 
     public function lookupAccount()
     {
-        return $this->belongsTo('App\Models\LookupAccount');
+        return $this->belongsTo(\App\Models\LookupAccount::class);
     }
 
     public function getDbServer()

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomFields extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -51,4 +50,4 @@ class AddCustomFields extends Migration
             $table->dropColumn('custom_value2');
         });
     }
-}
+};

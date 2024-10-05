@@ -14,15 +14,9 @@ use App\Services\ProjectService;
  */
 class ProjectApiController extends BaseAPIController
 {
-    /**
-     * @var ProjectRepository
-     */
-    protected $projectRepo;
+    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
 
-    /**
-     * @var ProjectService
-     */
-    protected $projectService;
+    protected \App\Services\ProjectService $projectService;
 
     /**
      * @var string

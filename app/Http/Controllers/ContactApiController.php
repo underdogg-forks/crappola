@@ -12,9 +12,9 @@ use Response;
 
 class ContactApiController extends BaseAPIController
 {
-    protected $contactRepo;
+    protected \App\Ninja\Repositories\ContactRepository $contactRepo;
 
-    protected $contactService;
+    protected \App\Services\ContactService $contactService;
 
     protected $entityType = ENTITY_CONTACT;
 

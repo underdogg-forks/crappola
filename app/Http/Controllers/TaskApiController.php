@@ -7,13 +7,11 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
-use Auth;
-use Request;
 use Response;
 
 class TaskApiController extends BaseAPIController
 {
-    protected $taskRepo;
+    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
 
     protected $entityType = ENTITY_TASK;
 

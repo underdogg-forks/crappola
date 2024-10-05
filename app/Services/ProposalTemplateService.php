@@ -11,15 +11,9 @@ use App\Ninja\Repositories\ProposalTemplateRepository;
  */
 class ProposalTemplateService extends BaseService
 {
-    /**
-     * @var ProposalTemplateRepository
-     */
-    protected $proposalTemplateRepo;
+    protected \App\Ninja\Repositories\ProposalTemplateRepository $proposalTemplateRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

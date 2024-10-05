@@ -6,16 +6,14 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Auth;
 use Datatable;
-use DB;
 use Utils;
 
 class TaskRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Task';
+        return \App\Models\Task::class;
     }
 
     public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
@@ -127,18 +125,10 @@ class TaskRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('project', function ($model) {
-                return $model->project;
-            })
-            ->addColumn('date', function ($model) {
-                return Task::calcStartTime($model);
-            })
-            ->addColumn('duration', function ($model) {
-                return Utils::formatTime(Task::calcDuration($model));
-            })
-            ->addColumn('description', function ($model) {
-                return $model->description;
-            });
+            ->addColumn('project', fn ($model) => $model->project)
+            ->addColumn('date', fn ($model) => Task::calcStartTime($model))
+            ->addColumn('duration', fn ($model) => Utils::formatTime(Task::calcDuration($model)))
+            ->addColumn('description', fn ($model) => $model->description);
 
         return $table->make();
     }

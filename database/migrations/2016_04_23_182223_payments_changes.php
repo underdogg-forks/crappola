@@ -3,8 +3,7 @@
 use App\Models\PaymentStatus;
 use Illuminate\Database\Migrations\Migration;
 
-class PaymentsChanges extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -167,4 +166,4 @@ class PaymentsChanges extends Migration
 
         Schema::dropIfExists('payment_methods');
     }
-}
+};

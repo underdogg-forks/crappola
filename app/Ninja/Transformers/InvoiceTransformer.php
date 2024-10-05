@@ -30,7 +30,7 @@ class InvoiceTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct($account = null, $serializer = null, $client = null)
+    public function __construct(?\App\Models\Account $account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
 
@@ -83,7 +83,7 @@ class InvoiceTransformer extends EntityTransformer
         return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
     }
 
-    public function transform(Invoice $invoice)
+    public function transform(Invoice $invoice): array
     {
         return array_merge($this->getDefaults($invoice), [
             'id'                   => (int) $invoice->public_id,
@@ -109,9 +109,9 @@ class InvoiceTransformer extends EntityTransformer
             'end_date'             => $invoice->end_date ?: '',
             'last_sent_date'       => $invoice->last_sent_date ?: '',
             'recurring_invoice_id' => (int) ($invoice->recurring_invoice_id ?: 0),
-            'tax_name1'            => $invoice->tax_name1 ? $invoice->tax_name1 : '',
+            'tax_name1'            => $invoice->tax_name1 ?: '',
             'tax_rate1'            => (float) $invoice->tax_rate1,
-            'tax_name2'            => $invoice->tax_name2 ? $invoice->tax_name2 : '',
+            'tax_name2'            => $invoice->tax_name2 ?: '',
             'tax_rate2'            => (float) $invoice->tax_rate2,
             'amount'               => (float) $invoice->amount,
             'balance'              => (float) $invoice->balance,

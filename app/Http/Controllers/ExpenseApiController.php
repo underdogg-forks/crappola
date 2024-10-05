@@ -12,9 +12,9 @@ use App\Services\ExpenseService;
 class ExpenseApiController extends BaseAPIController
 {
     // Expenses
-    protected $expenseRepo;
+    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
 
-    protected $expenseService;
+    protected \App\Services\ExpenseService $expenseService;
 
     protected $entityType = ENTITY_EXPENSE;
 

@@ -4,8 +4,6 @@ namespace App\Ninja\Datatables;
 
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
-use Cache;
-use URL;
 use Utils;
 use WePayException;
 
@@ -13,11 +11,11 @@ class AccountGatewayDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACCOUNT_GATEWAY;
 
-    private static $accountGateways;
+    private static ?array $accountGateways = null;
 
-    private static $accountGatewaySettings;
+    private static ?array $accountGatewaySettings = null;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -60,7 +58,7 @@ class AccountGatewayDatatable extends EntityDatatable
                             $model->resendConfirmationUrl = $url = \Illuminate\Support\Facades\URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
                             $html = link_to($url, $linkText)->toHtml();
                         }
-                    } catch (WePayException $ex) {
+                    } catch (WePayException) {
                     }
 
                     return $html;
@@ -68,7 +66,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ],
             [
                 'limit',
-                function ($model) {
+                function ($model): string {
                     $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
@@ -113,7 +111,10 @@ class AccountGatewayDatatable extends EntityDatatable
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
                         $accountGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
-                        if ( ! $accountGatewaySettings || ! $accountGatewaySettings->areFeesEnabled()) {
+                        if ( ! $accountGatewaySettings) {
+                            continue;
+                        }
+                        if ( ! $accountGatewaySettings->areFeesEnabled()) {
                             continue;
                         }
 
@@ -138,36 +139,24 @@ class AccountGatewayDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         $actions = [
             [
                 uctrans('texts.resend_confirmation_email'),
-                function ($model) {
-                    return $model->resendConfirmationUrl;
-                },
-                function ($model) {
-                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl);
-                },
+                fn ($model)       => $model->resendConfirmationUrl,
+                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl),
             ], [
                 uctrans('texts.edit_gateway'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("gateways/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return ! $model->deleted_at;
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("gateways/{$model->public_id}/edit"),
+                fn ($model): bool => ! $model->deleted_at,
             ], [
                 uctrans('texts.finish_setup'),
-                function ($model) {
-                    return $model->setupUrl;
-                },
-                function ($model) {
-                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->setupUrl);
-                },
+                fn ($model)       => $model->setupUrl,
+                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->setupUrl),
             ], [
                 uctrans('texts.manage_account'),
-                function ($model) {
+                function ($model): array {
                     $accountGateway = $this->getAccountGateway($model->id);
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
 
@@ -176,26 +165,18 @@ class AccountGatewayDatatable extends EntityDatatable
                         'attributes' => 'target="_blank"',
                     ];
                 },
-                function ($model) {
-                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
-                },
+                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY,
             ], [
                 uctrans('texts.terms_of_service'),
-                function ($model) {
-                    return 'https://go.wepay.com/terms-of-service-us';
-                },
-                function ($model) {
-                    return $model->gateway_id == GATEWAY_WEPAY;
-                },
+                fn ($model): string => 'https://go.wepay.com/terms-of-service-us',
+                fn ($model): bool   => $model->gateway_id == GATEWAY_WEPAY,
             ],
         ];
 
         foreach (\Illuminate\Support\Facades\Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
                 trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
-                function () use ($gatewayType) {
-                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
-                },
+                fn (): string => "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})",
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type
                     if ($model->gateway_id == GATEWAY_CUSTOM1) {

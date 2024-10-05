@@ -31,12 +31,12 @@ class ProposalTemplate extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProposalTemplatePresenter';
+    protected $presenter = \App\Ninja\Presenters\ProposalTemplatePresenter::class;
 
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROPOSAL_TEMPLATE;
     }
@@ -44,7 +44,7 @@ class ProposalTemplate extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/proposals/templates/{$this->public_id}";
     }
@@ -54,7 +54,7 @@ class ProposalTemplate extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     public function getDisplayName()

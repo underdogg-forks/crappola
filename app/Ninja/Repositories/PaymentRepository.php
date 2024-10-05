@@ -4,16 +4,13 @@ namespace App\Ninja\Repositories;
 
 use App\Models\Credit;
 use App\Models\Payment;
-use Auth;
-use DB;
-use Log;
 use Utils;
 
 class PaymentRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Payment';
+        return \App\Models\Payment::class;
     }
 
     public function find($clientPublicId = null, $filter = null)
@@ -178,7 +175,7 @@ class PaymentRepository extends BaseRepository
 
         $paymentTypeId = false;
         if (isset($input['payment_type_id'])) {
-            $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+            $paymentTypeId = $input['payment_type_id'] ?: null;
             $payment->payment_type_id = $paymentTypeId;
         }
 

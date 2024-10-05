@@ -7,7 +7,7 @@ use App\Models\DbServer;
 
 class ReferralRepository
 {
-    public function getCounts($referralCode)
+    public function getCounts($referralCode): array
     {
         $counts = [
             'free'       => 0,

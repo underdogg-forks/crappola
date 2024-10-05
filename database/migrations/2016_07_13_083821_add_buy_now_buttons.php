@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddBuyNowButtons extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -45,4 +44,4 @@ class AddBuyNowButtons extends Migration
             $table->string('label');
         });
     }
-}
+};

@@ -18,10 +18,7 @@ class ProductApiController extends BaseAPIController
      */
     protected $entityType = ENTITY_PRODUCT;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected \App\Ninja\Repositories\ProductRepository $productRepo;
 
     /**
      * ProductApiController constructor.

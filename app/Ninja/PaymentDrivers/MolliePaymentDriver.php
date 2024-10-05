@@ -7,13 +7,13 @@ use App\Models\Payment;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
-    public function completeOffsitePurchase($input)
+    public function completeOffsitePurchase($input): bool
     {
         // payment is created by the webhook
         return false;
     }
 
-    public function handleWebHook($input)
+    public function handleWebHook($input): void
     {
         $ref = \Illuminate\Support\Arr::get($input, 'id');
         $data = [

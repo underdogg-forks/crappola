@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
-use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -66,7 +65,7 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
+    protected $presenter = \App\Ninja\Presenters\VendorPresenter::class;
 
     /**
      * @var array
@@ -98,7 +97,7 @@ class Vendor extends EntityModel
     /**
      * @return array
      */
-    public static function getImportColumns()
+    public static function getImportColumns(): array
     {
         return [
             self::$fieldName,
@@ -120,7 +119,7 @@ class Vendor extends EntityModel
     /**
      * @return array
      */
-    public static function getImportMap()
+    public static function getImportMap(): array
     {
         return [
             'first'                    => 'contact_first_name',
@@ -144,7 +143,7 @@ class Vendor extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -152,7 +151,7 @@ class Vendor extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -160,7 +159,7 @@ class Vendor extends EntityModel
      */
     public function payments()
     {
-        return $this->hasMany('App\Models\Payment');
+        return $this->hasMany(\App\Models\Payment::class);
     }
 
     /**
@@ -168,7 +167,7 @@ class Vendor extends EntityModel
      */
     public function vendor_contacts()
     {
-        return $this->hasMany('App\Models\VendorContact');
+        return $this->hasMany(\App\Models\VendorContact::class);
     }
 
     /**
@@ -176,7 +175,7 @@ class Vendor extends EntityModel
      */
     public function country()
     {
-        return $this->belongsTo('App\Models\Country');
+        return $this->belongsTo(\App\Models\Country::class);
     }
 
     /**
@@ -184,7 +183,7 @@ class Vendor extends EntityModel
      */
     public function currency()
     {
-        return $this->belongsTo('App\Models\Currency');
+        return $this->belongsTo(\App\Models\Currency::class);
     }
 
     /**
@@ -192,7 +191,7 @@ class Vendor extends EntityModel
      */
     public function language()
     {
-        return $this->belongsTo('App\Models\Language');
+        return $this->belongsTo(\App\Models\Language::class);
     }
 
     /**
@@ -200,7 +199,7 @@ class Vendor extends EntityModel
      */
     public function size()
     {
-        return $this->belongsTo('App\Models\Size');
+        return $this->belongsTo(\App\Models\Size::class);
     }
 
     /**
@@ -208,7 +207,7 @@ class Vendor extends EntityModel
      */
     public function industry()
     {
-        return $this->belongsTo('App\Models\Industry');
+        return $this->belongsTo(\App\Models\Industry::class);
     }
 
     /**
@@ -216,7 +215,7 @@ class Vendor extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense', 'vendor_id', 'id');
+        return $this->hasMany(\App\Models\Expense::class, 'vendor_id', 'id');
     }
 
     /**
@@ -244,7 +243,7 @@ class Vendor extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/vendors/{$this->public_id}";
     }
@@ -278,7 +277,7 @@ class Vendor extends EntityModel
     /**
      * @return string
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return 'vendor';
     }
@@ -286,7 +285,7 @@ class Vendor extends EntityModel
     /**
      * @return bool
      */
-    public function showMap()
+    public function showMap(): bool
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
@@ -294,7 +293,7 @@ class Vendor extends EntityModel
     /**
      * @return bool
      */
-    public function hasAddress()
+    public function hasAddress(): bool
     {
         $fields = [
             'address1',

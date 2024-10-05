@@ -9,7 +9,7 @@ class UpdateTaxRateRequest extends TaxRateRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -19,7 +19,7 @@ class UpdateTaxRateRequest extends TaxRateRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required',

@@ -36,7 +36,7 @@ class CreateLuisData extends Command
     /**
      * @return bool
      */
-    public function handle()
+    public function handle(): void
     {
         $this->fakerField = $this->argument('faker_field');
 
@@ -79,7 +79,10 @@ class CreateLuisData extends Command
         return [];
     }
 
-    private function createIntents($entityType)
+    /**
+     * @return mixed[]
+     */
+    private function createIntents(string $entityType): array
     {
         $intents = [];
 
@@ -90,7 +93,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getCreateEntityIntents($entityType)
+    private function getCreateEntityIntents($entityType): array
     {
         $intents = [];
         $phrases = [
@@ -116,7 +119,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getFindEntityIntents($entityType)
+    private function getFindEntityIntents($entityType): array
     {
         $intents = [];
 
@@ -137,7 +140,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getListEntityIntents($entityType)
+    private function getListEntityIntents($entityType): array
     {
         $intents = [];
         $entityTypePlural = Utils::pluralizeEntityType($entityType);
@@ -179,7 +182,10 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getNavigateToIntents($entityType)
+    /**
+     * @return mixed[]
+     */
+    private function getNavigateToIntents(string $entityType): array
     {
         $intents = [];
         $locations = array_merge(Account::$basicSettings, Account::$advancedSettings);
@@ -197,7 +203,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function createIntent($name, $text, $entities)
+    private function createIntent(string $name, string $text, $entities): stdClass
     {
         $intent = new stdClass();
         $intent->intent = $name;

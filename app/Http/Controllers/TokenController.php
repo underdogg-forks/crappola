@@ -4,22 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
-use Auth;
-use Redirect;
-use Request;
-use Session;
-use Validator;
-use View;
 
 /**
  * Class TokenController.
  */
 class TokenController extends BaseController
 {
-    /**
-     * @var TokenService
-     */
-    protected $tokenService;
+    protected \App\Services\TokenService $tokenService;
 
     /**
      * TokenController constructor.
@@ -54,7 +45,7 @@ class TokenController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $token = AccountToken::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();

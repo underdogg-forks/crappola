@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-use Str;
-
 /**
  * Class InvoiceStatus.
  */
@@ -15,26 +12,18 @@ class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
      */
     public $timestamps = false;
 
-    public static function getIdFromAlias($status)
+    public static function getIdFromAlias($status): int|false
     {
-        switch ($status) {
-            case 'draft':
-                return INVOICE_STATUS_DRAFT;
-            case 'sent':
-                return INVOICE_STATUS_SENT;
-            case 'viewed':
-                return INVOICE_STATUS_VIEWED;
-            case 'approved':
-                return INVOICE_STATUS_APPROVED;
-            case 'partial':
-                return INVOICE_STATUS_PARTIAL;
-            case 'overdue':
-                return INVOICE_STATUS_OVERDUE;
-            case 'unpaid':
-                return INVOICE_STATUS_UNPAID;
-            default:
-                return false;
-        }
+        return match ($status) {
+            'draft'    => INVOICE_STATUS_DRAFT,
+            'sent'     => INVOICE_STATUS_SENT,
+            'viewed'   => INVOICE_STATUS_VIEWED,
+            'approved' => INVOICE_STATUS_APPROVED,
+            'partial'  => INVOICE_STATUS_PARTIAL,
+            'overdue'  => INVOICE_STATUS_OVERDUE,
+            'unpaid'   => INVOICE_STATUS_UNPAID,
+            default    => false,
+        };
     }
 
     /**

@@ -10,10 +10,7 @@ use App\Ninja\Repositories\InvoiceRepository;
  */
 class RecurringInvoiceController extends BaseController
 {
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     /**
      * RecurringInvoiceController constructor.

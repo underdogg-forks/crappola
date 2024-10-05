@@ -16,16 +16,14 @@ class VendorTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|\League\Fractal\Resource\Item
     {
         if ($this->hasVendor($data->vendor_name)) {
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'name' => $data->vendor_name,
-            ];
-        });
+        return new Item($data, fn ($data): array => [
+            'name' => $data->vendor_name,
+        ]);
     }
 }

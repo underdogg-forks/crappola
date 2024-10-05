@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Cache;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
 
@@ -46,7 +45,7 @@ class PaymentMethod extends EntityModel
      *
      * @return mixed|null|stdClass|string
      */
-    public static function lookupBankData($routingNumber)
+    public static function lookupBankData(string $routingNumber)
     {
         $cached = \Illuminate\Support\Facades\Cache::get('bankData:' . $routingNumber);
 
@@ -113,7 +112,7 @@ class PaymentMethod extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -121,7 +120,7 @@ class PaymentMethod extends EntityModel
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact');
+        return $this->belongsTo(\App\Models\Contact::class);
     }
 
     /**
@@ -129,7 +128,7 @@ class PaymentMethod extends EntityModel
      */
     public function account_gateway_token()
     {
-        return $this->belongsTo('App\Models\AccountGatewayToken');
+        return $this->belongsTo(\App\Models\AccountGatewayToken::class);
     }
 
     /**
@@ -137,7 +136,7 @@ class PaymentMethod extends EntityModel
      */
     public function payment_type()
     {
-        return $this->belongsTo('App\Models\PaymentType');
+        return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
     /**
@@ -145,7 +144,7 @@ class PaymentMethod extends EntityModel
      */
     public function currency()
     {
-        return $this->belongsTo('App\Models\Currency');
+        return $this->belongsTo(\App\Models\Currency::class);
     }
 
     /**
@@ -188,7 +187,7 @@ class PaymentMethod extends EntityModel
      *
      * @return null|string
      */
-    public function getLast4Attribute($value)
+    public function getLast4Attribute($value): ?string
     {
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
@@ -199,7 +198,7 @@ class PaymentMethod extends EntityModel
      *
      * @return mixed
      */
-    public function scopeClientId($query, $clientId)
+    public function scopeClientId($query, $clientId): void
     {
         $query->whereHas('contact', function ($query) use ($clientId): void {
             $query->withTrashed()->whereClientId($clientId);
@@ -230,7 +229,7 @@ class PaymentMethod extends EntityModel
     /**
      * @return bool
      */
-    public function requiresDelayedAutoBill()
+    public function requiresDelayedAutoBill(): bool
     {
         return $this->payment_type_id == PAYMENT_TYPE_ACH;
     }
@@ -238,7 +237,7 @@ class PaymentMethod extends EntityModel
     /**
      * @return mixed
      */
-    public function gatewayType()
+    public function gatewayType(): int|string
     {
         if ($this->payment_type_id == PAYMENT_TYPE_ACH) {
             return GATEWAY_TYPE_BANK_TRANSFER;
@@ -254,9 +253,7 @@ class PaymentMethod extends EntityModel
 PaymentMethod::deleting(function ($paymentMethod): void {
     $accountGatewayToken = $paymentMethod->account_gateway_token;
     if ($accountGatewayToken && $accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
-        $newDefault = $accountGatewayToken->payment_methods->first(function ($paymentMethdod) use ($accountGatewayToken) {
-            return $paymentMethdod->id != $accountGatewayToken->default_payment_method_id;
-        });
+        $newDefault = $accountGatewayToken->payment_methods->first(fn ($paymentMethdod): bool => $paymentMethdod->id != $accountGatewayToken->default_payment_method_id);
         $accountGatewayToken->default_payment_method_id = $newDefault ? $newDefault->id : null;
         $accountGatewayToken->save();
     }

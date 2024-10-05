@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddAppStoreOrderId extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -28,4 +27,4 @@ class AddAppStoreOrderId extends Migration
             $table->dropColumn('app_store_order_id');
         });
     }
-}
+};

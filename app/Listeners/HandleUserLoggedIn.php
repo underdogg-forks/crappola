@@ -7,9 +7,7 @@ use App\Events\UserSignedUp;
 use App\Libraries\HistoryUtils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
 use Carbon;
-use Session;
 use Utils;
 
 /**
@@ -17,10 +15,7 @@ use Utils;
  */
 class HandleUserLoggedIn
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
     /**
      * Create the event handler.

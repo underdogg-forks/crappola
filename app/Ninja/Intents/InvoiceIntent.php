@@ -4,7 +4,6 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
-use Auth;
 use Exception;
 
 class InvoiceIntent extends BaseIntent
@@ -16,7 +15,7 @@ class InvoiceIntent extends BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $this->invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
 
         parent::__construct($state, $data);
     }
@@ -42,9 +41,12 @@ class InvoiceIntent extends BaseIntent
         return $invoice;
     }
 
-    protected function requestInvoiceItems()
+    /**
+     * @return mixed[]
+     */
+    protected function requestInvoiceItems(): array
     {
-        $productRepo = app('App\Ninja\Repositories\ProductRepository');
+        $productRepo = app(\App\Ninja\Repositories\ProductRepository::class);
 
         $invoiceItems = [];
         $offset = 0;
@@ -108,7 +110,7 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses($entityType): void
+    protected function loadStatuses(string $entityType): void
     {
         $statusIds = [];
         $statuses = $this->getFields('Filter');

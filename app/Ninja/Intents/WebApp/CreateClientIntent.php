@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateClientIntent extends BaseIntent
 {
-    public function process()
+    public function process(): void
     {
         $url = '/clients/create';
 

@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App;
 use App\Events\PaymentWasCreated;
 use Utils;
 
@@ -57,7 +56,7 @@ class AnalyticsListener
     /**
      * @param $data
      */
-    private function sendAnalytics($data): void
+    private function sendAnalytics(string $data): void
     {
         $data = utf8_encode($data);
         $curl = curl_init();

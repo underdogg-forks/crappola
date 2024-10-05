@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddNotifyApproved extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddNotifyApproved extends Migration
             $table->dropColumn('notify_approved');
         });
     }
-}
+};

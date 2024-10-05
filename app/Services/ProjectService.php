@@ -11,15 +11,9 @@ use App\Ninja\Repositories\ProjectRepository;
  */
 class ProjectService extends BaseService
 {
-    /**
-     * @var ProjectRepository
-     */
-    protected $projectRepo;
+    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

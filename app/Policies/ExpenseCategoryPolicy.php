@@ -34,7 +34,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $item)
+    public static function view(User $user, $item): bool
     {
         return true;
     }
@@ -45,7 +45,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId)
+    public static function viewByOwner(User $user, $ownerUserId): bool
     {
         return true;
     }
@@ -56,7 +56,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId)
+    public static function editByOwner(User $user, $ownerUserId): bool
     {
         return $user->is_admin;
     }

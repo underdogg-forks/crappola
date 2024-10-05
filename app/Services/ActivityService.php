@@ -11,15 +11,9 @@ use App\Ninja\Repositories\ActivityRepository;
  */
 class ActivityService extends BaseService
 {
-    /**
-     * @var ActivityRepository
-     */
-    protected $activityRepo;
+    protected \App\Ninja\Repositories\ActivityRepository $activityRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * ActivityService constructor.

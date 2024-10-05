@@ -35,12 +35,12 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
+    protected $presenter = \App\Ninja\Presenters\ProjectPresenter::class;
 
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROJECT;
     }
@@ -48,7 +48,7 @@ class Project extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/projects/{$this->public_id}";
     }
@@ -58,7 +58,7 @@ class Project extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -66,7 +66,7 @@ class Project extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
@@ -74,7 +74,7 @@ class Project extends EntityModel
      */
     public function tasks()
     {
-        return $this->hasMany('App\Models\Task');
+        return $this->hasMany(\App\Models\Task::class);
     }
 
     public function scopeDateRange($query, $startDate, $endDate)

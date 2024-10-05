@@ -2,13 +2,11 @@
 
 namespace App\Ninja\Repositories;
 
-use DB;
-
 class AccountGatewayRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\AccountGateway';
+        return \App\Models\AccountGateway::class;
     }
 
     public function find($accountId)

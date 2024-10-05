@@ -33,13 +33,13 @@ return RectorConfig::configure()
         __DIR__ . '/Modules',
     ])
     ->withRules([
-        AnonymousMigrationsRector::class,
-        //AddReturnTypeDeclarationRector::class
+        //AnonymousMigrationsRector::class,
+        AddReturnTypeDeclarationRector::class,
     ])
     ->withSets([
         //LevelSetList::UP_TO_PHP_81,
-        //SetList::TYPE_DECLARATION,
-        SetList::EARLY_RETURN,
+        SetList::TYPE_DECLARATION,
+        //SetList::EARLY_RETURN,
         //SetList::CARBON,
         //SpatieEnumClassToEnumRector::class,
         //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,

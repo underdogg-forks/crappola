@@ -21,7 +21,7 @@ class Proposal extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProposalPresenter';
+    protected $presenter = \App\Ninja\Presenters\ProposalPresenter::class;
 
     /**
      * @var array
@@ -40,7 +40,7 @@ class Proposal extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROPOSAL;
     }
@@ -48,7 +48,7 @@ class Proposal extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/proposals/{$this->public_id}";
     }
@@ -58,7 +58,7 @@ class Proposal extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -66,7 +66,7 @@ class Proposal extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -74,7 +74,7 @@ class Proposal extends EntityModel
      */
     public function invitations()
     {
-        return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
+        return $this->hasMany(\App\Models\ProposalInvitation::class)->orderBy('proposal_invitations.contact_id');
     }
 
     /**
@@ -82,7 +82,7 @@ class Proposal extends EntityModel
      */
     public function proposal_invitations()
     {
-        return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
+        return $this->hasMany(\App\Models\ProposalInvitation::class)->orderBy('proposal_invitations.contact_id');
     }
 
     /**
@@ -90,7 +90,7 @@ class Proposal extends EntityModel
      */
     public function proposal_template()
     {
-        return $this->belongsTo('App\Models\ProposalTemplate')->withTrashed();
+        return $this->belongsTo(\App\Models\ProposalTemplate::class)->withTrashed();
     }
 
     public function getDisplayName()
@@ -105,12 +105,12 @@ class Proposal extends EntityModel
         return $invitation->getLink('proposal', $forceOnsite, $forcePlain);
     }
 
-    public function getHeadlessLink()
+    public function getHeadlessLink(): string
     {
         return sprintf('%s?phantomjs=true&phantomjs_secret=%s', $this->getLink(true, true), env('PHANTOMJS_SECRET'));
     }
 
-    public function getFilename($extension = 'pdf')
+    public function getFilename(string $extension = 'pdf'): string
     {
         $entityType = $this->getEntityType();
 
@@ -120,7 +120,7 @@ class Proposal extends EntityModel
     /**
      * @return string
      */
-    public function getCustomMessageType()
+    public function getCustomMessageType(): string
     {
         if ($this->invoice->quote_invoice_id) {
             return CUSTOM_MESSAGE_APPROVED_PROPOSAL;

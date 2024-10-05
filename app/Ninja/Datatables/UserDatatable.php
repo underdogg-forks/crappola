@@ -2,26 +2,20 @@
 
 namespace App\Ninja\Datatables;
 
-use URL;
-
 class UserDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_USER;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'first_name',
-                function ($model) {
-                    return $model->public_id ? link_to('users/' . $model->public_id . '/edit', $model->first_name . ' ' . $model->last_name)->toHtml() : e($model->first_name . ' ' . $model->last_name);
-                },
+                fn ($model) => $model->public_id ? link_to('users/' . $model->public_id . '/edit', $model->first_name . ' ' . $model->last_name)->toHtml() : e($model->first_name . ' ' . $model->last_name),
             ],
             [
                 'email',
-                function ($model) {
-                    return $model->email;
-                },
+                fn ($model) => $model->email,
             ],
             [
                 'confirmed',
@@ -46,31 +40,23 @@ class UserDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 uctrans('texts.edit_user'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("users/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return $model->public_id;
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("users/{$model->public_id}/edit"),
+                fn ($model) => $model->public_id,
             ],
             [
                 uctrans('texts.send_invite'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("send_confirmation/{$model->public_id}");
-                },
-                function ($model) {
-                    return $model->public_id && ! $model->confirmed;
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("send_confirmation/{$model->public_id}"),
+                fn ($model): bool => $model->public_id && ! $model->confirmed,
             ],
         ];
     }
 
-    private function getStatusLabel($state)
+    private function getStatusLabel(string $state): string
     {
         $label = trans("texts.{$state}");
         $class = 'default';

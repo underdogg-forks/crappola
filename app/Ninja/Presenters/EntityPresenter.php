@@ -11,12 +11,12 @@ class EntityPresenter extends Presenter
     /**
      * @return string
      */
-    public function url()
+    public function url(): string
     {
         return SITE_URL . $this->path();
     }
 
-    public function path()
+    public function path(): string
     {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
@@ -24,12 +24,12 @@ class EntityPresenter extends Presenter
         return sprintf('/%s/%s', $type, $id);
     }
 
-    public function editUrl()
+    public function editUrl(): string
     {
         return $this->url() . '/edit';
     }
 
-    public function statusLabel($label = false)
+    public function statusLabel($label = false): string
     {
         $class = $text = '';
 
@@ -50,22 +50,17 @@ class EntityPresenter extends Presenter
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
 
-    public function statusColor()
+    public function statusColor(): string
     {
         $class = $this->entity->statusClass();
 
-        switch ($class) {
-            case 'success':
-                return '#5cb85c';
-            case 'warning':
-                return '#f0ad4e';
-            case 'primary':
-                return '#337ab7';
-            case 'info':
-                return '#5bc0de';
-            default:
-                return '#777';
-        }
+        return match ($class) {
+            'success' => '#5cb85c',
+            'warning' => '#f0ad4e',
+            'primary' => '#337ab7',
+            'info'    => '#5bc0de',
+            default   => '#777',
+        };
     }
 
     /**
@@ -79,7 +74,7 @@ class EntityPresenter extends Presenter
         return link_to($link, $name)->toHtml();
     }
 
-    public function titledName()
+    public function titledName(): string
     {
         $entity = $this->entity;
         $entityType = $entity->getEntityType();
@@ -87,7 +82,7 @@ class EntityPresenter extends Presenter
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $entity = $this->entity;
 

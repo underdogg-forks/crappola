@@ -17,19 +17,15 @@ use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Auth;
-use Cache;
 use DropdownButton;
-use Request;
-use Session;
-use URL;
 use Utils;
 use View;
 
 class ClientController extends BaseController
 {
-    protected $clientService;
+    protected \App\Services\ClientService $clientService;
 
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
     protected $entityType = ENTITY_CLIENT;
 
@@ -216,7 +212,7 @@ class ClientController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
@@ -276,7 +272,7 @@ class ClientController extends BaseController
         return response()->json($result);
     }
 
-    private static function getViewModel()
+    private static function getViewModel(): array
     {
         return [
             'data'         => \Illuminate\Support\Facades\Request::old('data'),

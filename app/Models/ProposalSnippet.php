@@ -33,12 +33,12 @@ class ProposalSnippet extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProposalSnippetPresenter';
+    protected $presenter = \App\Ninja\Presenters\ProposalSnippetPresenter::class;
 
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROPOSAL_SNIPPET;
     }
@@ -46,7 +46,7 @@ class ProposalSnippet extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/proposals/snippets/{$this->public_id}";
     }
@@ -56,7 +56,7 @@ class ProposalSnippet extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -64,7 +64,7 @@ class ProposalSnippet extends EntityModel
      */
     public function proposal_category()
     {
-        return $this->belongsTo('App\Models\ProposalCategory')->withTrashed();
+        return $this->belongsTo(\App\Models\ProposalCategory::class)->withTrashed();
     }
 
     public function getDisplayName()

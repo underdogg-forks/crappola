@@ -3,12 +3,11 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
-use Auth;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
-    protected $account;
+    protected ?\App\Models\Account $account;
 
     protected $serializer;
 
@@ -23,7 +22,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->defaultIncludes;
     }
 
-    protected function includeCollection($data, $transformer, $entityType)
+    protected function includeCollection($data, $transformer, $entityType): \League\Fractal\Resource\Collection
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -32,7 +31,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->collection($data, $transformer, $entityType);
     }
 
-    protected function includeItem($data, $transformer, $entityType)
+    protected function includeItem($data, $transformer, $entityType): \League\Fractal\Resource\Item
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -51,7 +50,7 @@ class EntityTransformer extends TransformerAbstract
         }
     }
 
-    protected function getDefaults($entity)
+    protected function getDefaults($entity): array
     {
         $data = [
             'account_key' => $this->account->account_key,

@@ -16,7 +16,6 @@ use Config;
 use DB;
 use Event;
 use Exception;
-use Redirect;
 use Request;
 use Response;
 use Session;
@@ -25,11 +24,11 @@ use View;
 
 class AppController extends BaseController
 {
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    protected $mailer;
+    protected \App\Ninja\Mailers\Mailer $mailer;
 
-    protected $emailService;
+    protected \App\Services\EmailService $emailService;
 
     public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
@@ -332,7 +331,7 @@ class AppController extends BaseController
         \Illuminate\Support\Facades\DB::unprepared($sql);
     }
 
-    public function emailBounced()
+    public function emailBounced(): string
     {
         $messageId = \Illuminate\Support\Facades\Request::input('MessageID');
         $error = \Illuminate\Support\Facades\Request::input('Name') . ': ' . \Illuminate\Support\Facades\Request::input('Description');
@@ -340,7 +339,7 @@ class AppController extends BaseController
         return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
-    public function emailOpened()
+    public function emailOpened(): string
     {
         $messageId = \Illuminate\Support\Facades\Request::input('MessageID');
 
@@ -349,7 +348,7 @@ class AppController extends BaseController
         return RESULT_SUCCESS;
     }
 
-    public function checkData()
+    public function checkData(): string
     {
         try {
             \Illuminate\Support\Facades\Artisan::call('ninja:check-data');
@@ -449,7 +448,7 @@ class AppController extends BaseController
         return redirect((Utils::isNinja() ? NINJA_WEB_URL : ''), 301);
     }
 
-    private function testDatabase($database)
+    private function testDatabase(array $database): string|bool
     {
         $dbType = 'mysql'; // $database['default'];
         \Illuminate\Support\Facades\Config::set('database.default', $dbType);
@@ -467,7 +466,7 @@ class AppController extends BaseController
         return $valid;
     }
 
-    private function testMail($mail)
+    private function testMail(array $mail)
     {
         $email = $mail['from']['address'];
         $fromName = $mail['from']['name'];

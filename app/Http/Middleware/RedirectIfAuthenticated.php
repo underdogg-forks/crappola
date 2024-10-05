@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Session;
 
 /**
  * Class RedirectIfAuthenticated.
@@ -14,10 +13,8 @@ class RedirectIfAuthenticated
 {
     /**
      * The Guard implementation.
-     *
-     * @var Guard
      */
-    protected $auth;
+    protected \Illuminate\Contracts\Auth\Guard $auth;
 
     /**
      * Create a new filter instance.

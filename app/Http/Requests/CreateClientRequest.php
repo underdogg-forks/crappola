@@ -19,7 +19,7 @@ class CreateClientRequest extends ClientRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
 

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddHasTasksToInvoices extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -38,4 +37,4 @@ class AddHasTasksToInvoices extends Migration
             $table->dropColumn('has_tasks');
         });
     }
-}
+};

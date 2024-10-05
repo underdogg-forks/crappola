@@ -152,7 +152,10 @@ class BaseIntent
         return false;
     }
 
-    protected function getFields($field)
+    /**
+     * @return mixed[]
+     */
+    protected function getFields($field): array
     {
         $data = [];
 
@@ -165,11 +168,9 @@ class BaseIntent
         return $data;
     }
 
-    protected function loadStates($entityType): void
+    protected function loadStates(string $entityType): void
     {
-        $states = array_filter($this->getFields('Filter'), function ($state) {
-            return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
-        });
+        $states = array_filter($this->getFields('Filter'), fn ($state): bool => in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]));
 
         if (count($states) || $this->hasField('Filter', 'all')) {
             session(['entity_state_filter:' . $entityType => join(',', $states)]);
@@ -189,7 +190,7 @@ class BaseIntent
 
     protected function requestClient()
     {
-        $clientRepo = app('App\Ninja\Repositories\ClientRepository');
+        $clientRepo = app(\App\Ninja\Repositories\ClientRepository::class);
         $client = false;
 
         foreach ($this->data->entities as $param) {
@@ -200,7 +201,7 @@ class BaseIntent
         }
 
         if ( ! $client) {
-            $client = $this->state->current->client;
+            return $this->state->current->client;
         }
 
         return $client;
@@ -208,7 +209,7 @@ class BaseIntent
 
     protected function requestInvoice()
     {
-        $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
         $invoice = false;
 
         foreach ($this->data->entities as $param) {
@@ -220,7 +221,10 @@ class BaseIntent
         return false;
     }
 
-    protected function requestFields()
+    /**
+     * @return mixed[]
+     */
+    protected function requestFields(): array
     {
         $data = [];
 
@@ -262,7 +266,7 @@ class BaseIntent
         return $data;
     }
 
-    protected function requestFieldsAsString($fields)
+    protected function requestFieldsAsString($fields): string
     {
         $str = '';
 
@@ -278,7 +282,7 @@ class BaseIntent
         return $str;
     }
 
-    protected function processField($field)
+    protected function processField($field): string|array
     {
         $field = str_replace(' ', '_', $field);
 
@@ -295,12 +299,14 @@ class BaseIntent
     {
         // look for LUIS pre-built entity matches
         foreach ($this->data->entities as $entity) {
-            if ($entity->entity === $value) {
-                if ($entity->type == 'builtin.datetime.date') {
-                    $value = $entity->resolution->date;
-                    $value = str_replace('XXXX', date('Y'), $value);
-                }
+            if ($entity->entity !== $value) {
+                continue;
             }
+            if ($entity->type != 'builtin.datetime.date') {
+                continue;
+            }
+            $value = $entity->resolution->date;
+            $value = str_replace('XXXX', date('Y'), $value);
         }
 
         return $value;

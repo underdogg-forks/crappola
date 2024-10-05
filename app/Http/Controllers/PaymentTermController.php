@@ -6,19 +6,11 @@ use App\Http\Requests\CreatePaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
-use Auth;
-use Redirect;
-use Request;
-use Session;
 use Utils;
-use View;
 
 class PaymentTermController extends BaseController
 {
-    /**
-     * @var PaymentTermService
-     */
-    protected $paymentTermService;
+    protected \App\Services\PaymentTermService $paymentTermService;
 
     /**
      * PaymentTermController constructor.
@@ -55,7 +47,7 @@ class PaymentTermController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $data = [
             'paymentTerm' => PaymentTerm::scope($publicId)->firstOrFail(),

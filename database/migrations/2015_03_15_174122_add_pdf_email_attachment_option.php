@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPdfEmailAttachmentOption extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddPdfEmailAttachmentOption extends Migration
             $table->dropColumn('pdf_email_attachment');
         });
     }
-}
+};

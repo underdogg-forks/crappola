@@ -14,28 +14,19 @@ use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\ExpenseService;
-use Auth;
 use DropdownButton;
-use Redirect;
-use Request;
-use Session;
-use URL;
 use Utils;
-use View;
 
 class ExpenseController extends BaseController
 {
     // Expenses
-    protected $expenseRepo;
+    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
 
-    protected $expenseService;
+    protected \App\Services\ExpenseService $expenseService;
 
     protected $entityType = ENTITY_EXPENSE;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService, InvoiceRepository $invoiceRepo)
     {
@@ -84,7 +75,7 @@ class ExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId'   => \Illuminate\Support\Facades\Request::old('vendor') ? \Illuminate\Support\Facades\Request::old('vendor') : $request->vendor_id,
+            'vendorPublicId'   => \Illuminate\Support\Facades\Request::old('vendor') ?: $request->vendor_id,
             'expense'          => null,
             'method'           => 'POST',
             'url'              => 'expenses',
@@ -231,7 +222,7 @@ class ExpenseController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
         $referer = \Illuminate\Support\Facades\Request::server('HTTP_REFERER');
 
         switch ($action) {
@@ -298,7 +289,7 @@ class ExpenseController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to("expenses/{$publicId}/edit");
     }
 
-    private static function getViewModel($expense = false)
+    private static function getViewModel($expense = false): array
     {
         return [
             'data'        => \Illuminate\Support\Facades\Request::old('data'),

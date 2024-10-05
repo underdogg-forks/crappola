@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-
 /**
  * Class Bank.
  */
@@ -19,7 +17,7 @@ class Bank extends \Illuminate\Database\Eloquent\Model
      *
      * @return \App\Libraries\Bank
      */
-    public function getOFXBank($finance)
+    public function getOFXBank($finance): \App\Libraries\Bank
     {
         $config = json_decode($this->config);
 

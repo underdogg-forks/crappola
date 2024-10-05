@@ -7,22 +7,14 @@ use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\Gateway;
 use App\Services\AccountGatewayService;
-use Auth;
-use File;
-use Redirect;
-use Request;
-use Session;
 use stdClass;
-use URL;
 use Utils;
-use Validator;
-use View;
 use WePay;
 use WePayException;
 
 class AccountGatewayController extends BaseController
 {
-    protected $accountGatewayService;
+    protected \App\Services\AccountGatewayService $accountGatewayService;
 
     public function __construct(AccountGatewayService $accountGatewayService)
     {
@@ -48,7 +40,7 @@ class AccountGatewayController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to("gateways/{$publicId}/edit");
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
         $config = $accountGateway->getConfig();
@@ -407,7 +399,7 @@ class AccountGatewayController extends BaseController
                 'email'               => \Illuminate\Support\Facades\Request::input('email'),
                 'first_name'          => \Illuminate\Support\Facades\Request::input('first_name'),
                 'last_name'           => \Illuminate\Support\Facades\Request::input('last_name'),
-                'original_ip'         => \Illuminate\Support\Facades\Request::getClientIp(true),
+                'original_ip'         => \Illuminate\Support\Facades\Request::getClientIp(),
                 'original_device'     => \Illuminate\Support\Facades\Request::server('HTTP_USER_AGENT'),
                 'tos_acceptance_time' => time(),
                 'redirect_uri'        => \Illuminate\Support\Facades\URL::to('gateways'),
@@ -487,7 +479,7 @@ class AccountGatewayController extends BaseController
         }
     }
 
-    private function getViewModel($accountGateway = false)
+    private function getViewModel($accountGateway = false): array
     {
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
         $user = \Illuminate\Support\Facades\Auth::user();

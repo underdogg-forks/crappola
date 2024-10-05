@@ -6,7 +6,7 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class ListInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $this->loadStates(ENTITY_INVOICE);
         $this->loadStatuses(ENTITY_INVOICE);

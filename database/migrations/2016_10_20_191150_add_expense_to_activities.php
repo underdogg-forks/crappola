@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddExpenseToActivities extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -55,4 +54,4 @@ class AddExpenseToActivities extends Migration
             $table->dropColumn('credit_ids');
         });
     }
-}
+};

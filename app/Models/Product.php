@@ -21,7 +21,7 @@ class Product extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
+    protected $presenter = \App\Ninja\Presenters\ProductPresenter::class;
 
     /**
      * @var array
@@ -42,7 +42,7 @@ class Product extends EntityModel
     /**
      * @return array
      */
-    public static function getImportColumns()
+    public static function getImportColumns(): array
     {
         return [
             'product_key',
@@ -56,7 +56,7 @@ class Product extends EntityModel
     /**
      * @return array
      */
-    public static function getImportMap()
+    public static function getImportMap(): array
     {
         return [
             'product|item'              => 'product_key',
@@ -80,7 +80,7 @@ class Product extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PRODUCT;
     }
@@ -90,6 +90,6 @@ class Product extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 }

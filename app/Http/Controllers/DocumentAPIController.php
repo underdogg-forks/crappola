@@ -14,10 +14,7 @@ use Redirect;
  */
 class DocumentAPIController extends BaseAPIController
 {
-    /**
-     * @var DocumentRepository
-     */
-    protected $documentRepo;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     /**
      * @var string

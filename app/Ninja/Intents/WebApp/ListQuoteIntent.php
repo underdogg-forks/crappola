@@ -6,7 +6,7 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class ListQuoteIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $this->loadStates(ENTITY_QUOTE);
         $this->loadStatuses(ENTITY_QUOTE);

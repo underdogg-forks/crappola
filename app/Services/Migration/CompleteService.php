@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CompleteService
 {
-    protected $token;
+    protected string $token;
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
@@ -25,14 +25,14 @@ class CompleteService
         $this->token = $token;
     }
 
-    public function data(array $data)
+    public function data(array $data): static
     {
         $this->data = $data;
 
         return $this;
     }
 
-    public function endpoint(string $endpoint)
+    public function endpoint(string $endpoint): static
     {
         $this->endpoint = $endpoint;
 
@@ -111,7 +111,7 @@ class CompleteService
         Storage::delete($path);
     }
 
-    private function getHeaders()
+    private function getHeaders(): array
     {
         $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
@@ -126,7 +126,7 @@ class CompleteService
         return $headers;
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
         return "{$this->endpoint}/{$this->uri}";
     }

@@ -4,20 +4,13 @@ namespace App\Services;
 
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
-use Auth;
 use Utils;
 
 class ProductService extends BaseService
 {
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected \App\Ninja\Repositories\ProductRepository $productRepo;
 
     /**
      * ProductService constructor.

@@ -7,7 +7,7 @@ use Exception;
 
 class CreateInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $client = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();
@@ -29,12 +29,10 @@ class CreateInvoiceIntent extends InvoiceIntent
             throw new Exception($valid);
         }
 
-        $invoiceService = app('App\Services\InvoiceService');
+        $invoiceService = app(\App\Services\InvoiceService::class);
         $invoice = $invoiceService->save($data);
 
-        $invoiceItemIds = array_map(function ($item) {
-            return $item['public_id'];
-        }, $invoice->invoice_items->toArray());
+        $invoiceItemIds = array_map(fn ($item) => $item['public_id'], $invoice->invoice_items->toArray());
 
         $this->setStateEntityType(ENTITY_INVOICE);
         $this->setStateEntities(ENTITY_CLIENT, $client->public_id);

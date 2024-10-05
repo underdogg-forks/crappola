@@ -8,16 +8,12 @@ use App\Models\SecurityCode;
 use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
-use Auth;
-use Cache;
-use DB;
 use Exception;
-use Request;
 use Utils;
 
 class BotController extends Controller
 {
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
     public function __construct(UserMailer $userMailer)
     {
@@ -144,7 +140,7 @@ class BotController extends Controller
         return $response->access_token;
     }
 
-    private function loadState($token)
+    private function loadState(string $token): mixed
     {
         $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
 
@@ -172,7 +168,7 @@ class BotController extends Controller
         return $data;
     }
 
-    private function saveState($token, $data): void
+    private function saveState(string $token, $data): void
     {
         $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
 
@@ -188,7 +184,7 @@ class BotController extends Controller
         CurlUtils::post($url, $data, $headers);
     }
 
-    private function sendResponse($token, $to, $message): void
+    private function sendResponse(string $token, $to, $message): void
     {
         $url = sprintf('%s/conversations/%s/activities/', SKYPE_API_URL, $to);
 
@@ -203,7 +199,7 @@ class BotController extends Controller
         //var_dump($response);
     }
 
-    private function validateEmail($email, $botUserId)
+    private function validateEmail(string $email, $botUserId): false|int
     {
         if ( ! $email || ! $botUserId) {
             return false;
@@ -238,7 +234,7 @@ class BotController extends Controller
         return $code->code;
     }
 
-    private function validateCode($input, $botUserId)
+    private function validateCode(string $input, $botUserId): bool
     {
         if ( ! $input || ! $botUserId) {
             return false;
@@ -319,7 +315,7 @@ class BotController extends Controller
         return $token_valid == 1;
     }
 
-    private function base64_url_decode($arg)
+    private function base64_url_decode(string $arg): string|false
     {
         $res = $arg;
         $res = str_replace('-', '+', $res);

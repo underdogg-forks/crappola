@@ -7,14 +7,10 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\PaymentTermRepository;
-use Request;
 
 class PaymentTermApiController extends BaseAPIController
 {
-    /**
-     * @var PaymentTermRepository
-     */
-    protected $paymentTermRepo;
+    protected \App\Ninja\Repositories\PaymentTermRepository $paymentTermRepo;
 
     protected $entityType = ENTITY_PAYMENT_TERM;
 

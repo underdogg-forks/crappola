@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSupportThreeDecimalTaxes extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -29,4 +28,4 @@ class AddSupportThreeDecimalTaxes extends Migration
             $table->decimal('rate', 13, 2)->change();
         });
     }
-}
+};

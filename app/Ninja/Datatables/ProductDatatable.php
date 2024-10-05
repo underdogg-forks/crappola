@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
 use Utils;
 
 class ProductDatatable extends EntityDatatable
@@ -12,79 +10,57 @@ class ProductDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public function columns()
+    public function columns(): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
         return [
             [
                 'product_key',
-                function ($model) {
-                    return link_to('products/' . $model->public_id . '/edit', $model->product_key)->toHtml();
-                },
+                fn ($model) => link_to('products/' . $model->public_id . '/edit', $model->product_key)->toHtml(),
             ],
             [
                 'notes',
-                function ($model) {
-                    return $this->showWithTooltip($model->notes);
-                },
+                fn ($model) => $this->showWithTooltip($model->notes),
             ],
             [
                 'cost',
-                function ($model) {
-                    return Utils::roundSignificant($model->cost);
-                },
+                fn ($model) => Utils::roundSignificant($model->cost),
             ],
             [
                 'tax_rate',
-                function ($model) {
-                    return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '';
-                },
+                fn ($model): string => $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '',
                 $account->invoice_item_taxes,
             ],
             [
                 'custom_value1',
-                function ($model) {
-                    return $model->custom_value1;
-                },
+                fn ($model) => $model->custom_value1,
                 $account->customLabel('product1'),
             ],
             [
                 'custom_value2',
-                function ($model) {
-                    return $model->custom_value2;
-                },
+                fn ($model) => $model->custom_value2,
                 $account->customLabel('product2'),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 uctrans('texts.edit_product'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/edit");
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/edit"),
             ],
             [
                 trans('texts.clone_product'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/clone");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("products/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT),
             ],
             [
                 trans('texts.invoice_product'),
-                function ($model) {
-                    return "javascript:submitForm_product('invoice', {$model->public_id})";
-                },
-                function ($model) {
-                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE);
-                },
+                fn ($model): string => "javascript:submitForm_product('invoice', {$model->public_id})",
+                fn ($model): bool   => ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }

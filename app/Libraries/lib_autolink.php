@@ -35,7 +35,7 @@ function autolink($text, $limit = 30, $tagfill = '', $auto_title = true)
 
 //###################################################################
 
-function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix = null)
+function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix = null): string
 {
     $text_l = mb_strtolower($text);
     $cursor = 0;
@@ -195,7 +195,7 @@ function autolink_label($text, $limit)
 
 //###################################################################
 
-function autolink_email($text, $tagfill = '')
+function autolink_email($text, $tagfill = ''): string
 {
     $atom = '[^()<>@,;:\\\\".\\[\\]\\x00-\\x20\\x7f]+'; // from RFC822
 

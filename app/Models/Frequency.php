@@ -2,10 +2,6 @@
 
 namespace App\Models;
 
-use Cache;
-use Eloquent;
-use Str;
-
 /**
  * Class Frequency.
  */
@@ -23,7 +19,10 @@ class Frequency extends \Illuminate\Database\Eloquent\Model
         'name',
     ];
 
-    public static function selectOptions()
+    /**
+     * @return mixed[]
+     */
+    public static function selectOptions(): array
     {
         $data = [];
 

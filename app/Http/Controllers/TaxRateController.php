@@ -7,17 +7,12 @@ use App\Http\Requests\UpdateTaxRateRequest;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\TaxRateRepository;
 use App\Services\TaxRateService;
-use Auth;
-use Redirect;
-use Request;
-use Session;
-use View;
 
 class TaxRateController extends BaseController
 {
-    protected $taxRateService;
+    protected \App\Services\TaxRateService $taxRateService;
 
-    protected $taxRateRepo;
+    protected \App\Ninja\Repositories\TaxRateRepository $taxRateRepo;
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
@@ -37,7 +32,7 @@ class TaxRateController extends BaseController
         return $this->taxRateService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $data = [
             'taxRate' => TaxRate::scope($publicId)->firstOrFail(),

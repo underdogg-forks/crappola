@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomInvoiceLabels extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddCustomInvoiceLabels extends Migration
             $table->dropColumn('invoice_labels');
         });
     }
-}
+};

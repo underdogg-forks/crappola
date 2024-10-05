@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Artisan;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -37,7 +36,7 @@ class MakeModule extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $name = $this->argument('name');
         $fields = $this->argument('fields');
@@ -47,9 +46,7 @@ class MakeModule extends Command
 
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);
-        $fillable = array_map(function ($item) {
-            return explode(':', $item)[0];
-        }, $fillable);
+        $fillable = array_map(fn ($item): string => explode(':', $item)[0], $fillable);
         $fillable = implode(',', $fillable);
 
         ProgressBar::setFormatDefinition('custom', '%current%/%max% %elapsed:6s% [%bar%] %percent:3s%% %message%');

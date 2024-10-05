@@ -9,7 +9,7 @@ class UpdateProposalCategoryRequest extends ProposalCategoryRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -19,7 +19,7 @@ class UpdateProposalCategoryRequest extends ProposalCategoryRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->entity()) {
             return [];

@@ -33,7 +33,7 @@ class ProposalCategory extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PROPOSAL_CATEGORY;
     }
@@ -41,7 +41,7 @@ class ProposalCategory extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/proposals/categories/{$this->public_id}";
     }
@@ -51,7 +51,7 @@ class ProposalCategory extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     public function getDisplayName()

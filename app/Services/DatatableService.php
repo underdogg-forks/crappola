@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Ninja\Datatables\EntityDatatable;
-use Auth;
 use Chumper\Datatable\Table;
 use Datatable;
 use Exception;
@@ -27,7 +26,7 @@ class DatatableService
         $table = Datatable::query($query);
 
         if ($datatable->isBulkEdit) {
-            $table->addColumn('checkbox', function ($model) use ($datatable) {
+            $table->addColumn('checkbox', function ($model) use ($datatable): string {
                 $can_edit = \Illuminate\Support\Facades\Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && \Illuminate\Support\Facades\Auth::user()->id == $model->user_id);
 
                 return ! $can_edit ? '' : '<input type="checkbox" name="ids[]" value="' . $model->public_id
@@ -41,7 +40,7 @@ class DatatableService
                 $column[] = true;
             }
 
-            list($field, $value, $visible) = $column;
+            [$field, $value, $visible] = $column;
 
             if ($visible) {
                 $table->addColumn($field, $value);
@@ -62,7 +61,7 @@ class DatatableService
      */
     private function createDropdown(EntityDatatable $datatable, $table): void
     {
-        $table->addColumn('dropdown', function ($model) use ($datatable) {
+        $table->addColumn('dropdown', function ($model) use ($datatable): string {
             $hasAction = false;
             $str = '<center style="min-width:100px">';
 
@@ -84,11 +83,9 @@ class DatatableService
                     if (count($action)) {
                         // if show function isn't set default to true
                         if (count($action) == 2) {
-                            $action[] = function () {
-                                return true;
-                            };
+                            $action[] = fn (): bool => true;
                         }
-                        list($value, $url, $visible) = $action;
+                        [$value, $url, $visible] = $action;
                         if ($visible($model)) {
                             if ($value == '--divider--') {
                                 $dropdown_contents .= '<li class="divider"></li>';

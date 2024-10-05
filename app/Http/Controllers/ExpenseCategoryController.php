@@ -8,15 +8,12 @@ use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
-use Request;
-use Session;
-use View;
 
 class ExpenseCategoryController extends BaseController
 {
-    protected $categoryRepo;
+    protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
 
-    protected $categoryService;
+    protected \App\Services\ExpenseCategoryService $categoryService;
 
     protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
@@ -92,7 +89,7 @@ class ExpenseCategoryController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {

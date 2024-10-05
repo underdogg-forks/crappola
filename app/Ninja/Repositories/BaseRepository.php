@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Repositories;
 
-use Auth;
 use Utils;
 
 /**
@@ -73,7 +72,7 @@ class BaseRepository
     /**
      * @return int
      */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
         if ( ! $ids) {
             return 0;
@@ -106,7 +105,7 @@ class BaseRepository
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    protected function applyFilters($query, $entityType, $table = false)
+    protected function applyFilters($query, string $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
 
@@ -152,7 +151,7 @@ class BaseRepository
     /**
      * @return string
      */
-    private function getEventClass($entity, $type)
+    private function getEventClass($entity, string $type): string
     {
         return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }

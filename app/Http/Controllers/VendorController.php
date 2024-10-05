@@ -10,18 +10,13 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
-use Auth;
-use Request;
-use Session;
-use URL;
 use Utils;
-use View;
 
 class VendorController extends BaseController
 {
-    protected $vendorService;
+    protected \App\Services\VendorService $vendorService;
 
-    protected $vendorRepo;
+    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
     protected $entityType = ENTITY_VENDOR;
 
@@ -165,7 +160,7 @@ class VendorController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
@@ -174,7 +169,7 @@ class VendorController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel()
+    private static function getViewModel(): array
     {
         return [
             'data'    => \Illuminate\Support\Facades\Request::old('data'),

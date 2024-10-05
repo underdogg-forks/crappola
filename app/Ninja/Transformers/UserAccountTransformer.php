@@ -154,7 +154,7 @@ class UserAccountTransformer extends EntityTransformer
         return $this->includeCollection($this->account->tax_rates, $transformer, 'tax_rates');
     }
 
-    public function transform(User $user)
+    public function transform(User $user): array
     {
         $account = $user->account;
         $company = $account->company;

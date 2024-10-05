@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddTokens extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -46,4 +45,4 @@ class AddTokens extends Migration
             $table->dropColumn('token_id');
         });
     }
-}
+};

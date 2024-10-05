@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Ninja\Datatables\ProjectTaskDatatable;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\TaskRepository;
-use Auth;
 use Utils;
 
 /**
@@ -13,9 +12,9 @@ use Utils;
  */
 class TaskService extends BaseService
 {
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
-    protected $taskRepo;
+    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
 
     /**
      * TaskService constructor.

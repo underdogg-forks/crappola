@@ -5,22 +5,15 @@ namespace App\Services;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
-use Auth;
 
 /**
  * Class ClientService.
  */
 class ClientService extends BaseService
 {
-    /**
-     * @var ClientRepository
-     */
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * ClientService constructor.

@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreatePaymentIntent extends BaseIntent
 {
-    public function process()
+    public function process(): void
     {
         $clientPublicId = 0;
         $invoicePublicId = 0;

@@ -14,24 +14,18 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
-use Auth;
-use Cache;
 use Carbon;
-use Redirect;
-use Request;
-use Session;
 use Utils;
-use View;
 
 class QuoteController extends BaseController
 {
-    protected $mailer;
+    protected Mailer $mailer;
 
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
-    protected $invoiceService;
+    protected \App\Services\InvoiceService $invoiceService;
 
     protected $entityType = ENTITY_INVOICE;
 
@@ -152,7 +146,7 @@ class QuoteController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to("view/{$invitationKey}");
     }
 
-    private static function getViewModel()
+    private static function getViewModel(): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceNumberSettings extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -54,4 +53,4 @@ class AddInvoiceNumberSettings extends Migration
             $table->dropColumn('share_counter');
         });
     }
-}
+};

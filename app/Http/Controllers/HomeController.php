@@ -6,10 +6,8 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
 use Auth;
-use Mail;
 use Redirect;
 use Request;
-use Response;
 use Session;
 use View;
 
@@ -18,10 +16,7 @@ use View;
  */
 class HomeController extends BaseController
 {
-    /**
-     * @var Mailer
-     */
-    protected $mailer;
+    protected \App\Ninja\Mailers\Mailer $mailer;
 
     /**
      * HomeController constructor.
@@ -104,7 +99,7 @@ class HomeController extends BaseController
     /**
      * @return string
      */
-    public function hideMessage()
+    public function hideMessage(): string
     {
         if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
             $newsFeedId = \Illuminate\Support\Facades\Session::get('news_feed_id');
@@ -131,7 +126,7 @@ class HomeController extends BaseController
     /**
      * @return mixed
      */
-    public function keepAlive()
+    public function keepAlive(): string
     {
         return RESULT_SUCCESS;
     }
@@ -139,7 +134,7 @@ class HomeController extends BaseController
     /**
      * @return mixed
      */
-    public function loggedIn()
+    public function loggedIn(): string
     {
         return RESULT_SUCCESS;
     }
@@ -147,7 +142,7 @@ class HomeController extends BaseController
     /**
      * @return mixed
      */
-    public function contactUs()
+    public function contactUs(): string
     {
         $message = request()->contact_us_message;
 

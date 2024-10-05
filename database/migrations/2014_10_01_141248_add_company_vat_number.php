@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCompanyVatNumber extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -35,4 +34,4 @@ class AddCompanyVatNumber extends Migration
             $table->dropColumn('vat_number');
         });
     }
-}
+};

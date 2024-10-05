@@ -6,14 +6,12 @@ use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalInvitation;
 use App\Models\ProposalTemplate;
-use Auth;
-use DB;
 
 class ProposalRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Proposal';
+        return \App\Models\Proposal::class;
     }
 
     public function all()
@@ -128,7 +126,7 @@ class ProposalRepository extends BaseRepository
     public function findInvitationByKey($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        list($invitationKey) = explode('&', $invitationKey);
+        [$invitationKey] = explode('&', $invitationKey);
         $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         /** @var \App\Models\Invitation $invitation */

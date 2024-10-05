@@ -3,14 +3,12 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ExpenseCategory;
-use Auth;
-use DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ExpenseCategory';
+        return \App\Models\ExpenseCategory::class;
     }
 
     public function all()

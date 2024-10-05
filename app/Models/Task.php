@@ -31,7 +31,7 @@ class Task extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
+    protected $presenter = \App\Ninja\Presenters\TaskPresenter::class;
 
     /**
      * @param $task
@@ -54,7 +54,7 @@ class Task extends EntityModel
      *
      * @return int
      */
-    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0)
+    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0): float
     {
         $duration = 0;
         $parts = json_decode($task->time_log) ?: [];
@@ -80,7 +80,7 @@ class Task extends EntityModel
         return round($duration);
     }
 
-    public static function getStatuses($entityType = false)
+    public static function getStatuses($entityType = false): array
     {
         $statuses = [];
 
@@ -119,7 +119,7 @@ class Task extends EntityModel
         return $label;
     }
 
-    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber): string
     {
         if ($invoiceNumber) {
             if ((float) $balance) {
@@ -127,7 +127,8 @@ class Task extends EntityModel
             }
 
             return 'success';
-        } elseif ($isRunning) {
+        }
+        if ($isRunning) {
             return 'primary';
         }
 
@@ -137,7 +138,7 @@ class Task extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_TASK;
     }
@@ -147,7 +148,7 @@ class Task extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -155,7 +156,7 @@ class Task extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -163,7 +164,7 @@ class Task extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -171,7 +172,7 @@ class Task extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
@@ -179,7 +180,7 @@ class Task extends EntityModel
      */
     public function project()
     {
-        return $this->belongsTo('App\Models\Project')->withTrashed();
+        return $this->belongsTo(\App\Models\Project::class)->withTrashed();
     }
 
     /**
@@ -187,7 +188,7 @@ class Task extends EntityModel
      */
     public function task_status()
     {
-        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
+        return $this->belongsTo(\App\Models\TaskStatus::class)->withTrashed();
     }
 
     /**
@@ -240,7 +241,7 @@ class Task extends EntityModel
     /**
      * @return int
      */
-    public function getCurrentDuration()
+    public function getCurrentDuration(): int|float
     {
         $parts = json_decode($this->time_log) ?: [];
         $part = $parts[count($parts) - 1];
@@ -255,7 +256,7 @@ class Task extends EntityModel
     /**
      * @return bool
      */
-    public function hasPreviousDuration()
+    public function hasPreviousDuration(): bool
     {
         $parts = json_decode($this->time_log) ?: [];
 
@@ -265,7 +266,7 @@ class Task extends EntityModel
     /**
      * @return float
      */
-    public function getHours()
+    public function getHours(): float
     {
         return round($this->getDuration() / (60 * 60), 2);
     }
@@ -275,12 +276,12 @@ class Task extends EntityModel
      *
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/tasks/{$this->public_id}/edit";
     }
 
-    public function getName()
+    public function getName(): string
     {
         return '#' . $this->public_id;
     }
@@ -305,7 +306,7 @@ class Task extends EntityModel
         return $query;
     }
 
-    public function statusClass()
+    public function statusClass(): string
     {
         if ($this->invoice) {
             $balance = $this->invoice->balance;
@@ -318,7 +319,7 @@ class Task extends EntityModel
         return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
     }
 
-    public function statusLabel()
+    public function statusLabel(): string
     {
         if ($this->invoice) {
             $balance = $this->invoice->balance;

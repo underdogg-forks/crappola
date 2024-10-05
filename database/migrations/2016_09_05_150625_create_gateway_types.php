@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGatewayTypes extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -65,4 +64,4 @@ class CreateGatewayTypes extends Migration
         Schema::dropIfExists('account_gateway_settings');
         Schema::dropIfExists('gateway_types');
     }
-}
+};

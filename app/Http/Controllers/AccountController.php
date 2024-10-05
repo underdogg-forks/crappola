@@ -29,21 +29,12 @@ use App\Ninja\Repositories\ReferralRepository;
 use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
-use Auth;
-use Cache;
 use Exception;
 use File;
 use Image;
-use Log;
 use Nwidart\Modules\Facades\Module;
-use Redirect;
-use Request;
-use Response;
-use Session;
 use stdClass;
-use URL;
 use Utils;
-use Validator;
 use View;
 
 /**
@@ -51,30 +42,15 @@ use View;
  */
 class AccountController extends BaseController
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
-    /**
-     * @var ReferralRepository
-     */
-    protected $referralRepository;
+    protected \App\Ninja\Repositories\ReferralRepository $referralRepository;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
     /**
      * AccountController constructor.
@@ -226,7 +202,7 @@ class AccountController extends BaseController
      *
      * @return mixed
      */
-    public function setEntityFilter($entityType, $filter = '')
+    public function setEntityFilter($entityType, $filter = ''): string
     {
         if ($filter == 'true') {
             $filter = '';
@@ -516,7 +492,7 @@ class AccountController extends BaseController
                                     fclose($stream);
                                 }
                             }
-                        } catch (Exception $exception) {
+                        } catch (Exception) {
                             $account->clearLogo();
                             \Illuminate\Support\Facades\Session::flash('error', trans('texts.logo_warning_invalid'));
                         }
@@ -634,7 +610,7 @@ class AccountController extends BaseController
     /**
      * @return string
      */
-    public function checkEmail()
+    public function checkEmail(): string
     {
         $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('email')));
         $user = \Illuminate\Support\Facades\Auth::user();
@@ -657,7 +633,7 @@ class AccountController extends BaseController
     /**
      * @return string
      */
-    public function submitSignup()
+    public function submitSignup(): string
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $ip = \Illuminate\Support\Facades\Request::getClientIp();
@@ -722,7 +698,7 @@ class AccountController extends BaseController
     /**
      * @return mixed
      */
-    public function doRegister()
+    public function doRegister(): string
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
         $email = trim(\Illuminate\Support\Facades\Request::input('email'));
@@ -1197,7 +1173,7 @@ class AccountController extends BaseController
     private function showClientPortal()
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account->load('country');
-        $css = $account->client_view_css ? $account->client_view_css : '';
+        $css = $account->client_view_css ?: '';
 
         if (Utils::isNinja() && $css) {
             // Unescape the CSS for display purposes
@@ -1292,7 +1268,7 @@ class AccountController extends BaseController
         $account->live_preview = \Illuminate\Support\Facades\Request::input('live_preview') ? true : false;
 
         // Automatically disable live preview when using a large font
-        $fonts = \Illuminate\Support\Facades\Cache::get('fonts')->filter(function ($font) use ($account) {
+        $fonts = \Illuminate\Support\Facades\Cache::get('fonts')->filter(function ($font) use ($account): bool {
             if ($font->google_font) {
                 return false;
             }
@@ -1559,15 +1535,15 @@ class AccountController extends BaseController
         /** @var \App\Models\Account $account */
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
-        $account->timezone_id = \Illuminate\Support\Facades\Request::input('timezone_id') ? \Illuminate\Support\Facades\Request::input('timezone_id') : null;
-        $account->date_format_id = \Illuminate\Support\Facades\Request::input('date_format_id') ? \Illuminate\Support\Facades\Request::input('date_format_id') : null;
-        $account->datetime_format_id = \Illuminate\Support\Facades\Request::input('datetime_format_id') ? \Illuminate\Support\Facades\Request::input('datetime_format_id') : null;
-        $account->currency_id = \Illuminate\Support\Facades\Request::input('currency_id') ? \Illuminate\Support\Facades\Request::input('currency_id') : 1; // US Dollar
-        $account->language_id = \Illuminate\Support\Facades\Request::input('language_id') ? \Illuminate\Support\Facades\Request::input('language_id') : 1; // English
+        $account->timezone_id = \Illuminate\Support\Facades\Request::input('timezone_id') ?: null;
+        $account->date_format_id = \Illuminate\Support\Facades\Request::input('date_format_id') ?: null;
+        $account->datetime_format_id = \Illuminate\Support\Facades\Request::input('datetime_format_id') ?: null;
+        $account->currency_id = \Illuminate\Support\Facades\Request::input('currency_id') ?: 1; // US Dollar
+        $account->language_id = \Illuminate\Support\Facades\Request::input('language_id') ?: 1; // English
         $account->military_time = \Illuminate\Support\Facades\Request::input('military_time') ? true : false;
         $account->show_currency_code = \Illuminate\Support\Facades\Request::input('show_currency_code') ? true : false;
-        $account->start_of_week = \Illuminate\Support\Facades\Request::input('start_of_week') ? \Illuminate\Support\Facades\Request::input('start_of_week') : 0;
-        $account->financial_year_start = \Illuminate\Support\Facades\Request::input('financial_year_start') ? \Illuminate\Support\Facades\Request::input('financial_year_start') : null;
+        $account->start_of_week = \Illuminate\Support\Facades\Request::input('start_of_week') ?: 0;
+        $account->financial_year_start = \Illuminate\Support\Facades\Request::input('financial_year_start') ?: null;
         $account->save();
 
         event(new UserSettingsChanged());

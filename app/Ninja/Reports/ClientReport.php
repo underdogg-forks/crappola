@@ -3,11 +3,10 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
 
 class ClientReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'        => [],

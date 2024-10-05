@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
-use Auth;
 use Utils;
 
 /**
@@ -12,15 +11,9 @@ use Utils;
  */
 class CreditService extends BaseService
 {
-    /**
-     * @var CreditRepository
-     */
-    protected $creditRepo;
+    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

@@ -2,11 +2,8 @@
 
 namespace App\Ninja\Mailers;
 
-use App;
 use App\Models\Invoice;
 use Exception;
-use Log;
-use Mail;
 use Postmark\Models\PostmarkAttachment;
 use Postmark\Models\PostmarkException;
 use Postmark\PostmarkClient;
@@ -28,7 +25,7 @@ class Mailer
      *
      * @return bool|string
      */
-    public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
+    public function sendTo($toEmail, $fromEmail, $fromName, $subject, string $view, array $data = [])
     {
         // don't send emails to dummy addresses
         if (mb_stristr($toEmail, '@example.com')) {
@@ -60,7 +57,7 @@ class Mailer
         return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
     }
 
-    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
     {
         if (Utils::isSelfHost()) {
             if (isset($data['account'])) {
@@ -85,9 +82,7 @@ class Mailer
 
                     $fromEmail = config('mail.from.address');
                     $app = \Illuminate\Support\Facades\App::getInstance();
-                    $app->singleton('swift.transport', function ($app) {
-                        return new \Illuminate\Mail\TransportManager($app);
-                    });
+                    $app->singleton('swift.transport', fn ($app): \Illuminate\Mail\TransportManager => new \Illuminate\Mail\TransportManager($app));
                     $mailer = new Swift_Mailer($app['swift.transport']->driver());
                     \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
                 }
@@ -126,7 +121,7 @@ class Mailer
         }
     }
 
-    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
     {
         $htmlBody = view($views[0], $data)->render();
         $textBody = view($views[1], $data)->render();
@@ -200,7 +195,7 @@ class Mailer
      *
      * @return bool
      */
-    private function handleSuccess($data, $messageId = false)
+    private function handleSuccess($data, $messageId = false): bool
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];

@@ -3,14 +3,12 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
-use Auth;
-use DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalSnippet';
+        return \App\Models\ProposalSnippet::class;
     }
 
     public function all()

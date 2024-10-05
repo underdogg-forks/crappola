@@ -7,9 +7,9 @@ use App\Ninja\Mailers\UserMailer;
 
 class InvoiceEventHandler
 {
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
     {
@@ -41,7 +41,7 @@ class InvoiceEventHandler
         $this->sendNotifications($payment->invoice, 'paid', $payment);
     }
 
-    private function sendNotifications($invoice, $type, $payment = null): void
+    private function sendNotifications($invoice, string $type, $payment = null): void
     {
         foreach ($invoice->account->users as $user) {
             if ($user->{'notify_' . $type}) {

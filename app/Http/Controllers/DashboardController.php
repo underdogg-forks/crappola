@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
-use Auth;
 use Utils;
-use View;
 
 /**
  * Class DashboardController.
@@ -120,7 +117,7 @@ class DashboardController extends BaseController
         return json_encode($data);
     }
 
-    private function getCurrencyCodes()
+    private function getCurrencyCodes(): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
         $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
@@ -132,7 +129,7 @@ class DashboardController extends BaseController
             ->get(['currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds): void {
+        array_map(function (array $item) use (&$currencyIds): void {
             $currencyId = (int) ($item['currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;
@@ -146,7 +143,7 @@ class DashboardController extends BaseController
             ->get(['expense_currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds): void {
+        array_map(function (array $item) use (&$currencyIds): void {
             $currencyId = (int) ($item['expense_currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;

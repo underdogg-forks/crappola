@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Traits\HasCustomMessages;
 use Carbon;
-use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -21,7 +20,7 @@ class Client extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ClientPresenter';
+    protected $presenter = \App\Ninja\Presenters\ClientPresenter::class;
 
     /**
      * @var array
@@ -69,7 +68,7 @@ class Client extends EntityModel
     /**
      * @return array
      */
-    public static function getImportColumns()
+    public static function getImportColumns(): array
     {
         return [
             'name',
@@ -100,7 +99,7 @@ class Client extends EntityModel
     /**
      * @return array
      */
-    public static function getImportMap()
+    public static function getImportMap(): array
     {
         return [
             'first'                              => 'contact_first_name',
@@ -129,7 +128,7 @@ class Client extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -137,7 +136,7 @@ class Client extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -145,7 +144,7 @@ class Client extends EntityModel
      */
     public function invoices()
     {
-        return $this->hasMany('App\Models\Invoice');
+        return $this->hasMany(\App\Models\Invoice::class);
     }
 
     /**
@@ -153,7 +152,7 @@ class Client extends EntityModel
      */
     public function quotes()
     {
-        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+        return $this->hasMany(\App\Models\Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
     }
 
     /**
@@ -161,7 +160,7 @@ class Client extends EntityModel
      */
     public function publicQuotes()
     {
-        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
+        return $this->hasMany(\App\Models\Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
     }
 
     /**
@@ -169,7 +168,7 @@ class Client extends EntityModel
      */
     public function payments()
     {
-        return $this->hasMany('App\Models\Payment');
+        return $this->hasMany(\App\Models\Payment::class);
     }
 
     /**
@@ -177,7 +176,7 @@ class Client extends EntityModel
      */
     public function contacts()
     {
-        return $this->hasMany('App\Models\Contact');
+        return $this->hasMany(\App\Models\Contact::class);
     }
 
     /**
@@ -185,7 +184,7 @@ class Client extends EntityModel
      */
     public function country()
     {
-        return $this->belongsTo('App\Models\Country');
+        return $this->belongsTo(\App\Models\Country::class);
     }
 
     /**
@@ -193,7 +192,7 @@ class Client extends EntityModel
      */
     public function shipping_country()
     {
-        return $this->belongsTo('App\Models\Country');
+        return $this->belongsTo(\App\Models\Country::class);
     }
 
     /**
@@ -201,7 +200,7 @@ class Client extends EntityModel
      */
     public function currency()
     {
-        return $this->belongsTo('App\Models\Currency');
+        return $this->belongsTo(\App\Models\Currency::class);
     }
 
     /**
@@ -209,7 +208,7 @@ class Client extends EntityModel
      */
     public function language()
     {
-        return $this->belongsTo('App\Models\Language');
+        return $this->belongsTo(\App\Models\Language::class);
     }
 
     /**
@@ -217,7 +216,7 @@ class Client extends EntityModel
      */
     public function size()
     {
-        return $this->belongsTo('App\Models\Size');
+        return $this->belongsTo(\App\Models\Size::class);
     }
 
     /**
@@ -225,7 +224,7 @@ class Client extends EntityModel
      */
     public function industry()
     {
-        return $this->belongsTo('App\Models\Industry');
+        return $this->belongsTo(\App\Models\Industry::class);
     }
 
     /**
@@ -233,7 +232,7 @@ class Client extends EntityModel
      */
     public function credits()
     {
-        return $this->hasMany('App\Models\Credit');
+        return $this->hasMany(\App\Models\Credit::class);
     }
 
     /**
@@ -241,7 +240,7 @@ class Client extends EntityModel
      */
     public function creditsWithBalance()
     {
-        return $this->hasMany('App\Models\Credit')->where('balance', '>', 0);
+        return $this->hasMany(\App\Models\Credit::class)->where('balance', '>', 0);
     }
 
     /**
@@ -249,7 +248,7 @@ class Client extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense', 'client_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\Expense::class, 'client_id', 'id')->withTrashed();
     }
 
     /**
@@ -257,7 +256,7 @@ class Client extends EntityModel
      */
     public function activities()
     {
-        return $this->hasMany('App\Models\Activity', 'client_id', 'id')->orderBy('id', 'desc');
+        return $this->hasMany(\App\Models\Activity::class, 'client_id', 'id')->orderBy('id', 'desc');
     }
 
     /**
@@ -319,7 +318,7 @@ class Client extends EntityModel
     /**
      * @return string
      */
-    public function getRoute()
+    public function getRoute(): string
     {
         return "/clients/{$this->public_id}";
     }
@@ -387,7 +386,7 @@ class Client extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_CLIENT;
     }
@@ -395,7 +394,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function showMap()
+    public function showMap(): bool
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
@@ -403,7 +402,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function addressesMatch()
+    public function addressesMatch(): bool
     {
         $fields = [
             'address1',
@@ -426,7 +425,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAddress($shipping = false)
+    public function hasAddress($shipping = false): bool
     {
         $fields = [
             'address1',
@@ -506,7 +505,7 @@ class Client extends EntityModel
     /**
      * @return mixed
      */
-    public function getAmount()
+    public function getAmount(): float|int|array
     {
         return $this->balance + $this->paid_to_date;
     }
@@ -575,7 +574,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAutoBillConfigurableInvoices()
+    public function hasAutoBillConfigurableInvoices(): bool
     {
         return $this->invoices()->whereIsPublic(true)->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
     }
@@ -583,7 +582,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasRecurringInvoices()
+    public function hasRecurringInvoices(): bool
     {
         return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
     }

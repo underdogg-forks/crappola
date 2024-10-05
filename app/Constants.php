@@ -643,22 +643,22 @@ if ( ! defined('APP_NAME')) {
     define('CREDIT_CARDS', serialize($creditCards));
 
     $cachedTables = [
-        'currencies'      => 'App\Models\Currency',
-        'sizes'           => 'App\Models\Size',
-        'industries'      => 'App\Models\Industry',
-        'timezones'       => 'App\Models\Timezone',
-        'dateFormats'     => 'App\Models\DateFormat',
-        'datetimeFormats' => 'App\Models\DatetimeFormat',
-        'languages'       => 'App\Models\Language',
-        'paymentTypes'    => 'App\Models\PaymentType',
-        'countries'       => 'App\Models\Country',
-        'invoiceDesigns'  => 'App\Models\InvoiceDesign',
-        'invoiceStatus'   => 'App\Models\InvoiceStatus',
-        'frequencies'     => 'App\Models\Frequency',
-        'gateways'        => 'App\Models\Gateway',
-        'gatewayTypes'    => 'App\Models\GatewayType',
-        'fonts'           => 'App\Models\Font',
-        'banks'           => 'App\Models\Bank',
+        'currencies'      => \App\Models\Currency::class,
+        'sizes'           => \App\Models\Size::class,
+        'industries'      => \App\Models\Industry::class,
+        'timezones'       => \App\Models\Timezone::class,
+        'dateFormats'     => \App\Models\DateFormat::class,
+        'datetimeFormats' => \App\Models\DatetimeFormat::class,
+        'languages'       => \App\Models\Language::class,
+        'paymentTypes'    => \App\Models\PaymentType::class,
+        'countries'       => \App\Models\Country::class,
+        'invoiceDesigns'  => \App\Models\InvoiceDesign::class,
+        'invoiceStatus'   => \App\Models\InvoiceStatus::class,
+        'frequencies'     => \App\Models\Frequency::class,
+        'gateways'        => \App\Models\Gateway::class,
+        'gatewayTypes'    => \App\Models\GatewayType::class,
+        'fonts'           => \App\Models\Font::class,
+        'banks'           => \App\Models\Bank::class,
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 

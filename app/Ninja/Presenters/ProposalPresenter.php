@@ -9,7 +9,7 @@ use DropdownButton;
  */
 class ProposalPresenter extends EntityPresenter
 {
-    public function moreActions()
+    public function moreActions(): array
     {
         $proposal = $this->entity;
         $invitation = $proposal->invitations->first();
@@ -29,7 +29,7 @@ class ProposalPresenter extends EntityPresenter
         return $actions;
     }
 
-    public function htmlDocument()
+    public function htmlDocument(): string
     {
         $proposal = $this->entity;
 
@@ -50,7 +50,7 @@ class ProposalPresenter extends EntityPresenter
         return $html;
     }
 
-    public function filename()
+    public function filename(): string
     {
         $proposal = $this->entity;
 

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SupportLockingAccount extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,4 +36,4 @@ class SupportLockingAccount extends Migration
             $table->dropColumn('update_address');
         });
     }
-}
+};

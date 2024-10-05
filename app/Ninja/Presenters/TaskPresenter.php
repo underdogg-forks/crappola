@@ -3,6 +3,7 @@
 namespace App\Ninja\Presenters;
 
 use Utils;
+use stdClass;
 
 /**
  * Class TaskPresenter.
@@ -25,7 +26,7 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->user->getDisplayName();
     }
 
-    public function description()
+    public function description(): string
     {
         return mb_substr($this->entity->description, 0, 40) . (mb_strlen($this->entity->description) > 40 ? '...' : '');
     }
@@ -36,12 +37,11 @@ class TaskPresenter extends EntityPresenter
     }
 
     /**
-     * @param       $account
      * @param mixed $showProject
      *
      * @return mixed
      */
-    public function invoiceDescription($account, $showProject)
+    public function invoiceDescription($account, $showProject): string
     {
         $str = '';
 
@@ -73,7 +73,7 @@ class TaskPresenter extends EntityPresenter
         return $str . implode("\n", $times);
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $task = $this->entity;

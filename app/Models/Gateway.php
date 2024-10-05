@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
 use Omnipay;
 use Utils;
 
@@ -118,7 +117,7 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
      *
      * @return int
      */
-    public static function hasStandardGateway($gatewayIds)
+    public static function hasStandardGateway($gatewayIds): int
     {
         $diff = array_diff($gatewayIds, static::$alternate);
 
@@ -128,7 +127,7 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function getLogoUrl()
+    public function getLogoUrl(): string
     {
         return '/images/gateways/logo_' . $this->provider . '.png';
     }
@@ -138,7 +137,7 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
      *
      * @return bool
      */
-    public function isGateway($gatewayId)
+    public function isGateway($gatewayId): bool
     {
         return $this->id == $gatewayId;
     }
@@ -218,7 +217,7 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
         return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
-    public function isCustom()
+    public function isCustom(): bool
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }

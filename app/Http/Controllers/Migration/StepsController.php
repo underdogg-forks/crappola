@@ -20,14 +20,13 @@ use Exception;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Validator;
 use ZipArchive;
 
 class StepsController extends BaseController
 {
     use GenerateMigrationResources;
 
-    private $access = [
+    private array $access = [
         'auth' => [
             'steps'    => ['MIGRATION_TYPE'],
             'redirect' => '/migration/start',

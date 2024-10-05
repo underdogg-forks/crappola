@@ -19,7 +19,7 @@ class CreateTaskRequest extends TaskRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'time_log' => 'time_log',

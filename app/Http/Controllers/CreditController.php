@@ -10,17 +10,13 @@ use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use App\Services\CreditService;
-use Redirect;
-use Request;
-use Session;
 use Utils;
-use View;
 
 class CreditController extends BaseController
 {
-    protected $creditRepo;
+    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
 
-    protected $creditService;
+    protected \App\Services\CreditService $creditService;
 
     protected $entityType = ENTITY_CREDIT;
 
@@ -54,7 +50,7 @@ class CreditController extends BaseController
     public function create(CreditRequest $request)
     {
         $data = [
-            'clientPublicId' => \Illuminate\Support\Facades\Request::old('client') ? \Illuminate\Support\Facades\Request::old('client') : ($request->client_id ?: 0),
+            'clientPublicId' => \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0),
             'credit'         => null,
             'method'         => 'POST',
             'url'            => 'credits',
@@ -65,7 +61,7 @@ class CreditController extends BaseController
         return \Illuminate\Support\Facades\View::make('credits.edit', $data);
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $credit = Credit::withTrashed()->scope($publicId)->firstOrFail();
 
@@ -113,7 +109,7 @@ class CreditController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
         $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {

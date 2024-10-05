@@ -3,14 +3,12 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalTemplate;
-use Auth;
-use DB;
 
 class ProposalTemplateRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalTemplate';
+        return \App\Models\ProposalTemplate::class;
     }
 
     public function all()

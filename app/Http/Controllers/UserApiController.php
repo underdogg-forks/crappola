@@ -9,13 +9,12 @@ use App\Models\User;
 use App\Ninja\Repositories\UserRepository;
 use App\Ninja\Transformers\UserTransformer;
 use App\Services\UserService;
-use Auth;
 
 class UserApiController extends BaseAPIController
 {
-    protected $userService;
+    protected \App\Services\UserService $userService;
 
-    protected $userRepo;
+    protected \App\Ninja\Repositories\UserRepository $userRepo;
 
     protected $entityType = ENTITY_USER;
 

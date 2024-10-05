@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddGatewayFeeLocation extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -144,4 +143,4 @@ class AddGatewayFeeLocation extends Migration
 
         Schema::drop('account_email_settings');
     }
-}
+};

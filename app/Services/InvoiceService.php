@@ -10,25 +10,15 @@ use App\Models\Invoice;
 use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
-use Auth;
 use Utils;
 
 class InvoiceService extends BaseService
 {
-    /**
-     * @var ClientRepository
-     */
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * InvoiceService constructor.
@@ -53,7 +43,7 @@ class InvoiceService extends BaseService
      *
      * @return int
      */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
@@ -144,7 +134,7 @@ class InvoiceService extends BaseService
         return $invitation->invitation_key;
     }
 
-    public function getDatatable($accountId, $clientPublicId, $entityType, $search)
+    public function getDatatable($accountId, $clientPublicId, string $entityType, $search)
     {
         $datatable = new InvoiceDatatable(true, $clientPublicId);
         $datatable->entityType = $entityType;

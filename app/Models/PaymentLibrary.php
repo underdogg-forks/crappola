@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-
 /**
  * Class PaymentLibrary.
  */
@@ -24,6 +22,6 @@ class PaymentLibrary extends \Illuminate\Database\Eloquent\Model
      */
     public function gateways()
     {
-        return $this->hasMany('App\Models\Gateway', 'payment_library_id');
+        return $this->hasMany(\App\Models\Gateway::class, 'payment_library_id');
     }
 }

@@ -32,7 +32,7 @@ class TaskStatus extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_TASK_STATUS;
     }
@@ -42,6 +42,6 @@ class TaskStatus extends EntityModel
      */
     public function tasks()
     {
-        return $this->hasMany('App\Models\Task')->orderBy('task_status_sort_order');
+        return $this->hasMany(\App\Models\Task::class)->orderBy('task_status_sort_order');
     }
 }

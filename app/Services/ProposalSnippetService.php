@@ -11,15 +11,9 @@ use App\Ninja\Repositories\ProposalSnippetRepository;
  */
 class ProposalSnippetService extends BaseService
 {
-    /**
-     * @var ProposalSnippetRepository
-     */
-    protected $proposalSnippetRepo;
+    protected \App\Ninja\Repositories\ProposalSnippetRepository $proposalSnippetRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

@@ -2,11 +2,9 @@
 
 namespace App\Jobs;
 
-use App;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use App\Services\ImportService;
-use Auth;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -21,10 +19,7 @@ class ImportData extends Job implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    /**
-     * @var User
-     */
-    protected $user;
+    protected \App\Models\User $user;
 
     /**
      * @var string

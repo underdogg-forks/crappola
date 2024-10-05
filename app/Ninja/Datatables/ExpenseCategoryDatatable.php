@@ -2,16 +2,13 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
-
 class ExpenseCategoryDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public $sortCol = 1;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -27,17 +24,13 @@ class ExpenseCategoryDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_category'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("expense_categories/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("expense_categories/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model]),
             ],
         ];
     }

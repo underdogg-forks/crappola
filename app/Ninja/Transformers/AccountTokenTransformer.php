@@ -15,7 +15,7 @@ class AccountTokenTransformer extends TransformerAbstract
      *
      * @return array
      */
-    public function transform(AccountToken $account_token)
+    public function transform(AccountToken $account_token): array
     {
         return [
             'name'  => $account_token->name,

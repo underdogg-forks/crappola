@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceSignature extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -74,4 +73,4 @@ class AddInvoiceSignature extends Migration
             $table->dropColumn('utm_content');
         });
     }
-}
+};

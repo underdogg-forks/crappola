@@ -3,7 +3,6 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
 use Carbon;
 use DateInterval;
 use DatePeriod;
@@ -37,12 +36,12 @@ class AbstractReport
 
     public function run(): void {}
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [];
     }
 
-    public function results()
+    public function results(): array
     {
         return [
             'columns'      => $this->getColumns(),
@@ -51,7 +50,10 @@ class AbstractReport
         ];
     }
 
-    public function tableHeaderArray()
+    /**
+     * @return array<mixed, array<'class'|'key'|'label', mixed>>
+     */
+    public function tableHeaderArray(): array
     {
         $columns_labeled = [];
 
@@ -91,7 +93,7 @@ class AbstractReport
         return $columns_labeled;
     }
 
-    public function tableHeader()
+    public function tableHeader(): string
     {
         $columns_labeled = $this->tableHeaderArray();
         $str = '';
@@ -104,7 +106,7 @@ class AbstractReport
     }
 
     // convert the date format to one supported by tablesorter
-    public function convertDateFormat()
+    public function convertDateFormat(): string
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
         $format = $account->getMomentDateFormat();
@@ -138,7 +140,7 @@ class AbstractReport
         return join('', $reportParts);
     }
 
-    public function chartGroupBy()
+    public function chartGroupBy(): string
     {
         $groupBy = empty($this->options['group']) ? 'day' : $this->options['group'];
 
@@ -149,7 +151,7 @@ class AbstractReport
         return mb_strtoupper($groupBy);
     }
 
-    public function getLineChartData()
+    public function getLineChartData(): stdClass
     {
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
@@ -213,7 +215,7 @@ class AbstractReport
         return $this->options['subgroup'];
     }
 
-    public function getPieChartData()
+    public function getPieChartData(): false|stdClass
     {
         if ( ! $this->isPieChartEnabled()) {
             return false;
@@ -305,7 +307,7 @@ class AbstractReport
         $this->chartData[$dimension][$date] += $amount;
     }
 
-    protected function formatDate($date)
+    protected function formatDate($date): string
     {
         if ( ! $date instanceof DateTime) {
             $date = new DateTime($date);

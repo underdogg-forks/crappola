@@ -36,7 +36,7 @@ class AccountGatewaySettings extends EntityModel
      */
     public function gatewayType()
     {
-        return $this->belongsTo('App\Models\GatewayType');
+        return $this->belongsTo(\App\Models\GatewayType::class);
     }
 
     public function setCreatedAtAttribute($value): void
@@ -44,17 +44,17 @@ class AccountGatewaySettings extends EntityModel
         // to Disable created_at
     }
 
-    public function areFeesEnabled()
+    public function areFeesEnabled(): bool
     {
         return (float) ($this->fee_amount) || (float) ($this->fee_percent);
     }
 
-    public function hasTaxes()
+    public function hasTaxes(): bool
     {
         return (float) ($this->fee_tax_rate1) || (float) ($this->fee_tax_rate2);
     }
 
-    public function feesToString()
+    public function feesToString(): string
     {
         $parts = [];
 

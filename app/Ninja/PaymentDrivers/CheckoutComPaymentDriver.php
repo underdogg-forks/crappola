@@ -4,7 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 class CheckoutComPaymentDriver extends BasePaymentDriver
 {
-    public function createTransactionToken()
+    public function createTransactionToken(): void
     {
         if ($this->invoice()->getCurrencyCode() == 'BHD') {
             $amount = $this->invoice()->getRequestedAmount() / 10;

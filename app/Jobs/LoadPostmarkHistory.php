@@ -18,7 +18,7 @@ class LoadPostmarkHistory extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): stdClass
     {
         $str = '';
 
@@ -41,16 +41,18 @@ class LoadPostmarkHistory extends Job
         return $response;
     }
 
-    private function loadBounceEvents()
+    private function loadBounceEvents(): string
     {
         $str = '';
         $response = $this->postmark->getBounces(5, 0, null, null, $this->email, $this->account->account_key);
 
         foreach ($response['bounces'] as $bounce) {
-            if ( ! $bounce['inactive'] || ! $bounce['canactivate']) {
+            if ( ! $bounce['inactive']) {
                 continue;
             }
-
+            if ( ! $bounce['canactivate']) {
+                continue;
+            }
             $str .= sprintf('<b>%s</b><br/>', $bounce['subject']);
             $str .= sprintf('<span class="text-danger">%s</span> | %s<br/>', $bounce['type'], $this->account->getDateTime($bounce['bouncedat'], true));
             $str .= sprintf('<span class="text-muted">%s %s</span><p/>', $bounce['description'], $bounce['details']);
@@ -61,7 +63,7 @@ class LoadPostmarkHistory extends Job
         return $str;
     }
 
-    private function loadEmailEvents()
+    private function loadEmailEvents(): string
     {
         $str = '';
         $response = $this->postmark->getOutboundMessages(5, 0, $this->email, null, $this->account->account_key);

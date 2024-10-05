@@ -18,7 +18,7 @@ class GenerateProjectChartData extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): stdClass
     {
         $project = $this->project;
         $account = $project->account;

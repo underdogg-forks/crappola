@@ -4,7 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         return [
             GATEWAY_TYPE_PAYPAL,
@@ -60,9 +60,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
-        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
-            return mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE']));
-        })->first()) {
+        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE'])))->first()) {
             $client->shipping_country_id = $country->id;
         } else {
             $client->shipping_country_id = null;

@@ -14,7 +14,6 @@ use DateTime;
 use Exception;
 use Omnipay;
 use Omnipay\Common\Item;
-use Request;
 use Session;
 use URL;
 use Utils;
@@ -56,41 +55,41 @@ class BasePaymentDriver
         $this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
-    public function isGateway($gatewayId)
+    public function isGateway($gatewayId): bool
     {
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
-    public function isValid()
+    public function isValid(): bool
     {
         return true;
     }
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         return [
             GATEWAY_TYPE_CREDIT_CARD,
         ];
     }
 
-    public function handles($type)
+    public function handles($type): bool
     {
         return in_array($type, $this->gatewayTypes());
     }
 
     // when set to true we won't pass the card details with the form
-    public function tokenize()
+    public function tokenize(): bool
     {
         return false;
     }
 
     // set payment method as pending until confirmed
-    public function isTwoStep()
+    public function isTwoStep(): bool
     {
         return false;
     }
 
-    public function providerName()
+    public function providerName(): string
     {
         return mb_strtolower($this->accountGateway->gateway->provider);
     }
@@ -115,7 +114,7 @@ class BasePaymentDriver
 
         if ( ! $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             // apply gateway fees
-            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
             $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
         }
 
@@ -211,7 +210,7 @@ class BasePaymentDriver
     }
 
     // check if a custom partial exists for this provider
-    public function partialView()
+    public function partialView(): string|false
     {
         $file = sprintf('%s/views/payments/%s/partial.blade.php', resource_path(), $this->providerName());
 
@@ -222,7 +221,10 @@ class BasePaymentDriver
         return false;
     }
 
-    public function rules()
+    /**
+     * @return mixed[]
+     */
+    public function rules(): array
     {
         $rules = [];
 
@@ -280,7 +282,7 @@ class BasePaymentDriver
         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
     }
 
-    public function paymentDetailsFromClient()
+    public function paymentDetailsFromClient(): array
     {
         $invoice = $this->invoice();
         $client = $this->client();
@@ -299,17 +301,17 @@ class BasePaymentDriver
             'billingState'     => $client->state,
             'billingCountry'   => $client->country ? $client->country->iso_3166_2 : '',
             'billingPhone'     => $contact->phone,
-            'shippingAddress1' => $client->shipping_address1 ? $client->shipping_address1 : $client->address1,
-            'shippingAddress2' => $client->shipping_address1 ? $client->shipping_address1 : $client->address2,
-            'shippingCity'     => $client->shipping_address1 ? $client->shipping_address1 : $client->city,
-            'shippingPostcode' => $client->shipping_address1 ? $client->shipping_address1 : $client->postal_code,
-            'shippingState'    => $client->shipping_address1 ? $client->shipping_address1 : $client->state,
+            'shippingAddress1' => $client->shipping_address1 ?: $client->address1,
+            'shippingAddress2' => $client->shipping_address1 ?: $client->address2,
+            'shippingCity'     => $client->shipping_address1 ?: $client->city,
+            'shippingPostcode' => $client->shipping_address1 ?: $client->postal_code,
+            'shippingState'    => $client->shipping_address1 ?: $client->state,
             'shippingCountry'  => $client->shipping_address1 ? ($client->shipping_country ? $client->shipping_country->iso_3166_2 : '') : ($client->country ? $client->country->iso_3166_2 : ''),
             'shippingPhone'    => $contact->phone,
         ];
     }
 
-    public function shouldUseSource()
+    public function shouldUseSource(): bool
     {
         // Use Omnipay by default
         return false;
@@ -603,7 +605,10 @@ class BasePaymentDriver
         return $this->createPayment($paymentRef);
     }
 
-    public function tokenLinks()
+    /**
+     * @return mixed[]
+     */
+    public function tokenLinks(): array
     {
         if ( ! $this->customer()) {
             return [];
@@ -646,7 +651,10 @@ class BasePaymentDriver
         return $links;
     }
 
-    public function paymentLinks()
+    /**
+     * @return array<mixed, array<'gatewayTypeId'|'label'|'url', mixed>>
+     */
+    public function paymentLinks(): array
     {
         $links = [];
 
@@ -691,7 +699,7 @@ class BasePaymentDriver
         return $links;
     }
 
-    public function supportsGatewayType($gatewayTypeId)
+    public function supportsGatewayType($gatewayTypeId): bool
     {
         return in_array($gatewayTypeId, $this->gatewayTypes());
     }
@@ -702,7 +710,7 @@ class BasePaymentDriver
     }
 
     // optionally pass a paymentMethod to determine the type from the token
-    protected function isGatewayType($gatewayType, $paymentMethod = false)
+    protected function isGatewayType($gatewayType, $paymentMethod = false): bool
     {
         if ($paymentMethod) {
             return $paymentMethod->gatewayType() == $gatewayType;
@@ -731,7 +739,7 @@ class BasePaymentDriver
         return $this->client()->account;
     }
 
-    protected function stepTwoView()
+    protected function stepTwoView(): string
     {
         $file = sprintf('%s/views/payments/%s/step2.blade.php', resource_path(), $this->providerName());
 
@@ -743,7 +751,7 @@ class BasePaymentDriver
     }
 
     // check if a custom view exists for this provider
-    protected function paymentView()
+    protected function paymentView(): string
     {
         $gatewayTypeAlias = GatewayType::getAliasFromId($this->gatewayType);
 
@@ -784,7 +792,7 @@ class BasePaymentDriver
                     ->firstOrFail();
             }
 
-            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
             $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
 
             if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
@@ -866,7 +874,7 @@ class BasePaymentDriver
         }
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $invoice = $this->invoice();
         $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
@@ -914,7 +922,7 @@ class BasePaymentDriver
         return (bool) (\Illuminate\Support\Arr::get($this->input, 'token_billing'));
     }
 
-    protected function checkCustomerExists($customer)
+    protected function checkCustomerExists($customer): bool
     {
         return true;
     }
@@ -962,7 +970,7 @@ class BasePaymentDriver
         return $payment;
     }
 
-    protected function refundDetails($payment, $amount)
+    protected function refundDetails($payment, $amount): array
     {
         return [
             'amount'               => $amount,
@@ -971,7 +979,7 @@ class BasePaymentDriver
         ];
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount)
+    protected function attemptVoidPayment($response, $payment, $amount): bool
     {
         // Partial refund not allowed for unsettled transactions
         return $amount == $payment->amount;
@@ -987,7 +995,7 @@ class BasePaymentDriver
         // do nothing
     }
 
-    protected function meetsGatewayTypeLimits($gatewayTypeId)
+    protected function meetsGatewayTypeLimits($gatewayTypeId): bool
     {
         if ( ! $gatewayTypeId) {
             return true;
@@ -1103,7 +1111,10 @@ class BasePaymentDriver
         }
     }
 
-    private function paymentDetailsFromInput($input)
+    /**
+     * @return mixed[]
+     */
+    private function paymentDetailsFromInput($input): array
     {
         $invoice = $this->invoice();
         $client = $this->client();

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SupportMultipleTaxRates extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -73,4 +72,4 @@ class SupportMultipleTaxRates extends Migration
             $table->dropColumn('enable_client_portal_dashboard');
         });
     }
-}
+};

@@ -9,16 +9,12 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
-use Auth;
-use Request;
-use Session;
-use View;
 
 class ProposalSnippetController extends BaseController
 {
-    protected $proposalSnippetRepo;
+    protected \App\Ninja\Repositories\ProposalSnippetRepository $proposalSnippetRepo;
 
-    protected $proposalSnippetService;
+    protected \App\Services\ProposalSnippetService $proposalSnippetService;
 
     protected $entityType = ENTITY_PROPOSAL_SNIPPET;
 
@@ -118,7 +114,7 @@ class ProposalSnippetController extends BaseController
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ? \Illuminate\Support\Facades\Request::input('public_id') : \Illuminate\Support\Facades\Request::input('ids');
+        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
 
         $count = $this->proposalSnippetService->bulk($ids, $action);
 
@@ -131,7 +127,7 @@ class ProposalSnippetController extends BaseController
         return redirect()->to('/proposals/snippets');
     }
 
-    private function getIcons()
+    private function getIcons(): array
     {
         $data = [];
         $icons = [

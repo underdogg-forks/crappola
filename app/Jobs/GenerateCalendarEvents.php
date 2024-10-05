@@ -15,7 +15,7 @@ class GenerateCalendarEvents extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): array
     {
         $events = [];
         $filter = request()->filter ?: [];

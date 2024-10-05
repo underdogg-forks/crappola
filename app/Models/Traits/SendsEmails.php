@@ -57,7 +57,7 @@ trait SendsEmails
      *
      * @return string
      */
-    public function getDefaultEmailTemplate($entityType, $message = false)
+    public function getDefaultEmailTemplate($entityType, $message = false): string
     {
         if (str_contains($entityType, 'reminder')) {
             $entityType = ENTITY_INVOICE;
@@ -135,7 +135,7 @@ trait SendsEmails
      *
      * @return bool
      */
-    public function getReminderDate($reminder, $filterEnabled = true)
+    public function getReminderDate($reminder, $filterEnabled = true): false|string
     {
         if ($filterEnabled && ! $this->{"enable_reminder{$reminder}"}) {
             return false;
@@ -152,7 +152,7 @@ trait SendsEmails
      *
      * @return bool|string
      */
-    public function getInvoiceReminder($invoice, $filterEnabled = true)
+    public function getInvoiceReminder($invoice, $filterEnabled = true): string|false
     {
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i, $filterEnabled)) {
@@ -172,7 +172,7 @@ trait SendsEmails
         return false;
     }
 
-    public function setTemplateDefaults($type, $subject, $body): void
+    public function setTemplateDefaults(string $type, $subject, $body): void
     {
         $settings = $this->account_email_settings;
 
@@ -197,7 +197,7 @@ trait SendsEmails
         return $this->isPro() ? $this->account_email_settings->reply_to_email : false;
     }
 
-    public function getFromEmail()
+    public function getFromEmail(): false|string
     {
         if ( ! $this->isPro() || ! Utils::isNinja() || Utils::isReseller()) {
             return false;
@@ -206,7 +206,7 @@ trait SendsEmails
         return Domain::getEmailFromId($this->domain_id);
     }
 
-    public function getDailyEmailLimit()
+    public function getDailyEmailLimit(): int|float
     {
         $limit = MAX_EMAILS_SENT_PER_DAY;
 

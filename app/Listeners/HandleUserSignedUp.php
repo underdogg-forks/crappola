@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\UserSignedUp;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
 use Utils;
 
 /**
@@ -13,15 +12,9 @@ use Utils;
  */
 class HandleUserSignedUp
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+    protected \App\Ninja\Mailers\UserMailer $userMailer;
 
     /**
      * Create the event handler.

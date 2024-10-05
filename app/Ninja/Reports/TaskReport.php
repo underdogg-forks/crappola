@@ -3,12 +3,11 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Task;
-use Auth;
 use Utils;
 
 class TaskReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'      => [],

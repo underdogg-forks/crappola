@@ -16,7 +16,7 @@ class RegisterRequest extends Request
         $this->req = $req;
     }
 
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -26,7 +26,7 @@ class RegisterRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'email'      => 'email|required|unique:users',

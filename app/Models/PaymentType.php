@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-
 /**
  * Class PaymentType.
  */
@@ -14,7 +12,7 @@ class PaymentType extends \Illuminate\Database\Eloquent\Model
      */
     public $timestamps = false;
 
-    public static function parseCardType($cardName)
+    public static function parseCardType($cardName): int
     {
         $cardTypes = [
             'visa'            => PAYMENT_TYPE_VISA,
@@ -52,6 +50,6 @@ class PaymentType extends \Illuminate\Database\Eloquent\Model
      */
     public function gatewayType()
     {
-        return $this->belongsTo('App\Models\GatewayType');
+        return $this->belongsTo(\App\Models\GatewayType::class);
     }
 }

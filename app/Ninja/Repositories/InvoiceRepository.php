@@ -17,15 +17,12 @@ use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
 use App\Services\PaymentService;
-use Auth;
 use Datatable;
-use DB;
-use Log;
 use Utils;
 
 class InvoiceRepository extends BaseRepository
 {
-    protected $documentRepo;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo, PaymentRepository $paymentRepo)
     {
@@ -34,9 +31,9 @@ class InvoiceRepository extends BaseRepository
         $this->paymentRepo = $paymentRepo;
     }
 
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Invoice';
+        return \App\Models\Invoice::class;
     }
 
     public function all()
@@ -49,7 +46,7 @@ class InvoiceRepository extends BaseRepository
             ->get();
     }
 
-    public function getInvoices($accountId, $clientPublicId = false, $entityType = ENTITY_INVOICE, $filter = false)
+    public function getInvoices($accountId, $clientPublicId = false, string $entityType = ENTITY_INVOICE, $filter = false)
     {
         $query = \Illuminate\Support\Facades\DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -246,15 +243,9 @@ class InvoiceRepository extends BaseRepository
 
                 return trans('texts.freq_' . $frequency);
             })
-            ->addColumn('start_date', function ($model) {
-                return Utils::fromSqlDate($model->start_date);
-            })
-            ->addColumn('end_date', function ($model) {
-                return Utils::fromSqlDate($model->end_date);
-            })
-            ->addColumn('amount', function ($model) {
-                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-            })
+            ->addColumn('start_date', fn ($model) => Utils::fromSqlDate($model->start_date))
+            ->addColumn('end_date', fn ($model) => Utils::fromSqlDate($model->end_date))
+            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
             ->addColumn('client_enable_auto_bill', function ($model) {
                 if ($model->auto_bill == AUTO_BILL_OFF) {
                     return trans('texts.disabled');
@@ -311,31 +302,21 @@ class InvoiceRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('invoice_number', function ($model) {
-                return link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml();
-            })
-            ->addColumn('invoice_date', function ($model) {
-                return Utils::fromSqlDate($model->invoice_date);
-            })
-            ->addColumn('amount', function ($model) {
-                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-            });
+            ->addColumn('invoice_number', fn ($model) => link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml())
+            ->addColumn('invoice_date', fn ($model) => Utils::fromSqlDate($model->invoice_date))
+            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id));
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) {
-                return $model->partial > 0 ?
-                    trans('texts.partial_remaining', [
-                        'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                        'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
-                    ]) :
-                    Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-            });
+            $table->addColumn('balance', fn ($model) => $model->partial > 0 ?
+                trans('texts.partial_remaining', [
+                    'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                    'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
+                ]) :
+                Utils::formatMoney($model->balance, $model->currency_id, $model->country_id));
         }
 
-        return $table->addColumn('due_date', function ($model) {
-            return Utils::fromSqlDate($model->due_date);
-        })
-            ->addColumn('invoice_status_id', function ($model) use ($entityType) {
+        return $table->addColumn('due_date', fn ($model) => Utils::fromSqlDate($model->due_date))
+            ->addColumn('invoice_status_id', function ($model) use ($entityType): string {
                 if ($model->invoice_status_id == INVOICE_STATUS_PAID) {
                     $label = trans('texts.status_paid');
                     $class = 'success';
@@ -633,8 +614,8 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ( ! $account->inclusive_taxes) {
-            $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
-            $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
+            $taxAmount1 = round($total * ($invoice->tax_rate1 ?: 0) / 100, 2);
+            $taxAmount2 = round($total * ($invoice->tax_rate2 ?: 0) / 100, 2);
             $total = round($total + $taxAmount1 + $taxAmount2, 2);
             $total += $itemTax;
         }
@@ -691,14 +672,16 @@ class InvoiceRepository extends BaseRepository
 
             if ( ! $invoice->wasRecentlyCreated) {
                 foreach ($invoice->documents as $document) {
-                    if ( ! in_array($document->public_id, $document_ids)) {
-                        // Removed
-                        // Not checking permissions; deleting a document is just editing the invoice
-                        if ($document->invoice_id == $invoice->id) {
-                            // Make sure the document isn't on a clone
-                            $document->delete();
-                        }
+                    if (in_array($document->public_id, $document_ids)) {
+                        continue;
                     }
+                    // Removed
+                    // Not checking permissions; deleting a document is just editing the invoice
+                    if ($document->invoice_id != $invoice->id) {
+                        continue;
+                    }
+                    // Make sure the document isn't on a clone
+                    $document->delete();
                 }
             }
         }
@@ -939,7 +922,7 @@ class InvoiceRepository extends BaseRepository
     {
         // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
         if (config('queue.default') === 'sync') {
-            app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            app(\App\Ninja\Mailers\ContactMailer::class)->sendInvoice($invoice);
         } else {
             dispatch(new SendInvoiceEmail($invoice));
         }
@@ -981,7 +964,7 @@ class InvoiceRepository extends BaseRepository
     public function findInvoiceByInvitation($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        list($invitationKey) = explode('&', $invitationKey);
+        [$invitationKey] = explode('&', $invitationKey);
         $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         /** @var \App\Models\Invitation $invitation */

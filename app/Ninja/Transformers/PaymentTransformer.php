@@ -29,7 +29,7 @@ class PaymentTransformer extends EntityTransformer
         'invoice',
     ];
 
-    public function __construct($account = null, $serializer = null, $invoice = null)
+    public function __construct(?\App\Models\Account $account = null, $serializer = null, $invoice = null)
     {
         parent::__construct($account, $serializer);
 
@@ -50,7 +50,7 @@ class PaymentTransformer extends EntityTransformer
         return $this->includeItem($payment->client, $transformer, 'client');
     }
 
-    public function transform(Payment $payment)
+    public function transform(Payment $payment): array
     {
         return array_merge($this->getDefaults($payment), [
             'id'                    => (int) $payment->public_id,

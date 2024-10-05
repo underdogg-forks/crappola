@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Redirect;
 
 class PasswordController extends Controller
 {
@@ -88,13 +87,10 @@ class PasswordController extends Controller
             $this->resetPassword($user, $password);
         });
 
-        switch ($response) {
-            case Password::PASSWORD_RESET:
-                return $this->getResetSuccessResponse($response);
-
-            default:
-                return $this->getResetFailureResponse($request, $response);
-        }
+        return match ($response) {
+            Password::PASSWORD_RESET => $this->getResetSuccessResponse($response),
+            default                  => $this->getResetFailureResponse($request, $response),
+        };
     }
 
     /**
@@ -102,7 +98,7 @@ class PasswordController extends Controller
      *
      * @return array
      */
-    protected function getResetValidationRules()
+    protected function getResetValidationRules(): array
     {
         return [
             'token'    => 'required',

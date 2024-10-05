@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Auth;
-
 class UpdateUserRequest extends EntityRequest
 {
     // Expenses
@@ -13,7 +11,7 @@ class UpdateUserRequest extends EntityRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return \Illuminate\Support\Facades\Auth::user()->is_admin || $this->user()->id == \Illuminate\Support\Facades\Auth::user()->id;
     }
@@ -23,7 +21,7 @@ class UpdateUserRequest extends EntityRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'email'      => 'email|required|unique:users,email,' . \Illuminate\Support\Facades\Auth::user()->id . ',id',

@@ -13,15 +13,9 @@ use Utils;
  */
 class RecurringExpenseService extends BaseService
 {
-    /**
-     * @var RecurringExpenseRepository
-     */
-    protected $recurringExpenseRepo;
+    protected \App\Ninja\Repositories\RecurringExpenseRepository $recurringExpenseRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * CreditService constructor.

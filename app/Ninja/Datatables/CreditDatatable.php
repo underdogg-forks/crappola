@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
 use Utils;
 
 class CreditDatatable extends EntityDatatable
@@ -12,7 +10,7 @@ class CreditDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -71,26 +69,18 @@ class CreditDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_credit'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("credits/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("credits/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model]),
             ],
             [
                 trans('texts.apply_credit'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT);
-                },
+                fn ($model): string => \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1',
+                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
             ],
         ];
     }

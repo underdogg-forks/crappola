@@ -19,8 +19,14 @@ class HostedMigration extends Job
 
     public $db;
 
+    /**
+     * @var mixed[]
+     */
     public $data;
 
+    /**
+     * @var \App\Models\User
+     */
     public $user;
 
     public $migration_token;
@@ -140,7 +146,7 @@ class HostedMigration extends Job
         return $migrationData;
     }
 
-    private function getToken()
+    private function getToken(): static
     {
         $url = 'https://invoicing.co/api/v1/get_migration_account';
         // $url = 'http://devhosted.test:8000/api/v1/get_migration_account';

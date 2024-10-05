@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class MultiCompanySupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,4 +36,4 @@ class MultiCompanySupport extends Migration
     {
         Schema::dropIfExists('user_accounts');
     }
-}
+};

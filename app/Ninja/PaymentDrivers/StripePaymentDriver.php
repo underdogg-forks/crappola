@@ -7,9 +7,7 @@ use App\Models\Invitation;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
-use Cache;
 use Exception;
-use Session;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
@@ -19,7 +17,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected $customerReferenceParam = 'customerReference';
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
@@ -112,12 +110,12 @@ class StripePaymentDriver extends BasePaymentDriver
         return $result;
     }
 
-    public function shouldUseSource()
+    public function shouldUseSource(): bool
     {
         return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT, GATEWAY_TYPE_BITCOIN]);
     }
 
-    public function isTwoStep()
+    public function isTwoStep(): bool
     {
         return $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER) && empty($this->input['plaidPublicToken']);
     }
@@ -166,14 +164,14 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
                 $intent = PaymentIntent::retrieve($data['payment_intent']);
-                if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
+                if ( ! $intent->amount == $data['amount'] * 10 ** $currency['precision']) {
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
                 }
                 $intent->confirm();
             } elseif ( ! empty($data['token']) || ! empty($data['payment_method'])) {
                 $params = [
-                    'amount'              => $data['amount'] * pow(10, $currency['precision']),
+                    'amount'              => $data['amount'] * 10 ** $currency['precision'],
                     'currency'            => $data['currency'],
                     'confirmation_method' => 'manual',
                     'confirm'             => true,
@@ -239,9 +237,9 @@ class StripePaymentDriver extends BasePaymentDriver
                 return $payment;
             }
             throw new Exception('Invalid PaymentIntent status: ' . $intent->status);
-        } else {
-            return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
         }
+
+        return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
     }
 
     public function getCustomerID()
@@ -307,7 +305,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return $customer;
     }
 
-    public function removePaymentMethod($paymentMethod)
+    public function removePaymentMethod($paymentMethod): void
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -326,7 +324,7 @@ class StripePaymentDriver extends BasePaymentDriver
         throw new Exception($response->getMessage());
     }
 
-    public function verifyBankAccount($client, $publicId, $amount1, $amount2)
+    public function verifyBankAccount($client, $publicId, $amount1, $amount2): void
     {
         $customer = $this->customer($client->id);
         $paymentMethod = PaymentMethod::clientId($client->id)
@@ -409,7 +407,7 @@ class StripePaymentDriver extends BasePaymentDriver
         throw new Exception($response);
     }
 
-    public function makeStripeCall($method, $url, $body = null)
+    public function makeStripeCall(string $method, $url, $body = null)
     {
         $apiKey = $this->accountGateway->getConfig()->apiKey;
 
@@ -446,7 +444,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function handleWebHook($input)
+    public function handleWebHook($input): void
     {
         $eventId = \Illuminate\Support\Arr::get($input, 'id');
         $eventType = \Illuminate\Support\Arr::get($input, 'type');
@@ -508,7 +506,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($source['failure_message']);
 
-                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer = app(\App\Ninja\Mailers\UserMailer::class);
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($eventType == 'charge.succeeded') {
@@ -549,7 +547,7 @@ class StripePaymentDriver extends BasePaymentDriver
         Stripe::setApiKey($this->accountGateway->getConfigField('apiKey'));
     }
 
-    protected function checkCustomerExists($customer)
+    protected function checkCustomerExists($customer): bool
     {
         $response = $this->gateway()
             ->fetchCustomer(['customerReference' => $customer->token])
@@ -688,7 +686,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return $payment;
     }
 
-    private function getPlaidToken($publicToken, $accountId)
+    private function getPlaidToken($publicToken, $accountId): mixed
     {
         $clientId = $this->accountGateway->getPlaidClientId();
         $secret = $this->accountGateway->getPlaidSecret();

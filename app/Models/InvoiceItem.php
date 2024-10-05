@@ -16,7 +16,7 @@ class InvoiceItem extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
+    protected $presenter = \App\Ninja\Presenters\InvoiceItemPresenter::class;
 
     /**
      * @var array
@@ -38,7 +38,7 @@ class InvoiceItem extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_INVOICE_ITEM;
     }
@@ -48,7 +48,7 @@ class InvoiceItem extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -56,7 +56,7 @@ class InvoiceItem extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -64,7 +64,7 @@ class InvoiceItem extends EntityModel
      */
     public function product()
     {
-        return $this->belongsTo('App\Models\Product');
+        return $this->belongsTo(\App\Models\Product::class);
     }
 
     /**
@@ -72,10 +72,10 @@ class InvoiceItem extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
-    public function getPreTaxAmount()
+    public function getPreTaxAmount(): int|float
     {
         $amount = $this->cost * $this->qty;
 
@@ -90,7 +90,7 @@ class InvoiceItem extends EntityModel
         return $amount;
     }
 
-    public function getTaxAmount()
+    public function getTaxAmount(): float|int
     {
         $tax = 0;
         $preTaxAmount = $this->getPreTaxAmount();
@@ -106,7 +106,7 @@ class InvoiceItem extends EntityModel
         return $tax;
     }
 
-    public function amount()
+    public function amount(): float|int|array
     {
         return $this->getPreTaxAmount() + $this->getTaxAmount();
     }
@@ -119,7 +119,7 @@ class InvoiceItem extends EntityModel
         }
     }
 
-    public function hasTaxes()
+    public function hasTaxes(): bool
     {
         if ($this->tax_name1 || $this->tax_rate1) {
             return true;

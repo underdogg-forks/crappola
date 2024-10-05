@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCompanyIdNumber extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -34,4 +33,4 @@ class AddCompanyIdNumber extends Migration
             $table->dropColumn('id_number');
         });
     }
-}
+};

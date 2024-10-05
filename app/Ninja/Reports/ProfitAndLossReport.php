@@ -4,11 +4,10 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\Payment;
-use Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'type'   => [],
@@ -36,7 +35,10 @@ class ProfitAndLossReport extends AbstractReport
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
             $invoice = $payment->invoice;
-            if ($client->is_deleted || $invoice->is_deleted) {
+            if ($client->is_deleted) {
+                continue;
+            }
+            if ($invoice->is_deleted) {
                 continue;
             }
             $this->data[] = [

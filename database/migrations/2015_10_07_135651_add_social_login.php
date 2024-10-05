@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSocialLogin extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -61,4 +60,4 @@ class AddSocialLogin extends Migration
             $table->dropColumn('email_error');
         });
     }
-}
+};

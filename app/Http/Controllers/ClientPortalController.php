@@ -16,26 +16,18 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\PaymentService;
-use Auth;
 use Barracuda\ArchiveStream\ZipArchive;
 use Datatable;
 use Exception;
-use Redirect;
-use Request;
-use Response;
-use Session;
-use URL;
 use Utils;
-use Validator;
-use View;
 
 class ClientPortalController extends BaseController
 {
-    private $invoiceRepo;
+    private \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    private $paymentRepo;
+    private \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
-    private $documentRepo;
+    private \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(
         InvoiceRepository $invoiceRepo,
@@ -55,7 +47,7 @@ class ClientPortalController extends BaseController
         $this->taskRepo = $taskRepo;
     }
 
-    public function viewInvoice($invitationKey)
+    public function viewInvoice(string $invitationKey)
     {
         if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
@@ -225,7 +217,7 @@ class ClientPortalController extends BaseController
         return $pdfString;
     }
 
-    public function authorizeInvoice($invitationKey)
+    public function authorizeInvoice($invitationKey): string
     {
         if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return RESULT_FAILURE;
@@ -262,7 +254,7 @@ class ClientPortalController extends BaseController
             return redirect(request()->url());
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
         $customer = false;
 
         if ( ! $account->enable_client_portal) {
@@ -303,9 +295,7 @@ class ClientPortalController extends BaseController
         $query->where('activities.adjustment', '!=', 0);
 
         return Datatable::query($query)
-            ->addColumn('activities.id', function ($model) {
-                return Utils::timestampToDateTimeString(strtotime($model->created_at));
-            })
+            ->addColumn('activities.id', fn ($model) => Utils::timestampToDateTimeString(strtotime($model->created_at)))
             ->addColumn('activity_type_id', function ($model) {
                 $data = [
                     'client'         => Utils::getClientDisplayName($model),
@@ -320,12 +310,8 @@ class ClientPortalController extends BaseController
 
                 return trans("texts.activity_{$model->activity_type_id}", $data);
             })
-            ->addColumn('balance', function ($model) {
-                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-            })
-            ->addColumn('adjustment', function ($model) {
-                return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
-            })
+            ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
+            ->addColumn('adjustment', fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '')
             ->make();
     }
 
@@ -341,7 +327,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
         $columns = ['frequency', 'start_date', 'end_date', 'invoice_total'];
         $client = $contact->client;
 
@@ -374,7 +360,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -419,7 +405,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -441,24 +427,12 @@ class ClientPortalController extends BaseController
         $payments = $this->paymentRepo->findForContact($contact->id, \Illuminate\Support\Facades\Request::input('sSearch'));
 
         return Datatable::query($payments)
-            ->addColumn('invoice_number', function ($model) {
-                return $model->invitation_key ? link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number;
-            })
-            ->addColumn('transaction_reference', function ($model) {
-                return $model->transaction_reference ? e($model->transaction_reference) : '<i>' . trans('texts.manual_entry') . '</i>';
-            })
-            ->addColumn('payment_type', function ($model) {
-                return ($model->payment_type && ! $model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : '');
-            })
-            ->addColumn('amount', function ($model) {
-                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-            })
-            ->addColumn('payment_date', function ($model) {
-                return Utils::dateToString($model->payment_date);
-            })
-            ->addColumn('status', function ($model) {
-                return $this->getPaymentStatusLabel($model);
-            })
+            ->addColumn('invoice_number', fn ($model) => $model->invitation_key ? link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number)
+            ->addColumn('transaction_reference', fn ($model) => $model->transaction_reference ? e($model->transaction_reference) : '<i>' . trans('texts.manual_entry') . '</i>')
+            ->addColumn('payment_type', fn ($model) => ($model->payment_type && ! $model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''))
+            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
+            ->addColumn('payment_date', fn ($model) => Utils::dateToString($model->payment_date))
+            ->addColumn('status', fn ($model) => $this->getPaymentStatusLabel($model))
             ->orderColumns('invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date')
             ->make();
     }
@@ -475,7 +449,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -510,7 +484,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -549,7 +523,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -584,7 +558,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color = $account->primary_color ?: '#0b4d78';
 
         $data = [
             'color'      => $color,
@@ -721,7 +695,7 @@ class ClientPortalController extends BaseController
         $data = [
             'account'          => $account,
             'contact'          => $contact,
-            'color'            => $account->primary_color ? $account->primary_color : '#0b4d78',
+            'color'            => $account->primary_color ?: '#0b4d78',
             'client'           => $client,
             'paymentMethods'   => $customer ? $customer->payment_methods : false,
             'gateway'          => $account->getTokenGateway(),
@@ -933,12 +907,15 @@ class ClientPortalController extends BaseController
         return view('clients.statement', $data);
     }
 
-    protected function canCreateZip()
+    protected function canCreateZip(): bool
     {
         return function_exists('gmp_init');
     }
 
-    protected function getInvoiceZipDocuments($invoice, &$size = 0)
+    /**
+     * @return mixed[]
+     */
+    protected function getInvoiceZipDocuments($invoice, &$size = 0): array
     {
         $documents = $invoice->documents;
 
@@ -987,7 +964,10 @@ class ClientPortalController extends BaseController
         return $toZip;
     }
 
-    private function getPaymentTypes($account, $client, $invitation)
+    /**
+     * @return mixed[]
+     */
+    private function getPaymentTypes($account, $client, $invitation): array
     {
         $links = [];
 
@@ -1000,7 +980,7 @@ class ClientPortalController extends BaseController
         return $links;
     }
 
-    private function getPaymentStatusLabel($model)
+    private function getPaymentStatusLabel($model): string
     {
         $label = trans('texts.status_' . mb_strtolower($model->payment_status_name));
         $class = 'default';

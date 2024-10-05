@@ -19,7 +19,7 @@ class CreateCustomerRequest extends CustomerRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'token'                           => 'required',

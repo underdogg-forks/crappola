@@ -9,10 +9,8 @@ use App\Models\LookupCompany;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupUser;
-use DB;
 use Exception;
 use Illuminate\Console\Command;
-use Mail;
 
 class InitLookup extends Command
 {
@@ -49,7 +47,7 @@ class InitLookup extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $this->logMessage('Running InitLookup...');
 
@@ -127,7 +125,7 @@ class InitLookup extends Command
         }
     }
 
-    private function initCompanies($dbServerId, $offset = 0): void
+    private function initCompanies($dbServerId, int $offset = 0): void
     {
         $data = [];
 
@@ -279,7 +277,10 @@ class InitLookup extends Command
         }
     }
 
-    private function parseCompany($companyId)
+    /**
+     * @return mixed[]
+     */
+    private function parseCompany($companyId): array
     {
         $data = [];
 
@@ -295,7 +296,7 @@ class InitLookup extends Command
         return $data;
     }
 
-    private function parseAccount($accountId)
+    private function parseAccount($accountId): array
     {
         $data = [
             'users'       => [],
@@ -359,7 +360,7 @@ class InitLookup extends Command
         $this->log .= $str . "\n";
     }
 
-    private function logError($str): void
+    private function logError(string $str): void
     {
         $this->isValid = false;
         $this->logMessage($str);

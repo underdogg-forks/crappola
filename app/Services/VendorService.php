@@ -6,7 +6,6 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
 use Utils;
 
 /**
@@ -14,15 +13,9 @@ use Utils;
  */
 class VendorService extends BaseService
 {
-    /**
-     * @var VendorRepository
-     */
-    protected $vendorRepo;
+    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * VendorService constructor.

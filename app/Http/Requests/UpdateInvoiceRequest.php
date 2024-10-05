@@ -11,7 +11,7 @@ class UpdateInvoiceRequest extends InvoiceRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
@@ -21,7 +21,7 @@ class UpdateInvoiceRequest extends InvoiceRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->entity()) {
             return [];

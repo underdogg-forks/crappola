@@ -17,7 +17,7 @@ class LookupCompany extends LookupModel
 
     public function dbServer()
     {
-        return $this->belongsTo('App\Models\DbServer');
+        return $this->belongsTo(\App\Models\DbServer::class);
     }
 
     public function getDbServer()

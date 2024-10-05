@@ -6,7 +6,7 @@ use stdClass;
 
 class InvoiceItemPresenter extends EntityPresenter
 {
-    public function rBits()
+    public function rBits(): stdClass
     {
         $data = new stdClass();
         $data->description = $this->entity->notes;
@@ -17,14 +17,14 @@ class InvoiceItemPresenter extends EntityPresenter
         return $data;
     }
 
-    public function tax1()
+    public function tax1(): string
     {
         $item = $this->entity;
 
         return $item->tax_name1 . ' ' . $item->tax_rate1 . '%';
     }
 
-    public function tax2()
+    public function tax2(): string
     {
         $item = $this->entity;
 

@@ -8,29 +8,16 @@ use App\Models\Country;
 use App\Models\License;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
-use Cache;
 use CreditCard;
 use Exception;
 use Omnipay;
-use Request;
-use Session;
-use URL;
 use Utils;
-use Validator;
-use View;
 
 class NinjaController extends BaseController
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
 
     /**
      * NinjaController constructor.
@@ -235,7 +222,7 @@ class NinjaController extends BaseController
         return RESULT_FAILURE;
     }
 
-    public function hideWhiteLabelMessage()
+    public function hideWhiteLabelMessage(): string
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $company = $user->account->company;
@@ -288,7 +275,7 @@ class NinjaController extends BaseController
      *
      * @return array
      */
-    private function getLicensePaymentDetails(array $input, Affiliate $affiliate)
+    private function getLicensePaymentDetails(array $input, Affiliate $affiliate): array
     {
         $country = Country::find($input['country_id']);
 
@@ -325,7 +312,7 @@ class NinjaController extends BaseController
         ];
     }
 
-    private function error($type, $error, $accountGateway = false, $exception = false): void
+    private function error(string $type, $error, $accountGateway = false, $exception = false): void
     {
         $message = '';
         if ($accountGateway && $accountGateway->gateway) {

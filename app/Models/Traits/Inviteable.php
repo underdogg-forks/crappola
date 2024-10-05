@@ -18,7 +18,7 @@ trait Inviteable
      *
      * @return string
      */
-    public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
+    public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false): string
     {
         if ( ! $this->account) {
             $this->load('account');
@@ -58,7 +58,7 @@ trait Inviteable
     /**
      * @return bool|string
      */
-    public function getStatus()
+    public function getStatus(): string|false
     {
         $hasValue = false;
         $parts = [];
@@ -98,7 +98,7 @@ trait Inviteable
         $this->save();
     }
 
-    public function isSent()
+    public function isSent(): bool
     {
         return $this->sent_date && $this->sent_date != '0000-00-00 00:00:00';
     }

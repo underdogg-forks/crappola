@@ -4,12 +4,11 @@ namespace App\Ninja\Reports;
 
 use App\Models\Client;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
 
 class QuoteReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'           => [],

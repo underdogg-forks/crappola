@@ -9,14 +9,13 @@ use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Request;
 use Response;
 
 class PaymentApiController extends BaseAPIController
 {
-    protected $paymentRepo;
+    protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
     protected $entityType = ENTITY_PAYMENT;
 

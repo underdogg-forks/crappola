@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use Redirect;
-use Request;
-use Session;
-use URL;
-
 class BlueVineController extends BaseController
 {
     public function signup()
@@ -73,7 +67,7 @@ class BlueVineController extends BaseController
         return response()->json($quote_data);
     }
 
-    public function hideMessage()
+    public function hideMessage(): string
     {
         $user = \Illuminate\Support\Facades\Auth::user();
 

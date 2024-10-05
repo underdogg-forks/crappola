@@ -15,7 +15,7 @@ class InvoiceTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|\League\Fractal\Resource\Item
     {
         if ( ! $this->getClientId($data->customer_name)) {
             return false;
@@ -25,7 +25,7 @@ class InvoiceTransformer extends BaseTransformer
             return false;
         }
 
-        return new Item($data, function ($data) {
+        return new Item($data, function ($data): array {
             $invoice = [
                 'client_id'        => $this->getClientId($data->customer_name),
                 'invoice_number'   => $this->getInvoiceNumber($data->invoice_number),

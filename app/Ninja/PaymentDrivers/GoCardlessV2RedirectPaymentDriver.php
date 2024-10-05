@@ -10,7 +10,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = "\x00*\x00id";
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_GOCARDLESS,
@@ -58,8 +58,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 'failed',
                 'charged_back',
             ];
-
-            if ($type != 'payments' || ! in_array($action, $supported)) {
+            if ($type != 'payments') {
+                continue;
+            }
+            if ( ! in_array($action, $supported)) {
                 continue;
             }
 
@@ -69,8 +71,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
             if ( ! $payment) {
                 continue;
             }
-
-            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+            if ($payment->is_deleted) {
+                continue;
+            }
+            if ($payment->invoice->is_deleted) {
                 continue;
             }
 
@@ -78,7 +82,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($event['details']['description']);
 
-                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer = app(\App\Ninja\Mailers\UserMailer::class);
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($action == 'paid_out') {
@@ -123,7 +127,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function shouldCreateToken()
+    protected function shouldCreateToken(): bool
     {
         return false;
     }

@@ -17,7 +17,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected $sourceReferenceParam = 'paymentMethodToken';
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
@@ -31,7 +31,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $types;
     }
 
-    public function tokenize()
+    public function tokenize(): bool
     {
         return true;
     }
@@ -99,7 +99,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $customer;
     }
 
-    public function removePaymentMethod($paymentMethod)
+    public function removePaymentMethod($paymentMethod): void
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -113,7 +113,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         throw new Exception($response->getMessage());
     }
 
-    public function createTransactionToken()
+    public function createTransactionToken(): void
     {
         return $this->gateway()
             ->clientToken()
@@ -121,7 +121,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             ->getToken();
     }
 
-    public function isValid()
+    public function isValid(): bool|string
     {
         try {
             $this->createTransactionToken();
@@ -197,7 +197,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount)
+    protected function attemptVoidPayment($response, $payment, $amount): bool
     {
         if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
@@ -215,7 +215,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    private function customerData()
+    private function customerData(): array
     {
         return [
             'firstName' => \Illuminate\Support\Arr::get($this->input, 'first_name') ?: $this->contact()->first_name,

@@ -15,7 +15,7 @@ class TaskStatusTransformer extends EntityTransformer
         parent::__construct($account);
     }
 
-    public function transform(TaskStatus $taskStatus)
+    public function transform(TaskStatus $taskStatus): array
     {
         return array_merge($this->getDefaults($taskStatus), [
             'id'         => (int) $taskStatus->public_id,

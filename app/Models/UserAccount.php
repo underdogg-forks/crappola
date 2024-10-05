@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-
 /**
  * Class UserAccount.
  */
@@ -19,7 +17,7 @@ class UserAccount extends \Illuminate\Database\Eloquent\Model
      *
      * @return bool
      */
-    public function hasUserId($userId)
+    public function hasUserId($userId): bool
     {
         if ( ! $userId) {
             return false;

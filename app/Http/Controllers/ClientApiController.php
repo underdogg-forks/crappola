@@ -7,12 +7,11 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
-use Request;
 use Response;
 
 class ClientApiController extends BaseAPIController
 {
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
     protected $entityType = ENTITY_CLIENT;
 

@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
-use App;
 use App\Events\UserSettingsChanged;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\HasCustomMessages;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
-use Cache;
 use Carbon;
 use DateTime;
 use DateTimeZone;
-use Eloquent;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use Session;
 use Utils;
 
 /**
@@ -200,7 +196,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
+    protected $presenter = \App\Ninja\Presenters\AccountPresenter::class;
 
     /**
      * @var array
@@ -347,7 +343,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function account_tokens()
     {
-        return $this->hasMany('App\Models\AccountToken');
+        return $this->hasMany(\App\Models\AccountToken::class);
     }
 
     /**
@@ -355,7 +351,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function users()
     {
-        return $this->hasMany('App\Models\User');
+        return $this->hasMany(\App\Models\User::class);
     }
 
     /**
@@ -363,7 +359,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function clients()
     {
-        return $this->hasMany('App\Models\Client');
+        return $this->hasMany(\App\Models\Client::class);
     }
 
     /**
@@ -371,7 +367,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function contacts()
     {
-        return $this->hasMany('App\Models\Contact');
+        return $this->hasMany(\App\Models\Contact::class);
     }
 
     /**
@@ -379,7 +375,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function invoices()
     {
-        return $this->hasMany('App\Models\Invoice');
+        return $this->hasMany(\App\Models\Invoice::class);
     }
 
     /**
@@ -387,7 +383,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function account_gateways()
     {
-        return $this->hasMany('App\Models\AccountGateway');
+        return $this->hasMany(\App\Models\AccountGateway::class);
     }
 
     /**
@@ -395,7 +391,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function account_gateway_settings()
     {
-        return $this->hasMany('App\Models\AccountGatewaySettings');
+        return $this->hasMany(\App\Models\AccountGatewaySettings::class);
     }
 
     /**
@@ -403,7 +399,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function account_email_settings()
     {
-        return $this->hasOne('App\Models\AccountEmailSettings');
+        return $this->hasOne(\App\Models\AccountEmailSettings::class);
     }
 
     /**
@@ -411,7 +407,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function bank_accounts()
     {
-        return $this->hasMany('App\Models\BankAccount');
+        return $this->hasMany(\App\Models\BankAccount::class);
     }
 
     /**
@@ -419,7 +415,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function tax_rates()
     {
-        return $this->hasMany('App\Models\TaxRate');
+        return $this->hasMany(\App\Models\TaxRate::class);
     }
 
     /**
@@ -427,7 +423,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function task_statuses()
     {
-        return $this->hasMany('App\Models\TaskStatus')->orderBy('sort_order');
+        return $this->hasMany(\App\Models\TaskStatus::class)->orderBy('sort_order');
     }
 
     /**
@@ -435,7 +431,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function products()
     {
-        return $this->hasMany('App\Models\Product');
+        return $this->hasMany(\App\Models\Product::class);
     }
 
     /**
@@ -443,12 +439,12 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function defaultDocuments()
     {
-        return $this->hasMany('App\Models\Document')->whereIsDefault(true);
+        return $this->hasMany(\App\Models\Document::class)->whereIsDefault(true);
     }
 
     public function background_image()
     {
-        return $this->hasOne('App\Models\Document', 'id', 'background_image_id');
+        return $this->hasOne(\App\Models\Document::class, 'id', 'background_image_id');
     }
 
     /**
@@ -456,7 +452,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function country()
     {
-        return $this->belongsTo('App\Models\Country');
+        return $this->belongsTo(\App\Models\Country::class);
     }
 
     /**
@@ -464,7 +460,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function timezone()
     {
-        return $this->belongsTo('App\Models\Timezone');
+        return $this->belongsTo(\App\Models\Timezone::class);
     }
 
     /**
@@ -472,7 +468,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function language()
     {
-        return $this->belongsTo('App\Models\Language');
+        return $this->belongsTo(\App\Models\Language::class);
     }
 
     /**
@@ -480,7 +476,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function date_format()
     {
-        return $this->belongsTo('App\Models\DateFormat');
+        return $this->belongsTo(\App\Models\DateFormat::class);
     }
 
     /**
@@ -488,7 +484,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function datetime_format()
     {
-        return $this->belongsTo('App\Models\DatetimeFormat');
+        return $this->belongsTo(\App\Models\DatetimeFormat::class);
     }
 
     /**
@@ -496,7 +492,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function size()
     {
-        return $this->belongsTo('App\Models\Size');
+        return $this->belongsTo(\App\Models\Size::class);
     }
 
     /**
@@ -504,7 +500,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function currency()
     {
-        return $this->belongsTo('App\Models\Currency');
+        return $this->belongsTo(\App\Models\Currency::class);
     }
 
     /**
@@ -512,7 +508,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function industry()
     {
-        return $this->belongsTo('App\Models\Industry');
+        return $this->belongsTo(\App\Models\Industry::class);
     }
 
     /**
@@ -520,7 +516,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function payment_type()
     {
-        return $this->belongsTo('App\Models\PaymentType');
+        return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
     /**
@@ -528,7 +524,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense', 'account_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\Expense::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -536,7 +532,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function payments()
     {
-        return $this->hasMany('App\Models\Payment', 'account_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\Payment::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -544,7 +540,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function company()
     {
-        return $this->belongsTo('App\Models\Company');
+        return $this->belongsTo(\App\Models\Company::class);
     }
 
     /**
@@ -552,7 +548,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function expense_categories()
     {
-        return $this->hasMany('App\Models\ExpenseCategory', 'account_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\ExpenseCategory::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -560,7 +556,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function projects()
     {
-        return $this->hasMany('App\Models\Project', 'account_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\Project::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -568,7 +564,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function custom_payment_terms()
     {
-        return $this->hasMany('App\Models\PaymentTerm', 'account_id', 'id')->withTrashed();
+        return $this->hasMany(\App\Models\PaymentTerm::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -615,7 +611,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $this->attributes['custom_fields'] = count($fields) ? json_encode($fields) : null;
     }
 
-    public function getCustomFieldsAttribute($value)
+    public function getCustomFieldsAttribute($value): mixed
     {
         return json_decode($value ?: '{}');
     }
@@ -632,7 +628,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      *
      * @return bool
      */
-    public function isGatewayConfigured($gatewayId = 0)
+    public function isGatewayConfigured($gatewayId = 0): bool
     {
         if ( ! $this->relationLoaded('account_gateways')) {
             $this->load('account_gateways');
@@ -648,7 +644,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function isEnglish()
+    public function isEnglish(): bool
     {
         return ! $this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
@@ -713,7 +709,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
 
         if ($this->military_time) {
-            $format = str_replace('h:mm:ss a', 'H:mm:ss', $format);
+            return str_replace('h:mm:ss a', 'H:mm:ss', $format);
         }
 
         return $format;
@@ -722,7 +718,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function getMomentDateFormat()
+    public function getMomentDateFormat(): string
     {
         $format = $this->getMomentDateTimeFormat();
         $format = str_replace('h:mm:ss a', '', $format);
@@ -749,7 +745,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             return;
         }
         if ( ! $date instanceof DateTime) {
-            $date = new DateTime($date);
+            return new DateTime($date);
         }
 
         return $date;
@@ -896,7 +892,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function getCustomTimeFormat()
+    public function getCustomTimeFormat(): string
     {
         return $this->military_time ? 'H:i' : 'g:i a';
     }
@@ -909,7 +905,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
 
         if ($this->military_time) {
-            $format = str_replace('g:i a', 'H:i', $format);
+            return str_replace('g:i a', 'H:i', $format);
         }
 
         return $format;
@@ -955,7 +951,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return array
      */
-    public function availableGatewaysIds()
+    public function availableGatewaysIds(): array
     {
         if ( ! $this->relationLoaded('account_gateways')) {
             $this->load('account_gateways');
@@ -1019,7 +1015,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      *
      * @return bool
      */
-    public function hasGatewayId($gatewayId)
+    public function hasGatewayId($gatewayId): bool
     {
         return in_array($gatewayId, $this->gatewayIds());
     }
@@ -1148,7 +1144,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function isNinjaAccount()
+    public function isNinjaAccount(): bool
     {
         return str_starts_with($this->account_key, 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx7');
     }
@@ -1158,7 +1154,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
      */
     public function isNinjaOrLicenseAccount()
     {
-        return $this->isNinjaAccount() || $this->account_key == NINJA_LICENSE_ACCOUNT_KEY;
+        if ($this->isNinjaAccount()) {
+            return true;
+        }
+
+        return $this->account_key == NINJA_LICENSE_ACCOUNT_KEY;
     }
 
     /**
@@ -1480,7 +1480,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return $this
      */
-    public function hideFieldsForViz()
+    public function hideFieldsForViz(): static
     {
         foreach ($this->clients as $client) {
             $client->setVisible([
@@ -1549,7 +1549,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function getTokenGatewayId()
+    public function getTokenGatewayId(): int|bool
     {
         if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
             return GATEWAY_STRIPE;
@@ -1585,7 +1585,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function selectTokenCheckbox()
+    public function selectTokenCheckbox(): bool
     {
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
@@ -1602,7 +1602,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             return "{$iframe_url}/?";
         }
         if ($this->subdomain) {
-            $url = Utils::replaceSubdomain($url, $this->subdomain);
+            return Utils::replaceSubdomain($url, $this->subdomain);
         }
 
         return $url;
@@ -1628,7 +1628,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function attachPDF()
+    public function attachPDF(): bool
     {
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
     }
@@ -1636,7 +1636,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return bool
      */
-    public function attachUBL()
+    public function attachUBL(): bool
     {
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;
     }
@@ -1652,7 +1652,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return string
      */
-    public function clientViewCSS()
+    public function clientViewCSS(): string
     {
         $css = '';
 
@@ -1676,7 +1676,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      *
      * @return string
      */
-    public function getFontsUrl($protocol = '')
+    public function getFontsUrl(?string $protocol = ''): string
     {
         $bodyFont = $this->getHeaderFontId();
         $headerFont = $this->getBodyFontId();
@@ -1729,7 +1729,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      *
      * @return string
      */
-    public function getHeaderFontCss($include_weight = true)
+    public function getHeaderFontCss($include_weight = true): string
     {
         $font_data = Utils::getFromCache($this->getHeaderFontId(), 'fonts');
         $css = 'font-family:' . $font_data['css_stack'] . ';';
@@ -1746,7 +1746,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
      *
      * @return string
      */
-    public function getBodyFontCss($include_weight = true)
+    public function getBodyFontCss($include_weight = true): string
     {
         $font_data = Utils::getFromCache($this->getBodyFontId(), 'fonts');
         $css = 'font-family:' . $font_data['css_stack'] . ';';
@@ -1761,7 +1761,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return array
      */
-    public function getFonts()
+    public function getFonts(): array
     {
         return array_unique([$this->getHeaderFontId(), $this->getBodyFontId()]);
     }
@@ -1769,7 +1769,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return array
      */
-    public function getFontsData()
+    public function getFontsData(): array
     {
         $data = [];
 
@@ -1783,14 +1783,12 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @return array
      */
-    public function getFontFolders()
+    public function getFontFolders(): array
     {
-        return array_map(function ($item) {
-            return $item['folder'];
-        }, $this->getFontsData());
+        return array_map(fn ($item) => $item['folder'], $this->getFontsData());
     }
 
-    public function isModuleEnabled($entityType)
+    public function isModuleEnabled($entityType): bool|int
     {
         if ( ! in_array($entityType, [
             ENTITY_RECURRING_INVOICE,
@@ -1819,7 +1817,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
 
     public function requiresAuthorization($invoice)
     {
-        return $this->showAcceptTerms($invoice) || $this->showSignature($invoice);
+        if ($this->showAcceptTerms($invoice)) {
+            return true;
+        }
+
+        return (bool) $this->showSignature($invoice);
     }
 
     public function showAcceptTerms($invoice)
@@ -1871,12 +1873,12 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return Carbon::now()->addDays($numDays)->format('Y-m-d');
     }
 
-    public function hasMultipleAccounts()
+    public function hasMultipleAccounts(): bool
     {
         return $this->company->accounts->count() > 1;
     }
 
-    public function hasMultipleUsers()
+    public function hasMultipleUsers(): bool
     {
         return $this->users->count() > 1;
     }
@@ -1913,7 +1915,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $yearStart->format('Y-m-d');
     }
 
-    public function isClientPortalPasswordEnabled()
+    public function isClientPortalPasswordEnabled(): bool
     {
         return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
     }
@@ -1932,7 +1934,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             }
 
             if ($this->subdomain) {
-                $url = Utils::replaceSubdomain($url, $this->subdomain);
+                return Utils::replaceSubdomain($url, $this->subdomain);
             }
 
             return $url;
@@ -1941,7 +1943,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return url('/');
     }
 
-    public function requiresAddressState()
+    public function requiresAddressState(): bool
     {
         return true;
         //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;

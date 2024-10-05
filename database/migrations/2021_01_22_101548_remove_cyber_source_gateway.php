@@ -3,8 +3,7 @@
 use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
 
-class RemoveCyberSourceGateway extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class RemoveCyberSourceGateway extends Migration
      * @return void
      */
     public function down(): void {}
-}
+};

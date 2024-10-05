@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
 use Utils;
 
 class VendorDatatable extends EntityDatatable
@@ -12,12 +10,12 @@ class VendorDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'name',
-                function ($model) {
+                function ($model): string {
                     $str = link_to("vendors/{$model->public_id}", $model->name ?: '')->toHtml();
 
                     return $this->addNote($str, $model->private_notes);
@@ -25,59 +23,39 @@ class VendorDatatable extends EntityDatatable
             ],
             [
                 'city',
-                function ($model) {
-                    return $model->city;
-                },
+                fn ($model) => $model->city,
             ],
             [
                 'work_phone',
-                function ($model) {
-                    return $model->work_phone;
-                },
+                fn ($model) => $model->work_phone,
             ],
             [
                 'email',
-                function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->email ?: '')->toHtml();
-                },
+                fn ($model) => link_to("vendors/{$model->public_id}", $model->email ?: '')->toHtml(),
             ],
             [
                 'created_at',
-                function ($model) {
-                    return Utils::timestampToDateString(strtotime($model->created_at));
-                },
+                fn ($model) => Utils::timestampToDateString(strtotime($model->created_at)),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_vendor'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("vendors/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model]);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("vendors/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model]),
             ],
             [
-                '--divider--', function () {
-                    return false;
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
-                },
+                '--divider--', fn (): bool => false,
+                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
             ],
             [
                 trans('texts.enter_expense'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("expenses/create/0/{$model->public_id}");
-                },
-                function ($model) {
-                    return \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE);
-                },
+                fn ($model) => \Illuminate\Support\Facades\URL::to("expenses/create/0/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
             ],
         ];
     }

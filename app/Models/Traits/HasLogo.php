@@ -13,7 +13,7 @@ trait HasLogo
     /**
      * @return bool
      */
-    public function hasLogo()
+    public function hasLogo(): bool
     {
         return ! empty($this->logo);
     }
@@ -139,7 +139,7 @@ trait HasLogo
     /**
      * @return bool
      */
-    public function isLogoTooLarge()
+    public function isLogoTooLarge(): bool
     {
         return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }

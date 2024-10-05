@@ -20,28 +20,22 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
-use Auth;
-use Cache;
-use DB;
 use Illuminate\Support\Facades\Session;
-use Redirect;
-use Request;
 use Utils;
-use View;
 
 class InvoiceController extends BaseController
 {
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
-    protected $clientRepo;
+    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
     protected $documentRepo;
 
-    protected $invoiceService;
+    protected \App\Services\InvoiceService $invoiceService;
 
-    protected $paymentService;
+    protected \App\Services\PaymentService $paymentService;
 
-    protected $recurringInvoiceService;
+    protected \App\Services\RecurringInvoiceService $recurringInvoiceService;
 
     protected $entityType = ENTITY_INVOICE;
 
@@ -303,7 +297,7 @@ class InvoiceController extends BaseController
             return url(sprintf('quotes/%s/clone', $invoice->public_id));
         }
         if ($action == 'convert') {
-            return $this->convertQuote($request, $invoice->public_id);
+            return $this->convertQuote($request);
         }
         if ($action == 'email') {
             $this->emailInvoice($invoice);
@@ -479,7 +473,7 @@ class InvoiceController extends BaseController
         return \Illuminate\Support\Facades\View::make('invoices.delivery_note', $data);
     }
 
-    public function checkInvoiceNumber($invoicePublicId = false)
+    public function checkInvoiceNumber($invoicePublicId = false): string
     {
         $invoiceNumber = request()->invoice_number;
 
@@ -496,7 +490,7 @@ class InvoiceController extends BaseController
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }
 
-    private static function getViewModel($invoice)
+    private static function getViewModel($invoice): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 
@@ -588,7 +582,7 @@ class InvoiceController extends BaseController
             'recurringHelp'        => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels'        => \Illuminate\Support\Facades\Auth::user()->account->getInvoiceLabels(),
-            'tasks'                => Session::get('tasks') ? Session::get('tasks') : null,
+            'tasks'                => Session::get('tasks') ?: null,
             'expenseCurrencyId'    => Session::get('expenseCurrencyId') ?: null,
             'expenses'             => Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get(),
         ];

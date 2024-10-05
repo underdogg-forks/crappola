@@ -2,14 +2,12 @@
 
 namespace App\Services;
 
-use App;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\PaymentRepository;
-use Auth;
 use DateTime;
 use Exception;
 use Utils;
@@ -134,7 +132,7 @@ class PaymentService extends BaseService
             //$message .= $exception->getTraceAsString();
             Utils::logError($message, 'PHP', true);
             if (\Illuminate\Support\Facades\App::runningInConsole()) {
-                $mailer = app('App\Ninja\Mailers\UserMailer');
+                $mailer = app(\App\Ninja\Mailers\UserMailer::class);
                 $mailer->sendMessage($invoice->user, $subject, $message, [
                     'invoice' => $invoice,
                 ]);
@@ -172,7 +170,7 @@ class PaymentService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    public function bulk($ids, $action, $params = [])
+    public function bulk($ids, $action, $params = []): int
     {
         if ($action == 'refund') {
             if ( ! $ids) {
@@ -205,7 +203,7 @@ class PaymentService extends BaseService
                     }
 
                     if ($refunded && $sendEmail) {
-                        $mailer = app('App\Ninja\Mailers\ContactMailer');
+                        $mailer = app(\App\Ninja\Mailers\ContactMailer::class);
                         $mailer->sendPaymentConfirmation($payment, $amount);
                     }
                 }

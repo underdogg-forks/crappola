@@ -3,8 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
-use Cache;
-use Crypt;
 use Google2FA;
 use Illuminate\Validation\Factory as ValidatonFactory;
 
@@ -36,7 +34,7 @@ class ValidateTwoFactorRequest extends Request
 
         $factory->extend(
             'used_token',
-            function ($attribute, $value, $parameters, $validator) {
+            function ($attribute, string $value, $parameters, $validator): bool {
                 $key = $this->user->id . ':' . $value;
 
                 return ! \Illuminate\Support\Facades\Cache::has($key);
@@ -50,13 +48,13 @@ class ValidateTwoFactorRequest extends Request
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         try {
             $this->user = User::findOrFail(
                 session('2fa:user:id')
             );
-        } catch (Exception $exc) {
+        } catch (Exception) {
             return false;
         }
 
@@ -68,7 +66,7 @@ class ValidateTwoFactorRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'totp' => 'bail|required|digits:6|valid_token|used_token',

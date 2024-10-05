@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
-use Auth;
 use Utils;
 
 /**
@@ -14,15 +13,9 @@ use Utils;
  */
 class ExpenseService extends BaseService
 {
-    /**
-     * @var ExpenseRepository
-     */
-    protected $expenseRepo;
+    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * ExpenseService constructor.

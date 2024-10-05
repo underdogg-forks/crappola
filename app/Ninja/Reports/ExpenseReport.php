@@ -4,13 +4,12 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
 use Utils;
 
 class ExpenseReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'vendor'            => [],

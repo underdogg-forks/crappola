@@ -39,7 +39,7 @@ class CalculatePayouts extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));
 

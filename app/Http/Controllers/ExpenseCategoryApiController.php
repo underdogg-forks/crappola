@@ -10,9 +10,9 @@ use App\Services\ExpenseCategoryService;
 
 class ExpenseCategoryApiController extends BaseAPIController
 {
-    protected $categoryRepo;
+    protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
 
-    protected $categoryService;
+    protected \App\Services\ExpenseCategoryService $categoryService;
 
     protected $entityType = ENTITY_EXPENSE_CATEGORY;
 

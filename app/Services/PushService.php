@@ -11,10 +11,7 @@ use App\Ninja\Notifications\PushFactory;
  */
 class PushService
 {
-    /**
-     * @var PushFactory
-     */
-    protected $pushFactory;
+    protected \App\Ninja\Notifications\PushFactory $pushFactory;
 
     /**
      * @param PushFactory $pushFactory
@@ -71,7 +68,7 @@ class PushService
      *
      * @return bool
      */
-    private function checkDeviceExists(Account $account)
+    private function checkDeviceExists(Account $account): bool
     {
         $devices = json_decode($account->devices, true);
 

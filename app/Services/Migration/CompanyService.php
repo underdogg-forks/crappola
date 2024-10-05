@@ -11,7 +11,7 @@ class CompanyService
 
     protected $companies = [];
 
-    public function start()
+    public function start(): static
     {
         try {
             if (session(SESSION_USER_ACCOUNTS)) {
@@ -35,7 +35,7 @@ class CompanyService
             }
 
             $this->isSuccessful = true;
-        } catch (Exception $th) {
+        } catch (Exception) {
             $this->isSuccessful = false;
             $this->errors = [];
         }

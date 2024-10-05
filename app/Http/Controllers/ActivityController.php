@@ -6,7 +6,7 @@ use App\Services\ActivityService;
 
 class ActivityController extends BaseController
 {
-    protected $activityService;
+    protected \App\Services\ActivityService $activityService;
 
     public function __construct(ActivityService $activityService)
     {

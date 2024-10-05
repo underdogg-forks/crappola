@@ -7,7 +7,7 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class CreateInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): void
     {
         $client = $this->requestClient();
         $clientPublicId = $client ? $client->public_id : null;

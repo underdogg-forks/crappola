@@ -15,15 +15,12 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
-use Auth;
-use Request;
 use Response;
 use Utils;
-use Validator;
 
 class InvoiceApiController extends BaseAPIController
 {
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     protected $entityType = ENTITY_INVOICE;
 
@@ -263,7 +260,7 @@ class InvoiceApiController extends BaseAPIController
         if (config('queue.default') !== 'sync') {
             $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder, $template));
         } else {
-            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder, $template);
+            $result = app(\App\Ninja\Mailers\ContactMailer::class)->sendInvoice($invoice, $reminder, $template);
             if ($result !== true) {
                 return $this->errorResponse($result, 500);
             }

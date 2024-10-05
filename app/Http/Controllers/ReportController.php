@@ -7,12 +7,8 @@ use App\Jobs\LoadPostmarkStats;
 use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
-use Auth;
 use Carbon;
-use Request;
 use Utils;
-use Validator;
-use View;
 
 /**
  * Class ReportController.
@@ -155,7 +151,7 @@ class ReportController extends BaseController
         return response()->json($data);
     }
 
-    private function schedule($params, $options): void
+    private function schedule(array $params, array $options): void
     {
         $validator = \Illuminate\Support\Facades\Validator::make(request()->all(), [
             'frequency' => 'required|in:daily,weekly,biweekly,monthly',

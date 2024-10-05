@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddBankAccounts extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -48,4 +47,4 @@ class AddBankAccounts extends Migration
         Schema::drop('bank_accounts');
         Schema::drop('banks');
     }
-}
+};

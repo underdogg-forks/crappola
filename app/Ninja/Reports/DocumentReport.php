@@ -8,7 +8,7 @@ use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'document'           => [],

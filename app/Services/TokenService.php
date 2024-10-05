@@ -10,15 +10,9 @@ use App\Ninja\Repositories\TokenRepository;
  */
 class TokenService extends BaseService
 {
-    /**
-     * @var TokenRepository
-     */
-    protected $tokenRepo;
+    protected \App\Ninja\Repositories\TokenRepository $tokenRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected \App\Services\DatatableService $datatableService;
 
     /**
      * TokenService constructor.

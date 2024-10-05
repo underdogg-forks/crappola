@@ -33,7 +33,7 @@ class TaskRequest extends EntityRequest
                 'client_id' => Client::getPrivateId($this->client_id ?: $this->client),
             ];
             if (Project::validate($project) === true) {
-                $project = app('App\Ninja\Repositories\ProjectRepository')->save($project);
+                $project = app(\App\Ninja\Repositories\ProjectRepository::class)->save($project);
                 $input['project_id'] = $project->public_id;
             } else {
                 $input['project_id'] = null;

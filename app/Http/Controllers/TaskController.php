@@ -13,39 +13,24 @@ use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\TaskService;
-use Auth;
 use DropdownButton;
-use Redirect;
-use Request;
-use Session;
-use URL;
 use Utils;
-use View;
 
 /**
  * Class TaskController.
  */
 class TaskController extends BaseController
 {
-    /**
-     * @var TaskRepository
-     */
-    protected $taskRepo;
+    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
 
-    /**
-     * @var TaskService
-     */
-    protected $taskService;
+    protected \App\Services\TaskService $taskService;
 
     /**
      * @var
      */
     protected $entityType = ENTITY_TASK;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     /**
      * TaskController constructor.
@@ -125,8 +110,8 @@ class TaskController extends BaseController
 
         $data = [
             'task'            => null,
-            'clientPublicId'  => \Illuminate\Support\Facades\Request::old('client') ? \Illuminate\Support\Facades\Request::old('client') : ($request->client_id ?: 0),
-            'projectPublicId' => \Illuminate\Support\Facades\Request::old('project_id') ? \Illuminate\Support\Facades\Request::old('project_id') : ($request->project_id ?: 0),
+            'clientPublicId'  => \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0),
+            'projectPublicId' => \Illuminate\Support\Facades\Request::old('project_id') ?: ($request->project_id ?: 0),
             'method'          => 'POST',
             'url'             => 'tasks',
             'title'           => trans('texts.new_task'),
@@ -225,7 +210,7 @@ class TaskController extends BaseController
             return $this->returnBulk($this->entityType, $action, $ids);
         }
         if (str_starts_with($action, 'update_status')) {
-            list($action, $statusPublicId) = explode(':', $action);
+            [$action, $statusPublicId] = explode(':', $action);
             Task::scope($ids)->update([
                 'task_status_id'         => TaskStatus::getPrivateId($statusPublicId),
                 'task_status_sort_order' => 9999,
@@ -291,7 +276,7 @@ class TaskController extends BaseController
     /**
      * @return array
      */
-    private static function getViewModel($task = false)
+    private static function getViewModel($task = false): array
     {
         return [
             'clients'  => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
@@ -305,7 +290,7 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function save($request, $publicId = null)
+    private function save(\App\Http\Requests\CreateTaskRequest|\App\Http\Requests\UpdateTaskRequest $request, $publicId = null)
     {
         $action = \Illuminate\Support\Facades\Request::input('action');
 

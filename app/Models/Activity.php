@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Auth;
-use Eloquent;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -21,7 +19,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
+    protected $presenter = \App\Ninja\Presenters\ActivityPresenter::class;
 
     /**
      * @param $query
@@ -38,7 +36,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
     /**
@@ -46,7 +44,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -54,7 +52,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact')->withTrashed();
+        return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
     /**
@@ -62,7 +60,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
     /**
@@ -70,7 +68,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -78,7 +76,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function credit()
     {
-        return $this->belongsTo('App\Models\Credit')->withTrashed();
+        return $this->belongsTo(\App\Models\Credit::class)->withTrashed();
     }
 
     /**
@@ -86,20 +84,20 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     public function payment()
     {
-        return $this->belongsTo('App\Models\Payment')->withTrashed();
+        return $this->belongsTo(\App\Models\Payment::class)->withTrashed();
     }
 
     public function task()
     {
-        return $this->belongsTo('App\Models\Task')->withTrashed();
+        return $this->belongsTo(\App\Models\Task::class)->withTrashed();
     }
 
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense')->withTrashed();
+        return $this->belongsTo(\App\Models\Expense::class)->withTrashed();
     }
 
-    public function key()
+    public function key(): string
     {
         return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
     }

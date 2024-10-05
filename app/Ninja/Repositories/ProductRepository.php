@@ -5,15 +5,13 @@ namespace App\Ninja\Repositories;
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
 use App\Models\Product;
-use DB;
-use Log;
 use Utils;
 
 class ProductRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Product';
+        return \App\Models\Product::class;
     }
 
     public function all()

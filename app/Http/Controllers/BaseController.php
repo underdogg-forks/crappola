@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Request;
 use Utils;
 
 class BaseController extends Controller
@@ -55,7 +54,7 @@ class BaseController extends Controller
         return redirect("{$entityTypes}");
     }
 
-    protected function downloadResponse($filename, $contents, $type = 'application/pdf'): void
+    protected function downloadResponse(string $filename, $contents, string $type = 'application/pdf'): void
     {
         header('Content-Type: ' . $type);
         header('Content-Length: ' . mb_strlen($contents));

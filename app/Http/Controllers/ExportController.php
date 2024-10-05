@@ -14,7 +14,6 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
-use Auth;
 use Excel;
 use Illuminate\Http\Request;
 use League\Fractal\Manager;
@@ -64,7 +63,7 @@ class ExportController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    private function returnJSON($request, $fileName)
+    private function returnJSON(\Illuminate\Http\Request $request, string $fileName)
     {
         $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
@@ -99,7 +98,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnCSV($request, $fileName)
+    private function returnCSV(\Illuminate\Http\Request $request, string $fileName)
     {
         $data = $this->getData($request);
 
@@ -116,7 +115,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnXLS($request, $fileName)
+    private function returnXLS(\Illuminate\Http\Request $request, string $fileName)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $data = $this->getData($request);
@@ -133,7 +132,13 @@ class ExportController extends BaseController
                 ->setCompany($user->account->getDisplayName());
 
             foreach ($data as $key => $val) {
-                if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
+                if ($key === 'account') {
+                    continue;
+                }
+                if ($key === 'title') {
+                    continue;
+                }
+                if ($key === 'multiUser') {
                     continue;
                 }
                 if ($key === 'recurringInvoices') {
@@ -157,7 +162,7 @@ class ExportController extends BaseController
      *
      * @return array
      */
-    private function getData($request)
+    private function getData($request): array
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
 

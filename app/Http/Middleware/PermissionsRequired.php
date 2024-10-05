@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\Controller;
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -47,7 +46,7 @@ class PermissionsRequired
 
         // Check if we have any permissions to check the user has.
         if ($permissions = ! empty($actions['permissions']) ? $actions['permissions'] : null) {
-            if ( ! \Illuminate\Support\Facades\Auth::user($guard)->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
+            if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
                 return response('Unauthorized.', 401);
             }
         }
@@ -56,7 +55,7 @@ class PermissionsRequired
         $action = explode('@', $request->route()->getActionName());
         if (isset(static::$actions[$action[0]], static::$actions[$action[0]][$action[1]])) {
             $controller_permissions = static::$actions[$action[0]][$action[1]];
-            if ( ! \Illuminate\Support\Facades\Auth::user($guard)->hasPermission($controller_permissions)) {
+            if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission($controller_permissions)) {
                 return response('Unauthorized.', 401);
             }
         }

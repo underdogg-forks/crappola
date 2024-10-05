@@ -26,7 +26,7 @@ class AccountPresenter extends Presenter
     /**
      * @return string
      */
-    public function address()
+    public function address(): string
     {
         $account = $this->entity;
 
@@ -82,7 +82,7 @@ class AccountPresenter extends Presenter
         $url = Domain::getLinkFromId($account->domain_id);
 
         if ($subdomain && $account->subdomain) {
-            $url = Utils::replaceSubdomain($url, $account->subdomain);
+            return Utils::replaceSubdomain($url, $account->subdomain);
         }
 
         return $url;
@@ -98,7 +98,7 @@ class AccountPresenter extends Presenter
         return $this->entity->size ? $this->entity->size->name : '';
     }
 
-    public function paymentTerms()
+    public function paymentTerms(): string
     {
         $terms = $this->entity->payment_terms;
 
@@ -123,7 +123,7 @@ class AccountPresenter extends Presenter
         return $date ? Utils::fromSqlDate($date) : ' ';
     }
 
-    public function rBits()
+    public function rBits(): array
     {
         $account = $this->entity;
         $user = $account->users()->first();
@@ -143,7 +143,7 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function dateRangeOptions()
+    public function dateRangeOptions(): string
     {
         $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
         $month = $yearStart->month - 1;
@@ -162,7 +162,10 @@ class AccountPresenter extends Presenter
         return $str;
     }
 
-    public function taxRateOptions()
+    /**
+     * @return mixed[]
+     */
+    public function taxRateOptions(): array
     {
         $rates = TaxRate::scope()->orderBy('name')->get();
         $options = [];
@@ -178,7 +181,10 @@ class AccountPresenter extends Presenter
         return $options;
     }
 
-    public function customTextFields()
+    /**
+     * @return array<mixed, array<'name'|'value', 'custom_client2'|'custom_contact1'|'custom_contact2'|'custom_invoice1'|'custom_invoice2'|'custom_product1'|'custom_product2'>>
+     */
+    public function customTextFields(): array
     {
         $fields = [
             'client1'       => 'custom_client1',
@@ -204,7 +210,7 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function customDesigns()
+    public function customDesigns(): array
     {
         $account = $this->entity;
         $data = [];
@@ -224,7 +230,7 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function clientLoginUrl()
+    public function clientLoginUrl(): string
     {
         $account = $this->entity;
 
@@ -256,7 +262,7 @@ class AccountPresenter extends Presenter
         return Utils::getCustomLabel($this->entity->customLabel($field));
     }
 
-    private function createRBit($type, $source, $properties)
+    private function createRBit(string $type, string $source, array $properties): stdClass
     {
         $data = new stdClass();
         $data->receive_time = time();

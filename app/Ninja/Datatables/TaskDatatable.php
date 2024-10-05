@@ -4,9 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Auth;
 use DropdownButton;
-use URL;
 use Utils;
 
 class TaskDatatable extends EntityDatatable
@@ -15,7 +13,7 @@ class TaskDatatable extends EntityDatatable
 
     public $sortCol = 3;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
@@ -61,71 +59,47 @@ class TaskDatatable extends EntityDatatable
             ],
             [
                 'description',
-                function ($model) {
-                    return $this->showWithTooltip($model->description);
-                },
+                fn ($model) => $this->showWithTooltip($model->description),
             ],
             [
                 'status',
-                function ($model) {
-                    return self::getStatusLabel($model);
-                },
+                fn ($model) => self::getStatusLabel($model),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_task'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to('tasks/' . $model->public_id . '/edit');
-                },
-                function ($model) {
-                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_TASK, $model]);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to('tasks/' . $model->public_id . '/edit'),
+                fn ($model): bool => ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_TASK, $model]),
             ],
             [
                 trans('texts.view_invoice'),
-                function ($model) {
-                    return \Illuminate\Support\Facades\URL::to("/invoices/{$model->invoice_public_id}/edit");
-                },
-                function ($model) {
-                    return $model->invoice_number && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_TASK, $model]);
-                },
+                fn ($model)       => \Illuminate\Support\Facades\URL::to("/invoices/{$model->invoice_public_id}/edit"),
+                fn ($model): bool => $model->invoice_number && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_TASK, $model]),
             ],
             [
                 trans('texts.resume_task'),
-                function ($model) {
-                    return "javascript:submitForm_task('resume', {$model->public_id})";
-                },
-                function ($model) {
-                    return ! $model->is_running && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_TASK, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_task('resume', {$model->public_id})",
+                fn ($model): bool   => ! $model->is_running && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_TASK, $model]),
             ],
             [
                 trans('texts.stop_task'),
-                function ($model) {
-                    return "javascript:submitForm_task('stop', {$model->public_id})";
-                },
-                function ($model) {
-                    return $model->is_running && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_TASK, $model]);
-                },
+                fn ($model): string => "javascript:submitForm_task('stop', {$model->public_id})",
+                fn ($model): bool   => $model->is_running && \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_TASK, $model]),
             ],
             [
                 trans('texts.invoice_task'),
-                function ($model) {
-                    return "javascript:submitForm_task('invoice', {$model->public_id})";
-                },
-                function ($model) {
-                    return ! $model->is_running && ! $model->invoice_number && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
-                },
+                fn ($model): string => "javascript:submitForm_task('invoice', {$model->public_id})",
+                fn ($model): bool   => ! $model->is_running && ! $model->invoice_number && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->canCreateOrEdit(ENTITY_INVOICE),
             ],
         ];
     }
 
-    public function bulkActions()
+    public function bulkActions(): array
     {
         $actions = [];
 
@@ -147,7 +121,7 @@ class TaskDatatable extends EntityDatatable
         return $actions;
     }
 
-    private function getStatusLabel($model)
+    private function getStatusLabel($model): string
     {
         $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number, $model->task_status);
         $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);

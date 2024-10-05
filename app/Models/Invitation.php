@@ -22,7 +22,7 @@ class Invitation extends EntityModel
     /**
      * @return mixed
      */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_INVITATION;
     }
@@ -32,7 +32,7 @@ class Invitation extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
     /**
@@ -40,7 +40,7 @@ class Invitation extends EntityModel
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact')->withTrashed();
+        return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
     /**
@@ -48,7 +48,7 @@ class Invitation extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
     /**
@@ -56,10 +56,10 @@ class Invitation extends EntityModel
      */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(\App\Models\Account::class);
     }
 
-    public function signatureDiv()
+    public function signatureDiv(): false|string
     {
         if ( ! $this->signature_base64) {
             return false;

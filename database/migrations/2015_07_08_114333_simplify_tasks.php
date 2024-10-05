@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SimplifyTasks extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -63,4 +62,4 @@ class SimplifyTasks extends Migration
             $table->integer('theme_id')->nullable();
         });
     }
-}
+};

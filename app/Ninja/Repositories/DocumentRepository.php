@@ -3,9 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Document;
-use Auth;
 use Datatable;
-use DB;
 use Form;
 use Intervention\Image\ImageManager;
 use Utils;
@@ -13,9 +11,9 @@ use Utils;
 class DocumentRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Document';
+        return \App\Models\Document::class;
     }
 
     public function all()
@@ -216,25 +214,17 @@ class DocumentRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('invoice_number', function ($model) {
-                return link_to(
-                    '/view/' . $model->invitation_key,
-                    $model->invoice_number
-                )->toHtml();
-            })
-            ->addColumn('name', function ($model) {
-                return link_to(
-                    '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
-                    $model->name,
-                    ['target' => '_blank']
-                )->toHtml();
-            })
-            ->addColumn('created_at', function ($model) {
-                return Utils::dateToString($model->created_at);
-            })
-            ->addColumn('size', function ($model) {
-                return Form::human_filesize($model->size);
-            });
+            ->addColumn('invoice_number', fn ($model) => link_to(
+                '/view/' . $model->invitation_key,
+                $model->invoice_number
+            )->toHtml())
+            ->addColumn('name', fn ($model) => link_to(
+                '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
+                $model->name,
+                ['target' => '_blank']
+            )->toHtml())
+            ->addColumn('created_at', fn ($model) => Utils::dateToString($model->created_at))
+            ->addColumn('size', fn ($model) => Form::human_filesize($model->size));
 
         return $table->make();
     }

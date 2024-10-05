@@ -26,7 +26,7 @@ class AccountEmailSettingsTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(AccountEmailSettings $settings)
+    public function transform(AccountEmailSettings $settings): array
     {
         return [
             'reply_to_email'           => $settings->reply_to_email,
