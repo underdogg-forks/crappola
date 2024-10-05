@@ -20,6 +20,7 @@ if ( ! function_exists('dispatch')) {
         return new PendingDispatch($job);
     }
 }
+
 if ( ! function_exists('dispatch_now')) {
     /**
      * Dispatch a command to its appropriate handler in the current process.

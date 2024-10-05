@@ -109,6 +109,7 @@ class Document extends EntityModel
 
             return (string) $client->createPresignedRequest($command, '+10 minutes')->getUri();
         }
+
         if ( ! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
                    && $adapter instanceof \League\Flysystem\Rackspace\RackspaceAdapter) {
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
@@ -129,6 +130,7 @@ class Document extends EntityModel
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
+
         return null;
     }
 
@@ -344,6 +346,7 @@ class Document extends EntityModel
         if (empty($this->visible) || in_array('url', $this->visible)) {
             $array['url'] = $this->getUrl();
         }
+
         if (empty($this->visible) || in_array('preview_url', $this->visible)) {
             $array['preview_url'] = $this->getPreviewUrl();
         }

@@ -64,6 +64,7 @@ class Handler extends ExceptionHandler
             if (Utils::isNinja() && str_contains(request()->url(), '/logo/')) {
                 return false;
             }
+
             // Log 404s to a separate file
             $errorStr = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ' URL:' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
             if (config('app.log') == 'single') {
@@ -74,6 +75,7 @@ class Handler extends ExceptionHandler
 
             return false;
         }
+
         if ($e instanceof HttpResponseException) {
             return false;
         }
@@ -140,6 +142,7 @@ class Handler extends ExceptionHandler
 
                         return response()->make($error, 404, $headers);
                     }
+
                     break;
 
                     // internal error
@@ -153,6 +156,7 @@ class Handler extends ExceptionHandler
 
                         return response()->make($error, 500, $headers);
                     }
+
                     break;
             }
         }

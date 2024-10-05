@@ -104,7 +104,7 @@ class Expense extends EntityModel
             $label = 'logged';
         }
 
-        $label = trans("texts.{$label}");
+        $label = trans('texts.' . $label);
 
         if ($paymentDate) {
             return trans('texts.paid') . ' | ' . $label;
@@ -122,6 +122,7 @@ class Expense extends EntityModel
 
             return 'success';
         }
+
         if ($shouldBeInvoiced) {
             return 'warning';
         }
@@ -209,6 +210,7 @@ class Expense extends EntityModel
         if ($this->transaction_id) {
             return $this->transaction_id;
         }
+
         if ($this->public_notes) {
             return Utils::truncateString($this->public_notes, 16);
         }
@@ -226,7 +228,7 @@ class Expense extends EntityModel
 
     public function getRoute(): string
     {
-        return "/expenses/{$this->public_id}";
+        return '/expenses/' . $this->public_id;
     }
 
     /**

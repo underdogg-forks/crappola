@@ -11,10 +11,12 @@ class InvoiceCard
      * @var string
      */
     public $contentType = 'application/vnd.microsoft.card.receipt';
+
     /**
      * @var stdClass
      */
     public $content;
+
     public function __construct($invoice)
     {
         $this->content = new stdClass();

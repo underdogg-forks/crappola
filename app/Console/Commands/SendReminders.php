@@ -25,6 +25,7 @@ use Utils;
 class SendReminders extends Command
 {
     public $userMailer;
+
     /**
      * @var string
      */
@@ -81,7 +82,7 @@ class SendReminders extends Command
             \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
-                    ->subject("SendReminders [{$database}]: Finished successfully");
+                    ->subject(sprintf('SendReminders [%s]: Finished successfully', $database));
             });
         }
     }
@@ -125,14 +126,17 @@ class SendReminders extends Command
                 // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
+
             if ( ! $invoice->account) {
                 // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
+
             if ($invoice->account->is_deleted) {
                 // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
+
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
                 \Illuminate\Support\Facades\Auth::loginUsingId($invoice->activeUser()->id);
@@ -151,9 +155,11 @@ class SendReminders extends Command
             if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
+
             if ($account->account_email_settings->is_disabled) {
                 continue;
             }
+
             $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
             $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
@@ -163,8 +169,8 @@ class SendReminders extends Command
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
-                    $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
-                    $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
+                    $amount = $account->account_email_settings->{sprintf('late_fee%s_amount', $number)};
+                    $percent = $account->account_email_settings->{sprintf('late_fee%s_percent', $number)};
                     $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
                 }
             }
@@ -180,9 +186,11 @@ class SendReminders extends Command
             if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
+
             if ($account->account_email_settings->is_disabled) {
                 continue;
             }
+
             // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
@@ -192,6 +200,7 @@ class SendReminders extends Command
                     if ($invoice->last_sent_date == date('Y-m-d')) {
                         continue;
                     }
+
                     $this->info(date('r') . ' Send email: ' . $invoice->id);
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, $reminder));
                 }
@@ -205,6 +214,7 @@ class SendReminders extends Command
                 if ($invoice->last_sent_date == date('Y-m-d')) {
                     continue;
                 }
+
                 $this->info(date('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
@@ -227,6 +237,7 @@ class SendReminders extends Command
             if ( ! $account->hasFeature(FEATURE_REPORTS)) {
                 continue;
             }
+
             if ($account->account_email_settings->is_disabled) {
                 continue;
             }

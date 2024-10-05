@@ -5,9 +5,13 @@ namespace App\Libraries\Skype;
 class ButtonCard
 {
     public $type;
+
     public $title;
+
     public $value;
+
     public $image;
+
     public function __construct($type, $title, $value, $url = false)
     {
         $this->type = $type;

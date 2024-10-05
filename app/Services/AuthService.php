@@ -44,7 +44,7 @@ class AuthService
      */
     public static function getProviderId($provider): int|string|false
     {
-        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers));
+        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers), true);
     }
 
     /**
@@ -101,6 +101,7 @@ class AuthService
 
                     return redirect('/validate_two_factor/' . $user->account->account_key);
                 }
+
                 \Illuminate\Support\Facades\Auth::login($user);
                 event(new UserLoggedIn());
             } else {

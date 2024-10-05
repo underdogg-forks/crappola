@@ -12,7 +12,9 @@ class InvoiceIntent extends BaseIntent
      * @var mixed
      */
     public $invoiceRepo;
+
     public $data;
+
     protected $fieldMap = [
         'deposit' => 'partial',
         'due'     => 'due_date',
@@ -77,6 +79,7 @@ class InvoiceIntent extends BaseIntent
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
+
                         $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
                         $product = $productRepo->findPhonetically($productName);
                     } else {

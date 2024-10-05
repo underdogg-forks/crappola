@@ -170,6 +170,7 @@ trait HasLogo
         } else {
             $this->logo = null;
         }
+
         $this->save();
     }
 }

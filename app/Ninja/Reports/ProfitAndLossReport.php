@@ -38,9 +38,11 @@ class ProfitAndLossReport extends AbstractReport
             if ($client->is_deleted) {
                 continue;
             }
+
             if ($invoice->is_deleted) {
                 continue;
             }
+
             $this->data[] = [
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',

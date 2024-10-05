@@ -74,7 +74,7 @@ class ProposalController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return redirect("proposals/{$publicId}/edit");
+        return redirect(sprintf('proposals/%s/edit', $publicId));
     }
 
     public function edit(ProposalRequest $request)
@@ -137,8 +137,8 @@ class ProposalController extends BaseController
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal" : "{$action}d_proposals";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_proposal' : $action . 'd_proposals';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 

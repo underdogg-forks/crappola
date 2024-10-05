@@ -11,6 +11,7 @@ use Utils;
 class ImportController extends BaseController
 {
     public $importService;
+
     public function __construct(ImportService $importService)
     {
         $this->importService = $importService;
@@ -66,6 +67,7 @@ class ImportController extends BaseController
                     'timestamp' => $timestamp,
                 ]);
             }
+
             if ($source === IMPORT_JSON) {
                 $includeData = filter_var(\Illuminate\Support\Facades\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
                 $includeSettings = filter_var(\Illuminate\Support\Facades\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);

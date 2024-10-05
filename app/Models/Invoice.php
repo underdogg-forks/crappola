@@ -157,7 +157,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             $label = 'status_' . mb_strtolower($status);
         }
 
-        return trans("texts.{$label}");
+        return trans('texts.' . $label);
     }
 
     public static function calcStatusClass($statusId, $balance, $dueDate, $isRecurring)
@@ -239,7 +239,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         $entityType = $this->is_recurring ? 'recurring_invoice' : $this->getEntityType();
 
-        return "/{$entityType}s/{$this->public_id}/edit";
+        return sprintf('/%ss/%s/edit', $entityType, $this->public_id);
     }
 
     /**
@@ -295,6 +295,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
             return false;
         }
+
         $dirty = $this->getDirty();
 
         unset($dirty['invoice_status_id'], $dirty['client_enable_auto_bill'], $dirty['quote_invoice_id']);
@@ -319,9 +320,11 @@ class Invoice extends EntityModel implements BalanceAffecting
                 if ($payment->payment_status_id == PAYMENT_STATUS_VOIDED) {
                     continue;
                 }
+
                 if ($payment->payment_status_id == PAYMENT_STATUS_FAILED) {
                     continue;
                 }
+
                 $amount += $payment->getCompletedAmount();
             }
 
@@ -563,12 +566,14 @@ class Invoice extends EntityModel implements BalanceAffecting
             foreach ($statusIds as $statusId) {
                 $query->orWhere('invoice_status_id', '=', $statusId);
             }
+
             if (in_array(INVOICE_STATUS_UNPAID, $statusIds)) {
                 $query->orWhere(function ($query): void {
                     $query->where('balance', '>', 0)
                         ->where('is_public', '=', true);
                 });
             }
+
             if (in_array(INVOICE_STATUS_OVERDUE, $statusIds)) {
                 $query->orWhere(function ($query): void {
                     $query->where('balance', '>', 0)
@@ -809,7 +814,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         $entityType = $this->getEntityType();
 
-        return trans("texts.{$entityType}") . '_' . $this->invoice_number . '.' . $extension;
+        return trans('texts.' . $entityType) . '_' . $this->invoice_number . '.' . $extension;
     }
 
     /**
@@ -944,6 +949,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($this->client->currency) {
             return $this->client->currency->code;
         }
+
         if ($this->account->currency) {
             return $this->account->currency->code;
         }
@@ -1122,6 +1128,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ( ! $this->is_recurring) {
             return $this->due_date ?: null;
         }
+
         $now = time();
         if ($invoice_date) {
             // If $invoice_date is specified, all calculations are based on that date
@@ -1257,7 +1264,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');
-        $phantomjsLink = $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}";
+        $phantomjsLink = $link . ('?phantomjs=true&phantomjs_secret=' . $phantomjsSecret);
 
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
@@ -1268,27 +1275,29 @@ class Invoice extends EntityModel implements BalanceAffecting
                     if (str_starts_with($pdfString, 'data')) {
                         break;
                     }
+
                     if (Utils::isNinjaDev() || Utils::isTravis()) {
                         Utils::logError('Failed to generate: ' . $i);
                     }
+
                     $pdfString = false;
                     sleep(2);
                 }
             }
 
             if ( ! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
-                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%26phantomjs_secret={$phantomjsSecret}%22,renderType:%22html%22%7D";
+                $url = sprintf('http://api.phantomjscloud.com/api/browser/v2/%s/?request=%%7Burl:%%22%s?phantomjs=true%%26phantomjs_secret=%s%%22,renderType:%%22html%%22%%7D', $key, $link, $phantomjsSecret);
                 $pdfString = CurlUtils::get($url);
                 $pdfString = strip_tags($pdfString);
             }
         } catch (Exception $exception) {
-            Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
+            Utils::logError(sprintf('PhantomJS - Failed to load %s: %s', $phantomjsLink, $exception->getMessage()));
 
             return false;
         }
 
         if ( ! $pdfString || mb_strlen($pdfString) < 200) {
-            Utils::logError("PhantomJS - Invalid response {$phantomjsLink}: {$pdfString}");
+            Utils::logError(sprintf('PhantomJS - Invalid response %s: %s', $phantomjsLink, $pdfString));
 
             return false;
         }
@@ -1297,7 +1306,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf = Utils::decodePDF($pdfString)) {
                 return $pdf;
             }
-            Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}");
+
+            Utils::logError('PhantomJS - Unable to decode ' . $phantomjsLink);
 
             return false;
         }
@@ -1397,6 +1407,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             $invoicePaidAmount = (float) ($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
         }
+
         if ($this->tax_name2) {
             $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate2);
             $invoicePaidAmount = (float) ($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
@@ -1411,6 +1422,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $itemPaidAmount = (float) ($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
+
             if ($invoiceItem->tax_name2) {
                 $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate2);
                 $itemPaidAmount = (float) ($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;

@@ -16,18 +16,18 @@ class ClientDatatable extends EntityDatatable
             [
                 'name',
                 function ($model): string {
-                    $str = link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
+                    $str = link_to('clients/' . $model->public_id, $model->name ?: '')->toHtml();
 
                     return $this->addNote($str, $model->private_notes);
                 },
             ],
             [
                 'contact',
-                fn ($model) => link_to("clients/{$model->public_id}", $model->contact ?: '')->toHtml(),
+                fn ($model) => link_to('clients/' . $model->public_id, $model->contact ?: '')->toHtml(),
             ],
             [
                 'email',
-                fn ($model) => link_to("clients/{$model->public_id}", $model->email ?: '')->toHtml(),
+                fn ($model) => link_to('clients/' . $model->public_id, $model->email ?: '')->toHtml(),
             ],
             [
                 'id_number',
@@ -56,10 +56,11 @@ class ClientDatatable extends EntityDatatable
                 trans('texts.edit_client'),
                 function ($model) {
                     if (\Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
-                        return \Illuminate\Support\Facades\URL::to("clients/{$model->public_id}/edit");
+                        return \Illuminate\Support\Facades\URL::to(sprintf('clients/%s/edit', $model->public_id));
                     }
+
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return \Illuminate\Support\Facades\URL::to("clients/{$model->public_id}");
+                        return \Illuminate\Support\Facades\URL::to('clients/' . $model->public_id);
                     }
                 },
             ],
@@ -69,17 +70,17 @@ class ClientDatatable extends EntityDatatable
             ],
             [
                 trans('texts.new_task'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("tasks/create/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('tasks/create/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK),
             ],
             [
                 trans('texts.new_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("invoices/create/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('invoices/create/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
             [
                 trans('texts.new_quote'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to("quotes/create/{$model->public_id}"),
+                fn ($model)       => \Illuminate\Support\Facades\URL::to('quotes/create/' . $model->public_id),
                 fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_QUOTES) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE),
             ],
             [
@@ -88,17 +89,17 @@ class ClientDatatable extends EntityDatatable
             ],
             [
                 trans('texts.enter_payment'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("payments/create/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('payments/create/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
             ],
             [
                 trans('texts.enter_credit'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("credits/create/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('credits/create/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CREDIT),
             ],
             [
                 trans('texts.enter_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("expenses/create/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('expenses/create/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
             ],
         ];

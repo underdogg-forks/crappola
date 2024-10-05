@@ -149,7 +149,7 @@ class Payment extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/payments/{$this->public_id}/edit";
+        return sprintf('/payments/%s/edit', $this->public_id);
     }
 
     /*
@@ -181,7 +181,7 @@ class Payment extends EntityModel
      */
     public function getName(): string
     {
-        return trim("payment {$this->transaction_reference}");
+        return trim('payment ' . $this->transaction_reference);
     }
 
     /**
@@ -357,6 +357,7 @@ class Payment extends EntityModel
         if ($bank_name) {
             return $bank_name;
         }
+
         $bankData = $this->bank_data;
 
         return $bankData ? $bankData->name : null;

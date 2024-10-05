@@ -94,7 +94,7 @@ class TaskController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to("tasks/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('tasks/%s/edit', $publicId));
     }
 
     /**
@@ -142,7 +142,7 @@ class TaskController extends BaseController
 
         $actions = [];
         if ($task->invoice) {
-            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/edit', $task->invoice->public_id)), 'label' => trans('texts.view_invoice')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
@@ -209,6 +209,7 @@ class TaskController extends BaseController
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
+
         if (str_starts_with($action, 'update_status')) {
             [$action, $statusPublicId] = explode(':', $action);
             Task::scope($ids)->update([
@@ -219,6 +220,7 @@ class TaskController extends BaseController
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
+
         if ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id')->orderBy('id')->get();
             $clientPublicId = false;
@@ -241,6 +243,7 @@ class TaskController extends BaseController
                 if ($task->is_running) {
                     return redirect($referer)->withError(trans('texts.task_error_running'));
                 }
+
                 if ($task->invoice_id) {
                     return redirect($referer)->withError(trans('texts.task_error_invoiced'));
                 }
@@ -257,16 +260,19 @@ class TaskController extends BaseController
             }
 
             if ($action == 'invoice') {
-                return \Illuminate\Support\Facades\Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
+                return \Illuminate\Support\Facades\Redirect::to('invoices/create/' . $clientPublicId)->with('tasks', $data);
             }
+
             $invoiceId = \Illuminate\Support\Facades\Request::input('invoice_id');
 
-            return \Illuminate\Support\Facades\Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
+            return \Illuminate\Support\Facades\Redirect::to(sprintf('invoices/%s/edit', $invoiceId))->with('tasks', $data);
         }
+
         $count = $this->taskService->bulk($ids, $action);
         if (request()->wantsJson()) {
             return response()->json($count);
         }
+
         $message = Utils::pluralize($action . 'd_task', $count);
         \Illuminate\Support\Facades\Session::flash('message', $message);
 
@@ -309,13 +315,14 @@ class TaskController extends BaseController
 
             return $task->load(['client.contacts', 'project'])->toJson();
         }
+
         if ($publicId) {
             \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_task'));
         } else {
             \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_task'));
         }
 
-        return \Illuminate\Support\Facades\Redirect::to("tasks/{$task->public_id}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('tasks/%s/edit', $task->public_id));
     }
 
     private function checkTimezone(): void

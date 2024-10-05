@@ -40,6 +40,7 @@ class HomeController extends BaseController
         if ( ! Utils::isNinja() && ( ! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return \Illuminate\Support\Facades\Redirect::to('/setup');
         }
+
         if (\Illuminate\Support\Facades\Auth::check()) {
             return \Illuminate\Support\Facades\Redirect::to('/dashboard');
         }
@@ -158,6 +159,7 @@ class HomeController extends BaseController
             } else {
                 $subject .= 'Self-Host] | ';
             }
+
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                 ->from(CONTACT_EMAIL, \Illuminate\Support\Facades\Auth::user()->present()->fullName)

@@ -689,6 +689,7 @@ if ( ! defined('APP_NAME')) {
         if ($locale == 'en') {
             return trans($text);
         }
+
         $string = trans($text);
         $english = trans($text, [], 'en');
 
@@ -704,13 +705,13 @@ if ( ! defined('APP_NAME')) {
 
         // check if this has been translated in a module language file
         if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
-            $key = "{$module->getLowerName()}::texts.{$text}";
+            $key = sprintf('%s::texts.%s', $module->getLowerName(), $text);
             $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;
             }
         }
 
-        return trans("texts.{$text}");
+        return trans('texts.' . $text);
     }
 }

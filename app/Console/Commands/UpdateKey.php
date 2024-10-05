@@ -111,6 +111,7 @@ class UpdateKey extends Command
         } else {
             $message .= 'the data, make sure to set the new key: ' . $key;
         }
+
         $this->info($message);
     }
 

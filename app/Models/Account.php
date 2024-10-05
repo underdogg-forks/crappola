@@ -744,6 +744,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         if ( ! $date) {
             return null;
         }
+
         if ( ! $date instanceof DateTime) {
             return new DateTime($date);
         }
@@ -974,6 +975,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
                     break;
                 }
             }
+
             if ($available) {
                 $gatewayIds[] = $gateway->id;
             }
@@ -1055,6 +1057,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
                 return $token->token;
             }
         }
+
         return null;
     }
 
@@ -1133,6 +1136,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         if ($this->military_time) {
             $format = str_replace('g:i a', 'H:i', $format);
         }
+
         \Illuminate\Support\Facades\Session::put(SESSION_DATETIME_FORMAT, $format);
 
         \Illuminate\Support\Facades\Session::put('start_of_week', $this->start_of_week);
@@ -1259,6 +1263,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             default:
                 return false;
         }
+
         return null;
     }
 
@@ -1550,9 +1555,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
             return GATEWAY_STRIPE;
         }
+
         if ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
             return GATEWAY_BRAINTREE;
         }
+
         if ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
             return GATEWAY_WEPAY;
         }
@@ -1595,8 +1602,9 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $iframe_url = $this->iframe_url;
 
         if ($iframe_url) {
-            return "{$iframe_url}/?";
+            return $iframe_url . '/?';
         }
+
         if ($this->subdomain) {
             return Utils::replaceSubdomain($url, $this->subdomain);
         }

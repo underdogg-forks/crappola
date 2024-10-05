@@ -109,7 +109,7 @@ class ExportMigrations extends Command
 
         $output = fopen('php://output', 'w') || Utils::fatalError();
 
-        $fileName = "{$accountKey}-{$date}-invoiceninja";
+        $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 
         $data['data'] = [
             'account'               => $this->getAccount(),
@@ -139,7 +139,7 @@ class ExportMigrations extends Command
         ];
 
         Storage::makeDirectory('migrations');
-        $file = storage_path("migrations/{$fileName}.zip");
+        $file = storage_path(sprintf('migrations/%s.zip', $fileName));
 
         $zip = new ZipArchive();
         $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);

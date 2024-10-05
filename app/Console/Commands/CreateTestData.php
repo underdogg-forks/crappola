@@ -23,15 +23,25 @@ use Utils;
 class CreateTestData extends Command
 {
     public $faker;
+
     public $clientRepo;
+
     public $invoiceRepo;
+
     public $paymentRepo;
+
     public $vendorRepo;
+
     public $expenseRepo;
+
     public $taskRepo;
+
     public $projectRepo;
+
     public $accountRepo;
+
     public $count;
+
     /**
      * @var string
      */
@@ -222,7 +232,7 @@ class CreateTestData extends Command
         for ($i = 0; $i < $this->count; $i++) {
             $startTime = date_create()->modify(random_int(-100, 100) . ' days')->format('U');
             $endTime = $startTime + (60 * 60 * 2);
-            $timeLog = "[[{$startTime},{$endTime}]]";
+            $timeLog = sprintf('[[%s,%s]]', $startTime, $endTime);
             $data = [
                 'client_id'   => $client->id,
                 'project_id'  => $project->id,

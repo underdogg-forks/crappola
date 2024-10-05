@@ -139,15 +139,18 @@ class ProjectController extends BaseController
                 if ( ! $clientPublicId) {
                     $clientPublicId = $project->client->public_id;
                 }
+
                 if ($lastClientId && $lastClientId != $project->client_id) {
                     return redirect('projects')->withError(trans('texts.project_error_multiple_clients'));
                 }
+
                 $lastClientId = $project->client_id;
 
                 foreach ($project->tasks as $task) {
                     if ($task->is_running) {
                         return redirect('projects')->withError(trans('texts.task_error_running'));
                     }
+
                     $showProject = $lastProjectId != $task->project_id;
                     $data[] = [
                         'publicId'    => $task->public_id,
@@ -159,13 +162,14 @@ class ProjectController extends BaseController
                 }
             }
 
-            return redirect("invoices/create/{$clientPublicId}")->with('tasks', $data);
+            return redirect('invoices/create/' . $clientPublicId)->with('tasks', $data);
         }
+
         $count = $this->projectService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_project' : $action . 'd_projects';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 

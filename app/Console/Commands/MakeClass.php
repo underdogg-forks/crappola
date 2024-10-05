@@ -30,7 +30,7 @@ class MakeClass extends GeneratorCommand
      */
     protected $description = 'Create class stub';
 
-    public function getTemplateContents()
+    protected function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
         $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
@@ -47,7 +47,7 @@ class MakeClass extends GeneratorCommand
         ]))->render();
     }
 
-    public function getDestinationFilePath()
+    protected function getDestinationFilePath()
     {
         $path = $this->laravel['modules']->getModulePath($this->getModuleName());
         $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
@@ -94,12 +94,14 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
+
         $str = '';
 
         foreach ($fields as $field) {
             if ( $field === '' || $field === '0') {
                 continue;
             }
+
             $field = explode(':', $field)[0];
             $str .= '[
                 \'' . $field . '\',
@@ -116,12 +118,14 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
+
         $str = '';
 
         foreach ($fields as $field) {
             if ( $field === '' || $field === '0') {
                 continue;
             }
+
             $parts = explode(':', $field);
             $field = $parts[0];
             $type = $parts[1];
@@ -140,14 +144,16 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
+
         $str = '';
 
         foreach ($fields as $field) {
             if ( $field === '' || $field === '0') {
                 continue;
             }
+
             $field = explode(':', $field)[0];
-            $str .= "'" . $module->getLowerName() . ".{$field}', ";
+            $str .= "'" . $module->getLowerName() . sprintf(".%s', ", $field);
         }
 
         return $str;
@@ -157,14 +163,16 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
+
         $str = '';
 
         foreach ($fields as $field) {
             if ( $field === '' || $field === '0') {
                 continue;
             }
+
             $field = explode(':', $field)[0];
-            $str .= "'{$field}' => $" . $module->getLowerName() . "->{$field},\n            ";
+            $str .= sprintf("'%s' => \$", $field) . $module->getLowerName() . "->{$field},\n            ";
         }
 
         return rtrim($str);

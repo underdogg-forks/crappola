@@ -73,12 +73,15 @@ class SendRenewalInvoices extends Command
             if ($plan['plan'] == PLAN_FREE) {
                 continue;
             }
+
             if ( ! $plan['plan']) {
                 continue;
             }
+
             if ( ! $plan['term']) {
                 continue;
             }
+
             if ( ! $plan['price']) {
                 continue;
             }
@@ -96,9 +99,9 @@ class SendRenewalInvoices extends Command
 
             if ($term == PLAN_TERM_YEARLY) {
                 $this->mailer->sendInvoice($invoice);
-                $this->info("Sent {$term}ly {$plan} invoice to {$client->getDisplayName()}");
+                $this->info(sprintf('Sent %sly %s invoice to %s', $term, $plan, $client->getDisplayName()));
             } else {
-                $this->info("Created {$term}ly {$plan} invoice for {$client->getDisplayName()}");
+                $this->info(sprintf('Created %sly %s invoice for %s', $term, $plan, $client->getDisplayName()));
             }
         }
 
@@ -108,7 +111,7 @@ class SendRenewalInvoices extends Command
             \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
-                    ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
+                    ->subject(sprintf('SendRenewalInvoices [%s]: Finished successfully', $database));
             });
         }
     }

@@ -20,7 +20,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 function ($model) {
                     if ($model->vendor_public_id) {
                         if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
-                            return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
+                            return link_to('vendors/' . $model->vendor_public_id, $model->vendor_name)->toHtml();
                         }
 
                         return $model->vendor_name;
@@ -35,7 +35,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 function ($model) {
                     if ($model->client_public_id) {
                         if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                            return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                            return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml();
                         }
 
                         return Utils::getClientDisplayName($model);
@@ -63,7 +63,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                     $frequency = mb_strtolower($model->frequency);
                     $frequency = preg_replace('/\s/', '_', $frequency);
 
-                    $str = link_to("recurring_expenses/{$model->public_id}/edit", trans('texts.freq_' . $frequency))->toHtml();
+                    $str = link_to(sprintf('recurring_expenses/%s/edit', $model->public_id), trans('texts.freq_' . $frequency))->toHtml();
 
                     return $this->addNote($str, $model->private_notes);
                 },
@@ -90,7 +90,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 function ($model) {
                     $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
-                        return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
+                        return $model->category_public_id ? link_to(sprintf('expense_categories/%s/edit', $model->category_public_id), $category)->toHtml() : '';
                     }
 
                     return $category;
@@ -108,7 +108,7 @@ class RecurringExpenseDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_recurring_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("recurring_expenses/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('recurring_expenses/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]),
             ],
         ];

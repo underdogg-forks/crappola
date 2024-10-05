@@ -56,6 +56,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
 
         $className = static::class;
         $className = str_replace('Lookup', '', $className);
+
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
@@ -87,8 +88,9 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
                     ->withTrashed()
                     ->first();
             }
+
             if ( ! $isFound) {
-                abort(404, "Looked up {$className} not found: {$field} => {$value}");
+                abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
             }
 
             \Illuminate\Support\Facades\Cache::put($key, $server, 120 * 60);

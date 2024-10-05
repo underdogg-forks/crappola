@@ -71,6 +71,7 @@ class DashboardRepository
                 } else {
                     $date = $d->format('Y' . $dateFormat);
                 }
+
                 $records[] = $data[$date] ?? 0;
 
                 if ($entityType === ENTITY_INVOICE) {
@@ -88,11 +89,11 @@ class DashboardRepository
 
             $record = new stdClass();
             $record->data = $records;
-            $record->label = trans("texts.{$entityType}s");
+            $record->label = trans(sprintf('texts.%ss', $entityType));
             $record->lineTension = 0;
             $record->borderWidth = 4;
-            $record->borderColor = "rgba({$color}, 1)";
-            $record->backgroundColor = "rgba({$color}, 0.1)";
+            $record->borderColor = sprintf('rgba(%s, 1)', $color);
+            $record->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
             $datasets[] = $record;
 
             if ($entityType === ENTITY_INVOICE) {
@@ -338,7 +339,7 @@ class DashboardRepository
         $taxRate2Field = \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
 
         $select = \Illuminate\Support\Facades\DB::raw(
-            "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
+            sprintf('SUM(%s + (%s * %s / 100) + (%s * %s / 100)) as value,', $amountField, $amountField, $taxRate1Field, $amountField, $taxRate2Field)
                   . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true) . ' as currency_id'
         );
         $expenses = \Illuminate\Support\Facades\DB::table('accounts')
@@ -390,7 +391,7 @@ class DashboardRepository
         if ($entityType === ENTITY_EXPENSE) {
             $records->where('expenses.expense_currency_id', '=', $currencyId);
         } elseif ($currencyId == $account->getCurrencyId()) {
-            $records->whereRaw("(clients.currency_id = {$currencyId} or coalesce(clients.currency_id, 0) = 0)");
+            $records->whereRaw(sprintf('(clients.currency_id = %d or coalesce(clients.currency_id, 0) = 0)', $currencyId));
         } else {
             $records->where('clients.currency_id', '=', $currencyId);
         }

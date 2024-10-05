@@ -300,6 +300,7 @@ class SubscriptionListener
                     $data = $ublData;
                     break;
             }
+
             $this->notifySubscription($subscription, $data);
         }
     }

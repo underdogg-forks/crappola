@@ -14,6 +14,7 @@ use Response;
 class PaymentApiController extends BaseAPIController
 {
     public $contactMailer;
+
     protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
     protected \App\Services\PaymentService $paymentService;

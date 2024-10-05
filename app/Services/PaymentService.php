@@ -15,11 +15,14 @@ use Utils;
 class PaymentService extends BaseService
 {
     public $datatableService;
+
     public $paymentRepo;
+
     /**
      * @var \App\Ninja\Repositories\AccountRepository
      */
     public $accountRepo;
+
     /**
      * PaymentService constructor.
      *
@@ -155,7 +158,8 @@ class PaymentService extends BaseService
             $credit = Credit::createNew();
             $credit->client_id = $invoice->client_id;
             $credit->credit_date = date_create()->format('Y-m-d');
-            $credit->amount = $credit->balance = $input['amount'] - $invoice->balance;
+            $credit->amount = $input['amount'] - $invoice->balance;
+            $credit->balance = $input['amount'] - $invoice->balance;
             $credit->private_notes = trans('texts.credit_created_by', ['transaction_reference' => $input['transaction_reference'] ?? '']);
             $credit->save();
             $input['amount'] = $invoice->balance;

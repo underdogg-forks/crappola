@@ -17,6 +17,7 @@ class VendorService extends BaseService
      * @var \App\Ninja\Repositories\NinjaRepository
      */
     public $ninjaRepo;
+
     protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
     protected \App\Services\DatatableService $datatableService;

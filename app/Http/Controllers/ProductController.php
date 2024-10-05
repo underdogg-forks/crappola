@@ -51,7 +51,7 @@ class ProductController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to("products/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('products/%s/edit', $publicId));
     }
 
     /**
@@ -157,6 +157,7 @@ class ProductController extends BaseController
 
             return redirect('invoices/create')->with('selectedProducts', $data);
         }
+
         $count = $this->productService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_product', $count);
@@ -192,6 +193,6 @@ class ProductController extends BaseController
             return redirect()->to(sprintf('products/%s/clone', $product->public_id));
         }
 
-        return redirect()->to("products/{$product->public_id}/edit");
+        return redirect()->to(sprintf('products/%s/edit', $product->public_id));
     }
 }

@@ -186,7 +186,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
-                \Illuminate\Support\Facades\Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+                \Illuminate\Support\Facades\Log::info(sprintf('Refunded Plan Payment: %s - %s - Deadline: %s', $account->name, $user->email, $deadline->format('Y-m-d')));
 
                 return true;
             }

@@ -7,9 +7,13 @@ use Carbon;
 class RunReport extends Job
 {
     public $user;
+
     public $reportType;
+
     public $config;
+
     public $isExport;
+
     public function __construct($user, $reportType, $config, $isExport = false)
     {
         $this->user = $user;

@@ -58,7 +58,7 @@ class MobileLocalization extends Command
         $resources = $this->getResources();
 
         foreach ($resources as $key => $val) {
-            $transKey = "texts.{$key}";
+            $transKey = 'texts.' . $key;
             if (trans($transKey) == $transKey) {
                 echo "'{$key}' => '{$val}',\n";
             }
@@ -78,7 +78,7 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
+                $text = trim(addslashes(trans('texts.' . $key, [], $language->locale)));
                 if (mb_substr($text, 0, 6) === 'texts.') {
                     $text = $resources->{$key};
                 }

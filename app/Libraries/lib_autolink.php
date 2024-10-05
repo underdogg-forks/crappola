@@ -112,10 +112,11 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                     $url = mb_substr($url, 0, mb_strlen($url) - 1);
                     $cursor--;
                 }
+
                 foreach (['()', '[]', '{}'] as $pair) {
                     $o = mb_substr($pair, 0, 1);
                     $c = mb_substr($pair, 1, 1);
-                    if (preg_match("!^(\\{$c}|^)[^\\{$o}]+\\{$c}$!", $url)) {
+                    if (preg_match(sprintf('!^(\%s|^)[^\%s]+\%s$!', $c, $o, $c), $url)) {
                         $url = mb_substr($url, 0, mb_strlen($url) - 1);
                         $cursor--;
                     }
@@ -146,7 +147,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 if ($display_url != $link_url && ! preg_match('@title=@msi', $currentTagfill) && $auto_title) {
                     $display_quoted = preg_quote($display_url, '!');
 
-                    if ( ! preg_match("!^(http|https)://{$display_quoted}$!i", $link_url)) {
+                    if ( ! preg_match(sprintf('!^(http|https)://%s$!i', $display_quoted), $link_url)) {
                         $currentTagfill .= ' title="' . $link_url . '"';
                     }
                 }
@@ -154,7 +155,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 $link_url_enc = htmlspecialchars($link_url);
                 $display_url_enc = htmlspecialchars($display_url);
 
-                $buffer .= "<a href=\"{$link_url_enc}\"{$currentTagfill}>{$display_url_enc}</a>";
+                $buffer .= sprintf('<a href="%s"%s>%s</a>', $link_url_enc, $currentTagfill, $display_url_enc);
             } else {
                 //echo "fail 3 at $cursor<br />\n";
 
@@ -243,7 +244,7 @@ function autolink_email($text, $tagfill = ''): string
         //
 
         if ($ok !== 0) {
-            if (preg_match("!({$atom}(\.{$atom})*)\$!", $pre, $matches)) {
+            if (preg_match(sprintf('!(%s(\.%s)*)$!', $atom, $atom), $pre, $matches)) {
                 // move matched part of address into $hit
 
                 $len = mb_strlen($matches[1]);
@@ -265,7 +266,7 @@ function autolink_email($text, $tagfill = ''): string
         //
 
         if ($ok !== 0) {
-            if (preg_match("!^({$atom}(\.{$atom})*)!", $post, $matches)) {
+            if (preg_match(sprintf('!^(%s(\.%s)*)!', $atom, $atom), $post, $matches)) {
                 // move matched part of address into $hit
 
                 $len = mb_strlen($matches[1]);
@@ -288,7 +289,7 @@ function autolink_email($text, $tagfill = ''): string
         if ($ok !== 0) {
             $cursor += mb_strlen($pre) + mb_strlen($hit);
             $buffer .= $pre;
-            $buffer .= "<a href=\"mailto:{$hit}\"{$tagfill}>{$hit}</a>";
+            $buffer .= sprintf('<a href="mailto:%s"%s>%s</a>', $hit, $tagfill, $hit);
         }
     }
 

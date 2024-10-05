@@ -25,7 +25,7 @@ class SubscriptionDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_subscription'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("subscriptions/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('subscriptions/%s/edit', $model->public_id)),
             ],
         ];
     }

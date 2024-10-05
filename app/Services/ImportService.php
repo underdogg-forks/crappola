@@ -40,14 +40,20 @@ use Utils;
 class ImportService
 {
     public $fractal;
+
     public $paymentRepo;
+
     /**
      * @var \App\Ninja\Repositories\ExpenseRepository
      */
     public $expenseRepo;
+
     public $vendorRepo;
+
     public $expenseCategoryRepo;
+
     public $taxRateRepository;
+
     /**
      * @var array
      */
@@ -187,6 +193,7 @@ class ImportService
         $file = file_get_contents($fileName);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
+
         $transformer = new BaseTransformer($this->maps);
 
         $this->checkClientCount(count($json['clients']));
@@ -348,8 +355,10 @@ class ImportService
                         $label = 'invoice_terms';
                     }
                 }
-                $columns[$value] = trans("texts.{$label}");
+
+                $columns[$value] = trans('texts.' . $label);
             }
+
             array_unshift($columns, ' ');
 
             $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
@@ -385,6 +394,7 @@ class ImportService
                     break;
                 }
             }
+
             $counter = count($headers);
 
             for ($i = 0; $i < $counter; $i++) {
@@ -418,6 +428,7 @@ class ImportService
                 if ( ! mb_strstr($field, 'date')) {
                     continue;
                 }
+
                 try {
                     $date = new Carbon($row[$index]);
                 } catch (Exception) {
@@ -457,8 +468,9 @@ class ImportService
 
         foreach ($results as $entityType => $entityResults) {
             if (($count = count($entityResults[RESULT_SUCCESS])) !== 0) {
-                $message .= trans("texts.created_{$entityType}s", ['count' => $count]) . '<br/>';
+                $message .= trans(sprintf('texts.created_%ss', $entityType), ['count' => $count]) . '<br/>';
             }
+
             if (count($entityResults[RESULT_FAILURE]) > 0) {
                 $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
             }
@@ -556,6 +568,7 @@ class ImportService
                     $data['expense_category_id'] = $category->id;
                 }
             }
+
             if (! empty($row->vendor) && ($vendorName = trim($row->vendor)) && ! $transformer->getVendorId($vendorName)) {
                 $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                 $this->addVendorToMaps($vendor);
@@ -608,7 +621,7 @@ class ImportService
             $data['is_public'] = true;
         }
 
-        $entity = $this->{"{$entityType}Repo"}->save($data);
+        $entity = $this->{$entityType . 'Repo'}->save($data);
 
         // update the entity maps
         if ($entityType != ENTITY_CUSTOMER) {
@@ -742,6 +755,7 @@ class ImportService
                         break;
                     }
                 }
+
                 if ( ! $excluded) {
                     return true;
                 }
@@ -784,6 +798,7 @@ class ImportService
             if ($this->isRowEmpty($row)) {
                 continue;
             }
+
             $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
@@ -973,14 +988,17 @@ class ImportService
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
+
         if ($client->contacts->count()) {
             $contact = $client->contacts[0];
             if (($email = mb_strtolower(trim($contact->email))) !== '' && ($email = mb_strtolower(trim($contact->email))) !== '0') {
                 $this->maps['client'][$email] = $client->id;
             }
+
             if (($name = mb_strtolower(trim($contact->getFullName()))) !== '' && ($name = mb_strtolower(trim($contact->getFullName()))) !== '0') {
                 $this->maps['client'][$name] = $client->id;
             }
+
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
     }
@@ -1053,6 +1071,7 @@ class ImportService
             if ($counter > 60) {
                 throw new Exception('File not found: ' . $fileName);
             }
+
             sleep(2);
         }
 

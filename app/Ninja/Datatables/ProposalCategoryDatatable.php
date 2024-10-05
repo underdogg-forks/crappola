@@ -15,7 +15,7 @@ class ProposalCategoryDatatable extends EntityDatatable
                 'name',
                 function ($model) {
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
-                        return link_to("proposals/categories/{$model->public_id}/edit", $model->name)->toHtml();
+                        return link_to(sprintf('proposals/categories/%s/edit', $model->public_id), $model->name)->toHtml();
                     }
 
                     return $model->name;
@@ -29,7 +29,7 @@ class ProposalCategoryDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_category'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("proposals/categories/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('proposals/categories/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]),
             ],
         ];

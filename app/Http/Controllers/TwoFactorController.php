@@ -46,6 +46,7 @@ class TwoFactorController extends Controller
         if ( ! $secret || ! \Google2FA::verifyKey($secret, $oneTimePassword)) {
             return redirect('settings/enable_two_factor')->withError(trans('texts.invalid_one_time_password'));
         }
+
         if ( ! $user->google_2fa_secret && $user->phone && $user->confirmed) {
             $user->google_2fa_secret = \Illuminate\Support\Facades\Crypt::encrypt($secret);
             $user->save();

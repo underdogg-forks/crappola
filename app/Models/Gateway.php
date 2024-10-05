@@ -195,7 +195,7 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
 
         $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
-            'link'          => "<a href='{$link}' >Click here</a>",
+            'link'          => sprintf("<a href='%s' >Click here</a>", $link),
             'complete_link' => url('/complete'),
         ]);
 

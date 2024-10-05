@@ -62,6 +62,7 @@ class TaxRateReport extends AbstractReport
                     if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
+
                     if (isset($taxTotals[$currencyId][$key])) {
                         $taxTotals[$currencyId][$key]['amount'] += $tax['amount'];
                         $taxTotals[$currencyId][$key]['paid'] += $tax['paid'];

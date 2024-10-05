@@ -37,7 +37,7 @@ class AccountGatewayController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to("gateways/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('gateways/%s/edit', $publicId));
     }
 
     public function edit(string $publicId)
@@ -93,6 +93,7 @@ class AccountGatewayController extends BaseController
         if ($wepay) {
             return \Illuminate\Support\Facades\View::make('accounts.account_gateway_wepay', $data);
         }
+
         $availableGatewaysIds = $account->availableGatewaysIds();
         $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
         $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
@@ -108,7 +109,7 @@ class AccountGatewayController extends BaseController
         $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->accountGatewayService->bulk($ids, $action);
 
-        \Illuminate\Support\Facades\Session::flash('message', trans("texts.{$action}d_account_gateway"));
+        \Illuminate\Support\Facades\Session::flash('message', trans(sprintf('texts.%sd_account_gateway', $action)));
 
         return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
@@ -158,12 +159,13 @@ class AccountGatewayController extends BaseController
         $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
 
         if ($validator->fails()) {
-            $url = $accountGatewayPublicId ? "/gateways/{$accountGatewayPublicId}/edit" : 'gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true');
+            $url = $accountGatewayPublicId ? sprintf('/gateways/%s/edit', $accountGatewayPublicId) : 'gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true');
 
             return \Illuminate\Support\Facades\Redirect::to($url)
                 ->withErrors($validator)
                 ->withInput();
         }
+
         $account = Account::with('account_gateways')->findOrFail(\Illuminate\Support\Facades\Auth::user()->account_id);
         $oldConfig = null;
 
@@ -179,7 +181,7 @@ class AccountGatewayController extends BaseController
             if ($accountGateway) {
                 \Illuminate\Support\Facades\Session::flash('error', trans('texts.gateway_exists'));
 
-                return \Illuminate\Support\Facades\Redirect::to("gateways/{$accountGateway->public_id}/edit");
+                return \Illuminate\Support\Facades\Redirect::to(sprintf('gateways/%s/edit', $accountGateway->public_id));
             }
 
             $accountGateway = AccountGateway::createNew();
@@ -189,6 +191,7 @@ class AccountGatewayController extends BaseController
                 if ( ! $this->setupWePay($accountGateway, $wepayResponse)) {
                     return $wepayResponse;
                 }
+
                 $oldConfig = $accountGateway->getConfig();
             }
         }
@@ -202,6 +205,7 @@ class AccountGatewayController extends BaseController
                 if ($oldConfig && $value && $value === str_repeat('*', mb_strlen($value))) {
                     $value = $oldConfig->{$field};
                 }
+
                 if ( ! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
                     // do nothing
                 } else {
@@ -284,14 +288,16 @@ class AccountGatewayController extends BaseController
         if (isset($wepayResponse)) {
             return $wepayResponse;
         }
+
         $this->testGateway($accountGateway);
 
         if ($accountGatewayPublicId) {
             $message = trans('texts.updated_gateway');
             \Illuminate\Support\Facades\Session::flash('message', $message);
 
-            return \Illuminate\Support\Facades\Redirect::to("gateways/{$accountGateway->public_id}/edit");
+            return \Illuminate\Support\Facades\Redirect::to(sprintf('gateways/%s/edit', $accountGateway->public_id));
         }
+
         $message = trans('texts.created_gateway');
         \Illuminate\Support\Facades\Session::flash('message', $message);
 
@@ -313,7 +319,7 @@ class AccountGatewayController extends BaseController
             }
         }
 
-        return \Illuminate\Support\Facades\Redirect::to("gateways/{$accountGateway->public_id}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('gateways/%s/edit', $accountGateway->public_id));
     }
 
     /**
@@ -467,11 +473,11 @@ class AccountGatewayController extends BaseController
                 return true;
             }
 
-            $response = \Illuminate\Support\Facades\Redirect::to("gateways/{$accountGateway->public_id}/edit");
+            $response = \Illuminate\Support\Facades\Redirect::to(sprintf('gateways/%s/edit', $accountGateway->public_id));
 
             return true;
-        } catch (WePayException $e) {
-            \Illuminate\Support\Facades\Session::flash('error', $e->getMessage());
+        } catch (WePayException $wePayException) {
+            \Illuminate\Support\Facades\Session::flash('error', $wePayException->getMessage());
             $response = \Illuminate\Support\Facades\Redirect::to('gateways/create')
                 ->withInput();
 
@@ -508,6 +514,7 @@ class AccountGatewayController extends BaseController
             if ( ! $gateway->isCustom()) {
                 asort($fields);
             }
+
             $gateway->fields = $gateway->id == GATEWAY_WEPAY ? [] : $fields;
             if ($accountGateway && $accountGateway->gateway_id == $gateway->id) {
                 $accountGateway->fields = $gateway->fields;

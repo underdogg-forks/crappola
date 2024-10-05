@@ -36,9 +36,9 @@ class PushService
         $devices = json_decode($invoice->account->devices, true);
 
         foreach ($devices as $device) {
-            if (($device["notify_{$type}"] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
+            if (($device['notify_' . $type] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, IOS_DEVICE);
-            } elseif (($device["notify_{$type}"] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
+            } elseif (($device['notify_' . $type] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, ANDROID_DEVICE);
             }
         }
@@ -104,6 +104,7 @@ class PushService
                 return $this->entityViewedMessage($invoice);
                 break;
         }
+
         return null;
     }
 

@@ -121,7 +121,7 @@ class PaymentController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return redirect()->to("payments/{$publicId}/edit");
+        return redirect()->to(sprintf('payments/%s/edit', $publicId));
     }
 
     /**
@@ -136,15 +136,15 @@ class PaymentController extends BaseController
 
         $actions = [];
         if ($payment->invoiceJsonBackup()) {
-            $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => url(sprintf('/invoices/invoice_history/%s?payment_id=%s', $payment->invoice->public_id, $payment->public_id)), 'label' => trans('texts.view_invoice')];
         }
 
-        $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+        $actions[] = ['url' => url(sprintf('/invoices/%s/edit', $payment->invoice->public_id)), 'label' => trans('texts.edit_invoice')];
         $actions[] = DropdownButton::DIVIDER;
         $actions[] = ['url' => 'javascript:submitAction("email")', 'label' => trans('texts.email_payment')];
 
         if ($payment->canBeRefunded()) {
-            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->completedAmount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
+            $actions[] = ['url' => sprintf('javascript:showRefundModal(%s, "%s", "%s", "%s")', $payment->public_id, $payment->getCompletedAmount(), $payment->present()->completedAmount, $payment->present()->currencySymbol), 'label' => trans('texts.refund_payment')];
         }
 
         $actions[] = DropdownButton::DIVIDER;

@@ -27,6 +27,7 @@ class DatabaseLookup
                 if (\Illuminate\Support\Facades\Auth::viaRemember()) {
                     \Illuminate\Support\Facades\Auth::logout();
                 }
+
                 // do nothing
             } elseif ( ! \Illuminate\Support\Facades\Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);

@@ -36,7 +36,7 @@ class ExportController extends BaseController
 
         // set the filename based on the entity types selected
         if ($request->include == 'all') {
-            $fileName = "{$date}-invoiceninja";
+            $fileName = $date . '-invoiceninja';
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
@@ -50,6 +50,7 @@ class ExportController extends BaseController
         if ($format === 'JSON') {
             return $this->returnJSON($request, $fileName);
         }
+
         if ($format === 'CSV') {
             return $this->returnCSV($request, $fileName);
         }
@@ -67,7 +68,7 @@ class ExportController extends BaseController
     {
         $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        header(sprintf('Content-Disposition:attachment;filename=%s.json', $fileName));
 
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
@@ -135,23 +136,28 @@ class ExportController extends BaseController
                 if ($key === 'account') {
                     continue;
                 }
+
                 if ($key === 'title') {
                     continue;
                 }
+
                 if ($key === 'multiUser') {
                     continue;
                 }
+
                 if ($key === 'recurringInvoices') {
                     $key = 'recurring_invoices';
                 }
-                $label = trans("texts.{$key}");
+
+                $label = trans('texts.' . $key);
                 $excel->sheet($label, function ($sheet) use ($key, $data): void {
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
                         $data['invoices'] = $data['quotes'];
                     }
-                    $sheet->loadView("export.{$key}", $data);
+
+                    $sheet->loadView('export.' . $key, $data);
                 });
             }
         })->download('xls');

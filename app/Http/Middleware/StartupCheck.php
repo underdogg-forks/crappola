@@ -68,6 +68,7 @@ class StartupCheck
                 if (version_compare(phpversion(), '7.1.0', '<')) {
                     dd('Please update PHP to >= 7.1.0');
                 }
+
                 $handle = fopen($file, 'w');
                 fwrite($handle, NINJA_VERSION);
                 fclose($handle);
@@ -91,11 +92,13 @@ class StartupCheck
                     $company->save();
                     \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
                 }
+
                 if (($code = config('ninja.coupon_75_off')) && hash_equals($coupon, $code)) {
                     $company->applyDiscount(.75);
                     $company->save();
                     \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
                 }
+
                 if (($code = config('ninja.coupon_free_year')) && hash_equals($coupon, $code)) {
                     $company->applyFreeYear();
                     $company->save();
@@ -112,6 +115,7 @@ class StartupCheck
                     $file = @CurlUtils::get(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
                     $data = @json_decode($file);
                 }
+
                 if ($data) {
                     if (version_compare(NINJA_VERSION, $data->version, '<')) {
                         $params = [
@@ -163,7 +167,7 @@ class StartupCheck
                 $licenseKey = \Illuminate\Support\Facades\Request::input('license_key');
                 $productId = \Illuminate\Support\Facades\Request::input('product_id');
 
-                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
+                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . sprintf('/claim_license?license_key=%s&product_id=%s&get_date=true', $licenseKey, $productId);
                 $data = trim(CurlUtils::get($url));
 
                 if ($data === RESULT_FAILURE) {
@@ -192,12 +196,14 @@ class StartupCheck
         if (\Illuminate\Support\Facades\Request::has('clear_cache')) {
             \Illuminate\Support\Facades\Session::flash('message', 'Cache cleared');
         }
+
         foreach ($cachedTables as $name => $class) {
             if (\Illuminate\Support\Facades\Request::has('clear_cache') || ! \Illuminate\Support\Facades\Cache::has($name)) {
                 // check that the table exists in case the migration is pending
                 if ( ! \Illuminate\Support\Facades\Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
+
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {
@@ -207,6 +213,7 @@ class StartupCheck
                 } else {
                     $orderBy = 'id';
                 }
+
                 $tableData = $class::orderBy($orderBy)->get();
                 if ($tableData->count()) {
                     \Illuminate\Support\Facades\Cache::forever($name, $tableData);

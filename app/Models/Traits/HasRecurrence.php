@@ -52,6 +52,7 @@ trait HasRecurrence
         if ( ! $this->last_sent_date) {
             return true;
         }
+
         $date1 = new DateTime($this->last_sent_date);
         $date2 = new DateTime();
         $diff = $date2->diff($date1);
@@ -105,6 +106,7 @@ trait HasRecurrence
         if ( ! $this->last_sent_date) {
             return true;
         }
+
         // check we don't send a few hours early due to timezone difference
         if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
             return false;
@@ -135,7 +137,7 @@ trait HasRecurrence
         $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
-        $rule = new \Recurr\Rule("{$rule}", $startDate, null, $timezone);
+        $rule = new \Recurr\Rule($rule, $startDate, null, $timezone);
 
         // Fix for months with less than 31 days
         $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
@@ -143,6 +145,7 @@ trait HasRecurrence
 
         $transformer = new \Recurr\Transformer\ArrayTransformer();
         $transformer->setConfig($transformerConfig);
+
         $dates = $transformer->transform($rule);
 
         if (count($dates) < 1) {

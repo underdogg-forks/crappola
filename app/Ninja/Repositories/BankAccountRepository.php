@@ -39,9 +39,11 @@ class BankAccountRepository extends BaseRepository
             if ( ! isset($data['include'])) {
                 continue;
             }
+
             if ( ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
                 continue;
             }
+
             $subaccount = BankSubaccount::createNew();
             $subaccount->account_name = trim($data['account_name']);
             $subaccount->account_number = trim($data['hashed_account_number']);

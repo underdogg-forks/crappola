@@ -47,6 +47,7 @@ class Authenticate
                         $authenticated = false;
                         \Illuminate\Support\Facades\Auth::guard($guard)->logout();
                     }
+
                     \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key);
                 }
             }
@@ -65,6 +66,7 @@ class Authenticate
                 $contact = $invitation->contact;
                 \Illuminate\Support\Facades\Session::put('contact_key', $contact->contact_key);
             }
+
             if ( ! $contact) {
                 return \Illuminate\Support\Facades\Redirect::to('client/login');
             }
@@ -99,6 +101,7 @@ class Authenticate
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             }
+
             if ($guard == 'client') {
                 $url = '/client/login';
                 if (Utils::isNinjaProd()) {
@@ -142,6 +145,7 @@ class Authenticate
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
         }
+
         return null;
     }
 
@@ -156,6 +160,7 @@ class Authenticate
         if ($contact && ! $contact->is_deleted) {
             return $contact;
         }
+
         return null;
     }
 }

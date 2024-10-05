@@ -124,11 +124,11 @@ class GenericEntityPolicy
     private static function className($entityType): string
     {
         if ( !Utils::isNinjaProd() && ($module = Module::find($entityType))) {
-            return "Modules\\{$module->getName()}\\Policies\\{$module->getName()}Policy";
+            return sprintf('Modules\%s\Policies\%sPolicy', $module->getName(), $module->getName());
         }
 
         $studly = Str::studly($entityType);
 
-        return "App\\Policies\\{$studly}Policy";
+        return sprintf('App\Policies\%sPolicy', $studly);
     }
 }

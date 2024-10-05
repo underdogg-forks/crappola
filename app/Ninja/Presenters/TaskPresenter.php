@@ -63,7 +63,7 @@ class TaskPresenter extends EntityPresenter
             $start = $account->formatDateTime('@' . (int) $start);
             $end = $account->formatTime('@' . (int) $end);
 
-            $times[] = "### {$start} - {$end}";
+            $times[] = sprintf('### %s - %s', $start, $end);
         }
 
         return $str . implode("\n", $times);
@@ -80,15 +80,19 @@ class TaskPresenter extends EntityPresenter
         if ($project = $this->project()) {
             $data->title .= ' | ' . $project;
         }
+
         if (($description = $this->description()) !== '' && ($description = $this->description()) !== '0') {
             $data->title .= ' | ' . $description;
         }
+
         $data->allDay = false;
 
         if ($subColors && $task->project_id) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($task->project->public_id);
+            $data->borderColor = Utils::brewerColor($task->project->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#a87821';
+            $data->borderColor = '#a87821';
+            $data->backgroundColor = '#a87821';
         }
 
         $parts = json_decode($task->time_log) ?: [];

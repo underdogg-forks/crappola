@@ -60,6 +60,7 @@ class OFX
     {
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
+
         $x = new SimpleXMLElement($xml);
 
         return $x;
@@ -153,10 +154,12 @@ class Login
         "</OFX>\n";
         $o = new OFX($this->bank, $ofxRequest);
         $o->go();
+
         $x = $o->xml();
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/BANKACCTINFO/BANKACCTFROM') as $a) {
             $this->accounts[] = new Account($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
         }
+
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/CCACCTINFO/CCACCTFROM') as $a) {
             $this->accounts[] = new Account($this, (string) $a->ACCTID, 'CC');
         }
@@ -253,10 +256,12 @@ class Account
                 "		</CCSTMTTRNRQ>\n" .
                 "	</CREDITCARDMSGSRQV1>\n";
         }
+
         $ofxRequest .=
             '</OFX>';
         $o = new OFX($this->login->bank, $ofxRequest);
         $o->go();
+
         $this->response = $o->response;
         $x = $o->xml();
         $a = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');

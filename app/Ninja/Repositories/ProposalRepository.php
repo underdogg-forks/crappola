@@ -99,6 +99,7 @@ class ProposalRepository extends BaseRepository
                     break;
                 }
             }
+
             if ( ! $found) {
                 $proposalInvitation = ProposalInvitation::createNew();
                 $proposalInvitation->proposal_id = $proposal->id;

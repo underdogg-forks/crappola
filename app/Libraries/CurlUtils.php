@@ -56,6 +56,7 @@ class CurlUtils
 
         $request = $client->getMessageFactory()->createRequest($url, $method);
         $request->setTimeout(5000);
+
         $response = $client->getMessageFactory()->createResponse();
 
         // Send the request

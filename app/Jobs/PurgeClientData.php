@@ -8,6 +8,7 @@ use Utils;
 class PurgeClientData extends Job
 {
     public $client;
+
     public function __construct($client)
     {
         $this->client = $client;
@@ -44,6 +45,7 @@ class PurgeClientData extends Job
                 $document->delete();
             }
         }
+
         foreach ($expenses as $expense) {
             foreach ($expense->documents as $document) {
                 $document->delete();

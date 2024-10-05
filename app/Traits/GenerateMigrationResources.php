@@ -1111,18 +1111,23 @@ trait GenerateMigrationResources
         if ($design_id >= 11) {
             return 2;
         }
+
         if ($design_id == 1) {
             return 2;
         }
+
         if ($design_id == 2) {
             return 3;
         }
+
         if ($design_id == 3) {
             return 4;
         }
+
         if ($design_id == 4) {
             return 1;
         }
+
         if ($design_id == 10) {
             return 2;
         }
@@ -1135,12 +1140,15 @@ trait GenerateMigrationResources
         if ($invoice->auto_bill === 1) {
             return 'off';
         }
+
         if ($invoice->auto_bill === 2) {
             return 'optin';
         }
+
         if ($invoice->auto_bill === 3) {
             return 'optout';
         }
+
         if ($invoice->auto_bill === 4) {
             return 'always';
         }
@@ -1162,6 +1170,7 @@ trait GenerateMigrationResources
         if ($next_send_date = $invoice->getNextSendDate()) {
             return $next_send_date->format('Y-m-d');
         }
+
         return null;
     }
 
@@ -1517,7 +1526,7 @@ trait GenerateMigrationResources
                 'height'     => $document->height,
                 'created_at' => $document->created_at ? Carbon::parse($document->created_at)->toDateString() : null,
                 'updated_at' => $document->updated_at ? Carbon::parse($document->updated_at)->toDateString() : null,
-                'url'        => url("/api/v1/documents/{$document->public_id}"),
+                'url'        => url('/api/v1/documents/' . $document->public_id),
             ];
         }
 
@@ -1599,7 +1608,7 @@ trait GenerateMigrationResources
     // converts the gateway ID to the new v5 list
     private function translateGatewaysId($gateway_id): int
     {
-        info("translating gateway ID = {$gateway_id}");
+        info('translating gateway ID = ' . $gateway_id);
 
         return match ($gateway_id) {
             1, 2 => 1,

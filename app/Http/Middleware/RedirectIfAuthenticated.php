@@ -44,6 +44,7 @@ class RedirectIfAuthenticated
                     if (session('contact_key')) {
                         return redirect('/client/dashboard');
                     }
+
                     break;
                 default:
                     return redirect('/dashboard');

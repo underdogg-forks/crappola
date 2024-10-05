@@ -66,7 +66,7 @@ class ProposalSnippetController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return redirect("proposals/snippets/{$publicId}/edit");
+        return redirect(sprintf('proposals/snippets/%s/edit', $publicId));
     }
 
     public function edit(ProposalSnippetRequest $request)
@@ -119,8 +119,8 @@ class ProposalSnippetController extends BaseController
         $count = $this->proposalSnippetService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal_snippet" : "{$action}d_proposal_snippets";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_proposal_snippet' : $action . 'd_proposal_snippets';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 

@@ -60,6 +60,7 @@ class DocumentReport extends AbstractReport
                     $zip->add_file($name, $document->getRaw());
                 }
             }
+
             $zip->finish();
             exit;
         }

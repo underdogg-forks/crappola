@@ -134,7 +134,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
             'expense'        => $expense ? link_to($expense->getRoute(), mb_substr($expense->public_notes, 0, 30) . '...') : null,
         ];
 
-        return trans("texts.activity_{$activityTypeId}", $data);
+        return trans('texts.activity_' . $activityTypeId, $data);
     }
 
     public function relatedEntityType()
@@ -202,6 +202,7 @@ class Activity extends \Illuminate\Database\Eloquent\Model
                 return ENTITY_TASK;
                 break;
         }
+
         return null;
     }
 }

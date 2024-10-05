@@ -124,6 +124,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         if ($response->state == 'deleted') {
             return true;
         }
+
         throw new Exception(trans('texts.failed_remove_payment_method'));
     }
 
@@ -161,10 +162,12 @@ class WePayPaymentDriver extends BasePaymentDriver
             if ($source->state == 'deleted') {
                 $paymentMethod->delete();
             }
+
             //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
 
             return 'Processed successfully';
         }
+
         if ($objectType === 'account') {
             $config = $accountGateway->getConfig();
             if ($config->accountId != $objectId) {
@@ -186,6 +189,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             return ['message' => 'Processed successfully'];
         }
+
         if ($objectType === 'checkout') {
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
 

@@ -13,7 +13,7 @@ class PaymentTermDatatable extends EntityDatatable
         return [
             [
                 'num_days',
-                fn ($model) => link_to("payment_terms/{$model->public_id}/edit", trans('texts.payment_terms_net') . ' ' . ($model->num_days == -1 ? 0 : $model->num_days))->toHtml(),
+                fn ($model) => link_to(sprintf('payment_terms/%s/edit', $model->public_id), trans('texts.payment_terms_net') . ' ' . ($model->num_days == -1 ? 0 : $model->num_days))->toHtml(),
             ],
         ];
     }
@@ -23,7 +23,7 @@ class PaymentTermDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_payment_term'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("payment_terms/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
             ],
         ];
     }

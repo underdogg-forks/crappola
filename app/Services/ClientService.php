@@ -12,6 +12,7 @@ use App\Ninja\Repositories\NinjaRepository;
 class ClientService extends BaseService
 {
     public $ninjaRepo;
+
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
     protected \App\Services\DatatableService $datatableService;

@@ -39,6 +39,7 @@ class Utils
         } catch (Exception) {
             return false;
         }
+
         return null;
     }
 
@@ -49,7 +50,7 @@ class Utils
 
     public static function isCron(): bool
     {
-        return php_sapi_name() == 'cli';
+        return PHP_SAPI == 'cli';
     }
 
     public static function isTravis(): bool
@@ -95,6 +96,7 @@ class Utils
         if (in_array(\Illuminate\Support\Facades\Request::root(), ['http://www.ninja.test', 'http://www.ninja.test:8000'])) {
             return false;
         }
+
         if (self::isNinjaProd()) {
             return true;
         }
@@ -254,7 +256,7 @@ class Utils
         $accountKey = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->account_key : '';
 
         $info = 'App Version: v' . NINJA_VERSION . '\\n' .
-                'White Label: ' . (self::isWhiteLabel() ? 'Yes' : 'No') . " - {$accountKey}\\n" .
+                'White Label: ' . (self::isWhiteLabel() ? 'Yes' : 'No') . sprintf(' - %s\n', $accountKey) .
                 'Server OS: ' . php_uname('s') . ' ' . php_uname('r') . '\\n' .
                 'PHP Version: ' . phpversion() . '\\n' .
                 'MySQL Version: ' . $mysqlVersion;
@@ -287,8 +289,8 @@ class Utils
         }
 
         $response = new stdClass();
-        $response->message = $_ENV["{$userType}_MESSAGE"] ?? '';
-        $response->id = $_ENV["{$userType}_ID"] ?? '';
+        $response->message = $_ENV[$userType . '_MESSAGE'] ?? '';
+        $response->id = $_ENV[$userType . '_ID'] ?? '';
         $response->version = NINJA_VERSION;
 
         return $response;
@@ -341,9 +343,11 @@ class Utils
         if ($max <= 2) {
             return 1;
         }
+
         if ($max <= 5) {
             return 3;
         }
+
         if ($max <= 10) {
             return 6;
         }
@@ -372,7 +376,7 @@ class Utils
                 } elseif ($module) {
                     $data[] = mtrans($module, $field);
                 } else {
-                    $data[] = trans("texts.{$field}");
+                    $data[] = trans('texts.' . $field);
                 }
             } else {
                 $data[] = '';
@@ -403,7 +407,7 @@ class Utils
         $class = get_class($exception);
         $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
 
-        return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
+        return  sprintf('***%s*** [%s] : %s [Line %s] => %s', $class, $code, $exception->getFile(), $exception->getLine(), $exception->getMessage());
     }
 
     public static function logError($error, $context = 'PHP', $info = false)
@@ -425,6 +429,7 @@ class Utils
         } else {
             \Illuminate\Support\Facades\Log::error($error . "\n", $data);
         }
+
         return null;
     }
 
@@ -507,6 +512,7 @@ class Utils
         if ($record = $data->first()) {
             return $record->id;
         }
+
         return null;
     }
 
@@ -552,7 +558,7 @@ class Utils
         $cache = \Illuminate\Support\Facades\Cache::get($type);
 
         if ( ! $cache) {
-            static::logError("Cache for {$type} is not set");
+            static::logError(sprintf('Cache for %s is not set', $type));
 
             return null;
         }
@@ -606,6 +612,7 @@ class Utils
             if ($country->thousand_separator) {
                 $thousand = $country->thousand_separator;
             }
+
             if ($country->decimal_separator) {
                 $decimal = $country->decimal_separator;
             }
@@ -617,20 +624,22 @@ class Utils
         if ($decorator == CURRENCY_DECORATOR_NONE) {
             return $value;
         }
+
         if ($decorator == CURRENCY_DECORATOR_CODE || ! $symbol) {
-            return "{$value} {$code}";
-        }
-        if ($swapSymbol) {
-            return "{$value} " . trim($symbol);
+            return sprintf('%s %s', $value, $code);
         }
 
-        return "{$symbol}{$value}";
+        if ($swapSymbol) {
+            return $value . ' ' . trim($symbol);
+        }
+
+        return $symbol . $value;
     }
 
     public static function pluralize($string, $count)
     {
         $field = $count == 1 ? $string : $string . 's';
-        $string = trans("texts.{$field}", ['count' => $count]);
+        $string = trans('texts.' . $field, ['count' => $count]);
 
         return $string;
     }
@@ -644,9 +653,11 @@ class Utils
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
         }
+
         if ($type === ENTITY_PROPOSAL_CATEGORY) {
             return 'proposal_categories';
         }
+
         if ($type === ENTITY_TASK_STATUS) {
             return 'task_statuses';
         }
@@ -674,18 +685,23 @@ class Utils
         if (preg_match('/^3[47]\d{13}$/', $number)) {
             return 'American Express';
         }
+
         if (preg_match('/^3(?:0[0-5]|[68]\d)\d{11}$/', $number)) {
             return 'Diners Club';
         }
+
         if (preg_match('/^6(?:011|5\d\d)\d{12}$/', $number)) {
             return 'Discover';
         }
+
         if (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/', $number)) {
             return 'JCB';
         }
+
         if (preg_match('/^5[1-5]\d{14}$/', $number)) {
             return 'MasterCard';
         }
+
         if (preg_match('/^4\d{12}(?:\d{3})?$/', $number)) {
             return 'Visa';
         }
@@ -753,10 +769,12 @@ class Utils
         if ( ! $timestamp) {
             return '';
         }
+
         $date = Carbon::createFromTimeStamp($timestamp);
         if ($timezone) {
             $date->tz = $timezone;
         }
+
         if ($date->year < 1900) {
             return '';
         }
@@ -849,6 +867,7 @@ class Utils
             if (count($matches) == 0) {
                 continue;
             }
+
             usort($matches, fn ($a, $b): int => mb_strlen($b) - mb_strlen($a));
             foreach ($matches as $match) {
                 $offset = 0;
@@ -880,7 +899,7 @@ class Utils
         for ($i = 1; $i <= $counter; $i++) {
             $month = static::$months[$i - 1];
             $number = $i < 10 ? '0' . $i : $i;
-            $months["2000-{$number}-01"] = trans("texts.{$month}");
+            $months[sprintf('2000-%s-01', $number)] = trans('texts.' . $month);
         }
 
         return $months;
@@ -896,6 +915,7 @@ class Utils
         if ($model->client_name) {
             return $model->client_name;
         }
+
         if ($model->first_name || $model->last_name) {
             return $model->first_name . ' ' . $model->last_name;
         }
@@ -921,6 +941,7 @@ class Utils
         if ($firstName || $lastName) {
             return $firstName . ' ' . $lastName;
         }
+
         if ($email) {
             return $email;
         }
@@ -943,63 +964,83 @@ class Utils
         if ($eventName == 'create_client') {
             return EVENT_CREATE_CLIENT;
         }
+
         if ($eventName == 'create_invoice') {
             return EVENT_CREATE_INVOICE;
         }
+
         if ($eventName == 'create_quote') {
             return EVENT_CREATE_QUOTE;
         }
+
         if ($eventName == 'create_payment') {
             return EVENT_CREATE_PAYMENT;
         }
+
         if ($eventName == 'create_vendor') {
             return EVENT_CREATE_VENDOR;
         }
+
         if ($eventName == 'update_quote') {
             return EVENT_UPDATE_QUOTE;
         }
+
         if ($eventName == 'delete_quote') {
             return EVENT_DELETE_QUOTE;
         }
+
         if ($eventName == 'update_invoice') {
             return EVENT_UPDATE_INVOICE;
         }
+
         if ($eventName == 'delete_invoice') {
             return EVENT_DELETE_INVOICE;
         }
+
         if ($eventName == 'update_client') {
             return EVENT_UPDATE_CLIENT;
         }
+
         if ($eventName == 'delete_client') {
             return EVENT_DELETE_CLIENT;
         }
+
         if ($eventName == 'delete_payment') {
             return EVENT_DELETE_PAYMENT;
         }
+
         if ($eventName == 'update_vendor') {
             return EVENT_UPDATE_VENDOR;
         }
+
         if ($eventName == 'delete_vendor') {
             return EVENT_DELETE_VENDOR;
         }
+
         if ($eventName == 'create_expense') {
             return EVENT_CREATE_EXPENSE;
         }
+
         if ($eventName == 'update_expense') {
             return EVENT_UPDATE_EXPENSE;
         }
+
         if ($eventName == 'delete_expense') {
             return EVENT_DELETE_EXPENSE;
         }
+
         if ($eventName == 'create_task') {
             return EVENT_CREATE_TASK;
         }
+
         if ($eventName == 'update_task') {
             return EVENT_UPDATE_TASK;
         }
+
         if ($eventName == 'delete_task') {
             return EVENT_DELETE_TASK;
         }
+
         if ($eventName == 'approve_quote') {
             return EVENT_APPROVE_QUOTE;
         }
@@ -1085,7 +1126,7 @@ class Utils
     // TODO remove this
     public static function transFlowText($key)
     {
-        $str = trans("texts.{$key}");
+        $str = trans('texts.' . $key);
         if ( ! in_array(\Illuminate\Support\Facades\App::getLocale(), ['de', 'fr'])) {
             return mb_strtolower($str);
         }
@@ -1130,6 +1171,7 @@ class Utils
                 $domain .= $parts['host'];
             }
         }
+
         if (isset($parts['path'])) {
             $domain .= $parts['path'];
         }
@@ -1143,7 +1185,7 @@ class Utils
         $host = explode('.', $parsedUrl['host']);
         if ($host !== []) {
             $oldSubdomain = $host[0];
-            $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
+            $domain = str_replace(sprintf('://%s.', $oldSubdomain), sprintf('://%s.', $subdomain), $domain);
         }
 
         return $domain;
@@ -1173,6 +1215,7 @@ class Utils
             if ($str) {
                 $str .= ', ';
             }
+
             $str .= $state;
         }
 
@@ -1223,7 +1266,7 @@ class Utils
         $class = $adjustment <= 0 ? 'success' : 'default';
         $adjustment = self::formatMoney($adjustment, $currencyId, $countryId);
 
-        return "<h4><div class=\"label label-{$class}\">{$adjustment}</div></h4>";
+        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $adjustment);
     }
 
     public static function copyContext($entity1, $entity2)
@@ -1339,10 +1382,10 @@ class Utils
         if ($path == 'dashboard') {
             $page = '/introduction.html#dashboard';
         } elseif (in_array($path, $entityTypes)) {
-            $page = "/{$path}.html#list-" . str_replace('_', '-', $path);
+            $page = sprintf('/%s.html#list-', $path) . str_replace('_', '-', $path);
         } elseif (in_array($first, $entityTypes)) {
             $action = ($first == 'payments' || $first == 'credits') ? 'enter' : 'create';
-            $page = "/{$first}.html#{$action}-" . mb_substr(str_replace('_', '-', $first), 0, -1);
+            $page = sprintf('/%s.html#%s-', $first, $action) . mb_substr(str_replace('_', '-', $first), 0, -1);
         } elseif ($first == 'expense_categories') {
             $page = '/expenses.html#expense-categories';
         } elseif ($first == 'settings') {
@@ -1354,9 +1397,10 @@ class Utils
                 } elseif ($second == 'notifications') {
                     $second = 'email_notifications';
                 }
+
                 $page = '/settings.html#' . str_replace('_', '-', $second);
             } elseif (in_array($second, \App\Models\Account::$advancedSettings)) {
-                $page = "/{$second}.html";
+                $page = sprintf('/%s.html', $second);
             } elseif ($second == 'customize_design') {
                 $page = '/invoice_design.html#customize';
             }
@@ -1443,7 +1487,7 @@ class Utils
         $color = static::brewerColor($number);
         [$r, $g, $b] = sscanf($color, '#%02x%02x%02x');
 
-        return "{$r},{$g},{$b}";
+        return sprintf('%s,%s,%s', $r, $g, $b);
     }
 
     /**
@@ -1508,12 +1552,15 @@ class Utils
         if ($part === 'MONTH') {
             return self::getMonth($offset, $locale);
         }
+
         if ($part === 'QUARTER') {
             return self::getQuarter($offset);
         }
+
         if ($part === 'YEAR') {
             return self::getYear($offset);
         }
+
         return null;
     }
 

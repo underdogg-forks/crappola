@@ -104,7 +104,7 @@ class CheckData extends Command
             \Illuminate\Support\Facades\Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
-                    ->subject('Check-Data: ' . mb_strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . " [{$database}]");
+                    ->subject('Check-Data: ' . mb_strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . sprintf(' [%s]', $database));
             });
         } elseif ( ! $this->isValid) {
             throw new Exception("Check data failed!!\n" . $this->log);
@@ -195,6 +195,7 @@ class CheckData extends Command
                 if ($invoice->is_deleted) {
                     $invoice->unsetEventDispatcher();
                 }
+
                 $invoice->is_public = true;
                 $invoice->save();
                 $invoice->markInvitationsSent();
@@ -232,8 +233,9 @@ class CheckData extends Command
             //$this->logMessage('Result: ' . $result);
 
             if ($result && $result != $invoice->balance) {
-                $this->logMessage("PHP/JS amounts do not match {$link}?silent=true | PHP: {$invoice->balance}, JS: {$result}");
-                $this->isValid = $isValid = false;
+                $this->logMessage(sprintf('PHP/JS amounts do not match %s?silent=true | PHP: %s, JS: %s', $link, $invoice->balance, $result));
+                $this->isValid = false;
+                $isValid = false;
             }
         }
 
@@ -272,6 +274,7 @@ class CheckData extends Command
                         $first = false;
                         continue;
                     }
+
                     $this->logMessage('updating ' . $match->id);
 
                     \Illuminate\Support\Facades\DB::table('users')
@@ -300,7 +303,7 @@ class CheckData extends Command
         foreach ($tables as $table) {
             $count = \Illuminate\Support\Facades\DB::table('lookup_' . $table)->count();
             if ($count > 0) {
-                $this->logMessage("Lookup table {$table} has {$count} records");
+                $this->logMessage(sprintf('Lookup table %s has %d records', $table, $count));
                 $this->isValid = false;
             }
         }
@@ -336,15 +339,19 @@ class CheckData extends Command
             if ($companyId1 = $userAccount->a1_company_id) {
                 $ids[$companyId1] = true;
             }
+
             if ($companyId2 = $userAccount->a2_company_id) {
                 $ids[$companyId2] = true;
             }
+
             if ($companyId3 = $userAccount->a3_company_id) {
                 $ids[$companyId3] = true;
             }
+
             if ($companyId4 = $userAccount->a4_company_id) {
                 $ids[$companyId4] = true;
             }
+
             if ($companyId5 = $userAccount->a5_company_id) {
                 $ids[$companyId5] = true;
             }
@@ -588,13 +595,13 @@ class CheckData extends Command
                 $field = $entityType;
                 $accountId = $table === 'accounts' ? 'id' : 'account_id';
                 $records = \Illuminate\Support\Facades\DB::table($table)
-                    ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                    ->where("{$table}.{$accountId}", '!=', \Illuminate\Support\Facades\DB::raw("{$tableName}.account_id"))
-                    ->get(["{$table}.id"]);
+                    ->join($tableName, $tableName . '.id', '=', sprintf('%s.%s_id', $table, $field))
+                    ->where(sprintf('%s.%s', $table, $accountId), '!=', \Illuminate\Support\Facades\DB::raw($tableName . '.account_id'))
+                    ->get([$table . '.id']);
 
                 if ($records->count()) {
                     $this->isValid = false;
-                    $this->logMessage($records->count() . " {$table} records with incorrect {$entityType} account id");
+                    $this->logMessage($records->count() . sprintf(' %s records with incorrect %s account id', $table, $entityType));
 
                     if ($this->option('fix') == 'true') {
                         foreach ($records as $record) {
@@ -696,7 +703,7 @@ class CheckData extends Command
         }
 
         foreach ($clients as $client) {
-            $this->logMessage("=== Company: {$client->company_id} Account:{$client->account_id} Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
+            $this->logMessage(sprintf('=== Company: %s Account:%s Client:%s Balance:%s Actual Balance:%s ===', $client->company_id, $client->account_id, $client->id, $client->balance, $client->actual_balance));
 
             /*
             $foundProblem = false;

@@ -9,6 +9,7 @@ use Utils;
 class BaseController extends Controller
 {
     public $layout;
+
     use AuthorizesRequests;
     use DispatchesJobs;
 
@@ -38,21 +39,24 @@ class BaseController extends Controller
 
         // when restoring redirect to entity
         if ($action == 'restore' && count($ids) == 1) {
-            return redirect("{$entityTypes}/" . $ids[0]);
+            return redirect($entityTypes . '/' . $ids[0]);
             // when viewing from a datatable list
         }
+
         if (mb_strpos($referer, '/clients/') || mb_strpos($referer, '/projects/')) {
             return redirect($referer);
         }
+
         if ($isDatatable || ($action == 'archive' || $action == 'delete')) {
-            return redirect("{$entityTypes}");
+            return redirect($entityTypes);
             // when viewing individual entity
         }
+
         if ($ids !== []) {
-            return redirect("{$entityTypes}/" . $ids[0] . '/edit');
+            return redirect($entityTypes . '/' . $ids[0] . '/edit');
         }
 
-        return redirect("{$entityTypes}");
+        return redirect($entityTypes);
     }
 
     protected function downloadResponse(string $filename, $contents, string $type = 'application/pdf'): void

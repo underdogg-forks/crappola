@@ -245,7 +245,7 @@ class Vendor extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/vendors/{$this->public_id}";
+        return '/vendors/' . $this->public_id;
     }
 
     /**

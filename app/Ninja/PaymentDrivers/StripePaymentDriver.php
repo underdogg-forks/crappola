@@ -49,12 +49,15 @@ class StripePaymentDriver extends BasePaymentDriver
             if ($gateway->getSepaEnabled()) {
                 $types[] = GATEWAY_TYPE_SEPA;
             }
+
             if ($gateway->getBitcoinEnabled()) {
                 $types[] = GATEWAY_TYPE_BITCOIN;
             }
+
             if ($gateway->getAlipayEnabled()) {
                 $types[] = GATEWAY_TYPE_ALIPAY;
             }
+
             if ($gateway->getApplePayEnabled()) {
                 $types[] = GATEWAY_TYPE_APPLE_PAY;
             }
@@ -168,6 +171,7 @@ class StripePaymentDriver extends BasePaymentDriver
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
                 }
+
                 $intent->confirm();
             } elseif ( ! empty($data['token']) || ! empty($data['payment_method'])) {
                 $params = [
@@ -205,17 +209,20 @@ class StripePaymentDriver extends BasePaymentDriver
                         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
                     }
                 }
+
                 $intent = PaymentIntent::create($params);
             }
 
             if (empty($intent)) {
                 throw new Exception('PaymentIntent not found.');
             }
+
             if (($intent->status == 'requires_source_action' || $intent->status == 'requires_action') &&
                       $intent->next_action->type == 'use_stripe_sdk') {
                 // Throw an exception that can either be logged or be handled by getting further interaction from the user.
                 throw new PaymentActionRequiredException(['payment_intent' => $intent]);
             }
+
             if ($intent->status == 'succeeded') {
                 $ref = empty($intent->charges->data) ? null : $intent->charges->data[0]->id;
 
@@ -236,6 +243,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
                 return $payment;
             }
+
             throw new Exception('Invalid PaymentIntent status: ' . $intent->status);
         }
 
@@ -248,6 +256,7 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($customer = $this->customer()) {
             return $customer->token;
         }
+
         // otherwise create a new czustomer
         $invoice = $this->invitation->invoice;
         $client = $invoice->client;
@@ -291,10 +300,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return parent::createToken();
         }
+
         throw new Exception($tokenResponse->getMessage());
     }
 
-    public function creatingCustomer($customer)
+    protected function creatingCustomer($customer)
     {
         if (isset($this->tokenResponse['customer'])) {
             $customer->token = $this->tokenResponse['customer'];
@@ -321,6 +331,7 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($response->isSuccessful()) {
             return true;
         }
+
         throw new Exception($response->getMessage());
     }
 
@@ -361,7 +372,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $currency = $this->client()->getCurrencyCode();
         $email = $this->contact()->email;
         $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
-        $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
+        $redirect = url(sprintf('/complete_source/%s/%s', $this->invitation->invitation_key, $gatewayType));
         $country = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
         $extra = '';
 
@@ -369,22 +380,25 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! $this->accountGateway->getAlipayEnabled()) {
                 throw new Exception('Alipay is not enabled');
             }
+
             $type = 'alipay';
         } elseif ($this->gatewayType == GATEWAY_TYPE_BITCOIN) {
             if ( ! $this->accountGateway->getBitcoinEnabled()) {
                 throw new Exception('Bitcoin is not enabled');
             }
+
             $type = 'bitcoin';
-            $extra = "&owner[email]={$email}";
+            $extra = '&owner[email]=' . $email;
         } else {
             if ( ! $this->accountGateway->getSofortEnabled()) {
                 throw new Exception('Sofort is not enabled');
             }
+
             $type = 'sofort';
-            $extra = "&sofort[country]={$country}&statement_descriptor={$invoiceNumber}";
+            $extra = sprintf('&sofort[country]=%s&statement_descriptor=%s', $country, $invoiceNumber);
         }
 
-        $data = "type={$type}&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}{$extra}";
+        $data = sprintf('type=%s&amount=%d&currency=%s&redirect[return_url]=%s%s', $type, $amount, $currency, $redirect, $extra);
         $response = $this->makeStripeCall('POST', 'sources', $data);
 
         if (is_array($response) && isset($response['id'])) {
@@ -404,6 +418,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return redirect($response['redirect']['url']);
         }
+
         throw new Exception($response);
     }
 
@@ -432,15 +447,15 @@ class StripePaymentDriver extends BasePaymentDriver
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
+        } catch (\GuzzleHttp\Exception\BadResponseException $badResponseException) {
+            $response = $badResponseException->getResponse();
 
             $body = json_decode($response->getBody(), true);
             if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
                 return $body['error']['message'];
             }
 
-            return $e->getMessage();
+            return $badResponseException->getMessage();
         }
     }
 
@@ -531,8 +546,10 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! $this->invitation) {
                 return false;
             }
+
             $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
-            $this->purchaseResponse = $response = $this->makeStripeCall('POST', 'charges', $data);
+            $this->purchaseResponse = $this->makeStripeCall('POST', 'charges', $data);
+            $response = $this->purchaseResponse;
             $this->gatewayType = GatewayType::getIdFromAlias($source['type']);
             if (is_array($response) && isset($response['id'])) {
                 $this->createPayment($response['id']);
@@ -632,6 +649,7 @@ class StripePaymentDriver extends BasePaymentDriver
             // Find an ID on the payment method instead of the card.
             $paymentMethod->source_reference = $data['id'];
         }
+
         $paymentMethod->last4 = $source['last4'];
 
         // For older users the Stripe account may just have the customer token but not the card version
@@ -642,6 +660,7 @@ class StripePaymentDriver extends BasePaymentDriver
             if (isset($source['exp_year'], $source['exp_month'])) {
                 $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             }
+
             if (isset($source['brand'])) {
                 $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
             }
@@ -701,7 +720,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         try {
             $subdomain = $this->accountGateway->getPlaidEnvironment() == 'production' ? 'api' : 'tartan';
-            $response = (new \GuzzleHttp\Client(['base_uri' => "https://{$subdomain}.plaid.com"]))->request(
+            $response = (new \GuzzleHttp\Client(['base_uri' => sprintf('https://%s.plaid.com', $subdomain)]))->request(
                 'POST',
                 'exchange_token',
                 [
@@ -717,14 +736,15 @@ class StripePaymentDriver extends BasePaymentDriver
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
+        } catch (\GuzzleHttp\Exception\BadResponseException $badResponseException) {
+            $response = $badResponseException->getResponse();
             $body = json_decode($response->getBody(), true);
 
             if ($body && ! empty($body['message'])) {
-                throw new Exception($body['message'], $e->getCode(), $e);
+                throw new Exception($body['message'], $badResponseException->getCode(), $badResponseException);
             }
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+
+            throw new Exception($badResponseException->getMessage(), $badResponseException->getCode(), $badResponseException);
         }
     }
 }

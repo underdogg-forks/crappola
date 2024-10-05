@@ -29,11 +29,11 @@ class CreatePaymentAPIRequest extends PaymentRequest
                 'amount'     => 'required|numeric',
             ];
         }
-
-        $this->invoice = $invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
+        $this->invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
             ->withArchived()
             ->invoices()
             ->first();
+        $invoice = $this->invoice;
 
         if ( ! $this->invoice) {
             abort(404, 'Invoice was not found');

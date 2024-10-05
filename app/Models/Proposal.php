@@ -50,7 +50,7 @@ class Proposal extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/proposals/{$this->public_id}";
+        return '/proposals/' . $this->public_id;
     }
 
     /**

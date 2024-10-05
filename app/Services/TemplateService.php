@@ -47,6 +47,7 @@ class TemplateService
             foreach ($invoice->allDocuments() as $document) {
                 $documentsHTML .= '<li><a href="' . HTML::entities($document->getClientUrl($invitation)) . '">' . HTML::entities($document->name) . '</a></li>';
             }
+
             $documentsHTML .= '</ul>';
         }
 
@@ -96,10 +97,11 @@ class TemplateService
             if ($type == GATEWAY_TYPE_TOKEN) {
                 continue;
             }
+
             $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
             $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
-            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$snakeCase}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$snakeCase}");
+            $variables[sprintf('$%sLink', $camelType)] = $invitation->getLink('payment') . ('/' . $snakeCase);
+            $variables[sprintf('$%sButton', $camelType)] = Form::emailPaymentButton($invitation->getLink('payment') . ('/' . $snakeCase));
         }
 
         $includesPasswordPlaceholder = str_contains($template, '$password');
@@ -112,6 +114,7 @@ class TemplateService
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
         }
+
         $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
 

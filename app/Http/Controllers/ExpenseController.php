@@ -104,8 +104,9 @@ class ExpenseController extends BaseController
         if ( ! $clone) {
             $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_expense')];
         }
+
         if ($expense->invoice) {
-            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/edit', $expense->invoice->public_id)), 'label' => trans('texts.view_invoice')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
 
@@ -118,7 +119,7 @@ class ExpenseController extends BaseController
         }
 
         if ($expense->recurring_expense_id) {
-            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to("recurring_expenses/{$expense->recurring_expense->public_id}/edit"), 'label' => trans('texts.view_recurring_expense')];
+            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to(sprintf('recurring_expenses/%s/edit', $expense->recurring_expense->public_id)), 'label' => trans('texts.view_recurring_expense')];
         }
 
         $actions[] = DropdownButton::DIVIDER;
@@ -141,6 +142,7 @@ class ExpenseController extends BaseController
             while ($expense->documents->count()) {
                 $expense->documents->pop();
             }
+
             $method = 'POST';
             $url = 'expenses';
         } else {
@@ -191,7 +193,7 @@ class ExpenseController extends BaseController
             return redirect()->to(sprintf('expenses/%s/clone', $expense->public_id));
         }
 
-        return redirect()->to("expenses/{$expense->public_id}/edit");
+        return redirect()->to(sprintf('expenses/%s/edit', $expense->public_id));
     }
 
     public function store(CreateExpenseRequest $request)
@@ -216,7 +218,7 @@ class ExpenseController extends BaseController
 
         \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_expense'));
 
-        return redirect()->to("expenses/{$expense->public_id}/edit");
+        return redirect()->to(sprintf('expenses/%s/edit', $expense->public_id));
     }
 
     public function bulk()
@@ -258,13 +260,14 @@ class ExpenseController extends BaseController
                 }
 
                 if ($action == 'invoice') {
-                    return \Illuminate\Support\Facades\Redirect::to("invoices/create/{$clientPublicId}")
+                    return \Illuminate\Support\Facades\Redirect::to('invoices/create/' . $clientPublicId)
                         ->with('expenseCurrencyId', $currencyId)
                         ->with('expenses', $ids);
                 }
+
                 $invoiceId = \Illuminate\Support\Facades\Request::input('invoice_id');
 
-                return \Illuminate\Support\Facades\Redirect::to("invoices/{$invoiceId}/edit")
+                return \Illuminate\Support\Facades\Redirect::to(sprintf('invoices/%s/edit', $invoiceId))
                     ->with('expenseCurrencyId', $currencyId)
                     ->with('expenses', $ids);
 
@@ -286,7 +289,7 @@ class ExpenseController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to("expenses/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('expenses/%s/edit', $publicId));
     }
 
     private function getViewModel($expense = false): array

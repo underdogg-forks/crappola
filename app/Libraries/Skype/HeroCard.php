@@ -10,10 +10,12 @@ class HeroCard
      * @var string
      */
     public $contentType = 'application/vnd.microsoft.card.hero';
+
     /**
      * @var stdClass
      */
     public $content;
+
     public function __construct()
     {
         $this->content = new stdClass();

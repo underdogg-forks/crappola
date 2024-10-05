@@ -10,6 +10,7 @@ use stdClass;
 class BaseIntent
 {
     public $data;
+
     protected $state;
 
     protected $parameters;
@@ -64,17 +65,19 @@ class BaseIntent
         if ($state && ! $entityType) {
             $entityType = $state->current->entityType;
         }
+
         $entityType = $entityType ?: 'client';
         $entityType = ucwords(mb_strtolower($entityType));
         if ($entityType === 'Recurring') {
             $entityType = 'RecurringInvoice';
         }
+
         $intent = str_replace('Entity', $entityType, $intent);
 
         if ($platform == BOT_PLATFORM_WEB_APP) {
-            $className = "App\\Ninja\\Intents\\WebApp\\{$intent}Intent";
+            $className = sprintf('App\Ninja\Intents\WebApp\%sIntent', $intent);
         } else {
-            $className = "App\\Ninja\\Intents\\{$intent}Intent";
+            $className = sprintf('App\Ninja\Intents\%sIntent', $intent);
         }
 
         if ( ! class_exists($className)) {
@@ -194,7 +197,7 @@ class BaseIntent
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'Name') {
-                $param->type = rtrim($param->type, ' \' s');
+                $param->type = rtrim($param->type, " ' s");
                 $client = $clientRepo->findPhonetically($param->entity);
             }
         }
@@ -301,9 +304,11 @@ class BaseIntent
             if ($entity->entity !== $value) {
                 continue;
             }
+
             if ($entity->type != 'builtin.datetime.date') {
                 continue;
             }
+
             $value = $entity->resolution->date;
             $value = str_replace('XXXX', date('Y'), $value);
         }

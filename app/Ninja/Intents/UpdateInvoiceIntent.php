@@ -9,6 +9,7 @@ use Exception;
 class UpdateInvoiceIntent extends InvoiceIntent
 {
     public $invoiceRepo;
+
     public function process(): void
     {
         $invoice = $this->stateInvoice();

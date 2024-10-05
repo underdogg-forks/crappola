@@ -42,9 +42,9 @@ class BlueVineController extends BaseController
                     'json' => $data,
                 ]
             );
-        } catch (\GuzzleHttp\Exception\RequestException $ex) {
-            if ($ex->getCode() == 403) {
-                $response_body = $ex->getResponse()->getBody(true);
+        } catch (\GuzzleHttp\Exception\RequestException $requestException) {
+            if ($requestException->getCode() == 403) {
+                $response_body = $requestException->getResponse()->getBody(true);
                 $response_data = json_decode($response_body);
 
                 return response()->json([

@@ -24,7 +24,7 @@ class UserAccount extends \Illuminate\Database\Eloquent\Model
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = "user_id{$i}";
+            $field = 'user_id' . $i;
             if ($this->{$field} && $this->{$field} == $userId) {
                 return true;
             }
@@ -43,7 +43,7 @@ class UserAccount extends \Illuminate\Database\Eloquent\Model
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = "user_id{$i}";
+            $field = 'user_id' . $i;
             if ( ! $this->{$field}) {
                 $this->{$field} = $userId;
                 break;
@@ -61,7 +61,7 @@ class UserAccount extends \Illuminate\Database\Eloquent\Model
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = "user_id{$i}";
+            $field = 'user_id' . $i;
             if ($this->{$field} && $this->{$field} == $userId) {
                 $this->{$field} = null;
             }

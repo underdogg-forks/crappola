@@ -15,9 +15,11 @@ class ProjectPresenter extends EntityPresenter
         $data->start = $project->due_date;
 
         if ($subColors) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($project->public_id);
+            $data->borderColor = Utils::brewerColor($project->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#676767';
+            $data->borderColor = '#676767';
+            $data->backgroundColor = '#676767';
         }
 
         return $data;

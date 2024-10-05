@@ -56,6 +56,7 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
 
                 if ($entity->project) {
@@ -68,12 +69,14 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
             }
 

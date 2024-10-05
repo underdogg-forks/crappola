@@ -54,8 +54,8 @@ class PushFactory
             PushNotification::app($device)
                 ->to($token)
                 ->send($message);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
         }
     }
 

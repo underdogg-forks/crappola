@@ -67,6 +67,7 @@ class AppController extends BaseController
         if ($test == 'db') {
             return $valid === true ? 'Success' : $valid;
         }
+
         if ( ! $valid) {
             return \Illuminate\Support\Facades\Redirect::to('/setup')->withInput();
         }
@@ -105,10 +106,12 @@ class AppController extends BaseController
             if (is_array($val)) {
                 continue;
             }
+
             if (preg_match('/\s/', $val)) {
-                $val = "'{$val}'";
+                $val = sprintf("'%s'", $val);
             }
-            $config .= "{$key}={$val}\n";
+
+            $config .= sprintf('%s=%s%s', $key, $val, PHP_EOL);
         }
 
         // Write Config Settings
@@ -194,6 +197,7 @@ class AppController extends BaseController
             if (($user = auth()->user()) && Account::count() > 1) {
                 $prefix = $user->account_id . '_';
             }
+
             $_ENV[$prefix . 'MAIL_DRIVER'] = $mail['driver'];
             $_ENV[$prefix . 'MAIL_PORT'] = $mail['port'];
             $_ENV[$prefix . 'MAIL_ENCRYPTION'] = $mail['encryption'];
@@ -211,10 +215,12 @@ class AppController extends BaseController
             if (is_array($val)) {
                 continue;
             }
+
             if (preg_match('/\s/', $val)) {
-                $val = "'{$val}'";
+                $val = sprintf("'%s'", $val);
             }
-            $config .= "{$key}={$val}\n";
+
+            $config .= sprintf('%s=%s%s', $key, $val, PHP_EOL);
         }
 
         $filePath = base_path() . '/.env';
@@ -426,6 +432,7 @@ class AppController extends BaseController
         if ( ! $secret) {
             exit('Set a value for COMMAND_SECRET in the .env file');
         }
+
         if ( ! hash_equals($secret, request()->secret ?: '')) {
             exit('Invalid secret');
         }
@@ -449,14 +456,14 @@ class AppController extends BaseController
         $dbType = 'mysql'; // $database['default'];
         \Illuminate\Support\Facades\Config::set('database.default', $dbType);
         foreach ($database['connections'][$dbType] as $key => $val) {
-            \Illuminate\Support\Facades\Config::set("database.connections.{$dbType}.{$key}", $val);
+            \Illuminate\Support\Facades\Config::set(sprintf('database.connections.%s.%s', $dbType, $key), $val);
         }
 
         try {
             \Illuminate\Support\Facades\DB::reconnect();
             $valid = (bool) \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
-        } catch (Exception $e) {
-            return $e->getMessage();
+        } catch (Exception $exception) {
+            return $exception->getMessage();
         }
 
         return $valid;
@@ -468,7 +475,7 @@ class AppController extends BaseController
         $fromName = $mail['from']['name'];
 
         foreach ($mail as $key => $val) {
-            \Illuminate\Support\Facades\Config::set("mail.{$key}", $val);
+            \Illuminate\Support\Facades\Config::set('mail.' . $key, $val);
         }
 
         \Illuminate\Support\Facades\Config::set('mail.from.address', $email);
@@ -483,8 +490,8 @@ class AppController extends BaseController
             $response = $this->mailer->sendTo($email, $email, $fromName, 'Test email', 'contact', $data);
 
             return $response === true ? 'Sent' : $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
+        } catch (Exception $exception) {
+            return $exception->getMessage();
         }
     }
 }

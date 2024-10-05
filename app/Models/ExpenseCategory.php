@@ -47,6 +47,6 @@ class ExpenseCategory extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/expense_categories/{$this->public_id}/edit";
+        return sprintf('/expense_categories/%s/edit', $this->public_id);
     }
 }

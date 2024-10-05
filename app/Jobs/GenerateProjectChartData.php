@@ -9,6 +9,7 @@ use stdClass;
 class GenerateProjectChartData extends Job
 {
     public $project;
+
     public function __construct($project)
     {
         $this->project = $project;
@@ -84,8 +85,8 @@ class GenerateProjectChartData extends Job
         $dataset->label = trans('texts.tasks');
         $dataset->lineTension = 0;
         $dataset->borderWidth = 4;
-        $dataset->borderColor = "rgba({$color}, 1)";
-        $dataset->backgroundColor = "rgba({$color}, 0.1)";
+        $dataset->borderColor = sprintf('rgba(%s, 1)', $color);
+        $dataset->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
 
         $data = new stdClass();
         $data->labels = $labels;

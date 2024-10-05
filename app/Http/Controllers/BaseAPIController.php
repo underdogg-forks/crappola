@@ -51,6 +51,7 @@ use Utils;
 class BaseAPIController extends Controller
 {
     public $entityType;
+
     protected \League\Fractal\Manager $manager;
 
     protected $serializer;
@@ -78,7 +79,7 @@ class BaseAPIController extends Controller
         $action = $request->action;
 
         if ( ! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
-            return $this->errorResponse("Action [{$action}] is not supported");
+            return $this->errorResponse(sprintf('Action [%s] is not supported', $action));
         }
 
         if ($action == 'mark_sent') {
@@ -168,6 +169,7 @@ class BaseAPIController extends Controller
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
+
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $entityType);

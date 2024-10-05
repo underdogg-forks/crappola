@@ -92,7 +92,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    public function creatingCustomer($customer)
+    protected function creatingCustomer($customer)
     {
         $customer->token = $this->tokenResponse->customerId;
 
@@ -110,6 +110,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         if ($response->isSuccessful()) {
             return true;
         }
+
         throw new Exception($response->getMessage());
     }
 

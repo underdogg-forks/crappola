@@ -20,6 +20,7 @@ use Utils;
 class SendRecurringInvoices extends Command
 {
     public $recurringExpenseRepo;
+
     /**
      * @var string
      */
@@ -151,6 +152,7 @@ class SendRecurringInvoices extends Command
             if ( ! $shouldSendToday) {
                 continue;
             }
+
             if ($expense->account->account_email_settings->is_disabled) {
                 continue;
             }

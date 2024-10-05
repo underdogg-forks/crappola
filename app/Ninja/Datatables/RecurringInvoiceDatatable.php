@@ -24,12 +24,12 @@ class RecurringInvoiceDatatable extends EntityDatatable
                         $label = trans('texts.freq_inactive');
                     }
 
-                    return link_to("recurring_invoices/{$model->public_id}/edit", $label)->toHtml();
+                    return link_to(sprintf('recurring_invoices/%s/edit', $model->public_id), $label)->toHtml();
                 },
             ],
             [
                 'client_name',
-                fn ($model) => link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml(),
+                fn ($model) => link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml(),
                 ! $this->hideClient,
             ],
             [
@@ -68,17 +68,17 @@ class RecurringInvoiceDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.clone_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("invoices/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/clone', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
             ],
             [
                 trans('texts.clone_quote'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("quotes/{$model->public_id}/clone"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('quotes/%s/clone', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE),
             ],
         ];
@@ -99,6 +99,6 @@ class RecurringInvoiceDatatable extends EntityDatatable
             }
         }
 
-        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
+        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
     }
 }

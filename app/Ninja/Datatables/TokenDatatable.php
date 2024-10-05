@@ -11,7 +11,7 @@ class TokenDatatable extends EntityDatatable
         return [
             [
                 'name',
-                fn ($model) => link_to("tokens/{$model->public_id}/edit", $model->name)->toHtml(),
+                fn ($model) => link_to(sprintf('tokens/%s/edit', $model->public_id), $model->name)->toHtml(),
             ],
             [
                 'token',
@@ -25,7 +25,7 @@ class TokenDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_token'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("tokens/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('tokens/%s/edit', $model->public_id)),
             ],
         ];
     }

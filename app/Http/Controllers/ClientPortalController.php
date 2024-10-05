@@ -24,12 +24,16 @@ use Utils;
 class ClientPortalController extends BaseController
 {
     public $activityRepo;
+
     /**
      * @var \App\Services\PaymentService
      */
     public $paymentService;
+
     public $creditRepo;
+
     public $taskRepo;
+
     private readonly \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     private readonly \App\Ninja\Repositories\PaymentRepository $paymentRepo;
@@ -109,6 +113,7 @@ class ClientPortalController extends BaseController
         } else {
             $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
         }
+
         $contact = $invitation->contact;
         $contact->setVisible([
             'first_name',
@@ -124,6 +129,7 @@ class ClientPortalController extends BaseController
         if ($invoice->client->country) {
             $invoice->client->country->name = $invoice->client->country->getName();
         }
+
         if ($invoice->account->country) {
             $invoice->account->country->name = $invoice->account->country->getName();
         }
@@ -144,6 +150,7 @@ class ClientPortalController extends BaseController
             if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
                 $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
             }
+
             if ($stripeGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
                 //$data['enableStripeSources'] = $stripeGateway->getAlipayEnabled();
                 $data['enableStripeSources'] = true;
@@ -187,7 +194,7 @@ class ClientPortalController extends BaseController
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
 
             if (count($zipDocs) > 1) {
-                $data['documentsZipURL'] = \Illuminate\Support\Facades\URL::to("client/documents/{$invitation->invitation_key}");
+                $data['documentsZipURL'] = \Illuminate\Support\Facades\URL::to('client/documents/' . $invitation->invitation_key);
                 $data['documentsZipSize'] = $size;
             }
         }
@@ -240,6 +247,7 @@ class ClientPortalController extends BaseController
             if ( ! $contact = Contact::where('contact_key', '=', $contactKey)->first()) {
                 return $this->returnError();
             }
+
             \Illuminate\Support\Facades\Session::put('contact_key', $contactKey); // track current contact
         } elseif ( ! $contact = $this->getContact()) {
             return $this->returnError();
@@ -260,6 +268,7 @@ class ClientPortalController extends BaseController
         if ( ! $account->enable_client_portal) {
             return $this->returnError();
         }
+
         if ( ! $account->enable_client_portal_dashboard) {
             session()->reflash();
 
@@ -308,7 +317,7 @@ class ClientPortalController extends BaseController
                     'adjustment'     => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
                 ];
 
-                return trans("texts.activity_{$model->activity_type_id}", $data);
+                return trans('texts.activity_' . $model->activity_type_id, $data);
             })
             ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
             ->addColumn('adjustment', fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '')
@@ -424,6 +433,7 @@ class ClientPortalController extends BaseController
         if ( ! $contact = $this->getContact()) {
             return $this->returnError();
         }
+
         $payments = $this->paymentRepo->findForContact($contact->id, \Illuminate\Support\Facades\Request::input('sSearch'));
 
         return Datatable::query($payments)
@@ -610,6 +620,7 @@ class ClientPortalController extends BaseController
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+
         $response = \Illuminate\Support\Facades\Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -643,12 +654,14 @@ class ClientPortalController extends BaseController
                     while ($buffer = fread($fileStream, 256000)) {
                         $zip->stream_file_part($buffer);
                     }
+
                     fclose($fileStream);
                     $zip->complete_file_stream();
                 } else {
                     $zip->add_file($name, $document->getRaw());
                 }
             }
+
             $zip->finish();
         }, 200);
     }
@@ -852,6 +865,7 @@ class ClientPortalController extends BaseController
             $rules['first_name'] = 'required';
             $rules['last_name'] = 'required';
         }
+
         if ($account->vat_number || $account->isNinjaAccount()) {
             $rules['vat_number'] = 'required';
         }
@@ -949,6 +963,7 @@ class ClientPortalController extends BaseController
                             $size += $document->size;
                             break;
                         }
+
                         if ($toZip[$name]->hash == $document->hash) {
                             // We're not adding this after all
                             break;
@@ -1005,7 +1020,7 @@ class ClientPortalController extends BaseController
                 break;
         }
 
-        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
+        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
     }
 
     private function returnError($error = false)
@@ -1044,9 +1059,10 @@ class ClientPortalController extends BaseController
         if ($accountGateway && $accountGateway->gateway) {
             $message = $accountGateway->gateway->name . ': ';
         }
+
         $message .= $error ?: trans('texts.payment_method_error');
 
         \Illuminate\Support\Facades\Session::flash('error', $message);
-        Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+        Utils::logError(sprintf('Payment Method Error [%s]: ', $type) . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

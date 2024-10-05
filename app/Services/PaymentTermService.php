@@ -42,7 +42,7 @@ class PaymentTermService extends BaseService
         return [
             [
                 'name',
-                fn ($model) => link_to("payment_terms/{$model->public_id}/edit", $model->name)->toHtml(),
+                fn ($model) => link_to(sprintf('payment_terms/%s/edit', $model->public_id), $model->name)->toHtml(),
             ],
             [
                 'days',
@@ -56,7 +56,7 @@ class PaymentTermService extends BaseService
         return [
             [
                 uctrans('texts.edit_payment_terms'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("payment_terms/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
             ],
         ];
     }

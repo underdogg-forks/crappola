@@ -45,9 +45,11 @@ class EntityTransformer extends TransformerAbstract
         if (method_exists($date, 'getTimestamp')) {
             return $date->getTimestamp();
         }
+
         if (is_string($date)) {
             return strtotime($date);
         }
+
         return null;
     }
 

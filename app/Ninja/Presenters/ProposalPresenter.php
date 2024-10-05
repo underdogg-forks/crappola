@@ -22,6 +22,7 @@ class ProposalPresenter extends EntityPresenter
         if ( ! $proposal->trashed()) {
             $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans('texts.archive_proposal')];
         }
+
         if ( ! $proposal->is_deleted) {
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_proposal')];
         }

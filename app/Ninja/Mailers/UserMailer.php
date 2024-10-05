@@ -81,7 +81,7 @@ class UserMailer extends Mailer
         }
 
         $entityType = $invoice->getEntityType();
-        $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . "_{$notificationType}";
+        $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . ('_' . $notificationType);
         $account = $user->account;
         $client = $invoice->client;
         $link = $invoice->present()->multiAccountLink;
@@ -102,7 +102,7 @@ class UserMailer extends Mailer
             $data['paymentAmount'] = $account->formatMoney($payment->amount, $client);
         }
 
-        $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", [
+        $subject = trans(sprintf('texts.notification_%s_%s_subject', $entityType, $notificationType), [
             'invoice' => $invoice->invoice_number,
             'client'  => $client->getDisplayName(),
         ]);
@@ -128,7 +128,7 @@ class UserMailer extends Mailer
             return;
         }
 
-        $subject = trans("texts.notification_{$entityType}_bounced_subject", ['invoice' => $invoice->invoice_number]);
+        $subject = trans(sprintf('texts.notification_%s_bounced_subject', $entityType), ['invoice' => $invoice->invoice_number]);
         $view = 'email_bounced';
         $data = [
             'userName'      => $user->getDisplayName(),

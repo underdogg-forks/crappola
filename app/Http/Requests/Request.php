@@ -41,7 +41,7 @@ abstract class Request extends FormRequest
 
         // autoload referenced entities
         foreach ($this->autoload as $entityType) {
-            if ($id = $this->input("{$entityType}_public_id") ?: $this->input("{$entityType}_id")) {
+            if ($id = $this->input($entityType . '_public_id') ?: $this->input($entityType . '_id')) {
                 $class = 'App\\Models\\' . ucwords($entityType);
                 $entity = $class::scope($id)->firstOrFail();
                 $input[$entityType] = $entity;

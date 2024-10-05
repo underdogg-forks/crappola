@@ -21,9 +21,13 @@ use Utils;
 class InvoiceApiController extends BaseAPIController
 {
     public $clientRepo;
+
     public $paymentRepo;
+
     public $invoiceService;
+
     public $paymentService;
+
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     protected $entityType = ENTITY_INVOICE;
@@ -180,6 +184,7 @@ class InvoiceApiController extends BaseAPIController
                         $clientData[$field] = $data[$field];
                     }
                 }
+
                 foreach ([
                     'first_name',
                     'last_name',
@@ -234,6 +239,7 @@ class InvoiceApiController extends BaseAPIController
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
+
                 $reminder = $data['email_type'] ?? false;
                 $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
             }
@@ -318,6 +324,7 @@ class InvoiceApiController extends BaseAPIController
 
             return $this->itemResponse($invoice);
         }
+
         if ($request->action) {
             return $this->handleAction($request);
         }
@@ -382,6 +389,7 @@ class InvoiceApiController extends BaseAPIController
         if ($pdfString) {
             return $this->fileReponse($invoice->getFileName(), $pdfString);
         }
+
         abort(404);
         return null;
     }
@@ -417,6 +425,7 @@ class InvoiceApiController extends BaseAPIController
         if ( ! isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
         }
+
         if ( ! isset($data['due_date'])) {
             $fields['due_date_sql'] = false;
         }
@@ -445,9 +454,11 @@ class InvoiceApiController extends BaseAPIController
                         foreach ($parts as $index => $productKey) {
                             $data['invoice_items'][$index] = self::prepareItem(['product_key' => $productKey]);
                         }
+
                         break;
                     }
                 }
+
                 $data['invoice_items'][$index] = self::prepareItem($item);
             }
         }

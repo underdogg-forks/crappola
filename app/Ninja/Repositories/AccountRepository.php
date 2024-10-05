@@ -47,6 +47,7 @@ class AccountRepository
                     $company->applyFreeYear(2);
                 }
             }
+
             //$company->applyDiscount(.5);
             //session()->flash('warning', $company->present()->promoMessage());
 
@@ -100,10 +101,12 @@ class AccountRepository
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
-            $user->email = $user->username = $email;
+            $user->email = $email;
+            $user->username = $email;
             if ( ! $password) {
                 $password = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
             }
+
             $user->password = bcrypt($password);
         }
 
@@ -182,7 +185,8 @@ class AccountRepository
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextNumber($invoice);
         $invoice->invoice_date = $renewalDate->format('Y-m-d');
-        $invoice->amount = $invoice->balance = $plan_cost - $credit;
+        $invoice->amount = $plan_cost - $credit;
+        $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
 
         // check for promo/discount
@@ -208,7 +212,7 @@ class AccountRepository
         $item = InvoiceItem::createNew($invoice);
         $item->qty = 1;
         $item->cost = $plan_cost;
-        $item->notes = trans("texts.{$plan}_plan_{$term}_description");
+        $item->notes = trans(sprintf('texts.%s_plan_%s_description', $plan, $term));
 
         if ($plan == PLAN_ENTERPRISE) {
             $min = Utils::getMinNumUsers($num_users);
@@ -235,6 +239,7 @@ class AccountRepository
         if ($account) {
             return $account;
         }
+
         $company = new Company();
         $company->save();
 
@@ -291,6 +296,7 @@ class AccountRepository
             foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
                 $client->{$field} = $account->{$field};
             }
+
             $client->save();
             $contact = new Contact();
             $contact->user_id = $ninjaUser->id;
@@ -301,6 +307,7 @@ class AccountRepository
             foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
                 $contact->{$field} = $account->users()->first()->{$field};
             }
+
             $client->contacts()->save($contact);
         }
 
@@ -380,6 +387,7 @@ class AccountRepository
         foreach ($fields as $key => $value) {
             $data .= $key . '=' . $value . '&';
         }
+
         rtrim($data, '&');
 
         $ch = curl_init();
@@ -454,7 +462,7 @@ class AccountRepository
 
         $userIds = [];
         for ($i = 1; $i <= 5; $i++) {
-            $field = "user_id{$i}";
+            $field = 'user_id' . $i;
             if ($record->{$field}) {
                 $userIds[] = $record->{$field};
             }
@@ -636,12 +644,15 @@ class AccountRepository
         if ($account->customLabel('client1')) {
             $data[$account->present()->customLabel('client1')] = [];
         }
+
         if ($account->customLabel('client2')) {
             $data[$account->present()->customLabel('client2')] = [];
         }
+
         if ($account->customLabel('invoice_text1')) {
             $data[$account->present()->customLabel('invoice_text1')] = [];
         }
+
         if ($account->customLabel('invoice_text2')) {
             $data[$account->present()->customLabel('invoice_text2')] = [];
         }
@@ -675,14 +686,15 @@ class AccountRepository
 
                 if ($client->custom_value1) {
                     $data[$account->present()->customLabel('client1')][] = [
-                        'value'  => "{$client->custom_value1}: " . $client->getDisplayName(),
+                        'value'  => $client->custom_value1 . ': ' . $client->getDisplayName(),
                         'tokens' => $client->custom_value1,
                         'url'    => $client->present()->url,
                     ];
                 }
+
                 if ($client->custom_value2) {
                     $data[$account->present()->customLabel('client2')][] = [
-                        'value'  => "{$client->custom_value2}: " . $client->getDisplayName(),
+                        'value'  => $client->custom_value2 . ': ' . $client->getDisplayName(),
                         'tokens' => $client->custom_value2,
                         'url'    => $client->present()->url,
                     ];
@@ -699,7 +711,7 @@ class AccountRepository
 
             foreach ($client->invoices as $invoice) {
                 $entityType = $invoice->getEntityType();
-                $data["{$entityType}s"][] = [
+                $data[$entityType . 's'][] = [
                     'value'  => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
                     'tokens' => implode(',', [$invoice->invoice_number, $invoice->po_number]),
                     'url'    => $invoice->present()->url,
@@ -707,14 +719,15 @@ class AccountRepository
 
                 if ($customValue = $invoice->custom_text_value1) {
                     $data[$account->present()->customLabel('invoice_text1')][] = [
-                        'value'  => "{$customValue}: {$invoice->getDisplayName()}",
+                        'value'  => sprintf('%s: %s', $customValue, $invoice->getDisplayName()),
                         'tokens' => $customValue,
                         'url'    => $invoice->present()->url,
                     ];
                 }
+
                 if ($customValue = $invoice->custom_text_value2) {
                     $data[$account->present()->customLabel('invoice_text2')][] = [
-                        'value'  => "{$customValue}: {$invoice->getDisplayName()}",
+                        'value'  => sprintf('%s: %s', $customValue, $invoice->getDisplayName()),
                         'tokens' => $customValue,
                         'url'    => $invoice->present()->url,
                     ];
@@ -744,7 +757,7 @@ class AccountRepository
 
         foreach ($entityTypes as $entityType) {
             $features[] = [
-                "new_{$entityType}",
+                'new_' . $entityType,
                 Utils::pluralizeEntityType($entityType) . '/create',
             ];
             $features[] = [
@@ -777,7 +790,7 @@ class AccountRepository
         foreach ($settings as $setting) {
             $features[] = [
                 $setting,
-                "/settings/{$setting}",
+                '/settings/' . $setting,
             ];
         }
 

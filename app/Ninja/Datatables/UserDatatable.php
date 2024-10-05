@@ -23,9 +23,11 @@ class UserDatatable extends EntityDatatable
                     if ( ! $model->public_id) {
                         return self::getStatusLabel(USER_STATE_OWNER);
                     }
+
                     if ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
                     }
+
                     if ($model->confirmed) {
                         if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
@@ -45,12 +47,12 @@ class UserDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_user'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("users/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('users/%s/edit', $model->public_id)),
                 fn ($model) => $model->public_id,
             ],
             [
                 uctrans('texts.send_invite'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to("send_confirmation/{$model->public_id}"),
+                fn ($model)       => \Illuminate\Support\Facades\URL::to('send_confirmation/' . $model->public_id),
                 fn ($model): bool => $model->public_id && ! $model->confirmed,
             ],
         ];
@@ -58,7 +60,7 @@ class UserDatatable extends EntityDatatable
 
     private function getStatusLabel(string $state): string
     {
-        $label = trans("texts.{$state}");
+        $label = trans('texts.' . $state);
         $class = 'default';
         switch ($state) {
             case USER_STATE_PENDING:
@@ -78,6 +80,6 @@ class UserDatatable extends EntityDatatable
                 break;
         }
 
-        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
+        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
     }
 }

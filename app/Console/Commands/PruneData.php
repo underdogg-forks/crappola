@@ -49,14 +49,14 @@ class PruneData extends Command
         $results = \Illuminate\Support\Facades\DB::select($sql);
 
         foreach ($results as $result) {
-            $this->info("Deleting company: {$result->id}");
+            $this->info('Deleting company: ' . $result->id);
             try {
                 \Illuminate\Support\Facades\DB::table('companies')
                     ->where('id', '=', $result->id)
                     ->delete();
             } catch (\Illuminate\Database\QueryException) {
                 // most likely because a user_account record exists which doesn't cascade delete
-                $this->info("Unable to delete companyId: {$result->id}");
+                $this->info('Unable to delete companyId: ' . $result->id);
             }
         }
 

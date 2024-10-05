@@ -42,12 +42,12 @@ class AnalyticsListener
             $item .= ' [R]';
         }
 
-        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu={$currencyCode}&ti={$invoice->invoice_number}";
+        $base = sprintf('v=1&tid=%s&cid=%s&cu=%s&ti=%s', $analyticsId, $client->public_id, $currencyCode, $invoice->invoice_number);
 
-        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
+        $url = $base . ('&t=transaction&ta=ninja&tr=' . $amount);
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
+        $url = $base . sprintf('&t=item&in=%s&ip=%s&iq=1', $item, $amount);
         $this->sendAnalytics($url);
     }
 

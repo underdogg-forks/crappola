@@ -86,6 +86,7 @@ class BankAccountService extends BaseService
                     if ( ! is_array($login->accounts)) {
                         return false;
                     }
+
                     foreach ($login->accounts as $account) {
                         $account->setup($includeTransactions);
                         if ($account = $this->parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)) {
@@ -96,8 +97,8 @@ class BankAccountService extends BaseService
             }
 
             return $data;
-        } catch (Exception $e) {
-            Utils::logError($e);
+        } catch (Exception $exception) {
+            Utils::logError($exception);
 
             return false;
         }
@@ -258,6 +259,7 @@ class BankAccountService extends BaseService
             if (isset($expenses[$transaction->uniqueId])) {
                 continue;
             }
+
             if ($transaction->amount >= 0) {
                 continue;
             }
@@ -310,6 +312,7 @@ class BankAccountService extends BaseService
         if (preg_match("/^[0-9\-\(\)\.]+$/", $value)) {
             return 'work_phone';
         }
+
         if (str_contains($value, '.')) {
             return 'private_notes';
         }

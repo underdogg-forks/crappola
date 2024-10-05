@@ -138,6 +138,7 @@ class BasePaymentDriver
 
                     return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $this->invoice()->public_id);
                 }
+
                 \Illuminate\Support\Facades\Session::flash('message', trans('texts.applied_payment'));
             }
 
@@ -433,6 +434,7 @@ class BasePaymentDriver
         if ( ! $invoice->canBePaid()) {
             return false;
         }
+
         $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
@@ -549,6 +551,7 @@ class BasePaymentDriver
         if ($response->isSuccessful()) {
             return $payment->recordRefund($amount);
         }
+
         if ($this->attemptVoidPayment($response, $payment, $amount)) {
             $details = ['transactionReference' => $payment->transaction_reference];
             $response = $this->gateway->void($details)->send();
@@ -573,6 +576,7 @@ class BasePaymentDriver
             if ($response->isCancelled()) {
                 return false;
             }
+
             if ( ! $response->isSuccessful()) {
                 throw new Exception($response->getMessage());
             }
@@ -618,7 +622,7 @@ class BasePaymentDriver
                 continue;
             }
 
-            $url = \Illuminate\Support\Facades\URL::to("/payment/{$this->invitation->invitation_key}/token/" . $paymentMethod->public_id);
+            $url = \Illuminate\Support\Facades\URL::to(sprintf('/payment/%s/token/', $this->invitation->invitation_key) . $paymentMethod->public_id);
 
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
                 $label = $paymentMethod->bank_name ? $paymentMethod->bank_name : trans('texts.use_bank_on_file');
@@ -668,7 +672,7 @@ class BasePaymentDriver
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
-                $label = ($custom = $this->account()->getLabel($gatewayTypeAlias)) ? $custom : trans("texts.{$gatewayTypeAlias}");
+                $label = ($custom = $this->account()->getLabel($gatewayTypeAlias)) ? $custom : trans('texts.' . $gatewayTypeAlias);
             }
 
             $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
@@ -818,6 +822,7 @@ class BasePaymentDriver
         } else {
             $items = null;
         }
+
         $response = $gateway->purchase($data)
             ->setItems($items)
             ->send();
@@ -847,6 +852,7 @@ class BasePaymentDriver
 
             return $payment;
         }
+
         if ($response->isRedirect()) {
             $this->invitation->transaction_reference = $ref;
             $this->invitation->save();
@@ -856,6 +862,7 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+
         return null;
     }
 
@@ -870,7 +877,7 @@ class BasePaymentDriver
             'currency'        => $invoice->getCurrencyCode(),
             'returnUrl'       => $completeUrl,
             'cancelUrl'       => $this->invitation->getLink(),
-            'description'     => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
+            'description'     => trans('texts.' . $invoice->getEntityType()) . (' ' . $invoice->invoice_number),
             'transactionId'   => $invoice->invoice_number,
             'transactionType' => 'Purchase',
             'clientIp'        => \Illuminate\Support\Facades\Request::getClientIp(),
@@ -880,6 +887,7 @@ class BasePaymentDriver
             if ($this->customerReferenceParam) {
                 $data[$this->customerReferenceParam] = $paymentMethod->account_gateway_token->token;
             }
+
             $data[$this->sourceReferenceParam] = $paymentMethod->source_reference;
         } elseif ($this->input) {
             $data['card'] = new CreditCard($this->paymentDetailsFromInput($this->input));
@@ -946,7 +954,9 @@ class BasePaymentDriver
 
         // Add the license key to the invoice content
         $invoiceItem = $payment->invoice->invoice_items->first();
-        $invoiceItem->notes .= "\n\n#{$license->license_key}";
+        $invoiceItem->notes .= '
+
+#' . $license->license_key;
         $invoiceItem->save();
     }
 
@@ -1007,7 +1017,7 @@ class BasePaymentDriver
     protected function paymentUrl($gatewayTypeAlias)
     {
         $account = $this->account();
-        $url = \Illuminate\Support\Facades\URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
+        $url = \Illuminate\Support\Facades\URL::to(sprintf('/payment/%s/%s', $this->invitation->invitation_key, $gatewayTypeAlias));
 
         return $url;
     }

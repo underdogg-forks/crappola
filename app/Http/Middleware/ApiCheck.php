@@ -74,13 +74,14 @@ class ApiCheck
 
             return \Illuminate\Support\Facades\Response::json($error, 403, $headers);
         }
+
         $key = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->id : $request->getClientIp();
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $hour = 60 * 60;
         $hour_limit = 1000;
-        $hour_throttle = \Illuminate\Support\Facades\Cache::get("hour_throttle:{$key}", null);
-        $last_api_request = \Illuminate\Support\Facades\Cache::get("last_api_request:{$key}", 0);
+        $hour_throttle = \Illuminate\Support\Facades\Cache::get('hour_throttle:' . $key, null);
+        $last_api_request = \Illuminate\Support\Facades\Cache::get('last_api_request:' . $key, 0);
         $last_api_diff = time() - $last_api_request;
 
         if (null === $hour_throttle) {
@@ -97,11 +98,11 @@ class ApiCheck
             $wait = ceil($new_hour_throttle - $hour);
             sleep(1);
 
-            return \Illuminate\Support\Facades\Response::json("Please wait {$wait} second(s)", 403, $headers);
+            return \Illuminate\Support\Facades\Response::json(sprintf('Please wait %s second(s)', $wait), 403, $headers);
         }
 
-        \Illuminate\Support\Facades\Cache::put("hour_throttle:{$key}", $new_hour_throttle, 60 * 60);
-        \Illuminate\Support\Facades\Cache::put("last_api_request:{$key}", time(), 60 * 60);
+        \Illuminate\Support\Facades\Cache::put('hour_throttle:' . $key, $new_hour_throttle, 60 * 60);
+        \Illuminate\Support\Facades\Cache::put('last_api_request:' . $key, time(), 60 * 60);
 
         return $next($request);
     }

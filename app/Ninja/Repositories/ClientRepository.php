@@ -207,9 +207,11 @@ class ClientRepository extends BaseRepository
             if ( ! $contact->getFullName()) {
                 continue;
             }
+
             if ( ! isset($map[$contact->client_id])) {
                 continue;
             }
+
             $similar = similar_text($clientNameMeta, metaphone($contact->getFullName()), $percent);
 
             if ($percent > $max) {

@@ -9,9 +9,13 @@ use Utils;
 class ExportReportResults extends Job
 {
     public $user;
+
     public $format;
+
     public $reportType;
+
     public $params;
+
     public function __construct($user, $format, $reportType, $params)
     {
         $this->user = $user;
@@ -40,7 +44,7 @@ class ExportReportResults extends Job
         $totals = $params['reportTotals'];
         $report = $params['report'];
 
-        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . mb_strtolower(Utils::normalizeChars(trans("texts.{$reportType}"))) . '-report';
+        $filename = sprintf('%s-%s_invoiceninja-', $params['startDate'], $params['endDate']) . mb_strtolower(Utils::normalizeChars(trans('texts.' . $reportType))) . '-report';
 
         $formats = ['csv', 'pdf', 'xlsx', 'zip'];
         if ( ! in_array($format, $formats)) {
@@ -59,7 +63,7 @@ class ExportReportResults extends Job
         if (array_values($totals) !== []) {
             $summary[] = array_merge([
                 trans('texts.totals'),
-            ], array_map(fn ($key) => trans("texts.{$key}"), array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(fn ($key) => trans('texts.' . $key), array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {
@@ -69,12 +73,13 @@ class ExportReportResults extends Job
                 foreach ($val as $field => $value) {
                     $tmp[] = $field == 'duration' ? Utils::formatTime($value) : Utils::formatMoney($value, $currencyId);
                 }
+
                 $summary[] = $tmp;
             }
         }
 
         return Excel::create($filename, function ($excel) use ($data, $reportType, $format, $summary): void {
-            $excel->sheet(trans("texts.{$reportType}"), function ($sheet) use ($data, $format, $summary): void {
+            $excel->sheet(trans('texts.' . $reportType), function ($sheet) use ($data, $format, $summary): void {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
                 if ($format == 'pdf') {
@@ -106,6 +111,7 @@ class ExportReportResults extends Job
                     if ($format == 'pdf') {
                         $sheet->setAllBorders('thin');
                     }
+
                     $sheet->rows($summary);
 
                     // Styling header

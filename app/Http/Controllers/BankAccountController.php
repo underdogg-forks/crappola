@@ -91,6 +91,7 @@ class BankAccountController extends BaseController
             } else {
                 $username = \Illuminate\Support\Facades\Crypt::decrypt($username);
             }
+
             $bankId = $bankAccount->bank_id;
         } else {
             $bankAccount = new BankAccount();
@@ -134,9 +135,9 @@ class BankAccountController extends BaseController
 
         try {
             $data = $this->bankAccountService->parseOFX($file);
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             \Illuminate\Support\Facades\Session::now('error', trans('texts.ofx_parse_failed'));
-            Utils::logError($e);
+            Utils::logError($exception);
 
             return view('accounts.import_ofx');
         }

@@ -48,6 +48,7 @@ trait GeneratesNumbers
             } else {
                 $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             }
+
             $counter++;
             $counterOffset++;
 
@@ -55,6 +56,7 @@ trait GeneratesNumbers
             if ($number == $lastNumber) {
                 return '';
             }
+
             $lastNumber = $number;
         } while ($check);
 
@@ -96,7 +98,7 @@ trait GeneratesNumbers
             return '';
         }
 
-        $field = "{$entityType}_number_prefix";
+        $field = $entityType . '_number_prefix';
 
         return $this->{$field} ?: '';
     }
@@ -112,7 +114,7 @@ trait GeneratesNumbers
             return false;
         }
 
-        $field = "{$entityType}_number_pattern";
+        $field = $entityType . '_number_pattern';
 
         return $this->{$field};
     }
@@ -198,9 +200,11 @@ trait GeneratesNumbers
         if ($entityType == ENTITY_CLIENT) {
             return $this->client_number_counter;
         }
+
         if ($entityType == ENTITY_CREDIT) {
             return $this->credit_number_counter;
         }
+
         if ($entityType == ENTITY_QUOTE && ! $this->share_counter) {
             return $this->quote_number_counter;
         }
@@ -231,14 +235,17 @@ trait GeneratesNumbers
             if ($this->client_number_counter > 0) {
                 $this->client_number_counter += 1;
             }
+
             $this->save();
 
             return;
         }
+
         if ($entity->isEntityType(ENTITY_CREDIT)) {
             if ($this->credit_number_counter > 0) {
                 $this->credit_number_counter += 1;
             }
+
             $this->save();
 
             return;
@@ -250,6 +257,7 @@ trait GeneratesNumbers
             } else {
                 $entity->client->invoice_number_counter += 1;
             }
+
             $entity->client->save();
         }
 
@@ -259,6 +267,7 @@ trait GeneratesNumbers
             } else {
                 $this->invoice_number_counter += 1;
             }
+
             $this->save();
         }
     }

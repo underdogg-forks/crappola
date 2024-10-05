@@ -60,6 +60,7 @@ class NinjaController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
+
         $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
         $gateway = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
@@ -120,6 +121,7 @@ class NinjaController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
+
         $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
 
         try {
@@ -163,17 +165,17 @@ class NinjaController extends BaseController
                 'price'      => $affiliate->price,
             ];
 
-            $name = "{$license->first_name} {$license->last_name}";
+            $name = sprintf('%s %s', $license->first_name, $license->last_name);
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
 
             if (\Illuminate\Support\Facades\Session::has('return_url')) {
-                $data['redirectTo'] = \Illuminate\Support\Facades\Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . \Illuminate\Support\Facades\Session::get('product_id');
+                $data['redirectTo'] = \Illuminate\Support\Facades\Session::get('return_url') . sprintf('?license_key=%s&product_id=', $license->license_key) . \Illuminate\Support\Facades\Session::get('product_id');
                 $data['message'] = 'Redirecting to ' . \Illuminate\Support\Facades\Session::get('return_url');
             }
 
             return \Illuminate\Support\Facades\View::make('public.license', $data);
-        } catch (Exception $e) {
-            $this->error('License-Uncaught', false, $accountGateway, $e);
+        } catch (Exception $exception) {
+            $this->error('License-Uncaught', false, $accountGateway, $exception);
 
             return redirect()->to('license')->withInput();
         }
@@ -316,8 +318,9 @@ class NinjaController extends BaseController
         if ($accountGateway && $accountGateway->gateway) {
             $message = $accountGateway->gateway->name . ': ';
         }
+
         $message .= $error ?: trans('texts.payment_error');
         \Illuminate\Support\Facades\Session::flash('error', $message);
-        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+        Utils::logError(sprintf('Payment Error [%s]: ', $type) . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

@@ -76,7 +76,7 @@ class AbstractReport
                 $class[] = 'group-number-30';
             }
 
-            $label = in_array('custom', $class) ? $field : trans("texts.{$field}");
+            $label = in_array('custom', $class) ? $field : trans('texts.' . $field);
             $class = count($class) ? implode(' ', $class) : 'group-false';
 
             $columns_labeled[] = [
@@ -120,6 +120,7 @@ class AbstractReport
             if ($lastLetter && $letter === $lastLetter) {
                 continue;
             }
+
             $lastLetter = $letter;
             if ($letter === 'm') {
                 $reportParts[] = 'mm';
@@ -168,6 +169,7 @@ class AbstractReport
                 $intervalStartDate->day(1);
                 $intervalEndDate->addMonth(1)->day(1);
             }
+
             if ($groupBy === 'YEAR') {
                 $intervalStartDate->month(1);
                 $intervalEndDate->month(12);
@@ -190,7 +192,7 @@ class AbstractReport
             $record->label = $dimension;
             $record->lineTension = 0;
             $record->borderWidth = 3;
-            $record->borderColor = "rgba({$color}, 1)";
+            $record->borderColor = sprintf('rgba(%s, 1)', $color);
             $record->backgroundColor = 'rgba(255,255,255,0)';
         }
 
@@ -245,8 +247,8 @@ class AbstractReport
             $datasets->borderWidth = 3;
 
             $color = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
-            $datasets->borderColor[] = "rgba({$color}, 1)";
-            $datasets->backgroundColor[] = "rgba({$color}, 0.1)";
+            $datasets->borderColor[] = sprintf('rgba(%s, 1)', $color);
+            $datasets->backgroundColor[] = sprintf('rgba(%s, 0.1)', $color);
         }
 
         $response->datasets = [$datasets];
@@ -276,16 +278,19 @@ class AbstractReport
         if ($subgroup == 'user') {
             return $entity->user->getDisplayName();
         }
+
         if ($subgroup == 'client') {
             if ($entity instanceof Client) {
                 return $entity->getDisplayName();
             }
+
             if ($entity->client) {
                 return $entity->client->getDisplayName();
             }
 
             return trans('texts.unset');
         }
+
         return null;
     }
 

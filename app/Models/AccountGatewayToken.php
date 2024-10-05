@@ -119,18 +119,20 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
         $accountGateway = $this->account_gateway;
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            return "https://dashboard.stripe.com/customers/{$this->token}";
+            return 'https://dashboard.stripe.com/customers/' . $this->token;
         }
+
         if ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
 
-            return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
+            return $testMode ? sprintf('https://sandbox.braintreegateway.com/merchants/%s/customers/%s', $merchantId, $this->token) : sprintf('https://www.braintreegateway.com/merchants/%s/customers/%s', $merchantId, $this->token);
         }
+
         if ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
             $testMode = $accountGateway->getConfigField('testMode');
 
-            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
+            return $testMode ? 'https://manage-sandbox.gocardless.com/customers/' . $this->token : 'https://manage.gocardless.com/customers/' . $this->token;
         }
 
         return false;

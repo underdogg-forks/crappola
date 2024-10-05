@@ -16,7 +16,7 @@ class VendorDatatable extends EntityDatatable
             [
                 'name',
                 function ($model): string {
-                    $str = link_to("vendors/{$model->public_id}", $model->name ?: '')->toHtml();
+                    $str = link_to('vendors/' . $model->public_id, $model->name ?: '')->toHtml();
 
                     return $this->addNote($str, $model->private_notes);
                 },
@@ -31,7 +31,7 @@ class VendorDatatable extends EntityDatatable
             ],
             [
                 'email',
-                fn ($model) => link_to("vendors/{$model->public_id}", $model->email ?: '')->toHtml(),
+                fn ($model) => link_to('vendors/' . $model->public_id, $model->email ?: '')->toHtml(),
             ],
             [
                 'created_at',
@@ -45,7 +45,7 @@ class VendorDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_vendor'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("vendors/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('vendors/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model]),
             ],
             [
@@ -54,7 +54,7 @@ class VendorDatatable extends EntityDatatable
             ],
             [
                 trans('texts.enter_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("expenses/create/0/{$model->public_id}"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to('expenses/create/0/' . $model->public_id),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
             ],
         ];

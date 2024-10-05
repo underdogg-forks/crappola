@@ -8,9 +8,13 @@ use stdClass;
 class LoadPostmarkHistory extends Job
 {
     public $email;
+
     public $bounceId = false;
+
     public $account;
+
     public $postmark;
+
     public function __construct($email)
     {
         $this->email = $email;
@@ -53,9 +57,11 @@ class LoadPostmarkHistory extends Job
             if ( ! $bounce['inactive']) {
                 continue;
             }
+
             if ( ! $bounce['canactivate']) {
                 continue;
             }
+
             $str .= sprintf('<b>%s</b><br/>', $bounce['subject']);
             $str .= sprintf('<span class="text-danger">%s</span> | %s<br/>', $bounce['type'], $this->account->getDateTime($bounce['bouncedat'], true));
             $str .= sprintf('<span class="text-muted">%s %s</span><p/>', $bounce['description'], $bounce['details']);
@@ -80,6 +86,7 @@ class LoadPostmarkHistory extends Job
             if ($message = $event['Details']['DeliveryMessage']) {
                 $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
             }
+
             if ($server = $event['Details']['DestinationServer']) {
                 $str .= sprintf('<span class="text-muted">%s</span><br/>', $server);
             }

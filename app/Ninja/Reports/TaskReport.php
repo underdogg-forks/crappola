@@ -25,6 +25,7 @@ class TaskReport extends AbstractReport
         if ($account->customLabel('task1')) {
             $columns[$account->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('task2')) {
             $columns[$account->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
         }
@@ -67,6 +68,7 @@ class TaskReport extends AbstractReport
             if ($account->customLabel('task1')) {
                 $row[] = $task->custom_value1;
             }
+
             if ($account->customLabel('task2')) {
                 $row[] = $task->custom_value2;
             }

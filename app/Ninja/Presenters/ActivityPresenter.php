@@ -31,6 +31,7 @@ class ActivityPresenter extends Presenter
         if ($this->entity->notes) {
             return trans('texts.notes_' . $this->entity->notes);
         }
+
         if (in_array($this->entity->activity_type_id, [ACTIVITY_TYPE_EMAIL_INVOICE, ACTIVITY_TYPE_EMAIL_QUOTE])) {
             return trans('texts.initial_email');
         }

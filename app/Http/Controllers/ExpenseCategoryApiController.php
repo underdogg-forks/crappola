@@ -11,6 +11,7 @@ use App\Services\ExpenseCategoryService;
 class ExpenseCategoryApiController extends BaseAPIController
 {
     public $expenseCategoryRepo;
+
     protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
 
     protected \App\Services\ExpenseCategoryService $categoryService;

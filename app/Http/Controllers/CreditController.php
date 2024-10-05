@@ -91,7 +91,7 @@ class CreditController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to("credits/{$publicId}/edit");
+        return \Illuminate\Support\Facades\Redirect::to(sprintf('credits/%s/edit', $publicId));
     }
 
     public function update(UpdateCreditRequest $request)
@@ -127,6 +127,6 @@ class CreditController extends BaseController
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         \Illuminate\Support\Facades\Session::flash('message', $message);
 
-        return redirect()->to("clients/{$credit->client->public_id}#credits");
+        return redirect()->to(sprintf('clients/%s#credits', $credit->client->public_id));
     }
 }

@@ -123,7 +123,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     public static function getClassName($entityType): string
     {
         if ( !Utils::isNinjaProd() && ($module = Module::find($entityType))) {
-            return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
+            return sprintf('Modules\%s\Models\%s', $module->getName(), $module->getName());
         }
 
         if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
@@ -143,8 +143,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         if (Utils::isNinjaProd()) {
             return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
         }
+
         if ($module = Module::find($entityType)) {
-            return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
+            return sprintf('Modules\%s\Transformers\%sTransformer', $module->getName(), $module->getName());
         }
 
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
@@ -233,7 +234,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         $data = [];
 
         foreach (static::$statuses as $status) {
-            $data[$status] = trans("texts.{$status}");
+            $data[$status] = trans('texts.' . $status);
         }
 
         return $data;
@@ -427,9 +428,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     {
         try {
             return parent::save($options);
-        } catch (\Illuminate\Database\QueryException $exception) {
+        } catch (\Illuminate\Database\QueryException $queryException) {
             // check if public_id has been taken
-            if ($exception->getCode() == 23000 && static::$hasPublicId) {
+            if ($queryException->getCode() == 23000 && static::$hasPublicId) {
                 $nextId = static::getNextPublicId($this->account_id);
                 if ($nextId != $this->public_id) {
                     $this->public_id = $nextId;
@@ -444,7 +445,8 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
                     return $this->save($options);
                 }
             }
-            throw $exception;
+
+            throw $queryException;
         }
     }
 

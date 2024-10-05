@@ -62,7 +62,7 @@ class ProposalTemplateController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return redirect("proposals/templates/{$publicId}/edit");
+        return redirect(sprintf('proposals/templates/%s/edit', $publicId));
     }
 
     public function edit(ProposalTemplateRequest $request, $publicId = false, $clone = false)
@@ -128,8 +128,8 @@ class ProposalTemplateController extends BaseController
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_proposal_template' : $action . 'd_proposal_templates';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
@@ -149,12 +149,15 @@ class ProposalTemplateController extends BaseController
             if ( ! isset($options[$customLabel])) {
                 $options[$customLabel] = [];
             }
+
             $options[trans('texts.custom')][$template->public_id] = $template->name;
         }
+
         foreach ($defaultTemplates as $template) {
             if ( ! isset($options[$defaultLabel])) {
                 $options[$defaultLabel] = [];
             }
+
             $options[trans('texts.default')][$template->public_id] = $template->name;
         }
 

@@ -109,9 +109,11 @@ class CreditRepository extends BaseRepository
         if (isset($input['credit_date'])) {
             $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         }
+
         if (isset($input['amount'])) {
             $credit->amount = Utils::parseFloat($input['amount']);
         }
+
         if (isset($input['balance'])) {
             $credit->balance = Utils::parseFloat($input['balance']);
         }

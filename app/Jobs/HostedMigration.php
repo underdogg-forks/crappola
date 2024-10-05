@@ -84,10 +84,10 @@ class HostedMigration extends Job
 
                 //set activate URL
                 $account_email_settings = $this->account->account_email_settings;
-                $account_email_settings->account_email_settings->forward_url_for_v5 = "https://invoiceninja-{$this->account->id}.invoicing.co";
+                $account_email_settings->account_email_settings->forward_url_for_v5 = sprintf('https://invoiceninja-%s.invoicing.co', $this->account->id);
                 $account_email_settings->save();
 
-                $this->account->subdomain = "invoiceninja-{$this->account->id}";
+                $this->account->subdomain = 'invoiceninja-' . $this->account->id;
             }
 
             $date = date('Y-m-d');
@@ -95,7 +95,7 @@ class HostedMigration extends Job
 
             $output = fopen('php://output', 'w') || Utils::fatalError();
 
-            $fileName = "{$accountKey}-{$date}-invoiceninja";
+            $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 
             $localMigrationData['data'] = [
                 'account'               => $this->getAccount(),
@@ -127,7 +127,7 @@ class HostedMigration extends Job
             $localMigrationData['force'] = array_key_exists('force', $company);
 
             Storage::makeDirectory('migrations');
-            $file = Storage::path("app/migrations/{$fileName}.zip");
+            $file = Storage::path(sprintf('app/migrations/%s.zip', $fileName));
 
             //$file = storage_path("migrations/{$fileName}.zip");
 
@@ -182,6 +182,7 @@ class HostedMigration extends Job
 
             $this->migration_token = $message_body['token'];
         }
+
         // info(json_decode($response->getBody()->getContents()));
 
         return $this;

@@ -8,10 +8,12 @@ class CarouselCard
      * @var string
      */
     public $contentType = 'application/vnd.microsoft.card.carousel';
+
     /**
      * @var never[]|mixed[]
      */
     public $attachments = [];
+
     public function __construct()
     {
     }

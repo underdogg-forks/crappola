@@ -66,6 +66,7 @@ class Task extends EntityModel
             if ($startTimeCutoff) {
                 $startTime = max($startTime, $startTimeCutoff);
             }
+
             if ($endTimeCutoff) {
                 $endTime = min($endTime, $endTimeCutoff);
             }
@@ -120,6 +121,7 @@ class Task extends EntityModel
 
             return 'success';
         }
+
         if ($isRunning) {
             return 'primary';
         }
@@ -270,7 +272,7 @@ class Task extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/tasks/{$this->public_id}/edit";
+        return sprintf('/tasks/%s/edit', $this->public_id);
     }
 
     public function getName(): string

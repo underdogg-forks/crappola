@@ -26,6 +26,7 @@ class ClientReport extends AbstractReport
         if ($account->customLabel('client1')) {
             $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('client2')) {
             $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
@@ -77,6 +78,7 @@ class ClientReport extends AbstractReport
             if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
+
             if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }

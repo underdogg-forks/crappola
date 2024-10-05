@@ -118,7 +118,7 @@ class NotificationListener
     private function sendNotifications(Invoice $invoice, string $type, $payment = null, $notes = false): void
     {
         foreach ($invoice->account->users as $user) {
-            if ($user->{"notify_{$type}"}) {
+            if ($user->{'notify_' . $type}) {
                 dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
             }
 

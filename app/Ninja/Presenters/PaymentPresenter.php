@@ -51,9 +51,11 @@ class PaymentPresenter extends EntityPresenter
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
         }
+
         if ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
+
         return null;
     }
 
@@ -67,9 +69,11 @@ class PaymentPresenter extends EntityPresenter
         $data->start = $payment->payment_date;
 
         if ($subColors) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
+            $data->borderColor = Utils::brewerColor($payment->payment_status_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#5fa213';
+            $data->borderColor = '#5fa213';
+            $data->backgroundColor = '#5fa213';
         }
 
         return $data;

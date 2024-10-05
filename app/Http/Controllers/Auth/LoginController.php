@@ -107,6 +107,7 @@ class LoginController extends Controller
             } else {
                 Utils::logError('[failed login] ' . $stacktrace);
             }
+
             if ($user) {
                 $user->failed_logins += 1;
                 $user->save();
@@ -152,6 +153,7 @@ class LoginController extends Controller
                 $user->remember_2fa_token = \Illuminate\Support\Str::random(60);
                 $user->save();
             }
+
             $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
             cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
         }
@@ -172,6 +174,7 @@ class LoginController extends Controller
                 if ( ! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
                 }
+
                 $account->forceDelete();
             } else {
                 return redirect('/');
@@ -181,8 +184,8 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ( $reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has("texts.{$reason}_logout")) {
-            session()->flash('warning', trans("texts.{$reason}_logout"));
+        if ( $reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has(sprintf('texts.%s_logout', $reason))) {
+            session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
         }
 
         return $response;

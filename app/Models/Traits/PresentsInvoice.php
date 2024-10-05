@@ -101,24 +101,31 @@ trait PresentsInvoice
         if ($this->customLabel('invoice_text1')) {
             $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value1';
         }
+
         if ($this->customLabel('invoice_text2')) {
             $fields[INVOICE_FIELDS_INVOICE][] = 'invoice.custom_text_value2';
         }
+
         if ($this->customLabel('client1')) {
             $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value1';
         }
+
         if ($this->customLabel('client2')) {
             $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value2';
         }
+
         if ($this->customLabel('contact1')) {
             $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value1';
         }
+
         if ($this->customLabel('contact2')) {
             $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value2';
         }
+
         if ($this->custom_label1) {
             $fields['account_fields2'][] = 'account.custom_value1';
         }
+
         if ($this->custom_label2) {
             $fields['account_fields2'][] = 'account.custom_value2';
         }
@@ -219,11 +226,12 @@ trait PresentsInvoice
         if (isset($custom[$field]) && $custom[$field]) {
             return $custom[$field];
         }
+
         if ($override) {
             $field = $override;
         }
 
-        return $this->isEnglish() ? uctrans("texts.{$field}") : trans("texts.{$field}");
+        return $this->isEnglish() ? uctrans('texts.' . $field) : trans('texts.' . $field);
     }
 
     /**
@@ -320,7 +328,7 @@ trait PresentsInvoice
         ];
 
         foreach ($fields as $field) {
-            $translated = $this->isEnglish() ? uctrans("texts.{$field}") : trans("texts.{$field}");
+            $translated = $this->isEnglish() ? uctrans('texts.' . $field) : trans('texts.' . $field);
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
                 $data[$field . '_orig'] = $translated;
@@ -330,7 +338,7 @@ trait PresentsInvoice
         }
 
         foreach (['item', 'quantity', 'unit_cost'] as $field) {
-            $data["{$field}_orig"] = $data[$field];
+            $data[$field . '_orig'] = $data[$field];
         }
 
         foreach ([
@@ -356,12 +364,15 @@ trait PresentsInvoice
         if ($designId == CUSTOM_DESIGN1) {
             return $this->custom_design1;
         }
+
         if ($designId == CUSTOM_DESIGN2) {
             return $this->custom_design2;
         }
+
         if ($designId == CUSTOM_DESIGN3) {
             return $this->custom_design3;
         }
+
         return null;
     }
 
@@ -386,6 +397,7 @@ trait PresentsInvoice
                 } else {
                     $fields[$section][$field] = $labels[$fieldName];
                 }
+
                 unset($fields[$section][$index]);
             }
         }

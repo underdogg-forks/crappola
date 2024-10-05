@@ -86,6 +86,7 @@ class DocumentController extends BaseController
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+
         $response = \Illuminate\Support\Facades\Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -103,6 +104,7 @@ class DocumentController extends BaseController
                 'code'  => 400,
             ], 400);
         }
+
         if ($request->grapesjs) {
             $response = [
                 'data' => [

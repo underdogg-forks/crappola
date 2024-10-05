@@ -81,6 +81,7 @@ class ChargeRenewalInvoices extends Command
             if ( ! $company->plan) {
                 continue;
             }
+
             if ($company->plan == PLAN_FREE) {
                 continue;
             }
@@ -90,7 +91,7 @@ class ChargeRenewalInvoices extends Command
                 continue;
             }
 
-            $this->info("Charging invoice {$invoice->invoice_number}");
+            $this->info('Charging invoice ' . $invoice->invoice_number);
             if ( ! $this->paymentService->autoBillInvoice($invoice)) {
                 $this->info('Failed to auto-bill, emailing invoice');
                 $this->mailer->sendInvoice($invoice);

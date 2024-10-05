@@ -17,7 +17,7 @@ class CreditDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
+                        return $model->client_public_id ? link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
                     return Utils::getClientDisplayName($model);
@@ -44,7 +44,7 @@ class CreditDatatable extends EntityDatatable
                 'credit_date',
                 function ($model) {
                     if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
-                        return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
+                        return link_to(sprintf('credits/%s/edit', $model->public_id), Utils::fromSqlDate($model->credit_date_sql))->toHtml();
                     }
 
                     return Utils::fromSqlDate($model->credit_date_sql);
@@ -74,12 +74,12 @@ class CreditDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_credit'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to("credits/{$model->public_id}/edit"),
+                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('credits/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model]),
             ],
             [
                 trans('texts.apply_credit'),
-                fn ($model): string => \Illuminate\Support\Facades\URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1',
+                fn ($model): string => \Illuminate\Support\Facades\URL::to('payments/create/' . $model->client_public_id) . '?paymentTypeId=1',
                 fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
             ],
         ];

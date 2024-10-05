@@ -117,6 +117,7 @@ class BaseRepository
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
+
                 if (in_array(STATUS_ARCHIVED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
@@ -126,6 +127,7 @@ class BaseRepository
                         }
                     });
                 }
+
                 if (in_array(STATUS_DELETED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at')

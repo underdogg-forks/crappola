@@ -223,6 +223,7 @@ class StepsController extends BaseController
                 url($this->access['companies']['redirect'])
             );
         }
+
         $bool = true;
 
         if (Utils::isNinja()) {
@@ -239,10 +240,10 @@ class StepsController extends BaseController
             $completeService->data($migrationData)
                 ->endpoint(session('MIGRATION_ENDPOINT'))
                 ->start();
-        } catch (Exception $e) {
-            info($e->getMessage());
+        } catch (Exception $exception) {
+            info($exception->getMessage());
 
-            return view('migration.completed', ['customMessage' => $e->getMessage()]);
+            return view('migration.completed', ['customMessage' => $exception->getMessage()]);
         }
 
         if ($completeService->isSuccessful()) {
@@ -294,7 +295,7 @@ class StepsController extends BaseController
 
             $output = fopen('php://output', 'w') || Utils::fatalError();
 
-            $fileName = "{$accountKey}-{$date}-invoiceninja";
+            $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 
             $localMigrationData['data'] = [
                 'account'               => $this->getAccount(),
@@ -326,7 +327,7 @@ class StepsController extends BaseController
             $localMigrationData['force'] = array_key_exists('force', $company);
 
             Storage::makeDirectory('migrations');
-            $file = Storage::path("migrations/{$fileName}.zip");
+            $file = Storage::path(sprintf('migrations/%s.zip', $fileName));
 
             ksort($localMigrationData);
 

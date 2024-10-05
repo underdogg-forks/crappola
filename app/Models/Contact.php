@@ -153,7 +153,8 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getContactKeyAttribute($contact_key)
     {
         if (empty($contact_key) && $this->id) {
-            $this->contact_key = $contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $this->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $contact_key = $this->contact_key;
             static::where('id', $this->id)->update(['contact_key' => $contact_key]);
         }
 
@@ -194,14 +195,14 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
                 if ($account->is_custom_domain) {
                     $url = $iframe_url;
                 } else {
-                    return "{$iframe_url}?{$this->contact_key}/client";
+                    return sprintf('%s?%s/client', $iframe_url, $this->contact_key);
                 }
             } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
 
-        return "{$url}/client/dashboard/{$this->contact_key}";
+        return sprintf('%s/client/dashboard/%s', $url, $this->contact_key);
     }
 
     public function sendPasswordResetNotification($token): void

@@ -86,11 +86,12 @@ class CompleteService
 
             return json_decode($response->getBody(), true);
         }
+
         // info($response->raw_body);
 
         $this->isSuccessful = false;
         $this->errors = [
-            'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+            "Oops, something went wrong. Migration can't be processed at the moment. Please checks the logs.",
         ];
 
         return $this;
@@ -128,6 +129,6 @@ class CompleteService
 
     private function getUrl(): string
     {
-        return "{$this->endpoint}/{$this->uri}";
+        return sprintf('%s/%s', $this->endpoint, $this->uri);
     }
 }

@@ -104,6 +104,7 @@ class PaymentMethod extends EntityModel
 
             return $data;
         }
+
         \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, false, 5 * 60);
         return null;
     }
@@ -178,6 +179,7 @@ class PaymentMethod extends EntityModel
         if ($bank_name) {
             return $bank_name;
         }
+
         $bankData = $this->bank_data;
 
         return $bankData ? $bankData->name : null;
@@ -243,6 +245,7 @@ class PaymentMethod extends EntityModel
         if ($this->payment_type_id == PAYMENT_TYPE_ACH) {
             return GATEWAY_TYPE_BANK_TRANSFER;
         }
+
         if ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
             return GATEWAY_TYPE_PAYPAL;
         }

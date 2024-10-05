@@ -55,6 +55,7 @@ class BotController extends Controller
                     } else {
                         $response = SkypeResponse::message(trans('texts.email_not_found', ['email' => $text]));
                     }
+
                     // user sent the scurity code
                 } elseif ($state === BOT_STATE_GET_CODE) {
                     if ($this->validateCode($text, $botUserId)) {
@@ -63,6 +64,7 @@ class BotController extends Controller
                     } else {
                         $response = SkypeResponse::message(trans('texts.invalid_code'));
                     }
+
                     // regular chat message
                 } elseif ($text === 'help') {
                     $response = SkypeResponse::message(trans('texts.bot_help_message'));
@@ -330,6 +332,7 @@ class BotController extends Controller
             default:
                 break;
         }
+
         $res = base64_decode($res);
 
         return $res;

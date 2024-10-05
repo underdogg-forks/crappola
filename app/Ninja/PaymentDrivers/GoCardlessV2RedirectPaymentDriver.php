@@ -23,7 +23,8 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $details = $this->paymentDetails();
-        $this->purchaseResponse = $response = $this->gateway()->completePurchase($details)->send();
+        $this->purchaseResponse = $this->gateway()->completePurchase($details)->send();
+        $response = $this->purchaseResponse;
 
         if ( ! $response->isSuccessful()) {
             return false;
@@ -61,6 +62,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
             if ($type != 'payments') {
                 continue;
             }
+
             if ( ! in_array($action, $supported)) {
                 continue;
             }
@@ -71,9 +73,11 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
             if ( ! $payment) {
                 continue;
             }
+
             if ($payment->is_deleted) {
                 continue;
             }
+
             if ($payment->invoice->is_deleted) {
                 continue;
             }

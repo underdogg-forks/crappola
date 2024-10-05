@@ -87,9 +87,11 @@ class HandleUserLoggedIn
                 if ( ! $appKey) {
                     fwrite($fp, "\nAPP_KEY=" . config('app.key'));
                 }
+
                 if ( ! $appCipher) {
                     fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
                 }
+
                 fclose($fp);
             }
 

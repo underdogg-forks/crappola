@@ -225,6 +225,7 @@ class User extends Authenticatable
         if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
             return $this->getFullName();
         }
+
         if ($this->email) {
             return $this->email;
         }
@@ -341,6 +342,7 @@ class User extends Authenticatable
         if ($this->is_admin) {
             return true;
         }
+
         if (is_string($permission)) {
             if (is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
                 return true;
@@ -393,6 +395,7 @@ class User extends Authenticatable
         if ( ! Utils::isNinjaProd()) {
             return true;
         }
+
         if ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }

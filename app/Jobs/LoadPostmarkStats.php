@@ -9,10 +9,15 @@ use stdClass;
 class LoadPostmarkStats extends Job
 {
     public $startDate;
+
     public $endDate;
+
     public $response;
+
     public $postmark;
+
     public $account;
+
     public function __construct($startDate, $endDate)
     {
         $this->startDate = $startDate;
@@ -87,11 +92,11 @@ class LoadPostmarkStats extends Job
 
             $group = new stdClass();
             $group->data = $records;
-            $group->label = trans("texts.{$eventType}");
+            $group->label = trans('texts.' . $eventType);
             $group->lineTension = 0;
             $group->borderWidth = 4;
-            $group->borderColor = "rgba({$color}, 1)";
-            $group->backgroundColor = "rgba({$color}, 0.1)";
+            $group->borderColor = sprintf('rgba(%s, 1)', $color);
+            $group->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
             $datasets[] = $group;
         }
 
@@ -155,6 +160,7 @@ class LoadPostmarkStats extends Job
             if ($percent < 0.5) {
                 continue;
             }
+
             $str .= sprintf('<tr><td>%s</td><td>%s%%</td></tr>', ucwords($key), $account->formatNumber($percent));
         }
 

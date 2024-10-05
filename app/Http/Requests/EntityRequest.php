@@ -26,12 +26,14 @@ class EntityRequest extends Request
         if ( ! empty($this->{$field})) {
             $publicId = $this->{$field};
         }
+
         if ( ! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
             if ( ! empty($this->{$field})) {
                 $publicId = $this->{$field};
             }
         }
+
         if ( ! $publicId) {
             $publicId = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('id');
         }
@@ -65,6 +67,7 @@ class EntityRequest extends Request
         } else {
             return $this->user()->can('create', $this->entityType);
         }
+
         return null;
     }
 

@@ -36,7 +36,7 @@ class QueryLogging
             $count = count($queries);
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
-            \Illuminate\Support\Facades\Log::info($request->method() . ' - ' . $request->url() . ": {$count} queries - " . $time);
+            \Illuminate\Support\Facades\Log::info($request->method() . ' - ' . $request->url() . sprintf(': %d queries - ', $count) . $time);
             //Log::info($queries);
         }
 

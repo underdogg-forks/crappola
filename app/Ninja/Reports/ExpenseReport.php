@@ -31,6 +31,7 @@ class ExpenseReport extends AbstractReport
         if ($account->customLabel('expense1')) {
             $columns[$account->present()->customLabel('expense1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('expense2')) {
             $columns[$account->present()->customLabel('expense2')] = ['columnSelector-false', 'custom'];
         }
@@ -79,6 +80,7 @@ class ExpenseReport extends AbstractReport
                     $zip->add_file($name, $document->getRaw());
                 }
             }
+
             $zip->finish();
             exit;
         }
@@ -103,6 +105,7 @@ class ExpenseReport extends AbstractReport
             if ($account->customLabel('expense1')) {
                 $row[] = $expense->custom_value1;
             }
+
             if ($account->customLabel('expense2')) {
                 $row[] = $expense->custom_value2;
             }

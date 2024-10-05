@@ -31,6 +31,7 @@ class DocumentPolicy extends EntityPolicy
         if ($user->hasPermission(['view_expense', 'view_invoice'], true)) {
             return true;
         }
+
         if ($document->expense) {
             if ($document->expense->invoice) {
                 return $user->can('view', $document->expense->invoice);
@@ -38,6 +39,7 @@ class DocumentPolicy extends EntityPolicy
 
             return $user->can('view', $document->expense);
         }
+
         if ($document->invoice) {
             return $user->can('view', $document->invoice);
         }

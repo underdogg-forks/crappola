@@ -74,9 +74,11 @@ class InvoiceService extends BaseService
                 $canSaveClient = \Illuminate\Support\Facades\Auth::user()->can('edit', $client);
                 $canViewClient = \Illuminate\Support\Facades\Auth::user()->can('view', $client);
             }
+
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
             }
+
             if ($canSaveClient || $canViewClient) {
                 $data['client_id'] = $client->id;
             }

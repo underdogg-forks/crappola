@@ -31,11 +31,12 @@ class EntityPresenter extends Presenter
 
     public function statusLabel($label = false): string
     {
-        $class = $text = '';
-
+        $class = '';
+        $text = '';
         if ( ! $this->entity->id) {
             return '';
         }
+
         if ($this->entity->is_deleted) {
             $class = 'danger';
             $label = trans('texts.deleted');
@@ -47,7 +48,7 @@ class EntityPresenter extends Presenter
             $label = $label ?: $this->entity->statusLabel();
         }
 
-        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
+        return sprintf('<span style="font-size:13px" class="label label-%s">%s</span>', $class, $label);
     }
 
     public function statusColor(): string

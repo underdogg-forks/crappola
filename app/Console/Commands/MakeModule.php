@@ -53,14 +53,14 @@ class MakeModule extends Command
         $progressBar = $this->output->createProgressBar($plain ? 2 : ($migrate ? 15 : 14));
         $progressBar->setFormat('custom');
 
-        $this->info("Creating module: {$name}...");
+        $this->info(sprintf('Creating module: %s...', $name));
         $progressBar->setMessage('Starting module creation...');
         \Illuminate\Support\Facades\Artisan::call('module:make', ['name' => [$name]]);
         $progressBar->advance();
 
         if ( ! $plain) {
             $progressBar->setMessage('Creating migrations...');
-            \Illuminate\Support\Facades\Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
+            \Illuminate\Support\Facades\Artisan::call('module:make-migration', ['name' => sprintf('create_%s_table', $lower), '--fields' => $fields, 'module' => $name]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating models...');
@@ -126,7 +126,8 @@ class MakeModule extends Command
 
         if ( ! $migrate && ! $plain) {
             $this->info('==> Migrations were not run because the --migrate flag was not specified.');
-            $this->info("==> Use the following command to run the migrations:\nphp artisan module:migrate {$name}");
+            $this->info('==> Use the following command to run the migrations:
+php artisan module:migrate ' . $name);
         }
     }
 

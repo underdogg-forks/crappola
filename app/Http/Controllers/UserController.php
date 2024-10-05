@@ -64,7 +64,7 @@ class UserController extends BaseController
     {
         \Illuminate\Support\Facades\Session::reflash();
 
-        return redirect("users/{$publicId}/edit");
+        return redirect(sprintf('users/%s/edit', $publicId));
     }
 
     public function edit(string $publicId)
@@ -146,7 +146,7 @@ class UserController extends BaseController
             $user->restore();
         }
 
-        \Illuminate\Support\Facades\Session::flash('message', trans("texts.{$action}d_user"));
+        \Illuminate\Support\Facades\Session::flash('message', trans(sprintf('texts.%sd_user', $action)));
 
         return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
@@ -268,8 +268,9 @@ class UserController extends BaseController
                 \Illuminate\Support\Facades\Session::flush();
                 $token = \Illuminate\Support\Facades\Password::getRepository()->create($user);
 
-                return \Illuminate\Support\Facades\Redirect::to("/password/reset/{$token}");
+                return \Illuminate\Support\Facades\Redirect::to('/password/reset/' . $token);
             }
+
             if (\Illuminate\Support\Facades\Auth::check()) {
                 if (\Illuminate\Support\Facades\Session::has(REQUESTED_PRO_PLAN)) {
                     \Illuminate\Support\Facades\Session::forget(REQUESTED_PRO_PLAN);
@@ -283,6 +284,7 @@ class UserController extends BaseController
 
             return \Illuminate\Support\Facades\Redirect::to($url)->with('message', $notice_msg);
         }
+
         $error_msg = trans('texts.wrong_confirmation');
 
         return \Illuminate\Support\Facades\Redirect::to('/login')->with('error', $error_msg);

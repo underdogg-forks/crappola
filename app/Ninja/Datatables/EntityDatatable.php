@@ -60,6 +60,7 @@ class EntityDatatable
             if (count($column) == 3 && ! $column[2]) {
                 continue;
             }
+
             $data[] = $column[0];
         }
 

@@ -42,7 +42,7 @@ class Mailer
         $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            \Illuminate\Support\Facades\Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
+            \Illuminate\Support\Facades\Log::info(sprintf('Sending email - To: %s | Reply: %s | From: %s', $toEmail, $replyEmail, $fromEmail));
         }
 
         // Optionally send for alternate domain
@@ -103,9 +103,11 @@ class Mailer
                 if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
+
                 if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
                     $message->attachData($data['ublString'], $data['ublFileName']);
                 }
+
                 if ( ! empty($data['documents'])) {
                     foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
@@ -144,9 +146,11 @@ class Mailer
         if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['pdfString'], $data['pdfFileName']);
         }
+
         if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['ublString'], $data['ublFileName']);
         }
+
         if ( ! empty($data['documents'])) {
             foreach ($data['documents'] as $document) {
                 $attachments[] = PostmarkAttachment::fromRawData($document['data'], $document['name']);

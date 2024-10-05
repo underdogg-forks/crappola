@@ -45,14 +45,14 @@ trait Inviteable
                 if ($account->is_custom_domain) {
                     $url = $iframe_url;
                 } else {
-                    return "{$iframe_url}?{$this->invitation_key}/{$type}";
+                    return sprintf('%s?%s/%s', $iframe_url, $this->invitation_key, $type);
                 }
             } elseif ($this->account->subdomain && ! $forcePlain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
 
-        return "{$url}/{$type}/{$this->invitation_key}";
+        return sprintf('%s/%s/%s', $url, $type, $this->invitation_key);
     }
 
     /**
@@ -65,7 +65,7 @@ trait Inviteable
         $statuses = $this->message_id ? ['sent', 'opened', 'viewed'] : ['sent', 'viewed'];
 
         foreach ($statuses as $status) {
-            $field = "{$status}_date";
+            $field = $status . '_date';
             $date = '';
             if ($this->{$field} && $this->field != '0000-00-00 00:00:00') {
                 $date = Utils::dateToString($this->{$field});

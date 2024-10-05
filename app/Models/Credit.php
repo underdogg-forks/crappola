@@ -77,7 +77,7 @@ class Credit extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/credits/{$this->public_id}";
+        return '/credits/' . $this->public_id;
     }
 
     /**

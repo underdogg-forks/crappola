@@ -11,6 +11,7 @@ use App\Models\Invoice;
 class InvoiceTransformer extends EntityTransformer
 {
     public $client;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)

@@ -41,6 +41,7 @@ class TaskTransformer extends EntityTransformer
 
             return $this->includeItem($task->client, $transformer, 'client');
         }
+
         return null;
     }
 
@@ -51,6 +52,7 @@ class TaskTransformer extends EntityTransformer
 
             return $this->includeItem($task->project, $transformer, 'project');
         }
+
         return null;
     }
 

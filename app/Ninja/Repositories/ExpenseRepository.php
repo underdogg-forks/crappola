@@ -120,22 +120,27 @@ class ExpenseRepository extends BaseRepository
                     $query->orWhere('expenses.invoice_id', '=', 0)
                         ->orWhereNull('expenses.invoice_id');
                 }
+
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
                     if ( ! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
+
                 if (in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0)
                         ->where('expenses.invoice_id', '>', 0);
                 }
+
                 if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
                     $query->orWhereNotNull('expenses.payment_date');
                 }
+
                 if (in_array(EXPENSE_STATUS_UNPAID, $statuses)) {
                     $query->orWhereNull('expenses.payment_date');
                 }
+
                 if (in_array(EXPENSE_STATUS_PENDING, $statuses)) {
                     $query->orWhere('expenses.should_be_invoiced', '=', 1)
                         ->whereNull('expenses.invoice_id');
@@ -180,6 +185,7 @@ class ExpenseRepository extends BaseRepository
         if (isset($input['expense_date'])) {
             $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         }
+
         if (isset($input['payment_date'])) {
             $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
@@ -187,6 +193,7 @@ class ExpenseRepository extends BaseRepository
         if ( ! $expense->expense_currency_id) {
             $expense->expense_currency_id = \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
         }
+
         if ( ! $expense->invoice_currency_id) {
             $expense->invoice_currency_id = \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
         }

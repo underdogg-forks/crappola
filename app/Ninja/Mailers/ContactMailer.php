@@ -49,6 +49,7 @@ class ContactMailer extends Mailer
         if ($client->trashed()) {
             return trans('texts.email_error_inactive_client');
         }
+
         if ($invoice->trashed()) {
             return trans('texts.email_error_inactive_invoice');
         }
@@ -91,6 +92,7 @@ class ContactMailer extends Mailer
             if ($account->attachPDF() && ! $proposal) {
                 $pdfString = $invoice->getPDFString($invitation);
             }
+
             $data = [
                 'pdfString'       => $pdfString,
                 'documentStrings' => $documentStrings,
@@ -201,11 +203,11 @@ class ContactMailer extends Mailer
         $subject = trans('texts.payment_subject');
 
         if ($productId == PRODUCT_ONE_CLICK_INSTALL) {
-            $license = "Softaculous install license: {$license}";
+            $license = 'Softaculous install license: ' . $license;
         } elseif ($productId == PRODUCT_INVOICE_DESIGNS) {
-            $license = "Invoice designs license: {$license}";
+            $license = 'Invoice designs license: ' . $license;
         } elseif ($productId == PRODUCT_WHITE_LABEL) {
-            $license = "White label license: {$license}";
+            $license = 'White label license: ' . $license;
         }
 
         $data = [
@@ -250,10 +252,12 @@ class ContactMailer extends Mailer
             $password .= $set[array_rand(mb_str_split($set))];
             $all .= $set;
         }
+
         $all = mb_str_split($all);
         for ($i = 0; $i < $length - count($sets); $i++) {
             $password .= $all[array_rand($all)];
         }
+
         $password = str_shuffle($password);
 
         return $password;
@@ -293,12 +297,15 @@ class ContactMailer extends Mailer
         if ( ! $user->email || ! $user->registered) {
             return trans('texts.email_error_user_unregistered');
         }
+
         if ( ! $user->confirmed || $this->isThrottled($account)) {
             return trans('texts.email_error_user_unconfirmed');
         }
+
         if ( ! $invitation->contact->email) {
             return trans('texts.email_error_invalid_contact_email');
         }
+
         if ($invitation->contact->trashed()) {
             return trans('texts.email_error_inactive_contact');
         }
@@ -352,6 +359,7 @@ class ContactMailer extends Mailer
                 $data['pdfString'] = $extra['pdfString'];
                 $data['pdfFileName'] = $invoice->getFileName();
             }
+
             if ($account->attachUBL()) {
                 $data['ublString'] = $extra['ublString'];
                 $data['ublFileName'] = $invoice->getFileName('xml');
@@ -382,8 +390,8 @@ class ContactMailer extends Mailer
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $day = 60 * 60 * 24;
         $day_limit = $account->getDailyEmailLimit();
-        $day_throttle = \Illuminate\Support\Facades\Cache::get("email_day_throttle:{$key}", null);
-        $last_api_request = \Illuminate\Support\Facades\Cache::get("last_email_request:{$key}", 0);
+        $day_throttle = \Illuminate\Support\Facades\Cache::get('email_day_throttle:' . $key, null);
+        $last_api_request = \Illuminate\Support\Facades\Cache::get('last_email_request:' . $key, 0);
         $last_api_diff = time() - $last_api_request;
 
         if (null === $day_throttle) {
@@ -396,19 +404,20 @@ class ContactMailer extends Mailer
             $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
         }
 
-        \Illuminate\Support\Facades\Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60 * 60);
-        \Illuminate\Support\Facades\Cache::put("last_email_request:{$key}", time(), 60 * 60);
+        \Illuminate\Support\Facades\Cache::put('email_day_throttle:' . $key, $new_day_throttle, 60 * 60);
+        \Illuminate\Support\Facades\Cache::put('last_email_request:' . $key, time(), 60 * 60);
 
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
-            if ($errorEmail && ! \Illuminate\Support\Facades\Cache::get("throttle_notified:{$key}")) {
+            if ($errorEmail && ! \Illuminate\Support\Facades\Cache::get('throttle_notified:' . $key)) {
                 \Illuminate\Support\Facades\Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account): void {
                     $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
                         ->subject('Email throttle triggered for account ' . $account->id);
                 });
             }
-            \Illuminate\Support\Facades\Cache::put("throttle_notified:{$key}", true, 60 * 24 * 60);
+
+            \Illuminate\Support\Facades\Cache::put('throttle_notified:' . $key, true, 60 * 24 * 60);
 
             return true;
         }

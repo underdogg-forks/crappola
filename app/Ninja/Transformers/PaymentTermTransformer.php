@@ -10,6 +10,7 @@ use App\Models\PaymentTerm;
 class PaymentTermTransformer extends EntityTransformer
 {
     public $paymentTerm;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="num_days", type="number", format="integer", example=10, readOnly=true)

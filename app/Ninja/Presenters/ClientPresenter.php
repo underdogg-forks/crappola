@@ -66,12 +66,15 @@ class ClientPresenter extends EntityPresenter
         if ($address1 = $client->{$prefix . 'address1'}) {
             $str .= e($address1) . '<br/>';
         }
+
         if ($address2 = $client->{$prefix . 'address2'}) {
             $str .= e($address2) . '<br/>';
         }
+
         if ($cityState = $this->getCityState($addressType)) {
             $str .= e($cityState) . '<br/>';
         }
+
         if ($country = $client->{$prefix . 'country'}) {
             $str .= e($country->getName()) . '<br/>';
         }

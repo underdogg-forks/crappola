@@ -105,6 +105,7 @@ class AccountPresenter extends Presenter
         if ($terms == 0) {
             return '';
         }
+
         if ($terms == -1) {
             $terms = 0;
         }
@@ -175,6 +176,7 @@ class AccountPresenter extends Presenter
             if ($rate->is_inclusive) {
                 $name .= ' - ' . trans('texts.inclusive');
             }
+
             $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = e($name);
         }
 

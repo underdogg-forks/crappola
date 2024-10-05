@@ -320,7 +320,7 @@ class Client extends EntityModel
      */
     public function getRoute(): string
     {
-        return "/clients/{$this->public_id}";
+        return '/clients/' . $this->public_id;
     }
 
     /**
@@ -368,9 +368,11 @@ class Client extends EntityModel
         if ($this->name) {
             return $this->name;
         }
+
         if ($contact = $this->getPrimaryContact()) {
             return $contact->getDisplayName();
         }
+
         return null;
     }
 
@@ -441,6 +443,7 @@ class Client extends EntityModel
             if ($shipping) {
                 $field = 'shipping_' . $field;
             }
+
             if ($this->{$field}) {
                 return true;
             }
@@ -598,6 +601,7 @@ class Client extends EntityModel
         if (($invoice = $this->invoices->first()) && ($invitation = $invoice->invitations->first())) {
             return $invitation->invitation_key;
         }
+
         return null;
     }
 }

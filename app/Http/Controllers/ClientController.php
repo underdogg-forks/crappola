@@ -93,12 +93,15 @@ class ClientController extends BaseController
         if ($user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/invoices/create/' . $client->public_id)];
         }
+
         if ($user->can('create', ENTITY_TASK)) {
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => \Illuminate\Support\Facades\URL::to('/tasks/create/' . $client->public_id)];
         }
+
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => \Illuminate\Support\Facades\URL::to('/quotes/create/' . $client->public_id)];
         }
+
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/recurring_invoices/create/' . $client->public_id)];
         }

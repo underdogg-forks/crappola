@@ -33,6 +33,7 @@ class Cloudflare
                 if ($dnsRecordId == 0) {
                     return;
                 }
+
                 $jsonEncodedData = json_encode([]);
                 $requestType = 'DELETE';
                 $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records/' . $dnsRecordId . '';
@@ -54,6 +55,7 @@ class Cloudflare
         if ($response['status'] != 200) {
             Utils::logError('Unable to get the zone name for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
         }
+
         $zoneName = $response['result']['result'][0]['zone_name'];
         //get the A record
         $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&name=' . $aRecord . '.' . $zoneName . ' ';
@@ -61,6 +63,7 @@ class Cloudflare
         if ($response['status'] != 200) {
             Utils::logError('Unable to get the record ID for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
         }
+
         if (isset($response['result']['result'][0])) {
             return $response['result']['result'][0]['id'];
         }

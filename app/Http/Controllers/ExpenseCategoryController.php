@@ -93,8 +93,8 @@ class ExpenseCategoryController extends BaseController
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_expense_category' : $action . 'd_expense_categories';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 

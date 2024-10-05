@@ -70,10 +70,12 @@ class AccountApiController extends BaseAPIController
                 if ( ! $request->one_time_password) {
                     return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
                 }
+
                 if ( ! Google2FA::verifyKey($secret, $request->one_time_password)) {
                     return $this->errorResponse(['message' => 'Invalid one time password'], 401);
                 }
             }
+
             if ($user && $user->failed_logins > 0) {
                 $user->failed_logins = 0;
                 $user->save();
@@ -81,11 +83,13 @@ class AccountApiController extends BaseAPIController
 
             return $this->processLogin($request);
         }
+
         error_log('login failed');
         if ($user) {
             $user->failed_logins += 1;
             $user->save();
         }
+
         sleep(ERROR_DELAY);
 
         return $this->errorResponse(['message' => 'Invalid credentials'], 401);
@@ -203,6 +207,7 @@ class AccountApiController extends BaseAPIController
         if (count($devices) < 1) {
             return $this->errorResponse(['message' => 'No registered devices.'], 400);
         }
+
         $counter = count($devices);
 
         for ($x = 0; $x < $counter; $x++) {
@@ -225,6 +230,7 @@ class AccountApiController extends BaseAPIController
                 return $this->response($newDevice);
             }
         }
+
         return null;
     }
 

@@ -136,8 +136,8 @@ class RecurringExpenseController extends BaseController
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_recurring_expense' : $action . 'd_recurring_expenses';
+            $message = trans('texts.' . $field, ['count' => $count]);
             \Illuminate\Support\Facades\Session::flash('message', $message);
         }
 
