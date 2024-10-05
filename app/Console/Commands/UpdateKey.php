@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
-use Artisan;
-use Crypt;
 use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
 use Laravel\LegacyEncrypter\McryptEncrypter;

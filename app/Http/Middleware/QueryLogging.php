@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use DB;
 use Illuminate\Http\Request;
 use Log;
 use Utils;

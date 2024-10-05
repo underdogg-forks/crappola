@@ -2,17 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use App;
 use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
 use App\Models\Language;
-use Auth;
 use Cache;
 use Closure;
-use Event;
 use Illuminate\Http\Request;
-use Redirect;
-use Schema;
 use Session;
 use Utils;
 

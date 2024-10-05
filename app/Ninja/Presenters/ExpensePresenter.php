@@ -69,7 +69,7 @@ class ExpensePresenter extends EntityPresenter
         return Utils::getFromCache($this->payment_type_id, 'paymentTypes')->name;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): \stdClass
     {
         $data = parent::calendarEvent();
         $expense = $this->entity;

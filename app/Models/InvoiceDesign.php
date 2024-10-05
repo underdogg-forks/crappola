@@ -2,10 +2,6 @@
 
 namespace App\Models;
 
-use Auth;
-use Cache;
-use Eloquent;
-
 /**
  * Class InvoiceDesign.
  */

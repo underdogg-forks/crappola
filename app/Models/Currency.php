@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Eloquent;
-use Str;
-
 /**
  * Class Currency.
  */

@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Cache;
-use Eloquent;
 use Utils;
 
 /**

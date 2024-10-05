@@ -3,7 +3,6 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\Contact;
-use DB;
 use Illuminate\View\View;
 
 /**

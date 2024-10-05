@@ -3,11 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Models\AccountToken;
-use Auth;
-use Cache;
 use Closure;
 use Request;
-use Response;
 use Utils;
 
 /**

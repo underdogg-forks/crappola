@@ -6,7 +6,7 @@ use Utils;
 
 class ProjectPresenter extends EntityPresenter
 {
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): \stdClass
     {
         $data = parent::calendarEvent();
         $project = $this->entity;
