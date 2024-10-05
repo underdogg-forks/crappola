@@ -232,8 +232,7 @@
         @else
         function fbq() {
             // do nothing
-        }
-        ;
+        };
         @endif
 
                 window._fbq = window._fbq || [];
