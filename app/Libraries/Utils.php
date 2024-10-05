@@ -250,7 +250,7 @@ class Utils
             return $info;
         }
 
-        $mysqlVersion = \Illuminate\Support\Facades\DB::select(\Illuminate\Support\Facades\DB::raw('select version() as version'))[0]->version;
+        $mysqlVersion = "5.7";
         $accountKey = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->account_key : '';
 
         $info = 'App Version: v' . NINJA_VERSION . '\\n' .
