@@ -118,7 +118,7 @@ class DatatableService
                     $dropdown_contents .= '<li class="divider"></li>';
                 }
 
-                if ( (! $model->deleted_at || $model->deleted_at == '0000-00-00') && (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit)) {
+                if (( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit)) {
                     $dropdown_contents .= sprintf("<li><a href=\"javascript:submitForm_%s('archive', %s)\">", $datatable->entityType, $model->public_id)
                             . mtrans($datatable->entityType, 'archive_' . $datatable->entityType) . '</a></li>';
                 }
@@ -134,7 +134,7 @@ class DatatableService
                         . mtrans($datatable->entityType, 'delete_' . $datatable->entityType) . '</a></li>';
             }
 
-            if ( $dropdown_contents !== '' && $dropdown_contents !== '0') {
+            if ($dropdown_contents !== '' && $dropdown_contents !== '0') {
                 $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         ' . trans('texts.select') . ' <span class="caret"></span>

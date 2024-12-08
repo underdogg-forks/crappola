@@ -435,7 +435,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if ( NINJA_TERMS_VERSION === '') {
+        if (NINJA_TERMS_VERSION === '') {
             return true;
         }
 

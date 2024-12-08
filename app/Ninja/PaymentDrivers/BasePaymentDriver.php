@@ -277,7 +277,7 @@ class BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return null;
+            return;
         }
 
         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
@@ -485,7 +485,7 @@ class BasePaymentDriver
                 }
             }
 
-            if ( $plan !== '' && $plan !== '0') {
+            if ($plan !== '' && $plan !== '0') {
                 $account = Account::with('users')->find($invoice->client->public_id);
                 $company = $account->company;
 
@@ -587,7 +587,7 @@ class BasePaymentDriver
         $this->updateClientFromOffsite($transRef, $paymentRef);
 
         // check invoice still has balance
-        if ( (float) ($this->invoice()->balance) === 0.0) {
+        if ((float) ($this->invoice()->balance) === 0.0) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
         }
 
@@ -803,7 +803,7 @@ class BasePaymentDriver
         }
 
         if ($this->isTwoStep() || request()->capture) {
-            return null;
+            return;
         }
 
         // prepare and process payment
@@ -862,8 +862,6 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
-
-        return null;
     }
 
     protected function paymentDetails($paymentMethod = false): array
@@ -1031,7 +1029,7 @@ class BasePaymentDriver
         foreach ($invoice->invoice_items as $invoiceItem) {
             // Some gateways require quantity is an integer
             if ((float) ($invoiceItem->qty) != (int) ($invoiceItem->qty)) {
-                return null;
+                return;
             }
 
             $item = new Item([

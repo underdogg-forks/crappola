@@ -184,7 +184,7 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ( $reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has(sprintf('texts.%s_logout', $reason))) {
+        if ($reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has(sprintf('texts.%s_logout', $reason))) {
             session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
         }
 

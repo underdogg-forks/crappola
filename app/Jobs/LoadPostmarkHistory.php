@@ -37,7 +37,7 @@ class LoadPostmarkHistory extends Job
             $str .= $this->loadEmailEvents();
         }
 
-        if ( $str === '' || $str === '0') {
+        if ($str === '' || $str === '0') {
             $str = trans('texts.no_messages_found');
         }
 

@@ -29,6 +29,7 @@ class InvoiceItem extends EntityModel
         'invoice_item_type_id',
         'discount',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

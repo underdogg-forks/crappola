@@ -19,6 +19,7 @@ class BankAccount extends EntityModel
         'app_version',
         'ofx_version',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

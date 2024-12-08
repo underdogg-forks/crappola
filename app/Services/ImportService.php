@@ -569,7 +569,7 @@ class ImportService
                 }
             }
 
-            if (! empty($row->vendor) && ($vendorName = trim($row->vendor)) && ! $transformer->getVendorId($vendorName)) {
+            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor)) && ! $transformer->getVendorId($vendorName)) {
                 $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                 $this->addVendorToMaps($vendor);
                 $data['vendor_id'] = $vendor->id;

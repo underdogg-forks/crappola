@@ -14,9 +14,7 @@ class CarouselCard
      */
     public $attachments = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function addAttachment($attachment): void
     {

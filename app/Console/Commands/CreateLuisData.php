@@ -174,11 +174,11 @@ class CreateLuisData extends Command
             ]);
             $intents[] = $this->createIntent('ListEntity', sprintf("show me %s's %s", $client, $entityTypePlural), [
                 $entityTypePlural => 'EntityType',
-                $client . "'s"   => 'Name',
+                $client . "'s"    => 'Name',
             ]);
             $intents[] = $this->createIntent('ListEntity', sprintf("show me %s's active %s", $client, $entityTypePlural), [
                 $entityTypePlural => 'EntityType',
-                $client . "'s"   => 'Name',
+                $client . "'s"    => 'Name',
                 'active'          => 'Filter',
             ]);
         }

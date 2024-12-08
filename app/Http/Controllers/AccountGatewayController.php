@@ -353,7 +353,7 @@ class AccountGatewayController extends BaseController
     protected function getWePayUpdateUri($accountGateway)
     {
         if ($accountGateway->gateway_id != GATEWAY_WEPAY) {
-            return null;
+            return;
         }
 
         $wepay = Utils::setupWePay($accountGateway);

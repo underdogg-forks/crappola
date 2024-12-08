@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
 use stdClass;
+use Utils;
 
 /**
  * Class TaskPresenter.

@@ -33,7 +33,7 @@ class GenerateProjectChartData extends Job
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if ( count($parts) === 0) {
+            if (count($parts) === 0) {
                 continue;
             }
 

@@ -154,7 +154,7 @@ class TaskRepository extends BaseRepository
 
         $task->fill($data);
 
-        if (! empty($data['project_id'])) {
+        if ( ! empty($data['project_id'])) {
             $project = Project::scope($data['project_id'])->firstOrFail();
             $task->project_id = $project->id;
             $task->client_id = $project->client_id;

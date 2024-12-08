@@ -2,11 +2,12 @@
 
 namespace App\Ninja\Presenters;
 
+use stdClass;
 use Utils;
 
 class ProjectPresenter extends EntityPresenter
 {
-    public function calendarEvent($subColors = false): \stdClass
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $project = $this->entity;

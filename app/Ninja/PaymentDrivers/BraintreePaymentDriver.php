@@ -92,13 +92,6 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    protected function creatingCustomer($customer)
-    {
-        $customer->token = $this->tokenResponse->customerId;
-
-        return $customer;
-    }
-
     public function removePaymentMethod($paymentMethod): void
     {
         parent::removePaymentMethod($paymentMethod);
@@ -131,6 +124,13 @@ class BraintreePaymentDriver extends BasePaymentDriver
         } catch (Exception $exception) {
             return get_class($exception);
         }
+    }
+
+    protected function creatingCustomer($customer)
+    {
+        $customer->token = $this->tokenResponse->customerId;
+
+        return $customer;
     }
 
     protected function checkCustomerExists($customer)
@@ -192,7 +192,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $paymentMethod->email = $response->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_PAYPAL;
         } else {
-            return null;
+            return;
         }
 
         return $paymentMethod;

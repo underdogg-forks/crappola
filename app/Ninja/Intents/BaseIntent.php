@@ -48,7 +48,7 @@ class BaseIntent
 
     public static function createIntent($platform, $state, $data)
     {
-        if ( count($data->intents) === 0) {
+        if (count($data->intents) === 0) {
             throw new Exception(trans('texts.intent_not_found'));
         }
 

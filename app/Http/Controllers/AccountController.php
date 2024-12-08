@@ -402,8 +402,6 @@ class AccountController extends BaseController
         if ($section === ACCOUNT_MANAGEMENT) {
             return self::saveAccountManagement();
         }
-
-        return null;
     }
 
     /**

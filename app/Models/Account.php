@@ -332,6 +332,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         'custom_value2',
         'custom_messages',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**
@@ -738,7 +739,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     public function getDate($date = 'now')
     {
         if ( ! $date) {
-            return null;
+            return;
         }
 
         if ( ! $date instanceof DateTime) {
@@ -844,7 +845,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDate($date);
 
         if ( ! $date) {
-            return null;
+            return;
         }
 
         return $date->format($this->getCustomDateFormat());
@@ -860,7 +861,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return null;
+            return;
         }
 
         return $date->format($this->getCustomDateTimeFormat());
@@ -876,7 +877,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return null;
+            return;
         }
 
         return $date->format($this->getCustomTimeFormat());
@@ -1053,8 +1054,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
                 return $token->token;
             }
         }
-
-        return null;
     }
 
     /**
@@ -1259,8 +1258,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
             default:
                 return false;
         }
-
-        return null;
     }
 
     public function isPaid()
@@ -1325,7 +1322,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
         if ( ! $this->company) {
-            return null;
+            return;
         }
 
         $plan = $this->company->plan;
@@ -1333,7 +1330,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $trial_plan = $this->company->trial_plan;
 
         if (( ! $plan || $plan == PLAN_FREE) && ( ! $trial_plan || ! $include_trial)) {
-            return null;
+            return;
         }
 
         $trial_active = false;
@@ -1361,7 +1358,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         }
 
         if ( ! $include_inactive && ! $plan_active && ! $trial_active) {
-            return null;
+            return;
         }
 
         // Should we show plan details or trial details?
@@ -1374,7 +1371,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             $use_plan = true;
         } elseif ($plan_active === false && $trial_active) {
             $use_plan = false;
-        } elseif ( $plan_active && $trial_active) {
+        } elseif ($plan_active && $trial_active) {
             // Both are active; use whichever is a better plan
             if ($plan == PLAN_ENTERPRISE) {
                 $use_plan = true;
@@ -1570,7 +1567,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     {
         $gatewayId = $this->getTokenGatewayId();
         if ( ! $gatewayId) {
-            return null;
+            return;
         }
 
         return $this->getGatewayConfig($gatewayId);
@@ -1867,7 +1864,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
         } elseif ($this->payment_terms != 0) {
             $numDays = $this->defaultDaysDue();
         } else {
-            return null;
+            return;
         }
 
         return Carbon::now()->addDays($numDays)->format('Y-m-d');

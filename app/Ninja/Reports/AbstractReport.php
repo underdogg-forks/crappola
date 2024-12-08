@@ -290,8 +290,6 @@ class AbstractReport
 
             return trans('texts.unset');
         }
-
-        return null;
     }
 
     protected function addChartData($dimension, $date, $amount): void

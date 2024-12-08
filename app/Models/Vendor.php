@@ -88,6 +88,7 @@ class Vendor extends EntityModel
         'custom_value1',
         'custom_value2',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

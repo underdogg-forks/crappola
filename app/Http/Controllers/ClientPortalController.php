@@ -71,6 +71,7 @@ class ClientPortalController extends BaseController
         // Forward requests from V4 to V5 if the domain is set
         if (mb_strlen($account->account_email_settings->forward_url_for_v5) > 1) {
             $entity = $invoice->isType(INVOICE_TYPE_QUOTE) ? 'quote' : 'invoice';
+
             return redirect($account->account_email_settings->forward_url_for_v5 . '/client/' . $entity . '/' . $invitationKey);
         }
 
@@ -157,7 +158,7 @@ class ClientPortalController extends BaseController
             }
         }
 
-        $showApprove = !(bool) $invoice->quote_invoice_id;
+        $showApprove = ! (bool) $invoice->quote_invoice_id;
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
         }
@@ -640,7 +641,7 @@ class ClientPortalController extends BaseController
 
         $toZip = $this->getInvoiceZipDocuments($invoice);
 
-        if ( $toZip === []) {
+        if ($toZip === []) {
             return \Illuminate\Support\Facades\Response::view('error', ['error' => 'No documents small enough'], 404);
         }
 

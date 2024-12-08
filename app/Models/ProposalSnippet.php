@@ -29,6 +29,7 @@ class ProposalSnippet extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProposalSnippetPresenter::class;
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

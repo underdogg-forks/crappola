@@ -268,7 +268,7 @@ class StepsController extends BaseController
         $redirect = true;
 
         foreach ($this->access[$step]['steps'] as $step) {
-            $redirect = !(bool) session()->has($step);
+            $redirect = ! (bool) session()->has($step);
         }
 
         return $redirect;

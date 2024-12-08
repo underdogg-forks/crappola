@@ -26,6 +26,7 @@ class AccountGateway extends EntityModel
     protected $hidden = [
         'config',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**
@@ -265,7 +266,7 @@ class AccountGateway extends EntityModel
     public function getPlaidEnvironment()
     {
         if ( ! $this->getPlaidClientId()) {
-            return null;
+            return;
         }
 
         $stripe_key = $this->getPublishableKey();

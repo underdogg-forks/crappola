@@ -29,7 +29,7 @@ class BaseRepository
         }
     }
 
-    public function restore($entity)
+    public function restore($entity): void
     {
         if ( ! $entity->trashed()) {
             return;
@@ -51,7 +51,7 @@ class BaseRepository
         }
     }
 
-    public function delete($entity)
+    public function delete($entity): void
     {
         if ($entity->is_deleted) {
             return;
@@ -122,7 +122,7 @@ class BaseRepository
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if ( $table != 'users') {
+                        if ($table != 'users') {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });

@@ -8,10 +8,10 @@ use Utils;
 
 class BaseController extends Controller
 {
-    public $layout;
-
     use AuthorizesRequests;
     use DispatchesJobs;
+
+    public $layout;
 
     protected $entityType;
 

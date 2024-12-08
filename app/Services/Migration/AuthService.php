@@ -116,8 +116,6 @@ class AuthService
         if ($this->isSuccessful) {
             return $this->token;
         }
-
-        return null;
     }
 
     public function getApiSecret()

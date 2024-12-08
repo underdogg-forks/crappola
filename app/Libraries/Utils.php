@@ -39,8 +39,6 @@ class Utils
         } catch (Exception) {
             return false;
         }
-
-        return null;
     }
 
     public static function isDownForMaintenance(): bool
@@ -252,7 +250,7 @@ class Utils
             return $info;
         }
 
-        $mysqlVersion = "5.7";
+        $mysqlVersion = '5.7';
         $accountKey = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->account_key : '';
 
         $info = 'App Version: v' . NINJA_VERSION . '\\n' .
@@ -429,8 +427,6 @@ class Utils
         } else {
             \Illuminate\Support\Facades\Log::error($error . "\n", $data);
         }
-
-        return null;
     }
 
     public static function prepareErrorData($context): array
@@ -512,8 +508,6 @@ class Utils
         if ($record = $data->first()) {
             return $record->id;
         }
-
-        return null;
     }
 
     /**
@@ -560,7 +554,7 @@ class Utils
         if ( ! $cache) {
             static::logError(sprintf('Cache for %s is not set', $type));
 
-            return null;
+            return;
         }
 
         $data = $cache->filter(fn ($item): bool => $item->id == $id);
@@ -646,7 +640,7 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
-        if ( !self::isNinjaProd() && ($module = Module::find($type))) {
+        if ( ! self::isNinjaProd() && ($module = Module::find($type))) {
             return $module->get('plural', $type);
         }
 
@@ -785,7 +779,7 @@ class Utils
     public static function toSqlDate($date, $formatResult = true)
     {
         if ( ! $date) {
-            return null;
+            return;
         }
 
         $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -1194,7 +1188,7 @@ class Utils
     public static function splitName($name): array
     {
         $name = trim($name);
-        $lastName = ( str_contains($name, ' ')) ? preg_replace('#.*\s([\w-]*)$#', '$1', $name) : '';
+        $lastName = (str_contains($name, ' ')) ? preg_replace('#.*\s([\w-]*)$#', '$1', $name) : '';
         $firstName = trim(preg_replace('#' . preg_quote($lastName, '/') . '#', '', $name));
 
         return [$firstName, $lastName];
@@ -1560,8 +1554,6 @@ class Utils
         if ($part === 'YEAR') {
             return self::getYear($offset);
         }
-
-        return null;
     }
 
     private static function getMonth(int $offset, $locale)

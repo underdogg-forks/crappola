@@ -19,6 +19,7 @@ class TaxRate extends EntityModel
         'rate',
         'is_inclusive',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

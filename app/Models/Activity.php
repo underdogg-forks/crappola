@@ -202,7 +202,5 @@ class Activity extends \Illuminate\Database\Eloquent\Model
                 return ENTITY_TASK;
                 break;
         }
-
-        return null;
     }
 }

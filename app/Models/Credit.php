@@ -26,6 +26,7 @@ class Credit extends EntityModel
         'public_notes',
         'private_notes',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

@@ -154,7 +154,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return null;
+            return;
         }
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent']) || ! empty($data['token'])) {
@@ -278,7 +278,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent'])) {
             // Using the PaymentIntent API; we'll save the details later.
-            return null;
+            return;
         }
 
         $data['description'] = $client->getDisplayName();
@@ -302,17 +302,6 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         throw new Exception($tokenResponse->getMessage());
-    }
-
-    protected function creatingCustomer($customer)
-    {
-        if (isset($this->tokenResponse['customer'])) {
-            $customer->token = $this->tokenResponse['customer'];
-        } else {
-            $customer->token = $this->tokenResponse['id'];
-        }
-
-        return $customer;
     }
 
     public function removePaymentMethod($paymentMethod): void
@@ -557,6 +546,17 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         return 'Processed successfully';
+    }
+
+    protected function creatingCustomer($customer)
+    {
+        if (isset($this->tokenResponse['customer'])) {
+            $customer->token = $this->tokenResponse['customer'];
+        } else {
+            $customer->token = $this->tokenResponse['id'];
+        }
+
+        return $customer;
     }
 
     protected function prepareStripeAPI(): void

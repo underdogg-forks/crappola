@@ -23,6 +23,7 @@ class TaskStatus extends EntityModel
         'name',
         'sort_order',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

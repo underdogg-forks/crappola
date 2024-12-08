@@ -25,6 +25,7 @@ class AccountGatewaySettings extends EntityModel
      * @var bool
      */
     protected static $hasPublicId = false;
+
     protected $casts = ['updated_at' => 'datetime'];
 
     /**

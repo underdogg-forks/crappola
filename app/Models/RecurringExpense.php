@@ -46,6 +46,7 @@ class RecurringExpense extends EntityModel
         //'end_date',
         'frequency_id',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

@@ -956,7 +956,7 @@ class InvoiceRepository extends BaseRepository
     public function markPaid(Invoice $invoice)
     {
         if ( ! $invoice->canBePaid()) {
-            return null;
+            return;
         }
 
         $invoice->markSentIfUnsent();
@@ -1137,7 +1137,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if ( $dates === []) {
+        if ($dates === []) {
             return collect();
         }
 
@@ -1240,7 +1240,6 @@ class InvoiceRepository extends BaseRepository
         $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
-        return null;
     }
 
     public function setGatewayFee($invoice, $gatewayTypeId): void
@@ -1333,7 +1332,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         // if no contacts are selected auto-select the first to ensure there's an invitation
-        if ( $sendInvoiceIds === []) {
+        if ($sendInvoiceIds === []) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }
 

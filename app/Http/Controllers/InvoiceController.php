@@ -536,7 +536,7 @@ class InvoiceController extends BaseController
         for ($i = 1; $i < 31; $i++) {
             $ordinal = $i >= 11 && $i <= 13 ? $i . 'th' : $i . $ends[$i % 10];
 
-            $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $dayStr = mb_str_pad($i, 2, '0', STR_PAD_LEFT);
             $str = trans('texts.day_of_month', ['ordinal' => $ordinal]);
 
             $recurringDueDates[$str] = ['value' => '1998-01-' . $dayStr, 'data-num' => $i, 'class' => 'monthly'];
@@ -558,7 +558,7 @@ class InvoiceController extends BaseController
                 $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
 
                 $day = $i * 7 + $j + 1;
-                $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
+                $dayStr = mb_str_pad($day, 2, '0', STR_PAD_LEFT);
                 $recurringDueDates[$str] = ['value' => '1998-02-' . $dayStr, 'data-num' => $day, 'class' => 'weekly'];
             }
         }
@@ -633,8 +633,6 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
-
-        return null;
     }
 
     private function emailRecurringInvoice(&$invoice)

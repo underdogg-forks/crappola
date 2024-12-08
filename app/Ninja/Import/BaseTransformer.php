@@ -259,7 +259,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getInvoiceNumber($number): ?string
     {
-        return $number ? str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
+        return $number ? mb_str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**

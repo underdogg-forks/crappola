@@ -38,7 +38,7 @@ class PaymentType extends \Illuminate\Database\Eloquent\Model
             $cardName = $matches[1];
         }
 
-        if ( isset($cardTypes[$cardName]) && $cardTypes[$cardName] !== 0) {
+        if (isset($cardTypes[$cardName]) && $cardTypes[$cardName] !== 0) {
             return $cardTypes[$cardName];
         }
 

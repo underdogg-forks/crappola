@@ -42,7 +42,7 @@ class ImportController extends BaseController
                     if ($extension !== 'json') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
-                } elseif (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                } elseif ( ! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
                     return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                 }
 
@@ -52,7 +52,7 @@ class ImportController extends BaseController
             }
         }
 
-        if ( $files === []) {
+        if ($files === []) {
             \Illuminate\Support\Facades\Session::flash('error', trans('texts.select_file'));
 
             return \Illuminate\Support\Facades\Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);

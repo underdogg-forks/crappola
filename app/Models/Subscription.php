@@ -24,6 +24,7 @@ class Subscription extends EntityModel
         'target_url',
         'format',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

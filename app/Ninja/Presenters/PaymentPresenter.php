@@ -3,6 +3,7 @@
 namespace App\Ninja\Presenters;
 
 use Carbon;
+use stdClass;
 use Utils;
 
 class PaymentPresenter extends EntityPresenter
@@ -55,11 +56,9 @@ class PaymentPresenter extends EntityPresenter
         if ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
-
-        return null;
     }
 
-    public function calendarEvent($subColors = false): \stdClass
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $payment = $this->entity;

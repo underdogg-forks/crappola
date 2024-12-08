@@ -36,7 +36,7 @@ trait GeneratesNumbers
             if ($this->hasNumberPattern($entityType)) {
                 $number = $this->applyNumberPattern($entity, $counter);
             } else {
-                $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+                $number = $prefix . mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             }
 
             if ($entity->recurring_invoice_id) {
@@ -166,12 +166,12 @@ trait GeneratesNumbers
         $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+        $replace[] = mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (mb_strstr($pattern, '{$userId}')) {
             $userId = $entity->user ? $entity->user->public_id : (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->public_id : 0);
             $search[] = '{$userId}';
-            $replace[] = str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
+            $replace[] = mb_str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
@@ -347,7 +347,6 @@ trait GeneratesNumbers
         $this->quote_number_counter = 1;
         $this->credit_number_counter = $this->credit_number_counter > 0 ? 1 : 0;
         $this->save();
-        return null;
     }
 
     /**
@@ -382,7 +381,7 @@ trait GeneratesNumbers
             $client->custom_value1, // backwards compatibility
             $client->custom_value2,
             $client->id_number,
-            str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
+            mb_str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
         ];
 
         return str_replace($search, $replace, $pattern);

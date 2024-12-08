@@ -31,6 +31,7 @@ class Project extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\ProjectPresenter::class;
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

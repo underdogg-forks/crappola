@@ -356,7 +356,6 @@ class AppController extends BaseController
             \Illuminate\Support\Facades\Artisan::call('ninja:check-data');
             \Illuminate\Support\Facades\Artisan::call('ninja:init-lookup', ['--validate' => true]);
 
-            // check error log is empty
             $errorLog = storage_path('logs/laravel-error.log');
             if (file_exists($errorLog)) {
                 return 'Failure: error log exists';

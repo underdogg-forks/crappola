@@ -130,8 +130,6 @@ class Document extends EntityModel
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
-
-        return null;
     }
 
     /**
@@ -195,7 +193,7 @@ class Document extends EntityModel
      */
     public function getDisk()
     {
-        return Storage::disk( empty($this->disk) ? env('DOCUMENT_FILESYSTEM', 'documents') : $this->disk);
+        return Storage::disk(empty($this->disk) ? env('DOCUMENT_FILESYSTEM', 'documents') : $this->disk);
     }
 
     /**
@@ -310,7 +308,7 @@ class Document extends EntityModel
     public function getVFSJSUrl()
     {
         if ( ! $this->isPDFEmbeddable()) {
-            return null;
+            return;
         }
 
         return url('documents/js/' . $this->public_id . '/' . $this->name . '.js');
@@ -322,7 +320,7 @@ class Document extends EntityModel
     public function getClientVFSJSUrl()
     {
         if ( ! $this->isPDFEmbeddable()) {
-            return null;
+            return;
         }
 
         return url('client/documents/js/' . $this->public_id . '/' . $this->name . '.js');

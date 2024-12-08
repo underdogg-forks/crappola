@@ -55,7 +55,7 @@ class LoginController extends Controller
                 if ( ! $hasAccountIndentifier) {
                     return redirect('/client/session_expired');
                 }
-            } elseif (! $hasAccountIndentifier && Account::count() > 1) {
+            } elseif ( ! $hasAccountIndentifier && Account::count() > 1) {
                 return redirect('/client/session_expired');
             }
         }

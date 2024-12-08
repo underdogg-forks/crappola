@@ -42,6 +42,7 @@ class Payment extends EntityModel
      * @var string
      */
     protected $presenter = \App\Ninja\Presenters\PaymentPresenter::class;
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     public static function calcStatusLabel($statusId, $statusName, $amount)
@@ -337,7 +338,7 @@ class Payment extends EntityModel
     public function getBankDataAttribute()
     {
         if ( ! $this->routing_number) {
-            return null;
+            return;
         }
 
         return PaymentMethod::lookupBankData($this->routing_number);
@@ -366,7 +367,7 @@ class Payment extends EntityModel
      */
     public function getLast4Attribute($value): ?string
     {
-        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+        return $value ? mb_str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 
     public function statusClass(): string

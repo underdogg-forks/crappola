@@ -98,7 +98,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( $field === '' || $field === '0') {
+            if ($field === '' || $field === '0') {
                 continue;
             }
 
@@ -122,7 +122,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( $field === '' || $field === '0') {
+            if ($field === '' || $field === '0') {
                 continue;
             }
 
@@ -148,7 +148,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( $field === '' || $field === '0') {
+            if ($field === '' || $field === '0') {
                 continue;
             }
 
@@ -167,7 +167,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( $field === '' || $field === '0') {
+            if ($field === '' || $field === '0') {
                 continue;
             }
 

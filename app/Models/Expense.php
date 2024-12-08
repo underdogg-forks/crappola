@@ -51,6 +51,7 @@ class Expense extends EntityModel
         'custom_value1',
         'custom_value2',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     public static function getImportColumns(): array

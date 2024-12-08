@@ -128,7 +128,6 @@ class CreateTestData extends Command
         $this->createOtherObjects();
 
         $this->info('Done');
-        return null;
     }
 
     /**

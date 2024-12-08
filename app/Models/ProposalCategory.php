@@ -19,6 +19,7 @@ class ProposalCategory extends EntityModel
     protected $fillable = [
         'name',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

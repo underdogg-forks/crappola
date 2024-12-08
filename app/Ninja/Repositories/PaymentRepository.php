@@ -217,23 +217,21 @@ class PaymentRepository extends BaseRepository
         return $payment;
     }
 
-    public function delete($payment)
+    public function delete($payment): void
     {
         if ($payment->invoice->is_deleted) {
-            return false;
+            return;
         }
 
         parent::delete($payment);
-        return null;
     }
 
-    public function restore($payment)
+    public function restore($payment): void
     {
         if ($payment->invoice->is_deleted) {
-            return false;
+            return;
         }
 
         parent::restore($payment);
-        return null;
     }
 }

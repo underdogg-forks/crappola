@@ -26,6 +26,7 @@ class Proposal extends EntityModel
         'html',
         'css',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

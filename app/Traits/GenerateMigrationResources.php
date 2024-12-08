@@ -28,10 +28,7 @@ use App\Models\Vendor;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
-use int;
-use non;
 use stdClass;
-use string;
 
 trait GenerateMigrationResources
 {
@@ -1170,8 +1167,6 @@ trait GenerateMigrationResources
         if ($next_send_date = $invoice->getNextSendDate()) {
             return $next_send_date->format('Y-m-d');
         }
-
-        return null;
     }
 
     // Determine the number of remaining cycles

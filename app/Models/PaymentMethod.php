@@ -34,6 +34,7 @@ class PaymentMethod extends EntityModel
         'email',
         'currency_id',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**
@@ -102,7 +103,6 @@ class PaymentMethod extends EntityModel
         }
 
         \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, false, 5 * 60);
-        return null;
     }
 
     /**
@@ -159,7 +159,7 @@ class PaymentMethod extends EntityModel
     public function getBankDataAttribute()
     {
         if ( ! $this->routing_number) {
-            return null;
+            return;
         }
 
         return static::lookupBankData($this->routing_number);
@@ -188,7 +188,7 @@ class PaymentMethod extends EntityModel
      */
     public function getLast4Attribute($value): ?string
     {
-        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+        return $value ? mb_str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**

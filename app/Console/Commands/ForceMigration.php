@@ -109,7 +109,6 @@ class ForceMigration extends Command
         //                   ->first();
 
         // return $company;
-        return null;
     }
 
     private function logMessage(string $str): void

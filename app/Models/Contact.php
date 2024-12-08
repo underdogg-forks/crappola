@@ -64,6 +64,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         'remember_token',
         'confirmation_code',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**

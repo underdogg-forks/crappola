@@ -91,7 +91,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'has_tasks'               => 'boolean',
         'client_enable_auto_bill' => 'boolean',
         'has_expenses'            => 'boolean',
-        'deleted_at' => 'datetime',
+        'deleted_at'              => 'datetime',
     ];
 
     /**
@@ -1210,7 +1210,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         // Couldn't calculate one
-        return null;
     }
 
     /**
@@ -1222,7 +1221,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getPrettySchedule($min = 0, $max = 10)
     {
         if ( ! $schedule = $this->getSchedule()) {
-            return null;
+            return;
         }
 
         $dates = [];

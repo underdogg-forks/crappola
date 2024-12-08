@@ -103,7 +103,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     public static function getPrivateId($publicId)
     {
         if ( ! $publicId) {
-            return null;
+            return;
         }
 
         $className = static::class;
@@ -122,7 +122,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
      */
     public static function getClassName($entityType): string
     {
-        if ( !Utils::isNinjaProd() && ($module = Module::find($entityType))) {
+        if ( ! Utils::isNinjaProd() && ($module = Module::find($entityType))) {
             return sprintf('Modules\%s\Models\%s', $module->getName(), $module->getName());
         }
 

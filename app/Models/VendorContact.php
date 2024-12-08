@@ -48,6 +48,7 @@ class VendorContact extends EntityModel
         'phone',
         'send_invoice',
     ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     /**
