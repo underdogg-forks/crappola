@@ -1,0 +1,14 @@
+parameters:
+    level: 0
+    paths:
+        - app
+        - Modules
+    ignoreErrors:
+        - '#Access to an undefined property Illuminate\\.*#' # For dynamic properties in Eloquent models
+        - '#Call to an undefined method Illuminate\\.*#' # For dynamic methods in facades or models
+        - '#Method .* not found in Laravel container#' # Ignored for dependency injection
+    excludes_analyse:
+        - bootstrap/cache # Exclude cached files
+    checkMissingIterableValueType: false
+    checkMissingVarTagType: false
+    checkUninitializedProperties: false
