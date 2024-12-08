@@ -692,9 +692,6 @@ class ImportService
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getCsvData($fileName): array
     {
         $this->checkForFile($fileName);

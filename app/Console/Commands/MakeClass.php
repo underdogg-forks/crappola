@@ -73,10 +73,7 @@ class MakeClass extends GeneratorCommand
         ];
     }
 
-    /**
-     * @return string
-     */
-    protected function getFileName()
+    protected function getFileName(): string
     {
         if ($this->option('filename')) {
             return $this->option('filename');

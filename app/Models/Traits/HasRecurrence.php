@@ -182,9 +182,6 @@ trait HasRecurrence
         return $schedule[1]->getStart();
     }
 
-    /**
-     * @return string
-     */
     private function getRecurrenceRule(): string
     {
         $rule = '';

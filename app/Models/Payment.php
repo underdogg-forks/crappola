@@ -201,9 +201,6 @@ class Payment extends EntityModel
         return $this->belongsTo(\App\Models\PaymentStatus::class);
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return sprintf('/payments/%s/edit', $this->public_id);

@@ -26,9 +26,6 @@ class ProjectPresenter extends EntityPresenter
         return $data;
     }
 
-    /**
-     * @return string
-     */
     public function taskRate()
     {
         if ((float) ($this->entity->task_rate) !== 0.0) {
@@ -38,9 +35,6 @@ class ProjectPresenter extends EntityPresenter
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function defaultTaskRate()
     {
         if ($rate = $this->taskRate()) {

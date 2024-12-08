@@ -85,9 +85,6 @@ class Proposal extends EntityModel
         return ENTITY_PROPOSAL;
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/proposals/' . $this->public_id;
@@ -142,9 +139,6 @@ class Proposal extends EntityModel
         return trans('texts.proposal') . '_' . $this->invoice->invoice_number . '.' . $extension;
     }
 
-    /**
-     * @return string
-     */
     public function getCustomMessageType(): string
     {
         if ($this->invoice->quote_invoice_id) {

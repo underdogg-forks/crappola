@@ -83,9 +83,6 @@ class CreateLuisData extends Command
         return [];
     }
 
-    /**
-     * @return mixed[]
-     */
     private function createIntents(string $entityType): array
     {
         $intents = [];
@@ -186,9 +183,6 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getNavigateToIntents(string $entityType): array
     {
         $intents = [];

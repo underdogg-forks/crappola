@@ -220,9 +220,6 @@ class Task extends EntityModel
         return $this->belongsTo(\App\Models\TaskStatus::class)->withTrashed();
     }
 
-    /**
-     * @return string
-     */
     public function getStartTime()
     {
         return self::calcStartTime($this);
@@ -241,9 +238,6 @@ class Task extends EntityModel
         return '';
     }
 
-    /**
-     * @return int
-     */
     public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
@@ -267,9 +261,6 @@ class Task extends EntityModel
         return Utils::roundSignificant($value);
     }
 
-    /**
-     * @return int
-     */
     public function getCurrentDuration(): int|float
     {
         $parts = json_decode($this->time_log) ?: [];

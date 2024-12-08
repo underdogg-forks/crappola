@@ -235,9 +235,6 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return Utils::pluralizeEntityType($entityType);
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getStates($entityType = false): array
     {
         $data = [];
@@ -268,9 +265,6 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         return $class::getStatuses($entityType);
     }
 
-    /**
-     * @return string
-     */
     public function getActivityKey(): string
     {
         return '[' . $this->getEntityType() . ':' . $this->public_id . ':' . $this->getDisplayName() . ']';
@@ -379,9 +373,6 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
 
     // converts "App\Models\Client" to "client_id"
 
-    /**
-     * @return string
-     */
     public function getKeyField(): string
     {
         $class = get_class($this);

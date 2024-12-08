@@ -622,9 +622,6 @@ class AccountController extends BaseController
         return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
     }
 
-    /**
-     * @return string
-     */
     public function checkEmail(): string
     {
         $email = trim(mb_strtolower(\Illuminate\Support\Facades\Request::input('email')));
@@ -645,9 +642,6 @@ class AccountController extends BaseController
         return 'available';
     }
 
-    /**
-     * @return string
-     */
     public function submitSignup(): string
     {
         $user = \Illuminate\Support\Facades\Auth::user();

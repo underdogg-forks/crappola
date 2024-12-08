@@ -133,9 +133,6 @@ class VendorContact extends EntityModel
         return $this->email;
     }
 
-    /**
-     * @return string
-     */
     public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {

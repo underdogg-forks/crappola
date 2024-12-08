@@ -156,9 +156,6 @@ class RecurringExpense extends EntityModel
         return $this->getName();
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return sprintf('/recurring_expenses/%s/edit', $this->public_id);

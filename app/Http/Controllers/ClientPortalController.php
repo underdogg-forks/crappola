@@ -927,9 +927,6 @@ class ClientPortalController extends BaseController
         return function_exists('gmp_init');
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function getInvoiceZipDocuments($invoice, &$size = 0): array
     {
         $documents = $invoice->documents;
@@ -980,9 +977,6 @@ class ClientPortalController extends BaseController
         return $toZip;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getPaymentTypes($account, $client, $invitation): array
     {
         $links = [];

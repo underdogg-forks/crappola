@@ -223,9 +223,6 @@ class BasePaymentDriver
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function rules(): array
     {
         $rules = [];
@@ -602,9 +599,6 @@ class BasePaymentDriver
         return $this->createPayment($paymentRef);
     }
 
-    /**
-     * @return mixed[]
-     */
     public function tokenLinks(): array
     {
         if ( ! $this->customer()) {
@@ -1105,9 +1099,6 @@ class BasePaymentDriver
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     private function paymentDetailsFromInput($input): array
     {
         $invoice = $this->invoice();

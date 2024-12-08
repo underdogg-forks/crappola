@@ -12,9 +12,6 @@ use Utils;
  */
 class ExpensePresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function vendor()
     {
         return $this->entity->vendor ? $this->entity->vendor->getDisplayName() : '';

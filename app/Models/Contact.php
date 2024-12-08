@@ -206,9 +206,6 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         return $contact_key;
     }
 
-    /**
-     * @return string
-     */
     public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {
@@ -218,9 +215,6 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function getLinkAttribute(): string
     {
         if ( ! $this->account) {

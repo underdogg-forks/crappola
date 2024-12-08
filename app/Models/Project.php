@@ -89,9 +89,6 @@ class Project extends EntityModel
         return ENTITY_PROJECT;
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/projects/' . $this->public_id;

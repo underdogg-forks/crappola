@@ -142,9 +142,6 @@ class InvoiceDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return mixed[]
-     */
     public function bulkActions(): array
     {
         $actions = [];

@@ -48,9 +48,6 @@ class InvoiceIntent extends BaseIntent
         return $invoice;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function requestInvoiceItems(): array
     {
         $productRepo = app(\App\Ninja\Repositories\ProductRepository::class);

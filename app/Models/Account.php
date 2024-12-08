@@ -947,9 +947,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
@@ -968,9 +965,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $format;
     }
 
-    /**
-     * @return string
-     */
     public function getMomentDateFormat(): string
     {
         $format = $this->getMomentDateTimeFormat();
@@ -980,9 +974,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return trim($format);
     }
 
-    /**
-     * @return string
-     */
     public function getTimezone()
     {
         if ($this->timezone) {
@@ -1130,9 +1121,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $date->format($this->getCustomTimeFormat());
     }
 
-    /**
-     * @return string
-     */
     public function getCustomTimeFormat(): string
     {
         return $this->military_time ? 'H:i' : 'g:i a';
@@ -1662,9 +1650,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $plan_details && $plan_details['trial'];
     }
 
-    /**
-     * @return int
-     */
     public function getCountTrialDaysLeft()
     {
         $planDetails = $this->getPlanDetails(true);
@@ -1818,9 +1803,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 
-    /**
-     * @return string
-     */
     public function getSiteUrl()
     {
         $url = trim(SITE_URL, '/');
@@ -1875,9 +1857,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
     }
 
-    /**
-     * @return string
-     */
     public function clientViewCSS(): string
     {
         $css = '';

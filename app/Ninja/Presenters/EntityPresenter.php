@@ -8,9 +8,6 @@ use Utils;
 
 class EntityPresenter extends Presenter
 {
-    /**
-     * @return string
-     */
     public function url(): string
     {
         return SITE_URL . $this->path();

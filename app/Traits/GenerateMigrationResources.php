@@ -617,9 +617,6 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function getNinjaToken(): array
     {
         $transformed = [];

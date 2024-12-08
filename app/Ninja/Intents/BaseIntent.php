@@ -154,9 +154,6 @@ class BaseIntent
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function getFields($field): array
     {
         $data = [];
@@ -223,9 +220,6 @@ class BaseIntent
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function requestFields(): array
     {
         $data = [];

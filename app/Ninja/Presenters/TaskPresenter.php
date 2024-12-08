@@ -10,9 +10,6 @@ use Utils;
  */
 class TaskPresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';

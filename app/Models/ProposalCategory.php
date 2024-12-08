@@ -64,9 +64,6 @@ class ProposalCategory extends EntityModel
         return ENTITY_PROPOSAL_CATEGORY;
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/proposals/categories/' . $this->public_id;

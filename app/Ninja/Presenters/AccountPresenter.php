@@ -20,9 +20,6 @@ class AccountPresenter extends Presenter
         return $this->entity->name ?: trans('texts.untitled_account');
     }
 
-    /**
-     * @return string
-     */
     public function address(): string
     {
         $account = $this->entity;
@@ -42,18 +39,12 @@ class AccountPresenter extends Presenter
         return $str . $account->getCityState();
     }
 
-    /**
-     * @return string
-     */
-    public function website()
+    public function website(): string
     {
         return Utils::addHttp($this->entity->website);
     }
 
-    /**
-     * @return string
-     */
-    public function taskRate()
+    public function taskRate(): string
     {
         if ((float) ($this->entity->task_rate) !== 0.0) {
             return Utils::roundSignificant($this->entity->task_rate);
@@ -157,9 +148,6 @@ class AccountPresenter extends Presenter
         return $str;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function taxRateOptions(): array
     {
         $rates = TaxRate::scope()->orderBy('name')->get();

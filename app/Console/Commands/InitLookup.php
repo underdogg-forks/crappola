@@ -289,9 +289,6 @@ class InitLookup extends Command
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     private function parseCompany($companyId): array
     {
         $data = [];

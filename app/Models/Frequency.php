@@ -32,9 +32,6 @@ class Frequency extends \Illuminate\Database\Eloquent\Model
         'name',
     ];
 
-    /**
-     * @return mixed[]
-     */
     public static function selectOptions(): array
     {
         $data = [];

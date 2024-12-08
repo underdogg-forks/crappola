@@ -157,9 +157,6 @@ class Gateway extends \Illuminate\Database\Eloquent\Model
         return count($diff);
     }
 
-    /**
-     * @return string
-     */
     public function getLogoUrl(): string
     {
         return '/images/gateways/logo_' . $this->provider . '.png';

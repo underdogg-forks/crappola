@@ -87,7 +87,7 @@
         "nunomaduro/collision": "^6.4",
         "phpspec/phpspec": ">=7.5",
         "phpunit/phpunit": ">=10.5.35",
-        "rector/rector": ">=1.2.6",
+        "rector/rector": "*",
         "rector/type-perfect": "^1.0",
         "spatie/laravel-ignition": ">=2.8",
         "symfony/dom-crawler": ">=6.4.12"

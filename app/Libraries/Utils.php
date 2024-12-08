@@ -358,9 +358,6 @@ class Utils
         return mb_substr($_SERVER['SCRIPT_NAME'], 0, mb_strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function trans($input, $module = false): array
     {
         $data = [];
@@ -456,9 +453,6 @@ class Utils
         return $data;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getErrors(): array
     {
         $data = [];
@@ -510,9 +504,6 @@ class Utils
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getStaticData($locale = false): array
     {
         $data = [];
@@ -882,9 +873,6 @@ class Utils
         return $str;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getMonthOptions(): array
     {
         $months = [];

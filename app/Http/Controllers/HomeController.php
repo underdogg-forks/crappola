@@ -97,9 +97,6 @@ class HomeController extends BaseController
         return \Illuminate\Support\Facades\Response::json($response);
     }
 
-    /**
-     * @return string
-     */
     public function hideMessage(): string
     {
         if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
@@ -116,9 +113,6 @@ class HomeController extends BaseController
         return 'success';
     }
 
-    /**
-     * @return string
-     */
     public function logError()
     {
         return Utils::logError(\Illuminate\Support\Facades\Request::input('error'), 'JavaScript');

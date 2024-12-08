@@ -69,9 +69,6 @@ class BaseRepository
         }
     }
 
-    /**
-     * @return int
-     */
     public function bulk($ids, $action): int
     {
         if ( ! $ids) {
@@ -141,9 +138,6 @@ class BaseRepository
         return new $className();
     }
 
-    /**
-     * @return string
-     */
     private function getEventClass($entity, string $type): string
     {
         return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;

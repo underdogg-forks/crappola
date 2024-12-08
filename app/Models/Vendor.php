@@ -281,9 +281,6 @@ class Vendor extends EntityModel
         return $this->vendor_contacts()->save($contact);
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/vendors/' . $this->public_id;
@@ -299,9 +296,6 @@ class Vendor extends EntityModel
         return $this->getName();
     }
 
-    /**
-     * @return string
-     */
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
@@ -309,9 +303,6 @@ class Vendor extends EntityModel
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    /**
-     * @return string
-     */
     public function getEntityType(): string
     {
         return 'vendor';
@@ -348,9 +339,6 @@ class Vendor extends EntityModel
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function getDateCreated()
     {
         if ($this->created_at == '0000-00-00 00:00:00') {

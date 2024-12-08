@@ -181,9 +181,6 @@ class NinjaController extends BaseController
         }
     }
 
-    /**
-     * @return string
-     */
     public function claim_license()
     {
         $licenseKey = \Illuminate\Support\Facades\Request::input('license_key');

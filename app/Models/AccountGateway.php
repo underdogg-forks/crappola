@@ -307,9 +307,6 @@ class AccountGateway extends EntityModel
         return mb_substr(trim($stripe_key), 0, 8) === 'pk_test_' ? 'tartan' : 'production';
     }
 
-    /**
-     * @return string
-     */
     public function getWebhookUrl()
     {
         $account = $this->account ?: Account::find($this->account_id);

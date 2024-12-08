@@ -73,9 +73,6 @@ class ProposalTemplate extends EntityModel
         return ENTITY_PROPOSAL_TEMPLATE;
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/proposals/templates/' . $this->public_id;

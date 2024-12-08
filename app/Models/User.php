@@ -270,9 +270,6 @@ class User extends Authenticatable
         return $this->account->isTrial();
     }
 
-    /**
-     * @return int
-     */
     public function maxInvoiceDesignId(): int
     {
         return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 13 : COUNT_FREE_DESIGNS;
@@ -294,9 +291,6 @@ class User extends Authenticatable
         return trans('texts.guest');
     }
 
-    /**
-     * @return string
-     */
     public function getFullName(): string
     {
         if ($this->first_name || $this->last_name) {
@@ -524,9 +518,6 @@ class User extends Authenticatable
         return ! ($this->only_notify_owned && ! $this->ownsEntity($invoice));
     }
 
-    /**
-     * @return mixed[]
-     */
     public function permissionsMap(): array
     {
         $data = [];

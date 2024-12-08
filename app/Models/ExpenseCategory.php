@@ -68,9 +68,6 @@ class ExpenseCategory extends EntityModel
         return $this->belongsTo(\App\Models\Expense::class);
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return sprintf('/expense_categories/%s/edit', $this->public_id);

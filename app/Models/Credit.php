@@ -96,17 +96,11 @@ class Credit extends EntityModel
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/credits/' . $this->public_id;

@@ -388,9 +388,6 @@ class Client extends EntityModel
         $this->save();
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         return '/clients/' . $this->public_id;
@@ -441,9 +438,6 @@ class Client extends EntityModel
         }
     }
 
-    /**
-     * @return string
-     */
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
@@ -514,9 +508,6 @@ class Client extends EntityModel
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function getDateCreated()
     {
         if ($this->created_at == '0000-00-00 00:00:00') {
@@ -586,9 +577,6 @@ class Client extends EntityModel
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
 
-    /**
-     * @return string
-     */
     public function getCurrencyCode()
     {
         if ($this->currency) {

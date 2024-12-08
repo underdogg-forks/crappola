@@ -334,9 +334,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return link_to($linkPrefix . $invoice->public_id, $invoice->invoice_number);
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getStatuses($entityType = false): array
     {
         $statuses = [];
@@ -367,9 +364,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $statuses;
     }
 
-    /**
-     * @return string
-     */
     public function getRoute(): string
     {
         $entityType = $this->is_recurring ? 'recurring_invoice' : $this->getEntityType();
@@ -664,9 +658,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->isType(INVOICE_TYPE_QUOTE);
     }
 
-    /**
-     * @return string
-     */
     public function getCustomMessageType(): string
     {
         if ($this->isQuote()) {
@@ -866,9 +857,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
     }
 
-    /**
-     * @return string
-     */
     public function getFileName(string $extension = 'pdf'): string
     {
         $entityType = $this->getEntityType();
@@ -876,9 +864,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return trans('texts.' . $entityType) . '_' . $this->invoice_number . '.' . $extension;
     }
 
-    /**
-     * @return string
-     */
     public function getPDFPath(): string
     {
         return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
@@ -901,9 +886,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return static::calcStatusLabel($this->invoice_status->name, $this->statusClass(), $this->getEntityType(), $this->quote_invoice_id);
     }
 
-    /**
-     * @return string
-     */
     public function getLink()
     {
         return self::calcLink($this);
@@ -994,9 +976,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->balance;
     }
 
-    /**
-     * @return string
-     */
     public function getCurrencyCode()
     {
         if ($this->client->currency) {
@@ -1507,9 +1486,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return round($taxable * ($rate / 100), 2);
     }
 
-    /**
-     * @return int
-     */
     public function countDocuments($expenses = false)
     {
         $count = $this->documents->count();
