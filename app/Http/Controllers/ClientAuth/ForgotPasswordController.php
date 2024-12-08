@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
-use Illuminate\Support\Facades\Password;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Traits\SendsEmails;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
 use Utils;
 
 class ForgotPasswordController extends Controller
