@@ -58,7 +58,7 @@ class ProposalTemplateService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ProposalTemplateRepository
     {
         return $this->proposalTemplateRepo;
     }

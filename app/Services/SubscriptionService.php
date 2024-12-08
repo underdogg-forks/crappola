@@ -42,7 +42,7 @@ class SubscriptionService extends BaseService
     /**
      * @return SubscriptionRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\SubscriptionRepository
     {
         return $this->subscriptionRepo;
     }

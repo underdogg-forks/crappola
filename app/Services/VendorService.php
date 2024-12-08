@@ -70,7 +70,7 @@ class VendorService extends BaseService
     /**
      * @return VendorRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\VendorRepository
     {
         return $this->vendorRepo;
     }

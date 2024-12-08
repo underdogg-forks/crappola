@@ -11,6 +11,9 @@ use App\Ninja\Repositories\NinjaRepository;
  */
 class ClientService extends BaseService
 {
+    /**
+     * @var \App\Ninja\Repositories\NinjaRepository
+     */
     public $ninjaRepo;
 
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
@@ -64,7 +67,7 @@ class ClientService extends BaseService
     /**
      * @return ClientRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ClientRepository
     {
         return $this->clientRepo;
     }

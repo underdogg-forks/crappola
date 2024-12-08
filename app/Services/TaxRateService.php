@@ -42,7 +42,7 @@ class TaxRateService extends BaseService
     /**
      * @return TaxRateRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\TaxRateRepository
     {
         return $this->taxRateRepo;
     }

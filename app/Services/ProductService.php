@@ -45,7 +45,7 @@ class ProductService extends BaseService
     /**
      * @return ProductRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ProductRepository
     {
         return $this->productRepo;
     }

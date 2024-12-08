@@ -55,7 +55,7 @@ class ExpenseCategoryService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ExpenseCategoryRepository
     {
         return $this->categoryRepo;
     }

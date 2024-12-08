@@ -10,6 +10,9 @@ class ExportReportResults extends Job
 {
     public $user;
 
+    /**
+     * @var lowercase-string
+     */
     public $format;
 
     public $reportType;

@@ -154,7 +154,7 @@ class InvoiceService extends BaseService
     /**
      * @return InvoiceRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\InvoiceRepository
     {
         return $this->invoiceRepo;
     }

@@ -41,7 +41,7 @@ class AccountGatewayService extends BaseService
     /**
      * @return AccountGatewayRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\AccountGatewayRepository
     {
         return $this->accountGatewayRepo;
     }

@@ -23,6 +23,9 @@ use Utils;
 
 class ClientPortalController extends BaseController
 {
+    /**
+     * @var \App\Ninja\Repositories\ActivityRepository
+     */
     public $activityRepo;
 
     /**
@@ -30,8 +33,14 @@ class ClientPortalController extends BaseController
      */
     public $paymentService;
 
+    /**
+     * @var \App\Ninja\Repositories\CreditRepository
+     */
     public $creditRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\TaskRepository
+     */
     public $taskRepo;
 
     private readonly \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;

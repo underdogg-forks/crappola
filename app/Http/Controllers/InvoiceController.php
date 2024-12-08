@@ -31,7 +31,7 @@ class InvoiceController extends BaseController
 
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
-    protected $documentRepo;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     protected \App\Services\InvoiceService $invoiceService;
 

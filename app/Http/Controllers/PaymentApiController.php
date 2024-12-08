@@ -13,6 +13,9 @@ use Response;
 
 class PaymentApiController extends BaseAPIController
 {
+    /**
+     * @var \App\Ninja\Mailers\ContactMailer
+     */
     public $contactMailer;
 
     public $entityType = ENTITY_PAYMENT;

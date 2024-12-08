@@ -9,7 +9,7 @@ use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php81\Rector\Class_\SpatieEnumClassToEnumRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
-use Rector\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedPropertyRector;
 use RectorLaravel\Set\LaravelLevelSetList;
 
 return RectorConfig::configure()
@@ -29,7 +29,7 @@ return RectorConfig::configure()
         __DIR__ . '/Modules',
     ])
     ->withRules([
-        AddReturnTypeDeclarationRector::class,
+        ReturnTypeFromStrictTypedPropertyRector::class,
     ])
     ->withSets([
         //LevelSetList::UP_TO_PHP_81,

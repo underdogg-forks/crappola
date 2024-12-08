@@ -62,7 +62,7 @@ class ProjectService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ProjectRepository
     {
         return $this->projectRepo;
     }

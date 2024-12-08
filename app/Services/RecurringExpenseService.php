@@ -70,7 +70,7 @@ class RecurringExpenseService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\RecurringExpenseRepository
     {
         return $this->recurringExpenseRepo;
     }

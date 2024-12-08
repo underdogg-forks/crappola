@@ -118,7 +118,7 @@ class AuthService
         }
     }
 
-    public function getApiSecret()
+    public function getApiSecret(): ?string
     {
         return $this->apiSecret;
     }

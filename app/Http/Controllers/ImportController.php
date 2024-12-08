@@ -10,6 +10,9 @@ use Utils;
 
 class ImportController extends BaseController
 {
+    /**
+     * @var \App\Services\ImportService
+     */
     public $importService;
 
     public function __construct(ImportService $importService)

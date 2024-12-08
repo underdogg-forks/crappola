@@ -40,7 +40,7 @@ class ContactService extends BaseService
     /**
      * @return ContactRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ContactRepository
     {
         return $this->contactRepo;
     }

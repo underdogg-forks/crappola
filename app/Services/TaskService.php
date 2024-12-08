@@ -54,7 +54,7 @@ class TaskService extends BaseService
     /**
      * @return TaskRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\TaskRepository
     {
         return $this->taskRepo;
     }

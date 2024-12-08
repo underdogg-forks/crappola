@@ -20,12 +20,24 @@ use Utils;
 
 class InvoiceApiController extends BaseAPIController
 {
+    /**
+     * @var \App\Ninja\Repositories\ClientRepository
+     */
     public $clientRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\PaymentRepository
+     */
     public $paymentRepo;
 
+    /**
+     * @var \App\Services\InvoiceService
+     */
     public $invoiceService;
 
+    /**
+     * @var \App\Services\PaymentService
+     */
     public $paymentService;
 
     public $entityType = ENTITY_INVOICE;

@@ -42,7 +42,7 @@ class TokenService extends BaseService
     /**
      * @return TokenRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\TokenRepository
     {
         return $this->tokenRepo;
     }

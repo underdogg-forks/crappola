@@ -58,7 +58,7 @@ class ProposalSnippetService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ProposalSnippetRepository
     {
         return $this->proposalSnippetRepo;
     }

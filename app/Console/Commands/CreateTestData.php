@@ -24,20 +24,44 @@ class CreateTestData extends Command
 {
     public $faker;
 
+    /**
+     * @var \App\Ninja\Repositories\ClientRepository
+     */
     public $clientRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\InvoiceRepository
+     */
     public $invoiceRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\PaymentRepository
+     */
     public $paymentRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\VendorRepository
+     */
     public $vendorRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\ExpenseRepository
+     */
     public $expenseRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\TaskRepository
+     */
     public $taskRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\ProjectRepository
+     */
     public $projectRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\AccountRepository
+     */
     public $accountRepo;
 
     public $count;

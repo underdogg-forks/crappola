@@ -22,8 +22,14 @@ use Utils;
 
 class InvoiceRepository extends BaseRepository
 {
+    /**
+     * @var \App\Services\PaymentService
+     */
     public $paymentService;
 
+    /**
+     * @var \App\Ninja\Repositories\PaymentRepository
+     */
     public $paymentRepo;
 
     protected \App\Ninja\Repositories\DocumentRepository $documentRepo;

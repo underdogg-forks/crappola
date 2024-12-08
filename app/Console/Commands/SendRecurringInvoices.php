@@ -19,6 +19,9 @@ use Utils;
  */
 class SendRecurringInvoices extends Command
 {
+    /**
+     * @var \App\Ninja\Repositories\RecurringExpenseRepository
+     */
     public $recurringExpenseRepo;
 
     /**

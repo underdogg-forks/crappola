@@ -12,6 +12,9 @@ use Utils;
  */
 class DashboardController extends BaseController
 {
+    /**
+     * @var \App\Ninja\Repositories\DashboardRepository
+     */
     public $dashboardRepo;
 
     public function __construct(DashboardRepository $dashboardRepo)

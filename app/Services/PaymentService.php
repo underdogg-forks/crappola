@@ -14,8 +14,14 @@ use Utils;
 
 class PaymentService extends BaseService
 {
+    /**
+     * @var \App\Services\DatatableService
+     */
     public $datatableService;
 
+    /**
+     * @var \App\Ninja\Repositories\PaymentRepository
+     */
     public $paymentRepo;
 
     /**

@@ -12,8 +12,14 @@ class LoadPostmarkStats extends Job
 
     public $endDate;
 
+    /**
+     * @var stdClass
+     */
     public $response;
 
+    /**
+     * @var \Postmark\PostmarkClient
+     */
     public $postmark;
 
     public $account;

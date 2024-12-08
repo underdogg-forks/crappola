@@ -39,8 +39,14 @@ use Utils;
  */
 class ImportService
 {
+    /**
+     * @var \League\Fractal\Manager
+     */
     public $fractal;
 
+    /**
+     * @var \App\Ninja\Repositories\PaymentRepository
+     */
     public $paymentRepo;
 
     /**
@@ -48,10 +54,19 @@ class ImportService
      */
     public $expenseRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\VendorRepository
+     */
     public $vendorRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\ExpenseCategoryRepository
+     */
     public $expenseCategoryRepo;
 
+    /**
+     * @var \App\Ninja\Repositories\TaxRateRepository
+     */
     public $taxRateRepository;
 
     /**

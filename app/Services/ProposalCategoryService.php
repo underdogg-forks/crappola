@@ -58,7 +58,7 @@ class ProposalCategoryService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ProposalCategoryRepository
     {
         return $this->proposalCategoryRepo;
     }

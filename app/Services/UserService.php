@@ -42,7 +42,7 @@ class UserService extends BaseService
     /**
      * @return UserRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\UserRepository
     {
         return $this->userRepo;
     }

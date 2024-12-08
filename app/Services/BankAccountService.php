@@ -174,7 +174,7 @@ class BankAccountService extends BaseService
     /**
      * @return BankAccountRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\BankAccountRepository
     {
         return $this->bankAccountRepo;
     }

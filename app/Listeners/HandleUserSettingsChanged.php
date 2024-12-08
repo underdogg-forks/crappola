@@ -11,8 +11,14 @@ use App\Ninja\Repositories\AccountRepository;
  */
 class HandleUserSettingsChanged
 {
+    /**
+     * @var \App\Ninja\Repositories\AccountRepository
+     */
     public $accountRepo;
 
+    /**
+     * @var \App\Ninja\Mailers\UserMailer
+     */
     public $userMailer;
 
     /**

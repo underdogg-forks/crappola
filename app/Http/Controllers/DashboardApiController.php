@@ -7,6 +7,9 @@ use App\Ninja\Transformers\ActivityTransformer;
 
 class DashboardApiController extends BaseAPIController
 {
+    /**
+     * @var \App\Ninja\Repositories\DashboardRepository
+     */
     public $dashboardRepo;
 
     public function __construct(DashboardRepository $dashboardRepo)

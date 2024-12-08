@@ -103,7 +103,7 @@ class ExpenseService extends BaseService
     /**
      * @return ExpenseRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\ExpenseRepository
     {
         return $this->expenseRepo;
     }

@@ -64,7 +64,7 @@ class PaymentTermService extends BaseService
     /**
      * @return PaymentTermRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\PaymentTermRepository
     {
         return $this->paymentTermRepo;
     }

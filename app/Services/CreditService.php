@@ -60,7 +60,7 @@ class CreditService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): \App\Ninja\Repositories\CreditRepository
     {
         return $this->creditRepo;
     }

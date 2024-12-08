@@ -24,6 +24,9 @@ use Utils;
  */
 class SendReminders extends Command
 {
+    /**
+     * @var \App\Ninja\Mailers\UserMailer
+     */
     public $userMailer;
 
     /**
