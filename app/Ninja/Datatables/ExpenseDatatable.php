@@ -3,6 +3,8 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Expense;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class ExpenseDatatable extends EntityDatatable
@@ -18,7 +20,7 @@ class ExpenseDatatable extends EntityDatatable
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
                             return link_to('vendors/' . $model->vendor_public_id, $model->vendor_name)->toHtml();
                         }
 
@@ -33,7 +35,7 @@ class ExpenseDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                             return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml();
                         }
 
@@ -47,7 +49,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_date',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
                         return $this->addNote(link_to(sprintf('expenses/%s/edit', $model->public_id), Utils::fromSqlDate($model->expense_date_sql))->toHtml(), $model->private_notes);
                     }
 
@@ -73,7 +75,7 @@ class ExpenseDatatable extends EntityDatatable
                 'category',
                 function ($model) {
                     $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
                         return $model->category_public_id ? link_to(sprintf('expense_categories/%s/edit', $model->category_public_id), $category)->toHtml() : '';
                     }
 
@@ -96,23 +98,23 @@ class ExpenseDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('expenses/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_EXPENSE, $model]),
+                fn ($model) => URL::to(sprintf('expenses/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_EXPENSE, $model]),
             ],
             [
                 trans('texts.clone_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('expenses/%s/clone', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
+                fn ($model) => URL::to(sprintf('expenses/%s/clone', $model->public_id)),
+                fn ($model) => Auth::user()->can('create', ENTITY_EXPENSE),
             ],
             [
                 trans('texts.view_invoice'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to(sprintf('/invoices/%s/edit', $model->invoice_public_id)),
-                fn ($model): bool => $model->invoice_public_id && \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]),
+                fn ($model)       => URL::to(sprintf('/invoices/%s/edit', $model->invoice_public_id)),
+                fn ($model): bool => $model->invoice_public_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.invoice_expense'),
                 fn ($model): string => sprintf("javascript:submitForm_expense('invoice', %s)", $model->public_id),
-                fn ($model): bool   => ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
+                fn ($model): bool   => ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }

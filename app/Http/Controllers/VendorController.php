@@ -10,16 +10,21 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class VendorController extends BaseController
 {
     public $entityType = ENTITY_VENDOR;
 
-    protected \App\Services\VendorService $vendorService;
+    protected VendorService $vendorService;
 
-    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
+    protected VendorRepository $vendorRepo;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -36,7 +41,7 @@ class VendorController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => 'vendor',
             'datatable'  => new VendorDatatable(),
             'title'      => trans('texts.vendors'),
@@ -45,7 +50,7 @@ class VendorController extends BaseController
 
     public function getDatatable()
     {
-        return $this->vendorService->getDatatable(\Illuminate\Support\Facades\Request::input('sSearch'));
+        return $this->vendorService->getDatatable(Request::input('sSearch'));
     }
 
     /**
@@ -57,7 +62,7 @@ class VendorController extends BaseController
     {
         $vendor = $this->vendorService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_vendor'));
+        Session::flash('message', trans('texts.created_vendor'));
 
         return redirect()->to($vendor->getRoute());
     }
@@ -74,7 +79,7 @@ class VendorController extends BaseController
         $vendor = $request->entity();
 
         $actionLinks = [
-            ['label' => trans('texts.new_vendor'), 'url' => \Illuminate\Support\Facades\URL::to('/vendors/create/' . $vendor->public_id)],
+            ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)],
         ];
 
         $data = [
@@ -87,13 +92,13 @@ class VendorController extends BaseController
             'hasTasks'             => false,
         ];
 
-        return \Illuminate\Support\Facades\View::make('vendors.show', $data);
+        return View::make('vendors.show', $data);
     }
 
     public function create(VendorRequest $request)
     {
-        if (Vendor::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumVendors()) {
-            return \Illuminate\Support\Facades\View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . \Illuminate\Support\Facades\Auth::user()->getMaxNumVendors() . ' vendors']);
+        if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumVendors() . ' vendors']);
         }
 
         $data = [
@@ -105,7 +110,7 @@ class VendorController extends BaseController
 
         $data = array_merge($data, $this->getViewModel());
 
-        return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
+        return View::make('vendors.edit', $data);
     }
 
     public function edit(VendorRequest $request): \Illuminate\Contracts\View\View
@@ -122,30 +127,30 @@ class VendorController extends BaseController
         $data = array_merge($data, $this->getViewModel());
 
         $client = null;
-        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client?->public_id)->first())) {
+        if (Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client?->public_id)->first())) {
             $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
-        return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
+        return View::make('vendors.edit', $data);
     }
 
     public function update(UpdateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_vendor'));
+        Session::flash('message', trans('texts.updated_vendor'));
 
         return redirect()->to($vendor->getRoute());
     }
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
-        \Illuminate\Support\Facades\Session::flash('message', $message);
+        Session::flash('message', $message);
 
         return $this->returnBulk($this->entityType, $action, $ids);
     }
@@ -153,8 +158,8 @@ class VendorController extends BaseController
     private function getViewModel(): array
     {
         return [
-            'data'    => \Illuminate\Support\Facades\Request::old('data'),
-            'account' => \Illuminate\Support\Facades\Auth::user()->account,
+            'data'    => Request::old('data'),
+            'account' => Auth::user()->account,
         ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class CreditDatatable extends EntityDatatable
@@ -16,7 +18,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return $model->client_public_id ? link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
@@ -27,7 +29,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                     }
                 },
@@ -35,7 +37,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'balance',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                     }
                 },
@@ -43,7 +45,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'credit_date',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return link_to(sprintf('credits/%s/edit', $model->public_id), Utils::fromSqlDate($model->credit_date_sql))->toHtml();
                     }
 
@@ -53,7 +55,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return e($model->public_notes);
                     }
                 },
@@ -61,7 +63,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'private_notes',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
                         return e($model->private_notes);
                     }
                 },
@@ -74,13 +76,13 @@ class CreditDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_credit'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('credits/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CREDIT, $model]),
+                fn ($model) => URL::to(sprintf('credits/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_CREDIT, $model]),
             ],
             [
                 trans('texts.apply_credit'),
-                fn ($model): string => \Illuminate\Support\Facades\URL::to('payments/create/' . $model->client_public_id) . '?paymentTypeId=1',
-                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
+                fn ($model): string => URL::to('payments/create/' . $model->client_public_id) . '?paymentTypeId=1',
+                fn ($model)         => Auth::user()->can('create', ENTITY_PAYMENT),
             ],
         ];
     }

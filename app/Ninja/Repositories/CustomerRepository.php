@@ -9,7 +9,7 @@ class CustomerRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\AccountGatewayToken::class;
+        return AccountGatewayToken::class;
     }
 
     public function all()
@@ -19,7 +19,7 @@ class CustomerRepository extends BaseRepository
             ->get();
     }
 
-    public function save(array $data): \App\Models\AccountGatewayToken
+    public function save(array $data): AccountGatewayToken
     {
         $account = auth()->user()->account;
 

@@ -12,7 +12,7 @@ class ProductPresenter extends EntityPresenter
         return $this->entity->user->getDisplayName();
     }
 
-    public function skypeBot($account): \App\Libraries\Skype\HeroCard
+    public function skypeBot($account): HeroCard
     {
         $product = $this->entity;
 

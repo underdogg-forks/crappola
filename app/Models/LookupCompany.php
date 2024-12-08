@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
- * @property int                            $id
- * @property int                            $db_server_id
- * @property int                            $company_id
- * @property \App\Models\DbServer           $dbServer
- * @property \App\Models\LookupAccount|null $lookupAccount
+ * @property int                $id
+ * @property int                $db_server_id
+ * @property int                $company_id
+ * @property DbServer           $dbServer
+ * @property LookupAccount|null $lookupAccount
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany whereDbServerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupCompany whereId($value)
+ * @method static Builder|LookupCompany newModelQuery()
+ * @method static Builder|LookupCompany newQuery()
+ * @method static Builder|LookupCompany query()
+ * @method static Builder|LookupCompany whereCompanyId($value)
+ * @method static Builder|LookupCompany whereDbServerId($value)
+ * @method static Builder|LookupCompany whereId($value)
  *
  * @mixin \Eloquent
  */
@@ -32,7 +34,7 @@ class LookupCompany extends LookupModel
 
     public function dbServer()
     {
-        return $this->belongsTo(\App\Models\DbServer::class);
+        return $this->belongsTo(DbServer::class);
     }
 
     public function getDbServer()

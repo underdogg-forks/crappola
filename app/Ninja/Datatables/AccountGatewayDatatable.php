@@ -4,6 +4,8 @@ namespace App\Ninja\Datatables;
 
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 use Utils;
 use WePayException;
 
@@ -51,14 +53,14 @@ class AccountGatewayDatatable extends EntityDatatable
 
                     try {
                         if ($wepayState == 'action_required') {
-                            $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(\Illuminate\Support\Facades\URL::to('gateways'));
+                            $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(URL::to('gateways'));
                             $linkText .= ' <span style="color:#d9534f">(' . trans('texts.action_required') . ')</span>';
                             $url = $updateUri;
                             $html = sprintf('<a href="%s">%s</a>', $url, $linkText);
                             $model->setupUrl = $url;
                         } elseif ($wepayState == 'pending') {
                             $linkText .= ' (' . trans('texts.resend_confirmation_email') . ')';
-                            $model->resendConfirmationUrl = \Illuminate\Support\Facades\URL::to(sprintf('gateways/%s/resend_confirmation', $accountGateway->public_id));
+                            $model->resendConfirmationUrl = URL::to(sprintf('gateways/%s/resend_confirmation', $accountGateway->public_id));
                             $url = $model->resendConfirmationUrl;
                             $html = link_to($url, $linkText)->toHtml();
                         }
@@ -156,7 +158,7 @@ class AccountGatewayDatatable extends EntityDatatable
                 fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl),
             ], [
                 uctrans('texts.edit_gateway'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to(sprintf('gateways/%s/edit', $model->public_id)),
+                fn ($model)       => URL::to(sprintf('gateways/%s/edit', $model->public_id)),
                 fn ($model): bool => ! $model->deleted_at,
             ], [
                 uctrans('texts.finish_setup'),
@@ -181,7 +183,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ],
         ];
 
-        foreach (\Illuminate\Support\Facades\Cache::get('gatewayTypes') as $gatewayType) {
+        foreach (Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
                 trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
                 fn (): string => sprintf("javascript:showLimitsModal('%s', %s)", $gatewayType->name, $gatewayType->id),

@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class TaxRateDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TAX_RATE;
@@ -35,7 +37,7 @@ class TaxRateDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_tax_rate'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('tax_rates/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('tax_rates/%s/edit', $model->public_id)),
             ],
         ];
     }

@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
- * @property int                       $id
- * @property int                       $lookup_account_id
- * @property string                    $token
- * @property \App\Models\LookupAccount $lookupAccount
+ * @property int           $id
+ * @property int           $lookup_account_id
+ * @property string        $token
+ * @property LookupAccount $lookupAccount
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken whereLookupAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccountToken whereToken($value)
+ * @method static Builder|LookupAccountToken newModelQuery()
+ * @method static Builder|LookupAccountToken newQuery()
+ * @method static Builder|LookupAccountToken query()
+ * @method static Builder|LookupAccountToken whereId($value)
+ * @method static Builder|LookupAccountToken whereLookupAccountId($value)
+ * @method static Builder|LookupAccountToken whereToken($value)
  *
  * @mixin \Eloquent
  */

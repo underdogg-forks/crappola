@@ -2,29 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+
 /**
  * Class PaymentLibrary.
  *
- * @property int                                                                $id
- * @property \Illuminate\Support\Carbon|null                                    $created_at
- * @property \Illuminate\Support\Carbon|null                                    $updated_at
- * @property string                                                             $name
- * @property int                                                                $visible
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Gateway> $gateways
- * @property int|null                                                           $gateways_count
+ * @property int                      $id
+ * @property Carbon|null              $created_at
+ * @property Carbon|null              $updated_at
+ * @property string                   $name
+ * @property int                      $visible
+ * @property Collection<int, Gateway> $gateways
+ * @property int|null                 $gateways_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary query()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary whereVisible($value)
+ * @method static Builder|PaymentLibrary newModelQuery()
+ * @method static Builder|PaymentLibrary newQuery()
+ * @method static Builder|PaymentLibrary query()
+ * @method static Builder|PaymentLibrary whereCreatedAt($value)
+ * @method static Builder|PaymentLibrary whereId($value)
+ * @method static Builder|PaymentLibrary whereName($value)
+ * @method static Builder|PaymentLibrary whereUpdatedAt($value)
+ * @method static Builder|PaymentLibrary whereVisible($value)
  *
  * @mixin \Eloquent
  */
-class PaymentLibrary extends \Illuminate\Database\Eloquent\Model
+class PaymentLibrary extends Model
 {
     /**
      * @var bool
@@ -38,6 +43,6 @@ class PaymentLibrary extends \Illuminate\Database\Eloquent\Model
 
     public function gateways()
     {
-        return $this->hasMany(\App\Models\Gateway::class, 'payment_library_id');
+        return $this->hasMany(Gateway::class, 'payment_library_id');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Log;
 use Utils;
 
@@ -24,7 +25,7 @@ class QueryLogging
     {
         // Enable query logging for development
         if (Utils::isNinjaDev()) {
-            \Illuminate\Support\Facades\DB::enableQueryLog();
+            DB::enableQueryLog();
             $timeStart = microtime(true);
         }
 
@@ -32,7 +33,7 @@ class QueryLogging
 
         // hide requests made by debugbar
         if (Utils::isNinjaDev() && mb_strstr($request->url(), '_debugbar') === false) {
-            $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+            $queries = DB::getQueryLog();
             $count = count($queries);
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;

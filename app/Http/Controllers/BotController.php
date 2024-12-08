@@ -9,11 +9,15 @@ use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Utils;
 
 class BotController extends Controller
 {
-    protected \App\Ninja\Mailers\UserMailer $userMailer;
+    protected UserMailer $userMailer;
 
     public function __construct(UserMailer $userMailer)
     {
@@ -24,7 +28,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = \Illuminate\Support\Facades\Request::all();
+        $input = Request::all();
         $botUserId = $input['from']['id'];
 
         if ( ! $token = $this->authenticate($input)) {
@@ -75,7 +79,7 @@ class BotController extends Controller
                         return SkypeResponse::message(trans('texts.not_authorized'));
                     }
 
-                    \Illuminate\Support\Facades\Auth::onceUsingId($user->id);
+                    Auth::onceUsingId($user->id);
                     $user->account->loadLocalizationSettings();
 
                     $data = $this->parseMessage($text);
@@ -121,7 +125,7 @@ class BotController extends Controller
             return false;
         }
 
-        if ($token = \Illuminate\Support\Facades\Cache::get('msbot_token')) {
+        if ($token = Cache::get('msbot_token')) {
             return $token;
         }
 
@@ -135,7 +139,7 @@ class BotController extends Controller
         $response = json_decode($response);
 
         $expires = ($response->expires_in / 60) - 5;
-        \Illuminate\Support\Facades\Cache::put('msbot_token', $response->access_token, $expires);
+        Cache::put('msbot_token', $response->access_token, $expires);
 
         return $response->access_token;
     }
@@ -207,7 +211,7 @@ class BotController extends Controller
 
         // delete any expired codes
         SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '<', \Illuminate\Support\Facades\DB::raw('now() - INTERVAL 10 MINUTE'))
+            ->where('created_at', '<', DB::raw('now() - INTERVAL 10 MINUTE'))
             ->delete();
 
         if (SecurityCode::whereBotUserId($botUserId)->first()) {
@@ -241,7 +245,7 @@ class BotController extends Controller
         }
 
         $code = SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '>', \Illuminate\Support\Facades\DB::raw('now() - INTERVAL 10 MINUTE'))
+            ->where('created_at', '>', DB::raw('now() - INTERVAL 10 MINUTE'))
             ->where('attempts', '<', 5)
             ->first();
 

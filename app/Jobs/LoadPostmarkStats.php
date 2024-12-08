@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use DateInterval;
 use DatePeriod;
+use Postmark\PostmarkClient;
 use stdClass;
 
 class LoadPostmarkStats extends Job
@@ -18,7 +19,7 @@ class LoadPostmarkStats extends Job
     public $response;
 
     /**
-     * @var \Postmark\PostmarkClient
+     * @var PostmarkClient
      */
     public $postmark;
 
@@ -30,7 +31,7 @@ class LoadPostmarkStats extends Job
         $this->endDate = $endDate;
 
         $this->response = new stdClass();
-        $this->postmark = new \Postmark\PostmarkClient(config('services.postmark'));
+        $this->postmark = new PostmarkClient(config('services.postmark'));
         $this->account = auth()->user()->account;
     }
 

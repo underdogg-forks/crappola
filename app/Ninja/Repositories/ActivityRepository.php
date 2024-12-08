@@ -5,6 +5,10 @@ namespace App\Ninja\Repositories;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Utils;
 
 class ActivityRepository
@@ -33,7 +37,7 @@ class ActivityRepository
         $keyField = $entity->getKeyField();
         $activity->{$keyField} = $entity->id;
 
-        $activity->ip = \Illuminate\Support\Facades\Request::getClientIp();
+        $activity->ip = Request::getClientIp();
         $activity->save();
 
         if ($client) {
@@ -45,7 +49,7 @@ class ActivityRepository
 
     public function findByClientId($clientId)
     {
-        return \Illuminate\Support\Facades\DB::table('activities')
+        return DB::table('activities')
             ->join('accounts', 'accounts.id', '=', 'activities.account_id')
             ->join('users', 'users.id', '=', 'activities.user_id')
             ->join('clients', 'clients.id', '=', 'activities.client_id')
@@ -59,8 +63,8 @@ class ActivityRepository
             ->where('contacts.is_primary', '=', 1)
             ->whereNull('contacts.deleted_at')
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'activities.id',
                 'activities.created_at',
                 'activities.contact_id',
@@ -94,19 +98,19 @@ class ActivityRepository
             );
     }
 
-    private function getBlank($entity): \App\Models\Activity
+    private function getBlank($entity): Activity
     {
         $activity = new Activity();
 
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->account_id == $entity->account_id) {
-            $activity->user_id = \Illuminate\Support\Facades\Auth::user()->id;
-            $activity->account_id = \Illuminate\Support\Facades\Auth::user()->account_id;
+        if (Auth::check() && Auth::user()->account_id == $entity->account_id) {
+            $activity->user_id = Auth::user()->id;
+            $activity->account_id = Auth::user()->account_id;
         } else {
             $activity->user_id = $entity->user_id;
             $activity->account_id = $entity->account_id;
         }
 
-        $activity->is_system = \Illuminate\Support\Facades\App::runningInConsole();
+        $activity->is_system = App::runningInConsole();
         $activity->token_id = session('token_id');
 
         return $activity;

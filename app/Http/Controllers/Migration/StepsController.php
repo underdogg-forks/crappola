@@ -18,8 +18,16 @@ use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
 use Exception;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 use ZipArchive;
 
 class StepsController extends BaseController
@@ -47,9 +55,9 @@ class StepsController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
-    public function start(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function start(): Factory|View
     {
         if (Utils::isNinja()) {
             session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
@@ -62,20 +70,20 @@ class StepsController extends BaseController
         return view('migration.start');
     }
 
-    public function import(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    public function import(): Factory|Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
         return view('migration.import');
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
-    public function download(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function download(): Factory|View
     {
         return view('migration.download');
     }
 
-    public function handleType(MigrationTypeRequest $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse
+    public function handleType(MigrationTypeRequest $request): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
     {
         session()->put('MIGRATION_TYPE', $request->option);
 
@@ -100,7 +108,7 @@ class StepsController extends BaseController
             'url' => 'nullable|url',
         ];
 
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return back()
@@ -108,7 +116,7 @@ class StepsController extends BaseController
                 ->withInput();
         }
 
-        $account_settings = \Illuminate\Support\Facades\Auth::user()->account->account_email_settings;
+        $account_settings = Auth::user()->account->account_email_settings;
 
         $account_settings->is_disabled = mb_strlen($request->input('url')) != 0;
 
@@ -120,7 +128,7 @@ class StepsController extends BaseController
 
     public function disableForwarding()
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $account_settings = $account->account_email_settings;
         $account_settings->forward_url_for_v5 = '';
@@ -195,7 +203,7 @@ class StepsController extends BaseController
         return back()->with('responseErrors', $authentication->getErrors());
     }
 
-    public function companies(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function companies(): \Illuminate\Contracts\View\View|Application|Factory|JsonResponse|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
@@ -215,7 +223,7 @@ class StepsController extends BaseController
         ], 500);
     }
 
-    public function handleCompanies(MigrationCompaniesRequest $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function handleCompanies(MigrationCompaniesRequest $request): \Illuminate\Contracts\View\View|Application|Factory|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
@@ -252,7 +260,7 @@ class StepsController extends BaseController
         return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
     }
 
-    public function completed(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    public function completed(): Factory|Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
         return view('migration.completed');
     }
@@ -341,7 +349,7 @@ class StepsController extends BaseController
         // header("Content-Disposition: attachment; filename={$fileName}.zip");
     }
 
-    private function autoForwardUrl(): \Illuminate\Http\RedirectResponse
+    private function autoForwardUrl(): RedirectResponse
     {
         $url = 'https://invoicing.co/api/v1/confirm_forwarding';
         // $url = 'http://devhosted.test:8000/api/v1/confirm_forwarding';
@@ -352,7 +360,7 @@ class StepsController extends BaseController
             'Content-Type'        => 'application/json',
         ];
 
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $gateway_reference = '';
 
         $ninja_client = Client::where('public_id', $account->id)->first();

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\ClientAuth;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Redirect;
 
 class PasswordController extends Controller
 {
@@ -14,11 +16,11 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param string|null              $key
-     * @param string|null              $token
+     * @param Request     $request
+     * @param string|null $key
+     * @param string|null $token
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function showResetForm(Request $request, $token = null)
     {
@@ -32,7 +34,7 @@ class PasswordController extends Controller
         ];
 
         if ( ! session('contact_key')) {
-            return \Illuminate\Support\Facades\Redirect::to('/client/session_expired');
+            return Redirect::to('/client/session_expired');
         }
 
         return view('clientauth.reset')->with($data);
@@ -43,11 +45,11 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param string|null              $key
-     * @param string|null              $token
+     * @param Request     $request
+     * @param string|null $key
+     * @param string|null $token
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getReset(Request $request, $token = null)
     {
@@ -57,9 +59,9 @@ class PasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function reset(Request $request)
     {

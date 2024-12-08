@@ -5,6 +5,7 @@ namespace App\Ninja\Reports;
 use App\Models\Expense;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class ExpenseReport extends AbstractReport
@@ -49,7 +50,7 @@ class ExpenseReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];
         $with = ['client.contacts', 'vendor'];

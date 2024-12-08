@@ -5,6 +5,10 @@ namespace App\Ninja\Repositories;
 use App\Models\Document;
 use Datatable;
 use Form;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Utils;
 
@@ -13,7 +17,7 @@ class DocumentRepository extends BaseRepository
     // Expenses
     public function getClassName(): string
     {
-        return \App\Models\Document::class;
+        return Document::class;
     }
 
     public function all()
@@ -25,8 +29,8 @@ class DocumentRepository extends BaseRepository
 
     public function find()
     {
-        $accountid = \Illuminate\Support\Facades\Auth::user()->account_id;
-        $query = \Illuminate\Support\Facades\DB::table('clients')
+        $accountid = Auth::user()->account_id;
+        $query = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
@@ -84,19 +88,19 @@ class DocumentRepository extends BaseRepository
         }
 
         // don't allow a document to be linked to both an invoice and an expense
-        if (\Illuminate\Support\Arr::get($data, 'invoice_id') && \Illuminate\Support\Arr::get($data, 'expense_id')) {
+        if (Arr::get($data, 'invoice_id') && Arr::get($data, 'expense_id')) {
             unset($data['expense_id']);
         }
 
         $hash = sha1_file($filePath);
-        $filename = \Illuminate\Support\Facades\Auth::user()->account->account_key . '/' . $hash . '.' . $documentType;
+        $filename = Auth::user()->account->account_key . '/' . $hash . '.' . $documentType;
 
         $document = Document::createNew();
         $document->fill($data);
 
         if ($isProposal) {
             $document->is_proposal = true;
-            $document->document_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $document->document_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
         }
 
         $disk = $document->getDisk();
@@ -136,7 +140,7 @@ class DocumentRepository extends BaseRepository
                     $previewType = 'png';
                 }
 
-                $document->preview = \Illuminate\Support\Facades\Auth::user()->account->account_key . '/' . $hash . '.' . $documentType . '.x' . DOCUMENT_PREVIEW_SIZE . '.' . $previewType;
+                $document->preview = Auth::user()->account->account_key . '/' . $hash . '.' . $documentType . '.x' . DOCUMENT_PREVIEW_SIZE . '.' . $previewType;
                 if ( ! $disk->exists($document->preview)) {
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);
@@ -191,7 +195,7 @@ class DocumentRepository extends BaseRepository
 
     public function getClientDatatable($contactId, $entityType, $search)
     {
-        $query = \Illuminate\Support\Facades\DB::table('invitations')
+        $query = DB::table('invitations')
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
             ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')

@@ -9,6 +9,7 @@ use App\Jobs\SendInvoiceEmail;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Expense;
+use App\Models\Frequency;
 use App\Models\Invoice;
 use App\Models\InvoiceDesign;
 use App\Models\Payment;
@@ -20,24 +21,30 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class InvoiceController extends BaseController
 {
     public $entityType = ENTITY_INVOICE;
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
-    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
+    protected ClientRepository $clientRepo;
 
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    protected DocumentRepository $documentRepo;
 
-    protected \App\Services\InvoiceService $invoiceService;
+    protected InvoiceService $invoiceService;
 
-    protected \App\Services\PaymentService $paymentService;
+    protected PaymentService $paymentService;
 
-    protected \App\Services\RecurringInvoiceService $recurringInvoiceService;
+    protected RecurringInvoiceService $recurringInvoiceService;
 
     public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
     {
@@ -65,31 +72,31 @@ class InvoiceController extends BaseController
 
     public function getDatatable($clientPublicId = null)
     {
-        $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $accountId = Auth::user()->account_id;
+        $search = Request::input('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
     }
 
     public function getRecurringDatatable($clientPublicId = null)
     {
-        $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $accountId = Auth::user()->account_id;
+        $search = Request::input('sSearch');
 
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
 
     public function edit(InvoiceRequest $request, $publicId, $clone = false)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $invoice = $request->entity()->load('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'payments');
 
         $entityType = $invoice->getEntityType();
 
-        $contactIds = \Illuminate\Support\Facades\DB::table('invitations')
+        $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
-            ->where('invitations.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+            ->where('invitations.account_id', '=', Auth::user()->account_id)
             ->where('invitations.deleted_at', '=', null)
             ->select('contacts.public_id')->pluck('public_id');
 
@@ -134,15 +141,15 @@ class InvoiceController extends BaseController
         $invoice->partial_due_date = Utils::fromSqlDate($invoice->partial_due_date);
 
         $invoice->features = [
-            'customize_invoice_design' => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-            'remove_created_by'        => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-            'invoice_settings'         => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by'        => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings'         => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
 
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
-        if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission('view_client')) {
-            $clients = $clients->where('clients.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+        if ( ! Auth::user()->hasPermission('view_client')) {
+            $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
         $data = [
@@ -193,16 +200,16 @@ class InvoiceController extends BaseController
             }
         }
 
-        if (\Illuminate\Support\Facades\Auth::user()->registered && ! \Illuminate\Support\Facades\Auth::user()->confirmed) {
+        if (Auth::user()->registered && ! Auth::user()->confirmed) {
             session()->flash('warning', trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]));
         }
 
-        return \Illuminate\Support\Facades\View::make('invoices.edit', $data);
+        return View::make('invoices.edit', $data);
     }
 
     public function create(InvoiceRequest $request, $clientPublicId = 0, $isRecurring = false)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
@@ -216,8 +223,8 @@ class InvoiceController extends BaseController
         $invoice->loadFromRequest();
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
-        if ( ! \Illuminate\Support\Facades\Auth::user()->hasPermission('view_client')) {
-            $clients = $clients->where('clients.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+        if ( ! Auth::user()->hasPermission('view_client')) {
+            $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
         if ($clientPublicId != 0) {
@@ -234,7 +241,7 @@ class InvoiceController extends BaseController
         ];
         $data = array_merge($data, $this->getViewModel($invoice));
 
-        return \Illuminate\Support\Facades\View::make('invoices.edit', $data);
+        return View::make('invoices.edit', $data);
     }
 
     public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
@@ -252,8 +259,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $entityType = \Illuminate\Support\Facades\Request::input('entityType');
+        $action = Request::input('action');
+        $entityType = Request::input('entityType');
 
         $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
@@ -279,8 +286,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $entityType = \Illuminate\Support\Facades\Request::input('entityType');
+        $action = Request::input('action');
+        $entityType = Request::input('entityType');
 
         $invoice = $this->invoiceService->save($data, $request->entity());
         $entityType = $invoice->getEntityType();
@@ -318,7 +325,7 @@ class InvoiceController extends BaseController
     {
         Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to(sprintf('invoices/%s/edit', $publicId));
+        return Redirect::to(sprintf('invoices/%s/edit', $publicId));
     }
 
     /**
@@ -331,8 +338,8 @@ class InvoiceController extends BaseController
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = \Illuminate\Support\Facades\Request::input('bulk_action') ?: \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id') ?: (\Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids'));
+        $action = Request::input('bulk_action') ?: Request::input('action');
+        $ids = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
@@ -352,7 +359,7 @@ class InvoiceController extends BaseController
             Session::flash('message', $message);
         }
 
-        if (mb_strpos(\Illuminate\Support\Facades\Request::server('HTTP_REFERER'), 'recurring_invoices')) {
+        if (mb_strpos(Request::server('HTTP_REFERER'), 'recurring_invoices')) {
             $entityType = ENTITY_RECURRING_INVOICE;
         }
 
@@ -387,9 +394,9 @@ class InvoiceController extends BaseController
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->features = [
-            'customize_invoice_design' => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-            'remove_created_by'        => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-            'invoice_settings'         => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by'        => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings'         => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
         $invoice->invoice_type_id = (int) ($invoice->invoice_type_id);
 
@@ -414,9 +421,9 @@ class InvoiceController extends BaseController
                 $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
                 $backup->due_date = Utils::fromSqlDate($backup->due_date);
                 $backup->features = [
-                    'customize_invoice_design' => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-                    'remove_created_by'        => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-                    'invoice_settings'         => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+                    'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+                    'remove_created_by'        => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+                    'invoice_settings'         => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
                 ];
                 $backup->invoice_type_id = isset($backup->invoice_type_id) && (int) ($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
                 $backup->account = $invoice->account->toArray();
@@ -440,11 +447,11 @@ class InvoiceController extends BaseController
             'versionsJson'   => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
-            'invoiceFonts'   => \Illuminate\Support\Facades\Cache::get('fonts'),
+            'invoiceFonts'   => Cache::get('fonts'),
             'paymentId'      => $paymentId,
         ];
 
-        return \Illuminate\Support\Facades\View::make('invoices.history', $data);
+        return View::make('invoices.history', $data);
     }
 
     public function deliveryNote(InvoiceRequest $request)
@@ -455,9 +462,9 @@ class InvoiceController extends BaseController
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->features = [
-            'customize_invoice_design' => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-            'remove_created_by'        => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-            'invoice_settings'         => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by'        => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings'         => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
         $invoice->invoice_type_id = (int) ($invoice->invoice_type_id);
 
@@ -470,10 +477,10 @@ class InvoiceController extends BaseController
         $data = [
             'invoice'        => $invoice,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
-            'invoiceFonts'   => \Illuminate\Support\Facades\Cache::get('fonts'),
+            'invoiceFonts'   => Cache::get('fonts'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('invoices.delivery_note', $data);
+        return View::make('invoices.delivery_note', $data);
     }
 
     public function checkInvoiceNumber($invoicePublicId = false): string
@@ -495,7 +502,7 @@ class InvoiceController extends BaseController
 
     private function getViewModel($invoice): array
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $recurringHelp = '';
         $recurringDueDateHelp = '';
@@ -571,18 +578,18 @@ class InvoiceController extends BaseController
         }
 
         return [
-            'data'                 => \Illuminate\Support\Facades\Request::old('data'),
-            'account'              => \Illuminate\Support\Facades\Auth::user()->account->load('country'),
+            'data'                 => Request::old('data'),
+            'account'              => Auth::user()->account->load('country'),
             'products'             => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions'       => $taxRateOptions,
-            'sizes'                => \Illuminate\Support\Facades\Cache::get('sizes'),
+            'sizes'                => Cache::get('sizes'),
             'invoiceDesigns'       => InvoiceDesign::getDesigns(),
-            'invoiceFonts'         => \Illuminate\Support\Facades\Cache::get('fonts'),
-            'frequencies'          => \App\Models\Frequency::selectOptions(),
+            'invoiceFonts'         => Cache::get('fonts'),
+            'frequencies'          => Frequency::selectOptions(),
             'recurringDueDates'    => $recurringDueDates,
             'recurringHelp'        => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
-            'invoiceLabels'        => \Illuminate\Support\Facades\Auth::user()->account->getInvoiceLabels(),
+            'invoiceLabels'        => Auth::user()->account->getInvoiceLabels(),
             'tasks'                => Session::get('tasks') ?: null,
             'expenseCurrencyId'    => Session::get('expenseCurrencyId') ?: null,
             'expenses'             => Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get(),
@@ -591,18 +598,18 @@ class InvoiceController extends BaseController
 
     private function emailInvoice($invoice)
     {
-        $reminder = \Illuminate\Support\Facades\Request::input('reminder');
-        $template = \Illuminate\Support\Facades\Request::input('template');
-        $pdfUpload = Utils::decodePDF(\Illuminate\Support\Facades\Request::input('pdfupload'));
+        $reminder = Request::input('reminder');
+        $template = Request::input('template');
+        $pdfUpload = Utils::decodePDF(Request::input('pdfupload'));
         $entityType = $invoice->getEntityType();
 
-        if (filter_var(\Illuminate\Support\Facades\Request::input('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
-            $account->setTemplateDefaults(\Illuminate\Support\Facades\Request::input('template_type'), $template['subject'], $template['body']);
+        if (filter_var(Request::input('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
+            $account = Auth::user()->account;
+            $account->setTemplateDefaults(Request::input('template_type'), $template['subject'], $template['body']);
         }
 
-        if ( ! \Illuminate\Support\Facades\Auth::user()->confirmed) {
-            if (\Illuminate\Support\Facades\Auth::user()->registered) {
+        if ( ! Auth::user()->confirmed) {
+            if (Auth::user()->registered) {
                 $errorMessage = trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]);
             } else {
                 $errorMessage = trans('texts.registration_required');
@@ -610,13 +617,13 @@ class InvoiceController extends BaseController
 
             Session::flash('error', $errorMessage);
 
-            return \Illuminate\Support\Facades\Redirect::to('invoices/' . $invoice->public_id . '/edit');
+            return Redirect::to('invoices/' . $invoice->public_id . '/edit');
         }
 
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $userId = \Illuminate\Support\Facades\Auth::user()->id;
+            $userId = Auth::user()->id;
             dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
             $response = true;
         }
@@ -650,7 +657,7 @@ class InvoiceController extends BaseController
             return true;
         }
 
-        $userId = \Illuminate\Support\Facades\Auth::user()->id;
+        $userId = Auth::user()->id;
         $this->dispatch(new SendInvoiceEmail($invoice, $userId));
 
         return true;

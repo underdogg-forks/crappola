@@ -2,23 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
- * @property int                       $id
- * @property int                       $lookup_company_id
- * @property string                    $account_key
- * @property string|null               $subdomain
- * @property LookupAccount|null        $lookupAccount
- * @property \App\Models\LookupCompany $lookupCompany
+ * @property int                $id
+ * @property int                $lookup_company_id
+ * @property string             $account_key
+ * @property string|null        $subdomain
+ * @property LookupAccount|null $lookupAccount
+ * @property LookupCompany      $lookupCompany
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereAccountKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereLookupCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereSubdomain($value)
+ * @method static Builder|LookupAccount newModelQuery()
+ * @method static Builder|LookupAccount newQuery()
+ * @method static Builder|LookupAccount query()
+ * @method static Builder|LookupAccount whereAccountKey($value)
+ * @method static Builder|LookupAccount whereId($value)
+ * @method static Builder|LookupAccount whereLookupCompanyId($value)
+ * @method static Builder|LookupAccount whereSubdomain($value)
  *
  * @mixin \Eloquent
  */
@@ -99,7 +101,7 @@ class LookupAccount extends LookupModel
 
     public function lookupCompany()
     {
-        return $this->belongsTo(\App\Models\LookupCompany::class);
+        return $this->belongsTo(LookupCompany::class);
     }
 
     public function getDbServer()

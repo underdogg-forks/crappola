@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Libraries\Utils;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Response;
 
@@ -17,9 +18,9 @@ abstract class Request extends FormRequest
     /**
      * Validate the input.
      *
-     * @param \Illuminate\Validation\Factory $factory
+     * @param Factory $factory
      *
-     * @return \Illuminate\Contracts\Validation\Validator
+     * @return Validator
      */
     public function validator($factory)
     {

@@ -9,6 +9,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -31,9 +32,9 @@ class ChargeRenewalInvoices extends Command
      */
     protected Mailer $mailer;
 
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    protected \App\Services\PaymentService $paymentService;
+    protected PaymentService $paymentService;
 
     /**
      * ChargeRenewalInvoices constructor.
@@ -101,7 +102,7 @@ class ChargeRenewalInvoices extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail): void {
+            Mail::raw('EOM', function ($message) use ($errorEmail): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject('ChargeRenewalInvoices: Finished successfully');

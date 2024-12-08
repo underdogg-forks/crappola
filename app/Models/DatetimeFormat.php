@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class DatetimeFormat.
  *
@@ -10,17 +13,17 @@ namespace App\Models;
  * @property string $format_moment
  * @property string $format_dart
  *
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat query()
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat whereFormat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat whereFormatDart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat whereFormatMoment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat whereId($value)
+ * @method static Builder|DatetimeFormat newModelQuery()
+ * @method static Builder|DatetimeFormat newQuery()
+ * @method static Builder|DatetimeFormat query()
+ * @method static Builder|DatetimeFormat whereFormat($value)
+ * @method static Builder|DatetimeFormat whereFormatDart($value)
+ * @method static Builder|DatetimeFormat whereFormatMoment($value)
+ * @method static Builder|DatetimeFormat whereId($value)
  *
  * @mixin \Eloquent
  */
-class DatetimeFormat extends \Illuminate\Database\Eloquent\Model
+class DatetimeFormat extends Model
 {
     /**
      * @var bool

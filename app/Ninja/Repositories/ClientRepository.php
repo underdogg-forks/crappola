@@ -7,12 +7,15 @@ use App\Events\ClientWasUpdated;
 use App\Jobs\PurgeClientData;
 use App\Models\Client;
 use App\Models\Contact;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ClientRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\Client::class;
+        return Client::class;
     }
 
     public function all()
@@ -26,17 +29,17 @@ class ClientRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = \Illuminate\Support\Facades\DB::table('clients')
+        $query = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+            ->where('clients.account_id', '=', Auth::user()->account_id)
             ->where('contacts.is_primary', '=', true)
             ->where('contacts.deleted_at', '=', null)
                     //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
-                \Illuminate\Support\Facades\DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
                 'clients.public_id',
                 'clients.name',
                 'clients.private_notes',
@@ -91,8 +94,8 @@ class ClientRepository extends BaseRepository
         }
 
         // auto-set the client id number
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->account->client_number_counter && ! $client->id_number && empty($data['id_number'])) {
-            $data['id_number'] = \Illuminate\Support\Facades\Auth::user()->account->getNextNumber();
+        if (Auth::check() && Auth::user()->account->client_number_counter && ! $client->id_number && empty($data['id_number'])) {
+            $data['id_number'] = Auth::user()->account->getNextNumber();
         }
 
         if ($client->is_deleted) {
@@ -102,7 +105,7 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = mb_strtolower($data['currency_code']);
-            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
+            $currency = Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
             if ($currency) {
                 $data['currency_id'] = $currency->id;
             }
@@ -111,7 +114,7 @@ class ClientRepository extends BaseRepository
         // convert country code to id
         if (isset($data['country_code'])) {
             $countryCode = mb_strtolower($data['country_code']);
-            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['country_id'] = $country->id;
             }
@@ -120,7 +123,7 @@ class ClientRepository extends BaseRepository
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
             $countryCode = mb_strtolower($data['shipping_country_code']);
-            $country = \Illuminate\Support\Facades\Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['shipping_country_id'] = $country->id;
             }

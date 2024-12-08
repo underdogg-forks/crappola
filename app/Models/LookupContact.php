@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
- * @property int                       $id
- * @property int                       $lookup_account_id
- * @property string                    $contact_key
- * @property \App\Models\LookupAccount $lookupAccount
+ * @property int           $id
+ * @property int           $lookup_account_id
+ * @property string        $contact_key
+ * @property LookupAccount $lookupAccount
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact whereContactKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupContact whereLookupAccountId($value)
+ * @method static Builder|LookupContact newModelQuery()
+ * @method static Builder|LookupContact newQuery()
+ * @method static Builder|LookupContact query()
+ * @method static Builder|LookupContact whereContactKey($value)
+ * @method static Builder|LookupContact whereId($value)
+ * @method static Builder|LookupContact whereLookupAccountId($value)
  *
  * @mixin \Eloquent
  */

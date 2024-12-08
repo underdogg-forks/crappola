@@ -11,7 +11,7 @@ use Carbon;
  */
 class EmailService
 {
-    protected \App\Ninja\Mailers\UserMailer $userMailer;
+    protected UserMailer $userMailer;
 
     /**
      * EmailService constructor.
@@ -30,7 +30,7 @@ class EmailService
      */
     public function markOpened($messageId): bool
     {
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = Invitation::whereMessageId($messageId)->first();
 
         if ( ! $invitation) {
@@ -51,7 +51,7 @@ class EmailService
      */
     public function markBounced($messageId, $error): bool
     {
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = Invitation::with('user', 'invoice', 'contact')
             ->whereMessageId($messageId)
             ->first();

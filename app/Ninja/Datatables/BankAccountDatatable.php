@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class BankAccountDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_BANK_ACCOUNT;
@@ -25,7 +27,7 @@ class BankAccountDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_bank_account'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('bank_accounts/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('bank_accounts/%s/edit', $model->public_id)),
             ],
         ];
     }

@@ -14,6 +14,14 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\TaskService;
 use DropdownButton;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 /**
@@ -26,11 +34,11 @@ class TaskController extends BaseController
      */
     public $entityType = ENTITY_TASK;
 
-    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
+    protected TaskRepository $taskRepo;
 
-    protected \App\Services\TaskService $taskService;
+    protected TaskService $taskService;
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * TaskController constructor.
@@ -56,7 +64,7 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_TASK,
             'datatable'  => new TaskDatatable(),
             'title'      => trans('texts.tasks'),
@@ -66,11 +74,11 @@ class TaskController extends BaseController
     /**
      * @param null $clientPublicId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null, $projectPublicId = null)
     {
-        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, \Illuminate\Support\Facades\Request::input('sSearch'));
+        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, Request::input('sSearch'));
     }
 
     /**
@@ -78,7 +86,7 @@ class TaskController extends BaseController
      *
      * @param CreateTaskRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateTaskRequest $request)
     {
@@ -88,13 +96,13 @@ class TaskController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to(sprintf('tasks/%s/edit', $publicId));
+        return Redirect::to(sprintf('tasks/%s/edit', $publicId));
     }
 
     /**
@@ -110,18 +118,18 @@ class TaskController extends BaseController
 
         $data = [
             'task'            => null,
-            'clientPublicId'  => \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0),
-            'projectPublicId' => \Illuminate\Support\Facades\Request::old('project_id') ?: ($request->project_id ?: 0),
+            'clientPublicId'  => Request::old('client') ?: ($request->client_id ?: 0),
+            'projectPublicId' => Request::old('project_id') ?: ($request->project_id ?: 0),
             'method'          => 'POST',
             'url'             => 'tasks',
             'title'           => trans('texts.new_task'),
-            'timezone'        => \Illuminate\Support\Facades\Auth::user()->account->timezone ? \Illuminate\Support\Facades\Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetimeFormat'  => \Illuminate\Support\Facades\Auth::user()->account->getMomentDateTimeFormat(),
+            'timezone'        => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
+            'datetimeFormat'  => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
         $data = array_merge($data, $this->getViewModel());
 
-        return \Illuminate\Support\Facades\View::make('tasks.edit', $data);
+        return View::make('tasks.edit', $data);
     }
 
     /**
@@ -142,7 +150,7 @@ class TaskController extends BaseController
 
         $actions = [];
         if ($task->invoice) {
-            $actions[] = ['url' => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/edit', $task->invoice->public_id)), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => URL::to(sprintf('invoices/%s/edit', $task->invoice->public_id)), 'label' => trans('texts.view_invoice')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
@@ -171,13 +179,13 @@ class TaskController extends BaseController
             'url'             => 'tasks/' . $task->public_id,
             'title'           => trans('texts.edit_task'),
             'actions'         => $actions,
-            'timezone'        => \Illuminate\Support\Facades\Auth::user()->account->timezone ? \Illuminate\Support\Facades\Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetimeFormat'  => \Illuminate\Support\Facades\Auth::user()->account->getMomentDateTimeFormat(),
+            'timezone'        => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
+            'datetimeFormat'  => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
         $data = array_merge($data, $this->getViewModel($task));
 
-        return \Illuminate\Support\Facades\View::make('tasks.edit', $data);
+        return View::make('tasks.edit', $data);
     }
 
     /**
@@ -185,7 +193,7 @@ class TaskController extends BaseController
      *
      * @param UpdateTaskRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdateTaskRequest $request)
     {
@@ -195,17 +203,17 @@ class TaskController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: (\Illuminate\Support\Facades\Request::input('id') ?: \Illuminate\Support\Facades\Request::input('ids'));
-        $referer = \Illuminate\Support\Facades\Request::server('HTTP_REFERER');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: (Request::input('id') ?: Request::input('ids'));
+        $referer = Request::server('HTTP_REFERER');
 
         if (in_array($action, ['resume', 'stop'])) {
             $this->taskRepo->save($ids, ['action' => $action]);
-            \Illuminate\Support\Facades\Session::flash('message', trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
+            Session::flash('message', trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
@@ -216,7 +224,7 @@ class TaskController extends BaseController
                 'task_status_id'         => TaskStatus::getPrivateId($statusPublicId),
                 'task_status_sort_order' => 9999,
             ]);
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_task_status'));
+            Session::flash('message', trans('texts.updated_task_status'));
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
@@ -248,7 +256,7 @@ class TaskController extends BaseController
                     return redirect($referer)->withError(trans('texts.task_error_invoiced'));
                 }
 
-                $account = \Illuminate\Support\Facades\Auth::user()->account;
+                $account = Auth::user()->account;
                 $showProject = $lastProjectId != $task->project_id;
                 $data[] = [
                     'publicId'    => $task->public_id,
@@ -260,12 +268,12 @@ class TaskController extends BaseController
             }
 
             if ($action == 'invoice') {
-                return \Illuminate\Support\Facades\Redirect::to('invoices/create/' . $clientPublicId)->with('tasks', $data);
+                return Redirect::to('invoices/create/' . $clientPublicId)->with('tasks', $data);
             }
 
-            $invoiceId = \Illuminate\Support\Facades\Request::input('invoice_id');
+            $invoiceId = Request::input('invoice_id');
 
-            return \Illuminate\Support\Facades\Redirect::to(sprintf('invoices/%s/edit', $invoiceId))->with('tasks', $data);
+            return Redirect::to(sprintf('invoices/%s/edit', $invoiceId))->with('tasks', $data);
         }
 
         $count = $this->taskService->bulk($ids, $action);
@@ -274,7 +282,7 @@ class TaskController extends BaseController
         }
 
         $message = Utils::pluralize($action . 'd_task', $count);
-        \Illuminate\Support\Facades\Session::flash('message', $message);
+        Session::flash('message', $message);
 
         return $this->returnBulk($this->entityType, $action, $ids);
     }
@@ -283,7 +291,7 @@ class TaskController extends BaseController
     {
         return [
             'clients'  => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
-            'account'  => \Illuminate\Support\Facades\Auth::user()->account,
+            'account'  => Auth::user()->account,
             'projects' => Project::scope()->withActiveOrSelected($task ? $task->project_id : false)->with('client.contacts')->orderBy('name')->get(),
         ];
     }
@@ -291,11 +299,11 @@ class TaskController extends BaseController
     /**
      * @param null $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    private function save(\App\Http\Requests\CreateTaskRequest|\App\Http\Requests\UpdateTaskRequest $request, $publicId = null)
+    private function save(CreateTaskRequest|UpdateTaskRequest $request, $publicId = null)
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -314,19 +322,19 @@ class TaskController extends BaseController
         }
 
         if ($publicId) {
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_task'));
+            Session::flash('message', trans('texts.updated_task'));
         } else {
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_task'));
+            Session::flash('message', trans('texts.created_task'));
         }
 
-        return \Illuminate\Support\Facades\Redirect::to(sprintf('tasks/%s/edit', $task->public_id));
+        return Redirect::to(sprintf('tasks/%s/edit', $task->public_id));
     }
 
     private function checkTimezone(): void
     {
-        if ( ! \Illuminate\Support\Facades\Auth::user()->account->timezone) {
+        if ( ! Auth::user()->account->timezone) {
             $link = link_to('/settings/localization?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
-            \Illuminate\Support\Facades\Session::now('warning', trans('texts.timezone_unset', ['link' => $link]));
+            Session::now('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

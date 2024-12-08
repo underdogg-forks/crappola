@@ -3,6 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Models\EntityModel;
+use App\Services\InvoiceService;
 use Exception;
 
 class CreateInvoiceIntent extends InvoiceIntent
@@ -29,7 +30,7 @@ class CreateInvoiceIntent extends InvoiceIntent
             throw new Exception($valid);
         }
 
-        $invoiceService = app(\App\Services\InvoiceService::class);
+        $invoiceService = app(InvoiceService::class);
         $invoice = $invoiceService->save($data);
 
         $invoiceItemIds = array_map(fn ($item) => $item['public_id'], $invoice->invoice_items->toArray());

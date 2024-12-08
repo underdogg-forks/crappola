@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Class RedirectIfAuthenticated.
@@ -14,7 +15,7 @@ class RedirectIfAuthenticated
     /**
      * The Guard implementation.
      */
-    protected \Illuminate\Contracts\Auth\Guard $auth;
+    protected Guard $auth;
 
     /**
      * Create a new filter instance.
@@ -37,7 +38,7 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next, $guard = null)
     {
         if (auth()->guard($guard)->check()) {
-            \Illuminate\Support\Facades\Session::reflash();
+            Session::reflash();
 
             switch ($guard) {
                 case 'client':

@@ -10,15 +10,17 @@ use App\Models\Invoice;
 use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class InvoiceService extends BaseService
 {
-    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
+    protected ClientRepository $clientRepo;
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
-    protected \App\Services\DatatableService $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * InvoiceService constructor.
@@ -47,7 +49,7 @@ class InvoiceService extends BaseService
     {
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
-            dispatch_sync(new DownloadInvoices(\Illuminate\Support\Facades\Auth::user(), $invoices));
+            dispatch_sync(new DownloadInvoices(Auth::user(), $invoices));
 
             return count($invoices);
         }
@@ -59,20 +61,20 @@ class InvoiceService extends BaseService
      * @param array        $data
      * @param Invoice|null $invoice
      *
-     * @return \App\Models\Invoice|Invoice|mixed
+     * @return Invoice|Invoice|mixed
      */
     public function save(array $data, ?Invoice $invoice = null)
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
             $canViewClient = false;
-            $clientPublicId = \Illuminate\Support\Arr::get($data, 'client.public_id') ?: \Illuminate\Support\Arr::get($data, 'client.id');
+            $clientPublicId = Arr::get($data, 'client.public_id') ?: Arr::get($data, 'client.id');
             if (empty($clientPublicId) || (int) $clientPublicId < 0) {
-                $canSaveClient = \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CLIENT);
+                $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $client = Client::scope($clientPublicId)->first();
-                $canSaveClient = \Illuminate\Support\Facades\Auth::user()->can('edit', $client);
-                $canViewClient = \Illuminate\Support\Facades\Auth::user()->can('view', $client);
+                $canSaveClient = Auth::user()->can('edit', $client);
+                $canViewClient = Auth::user()->can('view', $client);
             }
 
             if ($canSaveClient) {
@@ -145,7 +147,7 @@ class InvoiceService extends BaseService
             ->where('invoices.invoice_type_id', '=', $entityType === ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
         if ( ! Utils::hasPermission('view_' . $entityType)) {
-            $query->where('invoices.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+            $query->where('invoices.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
@@ -154,7 +156,7 @@ class InvoiceService extends BaseService
     /**
      * @return InvoiceRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\InvoiceRepository
+    protected function getRepo(): InvoiceRepository
     {
         return $this->invoiceRepo;
     }

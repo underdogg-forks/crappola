@@ -2,6 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use App\Ninja\Presenters\AccountPresenter;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use App\Events\UserSettingsChanged;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\HasCustomMessages;
@@ -164,208 +171,208 @@ use Utils;
  * @property mixed|null                                                                        $custom_messages
  * @property int                                                                               $is_custom_domain
  * @property int                                                                               $show_product_notes
- * @property \App\Models\AccountEmailSettings|null                                             $account_email_settings
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountGatewaySettings> $account_gateway_settings
+ * @property AccountEmailSettings|null $account_email_settings
+ * @property Collection<int, AccountGatewaySettings> $account_gateway_settings
  * @property int|null                                                                          $account_gateway_settings_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountGateway>         $account_gateways
+ * @property Collection<int, AccountGateway> $account_gateways
  * @property int|null                                                                          $account_gateways_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountToken>           $account_tokens
+ * @property Collection<int, AccountToken> $account_tokens
  * @property int|null                                                                          $account_tokens_count
- * @property \App\Models\Document|null                                                         $background_image
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankAccount>            $bank_accounts
+ * @property Document|null $background_image
+ * @property Collection<int, BankAccount> $bank_accounts
  * @property int|null                                                                          $bank_accounts_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client>                 $clients
+ * @property Collection<int, Client> $clients
  * @property int|null                                                                          $clients_count
- * @property \App\Models\Company|null                                                          $company
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contact>                $contacts
+ * @property Company|null $company
+ * @property Collection<int, Contact> $contacts
  * @property int|null                                                                          $contacts_count
- * @property \App\Models\Country|null                                                          $country
- * @property \App\Models\Currency|null                                                         $currency
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm>            $custom_payment_terms
+ * @property Country|null $country
+ * @property Currency|null $currency
+ * @property Collection<int, PaymentTerm> $custom_payment_terms
  * @property int|null                                                                          $custom_payment_terms_count
- * @property \App\Models\DateFormat|null                                                       $date_format
- * @property \App\Models\DatetimeFormat|null                                                   $datetime_format
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document>               $defaultDocuments
+ * @property DateFormat|null $date_format
+ * @property DatetimeFormat|null $datetime_format
+ * @property Collection<int, Document> $defaultDocuments
  * @property int|null                                                                          $default_documents_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpenseCategory>        $expense_categories
+ * @property Collection<int, ExpenseCategory> $expense_categories
  * @property int|null                                                                          $expense_categories_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense>                $expenses
+ * @property Collection<int, Expense> $expenses
  * @property int|null                                                                          $expenses_count
- * @property \App\Models\Industry|null                                                         $industry
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice>                $invoices
+ * @property Industry|null $industry
+ * @property Collection<int, Invoice> $invoices
  * @property int|null                                                                          $invoices_count
- * @property \App\Models\Language                                                              $language
- * @property \App\Models\PaymentType|null                                                      $payment_type
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>                $payments
+ * @property Language $language
+ * @property PaymentType|null $payment_type
+ * @property Collection<int, Payment> $payments
  * @property int|null                                                                          $payments_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product>                $products
+ * @property Collection<int, Product> $products
  * @property int|null                                                                          $products_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project>                $projects
+ * @property Collection<int, Project> $projects
  * @property int|null                                                                          $projects_count
- * @property \App\Models\Size|null                                                             $size
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaskStatus>             $task_statuses
+ * @property Size|null $size
+ * @property Collection<int, TaskStatus> $task_statuses
  * @property int|null                                                                          $task_statuses_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaxRate>                $tax_rates
+ * @property Collection<int, TaxRate> $tax_rates
  * @property int|null                                                                          $tax_rates_count
- * @property \App\Models\Timezone|null                                                         $timezone
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>                   $users
+ * @property Timezone|null $timezone
+ * @property Collection<int, User> $users
  * @property int|null                                                                          $users_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Account onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Account query()
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccountKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAllPagesFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAllPagesHeader($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAnalyticsKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoArchiveInvoice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoArchiveQuote($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoBillOnDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoConvertQuote($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoEmailInvoice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereBackgroundImageId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereBodyFontId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberPattern($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberPrefix($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientViewCss($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereConvertProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberPattern($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberPrefix($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomFields($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomInvoiceTaxes1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomInvoiceTaxes2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomMessages($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDateFormatId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDatetimeFormatId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDevices($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDocumentEmailAttachment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereDomainId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEmailDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEmailFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableBuyNowButtons($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableClientPortal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableClientPortalDashboard($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableEmailMarkup($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnablePortalPassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableSecondTaxRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnabledDashboardSections($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnabledModules($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFillProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFinancialYearStart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereFontSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereGatewayFeeEnabled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereHeaderFontId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereHidePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereHideQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIframeUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIncludeItemTaxesInline($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIndustryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceEmbedDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceFields($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceItemTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceLabels($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPadding($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPattern($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPrefix($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsCustomDomain($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLanguageId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLivePreview($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoHeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoWidth($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereMilitaryTime($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePageSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePaymentTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePaymentTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePdfEmailAttachment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account wherePrimaryColor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberPattern($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberPrefix($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereRecurringHour($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereRecurringInvoiceNumberPrefix($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereRequireInvoiceSignature($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereRequireQuoteSignature($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereResetCounterDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereResetCounterFrequencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSecondaryColor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSendItemDetails($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSendPortalPassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShareCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowAcceptInvoiceTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowAcceptQuoteTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowCurrencyCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowItemTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowProductNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSignatureOnPdf($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereStartOfWeek($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereSubdomain($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaskRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTimezoneId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereTokenBillingTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereUblEmailAttachment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdateProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereWorkEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereWorkPhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Account withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Account withoutTrashed()
+ * @method static Builder|Account newModelQuery()
+ * @method static Builder|Account newQuery()
+ * @method static Builder|Account onlyTrashed()
+ * @method static Builder|Account query()
+ * @method static Builder|Account whereAccountKey($value)
+ * @method static Builder|Account whereAddress1($value)
+ * @method static Builder|Account whereAddress2($value)
+ * @method static Builder|Account whereAllPagesFooter($value)
+ * @method static Builder|Account whereAllPagesHeader($value)
+ * @method static Builder|Account whereAnalyticsKey($value)
+ * @method static Builder|Account whereAutoArchiveInvoice($value)
+ * @method static Builder|Account whereAutoArchiveQuote($value)
+ * @method static Builder|Account whereAutoBillOnDueDate($value)
+ * @method static Builder|Account whereAutoConvertQuote($value)
+ * @method static Builder|Account whereAutoEmailInvoice($value)
+ * @method static Builder|Account whereBackgroundImageId($value)
+ * @method static Builder|Account whereBodyFontId($value)
+ * @method static Builder|Account whereCity($value)
+ * @method static Builder|Account whereClientNumberCounter($value)
+ * @method static Builder|Account whereClientNumberPattern($value)
+ * @method static Builder|Account whereClientNumberPrefix($value)
+ * @method static Builder|Account whereClientViewCss($value)
+ * @method static Builder|Account whereCompanyId($value)
+ * @method static Builder|Account whereConvertProducts($value)
+ * @method static Builder|Account whereCountryId($value)
+ * @method static Builder|Account whereCreatedAt($value)
+ * @method static Builder|Account whereCreditNumberCounter($value)
+ * @method static Builder|Account whereCreditNumberPattern($value)
+ * @method static Builder|Account whereCreditNumberPrefix($value)
+ * @method static Builder|Account whereCurrencyId($value)
+ * @method static Builder|Account whereCustomDesign1($value)
+ * @method static Builder|Account whereCustomDesign2($value)
+ * @method static Builder|Account whereCustomDesign3($value)
+ * @method static Builder|Account whereCustomFields($value)
+ * @method static Builder|Account whereCustomInvoiceTaxes1($value)
+ * @method static Builder|Account whereCustomInvoiceTaxes2($value)
+ * @method static Builder|Account whereCustomMessages($value)
+ * @method static Builder|Account whereCustomValue1($value)
+ * @method static Builder|Account whereCustomValue2($value)
+ * @method static Builder|Account whereDateFormatId($value)
+ * @method static Builder|Account whereDatetimeFormatId($value)
+ * @method static Builder|Account whereDeletedAt($value)
+ * @method static Builder|Account whereDevices($value)
+ * @method static Builder|Account whereDirectionReminder1($value)
+ * @method static Builder|Account whereDirectionReminder2($value)
+ * @method static Builder|Account whereDirectionReminder3($value)
+ * @method static Builder|Account whereDocumentEmailAttachment($value)
+ * @method static Builder|Account whereDomainId($value)
+ * @method static Builder|Account whereEmailDesignId($value)
+ * @method static Builder|Account whereEmailFooter($value)
+ * @method static Builder|Account whereEnableBuyNowButtons($value)
+ * @method static Builder|Account whereEnableClientPortal($value)
+ * @method static Builder|Account whereEnableClientPortalDashboard($value)
+ * @method static Builder|Account whereEnableEmailMarkup($value)
+ * @method static Builder|Account whereEnablePortalPassword($value)
+ * @method static Builder|Account whereEnableReminder1($value)
+ * @method static Builder|Account whereEnableReminder2($value)
+ * @method static Builder|Account whereEnableReminder3($value)
+ * @method static Builder|Account whereEnableReminder4($value)
+ * @method static Builder|Account whereEnableSecondTaxRate($value)
+ * @method static Builder|Account whereEnabledDashboardSections($value)
+ * @method static Builder|Account whereEnabledModules($value)
+ * @method static Builder|Account whereFieldReminder1($value)
+ * @method static Builder|Account whereFieldReminder2($value)
+ * @method static Builder|Account whereFieldReminder3($value)
+ * @method static Builder|Account whereFillProducts($value)
+ * @method static Builder|Account whereFinancialYearStart($value)
+ * @method static Builder|Account whereFontSize($value)
+ * @method static Builder|Account whereGatewayFeeEnabled($value)
+ * @method static Builder|Account whereHeaderFontId($value)
+ * @method static Builder|Account whereHidePaidToDate($value)
+ * @method static Builder|Account whereHideQuantity($value)
+ * @method static Builder|Account whereId($value)
+ * @method static Builder|Account whereIdNumber($value)
+ * @method static Builder|Account whereIframeUrl($value)
+ * @method static Builder|Account whereIncludeItemTaxesInline($value)
+ * @method static Builder|Account whereInclusiveTaxes($value)
+ * @method static Builder|Account whereIndustryId($value)
+ * @method static Builder|Account whereInvoiceDesignId($value)
+ * @method static Builder|Account whereInvoiceEmbedDocuments($value)
+ * @method static Builder|Account whereInvoiceFields($value)
+ * @method static Builder|Account whereInvoiceFooter($value)
+ * @method static Builder|Account whereInvoiceItemTaxes($value)
+ * @method static Builder|Account whereInvoiceLabels($value)
+ * @method static Builder|Account whereInvoiceNumberCounter($value)
+ * @method static Builder|Account whereInvoiceNumberPadding($value)
+ * @method static Builder|Account whereInvoiceNumberPattern($value)
+ * @method static Builder|Account whereInvoiceNumberPrefix($value)
+ * @method static Builder|Account whereInvoiceTaxes($value)
+ * @method static Builder|Account whereInvoiceTerms($value)
+ * @method static Builder|Account whereIp($value)
+ * @method static Builder|Account whereIsCustomDomain($value)
+ * @method static Builder|Account whereLanguageId($value)
+ * @method static Builder|Account whereLastLogin($value)
+ * @method static Builder|Account whereLivePreview($value)
+ * @method static Builder|Account whereLogo($value)
+ * @method static Builder|Account whereLogoHeight($value)
+ * @method static Builder|Account whereLogoSize($value)
+ * @method static Builder|Account whereLogoWidth($value)
+ * @method static Builder|Account whereMilitaryTime($value)
+ * @method static Builder|Account whereName($value)
+ * @method static Builder|Account whereNumDaysReminder1($value)
+ * @method static Builder|Account whereNumDaysReminder2($value)
+ * @method static Builder|Account whereNumDaysReminder3($value)
+ * @method static Builder|Account wherePageSize($value)
+ * @method static Builder|Account wherePaymentTerms($value)
+ * @method static Builder|Account wherePaymentTypeId($value)
+ * @method static Builder|Account wherePdfEmailAttachment($value)
+ * @method static Builder|Account wherePostalCode($value)
+ * @method static Builder|Account wherePrimaryColor($value)
+ * @method static Builder|Account whereQuoteDesignId($value)
+ * @method static Builder|Account whereQuoteNumberCounter($value)
+ * @method static Builder|Account whereQuoteNumberPattern($value)
+ * @method static Builder|Account whereQuoteNumberPrefix($value)
+ * @method static Builder|Account whereQuoteTerms($value)
+ * @method static Builder|Account whereRecurringHour($value)
+ * @method static Builder|Account whereRecurringInvoiceNumberPrefix($value)
+ * @method static Builder|Account whereRequireInvoiceSignature($value)
+ * @method static Builder|Account whereRequireQuoteSignature($value)
+ * @method static Builder|Account whereResetCounterDate($value)
+ * @method static Builder|Account whereResetCounterFrequencyId($value)
+ * @method static Builder|Account whereSecondaryColor($value)
+ * @method static Builder|Account whereSendItemDetails($value)
+ * @method static Builder|Account whereSendPortalPassword($value)
+ * @method static Builder|Account whereShareCounter($value)
+ * @method static Builder|Account whereShowAcceptInvoiceTerms($value)
+ * @method static Builder|Account whereShowAcceptQuoteTerms($value)
+ * @method static Builder|Account whereShowCurrencyCode($value)
+ * @method static Builder|Account whereShowItemTaxes($value)
+ * @method static Builder|Account whereShowProductNotes($value)
+ * @method static Builder|Account whereSignatureOnPdf($value)
+ * @method static Builder|Account whereSizeId($value)
+ * @method static Builder|Account whereStartOfWeek($value)
+ * @method static Builder|Account whereState($value)
+ * @method static Builder|Account whereSubdomain($value)
+ * @method static Builder|Account whereTaskRate($value)
+ * @method static Builder|Account whereTaxName1($value)
+ * @method static Builder|Account whereTaxName2($value)
+ * @method static Builder|Account whereTaxRate1($value)
+ * @method static Builder|Account whereTaxRate2($value)
+ * @method static Builder|Account whereTimezoneId($value)
+ * @method static Builder|Account whereTokenBillingTypeId($value)
+ * @method static Builder|Account whereUblEmailAttachment($value)
+ * @method static Builder|Account whereUpdateProducts($value)
+ * @method static Builder|Account whereUpdatedAt($value)
+ * @method static Builder|Account whereVatNumber($value)
+ * @method static Builder|Account whereWebsite($value)
+ * @method static Builder|Account whereWorkEmail($value)
+ * @method static Builder|Account whereWorkPhone($value)
+ * @method static Builder|Account withTrashed()
+ * @method static Builder|Account withoutTrashed()
  *
  * @mixin \Eloquent
  */
-class Account extends \Illuminate\Database\Eloquent\Model
+class Account extends Model
 {
     use GeneratesNumbers;
     use HasCustomMessages;
@@ -542,7 +549,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\AccountPresenter::class;
+    protected $presenter = AccountPresenter::class;
 
     /**
      * @var array
@@ -683,147 +690,147 @@ class Account extends \Illuminate\Database\Eloquent\Model
 
     public function account_tokens()
     {
-        return $this->hasMany(\App\Models\AccountToken::class);
+        return $this->hasMany(AccountToken::class);
     }
 
     public function users()
     {
-        return $this->hasMany(\App\Models\User::class);
+        return $this->hasMany(User::class);
     }
 
     public function clients()
     {
-        return $this->hasMany(\App\Models\Client::class);
+        return $this->hasMany(Client::class);
     }
 
     public function contacts()
     {
-        return $this->hasMany(\App\Models\Contact::class);
+        return $this->hasMany(Contact::class);
     }
 
     public function invoices()
     {
-        return $this->hasMany(\App\Models\Invoice::class);
+        return $this->hasMany(Invoice::class);
     }
 
     public function account_gateways()
     {
-        return $this->hasMany(\App\Models\AccountGateway::class);
+        return $this->hasMany(AccountGateway::class);
     }
 
     public function account_gateway_settings()
     {
-        return $this->hasMany(\App\Models\AccountGatewaySettings::class);
+        return $this->hasMany(AccountGatewaySettings::class);
     }
 
     public function account_email_settings()
     {
-        return $this->hasOne(\App\Models\AccountEmailSettings::class);
+        return $this->hasOne(AccountEmailSettings::class);
     }
 
     public function bank_accounts()
     {
-        return $this->hasMany(\App\Models\BankAccount::class);
+        return $this->hasMany(BankAccount::class);
     }
 
     public function tax_rates()
     {
-        return $this->hasMany(\App\Models\TaxRate::class);
+        return $this->hasMany(TaxRate::class);
     }
 
     public function task_statuses()
     {
-        return $this->hasMany(\App\Models\TaskStatus::class)->orderBy('sort_order');
+        return $this->hasMany(TaskStatus::class)->orderBy('sort_order');
     }
 
     public function products()
     {
-        return $this->hasMany(\App\Models\Product::class);
+        return $this->hasMany(Product::class);
     }
 
     public function defaultDocuments()
     {
-        return $this->hasMany(\App\Models\Document::class)->whereIsDefault(true);
+        return $this->hasMany(Document::class)->whereIsDefault(true);
     }
 
     public function background_image()
     {
-        return $this->hasOne(\App\Models\Document::class, 'id', 'background_image_id');
+        return $this->hasOne(Document::class, 'id', 'background_image_id');
     }
 
     public function country()
     {
-        return $this->belongsTo(\App\Models\Country::class);
+        return $this->belongsTo(Country::class);
     }
 
     public function timezone()
     {
-        return $this->belongsTo(\App\Models\Timezone::class);
+        return $this->belongsTo(Timezone::class);
     }
 
     public function language()
     {
-        return $this->belongsTo(\App\Models\Language::class);
+        return $this->belongsTo(Language::class);
     }
 
     public function date_format()
     {
-        return $this->belongsTo(\App\Models\DateFormat::class);
+        return $this->belongsTo(DateFormat::class);
     }
 
     public function datetime_format()
     {
-        return $this->belongsTo(\App\Models\DatetimeFormat::class);
+        return $this->belongsTo(DatetimeFormat::class);
     }
 
     public function size()
     {
-        return $this->belongsTo(\App\Models\Size::class);
+        return $this->belongsTo(Size::class);
     }
 
     public function currency()
     {
-        return $this->belongsTo(\App\Models\Currency::class);
+        return $this->belongsTo(Currency::class);
     }
 
     public function industry()
     {
-        return $this->belongsTo(\App\Models\Industry::class);
+        return $this->belongsTo(Industry::class);
     }
 
     public function payment_type()
     {
-        return $this->belongsTo(\App\Models\PaymentType::class);
+        return $this->belongsTo(PaymentType::class);
     }
 
     public function expenses()
     {
-        return $this->hasMany(\App\Models\Expense::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(Expense::class, 'account_id', 'id')->withTrashed();
     }
 
     public function payments()
     {
-        return $this->hasMany(\App\Models\Payment::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(Payment::class, 'account_id', 'id')->withTrashed();
     }
 
     public function company()
     {
-        return $this->belongsTo(\App\Models\Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function expense_categories()
     {
-        return $this->hasMany(\App\Models\ExpenseCategory::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(ExpenseCategory::class, 'account_id', 'id')->withTrashed();
     }
 
     public function projects()
     {
-        return $this->hasMany(\App\Models\Project::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(Project::class, 'account_id', 'id')->withTrashed();
     }
 
     public function custom_payment_terms()
     {
-        return $this->hasMany(\App\Models\PaymentTerm::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(PaymentTerm::class, 'account_id', 'id')->withTrashed();
     }
 
     /**
@@ -1184,7 +1191,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
             $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
         }
 
-        foreach (\Illuminate\Support\Facades\Cache::get('gateways') as $gateway) {
+        foreach (Cache::get('gateways') as $gateway) {
             $paymentDriverClass = AccountGateway::paymentDriverClass($gateway->provider);
             $paymentDriver = new $paymentDriverClass();
             $available = true;
@@ -1324,10 +1331,10 @@ class Account extends \Illuminate\Database\Eloquent\Model
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
         $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
-        \Illuminate\Support\Facades\Session::put(SESSION_TIMEZONE, $timezone);
+        Session::put(SESSION_TIMEZONE, $timezone);
 
-        \Illuminate\Support\Facades\Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
-        \Illuminate\Support\Facades\Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
+        Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
+        Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 
         //php 7.3
         // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
@@ -1338,20 +1345,20 @@ class Account extends \Illuminate\Database\Eloquent\Model
 
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
-        \Illuminate\Support\Facades\Session::put(SESSION_CURRENCY, $currencyId);
-        \Illuminate\Support\Facades\Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
-        \Illuminate\Support\Facades\Session::put(SESSION_LOCALE, $locale);
+        Session::put(SESSION_CURRENCY, $currencyId);
+        Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
+        Session::put(SESSION_LOCALE, $locale);
 
-        \Illuminate\Support\Facades\App::setLocale($locale);
+        App::setLocale($locale);
 
         $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
         if ($this->military_time) {
             $format = str_replace('g:i a', 'H:i', $format);
         }
 
-        \Illuminate\Support\Facades\Session::put(SESSION_DATETIME_FORMAT, $format);
+        Session::put(SESSION_DATETIME_FORMAT, $format);
 
-        \Illuminate\Support\Facades\Session::put('start_of_week', $this->start_of_week);
+        Session::put('start_of_week', $this->start_of_week);
     }
 
     public function isNinjaAccount(): bool
@@ -1663,7 +1670,7 @@ class Account extends \Illuminate\Database\Eloquent\Model
     /**
      * @param $eventId
      *
-     * @return \Illuminate\Database\Eloquent\Model|null|static
+     * @return Model|null|static
      */
     public function getSubscriptions($eventId)
     {

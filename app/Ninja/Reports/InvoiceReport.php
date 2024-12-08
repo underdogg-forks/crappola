@@ -5,6 +5,7 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceReport extends AbstractReport
 {
@@ -47,11 +48,11 @@ class InvoiceReport extends AbstractReport
 
     public function run(): void
     {
-        if ( ! \Illuminate\Support\Facades\Auth::user()) {
+        if ( ! Auth::user()) {
             return;
         }
 
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];

@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
+use Illuminate\Support\Facades\Auth;
 
 class TaxRateReport extends AbstractReport
 {
@@ -22,7 +23,7 @@ class TaxRateReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -53,7 +54,7 @@ class TaxRateReport extends AbstractReport
             }]);
 
         foreach ($clients->get() as $client) {
-            $currencyId = $client->currency_id ?: \Illuminate\Support\Facades\Auth::user()->account->getCurrencyId();
+            $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
 
             foreach ($client->invoices as $invoice) {
                 $taxTotals = [];

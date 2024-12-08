@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
@@ -13,11 +14,14 @@ use App\Ninja\Transformers\UserAccountTransformer;
 use Carbon;
 use Google2FA;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Response;
 use Utils;
 
 class AccountApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
     public function __construct(AccountRepository $accountRepo)
     {
@@ -35,19 +39,19 @@ class AccountApiController extends BaseAPIController
             return $this->response(auth()->user()->email);
         }
 
-        return \Illuminate\Support\Facades\Response::make(RESULT_SUCCESS, 200, $headers);
+        return Response::make(RESULT_SUCCESS, 200, $headers);
     }
 
     public function register(RegisterRequest $request)
     {
-        if ( ! \App\Models\LookupUser::validateField('email', $request->email)) {
+        if ( ! LookupUser::validateField('email', $request->email)) {
             return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
         }
 
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
         $user = $account->users()->first();
 
-        \Illuminate\Support\Facades\Auth::login($user);
+        Auth::login($user);
         event(new UserSignedUp());
 
         return $this->processLogin($request);
@@ -63,10 +67,10 @@ class AccountApiController extends BaseAPIController
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
 
-        if (\Illuminate\Support\Facades\Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             // TODO remove token_name check once legacy apps are deactivated
             if ($user->google_2fa_secret && str_contains($request->token_name, 'invoice-ninja-')) {
-                $secret = \Illuminate\Support\Facades\Crypt::decrypt($user->google_2fa_secret);
+                $secret = Crypt::decrypt($user->google_2fa_secret);
                 if ( ! $request->one_time_password) {
                     return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
                 }
@@ -102,7 +106,7 @@ class AccountApiController extends BaseAPIController
 
     public function show(Request $request)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
@@ -119,7 +123,7 @@ class AccountApiController extends BaseAPIController
 
     public function getUserAccounts(Request $request)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
@@ -130,7 +134,7 @@ class AccountApiController extends BaseAPIController
 
     public function update(UpdateAccountRequest $request)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $this->accountRepo->save($request->input(), $account);
 
         $transformer = new AccountTransformer(null, $request->serializer);
@@ -141,7 +145,7 @@ class AccountApiController extends BaseAPIController
 
     public function addDeviceToken(Request $request)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices, true);
@@ -181,7 +185,7 @@ class AccountApiController extends BaseAPIController
 
     public function removeDeviceToken(Request $request)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $devices = json_decode($account->devices, true);
         $counter = count($devices);
@@ -200,7 +204,7 @@ class AccountApiController extends BaseAPIController
 
     public function updatePushNotifications(Request $request)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $devices = json_decode($account->devices, true);
 
@@ -211,7 +215,7 @@ class AccountApiController extends BaseAPIController
         $counter = count($devices);
 
         for ($x = 0; $x < $counter; $x++) {
-            if ($devices[$x]['email'] == \Illuminate\Support\Facades\Auth::user()->username) {
+            if ($devices[$x]['email'] == Auth::user()->username) {
                 $newDevice = [
                     'token'           => $devices[$x]['token'],
                     'email'           => $devices[$x]['email'],
@@ -253,7 +257,7 @@ class AccountApiController extends BaseAPIController
         */
 
         if ($user) {
-            \Illuminate\Support\Facades\Auth::login($user);
+            Auth::login($user);
 
             return $this->processLogin($request);
         }
@@ -268,7 +272,7 @@ class AccountApiController extends BaseAPIController
 
     public function upgrade(Request $request): string
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $account = $user->account;
         $company = $account->company;
         $orderId = $request->order_id;
@@ -315,7 +319,7 @@ class AccountApiController extends BaseAPIController
     private function processLogin(Request $request, bool $createToken = true)
     {
         // Create a new token only if one does not already exist
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $account = $user->account;
 
         if ($createToken) {

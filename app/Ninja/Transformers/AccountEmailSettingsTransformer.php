@@ -3,6 +3,7 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\AccountEmailSettings;
+use Laracasts\Presenter\Exceptions\PresenterException;
 
 /**
  * Class AccountTransformer.
@@ -22,7 +23,7 @@ class AccountEmailSettingsTransformer extends EntityTransformer
     /**
      * @param Account $settings
      *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     * @throws PresenterException
      *
      * @return array
      */

@@ -2,6 +2,13 @@
 
 namespace App\Ninja\Repositories;
 
+use Illuminate\Support\Facades\DB;
+use App\Models\EntityModel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use App\Ninja\Mailers\ContactMailer;
 use App\Events\InvoiceItemsWereCreated;
 use App\Events\InvoiceItemsWereUpdated;
 use App\Events\QuoteItemsWereCreated;
@@ -23,16 +30,16 @@ use Utils;
 class InvoiceRepository extends BaseRepository
 {
     /**
-     * @var \App\Services\PaymentService
+     * @var PaymentService
      */
     public $paymentService;
 
     /**
-     * @var \App\Ninja\Repositories\PaymentRepository
+     * @var PaymentRepository
      */
     public $paymentRepo;
 
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    protected DocumentRepository $documentRepo;
 
     public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo, PaymentRepository $paymentRepo)
     {
@@ -43,7 +50,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getClassName(): string
     {
-        return \App\Models\Invoice::class;
+        return Invoice::class;
     }
 
     public function all()
@@ -58,7 +65,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getInvoices($accountId, $clientPublicId = false, string $entityType = ENTITY_INVOICE, $filter = false)
     {
-        $query = \Illuminate\Support\Facades\DB::table('invoices')
+        $query = DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
             ->join('clients', 'clients.id', '=', 'invoices.client_id')
             ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
@@ -69,23 +76,23 @@ class InvoiceRepository extends BaseRepository
             ->where('contacts.is_primary', '=', true)
             //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'clients.public_id as client_public_id',
                 'clients.user_id as client_user_id',
                 'invoice_number',
                 'invoice_number as quote_number',
                 'invoice_status_id',
-                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.balance',
                 'invoices.invoice_date',
                 'invoices.due_date as due_date_sql',
                 'invoices.partial_due_date',
-                \Illuminate\Support\Facades\DB::raw('CONCAT(invoices.invoice_date, invoices.created_at) as date'),
-                \Illuminate\Support\Facades\DB::raw('CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as due_date'),
-                \Illuminate\Support\Facades\DB::raw('CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as valid_until'),
+                DB::raw('CONCAT(invoices.invoice_date, invoices.created_at) as date'),
+                DB::raw('CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as due_date'),
+                DB::raw('CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as valid_until'),
                 'invoice_statuses.name as status',
                 'invoice_statuses.name as invoice_status_name',
                 'contacts.first_name',
@@ -108,7 +115,7 @@ class InvoiceRepository extends BaseRepository
             $statuses = explode(',', $statuses);
             $query->where(function ($query) use ($statuses): void {
                 foreach ($statuses as $status) {
-                    if (in_array($status, \App\Models\EntityModel::$statuses)) {
+                    if (in_array($status, EntityModel::$statuses)) {
                         continue;
                     }
 
@@ -153,7 +160,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getRecurringInvoices($accountId, $clientPublicId = false, $filter = false)
     {
-        $query = \Illuminate\Support\Facades\DB::table('invoices')
+        $query = DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
             ->join('clients', 'clients.id', '=', 'invoices.client_id')
             ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
@@ -165,19 +172,19 @@ class InvoiceRepository extends BaseRepository
             ->where('invoices.is_recurring', '=', true)
             ->where('contacts.is_primary', '=', true)
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'clients.public_id as client_public_id',
-                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'frequencies.name as frequency',
                 'invoices.start_date as start_date_sql',
                 'invoices.end_date as end_date_sql',
                 'invoices.last_sent_date as last_sent_date_sql',
-                \Illuminate\Support\Facades\DB::raw('CONCAT(invoices.start_date, invoices.created_at) as start_date'),
-                \Illuminate\Support\Facades\DB::raw('CONCAT(invoices.end_date, invoices.created_at) as end_date'),
-                \Illuminate\Support\Facades\DB::raw('CONCAT(invoices.last_sent_date, invoices.created_at) as last_sent'),
+                DB::raw('CONCAT(invoices.start_date, invoices.created_at) as start_date'),
+                DB::raw('CONCAT(invoices.end_date, invoices.created_at) as end_date'),
+                DB::raw('CONCAT(invoices.last_sent_date, invoices.created_at) as last_sent'),
                 'contacts.first_name',
                 'contacts.last_name',
                 'contacts.email',
@@ -218,7 +225,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getClientRecurringDatatable($contactId)
     {
-        $query = \Illuminate\Support\Facades\DB::table('invitations')
+        $query = DB::table('invitations')
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
             ->join('clients', 'clients.id', '=', 'invoices.client_id')
@@ -233,8 +240,8 @@ class InvoiceRepository extends BaseRepository
             ->where('invoices.deleted_at', '=', null)
           //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'invitations.invitation_key',
                 'invoices.invoice_number',
                 'invoices.due_date',
@@ -280,7 +287,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getClientDatatable($contactId, $entityType, $search)
     {
-        $query = \Illuminate\Support\Facades\DB::table('invitations')
+        $query = DB::table('invitations')
             ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
             ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
             ->join('clients', 'clients.id', '=', 'invoices.client_id')
@@ -297,8 +304,8 @@ class InvoiceRepository extends BaseRepository
           // Only show paid invoices for ninja accounts
             ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key not like '%s%%') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), mb_substr(NINJA_ACCOUNT_KEY, 0, 30), INVOICE_STATUS_PAID))
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'invitations.invitation_key',
                 'invoices.invoice_number',
                 'invoices.invoice_date',
@@ -308,7 +315,7 @@ class InvoiceRepository extends BaseRepository
                 'invoices.due_date',
                 'invoices.quote_invoice_id',
                 'clients.public_id as client_public_id',
-                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.start_date',
@@ -363,11 +370,11 @@ class InvoiceRepository extends BaseRepository
     public function save(array $data, ?Invoice $invoice = null)
     {
         /** @var Account $account */
-        $account = $invoice instanceof \App\Models\Invoice ? $invoice->account : \Illuminate\Support\Facades\Auth::user()->account;
+        $account = $invoice instanceof Invoice ? $invoice->account : Auth::user()->account;
         $publicId = $data['public_id'] ?? false;
         $isNew = ! $publicId || (int) $publicId < 0;
 
-        if ($invoice instanceof \App\Models\Invoice) {
+        if ($invoice instanceof Invoice) {
             // do nothing
             $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
@@ -391,7 +398,7 @@ class InvoiceRepository extends BaseRepository
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
-                \Illuminate\Support\Facades\Log::warning('Entity not set in invoice repo save');
+                Log::warning('Entity not set in invoice repo save');
             }
         }
 
@@ -469,11 +476,11 @@ class InvoiceRepository extends BaseRepository
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = \Illuminate\Support\Arr::get($data, 'frequency_id', FREQUENCY_MONTHLY);
-            $invoice->start_date = Utils::toSqlDate(\Illuminate\Support\Arr::get($data, 'start_date'));
-            $invoice->end_date = Utils::toSqlDate(\Illuminate\Support\Arr::get($data, 'end_date'));
+            $invoice->frequency_id = Arr::get($data, 'frequency_id', FREQUENCY_MONTHLY);
+            $invoice->start_date = Utils::toSqlDate(Arr::get($data, 'start_date'));
+            $invoice->end_date = Utils::toSqlDate(Arr::get($data, 'end_date'));
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'];
-            $invoice->auto_bill = \Illuminate\Support\Arr::get($data, 'auto_bill_id') ?: \Illuminate\Support\Arr::get($data, 'auto_bill', AUTO_BILL_OFF);
+            $invoice->auto_bill = Arr::get($data, 'auto_bill_id') ?: Arr::get($data, 'auto_bill', AUTO_BILL_OFF);
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS) {
                 $invoice->auto_bill = AUTO_BILL_OFF;
@@ -672,7 +679,7 @@ class InvoiceRepository extends BaseRepository
             $document_ids = array_map('intval', $data['document_ids']);
             foreach ($document_ids as $document_id) {
                 $document = Document::scope($document_id)->first();
-                if ($document && \Illuminate\Support\Facades\Auth::user()->can('edit', $document)) {
+                if ($document && Auth::user()->can('edit', $document)) {
                     if ($document->invoice_id && $document->invoice_id != $invoice->id) {
                         // From a clone
                         $document = $document->cloneDocument();
@@ -712,7 +719,7 @@ class InvoiceRepository extends BaseRepository
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if (\Illuminate\Support\Facades\Auth::user()->can('edit', $task)) {
+                if (Auth::user()->can('edit', $task)) {
                     $task->invoice_id = $invoice->id;
                     $task->client_id = $invoice->client_id;
                     $task->save();
@@ -722,14 +729,14 @@ class InvoiceRepository extends BaseRepository
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if (\Illuminate\Support\Facades\Auth::user()->can('edit', $expense)) {
+                if (Auth::user()->can('edit', $expense)) {
                     $expense->invoice_id = $invoice->id;
                     $expense->client_id = $invoice->client_id;
                     $expense->save();
                 }
             }
 
-            if (\Illuminate\Support\Facades\Auth::check() && ($productKey = trim($item['product_key']))) {
+            if (Auth::check() && ($productKey = trim($item['product_key']))) {
                 if ($account->update_products
                     && ! $invoice->has_tasks
                     && ! $invoice->has_expenses
@@ -737,7 +744,7 @@ class InvoiceRepository extends BaseRepository
                 ) {
                     $product = Product::findProductByKey($productKey);
                     if ( ! $product) {
-                        if (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT)) {
+                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
                             $product = Product::createNew();
                             $product->product_key = trim($item['product_key']);
                         } else {
@@ -745,7 +752,7 @@ class InvoiceRepository extends BaseRepository
                         }
                     }
 
-                    if ($product && (\Illuminate\Support\Facades\Auth::user()->can('edit', $product))) {
+                    if ($product && (Auth::user()->can('edit', $product))) {
                         $product->notes = ($task || $expense) ? '' : $item['notes'];
                         if ( ! $account->convert_products) {
                             $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
@@ -796,7 +803,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->load('invoice_items');
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
+        if (Auth::check()) {
             $invoice = $this->saveInvitations($invoice);
         }
 
@@ -926,7 +933,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
-            $cloneInvitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $cloneInvitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
             $clone->invitations()->save($cloneInvitation);
         }
 
@@ -942,7 +949,7 @@ class InvoiceRepository extends BaseRepository
     {
         // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
         if (config('queue.default') === 'sync') {
-            app(\App\Ninja\Mailers\ContactMailer::class)->sendInvoice($invoice);
+            app(ContactMailer::class)->sendInvoice($invoice);
         } else {
             dispatch(new SendInvoiceEmail($invoice));
         }
@@ -987,7 +994,7 @@ class InvoiceRepository extends BaseRepository
         [$invitationKey] = explode('&', $invitationKey);
         $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
         if ( ! $invitation) {
@@ -1105,7 +1112,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($recurInvoice->invitations as $recurInvitation) {
             $invitation = Invitation::createNew($recurInvitation);
             $invitation->contact_id = $recurInvitation->contact_id;
-            $invitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $invitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
             $invoice->invitations()->save($invitation);
         }
 
@@ -1348,7 +1355,7 @@ class InvoiceRepository extends BaseRepository
                 $invitation = Invitation::createNew($invoice);
                 $invitation->invoice_id = $invoice->id;
                 $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                $invitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $invitation->save();
             } elseif ( ! in_array($contact->id, $sendInvoiceIds) && $invitation) {
                 $invitation->delete();

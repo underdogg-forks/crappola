@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class VendorDatatable extends EntityDatatable
@@ -45,17 +47,17 @@ class VendorDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_vendor'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('vendors/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_VENDOR, $model]),
+                fn ($model) => URL::to(sprintf('vendors/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_VENDOR, $model]),
             ],
             [
                 '--divider--', fn (): bool => false,
-                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
+                fn ($model): bool => Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('create', ENTITY_EXPENSE),
             ],
             [
                 trans('texts.enter_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('expenses/create/0/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
+                fn ($model) => URL::to('expenses/create/0/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_EXPENSE),
             ],
         ];
     }

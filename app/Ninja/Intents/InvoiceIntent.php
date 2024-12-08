@@ -4,8 +4,11 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\ProductRepository;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
@@ -23,7 +26,7 @@ class InvoiceIntent extends BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
+        $this->invoiceRepo = app(InvoiceRepository::class);
 
         parent::__construct($state, $data);
     }
@@ -42,7 +45,7 @@ class InvoiceIntent extends BaseIntent
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        if ( ! \Illuminate\Support\Facades\Auth::user()->can('view', $invoice)) {
+        if ( ! Auth::user()->can('view', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
@@ -51,7 +54,7 @@ class InvoiceIntent extends BaseIntent
 
     protected function requestInvoiceItems(): array
     {
-        $productRepo = app(\App\Ninja\Repositories\ProductRepository::class);
+        $productRepo = app(ProductRepository::class);
 
         $invoiceItems = [];
         $offset = 0;

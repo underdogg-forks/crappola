@@ -11,14 +11,18 @@ use App\Models\Project;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProjectController extends BaseController
 {
     public $entityType = ENTITY_PROJECT;
 
-    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
+    protected ProjectRepository $projectRepo;
 
-    protected \App\Services\ProjectService $projectService;
+    protected ProjectService $projectService;
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
@@ -33,7 +37,7 @@ class ProjectController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PROJECT,
             'datatable'  => new ProjectDatatable(),
             'title'      => trans('texts.projects'),
@@ -42,8 +46,8 @@ class ProjectController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROJECT);
+        $search = Request::input('sSearch');
+        $userId = Auth::user()->filterIdByEntity(ENTITY_PROJECT);
 
         return $this->projectService->getDatatable($search, $userId);
     }
@@ -62,7 +66,7 @@ class ProjectController extends BaseController
             'chartData'       => null,
         ];
 
-        return \Illuminate\Support\Facades\View::make('projects.show', $data);
+        return View::make('projects.show', $data);
     }
 
     public function create(ProjectRequest $request)
@@ -77,7 +81,7 @@ class ProjectController extends BaseController
             'clientPublicId' => $request->client_id,
         ];
 
-        return \Illuminate\Support\Facades\View::make('projects.edit', $data);
+        return View::make('projects.edit', $data);
     }
 
     public function edit(ProjectRequest $request)
@@ -94,14 +98,14 @@ class ProjectController extends BaseController
             'clientPublicId' => $project->client ? $project->client->public_id : null,
         ];
 
-        return \Illuminate\Support\Facades\View::make('projects.edit', $data);
+        return View::make('projects.edit', $data);
     }
 
     public function store(CreateProjectRequest $request)
     {
         $project = $this->projectService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_project'));
+        Session::flash('message', trans('texts.created_project'));
 
         return redirect()->to($project->getRoute());
     }
@@ -110,9 +114,9 @@ class ProjectController extends BaseController
     {
         $project = $this->projectService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_project'));
+        Session::flash('message', trans('texts.updated_project'));
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
             return self::bulk();
         }
@@ -122,8 +126,8 @@ class ProjectController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         if ($action == 'invoice') {
             $data = [];
@@ -170,7 +174,7 @@ class ProjectController extends BaseController
         if ($count > 0) {
             $field = $count == 1 ? $action . 'd_project' : $action . 'd_projects';
             $message = trans('texts.' . $field, ['count' => $count]);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect()->to('/projects');

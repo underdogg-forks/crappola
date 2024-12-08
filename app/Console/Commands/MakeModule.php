@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -52,70 +53,70 @@ class MakeModule extends Command
 
         $this->info(sprintf('Creating module: %s...', $name));
         $progressBar->setMessage('Starting module creation...');
-        \Illuminate\Support\Facades\Artisan::call('module:make', ['name' => [$name]]);
+        Artisan::call('module:make', ['name' => [$name]]);
         $progressBar->advance();
 
         if ( ! $plain) {
             $progressBar->setMessage('Creating migrations...');
-            \Illuminate\Support\Facades\Artisan::call('module:make-migration', ['name' => sprintf('create_%s_table', $lower), '--fields' => $fields, 'module' => $name]);
+            Artisan::call('module:make-migration', ['name' => sprintf('create_%s_table', $lower), '--fields' => $fields, 'module' => $name]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating models...');
-            \Illuminate\Support\Facades\Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
+            Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating views...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'views', '--fields' => $fields, '--filename' => 'edit.blade']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'views', '--fields' => $fields, '--filename' => 'edit.blade']);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating datatables...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable', '--fields' => $fields]);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable', '--fields' => $fields]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating repositories...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository', '--fields' => $fields]);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository', '--fields' => $fields]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating presenters...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'presenter']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'presenter']);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating requests...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request']);
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'create']);
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'update']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'create']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'update']);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating api-controllers...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'api-controller']);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'api-controller']);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating transformers...');
-            \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
+            Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
             $progressBar->advance();
 
             // if the migrate flag was specified, run the migrations
             if ($migrate) {
                 $progressBar->setMessage('Running migrations...');
-                \Illuminate\Support\Facades\Artisan::call('module:migrate', ['module' => $name]);
+                Artisan::call('module:migrate', ['module' => $name]);
                 $progressBar->advance();
             }
         }
 
         $progressBar->setMessage('Creating policies...');
-        \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'policy']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'policy']);
         $progressBar->advance();
 
         $progressBar->setMessage('Creating auth-providers...');
-        \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'auth-provider']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'auth-provider']);
         $progressBar->advance();
 
         $progressBar->setMessage('Creating translations...');
-        \Illuminate\Support\Facades\Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'lang', '--filename' => 'texts']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'lang', '--filename' => 'texts']);
         $progressBar->advance();
 
         $progressBar->setMessage('Dumping module auto-load...');
-        \Illuminate\Support\Facades\Artisan::call('module:dump');
+        Artisan::call('module:dump');
         $progressBar->finish();
         $progressBar->clear();
 

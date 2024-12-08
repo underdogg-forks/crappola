@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class TokenDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TOKEN;
@@ -25,7 +27,7 @@ class TokenDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_token'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('tokens/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('tokens/%s/edit', $model->public_id)),
             ],
         ];
     }

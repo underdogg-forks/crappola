@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
+use Illuminate\Support\Facades\Auth;
 
 class CreditReport extends AbstractReport
 {
@@ -20,7 +21,7 @@ class CreditReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()

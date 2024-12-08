@@ -18,7 +18,11 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Auth;
 use DropdownButton;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Utils;
 use View;
 
@@ -26,9 +30,9 @@ class ClientController extends BaseController
 {
     public $entityType = ENTITY_CLIENT;
 
-    protected \App\Services\ClientService $clientService;
+    protected ClientService $clientService;
 
-    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
+    protected ClientRepository $clientRepo;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
@@ -55,7 +59,7 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $search = Request::input('sSearch');
         $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
@@ -70,7 +74,7 @@ class ClientController extends BaseController
     {
         $client = $this->clientService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_client'));
+        Session::flash('message', trans('texts.created_client'));
 
         return redirect()->to($client->getRoute());
     }
@@ -92,19 +96,19 @@ class ClientController extends BaseController
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/invoices/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_TASK)) {
-            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => \Illuminate\Support\Facades\URL::to('/tasks/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/' . $client->public_id)];
         }
 
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
-            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => \Illuminate\Support\Facades\URL::to('/quotes/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
-            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => \Illuminate\Support\Facades\URL::to('/recurring_invoices/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/' . $client->public_id)];
         }
 
         if ( ! empty($actionLinks)) {
@@ -112,15 +116,15 @@ class ClientController extends BaseController
         }
 
         if ($user->can('create', ENTITY_PAYMENT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => \Illuminate\Support\Facades\URL::to('/payments/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_CREDIT)) {
-            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => \Illuminate\Support\Facades\URL::to('/credits/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/' . $client->public_id)];
         }
 
         if ($user->can('create', ENTITY_EXPENSE)) {
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => \Illuminate\Support\Facades\URL::to('/expenses/create/' . $client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/' . $client->public_id)];
         }
 
         $token = $client->getGatewayToken();
@@ -192,15 +196,15 @@ class ClientController extends BaseController
     {
         $client = $this->clientService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_client'));
+        Session::flash('message', trans('texts.updated_client'));
 
         return redirect()->to($client->getRoute());
     }
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
@@ -209,7 +213,7 @@ class ClientController extends BaseController
         $count = $this->clientService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_client', $count);
-        \Illuminate\Support\Facades\Session::flash('message', $message);
+        Session::flash('message', $message);
 
         if ($action == 'purge') {
             return redirect('dashboard')->withMessage($message);
@@ -263,9 +267,9 @@ class ClientController extends BaseController
     private function getViewModel(): array
     {
         return [
-            'data'         => \Illuminate\Support\Facades\Request::old('data'),
+            'data'         => Request::old('data'),
             'account'      => \Illuminate\Support\Facades\Auth::user()->account,
-            'sizes'        => \Illuminate\Support\Facades\Cache::get('sizes'),
+            'sizes'        => Cache::get('sizes'),
             'customLabel1' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client1'),
             'customLabel2' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client2'),
         ];

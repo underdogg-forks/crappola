@@ -11,6 +11,7 @@ use App\Ninja\Repositories\RecurringExpenseRepository;
 use DateTime;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -20,7 +21,7 @@ use Utils;
 class SendRecurringInvoices extends Command
 {
     /**
-     * @var \App\Ninja\Repositories\RecurringExpenseRepository
+     * @var RecurringExpenseRepository
      */
     public $recurringExpenseRepo;
 
@@ -34,7 +35,7 @@ class SendRecurringInvoices extends Command
      */
     protected $description = 'Send recurring invoices';
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * SendRecurringInvoices constructor.
@@ -115,7 +116,7 @@ class SendRecurringInvoices extends Command
             }
 
             $account->loadLocalizationSettings($recurInvoice->client);
-            \Illuminate\Support\Facades\Auth::loginUsingId($recurInvoice->activeUser()->id);
+            Auth::loginUsingId($recurInvoice->activeUser()->id);
 
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
@@ -130,7 +131,7 @@ class SendRecurringInvoices extends Command
                 Utils::logError($exception);
             }
 
-            \Illuminate\Support\Facades\Auth::logout();
+            Auth::logout();
         }
     }
 

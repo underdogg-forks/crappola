@@ -7,12 +7,13 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\PaymentTermRepository;
+use Illuminate\Support\Facades\Request;
 
 class PaymentTermApiController extends BaseAPIController
 {
     public $entityType = ENTITY_PAYMENT_TERM;
 
-    protected \App\Ninja\Repositories\PaymentTermRepository $paymentTermRepo;
+    protected PaymentTermRepository $paymentTermRepo;
 
     /**
      * PaymentTermApiController constructor.
@@ -118,7 +119,7 @@ class PaymentTermApiController extends BaseAPIController
     {
         $paymentTerm = PaymentTerm::createNew();
 
-        $paymentTerm->num_days = Utils::parseInt(\Illuminate\Support\Facades\Request::input('num_days'));
+        $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
         $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 

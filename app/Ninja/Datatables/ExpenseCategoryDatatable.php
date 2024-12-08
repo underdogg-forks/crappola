@@ -2,6 +2,9 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
+
 class ExpenseCategoryDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE_CATEGORY;
@@ -14,7 +17,7 @@ class ExpenseCategoryDatatable extends EntityDatatable
             [
                 'name',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model])) {
+                    if (Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model])) {
                         return link_to(sprintf('expense_categories/%s/edit', $model->public_id), $model->category)->toHtml();
                     }
 
@@ -29,8 +32,8 @@ class ExpenseCategoryDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_category'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('expense_categories/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model]),
+                fn ($model) => URL::to(sprintf('expense_categories/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('edit', [ENTITY_EXPENSE_CATEGORY, $model]),
             ],
         ];
     }

@@ -14,9 +14,9 @@ class ExpenseCategoryApiController extends BaseAPIController
 
     public $entityType = ENTITY_EXPENSE_CATEGORY;
 
-    protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
+    protected ExpenseCategoryRepository $categoryRepo;
 
-    protected \App\Services\ExpenseCategoryService $categoryService;
+    protected ExpenseCategoryService $categoryService;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
     {

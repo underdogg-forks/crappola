@@ -4,6 +4,10 @@ namespace App\Models\Traits;
 
 use Carbon;
 use DateTime;
+use Recurr\RecurrenceCollection;
+use Recurr\Rule;
+use Recurr\Transformer\ArrayTransformer;
+use Recurr\Transformer\ArrayTransformerConfig;
 use Utils;
 
 /**
@@ -118,7 +122,7 @@ trait HasRecurrence
     /**
      * @throws \Recurr\Exception\MissingData
      *
-     * @return bool|\Recurr\RecurrenceCollection
+     * @return bool|RecurrenceCollection
      */
     public function getSchedule()
     {
@@ -131,13 +135,13 @@ trait HasRecurrence
         $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
-        $rule = new \Recurr\Rule($rule, $startDate, null, $timezone);
+        $rule = new Rule($rule, $startDate, null, $timezone);
 
         // Fix for months with less than 31 days
-        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
+        $transformerConfig = new ArrayTransformerConfig();
         $transformerConfig->enableLastDayOfMonthFix();
 
-        $transformer = new \Recurr\Transformer\ArrayTransformer();
+        $transformer = new ArrayTransformer();
         $transformer->setConfig($transformerConfig);
 
         $dates = $transformer->transform($rule);

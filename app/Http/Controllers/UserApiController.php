@@ -9,14 +9,15 @@ use App\Models\User;
 use App\Ninja\Repositories\UserRepository;
 use App\Ninja\Transformers\UserTransformer;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends BaseAPIController
 {
     public $entityType = ENTITY_USER;
 
-    protected \App\Services\UserService $userService;
+    protected UserService $userService;
 
-    protected \App\Ninja\Repositories\UserRepository $userRepo;
+    protected UserRepository $userRepo;
 
     public function __construct(UserService $userService, UserRepository $userRepo)
     {
@@ -48,7 +49,7 @@ class UserApiController extends BaseAPIController
      */
     public function index()
     {
-        $users = User::whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id)
+        $users = User::whereAccountId(Auth::user()->account_id)
             ->withTrashed()
             ->orderBy('created_at', 'desc');
 
@@ -156,12 +157,12 @@ class UserApiController extends BaseAPIController
      */
     public function update(UpdateUserRequest $request, $userPublicId)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         if ($request->action == ACTION_ARCHIVE) {
             $this->userRepo->archive($user);
 
-            $transformer = new UserTransformer(\Illuminate\Support\Facades\Auth::user()->account, $request->serializer);
+            $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
             $data = $this->createItem($user, $transformer, 'users');
 
             return $this->response($data);
@@ -210,7 +211,7 @@ class UserApiController extends BaseAPIController
     {
         $user = $this->userRepo->save($request->input(), $user);
 
-        $transformer = new UserTransformer(\Illuminate\Support\Facades\Auth::user()->account, $request->serializer);
+        $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
         $data = $this->createItem($user, $transformer, 'users');
 
         return $this->response($data);

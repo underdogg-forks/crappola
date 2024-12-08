@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
 use Exception;
+use Illuminate\Support\Facades\Session;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
@@ -237,7 +238,7 @@ class WePayPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        if ($transactionId = \Illuminate\Support\Facades\Session::get($this->invitation->id . 'payment_ref')) {
+        if ($transactionId = Session::get($this->invitation->id . 'payment_ref')) {
             $data['transaction_id'] = $transactionId;
         }
 

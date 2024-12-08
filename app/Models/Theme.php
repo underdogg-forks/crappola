@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Theme.
  *
  * @property int    $id
  * @property string $name
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Theme newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Theme newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Theme query()
- * @method static \Illuminate\Database\Eloquent\Builder|Theme whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Theme whereName($value)
+ * @method static Builder|Theme newModelQuery()
+ * @method static Builder|Theme newQuery()
+ * @method static Builder|Theme query()
+ * @method static Builder|Theme whereId($value)
+ * @method static Builder|Theme whereName($value)
  *
  * @mixin \Eloquent
  */
-class Theme extends \Illuminate\Database\Eloquent\Model
+class Theme extends Model
 {
     /**
      * @var bool

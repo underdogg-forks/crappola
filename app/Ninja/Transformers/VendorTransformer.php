@@ -4,6 +4,7 @@ namespace App\Ninja\Transformers;
 
 use App\Models\Account;
 use App\Models\Vendor;
+use League\Fractal\Resource\Collection;
 
 // vendor
 /**
@@ -42,21 +43,21 @@ class VendorTransformer extends EntityTransformer
         //'expenses',
     ];
 
-    public function includeVendorContacts(Vendor $vendor): \League\Fractal\Resource\Collection
+    public function includeVendorContacts(Vendor $vendor): Collection
     {
         $transformer = new VendorContactTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($vendor->vendor_contacts, $transformer, ENTITY_CONTACT);
     }
 
-    public function includeInvoices(Vendor $vendor): \League\Fractal\Resource\Collection
+    public function includeInvoices(Vendor $vendor): Collection
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($vendor->invoices, $transformer, ENTITY_INVOICE);
     }
 
-    public function includeExpenses(Vendor $vendor): \League\Fractal\Resource\Collection
+    public function includeExpenses(Vendor $vendor): Collection
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
 

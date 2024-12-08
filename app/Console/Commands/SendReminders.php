@@ -16,6 +16,9 @@ use App\Services\PaymentService;
 use DateTime;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -25,7 +28,7 @@ use Utils;
 class SendReminders extends Command
 {
     /**
-     * @var \App\Ninja\Mailers\UserMailer
+     * @var UserMailer
      */
     public $userMailer;
 
@@ -39,14 +42,14 @@ class SendReminders extends Command
      */
     protected $description = 'Send reminder emails';
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * @var accountRepository
      */
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    protected \App\Services\PaymentService $paymentService;
+    protected PaymentService $paymentService;
 
     /**
      * SendReminders constructor.
@@ -82,7 +85,7 @@ class SendReminders extends Command
         $this->info(date('r') . ' Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
+            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject(sprintf('SendReminders [%s]: Finished successfully', $database));
@@ -136,9 +139,9 @@ class SendReminders extends Command
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
-                \Illuminate\Support\Facades\Auth::loginUsingId($invoice->activeUser()->id);
+                Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
-                \Illuminate\Support\Facades\Auth::logout();
+                Auth::logout();
             }
         }
     }
@@ -285,10 +288,10 @@ class SendReminders extends Command
                 }
             } else {
                 $this->info(date('r') . ' Error: failed to load exchange rates - ' . $response);
-                \Illuminate\Support\Facades\DB::table('currencies')->update(['exchange_rate' => 1]);
+                DB::table('currencies')->update(['exchange_rate' => 1]);
             }
         } else {
-            \Illuminate\Support\Facades\DB::table('currencies')->update(['exchange_rate' => 1]);
+            DB::table('currencies')->update(['exchange_rate' => 1]);
         }
 
         CurlUtils::get(SITE_URL . '?clear_cache=true');

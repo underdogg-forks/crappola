@@ -4,6 +4,8 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class PaymentDatatable extends EntityDatatable
@@ -24,7 +26,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'invoice_name',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model->invoice_user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_INVOICE, $model->invoice_user_id])) {
                         return link_to(sprintf('invoices/%s/edit', $model->invoice_public_id), $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                     }
 
@@ -34,7 +36,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT])) {
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT])) {
                         return $model->client_public_id ? link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
@@ -63,7 +65,7 @@ class PaymentDatatable extends EntityDatatable
                         if ($model->last4) {
                             $expiration = Utils::fromSqlDate($model->expiration, false)->format('m/y');
 
-                            return '<img height="22" src="' . \Illuminate\Support\Facades\URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         }
 
                         if ($model->email) {
@@ -88,7 +90,7 @@ class PaymentDatatable extends EntityDatatable
                         }
 
                         if ($model->last4) {
-                            return '<img height="22" src="' . \Illuminate\Support\Facades\URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
                     }
                 },
@@ -127,13 +129,13 @@ class PaymentDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_payment'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('payments/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PAYMENT, $model]),
+                fn ($model) => URL::to(sprintf('payments/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_PAYMENT, $model]),
             ],
             [
                 trans('texts.email_payment'),
                 fn ($model): string => sprintf("javascript:submitForm_payment('email', %s)", $model->public_id),
-                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model]),
+                fn ($model)         => Auth::user()->can('edit', [ENTITY_PAYMENT, $model]),
             ],
             [
                 trans('texts.refund_payment'),
@@ -145,7 +147,7 @@ class PaymentDatatable extends EntityDatatable
 
                     return sprintf("javascript:showRefundModal(%s, '%s', '%s', '%s', %s)", $model->public_id, $max_refund, $formatted, $symbol, $local);
                 },
-                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_PAYMENT, $model])
+                fn ($model): bool => Auth::user()->can('edit', [ENTITY_PAYMENT, $model])
                     && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
                     && $model->refunded < $model->amount,
             ],

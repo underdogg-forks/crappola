@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BaseService.
@@ -26,7 +27,7 @@ class BaseService
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if (\Illuminate\Support\Facades\Auth::user()->can('edit', $entity)) {
+            if (Auth::user()->can('edit', $entity)) {
                 $this->getRepo()->{$action}($entity);
             }
         }

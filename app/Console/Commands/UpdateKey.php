@@ -7,6 +7,9 @@ use App\Models\BankAccount;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Laravel\LegacyEncrypter\McryptEncrypter;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -60,7 +63,7 @@ class UpdateKey extends Command
             if ($legacy) {
                 $twoFactorSecrets[$user->id] = $legacy->decrypt($user->google_2fa_secret);
             } else {
-                $twoFactorSecrets[$user->id] = \Illuminate\Support\Facades\Crypt::decrypt($user->google_2fa_secret);
+                $twoFactorSecrets[$user->id] = Crypt::decrypt($user->google_2fa_secret);
             }
         }
 
@@ -71,10 +74,10 @@ class UpdateKey extends Command
         if ($key = $this->option('key')) {
             $key = base64_decode(str_replace('base64:', '', $key));
         } elseif ($envWriteable) {
-            \Illuminate\Support\Facades\Artisan::call('key:generate');
+            Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
-            $key = \Illuminate\Support\Str::random(32);
+            $key = Str::random(32);
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');

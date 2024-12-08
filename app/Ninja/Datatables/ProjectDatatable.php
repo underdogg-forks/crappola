@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class ProjectDatatable extends EntityDatatable
@@ -16,7 +18,7 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
                         return $this->addNote(link_to('projects/' . $model->public_id, $model->project)->toHtml(), $model->private_notes);
                     }
 
@@ -27,7 +29,7 @@ class ProjectDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                             return link_to('clients/' . $model->client_public_id, $model->client_name)->toHtml();
                         }
 
@@ -57,13 +59,13 @@ class ProjectDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_project'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('projects/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROJECT, $model]),
+                fn ($model) => URL::to(sprintf('projects/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_PROJECT, $model]),
             ],
             [
                 trans('texts.invoice_project'),
                 fn ($model): string => sprintf("javascript:submitForm_project('invoice', %s)", $model->public_id),
-                fn ($model)         => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
+                fn ($model)         => Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }

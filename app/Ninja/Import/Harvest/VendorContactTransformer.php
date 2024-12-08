@@ -16,7 +16,7 @@ class VendorContactTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): false|\League\Fractal\Resource\Item
+    public function transform($data): false|Item
     {
         if ( ! $this->hasVendor($data->vendor)) {
             return false;

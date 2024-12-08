@@ -4,6 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Invitation;
 use App\Models\Payment;
+use Illuminate\Support\Arr;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
@@ -15,7 +16,7 @@ class MolliePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input): string
     {
-        $ref = \Illuminate\Support\Arr::get($input, 'id');
+        $ref = Arr::get($input, 'id');
         $data = [
             'transactionReference' => $ref,
         ];

@@ -2,64 +2,68 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Filesystem\AwsS3V3Adapter;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Document.
  *
- * @property int                             $id
- * @property int|null                        $public_id
- * @property int                             $account_id
- * @property int                             $user_id
- * @property int|null                        $invoice_id
- * @property int|null                        $expense_id
- * @property string                          $path
- * @property string                          $preview
- * @property string                          $name
- * @property string                          $type
- * @property string                          $disk
- * @property string                          $hash
- * @property int                             $size
- * @property int|null                        $width
- * @property int|null                        $height
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null                        $is_default
- * @property int                             $is_proposal
- * @property string|null                     $document_key
- * @property \App\Models\Account             $account
- * @property \App\Models\Expense|null        $expense
- * @property \App\Models\Invoice|null        $invoice
- * @property \App\Models\User                $user
+ * @property int          $id
+ * @property int|null     $public_id
+ * @property int          $account_id
+ * @property int          $user_id
+ * @property int|null     $invoice_id
+ * @property int|null     $expense_id
+ * @property string       $path
+ * @property string       $preview
+ * @property string       $name
+ * @property string       $type
+ * @property string       $disk
+ * @property string       $hash
+ * @property int          $size
+ * @property int|null     $width
+ * @property int|null     $height
+ * @property Carbon|null  $created_at
+ * @property Carbon|null  $updated_at
+ * @property int|null     $is_default
+ * @property int          $is_proposal
+ * @property string|null  $document_key
+ * @property Account      $account
+ * @property Expense|null $expense
+ * @property Invoice|null $invoice
+ * @property User         $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Document newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Document newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Document proposalImages()
- * @method static \Illuminate\Database\Eloquent\Builder|Document query()
- * @method static \Illuminate\Database\Eloquent\Builder|Document scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereDisk($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereDocumentKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereHash($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereHeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsDefault($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsProposal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document wherePath($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document wherePreview($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document whereWidth($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Document withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Document withArchived()
+ * @method static Builder|Document newModelQuery()
+ * @method static Builder|Document newQuery()
+ * @method static Builder|Document proposalImages()
+ * @method static Builder|Document query()
+ * @method static Builder|Document scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Document whereAccountId($value)
+ * @method static Builder|Document whereCreatedAt($value)
+ * @method static Builder|Document whereDisk($value)
+ * @method static Builder|Document whereDocumentKey($value)
+ * @method static Builder|Document whereExpenseId($value)
+ * @method static Builder|Document whereHash($value)
+ * @method static Builder|Document whereHeight($value)
+ * @method static Builder|Document whereId($value)
+ * @method static Builder|Document whereInvoiceId($value)
+ * @method static Builder|Document whereIsDefault($value)
+ * @method static Builder|Document whereIsProposal($value)
+ * @method static Builder|Document whereName($value)
+ * @method static Builder|Document wherePath($value)
+ * @method static Builder|Document wherePreview($value)
+ * @method static Builder|Document wherePublicId($value)
+ * @method static Builder|Document whereSize($value)
+ * @method static Builder|Document whereType($value)
+ * @method static Builder|Document whereUpdatedAt($value)
+ * @method static Builder|Document whereUserId($value)
+ * @method static Builder|Document whereWidth($value)
+ * @method static Builder|Document withActiveOrSelected($id = false)
+ * @method static Builder|Document withArchived()
  *
  * @mixin \Eloquent
  */
@@ -211,22 +215,22 @@ class Document extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function expense()
     {
-        return $this->belongsTo(\App\Models\Expense::class)->withTrashed();
+        return $this->belongsTo(Expense::class)->withTrashed();
     }
 
     public function invoice()
     {
-        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
     public function getDisk()
@@ -294,7 +298,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function getUrl()
     {
@@ -304,7 +308,7 @@ class Document extends EntityModel
     /**
      * @param $invitation
      *
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function getClientUrl($invitation)
     {
@@ -326,7 +330,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getVFSJSUrl()
     {
@@ -338,7 +342,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getClientVFSJSUrl()
     {
@@ -350,7 +354,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getPreviewUrl()
     {
@@ -395,7 +399,7 @@ class Document extends EntityModel
 }
 
 Document::deleted(function ($document): void {
-    $same_path_count = \Illuminate\Support\Facades\DB::table('documents')
+    $same_path_count = DB::table('documents')
         ->where('documents.account_id', '=', $document->account_id)
         ->where('documents.path', '=', $document->path)
         ->where('documents.disk', '=', $document->disk)
@@ -406,7 +410,7 @@ Document::deleted(function ($document): void {
     }
 
     if ($document->preview) {
-        $same_preview_count = \Illuminate\Support\Facades\DB::table('documents')
+        $same_preview_count = DB::table('documents')
             ->where('documents.account_id', '=', $document->account_id)
             ->where('documents.preview', '=', $document->preview)
             ->where('documents.disk', '=', $document->disk)

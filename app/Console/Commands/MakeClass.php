@@ -79,7 +79,7 @@ class MakeClass extends GeneratorCommand
             return $this->option('filename');
         }
 
-        return \Illuminate\Support\Str::studly($this->argument('prefix')) . \Illuminate\Support\Str::studly($this->argument('name')) . Str::studly($this->argument('class'));
+        return Str::studly($this->argument('prefix')) . Str::studly($this->argument('name')) . Str::studly($this->argument('class'));
     }
 
     protected function getColumns(): string

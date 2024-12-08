@@ -15,7 +15,7 @@ class TaxRateApiController extends BaseAPIController
      */
     public $entityType = ENTITY_TAX_RATE;
 
-    protected \App\Ninja\Repositories\TaxRateRepository $taxRateRepo;
+    protected TaxRateRepository $taxRateRepo;
 
     /**
      * TaxRateApiController constructor.

@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class DateFormat.
  *
@@ -11,18 +14,18 @@ namespace App\Models;
  * @property string|null $format_moment
  * @property string      $format_dart
  *
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat query()
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat whereFormat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat whereFormatDart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat whereFormatMoment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DateFormat wherePickerFormat($value)
+ * @method static Builder|DateFormat newModelQuery()
+ * @method static Builder|DateFormat newQuery()
+ * @method static Builder|DateFormat query()
+ * @method static Builder|DateFormat whereFormat($value)
+ * @method static Builder|DateFormat whereFormatDart($value)
+ * @method static Builder|DateFormat whereFormatMoment($value)
+ * @method static Builder|DateFormat whereId($value)
+ * @method static Builder|DateFormat wherePickerFormat($value)
  *
  * @mixin \Eloquent
  */
-class DateFormat extends \Illuminate\Database\Eloquent\Model
+class DateFormat extends Model
 {
     /**
      * @var bool

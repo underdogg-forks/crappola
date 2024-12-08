@@ -5,13 +5,15 @@ namespace App\Ninja\Repositories;
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Utils;
 
 class ProductRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\Product::class;
+        return Product::class;
     }
 
     public function all()
@@ -24,7 +26,7 @@ class ProductRepository extends BaseRepository
 
     public function find($accountId, $filter = null)
     {
-        $query = \Illuminate\Support\Facades\DB::table('products')
+        $query = DB::table('products')
             ->where('products.account_id', '=', $accountId)
             ->select(
                 'products.public_id',
@@ -61,7 +63,7 @@ class ProductRepository extends BaseRepository
             // do nothing
         } elseif ($publicId) {
             $product = Product::scope($publicId)->withArchived()->firstOrFail();
-            \Illuminate\Support\Facades\Log::warning('Entity not set in product repo save');
+            Log::warning('Entity not set in product repo save');
         } else {
             $product = Product::createNew();
         }

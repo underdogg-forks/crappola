@@ -6,6 +6,10 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
 use Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 use Redirect;
 use Request;
 use Session;
@@ -16,7 +20,7 @@ use View;
  */
 class HomeController extends BaseController
 {
-    protected \App\Ninja\Mailers\Mailer $mailer;
+    protected Mailer $mailer;
 
     /**
      * HomeController constructor.
@@ -31,7 +35,7 @@ class HomeController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function showIndex()
     {
@@ -57,7 +61,7 @@ class HomeController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
      */
     public function invoiceNow()
     {
@@ -88,13 +92,13 @@ class HomeController extends BaseController
      * @param $userType
      * @param $version
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function newsFeed($userType, $version)
     {
         $response = Utils::getNewsFeedResponse($userType);
 
-        return \Illuminate\Support\Facades\Response::json($response);
+        return Response::json($response);
     }
 
     public function hideMessage(): string
@@ -136,7 +140,7 @@ class HomeController extends BaseController
             $message .= "\n\n" . implode("\n", Utils::getErrors());
         }
 
-        \Illuminate\Support\Facades\Mail::raw($message, function ($message): void {
+        Mail::raw($message, function ($message): void {
             $subject = 'Customer Message [';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-ninja-', '', config('database.default'));

@@ -3,12 +3,13 @@
 namespace App\Ninja\Intents;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 
 class ListProductsIntent extends ProductIntent
 {
     public function process(): string|bool
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $products = Product::scope()
             ->orderBy('product_key')
             ->limit(5)

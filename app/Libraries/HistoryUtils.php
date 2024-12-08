@@ -4,6 +4,7 @@ namespace App\Libraries;
 
 use App\Models\Activity;
 use App\Models\EntityModel;
+use Illuminate\Support\Facades\Session;
 use stdClass;
 
 class HistoryUtils
@@ -86,7 +87,7 @@ class HistoryUtils
 
     public static function deleteHistory(EntityModel $entity): void
     {
-        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $remove = [];
         $counter = count($accountHistory);
@@ -104,7 +105,7 @@ class HistoryUtils
             array_splice($history[$entity->account_id], $remove[$i], 1);
         }
 
-        \Illuminate\Support\Facades\Session::put(RECENTLY_VIEWED, $history);
+        Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function trackViewed(EntityModel $entity): void
@@ -130,7 +131,7 @@ class HistoryUtils
         }
 
         $object = static::convertToObject($entity);
-        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED) ?: [];
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $data = [];
         // Add to the list and make sure to only show each item once
@@ -161,7 +162,7 @@ class HistoryUtils
 
         $history[$entity->account_id] = $data;
 
-        \Illuminate\Support\Facades\Session::put(RECENTLY_VIEWED, $history);
+        Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function renderHtml($accountId): string
@@ -170,7 +171,7 @@ class HistoryUtils
         $clientMap = [];
         $str = '';
 
-        $history = \Illuminate\Support\Facades\Session::get(RECENTLY_VIEWED, []);
+        $history = Session::get(RECENTLY_VIEWED, []);
         $history = $history[$accountId] ?? [];
 
         foreach ($history as $item) {
@@ -212,7 +213,7 @@ class HistoryUtils
         return $str;
     }
 
-    private static function convertToObject(\App\Models\EntityModel $entity): stdClass
+    private static function convertToObject(EntityModel $entity): stdClass
     {
         $object = new stdClass();
         $object->id = $entity->id;

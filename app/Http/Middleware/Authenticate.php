@@ -7,6 +7,11 @@ use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
 use Closure;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Utils;
 
 /**
@@ -17,15 +22,15 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param Closure                  $next
-     * @param string                   $guard
+     * @param Request $request
+     * @param Closure $next
+     * @param string  $guard
      *
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = 'user')
     {
-        $authenticated = \Illuminate\Support\Facades\Auth::guard($guard)->check();
+        $authenticated = Auth::guard($guard)->check();
         $invitationKey = $request->invitation_key ?: $request->proposal_invitation_key;
 
         if ($guard == 'client') {
@@ -45,16 +50,16 @@ class Authenticate
                     if ($contact && $contact->id != $invitation->contact_id) {
                         // This is a different client; reauthenticate
                         $authenticated = false;
-                        \Illuminate\Support\Facades\Auth::guard($guard)->logout();
+                        Auth::guard($guard)->logout();
                     }
 
-                    \Illuminate\Support\Facades\Session::put('contact_key', $invitation->contact->contact_key);
+                    Session::put('contact_key', $invitation->contact->contact_key);
                 }
             }
 
             if ( ! empty($request->contact_key)) {
                 $contact_key = $request->contact_key;
-                \Illuminate\Support\Facades\Session::put('contact_key', $contact_key);
+                Session::put('contact_key', $contact_key);
             } else {
                 $contact_key = session('contact_key');
             }
@@ -64,16 +69,16 @@ class Authenticate
                 $contact = $this->getContact($contact_key);
             } elseif ($invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key))) {
                 $contact = $invitation->contact;
-                \Illuminate\Support\Facades\Session::put('contact_key', $contact->contact_key);
+                Session::put('contact_key', $contact->contact_key);
             }
 
             if ( ! $contact) {
-                return \Illuminate\Support\Facades\Redirect::to('client/login');
+                return Redirect::to('client/login');
             }
 
             $account = $contact->account;
 
-            if (\Illuminate\Support\Facades\Auth::guard('user')->check() && \Illuminate\Support\Facades\Auth::user()->account_id == $account->id) {
+            if (Auth::guard('user')->check() && Auth::user()->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }
@@ -124,7 +129,7 @@ class Authenticate
     /**
      * @param $key
      *
-     * @return \Illuminate\Database\Eloquent\Model|null|static
+     * @return Model|null|static
      */
     protected function getInvitation($key, $isProposal = false)
     {
@@ -150,7 +155,7 @@ class Authenticate
     /**
      * @param $key
      *
-     * @return \Illuminate\Database\Eloquent\Model|null|static
+     * @return Model|null|static
      */
     protected function getContact($key)
     {

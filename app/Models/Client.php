@@ -3,138 +3,144 @@
 namespace App\Models;
 
 use App\Models\Traits\HasCustomMessages;
+use App\Ninja\Presenters\ClientPresenter;
 use Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Client.
  *
- * @property int                                                                 $id
- * @property int                                                                 $user_id
- * @property int                                                                 $account_id
- * @property int|null                                                            $currency_id
- * @property \Illuminate\Support\Carbon|null                                     $created_at
- * @property \Illuminate\Support\Carbon|null                                     $updated_at
- * @property \Illuminate\Support\Carbon|null                                     $deleted_at
- * @property string|null                                                         $name
- * @property string|null                                                         $address1
- * @property string|null                                                         $address2
- * @property string|null                                                         $city
- * @property string|null                                                         $state
- * @property string|null                                                         $postal_code
- * @property int|null                                                            $country_id
- * @property string|null                                                         $work_phone
- * @property string|null                                                         $private_notes
- * @property string|null                                                         $balance
- * @property string|null                                                         $paid_to_date
- * @property string|null                                                         $last_login
- * @property string|null                                                         $website
- * @property int|null                                                            $industry_id
- * @property int|null                                                            $size_id
- * @property int                                                                 $is_deleted
- * @property int|null                                                            $payment_terms
- * @property int                                                                 $public_id
- * @property string|null                                                         $custom_value1
- * @property string|null                                                         $custom_value2
- * @property string|null                                                         $vat_number
- * @property string|null                                                         $id_number
- * @property int|null                                                            $language_id
- * @property int|null                                                            $invoice_number_counter
- * @property int|null                                                            $quote_number_counter
- * @property string|null                                                         $public_notes
- * @property int|null                                                            $credit_number_counter
- * @property string                                                              $task_rate
- * @property string|null                                                         $shipping_address1
- * @property string|null                                                         $shipping_address2
- * @property string|null                                                         $shipping_city
- * @property string|null                                                         $shipping_state
- * @property string|null                                                         $shipping_postal_code
- * @property int|null                                                            $shipping_country_id
- * @property int                                                                 $show_tasks_in_portal
- * @property int                                                                 $send_reminders
- * @property mixed|null                                                          $custom_messages
- * @property \App\Models\Account                                                 $account
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property int|null                                                            $activities_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contact>  $contacts
- * @property int|null                                                            $contacts_count
- * @property \App\Models\Country|null                                            $country
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit>   $credits
- * @property int|null                                                            $credits_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit>   $creditsWithBalance
- * @property int|null                                                            $credits_with_balance_count
- * @property \App\Models\Currency|null                                           $currency
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense>  $expenses
- * @property int|null                                                            $expenses_count
- * @property \App\Models\Industry|null                                           $industry
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice>  $invoices
- * @property int|null                                                            $invoices_count
- * @property \App\Models\Language|null                                           $language
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>  $payments
- * @property int|null                                                            $payments_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice>  $publicQuotes
- * @property int|null                                                            $public_quotes_count
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice>  $quotes
- * @property int|null                                                            $quotes_count
- * @property \App\Models\Country|null                                            $shipping_country
- * @property \App\Models\Size|null                                               $size
- * @property \App\Models\User                                                    $user
+ * @property int                             $id
+ * @property int                             $user_id
+ * @property int                             $account_id
+ * @property int|null                        $currency_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null                     $name
+ * @property string|null                     $address1
+ * @property string|null                     $address2
+ * @property string|null                     $city
+ * @property string|null                     $state
+ * @property string|null                     $postal_code
+ * @property int|null                        $country_id
+ * @property string|null                     $work_phone
+ * @property string|null                     $private_notes
+ * @property string|null                     $balance
+ * @property string|null                     $paid_to_date
+ * @property string|null                     $last_login
+ * @property string|null                     $website
+ * @property int|null                        $industry_id
+ * @property int|null                        $size_id
+ * @property int                             $is_deleted
+ * @property int|null                        $payment_terms
+ * @property int                             $public_id
+ * @property string|null                     $custom_value1
+ * @property string|null                     $custom_value2
+ * @property string|null                     $vat_number
+ * @property string|null                     $id_number
+ * @property int|null                        $language_id
+ * @property int|null                        $invoice_number_counter
+ * @property int|null                        $quote_number_counter
+ * @property string|null                     $public_notes
+ * @property int|null                        $credit_number_counter
+ * @property string                          $task_rate
+ * @property string|null                     $shipping_address1
+ * @property string|null                     $shipping_address2
+ * @property string|null                     $shipping_city
+ * @property string|null                     $shipping_state
+ * @property string|null                     $shipping_postal_code
+ * @property int|null                        $shipping_country_id
+ * @property int                             $show_tasks_in_portal
+ * @property int                             $send_reminders
+ * @property mixed|null                      $custom_messages
+ * @property Account                         $account
+ * @property Collection<int, Activity>       $activities
+ * @property int|null                        $activities_count
+ * @property Collection<int, Contact>        $contacts
+ * @property int|null                        $contacts_count
+ * @property Country|null                    $country
+ * @property Collection<int, Credit>         $credits
+ * @property int|null                        $credits_count
+ * @property Collection<int, Credit>         $creditsWithBalance
+ * @property int|null                        $credits_with_balance_count
+ * @property Currency|null                   $currency
+ * @property Collection<int, Expense>        $expenses
+ * @property int|null                        $expenses_count
+ * @property Industry|null                   $industry
+ * @property Collection<int, Invoice>        $invoices
+ * @property int|null                        $invoices_count
+ * @property Language|null                   $language
+ * @property Collection<int, Payment>        $payments
+ * @property int|null                        $payments_count
+ * @property Collection<int, Invoice>        $publicQuotes
+ * @property int|null                        $public_quotes_count
+ * @property Collection<int, Invoice>        $quotes
+ * @property int|null                        $quotes_count
+ * @property Country|null                    $shipping_country
+ * @property Size|null                       $size
+ * @property User                            $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client query()
- * @method static \Illuminate\Database\Eloquent\Builder|Client scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreditNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomMessages($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIndustryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereInvoiceNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLanguageId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaymentTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereQuoteNumberCounter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSendReminders($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingPostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShowTasksInPortal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereTaskRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereWorkPhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Client withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|Client withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client withoutTrashed()
+ * @method static Builder|Client newModelQuery()
+ * @method static Builder|Client newQuery()
+ * @method static Builder|Client onlyTrashed()
+ * @method static Builder|Client query()
+ * @method static Builder|Client scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Client whereAccountId($value)
+ * @method static Builder|Client whereAddress1($value)
+ * @method static Builder|Client whereAddress2($value)
+ * @method static Builder|Client whereBalance($value)
+ * @method static Builder|Client whereCity($value)
+ * @method static Builder|Client whereCountryId($value)
+ * @method static Builder|Client whereCreatedAt($value)
+ * @method static Builder|Client whereCreditNumberCounter($value)
+ * @method static Builder|Client whereCurrencyId($value)
+ * @method static Builder|Client whereCustomMessages($value)
+ * @method static Builder|Client whereCustomValue1($value)
+ * @method static Builder|Client whereCustomValue2($value)
+ * @method static Builder|Client whereDeletedAt($value)
+ * @method static Builder|Client whereId($value)
+ * @method static Builder|Client whereIdNumber($value)
+ * @method static Builder|Client whereIndustryId($value)
+ * @method static Builder|Client whereInvoiceNumberCounter($value)
+ * @method static Builder|Client whereIsDeleted($value)
+ * @method static Builder|Client whereLanguageId($value)
+ * @method static Builder|Client whereLastLogin($value)
+ * @method static Builder|Client whereName($value)
+ * @method static Builder|Client wherePaidToDate($value)
+ * @method static Builder|Client wherePaymentTerms($value)
+ * @method static Builder|Client wherePostalCode($value)
+ * @method static Builder|Client wherePrivateNotes($value)
+ * @method static Builder|Client wherePublicId($value)
+ * @method static Builder|Client wherePublicNotes($value)
+ * @method static Builder|Client whereQuoteNumberCounter($value)
+ * @method static Builder|Client whereSendReminders($value)
+ * @method static Builder|Client whereShippingAddress1($value)
+ * @method static Builder|Client whereShippingAddress2($value)
+ * @method static Builder|Client whereShippingCity($value)
+ * @method static Builder|Client whereShippingCountryId($value)
+ * @method static Builder|Client whereShippingPostalCode($value)
+ * @method static Builder|Client whereShippingState($value)
+ * @method static Builder|Client whereShowTasksInPortal($value)
+ * @method static Builder|Client whereSizeId($value)
+ * @method static Builder|Client whereState($value)
+ * @method static Builder|Client whereTaskRate($value)
+ * @method static Builder|Client whereUpdatedAt($value)
+ * @method static Builder|Client whereUserId($value)
+ * @method static Builder|Client whereVatNumber($value)
+ * @method static Builder|Client whereWebsite($value)
+ * @method static Builder|Client whereWorkPhone($value)
+ * @method static Builder|Client withActiveOrSelected($id = false)
+ * @method static Builder|Client withArchived()
+ * @method static Builder|Client withTrashed()
+ * @method static Builder|Client withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -147,7 +153,7 @@ class Client extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\ClientPresenter::class;
+    protected $presenter = ClientPresenter::class;
 
     /**
      * @var array
@@ -243,94 +249,94 @@ class Client extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function invoices()
     {
-        return $this->hasMany(\App\Models\Invoice::class);
+        return $this->hasMany(Invoice::class);
     }
 
     public function quotes()
     {
-        return $this->hasMany(\App\Models\Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+        return $this->hasMany(Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
     }
 
     public function publicQuotes()
     {
-        return $this->hasMany(\App\Models\Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
+        return $this->hasMany(Invoice::class)->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
     }
 
     public function payments()
     {
-        return $this->hasMany(\App\Models\Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
     public function contacts()
     {
-        return $this->hasMany(\App\Models\Contact::class);
+        return $this->hasMany(Contact::class);
     }
 
     public function country()
     {
-        return $this->belongsTo(\App\Models\Country::class);
+        return $this->belongsTo(Country::class);
     }
 
     public function shipping_country()
     {
-        return $this->belongsTo(\App\Models\Country::class);
+        return $this->belongsTo(Country::class);
     }
 
     public function currency()
     {
-        return $this->belongsTo(\App\Models\Currency::class);
+        return $this->belongsTo(Currency::class);
     }
 
     public function language()
     {
-        return $this->belongsTo(\App\Models\Language::class);
+        return $this->belongsTo(Language::class);
     }
 
     public function size()
     {
-        return $this->belongsTo(\App\Models\Size::class);
+        return $this->belongsTo(Size::class);
     }
 
     public function industry()
     {
-        return $this->belongsTo(\App\Models\Industry::class);
+        return $this->belongsTo(Industry::class);
     }
 
     public function credits()
     {
-        return $this->hasMany(\App\Models\Credit::class);
+        return $this->hasMany(Credit::class);
     }
 
     public function creditsWithBalance()
     {
-        return $this->hasMany(\App\Models\Credit::class)->where('balance', '>', 0);
+        return $this->hasMany(Credit::class)->where('balance', '>', 0);
     }
 
     public function expenses()
     {
-        return $this->hasMany(\App\Models\Expense::class, 'client_id', 'id')->withTrashed();
+        return $this->hasMany(Expense::class, 'client_id', 'id')->withTrashed();
     }
 
     public function activities()
     {
-        return $this->hasMany(\App\Models\Activity::class, 'client_id', 'id')->orderBy('id', 'desc');
+        return $this->hasMany(Activity::class, 'client_id', 'id')->orderBy('id', 'desc');
     }
 
     /**
      * @param      $data
      * @param bool $isPrimary
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     public function addContact($data, $isPrimary = false)
     {
@@ -347,7 +353,7 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                $contact->contact_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
             }
         }
 
@@ -392,7 +398,7 @@ class Client extends EntityModel
      */
     public function getTotalCredit()
     {
-        return \Illuminate\Support\Facades\DB::table('credits')
+        return DB::table('credits')
             ->where('client_id', '=', $this->id)
             ->whereNull('deleted_at')
             ->sum('balance');

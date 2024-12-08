@@ -3,6 +3,9 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Vendor;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Utils;
 
 // vendor
@@ -10,7 +13,7 @@ class VendorRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\Vendor::class;
+        return Vendor::class;
     }
 
     public function all()
@@ -24,15 +27,15 @@ class VendorRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $query = \Illuminate\Support\Facades\DB::table('vendors')
+        $query = DB::table('vendors')
             ->join('accounts', 'accounts.id', '=', 'vendors.account_id')
             ->join('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
-            ->where('vendors.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+            ->where('vendors.account_id', '=', Auth::user()->account_id)
             ->where('vendor_contacts.is_primary', '=', true)
             ->where('vendor_contacts.deleted_at', '=', null)
             ->select(
-                \Illuminate\Support\Facades\DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
                 'vendors.public_id',
                 'vendors.name',
                 'vendor_contacts.first_name',
@@ -72,7 +75,7 @@ class VendorRepository extends BaseRepository
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
             if (Utils::isNinjaDev()) {
-                \Illuminate\Support\Facades\Log::warning('Entity not set in vendor repo save');
+                Log::warning('Entity not set in vendor repo save');
             }
         }
 

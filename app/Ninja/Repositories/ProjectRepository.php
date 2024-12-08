@@ -3,24 +3,28 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Utils;
 
 class ProjectRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\Project::class;
+        return Project::class;
     }
 
-    public function all(): \Illuminate\Database\Eloquent\Collection|array
+    public function all(): Collection|array
     {
         return Project::scope()->get();
     }
 
-    public function find($filter = null, $userId = false): \Illuminate\Database\Query\Builder
+    public function find($filter = null, $userId = false): Builder
     {
-        $query = \Illuminate\Support\Facades\DB::table('projects')
-            ->where('projects.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+        $query = DB::table('projects')
+            ->where('projects.account_id', '=', Auth::user()->account_id)
             ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
@@ -39,7 +43,7 @@ class ProjectRepository extends BaseRepository
                 'projects.due_date',
                 'projects.budgeted_hours',
                 'projects.private_notes',
-                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
                 'clients.public_id as client_public_id'
             );

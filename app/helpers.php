@@ -13,7 +13,7 @@ if ( ! function_exists('dispatch')) {
      *
      * @return PendingDispatch
      */
-    function dispatch($job): \Illuminate\Foundation\Bus\PendingDispatch
+    function dispatch($job): PendingDispatch
     {
         if ($job instanceof Closure) {
             $job = new CallQueuedClosure(new SerializableClosure($job));

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
 /**
  * Class Currency.
  *
@@ -15,22 +19,22 @@ namespace App\Models;
  * @property bool       $swap_currency_symbol
  * @property float|null $exchange_rate
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Currency newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency query()
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereDecimalSeparator($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereExchangeRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency wherePrecision($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereSwapCurrencySymbol($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereSymbol($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Currency whereThousandSeparator($value)
+ * @method static Builder|Currency newModelQuery()
+ * @method static Builder|Currency newQuery()
+ * @method static Builder|Currency query()
+ * @method static Builder|Currency whereCode($value)
+ * @method static Builder|Currency whereDecimalSeparator($value)
+ * @method static Builder|Currency whereExchangeRate($value)
+ * @method static Builder|Currency whereId($value)
+ * @method static Builder|Currency whereName($value)
+ * @method static Builder|Currency wherePrecision($value)
+ * @method static Builder|Currency whereSwapCurrencySymbol($value)
+ * @method static Builder|Currency whereSymbol($value)
+ * @method static Builder|Currency whereThousandSeparator($value)
  *
  * @mixin \Eloquent
  */
-class Currency extends \Illuminate\Database\Eloquent\Model
+class Currency extends Model
 {
     /**
      * @var bool
@@ -52,6 +56,6 @@ class Currency extends \Illuminate\Database\Eloquent\Model
 
     public function getTranslatedName()
     {
-        return trans('texts.currency_' . \Illuminate\Support\Str::slug($this->name, '_'));
+        return trans('texts.currency_' . Str::slug($this->name, '_'));
     }
 }

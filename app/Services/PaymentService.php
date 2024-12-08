@@ -2,30 +2,37 @@
 
 namespace App\Services;
 
+use App\Models\Account;
 use App\Models\Activity;
+use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class PaymentService extends BaseService
 {
     /**
-     * @var \App\Services\DatatableService
+     * @var DatatableService
      */
     public $datatableService;
 
     /**
-     * @var \App\Ninja\Repositories\PaymentRepository
+     * @var PaymentRepository
      */
     public $paymentRepo;
 
     /**
-     * @var \App\Ninja\Repositories\AccountRepository
+     * @var AccountRepository
      */
     public $accountRepo;
 
@@ -57,13 +64,13 @@ class PaymentService extends BaseService
             return false;
         }
 
-        /** @var \App\Models\Client $client */
+        /** @var Client $client */
         $client = $invoice->client;
 
-        /** @var \App\Models\Account $account */
+        /** @var Account $account */
         $account = $client->account;
 
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = $invoice->invitations->first();
 
         if ( ! $invitation) {
@@ -146,8 +153,8 @@ class PaymentService extends BaseService
             $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
             //$message .= $exception->getTraceAsString();
             Utils::logError($message, 'PHP', true);
-            if (\Illuminate\Support\Facades\App::runningInConsole()) {
-                $mailer = app(\App\Ninja\Mailers\UserMailer::class);
+            if (App::runningInConsole()) {
+                $mailer = app(UserMailer::class);
                 $mailer->sendMessage($invoice->user, $subject, $message, [
                     'invoice' => $invoice,
                 ]);
@@ -180,7 +187,7 @@ class PaymentService extends BaseService
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
         if ( ! Utils::hasPermission('view_payment')) {
-            $query->where('payments.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+            $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
@@ -197,7 +204,7 @@ class PaymentService extends BaseService
             $successful = 0;
 
             foreach ($payments as $payment) {
-                if (\Illuminate\Support\Facades\Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
+                if (Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
                     $amount = empty($params['refund_amount']) ? null : (float) ($params['refund_amount']);
                     $sendEmail = empty($params['refund_email']) ? false : (bool) ($params['refund_email']);
                     $paymentDriver = false;
@@ -219,7 +226,7 @@ class PaymentService extends BaseService
                     }
 
                     if ($refunded && $sendEmail) {
-                        $mailer = app(\App\Ninja\Mailers\ContactMailer::class);
+                        $mailer = app(ContactMailer::class);
                         $mailer->sendPaymentConfirmation($payment, $amount);
                     }
                 }

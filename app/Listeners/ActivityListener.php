@@ -44,13 +44,14 @@ use App\Events\TaskWasRestored;
 use App\Events\TaskWasUpdated;
 use App\Models\Invoice;
 use App\Ninja\Repositories\ActivityRepository;
+use Illuminate\Support\Facades\App;
 
 /**
  * Class ActivityListener.
  */
 class ActivityListener
 {
-    protected \App\Ninja\Repositories\ActivityRepository $activityRepo;
+    protected ActivityRepository $activityRepo;
 
     /**
      * ActivityListener constructor.
@@ -391,7 +392,7 @@ class ActivityListener
             $event->payment->amount * -1,
             $event->payment->amount,
             false,
-            \Illuminate\Support\Facades\App::runningInConsole() ? 'auto_billed' : ''
+            App::runningInConsole() ? 'auto_billed' : ''
         );
     }
 

@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * Class InvoiceDesign.
  *
@@ -10,17 +15,17 @@ namespace App\Models;
  * @property string|null $javascript
  * @property string|null $pdfmake
  *
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign query()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereJavascript($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign wherePdfmake($value)
+ * @method static Builder|InvoiceDesign newModelQuery()
+ * @method static Builder|InvoiceDesign newQuery()
+ * @method static Builder|InvoiceDesign query()
+ * @method static Builder|InvoiceDesign whereId($value)
+ * @method static Builder|InvoiceDesign whereJavascript($value)
+ * @method static Builder|InvoiceDesign whereName($value)
+ * @method static Builder|InvoiceDesign wherePdfmake($value)
  *
  * @mixin \Eloquent
  */
-class InvoiceDesign extends \Illuminate\Database\Eloquent\Model
+class InvoiceDesign extends Model
 {
     /**
      * @var bool
@@ -80,13 +85,13 @@ class InvoiceDesign extends \Illuminate\Database\Eloquent\Model
 
     public static function getDesigns()
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
-        $designs = \Illuminate\Support\Facades\Cache::get('invoiceDesigns');
+        $account = Auth::user()->account;
+        $designs = Cache::get('invoiceDesigns');
 
         $data = collect();
 
         foreach ($designs as $design) {
-            if ($design->id <= \Illuminate\Support\Facades\Auth::user()->maxInvoiceDesignId()) {
+            if ($design->id <= Auth::user()->maxInvoiceDesignId()) {
                 $data->push($design);
             }
 

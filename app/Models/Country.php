@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Country.
  *
@@ -24,31 +27,31 @@ namespace App\Models;
  * @property string|null $thousand_separator
  * @property string|null $decimal_separator
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Country newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Country newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Country query()
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCapital($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCitizenship($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCountryCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCurrencyCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereCurrencySubUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereDecimalSeparator($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereEea($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereFullName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereIso31662($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereIso31663($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereRegionCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereSubRegionCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereSwapCurrencySymbol($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereSwapPostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Country whereThousandSeparator($value)
+ * @method static Builder|Country newModelQuery()
+ * @method static Builder|Country newQuery()
+ * @method static Builder|Country query()
+ * @method static Builder|Country whereCapital($value)
+ * @method static Builder|Country whereCitizenship($value)
+ * @method static Builder|Country whereCountryCode($value)
+ * @method static Builder|Country whereCurrency($value)
+ * @method static Builder|Country whereCurrencyCode($value)
+ * @method static Builder|Country whereCurrencySubUnit($value)
+ * @method static Builder|Country whereDecimalSeparator($value)
+ * @method static Builder|Country whereEea($value)
+ * @method static Builder|Country whereFullName($value)
+ * @method static Builder|Country whereId($value)
+ * @method static Builder|Country whereIso31662($value)
+ * @method static Builder|Country whereIso31663($value)
+ * @method static Builder|Country whereName($value)
+ * @method static Builder|Country whereRegionCode($value)
+ * @method static Builder|Country whereSubRegionCode($value)
+ * @method static Builder|Country whereSwapCurrencySymbol($value)
+ * @method static Builder|Country whereSwapPostalCode($value)
+ * @method static Builder|Country whereThousandSeparator($value)
  *
  * @mixin \Eloquent
  */
-class Country extends \Illuminate\Database\Eloquent\Model
+class Country extends Model
 {
     /**
      * @var bool

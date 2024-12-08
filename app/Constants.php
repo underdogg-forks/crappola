@@ -1,5 +1,23 @@
 <?php
 
+use App\Models\Bank;
+use App\Models\Country;
+use App\Models\Currency;
+use App\Models\DateFormat;
+use App\Models\DatetimeFormat;
+use App\Models\Font;
+use App\Models\Frequency;
+use App\Models\Gateway;
+use App\Models\GatewayType;
+use App\Models\Industry;
+use App\Models\InvoiceDesign;
+use App\Models\InvoiceStatus;
+use App\Models\Language;
+use App\Models\PaymentType;
+use App\Models\Size;
+use App\Models\Timezone;
+use Illuminate\Support\Facades\Session;
+
 if ( ! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('APP_DOMAIN', env('APP_DOMAIN', 'invoiceninja.com'));
@@ -643,22 +661,22 @@ if ( ! defined('APP_NAME')) {
     define('CREDIT_CARDS', serialize($creditCards));
 
     $cachedTables = [
-        'currencies'      => \App\Models\Currency::class,
-        'sizes'           => \App\Models\Size::class,
-        'industries'      => \App\Models\Industry::class,
-        'timezones'       => \App\Models\Timezone::class,
-        'dateFormats'     => \App\Models\DateFormat::class,
-        'datetimeFormats' => \App\Models\DatetimeFormat::class,
-        'languages'       => \App\Models\Language::class,
-        'paymentTypes'    => \App\Models\PaymentType::class,
-        'countries'       => \App\Models\Country::class,
-        'invoiceDesigns'  => \App\Models\InvoiceDesign::class,
-        'invoiceStatus'   => \App\Models\InvoiceStatus::class,
-        'frequencies'     => \App\Models\Frequency::class,
-        'gateways'        => \App\Models\Gateway::class,
-        'gatewayTypes'    => \App\Models\GatewayType::class,
-        'fonts'           => \App\Models\Font::class,
-        'banks'           => \App\Models\Bank::class,
+        'currencies'      => Currency::class,
+        'sizes'           => Size::class,
+        'industries'      => Industry::class,
+        'timezones'       => Timezone::class,
+        'dateFormats'     => DateFormat::class,
+        'datetimeFormats' => DatetimeFormat::class,
+        'languages'       => Language::class,
+        'paymentTypes'    => PaymentType::class,
+        'countries'       => Country::class,
+        'invoiceDesigns'  => InvoiceDesign::class,
+        'invoiceStatus'   => InvoiceStatus::class,
+        'frequencies'     => Frequency::class,
+        'gateways'        => Gateway::class,
+        'gatewayTypes'    => GatewayType::class,
+        'fonts'           => Font::class,
+        'banks'           => Bank::class,
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
@@ -667,7 +685,7 @@ if ( ! defined('APP_NAME')) {
 
     function uctrans($text, $data = [])
     {
-        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
+        $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
         return $locale == 'en' ? ucwords($text) : $text;
@@ -675,7 +693,7 @@ if ( ! defined('APP_NAME')) {
 
     function utrans($text, $data = [])
     {
-        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
+        $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
         return $locale == 'en' ? mb_strtoupper($text) : $text;
@@ -684,7 +702,7 @@ if ( ! defined('APP_NAME')) {
     // optional trans: only return the string if it's translated
     function otrans($text)
     {
-        $locale = \Illuminate\Support\Facades\Session::get(SESSION_LOCALE);
+        $locale = Session::get(SESSION_LOCALE);
 
         if ($locale == 'en') {
             return trans($text);

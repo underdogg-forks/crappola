@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Account;
+use App\Models\Client;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\Models\Invitation;
 use Form;
 use HTML;
 use Utils;
@@ -18,13 +21,13 @@ class TemplateService
      */
     public function processVariables($template, array $data)
     {
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = $data['invitation'];
 
-        /** @var \App\Models\Account $account */
+        /** @var Account $account */
         $account = empty($data['account']) ? $invitation->account : $data['account'];
 
-        /** @var \App\Models\Client $client */
+        /** @var Client $client */
         $client = empty($data['client']) ? $invitation->invoice->client : $data['client'];
 
         $amount = empty($data['amount']) ? $invitation->invoice->getRequestedAmount() : $data['amount'];

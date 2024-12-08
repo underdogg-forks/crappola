@@ -2,47 +2,55 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+
 class BlueVineController extends BaseController
 {
     public function signup()
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         $data = [
-            'personal_user_full_name'               => \Illuminate\Support\Facades\Request::input('name'),
-            'business_phone_number'                 => \Illuminate\Support\Facades\Request::input('phone'),
-            'email'                                 => \Illuminate\Support\Facades\Request::input('email'),
-            'personal_fico_score'                   => (int) (\Illuminate\Support\Facades\Request::input('fico_score')),
-            'business_annual_revenue'               => (int) (\Illuminate\Support\Facades\Request::input('annual_revenue')),
-            'business_monthly_average_bank_balance' => (int) (\Illuminate\Support\Facades\Request::input('average_bank_balance')),
-            'business_inception_date'               => date('Y-m-d', strtotime(\Illuminate\Support\Facades\Request::input('business_inception'))),
+            'personal_user_full_name'               => Request::input('name'),
+            'business_phone_number'                 => Request::input('phone'),
+            'email'                                 => Request::input('email'),
+            'personal_fico_score'                   => (int) (Request::input('fico_score')),
+            'business_annual_revenue'               => (int) (Request::input('annual_revenue')),
+            'business_monthly_average_bank_balance' => (int) (Request::input('average_bank_balance')),
+            'business_inception_date'               => date('Y-m-d', strtotime(Request::input('business_inception'))),
             'partner_internal_business_id'          => 'ninja_account_' . $user->account_id,
         ];
 
-        if ( ! empty(\Illuminate\Support\Facades\Request::input('quote_type_factoring'))) {
+        if ( ! empty(Request::input('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line'] = (int) (\Illuminate\Support\Facades\Request::input('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line'] = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
         }
 
-        if ( ! empty(\Illuminate\Support\Facades\Request::input('quote_type_loc'))) {
+        if ( ! empty(Request::input('quote_type_loc'))) {
             $data['line_of_credit_offer'] = true;
-            $data['desired_credit_line_for_loc'] = (int) (\Illuminate\Support\Facades\Request::input('desired_credit_limit')['line_of_credit']);
+            $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
         }
 
-        $api_client = new \GuzzleHttp\Client();
+        $api_client = new Client();
         try {
             $response = $api_client->request(
                 'POST',
                 'https://app.bluevine.com/api/v1/user/register_external?' . http_build_query([
                     'external_register_token' => env('BLUEVINE_PARTNER_TOKEN'),
                     'c'                       => env('BLUEVINE_PARTNER_UNIQUE_ID'),
-                    'signup_parent_url'       => \Illuminate\Support\Facades\URL::to('/bluevine/completed'),
+                    'signup_parent_url'       => URL::to('/bluevine/completed'),
                 ]),
                 [
                     'json' => $data,
                 ]
             );
-        } catch (\GuzzleHttp\Exception\RequestException $requestException) {
+        } catch (RequestException $requestException) {
             if ($requestException->getCode() == 403) {
                 $response_body = $requestException->getResponse()->getBody(true);
                 $response_data = json_decode($response_body);
@@ -69,7 +77,7 @@ class BlueVineController extends BaseController
 
     public function hideMessage(): string
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         if ($user) {
             $company = $user->account->company;
@@ -82,8 +90,8 @@ class BlueVineController extends BaseController
 
     public function handleCompleted()
     {
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.bluevine_completed'));
+        Session::flash('message', trans('texts.bluevine_completed'));
 
-        return \Illuminate\Support\Facades\Redirect::to('/dashboard');
+        return Redirect::to('/dashboard');
     }
 }

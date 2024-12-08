@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class ProductReport extends AbstractReport
@@ -43,7 +44,7 @@ class ProductReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $subgroup = $this->options['subgroup'];
 

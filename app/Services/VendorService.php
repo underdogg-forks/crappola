@@ -6,6 +6,8 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -14,13 +16,13 @@ use Utils;
 class VendorService extends BaseService
 {
     /**
-     * @var \App\Ninja\Repositories\NinjaRepository
+     * @var NinjaRepository
      */
     public $ninjaRepo;
 
-    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
+    protected VendorRepository $vendorRepo;
 
-    protected \App\Services\DatatableService $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * VendorService constructor.
@@ -53,7 +55,7 @@ class VendorService extends BaseService
     /**
      * @param $search
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search)
     {
@@ -61,7 +63,7 @@ class VendorService extends BaseService
         $query = $this->vendorRepo->find($search);
 
         if ( ! Utils::hasPermission('view_vendor')) {
-            $query->where('vendors.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+            $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
@@ -70,7 +72,7 @@ class VendorService extends BaseService
     /**
      * @return VendorRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\VendorRepository
+    protected function getRepo(): VendorRepository
     {
         return $this->vendorRepo;
     }

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Codedge\Updater\UpdaterManager;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Utils;
 
 class SelfUpdateController extends BaseController
 {
-    protected \Codedge\Updater\UpdaterManager $updater;
+    protected UpdaterManager $updater;
 
     /**
      * SelfUpdateController constructor.
@@ -46,13 +48,13 @@ class SelfUpdateController extends BaseController
     /**
      * Run the actual update.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update()
     {
         $this->updater->source()->update();
 
-        return \Illuminate\Support\Facades\Redirect::to('/');
+        return Redirect::to('/');
     }
 
     public function download(): void

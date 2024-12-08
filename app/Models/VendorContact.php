@@ -3,51 +3,52 @@
 namespace App\Models;
 
 // vendor
-
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class VendorContact.
  *
- * @property int                             $id
- * @property int                             $account_id
- * @property int                             $user_id
- * @property int                             $vendor_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int                             $is_primary
- * @property string|null                     $first_name
- * @property string|null                     $last_name
- * @property string|null                     $email
- * @property string|null                     $phone
- * @property int|null                        $public_id
- * @property \App\Models\Account             $account
- * @property \App\Models\User                $user
- * @property \App\Models\Vendor              $vendor
+ * @property int         $id
+ * @property int         $account_id
+ * @property int         $user_id
+ * @property int         $vendor_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property int         $is_primary
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $email
+ * @property string|null $phone
+ * @property int|null    $public_id
+ * @property Account     $account
+ * @property User        $user
+ * @property Vendor      $vendor
  *
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact query()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereIsPrimary($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withoutTrashed()
+ * @method static Builder|VendorContact newModelQuery()
+ * @method static Builder|VendorContact newQuery()
+ * @method static Builder|VendorContact onlyTrashed()
+ * @method static Builder|VendorContact query()
+ * @method static Builder|VendorContact scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|VendorContact whereAccountId($value)
+ * @method static Builder|VendorContact whereCreatedAt($value)
+ * @method static Builder|VendorContact whereDeletedAt($value)
+ * @method static Builder|VendorContact whereEmail($value)
+ * @method static Builder|VendorContact whereFirstName($value)
+ * @method static Builder|VendorContact whereId($value)
+ * @method static Builder|VendorContact whereIsPrimary($value)
+ * @method static Builder|VendorContact whereLastName($value)
+ * @method static Builder|VendorContact wherePhone($value)
+ * @method static Builder|VendorContact wherePublicId($value)
+ * @method static Builder|VendorContact whereUpdatedAt($value)
+ * @method static Builder|VendorContact whereUserId($value)
+ * @method static Builder|VendorContact whereVendorId($value)
+ * @method static Builder|VendorContact withActiveOrSelected($id = false)
+ * @method static Builder|VendorContact withArchived()
+ * @method static Builder|VendorContact withTrashed()
+ * @method static Builder|VendorContact withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -95,17 +96,17 @@ class VendorContact extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function vendor()
     {
-        return $this->belongsTo(\App\Models\Vendor::class)->withTrashed();
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function getPersonType(): string

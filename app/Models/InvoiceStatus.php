@@ -2,21 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
 /**
  * Class InvoiceStatus.
  *
  * @property int    $id
  * @property string $name
  *
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus query()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus whereName($value)
+ * @method static Builder|InvoiceStatus newModelQuery()
+ * @method static Builder|InvoiceStatus newQuery()
+ * @method static Builder|InvoiceStatus query()
+ * @method static Builder|InvoiceStatus whereId($value)
+ * @method static Builder|InvoiceStatus whereName($value)
  *
  * @mixin \Eloquent
  */
-class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
+class InvoiceStatus extends Model
 {
     /**
      * @var bool
@@ -39,6 +43,6 @@ class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
 
     public function getTranslatedName()
     {
-        return trans('texts.status_' . \Illuminate\Support\Str::slug($this->name, '_'));
+        return trans('texts.status_' . Str::slug($this->name, '_'));
     }
 }

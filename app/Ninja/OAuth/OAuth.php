@@ -4,6 +4,7 @@ namespace App\Ninja\OAuth;
 
 use App\Models\LookupUser;
 use App\Models\User;
+use App\Ninja\OAuth\Providers\Google;
 
 class OAuth
 {
@@ -15,7 +16,7 @@ class OAuth
 
     public const SOCIAL_LINKEDIN = 4;
 
-    private ?\App\Ninja\OAuth\Providers\Google $providerInstance = null;
+    private ?Google $providerInstance = null;
 
     private ?int $providerId = null;
 
@@ -25,7 +26,7 @@ class OAuth
     {
         switch ($provider) {
             case 'google':
-                $this->providerInstance = new Providers\Google();
+                $this->providerInstance = new Google();
                 $this->providerId = self::SOCIAL_GOOGLE;
 
                 return $this;
@@ -45,7 +46,7 @@ class OAuth
 
         LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);
 
-        if ($this->providerInstance instanceof \App\Ninja\OAuth\Providers\Google) {
+        if ($this->providerInstance instanceof Google) {
             $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->providerId)->first();
         }
 

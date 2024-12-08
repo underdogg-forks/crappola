@@ -10,14 +10,18 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalCategoryController extends BaseController
 {
     public $entityType = ENTITY_PROPOSAL_CATEGORY;
 
-    protected \App\Ninja\Repositories\ProposalCategoryRepository $proposalCategoryRepo;
+    protected ProposalCategoryRepository $proposalCategoryRepo;
 
-    protected \App\Services\ProposalCategoryService $proposalCategoryService;
+    protected ProposalCategoryService $proposalCategoryService;
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {
@@ -32,7 +36,7 @@ class ProposalCategoryController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL_CATEGORY,
             'datatable'  => new ProposalCategoryDatatable(),
             'title'      => trans('texts.proposal_categories'),
@@ -41,8 +45,8 @@ class ProposalCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterId();
+        $search = Request::input('sSearch');
+        $userId = Auth::user()->filterId();
 
         return $this->proposalCategoryService->getDatatable($search, $userId);
     }
@@ -60,12 +64,12 @@ class ProposalCategoryController extends BaseController
             'quotePublicId' => $request->quote_id,
         ];
 
-        return \Illuminate\Support\Facades\View::make('proposals/categories.edit', $data);
+        return View::make('proposals/categories.edit', $data);
     }
 
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         return redirect(sprintf('proposals/categories/%s/edit', $publicId));
     }
@@ -82,14 +86,14 @@ class ProposalCategoryController extends BaseController
             'title'    => trans('texts.edit_proposal_category'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('proposals/categories.edit', $data);
+        return View::make('proposals/categories.edit', $data);
     }
 
     public function store(CreateProposalCategoryRequest $request)
     {
         $proposalCategory = $this->proposalCategoryService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal_category'));
+        Session::flash('message', trans('texts.created_proposal_category'));
 
         return redirect()->to($proposalCategory->getRoute());
     }
@@ -98,9 +102,9 @@ class ProposalCategoryController extends BaseController
     {
         $proposalCategory = $this->proposalCategoryService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal_category'));
+        Session::flash('message', trans('texts.updated_proposal_category'));
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -110,15 +114,15 @@ class ProposalCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? $action . 'd_proposal_category' : $action . 'd_proposal_categories';
             $message = trans('texts.' . $field, ['count' => $count]);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/categories');

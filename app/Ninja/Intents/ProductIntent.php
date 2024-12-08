@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Intents;
 
+use App\Ninja\Repositories\ProductRepository;
+
 class ProductIntent extends BaseIntent
 {
     /**
@@ -11,7 +13,7 @@ class ProductIntent extends BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->productRepo = app(\App\Ninja\Repositories\ProductRepository::class);
+        $this->productRepo = app(ProductRepository::class);
 
         parent::__construct($state, $data);
     }

@@ -12,7 +12,7 @@ use App\Ninja\Repositories\ExpenseRepository;
 class ExpenseListener
 {
     // Expenses
-    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
+    protected ExpenseRepository $expenseRepo;
 
     /**
      * ExpenseListener constructor.

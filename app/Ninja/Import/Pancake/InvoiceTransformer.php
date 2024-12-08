@@ -3,6 +3,7 @@
 namespace App\Ninja\Import\Pancake;
 
 use App\Ninja\Import\BaseTransformer;
+use Illuminate\Support\Arr;
 use League\Fractal\Resource\Item;
 
 /**
@@ -15,9 +16,9 @@ class InvoiceTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): false|\League\Fractal\Resource\Item
+    public function transform($data): false|Item
     {
-        $clientName = trim(\Illuminate\Support\Arr::last(explode('-', $data->client)));
+        $clientName = trim(Arr::last(explode('-', $data->client)));
         $clientId = $this->getClientId($data->client) ?: $this->getClientId($clientName);
 
         if ( ! $clientId) {

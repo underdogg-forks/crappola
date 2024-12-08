@@ -19,9 +19,9 @@ class ProjectApiController extends BaseAPIController
      */
     public $entityType = ENTITY_PROJECT;
 
-    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
+    protected ProjectRepository $projectRepo;
 
-    protected \App\Services\ProjectService $projectService;
+    protected ProjectService $projectService;
 
     /**
      * ProjectApiController constructor.

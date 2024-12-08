@@ -7,13 +7,15 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 class TaskApiController extends BaseAPIController
 {
     public $entityType = ENTITY_TASK;
 
-    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
+    protected TaskRepository $taskRepo;
 
     public function __construct(TaskRepository $taskRepo)
     {
@@ -113,7 +115,7 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data = \Illuminate\Support\Facades\Request::all();
+        $data = Request::all();
         $taskId = $data['id'] ?? false;
 
         if (isset($data['client_id']) && $data['client_id']) {
@@ -158,7 +160,7 @@ class TaskApiController extends BaseAPIController
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
-        $transformer = new TaskTransformer(\Illuminate\Support\Facades\Auth::user()->account);
+        $transformer = new TaskTransformer(Auth::user()->account);
         $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);
@@ -205,7 +207,7 @@ class TaskApiController extends BaseAPIController
 
         $task = $request->entity();
 
-        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Request::all());
+        $task = $this->taskRepo->save($task->public_id, Request::all());
 
         return $this->itemResponse($task);
     }

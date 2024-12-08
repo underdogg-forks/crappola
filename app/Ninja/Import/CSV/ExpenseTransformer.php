@@ -16,7 +16,7 @@ class ExpenseTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): \League\Fractal\Resource\Item
+    public function transform($data): Item
     {
         return new Item($data, function ($data): array {
             $clientId = isset($data->client) ? $this->getClientId($data->client) : null;

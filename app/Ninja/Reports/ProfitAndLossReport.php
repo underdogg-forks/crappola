@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
@@ -21,7 +22,7 @@ class ProfitAndLossReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()

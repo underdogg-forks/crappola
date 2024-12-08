@@ -7,12 +7,13 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
+use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
     public $entityType = ENTITY_DOCUMENT;
 
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    protected DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -36,11 +37,11 @@ class DocumentController extends BaseController
                 'Content-Length' => $document->size,
             ];
 
-            $response = \Illuminate\Support\Facades\Response::stream(function () use ($stream): void {
+            $response = Response::stream(function () use ($stream): void {
                 fpassthru($stream);
             }, 200, $headers);
         } else {
-            $response = \Illuminate\Support\Facades\Response::make($document->getRaw(), 200);
+            $response = Response::make($document->getRaw(), 200);
             $response->header('content-type', Document::$types[$document->type]['mime']);
         }
 
@@ -57,7 +58,7 @@ class DocumentController extends BaseController
         $document = $request->entity();
 
         if (empty($document->preview)) {
-            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Preview does not exist!'], 404);
+            return Response::view('error', ['error' => 'Preview does not exist!'], 404);
         }
 
         $direct_url = $document->getDirectPreviewUrl();
@@ -66,7 +67,7 @@ class DocumentController extends BaseController
         }
 
         $previewType = pathinfo($document->preview, PATHINFO_EXTENSION);
-        $response = \Illuminate\Support\Facades\Response::make($document->getRawPreview(), 200);
+        $response = Response::make($document->getRawPreview(), 200);
         $response->header('content-type', Document::$types[$previewType]['mime']);
 
         return $response;
@@ -81,13 +82,13 @@ class DocumentController extends BaseController
         }
 
         if ( ! $document->isPDFEmbeddable()) {
-            return \Illuminate\Support\Facades\Response::view('error', ['error' => 'Image does not exist!'], 404);
+            return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
 
-        $response = \Illuminate\Support\Facades\Response::make($content, 200);
+        $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
 
@@ -99,7 +100,7 @@ class DocumentController extends BaseController
         $result = $this->documentRepo->upload($request->all(), $doc_array);
 
         if (is_string($result)) {
-            return \Illuminate\Support\Facades\Response::json([
+            return Response::json([
                 'error' => $result,
                 'code'  => 400,
             ], 400);
@@ -119,7 +120,7 @@ class DocumentController extends BaseController
             ];
         }
 
-        return \Illuminate\Support\Facades\Response::json($response, 200);
+        return Response::json($response, 200);
     }
 
     public function delete(UpdateDocumentRequest $request): string

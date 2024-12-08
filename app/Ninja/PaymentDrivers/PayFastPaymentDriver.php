@@ -2,6 +2,8 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use Illuminate\Support\Facades\Request;
+
 class PayFastPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = 'm_payment_id';
@@ -9,7 +11,7 @@ class PayFastPaymentDriver extends BasePaymentDriver
     public function completeOffsitePurchase($input): void
     {
         parent::completeOffsitePurchase([
-            'token' => \Illuminate\Support\Facades\Request::query('pt'),
+            'token' => Request::query('pt'),
         ]);
     }
 

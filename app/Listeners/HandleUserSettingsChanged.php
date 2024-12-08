@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\UserSettingsChanged;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Class HandleUserSettingsChanged.
@@ -12,12 +14,12 @@ use App\Ninja\Repositories\AccountRepository;
 class HandleUserSettingsChanged
 {
     /**
-     * @var \App\Ninja\Repositories\AccountRepository
+     * @var AccountRepository
      */
     public $accountRepo;
 
     /**
-     * @var \App\Ninja\Mailers\UserMailer
+     * @var UserMailer
      */
     public $userMailer;
 
@@ -42,21 +44,21 @@ class HandleUserSettingsChanged
      */
     public function handle(UserSettingsChanged $event): void
     {
-        if ( ! \Illuminate\Support\Facades\Auth::check()) {
+        if ( ! Auth::check()) {
             return;
         }
 
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $account->loadLocalizationSettings();
 
-        $users = $this->accountRepo->loadAccounts(\Illuminate\Support\Facades\Auth::user()->id);
-        \Illuminate\Support\Facades\Session::put(SESSION_USER_ACCOUNTS, $users);
+        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
+        Session::put(SESSION_USER_ACCOUNTS, $users);
 
         if ($event->user && $event->user->confirmed && $event->user->isEmailBeingChanged()) {
             $this->userMailer->sendConfirmation($event->user);
             $this->userMailer->sendEmailChanged($event->user);
 
-            \Illuminate\Support\Facades\Session::flash('warning', trans('texts.verify_email'));
+            Session::flash('warning', trans('texts.verify_email'));
         }
     }
 }

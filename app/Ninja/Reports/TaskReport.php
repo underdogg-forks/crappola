@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Task;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class TaskReport extends AbstractReport
@@ -35,7 +36,7 @@ class TaskReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];

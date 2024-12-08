@@ -5,6 +5,7 @@ namespace App\Ninja\Notifications;
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use NotificationChannels\PusherPushNotifications\PusherMessage;
 
 /**
  * Class PushFactory.
@@ -31,7 +32,7 @@ class PushFactory
      */
     public function customMessage($token, $message, $messageArray, $device): void
     {
-        $customMessage = new \NotificationChannels\PusherPushNotifications\PusherMessage($message);
+        $customMessage = new PusherMessage($message);
 
         $this->message($token, $customMessage, $device);
     }

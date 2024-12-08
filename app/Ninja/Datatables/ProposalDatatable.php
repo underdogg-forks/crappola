@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class ProposalDatatable extends EntityDatatable
@@ -16,7 +18,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'quote',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_QUOTE, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_QUOTE, $model])) {
                         return link_to('quotes/' . $model->invoice_public_id, $model->invoice_number)->toHtml();
                     }
 
@@ -26,7 +28,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'client',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return link_to('clients/' . $model->client_public_id, $model->client)->toHtml();
                     }
 
@@ -36,7 +38,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'template',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
                         return link_to(sprintf('proposals/templates/%s/edit', $model->template_public_id), $model->template ?: ' ')->toHtml();
                     }
 
@@ -46,7 +48,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'created_at',
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL, $model])) {
                         return link_to(sprintf('proposals/%s/edit', $model->public_id), Utils::timestampToDateString(strtotime($model->created_at)))->toHtml();
                     }
 
@@ -69,8 +71,8 @@ class ProposalDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_proposal'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('proposals/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_PROPOSAL, $model]),
+                fn ($model) => URL::to(sprintf('proposals/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_PROPOSAL, $model]),
             ],
         ];
     }

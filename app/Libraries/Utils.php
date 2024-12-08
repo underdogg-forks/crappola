@@ -2,11 +2,23 @@
 
 namespace App\Libraries;
 
+use App\Models\Account;
+use App\Models\Contact;
 use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 use stdClass;
 use WePay;
 
@@ -33,7 +45,7 @@ class Utils
     public static function isDatabaseSetup()
     {
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('accounts')) {
+            if (Schema::hasTable('accounts')) {
                 return true;
             }
         } catch (Exception) {
@@ -86,12 +98,12 @@ class Utils
 
     public static function isTimeTracker(): bool
     {
-        return \Illuminate\Support\Arr::get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT;
+        return Arr::get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT;
     }
 
     public static function requireHTTPS()
     {
-        if (in_array(\Illuminate\Support\Facades\Request::root(), ['http://www.ninja.test', 'http://www.ninja.test:8000'])) {
+        if (in_array(Request::root(), ['http://www.ninja.test', 'http://www.ninja.test:8000'])) {
             return false;
         }
 
@@ -119,14 +131,14 @@ class Utils
         if (Auth::check()) {
             $account = Auth::user()->account;
         } elseif ($contactKey = session('contact_key')) {
-            if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+            if ($contact = Contact::whereContactKey($contactKey)->first()) {
                 $account = $contact->account;
             }
         }
 
         if ( ! $account && ! self::isNinja()) {
             // For self-hosted accounts, pick the first account
-            $account = \App\Models\Account::first();
+            $account = Account::first();
         }
 
         return $account ? $account->clientViewCSS() : '';
@@ -139,14 +151,14 @@ class Utils
         if (Auth::check()) {
             $account = Auth::user()->account;
         } elseif ($contactKey = session('contact_key')) {
-            if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+            if ($contact = Contact::whereContactKey($contactKey)->first()) {
                 $account = $contact->account;
             }
         }
 
         if ( ! $account && ! self::isNinja()) {
             // For self-hosted accounts, pick the first account
-            $account = \App\Models\Account::first();
+            $account = Account::first();
         }
 
         return $account ? $account->getFontsUrl($protocol) : false;
@@ -160,12 +172,12 @@ class Utils
             if (Auth::check()) {
                 $account = Auth::user()->account;
             } elseif ($contactKey = session('contact_key')) {
-                if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+                if ($contact = Contact::whereContactKey($contactKey)->first()) {
                     $account = $contact->account;
                 }
             }
         } else {
-            $account = \App\Models\Account::first();
+            $account = Account::first();
         }
 
         return $account ? $account->hasFeature(FEATURE_WHITE_LABEL) : false;
@@ -241,7 +253,7 @@ class Utils
 
     public static function isEnglish(): bool
     {
-        return \Illuminate\Support\Facades\App::getLocale() == 'en';
+        return App::getLocale() == 'en';
     }
 
     public static function getDebugInfo()
@@ -266,7 +278,7 @@ class Utils
 
     public static function getLocaleRegion(): string
     {
-        $parts = explode('_', \Illuminate\Support\Facades\App::getLocale());
+        $parts = explode('_', App::getLocale());
 
         return count($parts) ? $parts[0] : 'en';
     }
@@ -394,7 +406,7 @@ class Utils
             'hideHeader'      => true,
         ];
 
-        return \Illuminate\Support\Facades\View::make('error', $data)->with('error', $message);
+        return View::make('error', $data)->with('error', $message);
     }
 
     public static function getErrorString($exception): string
@@ -411,8 +423,8 @@ class Utils
             $error = self::getErrorString($error);
         }
 
-        $count = \Illuminate\Support\Facades\Session::get('error_count', 0);
-        \Illuminate\Support\Facades\Session::put('error_count', ++$count);
+        $count = Session::get('error_count', 0);
+        Session::put('error_count', ++$count);
         if ($count > 200) {
             return 'logged';
         }
@@ -420,9 +432,9 @@ class Utils
         $data = static::prepareErrorData($context);
 
         if ($info) {
-            \Illuminate\Support\Facades\Log::info($error . "\n", $data);
+            Log::info($error . "\n", $data);
         } else {
-            \Illuminate\Support\Facades\Log::error($error . "\n", $data);
+            Log::error($error . "\n", $data);
         }
     }
 
@@ -433,18 +445,18 @@ class Utils
             'user_id'    => Auth::check() ? Auth::user()->id : 0,
             'account_id' => Auth::check() ? Auth::user()->account_id : 0,
             'user_name'  => Auth::check() ? Auth::user()->getDisplayName() : '',
-            'method'     => \Illuminate\Support\Facades\Request::method(),
+            'method'     => Request::method(),
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'locale'     => \Illuminate\Support\Facades\App::getLocale(),
-            'ip'         => \Illuminate\Support\Facades\Request::getClientIp(),
-            'count'      => \Illuminate\Support\Facades\Session::get('error_count', 0),
-            'is_console' => \Illuminate\Support\Facades\App::runningInConsole() ? 'yes' : 'no',
+            'locale'     => App::getLocale(),
+            'ip'         => Request::getClientIp(),
+            'count'      => Session::get('error_count', 0),
+            'is_console' => App::runningInConsole() ? 'yes' : 'no',
             'is_api'     => session('token_id') ? 'yes' : 'no',
             'db_server'  => config('database.default'),
         ];
 
         if (static::isNinja()) {
-            $data['url'] = \Illuminate\Support\Facades\Request::input('url', \Illuminate\Support\Facades\Request::url());
+            $data['url'] = Request::input('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();
@@ -495,7 +507,7 @@ class Utils
 
     public static function lookupIdInCache($name, $type)
     {
-        $cache = \Illuminate\Support\Facades\Cache::get($type);
+        $cache = Cache::get($type);
 
         $data = $cache->filter(fn ($item): bool => mb_strtolower($item->name) === trim(mb_strtolower($name)));
 
@@ -510,28 +522,28 @@ class Utils
 
         $cachedTables = unserialize(CACHED_TABLES);
         foreach ($cachedTables as $name => $class) {
-            $data[$name] = \Illuminate\Support\Facades\Cache::get($name);
+            $data[$name] = Cache::get($name);
         }
 
         if ($locale) {
-            $data['industries'] = \Illuminate\Support\Facades\Cache::get('industries')->each(function ($industry): void {
+            $data['industries'] = Cache::get('industries')->each(function ($industry): void {
                 $industry->name = trans('texts.industry_' . $industry->name);
             })->sortBy(fn ($industry) => $industry->name)->values();
 
-            $data['countries'] = \Illuminate\Support\Facades\Cache::get('countries')->each(function ($country): void {
+            $data['countries'] = Cache::get('countries')->each(function ($country): void {
                 $country->name = trans('texts.country_' . $country->name);
             })->sortBy(fn ($country) => $country->name)->values();
 
-            $data['paymentTypes'] = \Illuminate\Support\Facades\Cache::get('paymentTypes')->each(function ($pType): void {
+            $data['paymentTypes'] = Cache::get('paymentTypes')->each(function ($pType): void {
                 $pType->name = trans('texts.payment_type_' . $pType->name);
             })->sortBy(fn ($pType) => $pType->name)->values();
 
-            $data['languages'] = \Illuminate\Support\Facades\Cache::get('languages')->each(function ($lang): void {
+            $data['languages'] = Cache::get('languages')->each(function ($lang): void {
                 $lang->name = trans('texts.lang_' . $lang->name);
             })->sortBy(fn ($lang) => $lang->name)->values();
 
-            $data['currencies'] = \Illuminate\Support\Facades\Cache::get('currencies')->each(function ($currency): void {
-                $currency->name = trans('texts.currency_' . \Illuminate\Support\Str::slug($currency->name, '_'));
+            $data['currencies'] = Cache::get('currencies')->each(function ($currency): void {
+                $currency->name = trans('texts.currency_' . Str::slug($currency->name, '_'));
             })->sortBy(fn ($currency) => $currency->name)->values();
         }
 
@@ -540,7 +552,7 @@ class Utils
 
     public static function getFromCache($id, $type)
     {
-        $cache = \Illuminate\Support\Facades\Cache::get($type);
+        $cache = Cache::get($type);
 
         if ( ! $cache) {
             static::logError(sprintf('Cache for %s is not set', $type));
@@ -558,7 +570,7 @@ class Utils
         $value = (float) $value;
 
         if ( ! $currencyId) {
-            $currencyId = \Illuminate\Support\Facades\Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
 
         $currency = self::getFromCache($currencyId, 'currencies');
@@ -573,11 +585,11 @@ class Utils
         $value = (float) $value;
 
         if ( ! $currencyId) {
-            $currencyId = \Illuminate\Support\Facades\Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
 
         if ( ! $decorator) {
-            $decorator = \Illuminate\Support\Facades\Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL);
+            $decorator = Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL);
         }
 
         if ( ! $countryId && Auth::check()) {
@@ -721,16 +733,16 @@ class Utils
 
     public static function timestampToDateTimeString($timestamp)
     {
-        $timezone = \Illuminate\Support\Facades\Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
         return self::timestampToString($timestamp, $timezone, $format);
     }
 
     public static function timestampToDateString($timestamp)
     {
-        $timezone = \Illuminate\Support\Facades\Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         return self::timestampToString($timestamp, $timezone, $format);
     }
@@ -744,7 +756,7 @@ class Utils
         $dateTime = $date instanceof DateTime ? $date : new DateTime($date);
 
         $timestamp = $dateTime->getTimestamp();
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         return self::timestampToString($timestamp, false, $format);
     }
@@ -773,7 +785,7 @@ class Utils
             return;
         }
 
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
         if ( ! $dateTime) {
@@ -789,7 +801,7 @@ class Utils
             return '';
         }
 
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
         if ( ! $dateTime) {
@@ -805,8 +817,8 @@ class Utils
             return '';
         }
 
-        $timezone = \Illuminate\Support\Facades\Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
         $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
         $dateTime->setTimeZone(new DateTimeZone($timezone));
@@ -824,8 +836,8 @@ class Utils
 
     public static function today($formatResult = true)
     {
-        $timezone = \Illuminate\Support\Facades\Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = \Illuminate\Support\Facades\Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $date = date_create(null, new DateTimeZone($timezone));
 
@@ -935,7 +947,7 @@ class Utils
     {
         $parts = [];
         for ($i = 0; $i < 5; $i++) {
-            $parts[] = mb_strtoupper(\Illuminate\Support\Str::random(4));
+            $parts[] = mb_strtoupper(Str::random(4));
         }
 
         return implode('-', $parts);
@@ -1109,7 +1121,7 @@ class Utils
     public static function transFlowText($key)
     {
         $str = trans('texts.' . $key);
-        if ( ! in_array(\Illuminate\Support\Facades\App::getLocale(), ['de', 'fr'])) {
+        if ( ! in_array(App::getLocale(), ['de', 'fr'])) {
             return mb_strtolower($str);
         }
 
@@ -1119,7 +1131,7 @@ class Utils
     public static function getSubdomain($url = false): string
     {
         if ( ! $url) {
-            $url = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
+            $url = Request::server('HTTP_HOST');
         }
 
         $parts = parse_url($url);
@@ -1308,7 +1320,7 @@ class Utils
      *
      * @see getTranslatedWeekdayNames()
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public static function getWeekdayNames()
     {
@@ -1318,7 +1330,7 @@ class Utils
     /**
      * Gets an array of translated weekday names.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public static function getTranslatedWeekdayNames()
     {
@@ -1373,7 +1385,7 @@ class Utils
         } elseif ($first == 'settings') {
             if ($second == 'bank_accounts') {
                 $page = ''; // TODO write docs
-            } elseif (in_array($second, \App\Models\Account::$basicSettings)) {
+            } elseif (in_array($second, Account::$basicSettings)) {
                 if ($second == 'products') {
                     $second = 'product_library';
                 } elseif ($second == 'notifications') {
@@ -1381,7 +1393,7 @@ class Utils
                 }
 
                 $page = '/settings.html#' . str_replace('_', '-', $second);
-            } elseif (in_array($second, \App\Models\Account::$advancedSettings)) {
+            } elseif (in_array($second, Account::$advancedSettings)) {
                 $page = sprintf('/%s.html', $second);
             } elseif ($second == 'customize_design') {
                 $page = '/invoice_design.html#customize';

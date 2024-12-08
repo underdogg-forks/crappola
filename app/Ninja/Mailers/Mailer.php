@@ -4,6 +4,9 @@ namespace App\Ninja\Mailers;
 
 use App\Models\Invoice;
 use Exception;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Postmark\Models\PostmarkAttachment;
 use Postmark\Models\PostmarkException;
 use Postmark\PostmarkClient;
@@ -42,7 +45,7 @@ class Mailer
         $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            \Illuminate\Support\Facades\Log::info(sprintf('Sending email - To: %s | Reply: %s | From: %s', $toEmail, $replyEmail, $fromEmail));
+            Log::info(sprintf('Sending email - To: %s | Reply: %s | From: %s', $toEmail, $replyEmail, $fromEmail));
         }
 
         // Optionally send for alternate domain
@@ -80,15 +83,15 @@ class Mailer
                 }
 
                 $fromEmail = config('mail.from.address');
-                $app = \Illuminate\Support\Facades\App::getInstance();
+                $app = App::getInstance();
                 $app->singleton('swift.transport', fn ($app): TransportManager => new TransportManager($app));
                 $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
+                Mail::setSwiftMailer($mailer);
             }
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
+            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
                 $message->to($toEmail)
                     ->from($fromEmail, $fromName)
                     ->replyTo($replyEmail, $fromName)

@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Exception;
 use Google2FA;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Factory as ValidationFactory;
 
 class ValidateTwoFactorRequest extends Request
@@ -19,7 +21,7 @@ class ValidateTwoFactorRequest extends Request
         $factory->extend(
             'valid_token',
             function ($attribute, $value, $parameters, $validator) {
-                $secret = \Illuminate\Support\Facades\Crypt::decrypt($this->user->google_2fa_secret);
+                $secret = Crypt::decrypt($this->user->google_2fa_secret);
 
                 return Google2FA::verifyKey($secret, $value);
             },
@@ -31,7 +33,7 @@ class ValidateTwoFactorRequest extends Request
             function ($attribute, string $value, $parameters, $validator): bool {
                 $key = $this->user->id . ':' . $value;
 
-                return ! \Illuminate\Support\Facades\Cache::has($key);
+                return ! Cache::has($key);
             },
             trans('texts.invalid_code')
         );

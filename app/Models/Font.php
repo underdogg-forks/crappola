@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Font.
  *
@@ -17,24 +20,24 @@ namespace App\Models;
  * @property string $bolditalics
  * @property int    $sort_order
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Font newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Font newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Font query()
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereBold($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereBolditalics($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereCssStack($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereCssWeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereFolder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereGoogleFont($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereItalics($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereNormal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Font whereSortOrder($value)
+ * @method static Builder|Font newModelQuery()
+ * @method static Builder|Font newQuery()
+ * @method static Builder|Font query()
+ * @method static Builder|Font whereBold($value)
+ * @method static Builder|Font whereBolditalics($value)
+ * @method static Builder|Font whereCssStack($value)
+ * @method static Builder|Font whereCssWeight($value)
+ * @method static Builder|Font whereFolder($value)
+ * @method static Builder|Font whereGoogleFont($value)
+ * @method static Builder|Font whereId($value)
+ * @method static Builder|Font whereItalics($value)
+ * @method static Builder|Font whereName($value)
+ * @method static Builder|Font whereNormal($value)
+ * @method static Builder|Font whereSortOrder($value)
  *
  * @mixin \Eloquent
  */
-class Font extends \Illuminate\Database\Eloquent\Model
+class Font extends Model
 {
     /**
      * @var bool

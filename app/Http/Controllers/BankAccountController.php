@@ -9,13 +9,20 @@ use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class BankAccountController extends BaseController
 {
-    protected \App\Services\BankAccountService $bankAccountService;
+    protected BankAccountService $bankAccountService;
 
-    protected \App\Ninja\Repositories\BankAccountRepository $bankAccountRepo;
+    protected BankAccountRepository $bankAccountRepo;
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {
@@ -27,12 +34,12 @@ class BankAccountController extends BaseController
 
     public function index()
     {
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_BANKS);
+        return Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
     public function getDatatable()
     {
-        return $this->bankAccountService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
+        return $this->bankAccountService->getDatatable(Auth::user()->account_id);
     }
 
     public function edit($publicId)
@@ -41,11 +48,11 @@ class BankAccountController extends BaseController
 
         $data = [
             'title'       => trans('texts.edit_bank_account'),
-            'banks'       => \Illuminate\Support\Facades\Cache::get('banks'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => $bankAccount,
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
+        return View::make('accounts.bank_account', $data);
     }
 
     public function update($publicId)
@@ -59,11 +66,11 @@ class BankAccountController extends BaseController
     public function create()
     {
         $data = [
-            'banks'       => \Illuminate\Support\Facades\Cache::get('banks'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => null,
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
+        return View::make('accounts.bank_account', $data);
     }
 
     public function bulk()
@@ -72,9 +79,9 @@ class BankAccountController extends BaseController
         $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
         $count = $this->bankAccountService->bulk($ids, $action);
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_bank_account'));
+        Session::flash('message', trans('texts.archived_bank_account'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_BANKS);
+        return Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
     public function validateAccount()
@@ -89,7 +96,7 @@ class BankAccountController extends BaseController
                 $bankAccount->setUsername($username);
                 $bankAccount->save();
             } else {
-                $username = \Illuminate\Support\Facades\Crypt::decrypt($username);
+                $username = Crypt::decrypt($username);
             }
 
             $bankId = $bankAccount->bank_id;
@@ -131,12 +138,12 @@ class BankAccountController extends BaseController
 
     public function doImportOFX(Request $request)
     {
-        $file = \Illuminate\Support\Facades\File::get($request->file('ofx_file'));
+        $file = File::get($request->file('ofx_file'));
 
         try {
             $data = $this->bankAccountService->parseOFX($file);
         } catch (Exception $exception) {
-            \Illuminate\Support\Facades\Session::now('error', trans('texts.ofx_parse_failed'));
+            Session::now('error', trans('texts.ofx_parse_failed'));
             Utils::logError($exception);
 
             return view('accounts.import_ofx');
@@ -148,6 +155,6 @@ class BankAccountController extends BaseController
             'transactions' => json_encode([$data]),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.bank_account', $data);
+        return View::make('accounts.bank_account', $data);
     }
 }

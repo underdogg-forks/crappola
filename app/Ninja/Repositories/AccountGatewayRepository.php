@@ -2,16 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\AccountGateway;
+use Illuminate\Support\Facades\DB;
+
 class AccountGatewayRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\AccountGateway::class;
+        return AccountGateway::class;
     }
 
     public function find($accountId)
     {
-        $query = \Illuminate\Support\Facades\DB::table('account_gateways')
+        $query = DB::table('account_gateways')
             ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
             ->join('accounts', 'accounts.id', '=', 'account_gateways.account_id')
             ->where('account_gateways.account_id', '=', $accountId)

@@ -15,6 +15,7 @@ use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\VendorRepository;
 use Faker\Factory;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -25,42 +26,42 @@ class CreateTestData extends Command
     public $faker;
 
     /**
-     * @var \App\Ninja\Repositories\ClientRepository
+     * @var ClientRepository
      */
     public $clientRepo;
 
     /**
-     * @var \App\Ninja\Repositories\InvoiceRepository
+     * @var InvoiceRepository
      */
     public $invoiceRepo;
 
     /**
-     * @var \App\Ninja\Repositories\PaymentRepository
+     * @var PaymentRepository
      */
     public $paymentRepo;
 
     /**
-     * @var \App\Ninja\Repositories\VendorRepository
+     * @var VendorRepository
      */
     public $vendorRepo;
 
     /**
-     * @var \App\Ninja\Repositories\ExpenseRepository
+     * @var ExpenseRepository
      */
     public $expenseRepo;
 
     /**
-     * @var \App\Ninja\Repositories\TaskRepository
+     * @var TaskRepository
      */
     public $taskRepo;
 
     /**
-     * @var \App\Ninja\Repositories\ProjectRepository
+     * @var ProjectRepository
      */
     public $projectRepo;
 
     /**
-     * @var \App\Ninja\Repositories\AccountRepository
+     * @var AccountRepository
      */
     public $accountRepo;
 
@@ -138,10 +139,10 @@ class CreateTestData extends Command
                 $this->faker->lastName,
                 $this->faker->safeEmail
             );
-            \Illuminate\Support\Facades\Auth::login($account->users[0]);
+            Auth::login($account->users[0]);
         } else {
             $this->info('Using first account...');
-            \Illuminate\Support\Facades\Auth::loginUsingId(1);
+            Auth::loginUsingId(1);
         }
 
         $this->createClients();

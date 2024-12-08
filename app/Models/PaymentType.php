@@ -2,24 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class PaymentType.
  *
- * @property int                          $id
- * @property string                       $name
- * @property int|null                     $gateway_type_id
- * @property \App\Models\GatewayType|null $gatewayType
+ * @property int              $id
+ * @property string           $name
+ * @property int|null         $gateway_type_id
+ * @property GatewayType|null $gatewayType
  *
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType query()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereGatewayTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereName($value)
+ * @method static Builder|PaymentType newModelQuery()
+ * @method static Builder|PaymentType newQuery()
+ * @method static Builder|PaymentType query()
+ * @method static Builder|PaymentType whereGatewayTypeId($value)
+ * @method static Builder|PaymentType whereId($value)
+ * @method static Builder|PaymentType whereName($value)
  *
  * @mixin \Eloquent
  */
-class PaymentType extends \Illuminate\Database\Eloquent\Model
+class PaymentType extends Model
 {
     /**
      * @var bool
@@ -61,6 +64,6 @@ class PaymentType extends \Illuminate\Database\Eloquent\Model
 
     public function gatewayType()
     {
-        return $this->belongsTo(\App\Models\GatewayType::class);
+        return $this->belongsTo(GatewayType::class);
     }
 }

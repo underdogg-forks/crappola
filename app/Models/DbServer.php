@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class ExpenseCategory.
  *
  * @property int    $id
  * @property string $name
  *
- * @method static \Illuminate\Database\Eloquent\Builder|DbServer newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DbServer newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DbServer query()
- * @method static \Illuminate\Database\Eloquent\Builder|DbServer whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DbServer whereName($value)
+ * @method static Builder|DbServer newModelQuery()
+ * @method static Builder|DbServer newQuery()
+ * @method static Builder|DbServer query()
+ * @method static Builder|DbServer whereId($value)
+ * @method static Builder|DbServer whereName($value)
  *
  * @mixin \Eloquent
  */
-class DbServer extends \Illuminate\Database\Eloquent\Model
+class DbServer extends Model
 {
     /**
      * @var bool

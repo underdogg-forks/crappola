@@ -2,39 +2,41 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class PaymentTerm.
  *
- * @property int                             $id
- * @property int                             $num_days
- * @property string                          $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int                             $user_id
- * @property int                             $account_id
- * @property int                             $public_id
+ * @property int         $id
+ * @property int         $num_days
+ * @property string      $name
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property int         $user_id
+ * @property int         $account_id
+ * @property int         $public_id
  *
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm query()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereNumDays($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm withoutTrashed()
+ * @method static Builder|PaymentTerm newModelQuery()
+ * @method static Builder|PaymentTerm newQuery()
+ * @method static Builder|PaymentTerm onlyTrashed()
+ * @method static Builder|PaymentTerm query()
+ * @method static Builder|PaymentTerm scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|PaymentTerm whereAccountId($value)
+ * @method static Builder|PaymentTerm whereCreatedAt($value)
+ * @method static Builder|PaymentTerm whereDeletedAt($value)
+ * @method static Builder|PaymentTerm whereId($value)
+ * @method static Builder|PaymentTerm whereName($value)
+ * @method static Builder|PaymentTerm whereNumDays($value)
+ * @method static Builder|PaymentTerm wherePublicId($value)
+ * @method static Builder|PaymentTerm whereUpdatedAt($value)
+ * @method static Builder|PaymentTerm whereUserId($value)
+ * @method static Builder|PaymentTerm withActiveOrSelected($id = false)
+ * @method static Builder|PaymentTerm withArchived()
+ * @method static Builder|PaymentTerm withTrashed()
+ * @method static Builder|PaymentTerm withoutTrashed()
  *
  * @mixin \Eloquent
  */

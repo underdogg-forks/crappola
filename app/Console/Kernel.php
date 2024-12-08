@@ -2,6 +2,25 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CalculatePayouts;
+use App\Console\Commands\ChargeRenewalInvoices;
+use App\Console\Commands\CheckData;
+use App\Console\Commands\CreateLuisData;
+use App\Console\Commands\CreateTestData;
+use App\Console\Commands\ExportMigrations;
+use App\Console\Commands\InitLookup;
+use App\Console\Commands\MakeClass;
+use App\Console\Commands\MakeModule;
+use App\Console\Commands\MobileLocalization;
+use App\Console\Commands\PruneData;
+use App\Console\Commands\RemoveOrphanedDocuments;
+use App\Console\Commands\ResetData;
+use App\Console\Commands\SendRecurringInvoices;
+use App\Console\Commands\SendReminders;
+use App\Console\Commands\SendRenewalInvoices;
+use App\Console\Commands\SyncAccounts;
+use App\Console\Commands\TestOFX;
+use App\Console\Commands\UpdateKey;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Utils;
@@ -14,31 +33,31 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\SendRecurringInvoices::class,
-        \App\Console\Commands\RemoveOrphanedDocuments::class,
-        \App\Console\Commands\ResetData::class,
-        \App\Console\Commands\CheckData::class,
-        \App\Console\Commands\PruneData::class,
-        \App\Console\Commands\CreateTestData::class,
-        \App\Console\Commands\CreateLuisData::class,
-        \App\Console\Commands\MobileLocalization::class,
-        \App\Console\Commands\SendRenewalInvoices::class,
-        \App\Console\Commands\ChargeRenewalInvoices::class,
-        \App\Console\Commands\SendReminders::class,
-        \App\Console\Commands\TestOFX::class,
-        \App\Console\Commands\MakeModule::class,
-        \App\Console\Commands\MakeClass::class,
-        \App\Console\Commands\InitLookup::class,
-        \App\Console\Commands\CalculatePayouts::class,
-        \App\Console\Commands\UpdateKey::class,
-        \App\Console\Commands\ExportMigrations::class,
-        \App\Console\Commands\SyncAccounts::class,
+        SendRecurringInvoices::class,
+        RemoveOrphanedDocuments::class,
+        ResetData::class,
+        CheckData::class,
+        PruneData::class,
+        CreateTestData::class,
+        CreateLuisData::class,
+        MobileLocalization::class,
+        SendRenewalInvoices::class,
+        ChargeRenewalInvoices::class,
+        SendReminders::class,
+        TestOFX::class,
+        MakeModule::class,
+        MakeClass::class,
+        InitLookup::class,
+        CalculatePayouts::class,
+        UpdateKey::class,
+        ExportMigrations::class,
+        SyncAccounts::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param Schedule $schedule
      *
      * @return void
      */

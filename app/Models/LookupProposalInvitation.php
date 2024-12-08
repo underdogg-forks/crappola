@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
@@ -10,15 +12,15 @@ namespace App\Models;
  * @property string      $invitation_key
  * @property string|null $message_id
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereInvitationKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereLookupAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereMessageId($value)
+ * @method static Builder|LookupProposalInvitation newModelQuery()
+ * @method static Builder|LookupProposalInvitation newQuery()
+ * @method static Builder|LookupProposalInvitation query()
+ * @method static Builder|LookupProposalInvitation whereId($value)
+ * @method static Builder|LookupProposalInvitation whereInvitationKey($value)
+ * @method static Builder|LookupProposalInvitation whereLookupAccountId($value)
+ * @method static Builder|LookupProposalInvitation whereMessageId($value)
  *
- * @property \App\Models\LookupAccount $lookupAccount
+ * @property LookupAccount $lookupAccount
  *
  * @mixin \Eloquent
  */

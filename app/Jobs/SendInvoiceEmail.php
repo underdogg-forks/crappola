@@ -7,6 +7,8 @@ use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Monolog\Logger;
 
 /**
@@ -73,14 +75,14 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     public function handle(ContactMailer $mailer): void
     {
         // send email as user
-        if (\Illuminate\Support\Facades\App::runningInConsole() && $this->userId) {
-            \Illuminate\Support\Facades\Auth::onceUsingId($this->userId);
+        if (App::runningInConsole() && $this->userId) {
+            Auth::onceUsingId($this->userId);
         }
 
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template, $this->proposal);
 
-        if (\Illuminate\Support\Facades\App::runningInConsole() && $this->userId) {
-            \Illuminate\Support\Facades\Auth::logout();
+        if (App::runningInConsole() && $this->userId) {
+            Auth::logout();
         }
     }
 

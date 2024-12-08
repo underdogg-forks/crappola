@@ -5,84 +5,90 @@ namespace App\Models;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use App\Ninja\Presenters\VendorPresenter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Vendor.
  *
- * @property int                                                                      $id
- * @property \Illuminate\Support\Carbon|null                                          $created_at
- * @property \Illuminate\Support\Carbon|null                                          $updated_at
- * @property \Illuminate\Support\Carbon|null                                          $deleted_at
- * @property int                                                                      $user_id
- * @property int                                                                      $account_id
- * @property int|null                                                                 $currency_id
- * @property string|null                                                              $name
- * @property string                                                                   $address1
- * @property string                                                                   $address2
- * @property string                                                                   $city
- * @property string                                                                   $state
- * @property string                                                                   $postal_code
- * @property int|null                                                                 $country_id
- * @property string                                                                   $work_phone
- * @property string                                                                   $private_notes
- * @property string                                                                   $website
- * @property int                                                                      $is_deleted
- * @property int                                                                      $public_id
- * @property string|null                                                              $vat_number
- * @property string|null                                                              $id_number
- * @property string|null                                                              $transaction_name
- * @property string|null                                                              $custom_value1
- * @property string|null                                                              $custom_value2
- * @property \App\Models\Account                                                      $account
- * @property \App\Models\Country|null                                                 $country
- * @property \App\Models\Currency|null                                                $currency
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense>       $expenses
- * @property int|null                                                                 $expenses_count
- * @property \App\Models\Industry|null                                                $industry
- * @property \App\Models\Language|null                                                $language
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>       $payments
- * @property int|null                                                                 $payments_count
- * @property \App\Models\Size|null                                                    $size
- * @property \App\Models\User                                                         $user
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $vendor_contacts
- * @property int|null                                                                 $vendor_contacts_count
+ * @property int                            $id
+ * @property Carbon|null                    $created_at
+ * @property Carbon|null                    $updated_at
+ * @property Carbon|null                    $deleted_at
+ * @property int                            $user_id
+ * @property int                            $account_id
+ * @property int|null                       $currency_id
+ * @property string|null                    $name
+ * @property string                         $address1
+ * @property string                         $address2
+ * @property string                         $city
+ * @property string                         $state
+ * @property string                         $postal_code
+ * @property int|null                       $country_id
+ * @property string                         $work_phone
+ * @property string                         $private_notes
+ * @property string                         $website
+ * @property int                            $is_deleted
+ * @property int                            $public_id
+ * @property string|null                    $vat_number
+ * @property string|null                    $id_number
+ * @property string|null                    $transaction_name
+ * @property string|null                    $custom_value1
+ * @property string|null                    $custom_value2
+ * @property Account                        $account
+ * @property Country|null                   $country
+ * @property Currency|null                  $currency
+ * @property Collection<int, Expense>       $expenses
+ * @property int|null                       $expenses_count
+ * @property Industry|null                  $industry
+ * @property Language|null                  $language
+ * @property Collection<int, Payment>       $payments
+ * @property int|null                       $payments_count
+ * @property Size|null                      $size
+ * @property User                           $user
+ * @property Collection<int, VendorContact> $vendor_contacts
+ * @property int|null                       $vendor_contacts_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor query()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTransactionName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereWorkPhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor withoutTrashed()
+ * @method static Builder|Vendor newModelQuery()
+ * @method static Builder|Vendor newQuery()
+ * @method static Builder|Vendor onlyTrashed()
+ * @method static Builder|Vendor query()
+ * @method static Builder|Vendor scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Vendor whereAccountId($value)
+ * @method static Builder|Vendor whereAddress1($value)
+ * @method static Builder|Vendor whereAddress2($value)
+ * @method static Builder|Vendor whereCity($value)
+ * @method static Builder|Vendor whereCountryId($value)
+ * @method static Builder|Vendor whereCreatedAt($value)
+ * @method static Builder|Vendor whereCurrencyId($value)
+ * @method static Builder|Vendor whereCustomValue1($value)
+ * @method static Builder|Vendor whereCustomValue2($value)
+ * @method static Builder|Vendor whereDeletedAt($value)
+ * @method static Builder|Vendor whereId($value)
+ * @method static Builder|Vendor whereIdNumber($value)
+ * @method static Builder|Vendor whereIsDeleted($value)
+ * @method static Builder|Vendor whereName($value)
+ * @method static Builder|Vendor wherePostalCode($value)
+ * @method static Builder|Vendor wherePrivateNotes($value)
+ * @method static Builder|Vendor wherePublicId($value)
+ * @method static Builder|Vendor whereState($value)
+ * @method static Builder|Vendor whereTransactionName($value)
+ * @method static Builder|Vendor whereUpdatedAt($value)
+ * @method static Builder|Vendor whereUserId($value)
+ * @method static Builder|Vendor whereVatNumber($value)
+ * @method static Builder|Vendor whereWebsite($value)
+ * @method static Builder|Vendor whereWorkPhone($value)
+ * @method static Builder|Vendor withActiveOrSelected($id = false)
+ * @method static Builder|Vendor withArchived()
+ * @method static Builder|Vendor withTrashed()
+ * @method static Builder|Vendor withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -139,7 +145,7 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\VendorPresenter::class;
+    protected $presenter = VendorPresenter::class;
 
     /**
      * @var array
@@ -205,59 +211,59 @@ class Vendor extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function payments()
     {
-        return $this->hasMany(\App\Models\Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
     public function vendor_contacts()
     {
-        return $this->hasMany(\App\Models\VendorContact::class);
+        return $this->hasMany(VendorContact::class);
     }
 
     public function country()
     {
-        return $this->belongsTo(\App\Models\Country::class);
+        return $this->belongsTo(Country::class);
     }
 
     public function currency()
     {
-        return $this->belongsTo(\App\Models\Currency::class);
+        return $this->belongsTo(Currency::class);
     }
 
     public function language()
     {
-        return $this->belongsTo(\App\Models\Language::class);
+        return $this->belongsTo(Language::class);
     }
 
     public function size()
     {
-        return $this->belongsTo(\App\Models\Size::class);
+        return $this->belongsTo(Size::class);
     }
 
     public function industry()
     {
-        return $this->belongsTo(\App\Models\Industry::class);
+        return $this->belongsTo(Industry::class);
     }
 
     public function expenses()
     {
-        return $this->hasMany(\App\Models\Expense::class, 'vendor_id', 'id');
+        return $this->hasMany(Expense::class, 'vendor_id', 'id');
     }
 
     /**
      * @param      $data
      * @param bool $isPrimary
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     public function addVendorContact($data, $isPrimary = false)
     {
@@ -354,8 +360,8 @@ class Vendor extends EntityModel
      */
     public function getTotalExpenses()
     {
-        return \Illuminate\Support\Facades\DB::table('expenses')
-            ->select('expense_currency_id', \Illuminate\Support\Facades\DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
+        return DB::table('expenses')
+            ->select('expense_currency_id', DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
             ->whereVendorId($this->id)
             ->whereIsDeleted(false)
             ->groupBy('expense_currency_id')

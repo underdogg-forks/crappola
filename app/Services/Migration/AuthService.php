@@ -11,7 +11,9 @@
 
 namespace App\Services\Migration;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\StreamInterface;
 
 // use Unirest\Request;
 // use Unirest\Request\Body;
@@ -55,7 +57,7 @@ class AuthService
             'password' => $this->password,
         ];
 
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'headers' => $this->getHeaders(),
         ]);
 
@@ -147,7 +149,7 @@ class AuthService
         return $this->endpoint . $this->uri;
     }
 
-    private function processErrors(\Psr\Http\Message\StreamInterface $errors): void
+    private function processErrors(StreamInterface $errors): void
     {
         $array = (array) $errors;
 

@@ -6,7 +6,11 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
@@ -103,7 +107,7 @@ class Handler extends ExceptionHandler
                 return Response::make($response, 404, $headers);
             }
 
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         if ( ! class_exists('Utils')) {
@@ -156,7 +160,7 @@ class Handler extends ExceptionHandler
         if (Utils::isNinjaProd()
             && ! Utils::isDownForMaintenance()
             && ! ($e instanceof HttpResponseException)
-            && ! ($e instanceof \Illuminate\Validation\ValidationException)
+            && ! ($e instanceof ValidationException)
             && ! ($e instanceof ValidationException)) {
             $data = [
                 'error'      => get_class($e),
@@ -169,13 +173,13 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
-    protected function unauthenticated($request, AuthenticationException $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    protected function unauthenticated($request, AuthenticationException $exception): \Illuminate\Http\Response|JsonResponse|RedirectResponse
     {
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        $guard = \Illuminate\Support\Arr::get($exception->guards(), 0);
+        $guard = Arr::get($exception->guards(), 0);
 
         $url = match ($guard) {
             'client' => '/client/login',

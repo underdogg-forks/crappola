@@ -3,12 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalTemplate;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProposalTemplateRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\ProposalTemplate::class;
+        return ProposalTemplate::class;
     }
 
     public function all()
@@ -18,8 +20,8 @@ class ProposalTemplateRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = \Illuminate\Support\Facades\DB::table('proposal_templates')
-            ->where('proposal_templates.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+        $query = DB::table('proposal_templates')
+            ->where('proposal_templates.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_templates.name',
                 'proposal_templates.public_id',

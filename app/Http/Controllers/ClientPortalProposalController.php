@@ -16,7 +16,7 @@ class ClientPortalProposalController extends BaseController
 
     private $documentRepo;
 
-    private readonly \App\Ninja\Repositories\ProposalRepository $propoosalRepo;
+    private readonly ProposalRepository $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {

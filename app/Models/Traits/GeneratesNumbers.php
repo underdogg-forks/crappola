@@ -5,6 +5,7 @@ namespace App\Models\Traits;
 use App\Models\Client;
 use App\Models\Invoice;
 use Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class GeneratesNumbers.
@@ -169,7 +170,7 @@ trait GeneratesNumbers
         $replace[] = mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (mb_strstr($pattern, '{$userId}')) {
-            $userId = $entity->user ? $entity->user->public_id : (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->public_id : 0);
+            $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
             $search[] = '{$userId}';
             $replace[] = mb_str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }
@@ -219,7 +220,7 @@ trait GeneratesNumbers
      */
     public function previewNextInvoiceNumber($entityType = ENTITY_INVOICE)
     {
-        $client = \App\Models\Client::scope()->first();
+        $client = Client::scope()->first();
 
         $invoice = $this->createInvoice($entityType, $client ? $client->id : 0);
 

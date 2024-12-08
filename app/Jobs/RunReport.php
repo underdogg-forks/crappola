@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Carbon;
+use Illuminate\Support\Str;
 
 class RunReport extends Job
 {
@@ -38,7 +39,7 @@ class RunReport extends Job
         $config['subgroup'] = empty($config['subgroup']) ? false : $config['subgroup']; // don't yet support charts in export
 
         $isExport = $this->isExport;
-        $reportClass = '\\App\\Ninja\\Reports\\' . \Illuminate\Support\Str::studly($reportType) . 'Report';
+        $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
 
         if ( ! empty($config['range'])) {
             switch ($config['range']) {

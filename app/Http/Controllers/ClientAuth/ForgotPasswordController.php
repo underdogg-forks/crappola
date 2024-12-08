@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
+use Illuminate\Support\Facades\Password;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Contact;
@@ -40,7 +47,7 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     * @return Factory|Application|RedirectResponse|View
      */
     public function showLinkRequestForm()
     {
@@ -54,9 +61,9 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @return JsonResponse|RedirectResponse|Response
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -74,7 +81,7 @@ class ForgotPasswordController extends Controller
         }
 
         if ( ! $account || ! request()->email) {
-            return $this->sendResetLinkFailedResponse($request, \Illuminate\Support\Facades\Password::INVALID_USER);
+            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
         $contact = Contact::where('email', '=', request()->email)
@@ -84,20 +91,20 @@ class ForgotPasswordController extends Controller
         if ($contact) {
             $contactId = $contact->id;
         } else {
-            return $this->sendResetLinkFailedResponse($request, \Illuminate\Support\Facades\Password::INVALID_USER);
+            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
         $response = $this->broker()->sendResetLink(['id' => $contactId], function (Message $message): void {
             $message->subject($this->getEmailSubject());
         });
 
-        return $response == \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+        return $response == Password::RESET_LINK_SENT
                     ? $this->sendResetLinkResponse($request, $response)
                     : $this->sendResetLinkFailedResponse($request, $response);
     }
 
     protected function broker()
     {
-        return \Illuminate\Support\Facades\Password::broker('clients');
+        return Password::broker('clients');
     }
 }

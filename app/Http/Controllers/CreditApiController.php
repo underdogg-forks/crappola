@@ -13,7 +13,7 @@ class CreditApiController extends BaseAPIController
 {
     public $entityType = ENTITY_CREDIT;
 
-    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
+    protected CreditRepository $creditRepo;
 
     public function __construct(CreditRepository $creditRepo)
     {

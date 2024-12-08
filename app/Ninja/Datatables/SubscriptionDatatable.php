@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class SubscriptionDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_SUBSCRIPTION;
@@ -25,7 +27,7 @@ class SubscriptionDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_subscription'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('subscriptions/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('subscriptions/%s/edit', $model->public_id)),
             ],
         ];
     }

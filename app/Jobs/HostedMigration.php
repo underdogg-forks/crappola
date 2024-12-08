@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\User;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -159,7 +160,7 @@ class HostedMigration extends Job
             'password'         => '',
         ];
 
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'headers' => $headers,
         ]);
 

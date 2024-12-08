@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class ProductDatatable extends EntityDatatable
@@ -12,7 +14,7 @@ class ProductDatatable extends EntityDatatable
 
     public function columns(): array
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         return [
             [
@@ -50,17 +52,17 @@ class ProductDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_product'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('products/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('products/%s/edit', $model->public_id)),
             ],
             [
                 trans('texts.clone_product'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('products/%s/clone', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PRODUCT),
+                fn ($model) => URL::to(sprintf('products/%s/clone', $model->public_id)),
+                fn ($model) => Auth::user()->can('create', ENTITY_PRODUCT),
             ],
             [
                 trans('texts.invoice_product'),
                 fn ($model): string => sprintf("javascript:submitForm_product('invoice', %s)", $model->public_id),
-                fn ($model): bool   => ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
+                fn ($model): bool   => ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE),
             ],
         ];
     }

@@ -4,15 +4,16 @@ namespace App\Services;
 
 use App\Ninja\Datatables\SubscriptionDatatable;
 use App\Ninja\Repositories\SubscriptionRepository;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class SubscriptionService.
  */
 class SubscriptionService extends BaseService
 {
-    protected \App\Ninja\Repositories\SubscriptionRepository $subscriptionRepo;
+    protected SubscriptionRepository $subscriptionRepo;
 
-    protected \App\Services\DatatableService $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * SubscriptionService constructor.
@@ -29,7 +30,7 @@ class SubscriptionService extends BaseService
     /**
      * @param $userId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($accountId)
     {
@@ -42,7 +43,7 @@ class SubscriptionService extends BaseService
     /**
      * @return SubscriptionRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\SubscriptionRepository
+    protected function getRepo(): SubscriptionRepository
     {
         return $this->subscriptionRepo;
     }

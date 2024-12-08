@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Language.
  *
@@ -9,16 +12,16 @@ namespace App\Models;
  * @property string $name
  * @property string $locale
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Language newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language query()
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereLocale($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Language whereName($value)
+ * @method static Builder|Language newModelQuery()
+ * @method static Builder|Language newQuery()
+ * @method static Builder|Language query()
+ * @method static Builder|Language whereId($value)
+ * @method static Builder|Language whereLocale($value)
+ * @method static Builder|Language whereName($value)
  *
  * @mixin \Eloquent
  */
-class Language extends \Illuminate\Database\Eloquent\Model
+class Language extends Model
 {
     /**
      * @var bool

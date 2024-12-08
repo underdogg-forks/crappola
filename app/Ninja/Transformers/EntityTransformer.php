@@ -3,11 +3,14 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
+use Illuminate\Support\Facades\Auth;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
-    protected ?\App\Models\Account $account;
+    protected ?Account $account;
 
     protected $serializer;
 
@@ -22,7 +25,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->defaultIncludes;
     }
 
-    protected function includeCollection($data, $transformer, $entityType): \League\Fractal\Resource\Collection
+    protected function includeCollection($data, $transformer, $entityType): Collection
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -31,7 +34,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->collection($data, $transformer, $entityType);
     }
 
-    protected function includeItem($data, $transformer, $entityType): \League\Fractal\Resource\Item
+    protected function includeItem($data, $transformer, $entityType): Item
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -55,7 +58,7 @@ class EntityTransformer extends TransformerAbstract
     {
         $data = [
             'account_key' => $this->account->account_key,
-            'is_owner'    => (bool) (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->owns($entity)),
+            'is_owner'    => (bool) (Auth::check() && Auth::user()->owns($entity)),
         ];
 
         if ($entity->relationLoaded('user')) {

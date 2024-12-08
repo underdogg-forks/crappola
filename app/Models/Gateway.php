@@ -2,46 +2,49 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Omnipay;
 use Utils;
 
 /**
  * Class Gateway.
  *
- * @property int                             $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string                          $name
- * @property string                          $provider
- * @property int                             $visible
- * @property int                             $payment_library_id
- * @property int                             $sort_order
- * @property int                             $recommended
- * @property string|null                     $site_url
- * @property int                             $is_offsite
- * @property int                             $is_secure
+ * @property int         $id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string      $name
+ * @property string      $provider
+ * @property int         $visible
+ * @property int         $payment_library_id
+ * @property int         $sort_order
+ * @property int         $recommended
+ * @property string|null $site_url
+ * @property int         $is_offsite
+ * @property int         $is_secure
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway primary($accountGatewaysIds)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway query()
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway secondary($accountGatewaysIds)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereIsOffsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereIsSecure($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway wherePaymentLibraryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereProvider($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereRecommended($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereSiteUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereVisible($value)
+ * @method static Builder|Gateway newModelQuery()
+ * @method static Builder|Gateway newQuery()
+ * @method static Builder|Gateway primary($accountGatewaysIds)
+ * @method static Builder|Gateway query()
+ * @method static Builder|Gateway secondary($accountGatewaysIds)
+ * @method static Builder|Gateway whereCreatedAt($value)
+ * @method static Builder|Gateway whereId($value)
+ * @method static Builder|Gateway whereIsOffsite($value)
+ * @method static Builder|Gateway whereIsSecure($value)
+ * @method static Builder|Gateway whereName($value)
+ * @method static Builder|Gateway wherePaymentLibraryId($value)
+ * @method static Builder|Gateway whereProvider($value)
+ * @method static Builder|Gateway whereRecommended($value)
+ * @method static Builder|Gateway whereSiteUrl($value)
+ * @method static Builder|Gateway whereSortOrder($value)
+ * @method static Builder|Gateway whereUpdatedAt($value)
+ * @method static Builder|Gateway whereVisible($value)
  *
  * @mixin \Eloquent
  */
-class Gateway extends \Illuminate\Database\Eloquent\Model
+class Gateway extends Model
 {
     /**
      * @var bool

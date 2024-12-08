@@ -5,6 +5,7 @@ namespace App\Ninja\Presenters;
 use App\Libraries\Skype\InvoiceCard;
 use Carbon;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 use Utils;
 
@@ -223,7 +224,7 @@ class InvoicePresenter extends EntityPresenter
         return trans('texts.auto_bill_notification', $data);
     }
 
-    public function skypeBot(): \App\Libraries\Skype\InvoiceCard
+    public function skypeBot(): InvoiceCard
     {
         return new InvoiceCard($this->entity);
     }
@@ -257,7 +258,7 @@ class InvoicePresenter extends EntityPresenter
             ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans('texts.clone_invoice')],
         ];
 
-        if (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE)) {
+        if (Auth::user()->can('create', ENTITY_QUOTE)) {
             $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans('texts.clone_quote')];
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
  *
@@ -13,18 +15,18 @@ namespace App\Models;
  * @property string|null $oauth_user_key
  * @property string|null $referral_code
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser query()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereConfirmationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereLookupAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereOauthUserKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereReferralCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereUserId($value)
+ * @method static Builder|LookupUser newModelQuery()
+ * @method static Builder|LookupUser newQuery()
+ * @method static Builder|LookupUser query()
+ * @method static Builder|LookupUser whereConfirmationCode($value)
+ * @method static Builder|LookupUser whereEmail($value)
+ * @method static Builder|LookupUser whereId($value)
+ * @method static Builder|LookupUser whereLookupAccountId($value)
+ * @method static Builder|LookupUser whereOauthUserKey($value)
+ * @method static Builder|LookupUser whereReferralCode($value)
+ * @method static Builder|LookupUser whereUserId($value)
  *
- * @property \App\Models\LookupAccount $lookupAccount
+ * @property LookupAccount $lookupAccount
  *
  * @mixin \Eloquent
  */

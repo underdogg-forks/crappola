@@ -2,6 +2,7 @@
 
 namespace App\Services\Migration;
 
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Storage;
 
 // use Unirest\Request;
@@ -68,7 +69,7 @@ class CompleteService
             ];
         }
 
-        $client = new \GuzzleHttp\Client(
+        $client = new Client(
             [
                 'headers' => $this->getHeaders(),
             ]

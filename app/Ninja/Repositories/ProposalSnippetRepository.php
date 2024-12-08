@@ -3,12 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\ProposalSnippet::class;
+        return ProposalSnippet::class;
     }
 
     public function all()
@@ -18,9 +20,9 @@ class ProposalSnippetRepository extends BaseRepository
 
     public function find($filter = null, $userId = false)
     {
-        $query = \Illuminate\Support\Facades\DB::table('proposal_snippets')
+        $query = DB::table('proposal_snippets')
             ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
-            ->where('proposal_snippets.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+            ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_snippets.name',
                 'proposal_snippets.public_id',

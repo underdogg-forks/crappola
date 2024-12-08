@@ -14,9 +14,9 @@ class ExpenseApiController extends BaseAPIController
     public $entityType = ENTITY_EXPENSE;
 
     // Expenses
-    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
+    protected ExpenseRepository $expenseRepo;
 
-    protected \App\Services\ExpenseService $expenseService;
+    protected ExpenseService $expenseService;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {

@@ -5,78 +5,81 @@ namespace App\Models;
 //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
 use App\Models\Traits\HasRecurrence;
+use App\Ninja\Presenters\ExpensePresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Expense.
  *
- * @property int                              $id
- * @property \Illuminate\Support\Carbon|null  $created_at
- * @property \Illuminate\Support\Carbon|null  $updated_at
- * @property \Illuminate\Support\Carbon|null  $deleted_at
- * @property int                              $account_id
- * @property int|null                         $vendor_id
- * @property int                              $user_id
- * @property int|null                         $client_id
- * @property int                              $is_deleted
- * @property string                           $amount
- * @property string                           $private_notes
- * @property string                           $public_notes
- * @property int|null                         $invoice_currency_id
- * @property int|null                         $expense_currency_id
- * @property int                              $should_be_invoiced
- * @property int|null                         $expense_category_id
- * @property string|null                      $tax_name1
- * @property string                           $tax_rate1
- * @property string|null                      $tax_name2
- * @property string                           $tax_rate2
- * @property int                              $frequency_id
- * @property string|null                      $start_date
- * @property string|null                      $end_date
- * @property string|null                      $last_sent_date
- * @property int                              $public_id
- * @property \App\Models\Account              $account
- * @property \App\Models\Client|null          $client
- * @property \App\Models\ExpenseCategory|null $expense_category
- * @property \App\Models\User                 $user
- * @property \App\Models\Vendor|null          $vendor
+ * @property int                  $id
+ * @property Carbon|null          $created_at
+ * @property Carbon|null          $updated_at
+ * @property Carbon|null          $deleted_at
+ * @property int                  $account_id
+ * @property int|null             $vendor_id
+ * @property int                  $user_id
+ * @property int|null             $client_id
+ * @property int                  $is_deleted
+ * @property string               $amount
+ * @property string               $private_notes
+ * @property string               $public_notes
+ * @property int|null             $invoice_currency_id
+ * @property int|null             $expense_currency_id
+ * @property int                  $should_be_invoiced
+ * @property int|null             $expense_category_id
+ * @property string|null          $tax_name1
+ * @property string               $tax_rate1
+ * @property string|null          $tax_name2
+ * @property string               $tax_rate2
+ * @property int                  $frequency_id
+ * @property string|null          $start_date
+ * @property string|null          $end_date
+ * @property string|null          $last_sent_date
+ * @property int                  $public_id
+ * @property Account              $account
+ * @property Client|null          $client
+ * @property ExpenseCategory|null $expense_category
+ * @property User                 $user
+ * @property Vendor|null          $vendor
  *
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense query()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereEndDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereExpenseCategoryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereExpenseCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereFrequencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereInvoiceCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereLastSentDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereShouldBeInvoiced($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereStartDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withoutTrashed()
+ * @method static Builder|RecurringExpense newModelQuery()
+ * @method static Builder|RecurringExpense newQuery()
+ * @method static Builder|RecurringExpense onlyTrashed()
+ * @method static Builder|RecurringExpense query()
+ * @method static Builder|RecurringExpense scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|RecurringExpense whereAccountId($value)
+ * @method static Builder|RecurringExpense whereAmount($value)
+ * @method static Builder|RecurringExpense whereClientId($value)
+ * @method static Builder|RecurringExpense whereCreatedAt($value)
+ * @method static Builder|RecurringExpense whereDeletedAt($value)
+ * @method static Builder|RecurringExpense whereEndDate($value)
+ * @method static Builder|RecurringExpense whereExpenseCategoryId($value)
+ * @method static Builder|RecurringExpense whereExpenseCurrencyId($value)
+ * @method static Builder|RecurringExpense whereFrequencyId($value)
+ * @method static Builder|RecurringExpense whereId($value)
+ * @method static Builder|RecurringExpense whereInvoiceCurrencyId($value)
+ * @method static Builder|RecurringExpense whereIsDeleted($value)
+ * @method static Builder|RecurringExpense whereLastSentDate($value)
+ * @method static Builder|RecurringExpense wherePrivateNotes($value)
+ * @method static Builder|RecurringExpense wherePublicId($value)
+ * @method static Builder|RecurringExpense wherePublicNotes($value)
+ * @method static Builder|RecurringExpense whereShouldBeInvoiced($value)
+ * @method static Builder|RecurringExpense whereStartDate($value)
+ * @method static Builder|RecurringExpense whereTaxName1($value)
+ * @method static Builder|RecurringExpense whereTaxName2($value)
+ * @method static Builder|RecurringExpense whereTaxRate1($value)
+ * @method static Builder|RecurringExpense whereTaxRate2($value)
+ * @method static Builder|RecurringExpense whereUpdatedAt($value)
+ * @method static Builder|RecurringExpense whereUserId($value)
+ * @method static Builder|RecurringExpense whereVendorId($value)
+ * @method static Builder|RecurringExpense withActiveOrSelected($id = false)
+ * @method static Builder|RecurringExpense withArchived()
+ * @method static Builder|RecurringExpense withTrashed()
+ * @method static Builder|RecurringExpense withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -90,7 +93,7 @@ class RecurringExpense extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\ExpensePresenter::class;
+    protected $presenter = ExpensePresenter::class;
 
     /**
      * @var array
@@ -119,27 +122,27 @@ class RecurringExpense extends EntityModel
 
     public function expense_category()
     {
-        return $this->belongsTo(\App\Models\ExpenseCategory::class)->withTrashed();
+        return $this->belongsTo(ExpenseCategory::class)->withTrashed();
     }
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function vendor()
     {
-        return $this->belongsTo(\App\Models\Vendor::class)->withTrashed();
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function getName()

@@ -4,7 +4,10 @@ namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
 use App\Models\Client;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use stdClass;
 
 class BaseIntent
@@ -189,7 +192,7 @@ class BaseIntent
 
     protected function requestClient()
     {
-        $clientRepo = app(\App\Ninja\Repositories\ClientRepository::class);
+        $clientRepo = app(ClientRepository::class);
         $client = false;
 
         foreach ($this->data->entities as $param) {
@@ -208,7 +211,7 @@ class BaseIntent
 
     protected function requestInvoice()
     {
-        $invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
+        $invoiceRepo = app(InvoiceRepository::class);
         $invoice = false;
 
         foreach ($this->data->entities as $param) {
@@ -317,7 +320,7 @@ class BaseIntent
         if (is_string($content)) {
             $response->setText($content);
         } else {
-            if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
+            if ($content instanceof Collection) {
                 // do nothing
             } elseif ( ! is_array($content)) {
                 $content = [$content];

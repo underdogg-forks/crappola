@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Timezone.
  *
@@ -9,16 +12,16 @@ namespace App\Models;
  * @property string $name
  * @property string $location
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone query()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereLocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereName($value)
+ * @method static Builder|Timezone newModelQuery()
+ * @method static Builder|Timezone newQuery()
+ * @method static Builder|Timezone query()
+ * @method static Builder|Timezone whereId($value)
+ * @method static Builder|Timezone whereLocation($value)
+ * @method static Builder|Timezone whereName($value)
  *
  * @mixin \Eloquent
  */
-class Timezone extends \Illuminate\Database\Eloquent\Model
+class Timezone extends Model
 {
     /**
      * @var bool

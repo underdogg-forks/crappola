@@ -7,7 +7,9 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
+use Illuminate\Http\Response;
 use Redirect;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class DocumentAPIController.
@@ -19,7 +21,7 @@ class DocumentAPIController extends BaseAPIController
      */
     public $entityType = ENTITY_DOCUMENT;
 
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    protected DocumentRepository $documentRepo;
 
     /**
      * DocumentAPIController constructor.
@@ -63,7 +65,7 @@ class DocumentAPIController extends BaseAPIController
     /**
      * @param DocumentRequest $request
      *
-     * @return \Illuminate\Http\Response|Redirect|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return Response|Redirect|StreamedResponse
      *
      * @SWG\Get(
      *   path="/documents/{document_id}",
@@ -71,6 +73,26 @@ class DocumentAPIController extends BaseAPIController
      *   operationId="getDocument",
      *   tags={"document"},
      *   produces={"application/octet-stream"},
+     *
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="document_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A file",
+     *
+     *      @SWG\Schema(type="file")
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      *
      *   @SWG\Parameter(
      *     in="path",

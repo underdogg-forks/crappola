@@ -10,6 +10,7 @@ use App\Models\LookupProposalInvitation;
 use App\Models\LookupUser;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class DatabaseLookup
@@ -24,15 +25,15 @@ class DatabaseLookup
             if ($code = $request->confirmation_code) {
                 LookupUser::setServerByField('confirmation_code', $code);
             } elseif (session(SESSION_DB_SERVER)) {
-                if (\Illuminate\Support\Facades\Auth::viaRemember()) {
-                    \Illuminate\Support\Facades\Auth::logout();
+                if (Auth::viaRemember()) {
+                    Auth::logout();
                 }
 
                 // do nothing
-            } elseif ( ! \Illuminate\Support\Facades\Auth::check() && $email = $request->email) {
+            } elseif ( ! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
-                \Illuminate\Support\Facades\Auth::logout();
+                Auth::logout();
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {

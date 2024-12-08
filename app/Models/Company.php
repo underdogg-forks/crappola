@@ -2,84 +2,90 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\CompanyPresenter;
+use App\Ninja\Repositories\AccountRepository;
 use Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Company.
  *
- * @property int                                                                $id
- * @property string|null                                                        $plan
- * @property string|null                                                        $plan_term
- * @property string|null                                                        $plan_started
- * @property string|null                                                        $plan_paid
- * @property string|null                                                        $plan_expires
- * @property int|null                                                           $payment_id
- * @property string|null                                                        $trial_started
- * @property string|null                                                        $trial_plan
- * @property string|null                                                        $pending_plan
- * @property string|null                                                        $pending_term
- * @property \Illuminate\Support\Carbon|null                                    $created_at
- * @property \Illuminate\Support\Carbon|null                                    $updated_at
- * @property \Illuminate\Support\Carbon|null                                    $deleted_at
- * @property string|null                                                        $plan_price
- * @property string|null                                                        $pending_plan_price
- * @property int                                                                $num_users
- * @property int                                                                $pending_num_users
- * @property string|null                                                        $utm_source
- * @property string|null                                                        $utm_medium
- * @property string|null                                                        $utm_campaign
- * @property string|null                                                        $utm_term
- * @property string|null                                                        $utm_content
- * @property float                                                              $discount
- * @property \Illuminate\Support\Carbon|null                                    $discount_expires
- * @property \Illuminate\Support\Carbon|null                                    $promo_expires
- * @property string|null                                                        $bluevine_status
- * @property string|null                                                        $referral_code
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Account> $accounts
- * @property int|null                                                           $accounts_count
- * @property \App\Models\Payment|null                                           $payment
+ * @property int                             $id
+ * @property string|null                     $plan
+ * @property string|null                     $plan_term
+ * @property string|null                     $plan_started
+ * @property string|null                     $plan_paid
+ * @property string|null                     $plan_expires
+ * @property int|null                        $payment_id
+ * @property string|null                     $trial_started
+ * @property string|null                     $trial_plan
+ * @property string|null                     $pending_plan
+ * @property string|null                     $pending_term
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null                     $plan_price
+ * @property string|null                     $pending_plan_price
+ * @property int                             $num_users
+ * @property int                             $pending_num_users
+ * @property string|null                     $utm_source
+ * @property string|null                     $utm_medium
+ * @property string|null                     $utm_campaign
+ * @property string|null                     $utm_term
+ * @property string|null                     $utm_content
+ * @property float                           $discount
+ * @property \Illuminate\Support\Carbon|null $discount_expires
+ * @property \Illuminate\Support\Carbon|null $promo_expires
+ * @property string|null                     $bluevine_status
+ * @property string|null                     $referral_code
+ * @property Collection<int, Account>        $accounts
+ * @property int|null                        $accounts_count
+ * @property Payment|null                    $payment
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Company query()
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereBluevineStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDiscountExpires($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereNumUsers($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingNumUsers($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingPlan($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingPlanPrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingTerm($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlan($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanExpires($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanPrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanStarted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanTerm($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePromoExpires($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereReferralCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereTrialPlan($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereTrialStarted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmCampaign($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmContent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmMedium($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmSource($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmTerm($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Company withoutTrashed()
+ * @method static Builder|Company newModelQuery()
+ * @method static Builder|Company newQuery()
+ * @method static Builder|Company onlyTrashed()
+ * @method static Builder|Company query()
+ * @method static Builder|Company whereBluevineStatus($value)
+ * @method static Builder|Company whereCreatedAt($value)
+ * @method static Builder|Company whereDeletedAt($value)
+ * @method static Builder|Company whereDiscount($value)
+ * @method static Builder|Company whereDiscountExpires($value)
+ * @method static Builder|Company whereId($value)
+ * @method static Builder|Company whereNumUsers($value)
+ * @method static Builder|Company wherePaymentId($value)
+ * @method static Builder|Company wherePendingNumUsers($value)
+ * @method static Builder|Company wherePendingPlan($value)
+ * @method static Builder|Company wherePendingPlanPrice($value)
+ * @method static Builder|Company wherePendingTerm($value)
+ * @method static Builder|Company wherePlan($value)
+ * @method static Builder|Company wherePlanExpires($value)
+ * @method static Builder|Company wherePlanPaid($value)
+ * @method static Builder|Company wherePlanPrice($value)
+ * @method static Builder|Company wherePlanStarted($value)
+ * @method static Builder|Company wherePlanTerm($value)
+ * @method static Builder|Company wherePromoExpires($value)
+ * @method static Builder|Company whereReferralCode($value)
+ * @method static Builder|Company whereTrialPlan($value)
+ * @method static Builder|Company whereTrialStarted($value)
+ * @method static Builder|Company whereUpdatedAt($value)
+ * @method static Builder|Company whereUtmCampaign($value)
+ * @method static Builder|Company whereUtmContent($value)
+ * @method static Builder|Company whereUtmMedium($value)
+ * @method static Builder|Company whereUtmSource($value)
+ * @method static Builder|Company whereUtmTerm($value)
+ * @method static Builder|Company withTrashed()
+ * @method static Builder|Company withoutTrashed()
  *
  * @mixin \Eloquent
  */
-class Company extends \Illuminate\Database\Eloquent\Model
+class Company extends Model
 {
     use PresentableTrait;
     use SoftDeletes;
@@ -87,7 +93,7 @@ class Company extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\CompanyPresenter::class;
+    protected $presenter = CompanyPresenter::class;
 
     /**
      * @var array
@@ -105,12 +111,12 @@ class Company extends \Illuminate\Database\Eloquent\Model
 
     public function accounts()
     {
-        return $this->hasMany(\App\Models\Account::class);
+        return $this->hasMany(Account::class);
     }
 
     public function payment()
     {
-        return $this->belongsTo(\App\Models\Payment::class);
+        return $this->belongsTo(Payment::class);
     }
 
     public function hasActivePromo()
@@ -237,12 +243,12 @@ class Company extends \Illuminate\Database\Eloquent\Model
             $deadline->modify('+30 days');
 
             if ($deadline >= date_create()) {
-                $accountRepo = app(\App\Ninja\Repositories\AccountRepository::class);
+                $accountRepo = app(AccountRepository::class);
                 $ninjaAccount = $accountRepo->getNinjaAccount();
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
-                \Illuminate\Support\Facades\Log::info(sprintf('Refunded Plan Payment: %s - %s - Deadline: %s', $account->name, $user->email, $deadline->format('Y-m-d')));
+                Log::info(sprintf('Refunded Plan Payment: %s - %s - Deadline: %s', $account->name, $user->email, $deadline->format('Y-m-d')));
 
                 return true;
             }
@@ -277,7 +283,7 @@ Company::deleted(function ($company): void {
         return;
     }
 
-    $server = \App\Models\DbServer::whereName(config('database.default'))->firstOrFail();
+    $server = DbServer::whereName(config('database.default'))->firstOrFail();
 
     LookupCompany::deleteWhere([
         'company_id'   => $company->id,

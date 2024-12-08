@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Activity;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityReport extends AbstractReport
 {
@@ -18,7 +19,7 @@ class ActivityReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $startDate = $this->startDate;
         $endDate = $this->endDate;

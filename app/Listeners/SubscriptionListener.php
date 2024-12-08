@@ -266,7 +266,7 @@ class SubscriptionListener
      * @param        $transformer
      * @param string $include
      */
-    private function checkSubscriptions(int $eventId, $entity, \App\Ninja\Transformers\ClientTransformer|\App\Ninja\Transformers\PaymentTransformer|\App\Ninja\Transformers\InvoiceTransformer|\App\Ninja\Transformers\VendorTransformer|\App\Ninja\Transformers\ExpenseTransformer|\App\Ninja\Transformers\TaskTransformer $transformer, array|string $include = ''): void
+    private function checkSubscriptions(int $eventId, $entity, ClientTransformer|PaymentTransformer|InvoiceTransformer|VendorTransformer|ExpenseTransformer|TaskTransformer $transformer, array|string $include = ''): void
     {
         if ( ! EntityModel::$notifySubscriptions) {
             return;

@@ -2,48 +2,53 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class AccountGatewayToken.
  *
- * @property int                                                                      $id
- * @property int                                                                      $account_id
- * @property int                                                                      $contact_id
- * @property int                                                                      $account_gateway_id
- * @property int                                                                      $client_id
- * @property string                                                                   $token
- * @property \Illuminate\Support\Carbon|null                                          $created_at
- * @property \Illuminate\Support\Carbon|null                                          $updated_at
- * @property \Illuminate\Support\Carbon|null                                          $deleted_at
- * @property int|null                                                                 $default_payment_method_id
- * @property \App\Models\AccountGateway                                               $account_gateway
- * @property \App\Models\Contact                                                      $contact
- * @property \App\Models\PaymentMethod|null                                           $default_payment_method
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentMethod> $payment_methods
- * @property int|null                                                                 $payment_methods_count
+ * @property int                            $id
+ * @property int                            $account_id
+ * @property int                            $contact_id
+ * @property int                            $account_gateway_id
+ * @property int                            $client_id
+ * @property string                         $token
+ * @property Carbon|null                    $created_at
+ * @property Carbon|null                    $updated_at
+ * @property Carbon|null                    $deleted_at
+ * @property int|null                       $default_payment_method_id
+ * @property AccountGateway                 $account_gateway
+ * @property Contact                        $contact
+ * @property PaymentMethod|null             $default_payment_method
+ * @property Collection<int, PaymentMethod> $payment_methods
+ * @property int|null                       $payment_methods_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken clientAndGateway($clientId, $accountGatewayId)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken query()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereAccountGatewayId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereDefaultPaymentMethodId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken withoutTrashed()
+ * @method static Builder|AccountGatewayToken clientAndGateway($clientId, $accountGatewayId)
+ * @method static Builder|AccountGatewayToken newModelQuery()
+ * @method static Builder|AccountGatewayToken newQuery()
+ * @method static Builder|AccountGatewayToken onlyTrashed()
+ * @method static Builder|AccountGatewayToken query()
+ * @method static Builder|AccountGatewayToken whereAccountGatewayId($value)
+ * @method static Builder|AccountGatewayToken whereAccountId($value)
+ * @method static Builder|AccountGatewayToken whereClientId($value)
+ * @method static Builder|AccountGatewayToken whereContactId($value)
+ * @method static Builder|AccountGatewayToken whereCreatedAt($value)
+ * @method static Builder|AccountGatewayToken whereDefaultPaymentMethodId($value)
+ * @method static Builder|AccountGatewayToken whereDeletedAt($value)
+ * @method static Builder|AccountGatewayToken whereId($value)
+ * @method static Builder|AccountGatewayToken whereToken($value)
+ * @method static Builder|AccountGatewayToken whereUpdatedAt($value)
+ * @method static Builder|AccountGatewayToken withTrashed()
+ * @method static Builder|AccountGatewayToken withoutTrashed()
  *
  * @mixin \Eloquent
  */
-class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
+class AccountGatewayToken extends Model
 {
     use SoftDeletes;
 
@@ -69,25 +74,25 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
 
     public function payment_methods()
     {
-        return $this->hasMany(\App\Models\PaymentMethod::class);
+        return $this->hasMany(PaymentMethod::class);
     }
 
     public function account_gateway()
     {
-        return $this->belongsTo(\App\Models\AccountGateway::class);
+        return $this->belongsTo(AccountGateway::class);
     }
 
     public function contact()
     {
-        return $this->belongsTo(\App\Models\Contact::class);
+        return $this->belongsTo(Contact::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function default_payment_method()
     {
-        return $this->hasOne(\App\Models\PaymentMethod::class, 'id', 'default_payment_method_id');
+        return $this->hasOne(PaymentMethod::class, 'id', 'default_payment_method_id');
     }
 
     public function getEntityType(): string

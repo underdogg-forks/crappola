@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Ninja\Repositories\DashboardRepository;
 use App\Ninja\Transformers\ActivityTransformer;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardApiController extends BaseAPIController
 {
     /**
-     * @var \App\Ninja\Repositories\DashboardRepository
+     * @var DashboardRepository
      */
     public $dashboardRepo;
 
@@ -21,7 +22,7 @@ class DashboardApiController extends BaseAPIController
 
     public function index()
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $viewAll = $user->hasPermission('view_reports');
         $userId = $user->id;
         $accountId = $user->account->id;

@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 class DownloadInvoices extends Job
 {
     //use InteractsWithQueue, SerializesModels;
-    protected \App\Models\User $user;
+    protected User $user;
 
     /**
      * @var array

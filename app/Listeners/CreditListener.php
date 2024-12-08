@@ -12,7 +12,7 @@ use Carbon;
  */
 class CreditListener
 {
-    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
+    protected CreditRepository $creditRepo;
 
     /**
      * CreditListener constructor.

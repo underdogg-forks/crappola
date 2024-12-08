@@ -10,33 +10,38 @@ use App\Jobs\SendPaymentEmail;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
 use Response;
 use Utils;
 
 class InvoiceApiController extends BaseAPIController
 {
     /**
-     * @var \App\Ninja\Repositories\ClientRepository
+     * @var ClientRepository
      */
     public $clientRepo;
 
     /**
-     * @var \App\Ninja\Repositories\PaymentRepository
+     * @var PaymentRepository
      */
     public $paymentRepo;
 
     /**
-     * @var \App\Services\InvoiceService
+     * @var InvoiceService
      */
     public $invoiceService;
 
     /**
-     * @var \App\Services\PaymentService
+     * @var PaymentService
      */
     public $paymentService;
 
@@ -83,12 +88,12 @@ class InvoiceApiController extends BaseAPIController
             ->orderBy('updated_at', 'desc');
 
         // Filter by invoice number
-        if ($invoiceNumber = \Illuminate\Support\Facades\Request::input('invoice_number')) {
+        if ($invoiceNumber = Request::input('invoice_number')) {
             $invoices->whereInvoiceNumber($invoiceNumber);
         }
 
         // Fllter by status
-        if ($statusId = \Illuminate\Support\Facades\Request::input('status_id')) {
+        if ($statusId = Request::input('status_id')) {
             $invoices->where('invoice_status_id', '>=', $statusId);
         }
 
@@ -162,7 +167,7 @@ class InvoiceApiController extends BaseAPIController
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
-        $data = \Illuminate\Support\Facades\Request::all();
+        $data = Request::all();
         $error = null;
 
         if (isset($data['email'])) {
@@ -172,7 +177,7 @@ class InvoiceApiController extends BaseAPIController
             })->first();
 
             if ( ! $client) {
-                $validator = \Illuminate\Support\Facades\Validator::make(['email' => $email], ['email' => 'email']);
+                $validator = Validator::make(['email' => $email], ['email' => 'email']);
                 if ($validator->fails()) {
                     $messages = $validator->messages();
 
@@ -282,7 +287,7 @@ class InvoiceApiController extends BaseAPIController
         if (config('queue.default') !== 'sync') {
             $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder, $template));
         } else {
-            $result = app(\App\Ninja\Mailers\ContactMailer::class)->sendInvoice($invoice, $reminder, $template);
+            $result = app(ContactMailer::class)->sendInvoice($invoice, $reminder, $template);
             if ($result !== true) {
                 return $this->errorResponse($result, 500);
             }
@@ -407,7 +412,7 @@ class InvoiceApiController extends BaseAPIController
 
     private function prepareData($data, $client)
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $account->loadLocalizationSettings($client);
 
         // set defaults for optional fields
@@ -459,7 +464,7 @@ class InvoiceApiController extends BaseAPIController
         } else {
             foreach ($data['invoice_items'] as $index => $item) {
                 // check for multiple products
-                if ($productKey = \Illuminate\Support\Arr::get($item, 'product_key')) {
+                if ($productKey = Arr::get($item, 'product_key')) {
                     $parts = explode(',', $productKey);
                     if (count($parts) > 1 && Product::findProductByKey($parts[0])) {
                         foreach ($parts as $index => $productKey) {

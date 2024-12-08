@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Str;
 use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
@@ -459,7 +460,7 @@ trait GenerateMigrationResources
         } else {
             $mtoken = AccountToken::createNew();
             $mtoken->name = 'Migration Token';
-            $mtoken->token = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $mtoken->token = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
             $mtoken->save();
 
             $this->token = $mtoken->token;

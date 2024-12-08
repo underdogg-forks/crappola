@@ -4,13 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 
 /**
  * Class TokenController.
  */
 class TokenController extends BaseController
 {
-    protected \App\Services\TokenService $tokenService;
+    protected TokenService $tokenService;
 
     /**
      * TokenController constructor.
@@ -25,19 +34,19 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable()
     {
-        return $this->tokenService->getDatatable(\Illuminate\Support\Facades\Auth::user()->id);
+        return $this->tokenService->getDatatable(Auth::user()->id);
     }
 
     /**
@@ -47,7 +56,7 @@ class TokenController extends BaseController
      */
     public function edit(string $publicId)
     {
-        $token = AccountToken::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+        $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
@@ -57,13 +66,13 @@ class TokenController extends BaseController
             'title'  => trans('texts.edit_token'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.token', $data);
+        return View::make('accounts.token', $data);
     }
 
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update($publicId)
     {
@@ -71,7 +80,7 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store()
     {
@@ -90,61 +99,61 @@ class TokenController extends BaseController
             'title'  => trans('texts.add_token'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.token', $data);
+        return View::make('accounts.token', $data);
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
-        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_token'));
+        Session::flash('message', trans('texts.archived_token'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
      * @param bool $tokenPublicId
      *
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     public function save($tokenPublicId = false)
     {
-        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_API)) {
+        if (Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
                 'name' => 'required',
             ];
 
             if ($tokenPublicId) {
-                $token = AccountToken::where('account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+                $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
-            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
+            $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
-                return \Illuminate\Support\Facades\Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
+                return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
 
             if ($tokenPublicId) {
-                $token->name = trim(\Illuminate\Support\Facades\Request::input('name'));
+                $token->name = trim(Request::input('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(\Illuminate\Support\Facades\Request::input('name'));
-                $token->token = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                $token->name = trim(Request::input('name'));
+                $token->token = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();
 
             $message = $tokenPublicId ? trans('texts.updated_token') : trans('texts.created_token');
 
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 }

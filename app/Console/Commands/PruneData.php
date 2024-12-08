@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -46,15 +48,15 @@ class PruneData extends Command
                 and count(e.id) = 0
                 and count(u.id) = 0';
 
-        $results = \Illuminate\Support\Facades\DB::select($sql);
+        $results = DB::select($sql);
 
         foreach ($results as $result) {
             $this->info('Deleting company: ' . $result->id);
             try {
-                \Illuminate\Support\Facades\DB::table('companies')
+                DB::table('companies')
                     ->where('id', '=', $result->id)
                     ->delete();
-            } catch (\Illuminate\Database\QueryException) {
+            } catch (QueryException) {
                 // most likely because a user_account record exists which doesn't cascade delete
                 $this->info('Unable to delete companyId: ' . $result->id);
             }

@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Size.
  *
  * @property int    $id
  * @property string $name
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Size newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Size newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Size query()
- * @method static \Illuminate\Database\Eloquent\Builder|Size whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Size whereName($value)
+ * @method static Builder|Size newModelQuery()
+ * @method static Builder|Size newQuery()
+ * @method static Builder|Size query()
+ * @method static Builder|Size whereId($value)
+ * @method static Builder|Size whereName($value)
  *
  * @mixin \Eloquent
  */
-class Size extends \Illuminate\Database\Eloquent\Model
+class Size extends Model
 {
     /**
      * @var bool

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Payment;
 
@@ -31,7 +32,7 @@ class PaymentTransformer extends EntityTransformer
         'invoice',
     ];
 
-    public function __construct(?\App\Models\Account $account = null, $serializer = null, $invoice = null)
+    public function __construct(?Account $account = null, $serializer = null, $invoice = null)
     {
         parent::__construct($account, $serializer);
 

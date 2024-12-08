@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class PaymentTermDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT_TERM;
@@ -23,7 +25,7 @@ class PaymentTermDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_payment_term'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
             ],
         ];
     }

@@ -2,22 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Module;
 use Utils;
 
 /**
  * Class EntityModel.
  *
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel query()
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|EntityModel withArchived()
+ * @method static Builder|EntityModel newModelQuery()
+ * @method static Builder|EntityModel newQuery()
+ * @method static Builder|EntityModel query()
+ * @method static Builder|EntityModel scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|EntityModel withActiveOrSelected($id = false)
+ * @method static Builder|EntityModel withArchived()
  *
  * @mixin \Eloquent
  */
-class EntityModel extends \Illuminate\Database\Eloquent\Model
+class EntityModel extends Model
 {
     /**
      * @var bool
@@ -83,9 +90,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         if ($context) {
             $user = $context instanceof User ? $context : $context->user;
             $account = $context->account;
-        } elseif (\Illuminate\Support\Facades\Auth::check()) {
-            $user = \Illuminate\Support\Facades\Auth::user();
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
+        } elseif (Auth::check()) {
+            $user = Auth::user();
+            $account = Auth::user()->account;
         } else {
             Utils::fatalError();
         }
@@ -178,13 +185,13 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
 
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
-        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), \Illuminate\Support\Str::studly($entityType));
+        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
         if ( ! class_exists($requestClass)) {
-            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), \Illuminate\Support\Str::studly($entityType));
+            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
         $request = new $requestClass();
-        $request->setUserResolver(fn () => \Illuminate\Support\Facades\Auth::user());
+        $request->setUserResolver(fn () => Auth::user());
         $request->setEntity($entity);
         $request->replace($data);
 
@@ -192,7 +199,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
             return trans('texts.not_allowed');
         }
 
-        $validator = \Illuminate\Support\Facades\Validator::make($data, $request->rules());
+        $validator = Validator::make($data, $request->rules());
 
         if ($validator->fails()) {
             return $validator->messages()->first();
@@ -223,7 +230,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
             'projects'           => 'briefcase',
         ];
 
-        return \Illuminate\Support\Arr::get($icons, $entityType);
+        return Arr::get($icons, $entityType);
     }
 
     public static function getFormUrl($entityType)
@@ -314,7 +321,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
         }
 
         if ( ! $accountId) {
-            $accountId = \Illuminate\Support\Facades\Auth::user()->account_id;
+            $accountId = Auth::user()->account_id;
         }
 
         $query->where($this->getTable() . '.account_id', '=', $accountId);
@@ -327,12 +334,12 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
             }
         }
 
-        if (\Illuminate\Support\Facades\Auth::check() && method_exists($this, 'getEntityType')
-            && ! \Illuminate\Support\Facades\Auth::user()->hasPermission('view_' . $this->getEntityType())
+        if (Auth::check() && method_exists($this, 'getEntityType')
+            && ! Auth::user()->hasPermission('view_' . $this->getEntityType())
             && $this->getEntityType() != ENTITY_TAX_RATE
             && $this->getEntityType() != ENTITY_DOCUMENT
             && $this->getEntityType() != ENTITY_INVITATION) {
-            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
         return $query;
@@ -417,7 +424,7 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
     {
         try {
             return parent::save($options);
-        } catch (\Illuminate\Database\QueryException $queryException) {
+        } catch (QueryException $queryException) {
             // check if public_id has been taken
             if ($queryException->getCode() == 23000 && static::$hasPublicId) {
                 $nextId = static::getNextPublicId($this->account_id);
@@ -425,9 +432,9 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
                     $this->public_id = $nextId;
                     if (env('MULTI_DB_ENABLED')) {
                         if ($this->contact_key) {
-                            $this->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                            $this->contact_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                         } elseif ($this->invitation_key) {
-                            $this->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                            $this->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                         }
                     }
 

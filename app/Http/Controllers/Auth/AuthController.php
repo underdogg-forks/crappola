@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    protected \App\Services\AuthService $authService;
+    protected AuthService $authService;
 
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * Create a new authentication controller instance.
@@ -32,7 +33,7 @@ class AuthController extends Controller
      * @param         $provider
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function oauthLogin($provider, Request $request)
     {
@@ -40,7 +41,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function oauthUnlink()
     {

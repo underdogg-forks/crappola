@@ -13,7 +13,9 @@ use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
 use App\Models\Activity;
+use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Queue\Events\JobExceptionOccurred;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -31,9 +33,9 @@ class InvoiceListener
         }
 
         // Make sure the account has the same design set as the invoice does
-        if (\Illuminate\Support\Facades\Auth::check()) {
+        if (Auth::check()) {
             $invoice = $event->invoice;
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
+            $account = Auth::user()->account;
 
             if ($invoice->invoice_design_id && $account->invoice_design_id != $invoice->invoice_design_id) {
                 $account->invoice_design_id = $invoice->invoice_design_id;
@@ -91,7 +93,7 @@ class InvoiceListener
         $activity->save();
 
         if ($invoice->balance == 0 && $payment->account->auto_archive_invoice) {
-            $invoiceRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
+            $invoiceRepo = app(InvoiceRepository::class);
             $invoiceRepo->archive($invoice);
         }
     }

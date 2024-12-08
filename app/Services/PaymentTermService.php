@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Ninja\Datatables\PaymentTermDatatable;
 use App\Ninja\Repositories\PaymentTermRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\URL;
 
 class PaymentTermService extends BaseService
 {
-    protected \App\Ninja\Repositories\PaymentTermRepository $paymentTermRepo;
+    protected PaymentTermRepository $paymentTermRepo;
 
-    protected \App\Services\DatatableService $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * PaymentTermService constructor.
@@ -26,7 +28,7 @@ class PaymentTermService extends BaseService
     /**
      * @param int $accountId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($accountId = 0)
     {
@@ -56,7 +58,7 @@ class PaymentTermService extends BaseService
         return [
             [
                 uctrans('texts.edit_payment_terms'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
             ],
         ];
     }
@@ -64,7 +66,7 @@ class PaymentTermService extends BaseService
     /**
      * @return PaymentTermRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\PaymentTermRepository
+    protected function getRepo(): PaymentTermRepository
     {
         return $this->paymentTermRepo;
     }

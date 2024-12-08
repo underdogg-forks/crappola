@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Contact;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Utils;
 
 class LoginController extends Controller
@@ -66,7 +69,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getLogoutWrapper(Request $request)
     {
@@ -78,7 +81,7 @@ class LoginController extends Controller
     /**
      * Get the guard to be used during authentication.
      *
-     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     * @return StatefulGuard
      */
     protected function guard()
     {
@@ -88,7 +91,7 @@ class LoginController extends Controller
     /**
      * Get the needed authorization credentials from the request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
      * @return array
      */
@@ -126,9 +129,9 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function sendFailedLoginResponse(Request $request)
     {
@@ -142,7 +145,7 @@ class LoginController extends Controller
     /**
      * Validate the user login request - don't require the email.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
      * @return void
      */
@@ -162,10 +165,10 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param \Illuminate\Http\Request                   $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * @param Request         $request
+     * @param Authenticatable $user
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     private function authenticated(Request $request, Authenticatable $contact)
     {

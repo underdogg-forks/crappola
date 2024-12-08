@@ -5,7 +5,9 @@ namespace App\Ninja\PaymentDrivers;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Braintree\Customer;
+use Braintree\Result\Error;
 use Exception;
+use Illuminate\Support\Arr;
 use Session;
 use Utils;
 
@@ -161,7 +163,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        $deviceData = \Illuminate\Support\Arr::get($this->input, 'device_data') ?: \Illuminate\Support\Facades\Session::get($this->invitation->id . 'device_data');
+        $deviceData = Arr::get($this->input, 'device_data') ?: \Illuminate\Support\Facades\Session::get($this->invitation->id . 'device_data');
 
         if ($deviceData) {
             $data['device_data'] = $deviceData;
@@ -206,7 +208,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
         $data = $response->getData();
 
-        if ($data instanceof \Braintree\Result\Error) {
+        if ($data instanceof Error) {
             $error = $data->errors->deepAll()[0];
             if ($error && $error->code == 91506) {
                 return true;
@@ -219,8 +221,8 @@ class BraintreePaymentDriver extends BasePaymentDriver
     private function customerData(): array
     {
         return [
-            'firstName' => \Illuminate\Support\Arr::get($this->input, 'first_name') ?: $this->contact()->first_name,
-            'lastName'  => \Illuminate\Support\Arr::get($this->input, 'last_name') ?: $this->contact()->last_name,
+            'firstName' => Arr::get($this->input, 'first_name') ?: $this->contact()->first_name,
+            'lastName'  => Arr::get($this->input, 'last_name') ?: $this->contact()->last_name,
             'company'   => $this->client()->name,
             'email'     => $this->contact()->email,
             'phone'     => $this->contact()->phone,

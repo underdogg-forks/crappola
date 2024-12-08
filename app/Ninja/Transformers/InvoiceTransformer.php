@@ -2,7 +2,10 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Invoice;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 
 /**
  * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
@@ -31,49 +34,49 @@ class InvoiceTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct(?\App\Models\Account $account = null, $serializer = null, $client = null)
+    public function __construct(?Account $account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
 
         $this->client = $client;
     }
 
-    public function includeInvoiceItems(Invoice $invoice): \League\Fractal\Resource\Collection
+    public function includeInvoiceItems(Invoice $invoice): Collection
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
 
-    public function includeInvitations(Invoice $invoice): \League\Fractal\Resource\Collection
+    public function includeInvitations(Invoice $invoice): Collection
     {
         $transformer = new InvitationTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
-    public function includePayments(Invoice $invoice): \League\Fractal\Resource\Collection
+    public function includePayments(Invoice $invoice): Collection
     {
         $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
 
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
-    public function includeClient(Invoice $invoice): \League\Fractal\Resource\Item
+    public function includeClient(Invoice $invoice): Item
     {
         $transformer = new ClientTransformer($this->account, $this->serializer);
 
         return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
     }
 
-    public function includeExpenses(Invoice $invoice): \League\Fractal\Resource\Collection
+    public function includeExpenses(Invoice $invoice): Collection
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
     }
 
-    public function includeDocuments(Invoice $invoice): \League\Fractal\Resource\Collection
+    public function includeDocuments(Invoice $invoice): Collection
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
 

@@ -3,6 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class PaymentReport extends AbstractReport
@@ -24,7 +25,7 @@ class PaymentReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
         $subgroup = $this->options['subgroup'];

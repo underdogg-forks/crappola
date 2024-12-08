@@ -4,66 +4,69 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use App\Ninja\Presenters\TaskPresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Task.
  *
- * @property int                             $id
- * @property int                             $user_id
- * @property int                             $account_id
- * @property int|null                        $client_id
- * @property int|null                        $invoice_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null                     $description
- * @property int                             $is_deleted
- * @property int                             $public_id
- * @property int                             $is_running
- * @property string|null                     $time_log
- * @property int|null                        $project_id
- * @property int|null                        $task_status_id
- * @property int                             $task_status_sort_order
- * @property string|null                     $custom_value1
- * @property string|null                     $custom_value2
- * @property \App\Models\Account             $account
- * @property \App\Models\Client|null         $client
- * @property \App\Models\Invoice|null        $invoice
- * @property \App\Models\Project|null        $project
- * @property \App\Models\TaskStatus|null     $task_status
- * @property \App\Models\User                $user
+ * @property int             $id
+ * @property int             $user_id
+ * @property int             $account_id
+ * @property int|null        $client_id
+ * @property int|null        $invoice_id
+ * @property Carbon|null     $created_at
+ * @property Carbon|null     $updated_at
+ * @property Carbon|null     $deleted_at
+ * @property string|null     $description
+ * @property int             $is_deleted
+ * @property int             $public_id
+ * @property int             $is_running
+ * @property string|null     $time_log
+ * @property int|null        $project_id
+ * @property int|null        $task_status_id
+ * @property int             $task_status_sort_order
+ * @property string|null     $custom_value1
+ * @property string|null     $custom_value2
+ * @property Account         $account
+ * @property Client|null     $client
+ * @property Invoice|null    $invoice
+ * @property Project|null    $project
+ * @property TaskStatus|null $task_status
+ * @property User            $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Task dateRange($startDate, $endDate)
- * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Task query()
- * @method static \Illuminate\Database\Eloquent\Builder|Task scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsRunning($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereTaskStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereTaskStatusSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereTimeLog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Task withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
+ * @method static Builder|Task dateRange($startDate, $endDate)
+ * @method static Builder|Task newModelQuery()
+ * @method static Builder|Task newQuery()
+ * @method static Builder|Task onlyTrashed()
+ * @method static Builder|Task query()
+ * @method static Builder|Task scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Task whereAccountId($value)
+ * @method static Builder|Task whereClientId($value)
+ * @method static Builder|Task whereCreatedAt($value)
+ * @method static Builder|Task whereCustomValue1($value)
+ * @method static Builder|Task whereCustomValue2($value)
+ * @method static Builder|Task whereDeletedAt($value)
+ * @method static Builder|Task whereDescription($value)
+ * @method static Builder|Task whereId($value)
+ * @method static Builder|Task whereInvoiceId($value)
+ * @method static Builder|Task whereIsDeleted($value)
+ * @method static Builder|Task whereIsRunning($value)
+ * @method static Builder|Task whereProjectId($value)
+ * @method static Builder|Task wherePublicId($value)
+ * @method static Builder|Task whereTaskStatusId($value)
+ * @method static Builder|Task whereTaskStatusSortOrder($value)
+ * @method static Builder|Task whereTimeLog($value)
+ * @method static Builder|Task whereUpdatedAt($value)
+ * @method static Builder|Task whereUserId($value)
+ * @method static Builder|Task withActiveOrSelected($id = false)
+ * @method static Builder|Task withArchived()
+ * @method static Builder|Task withTrashed()
+ * @method static Builder|Task withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -87,7 +90,7 @@ class Task extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\TaskPresenter::class;
+    protected $presenter = TaskPresenter::class;
 
     /**
      * @param $task
@@ -192,32 +195,32 @@ class Task extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function invoice()
     {
-        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function project()
     {
-        return $this->belongsTo(\App\Models\Project::class)->withTrashed();
+        return $this->belongsTo(Project::class)->withTrashed();
     }
 
     public function task_status()
     {
-        return $this->belongsTo(\App\Models\TaskStatus::class)->withTrashed();
+        return $this->belongsTo(TaskStatus::class)->withTrashed();
     }
 
     public function getStartTime()

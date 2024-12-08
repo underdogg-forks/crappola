@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -29,7 +30,7 @@ class SendRenewalInvoices extends Command
      */
     protected Mailer $mailer;
 
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * SendRenewalInvoices constructor.
@@ -108,7 +109,7 @@ class SendRenewalInvoices extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Illuminate\Support\Facades\Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
+            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject(sprintf('SendRenewalInvoices [%s]: Finished successfully', $database));

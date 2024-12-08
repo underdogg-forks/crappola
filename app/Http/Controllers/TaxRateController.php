@@ -7,12 +7,17 @@ use App\Http\Requests\UpdateTaxRateRequest;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\TaxRateRepository;
 use App\Services\TaxRateService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class TaxRateController extends BaseController
 {
-    protected \App\Services\TaxRateService $taxRateService;
+    protected TaxRateService $taxRateService;
 
-    protected \App\Ninja\Repositories\TaxRateRepository $taxRateRepo;
+    protected TaxRateRepository $taxRateRepo;
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
@@ -24,12 +29,12 @@ class TaxRateController extends BaseController
 
     public function index()
     {
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function getDatatable()
     {
-        return $this->taxRateService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
+        return $this->taxRateService->getDatatable(Auth::user()->account_id);
     }
 
     public function edit(string $publicId)
@@ -41,7 +46,7 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.edit_tax_rate'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.tax_rate', $data);
+        return View::make('accounts.tax_rate', $data);
     }
 
     public function create()
@@ -53,35 +58,35 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.create_tax_rate'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.tax_rate', $data);
+        return View::make('accounts.tax_rate', $data);
     }
 
     public function store(CreateTaxRateRequest $request)
     {
         $this->taxRateRepo->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_tax_rate'));
+        Session::flash('message', trans('texts.created_tax_rate'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
         $this->taxRateRepo->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_tax_rate'));
+        Session::flash('message', trans('texts.updated_tax_rate'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
-        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_tax_rate'));
+        Session::flash('message', trans('texts.archived_tax_rate'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 }

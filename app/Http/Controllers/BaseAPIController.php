@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -52,7 +55,7 @@ class BaseAPIController extends Controller
 {
     public $entityType;
 
-    protected \League\Fractal\Manager $manager;
+    protected Manager $manager;
 
     protected $serializer;
 
@@ -60,11 +63,11 @@ class BaseAPIController extends Controller
     {
         $this->manager = new Manager();
 
-        if ($include = \Illuminate\Support\Facades\Request::get('include')) {
+        if ($include = Request::get('include')) {
             $this->manager->parseIncludes($include);
         }
 
-        $this->serializer = \Illuminate\Support\Facades\Request::get('serializer') ?: API_SERIALIZER_ARRAY;
+        $this->serializer = Request::get('serializer') ?: API_SERIALIZER_ARRAY;
 
         if ($this->serializer === API_SERIALIZER_JSON) {
             $this->manager->setSerializer(new JsonApiSerializer());
@@ -96,24 +99,24 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(\Illuminate\Support\Facades\Auth::user()->account, \Illuminate\Support\Facades\Request::input('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
 
-        if (\Illuminate\Support\Facades\Request::input('filter_active')) {
+        if (Request::input('filter_active')) {
             $query->whereNull('deleted_at');
         }
 
-        if (\Illuminate\Support\Facades\Request::input('updated_at') > 0) {
-            $updatedAt = (int) (\Illuminate\Support\Facades\Request::input('updated_at'));
+        if (Request::input('updated_at') > 0) {
+            $updatedAt = (int) (Request::input('updated_at'));
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
-        if (\Illuminate\Support\Facades\Request::input('client_id') > 0) {
-            $clientPublicId = \Illuminate\Support\Facades\Request::input('client_id');
+        if (Request::input('client_id') > 0) {
+            $clientPublicId = Request::input('client_id');
             $filter = function ($query) use ($clientPublicId): void {
                 $query->where('public_id', '=', $clientPublicId);
             };
@@ -122,9 +125,9 @@ class BaseAPIController extends Controller
 
         if ( ! Utils::hasPermission('view_' . $this->entityType)) {
             if ($this->entityType == ENTITY_USER) {
-                $query->where('id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+                $query->where('id', '=', Auth::user()->id);
             } else {
-                $query->where('user_id', '=', \Illuminate\Support\Facades\Auth::user()->id);
+                $query->where('user_id', '=', Auth::user()->id);
             }
         }
 
@@ -140,7 +143,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(\Illuminate\Support\Facades\Auth::user()->account, \Illuminate\Support\Facades\Request::input('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -165,7 +168,7 @@ class BaseAPIController extends Controller
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = \Illuminate\Support\Facades\Request::input('per_page', DEFAULT_API_PAGE_SIZE);
+            $limit = Request::input('per_page', DEFAULT_API_PAGE_SIZE);
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
@@ -183,7 +186,7 @@ class BaseAPIController extends Controller
 
     protected function response($response)
     {
-        $index = \Illuminate\Support\Facades\Request::get('index') ?: 'data';
+        $index = Request::get('index') ?: 'data';
 
         if ($index == 'none') {
             unset($response['meta']);
@@ -202,7 +205,7 @@ class BaseAPIController extends Controller
         $response = json_encode($response, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 
-        return \Illuminate\Support\Facades\Response::make($response, 200, $headers);
+        return Response::make($response, 200, $headers);
     }
 
     protected function errorResponse($response, $httpErrorCode = 400)
@@ -211,12 +214,12 @@ class BaseAPIController extends Controller
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 
-        return \Illuminate\Support\Facades\Response::make($error, $httpErrorCode, $headers);
+        return Response::make($error, $httpErrorCode, $headers);
     }
 
     protected function getRequestIncludes($data)
     {
-        $included = \Illuminate\Support\Facades\Request::get('include');
+        $included = Request::get('include');
         $included = explode(',', $included);
 
         foreach ($included as $include) {

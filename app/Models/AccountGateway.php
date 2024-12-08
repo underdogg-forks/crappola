@@ -2,53 +2,58 @@
 
 namespace App\Models;
 
+use App\Services\TemplateService;
 use HTMLUtils;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class AccountGateway.
  *
- * @property int                             $id
- * @property int                             $account_id
- * @property int                             $user_id
- * @property int                             $gateway_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string                          $config
- * @property int                             $public_id
- * @property int|null                        $accepted_credit_cards
- * @property int|null                        $show_address
- * @property int|null                        $update_address
- * @property int|null                        $require_cvv
- * @property int|null                        $show_shipping_address
- * @property \App\Models\Gateway             $gateway
+ * @property int         $id
+ * @property int         $account_id
+ * @property int         $user_id
+ * @property int         $gateway_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property string      $config
+ * @property int         $public_id
+ * @property int|null    $accepted_credit_cards
+ * @property int|null    $show_address
+ * @property int|null    $update_address
+ * @property int|null    $require_cvv
+ * @property int|null    $show_shipping_address
+ * @property Gateway     $gateway
  *
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway query()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereAcceptedCreditCards($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereConfig($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereGatewayId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereRequireCvv($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereShowAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereShowShippingAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUpdateAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withoutTrashed()
+ * @method static Builder|AccountGateway newModelQuery()
+ * @method static Builder|AccountGateway newQuery()
+ * @method static Builder|AccountGateway onlyTrashed()
+ * @method static Builder|AccountGateway query()
+ * @method static Builder|AccountGateway scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|AccountGateway whereAcceptedCreditCards($value)
+ * @method static Builder|AccountGateway whereAccountId($value)
+ * @method static Builder|AccountGateway whereConfig($value)
+ * @method static Builder|AccountGateway whereCreatedAt($value)
+ * @method static Builder|AccountGateway whereDeletedAt($value)
+ * @method static Builder|AccountGateway whereGatewayId($value)
+ * @method static Builder|AccountGateway whereId($value)
+ * @method static Builder|AccountGateway wherePublicId($value)
+ * @method static Builder|AccountGateway whereRequireCvv($value)
+ * @method static Builder|AccountGateway whereShowAddress($value)
+ * @method static Builder|AccountGateway whereShowShippingAddress($value)
+ * @method static Builder|AccountGateway whereUpdateAddress($value)
+ * @method static Builder|AccountGateway whereUpdatedAt($value)
+ * @method static Builder|AccountGateway whereUserId($value)
+ * @method static Builder|AccountGateway withActiveOrSelected($id = false)
+ * @method static Builder|AccountGateway withArchived()
+ * @method static Builder|AccountGateway withTrashed()
+ * @method static Builder|AccountGateway withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -97,7 +102,7 @@ class AccountGateway extends EntityModel
 
     public function gateway()
     {
-        return $this->belongsTo(\App\Models\Gateway::class);
+        return $this->belongsTo(Gateway::class);
     }
 
     public function getCreditcardTypes(): array
@@ -151,12 +156,12 @@ class AccountGateway extends EntityModel
      */
     public function setConfig($config): void
     {
-        $this->config = \Illuminate\Support\Facades\Crypt::encrypt(json_encode($config));
+        $this->config = Crypt::encrypt(json_encode($config));
     }
 
     public function getConfig(): mixed
     {
-        return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($this->config));
+        return json_decode(Crypt::decrypt($this->config));
     }
 
     /**
@@ -284,7 +289,7 @@ class AccountGateway extends EntityModel
     {
         $account = $this->account ?: Account::find($this->account_id);
 
-        return \Illuminate\Support\Facades\URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
+        return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 
     public function isTestMode()
@@ -308,7 +313,7 @@ class AccountGateway extends EntityModel
             $text = HTMLUtils::sanitizeHTML($text);
         }
 
-        $templateService = app(\App\Services\TemplateService::class);
+        $templateService = app(TemplateService::class);
         $text = $templateService->processVariables($text, ['invitation' => $invitation]);
 
         return $text;

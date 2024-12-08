@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\URL;
+
 class UserDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_USER;
@@ -47,12 +49,12 @@ class UserDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_user'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('users/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('users/%s/edit', $model->public_id)),
                 fn ($model) => $model->public_id,
             ],
             [
                 uctrans('texts.send_invite'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to('send_confirmation/' . $model->public_id),
+                fn ($model)       => URL::to('send_confirmation/' . $model->public_id),
                 fn ($model): bool => $model->public_id && ! $model->confirmed,
             ],
         ];

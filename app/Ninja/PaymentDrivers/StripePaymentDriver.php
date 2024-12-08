@@ -7,8 +7,15 @@ use App\Models\Invitation;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
+use App\Ninja\Mailers\UserMailer;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
@@ -69,13 +76,13 @@ class StripePaymentDriver extends BasePaymentDriver
     /**
      * Returns a setup intent that allows the user to enter card details without initiating a transaction.
      *
-     * @return \Stripe\SetupIntent
+     * @return SetupIntent
      */
     public function getSetupIntent()
     {
         $this->prepareStripeAPI();
 
-        return \Stripe\SetupIntent::create();
+        return SetupIntent::create();
     }
 
     public function tokenize(): bool
@@ -106,7 +113,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'limit=1'
         );
 
-        if (\Illuminate\Support\Arr::get($result, 'object') == 'list') {
+        if (Arr::get($result, 'object') == 'list') {
             return true;
         }
 
@@ -162,7 +169,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $this->prepareStripeAPI();
 
             // Get information about the currency we're using.
-            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->where('code', mb_strtoupper($data['currency']))->first();
+            $currency = Cache::get('currencies')->where('code', mb_strtoupper($data['currency']))->first();
 
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
@@ -229,9 +236,9 @@ class StripePaymentDriver extends BasePaymentDriver
                 $payment = $this->createPayment($ref, $paymentMethod);
 
                 if ($this->invitation->invoice->account->isNinjaAccount()) {
-                    \Illuminate\Support\Facades\Session::flash('trackEventCategory', '/account');
-                    \Illuminate\Support\Facades\Session::flash('trackEventAction', '/buy_pro_plan');
-                    \Illuminate\Support\Facades\Session::flash('trackEventAmount', $payment->amount);
+                    Session::flash('trackEventCategory', '/account');
+                    Session::flash('trackEventAction', '/buy_pro_plan');
+                    Session::flash('trackEventAmount', $payment->amount);
                 }
 
                 if ($intent->setup_future_usage == 'off_session') {
@@ -429,14 +436,14 @@ class StripePaymentDriver extends BasePaymentDriver
                 $options['body'] = $body;
             }
 
-            $response = (new \GuzzleHttp\Client(['base_uri' => 'https://api.stripe.com/v1/']))->request(
+            $response = (new Client(['base_uri' => 'https://api.stripe.com/v1/']))->request(
                 $method,
                 $url,
                 $options
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $badResponseException) {
+        } catch (BadResponseException $badResponseException) {
             $response = $badResponseException->getResponse();
 
             $body = json_decode($response->getBody(), true);
@@ -450,8 +457,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input): array
     {
-        $eventId = \Illuminate\Support\Arr::get($input, 'id');
-        $eventType = \Illuminate\Support\Arr::get($input, 'type');
+        $eventId = Arr::get($input, 'id');
+        $eventType = Arr::get($input, 'type');
 
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
@@ -510,7 +517,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($source['failure_message']);
 
-                    $userMailer = app(\App\Ninja\Mailers\UserMailer::class);
+                    $userMailer = app(UserMailer::class);
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($eventType == 'charge.succeeded') {
@@ -668,7 +675,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
             $paymentMethod->status = $source['status'];
-            $currency = \Illuminate\Support\Facades\Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
+            $currency = Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
 
             if ($currency) {
                 $paymentMethod->currency_id = $currency->id;
@@ -720,7 +727,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         try {
             $subdomain = $this->accountGateway->getPlaidEnvironment() == 'production' ? 'api' : 'tartan';
-            $response = (new \GuzzleHttp\Client(['base_uri' => sprintf('https://%s.plaid.com', $subdomain)]))->request(
+            $response = (new Client(['base_uri' => sprintf('https://%s.plaid.com', $subdomain)]))->request(
                 'POST',
                 'exchange_token',
                 [
@@ -736,7 +743,7 @@ class StripePaymentDriver extends BasePaymentDriver
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $badResponseException) {
+        } catch (BadResponseException $badResponseException) {
             $response = $badResponseException->getResponse();
             $body = json_decode($response->getBody(), true);
 

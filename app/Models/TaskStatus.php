@@ -2,41 +2,44 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class PaymentTerm.
  *
- * @property int                                                             $id
- * @property int                                                             $user_id
- * @property int                                                             $account_id
- * @property \Illuminate\Support\Carbon|null                                 $created_at
- * @property \Illuminate\Support\Carbon|null                                 $updated_at
- * @property \Illuminate\Support\Carbon|null                                 $deleted_at
- * @property string|null                                                     $name
- * @property int                                                             $sort_order
- * @property int                                                             $public_id
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property int|null                                                        $tasks_count
+ * @property int                   $id
+ * @property int                   $user_id
+ * @property int                   $account_id
+ * @property Carbon|null           $created_at
+ * @property Carbon|null           $updated_at
+ * @property Carbon|null           $deleted_at
+ * @property string|null           $name
+ * @property int                   $sort_order
+ * @property int                   $public_id
+ * @property Collection<int, Task> $tasks
+ * @property int|null              $tasks_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus query()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus withoutTrashed()
+ * @method static Builder|TaskStatus newModelQuery()
+ * @method static Builder|TaskStatus newQuery()
+ * @method static Builder|TaskStatus onlyTrashed()
+ * @method static Builder|TaskStatus query()
+ * @method static Builder|TaskStatus scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|TaskStatus whereAccountId($value)
+ * @method static Builder|TaskStatus whereCreatedAt($value)
+ * @method static Builder|TaskStatus whereDeletedAt($value)
+ * @method static Builder|TaskStatus whereId($value)
+ * @method static Builder|TaskStatus whereName($value)
+ * @method static Builder|TaskStatus wherePublicId($value)
+ * @method static Builder|TaskStatus whereSortOrder($value)
+ * @method static Builder|TaskStatus whereUpdatedAt($value)
+ * @method static Builder|TaskStatus whereUserId($value)
+ * @method static Builder|TaskStatus withActiveOrSelected($id = false)
+ * @method static Builder|TaskStatus withArchived()
+ * @method static Builder|TaskStatus withTrashed()
+ * @method static Builder|TaskStatus withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -66,6 +69,6 @@ class TaskStatus extends EntityModel
 
     public function tasks()
     {
-        return $this->hasMany(\App\Models\Task::class)->orderBy('task_status_sort_order');
+        return $this->hasMany(Task::class)->orderBy('task_status_sort_order');
     }
 }

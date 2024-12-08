@@ -10,6 +10,9 @@ use Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -101,7 +104,7 @@ class CheckData extends Command
         $errorEmail = env('ERROR_EMAIL');
 
         if ($errorEmail) {
-            \Illuminate\Support\Facades\Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
+            Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
                     ->subject('Check-Data: ' . mb_strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . sprintf(' [%s]', $database));
@@ -138,7 +141,7 @@ class CheckData extends Command
         $invalid = 0;
 
         foreach (cache('languages') as $language) {
-            \Illuminate\Support\Facades\App::setLocale($language->locale);
+            App::setLocale($language->locale);
             foreach (trans('texts') as $text) {
                 if (str_contains($text, '=')) {
                     $invalid++;
@@ -165,7 +168,7 @@ class CheckData extends Command
             $this->isValid = false;
         }
 
-        \Illuminate\Support\Facades\App::setLocale('en');
+        App::setLocale('en');
         $this->logMessage($invalid . ' invalid text strings');
     }
 
@@ -382,7 +385,7 @@ class CheckData extends Command
                     ->where('id', '=', $contact->id)
                     ->whereNull('contact_key')
                     ->update([
-                        'contact_key' => mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH)),
+                        'contact_key' => mb_strtolower(Str::random(RANDOM_KEY_LENGTH)),
                     ]);
             }
         }
@@ -415,7 +418,7 @@ class CheckData extends Command
                 $contact->client_id = $client->id;
                 $contact->is_primary = true;
                 $contact->send_invoice = true;
-                $contact->contact_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                $contact->contact_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $contact->public_id = Contact::whereAccountId($client->account_id)->withTrashed()->max('public_id') + 1;
                 $contact->save();
             }
@@ -498,7 +501,7 @@ class CheckData extends Command
                 $invitation->user_id = $invoice->user_id;
                 $invitation->invoice_id = $invoice->id;
                 $invitation->contact_id = Contact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
-                $invitation->invitation_key = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+                $invitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $invitation->public_id = Invitation::whereAccountId($invoice->account_id)->withTrashed()->max('public_id') + 1;
                 $invitation->save();
             }

@@ -10,7 +10,7 @@ use App\Ninja\Repositories\ContactRepository;
  */
 class ContactService extends BaseService
 {
-    protected \App\Ninja\Repositories\ContactRepository $contactRepo;
+    protected ContactRepository $contactRepo;
 
     /**
      * ContactService constructor.
@@ -40,7 +40,7 @@ class ContactService extends BaseService
     /**
      * @return ContactRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\ContactRepository
+    protected function getRepo(): ContactRepository
     {
         return $this->contactRepo;
     }

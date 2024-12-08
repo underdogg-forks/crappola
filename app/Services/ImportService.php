@@ -28,6 +28,8 @@ use Auth;
 use Carbon;
 use Excel;
 use Exception;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Fractal\Manager;
@@ -40,32 +42,32 @@ use Utils;
 class ImportService
 {
     /**
-     * @var \League\Fractal\Manager
+     * @var Manager
      */
     public $fractal;
 
     /**
-     * @var \App\Ninja\Repositories\PaymentRepository
+     * @var PaymentRepository
      */
     public $paymentRepo;
 
     /**
-     * @var \App\Ninja\Repositories\ExpenseRepository
+     * @var ExpenseRepository
      */
     public $expenseRepo;
 
     /**
-     * @var \App\Ninja\Repositories\VendorRepository
+     * @var VendorRepository
      */
     public $vendorRepo;
 
     /**
-     * @var \App\Ninja\Repositories\ExpenseCategoryRepository
+     * @var ExpenseCategoryRepository
      */
     public $expenseCategoryRepo;
 
     /**
-     * @var \App\Ninja\Repositories\TaxRateRepository
+     * @var TaxRateRepository
      */
     public $taxRateRepository;
 
@@ -113,15 +115,15 @@ class ImportService
      */
     protected $transformer;
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
-    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
+    protected ClientRepository $clientRepo;
 
-    protected \App\Ninja\Repositories\CustomerRepository $customerRepo;
+    protected CustomerRepository $customerRepo;
 
-    protected \App\Ninja\Repositories\ContactRepository $contactRepo;
+    protected ContactRepository $contactRepo;
 
-    protected \App\Ninja\Repositories\ProductRepository $productRepo;
+    protected ProductRepository $productRepo;
 
     /**
      * @var array
@@ -298,7 +300,7 @@ class ImportService
             }
         }
 
-        \Illuminate\Support\Facades\File::delete($fileName);
+        File::delete($fileName);
 
         return $this->results;
     }
@@ -550,7 +552,7 @@ class ImportService
             }
         }
 
-        \Illuminate\Support\Facades\File::delete($fileName);
+        File::delete($fileName);
 
         return $results;
     }
@@ -834,7 +836,7 @@ class ImportService
             }
         }
 
-        \Illuminate\Support\Facades\File::delete($fileName);
+        File::delete($fileName);
 
         return $results;
     }
@@ -949,13 +951,13 @@ class ImportService
             $this->addProductToMaps($product);
         }
 
-        $countries = \Illuminate\Support\Facades\Cache::get('countries');
+        $countries = Cache::get('countries');
         foreach ($countries as $country) {
             $this->maps['countries'][mb_strtolower($country->name)] = $country->id;
             $this->maps['countries2'][mb_strtolower($country->iso_3166_2)] = $country->id;
         }
 
-        $currencies = \Illuminate\Support\Facades\Cache::get('currencies');
+        $currencies = Cache::get('currencies');
         foreach ($currencies as $currency) {
             $this->maps['currencies'][mb_strtolower($currency->code)] = $currency->id;
         }

@@ -16,7 +16,7 @@ class CustomerTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): false|\League\Fractal\Resource\Item
+    public function transform($data): false|Item
     {
         if ( ! $contact = $this->getContact($data->email)) {
             return false;

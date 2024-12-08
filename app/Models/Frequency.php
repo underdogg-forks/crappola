@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+
 /**
  * Class Frequency.
  *
@@ -9,16 +14,16 @@ namespace App\Models;
  * @property string      $name
  * @property string|null $date_interval
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency query()
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereDateInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereName($value)
+ * @method static Builder|Frequency newModelQuery()
+ * @method static Builder|Frequency newQuery()
+ * @method static Builder|Frequency query()
+ * @method static Builder|Frequency whereDateInterval($value)
+ * @method static Builder|Frequency whereId($value)
+ * @method static Builder|Frequency whereName($value)
  *
  * @mixin \Eloquent
  */
-class Frequency extends \Illuminate\Database\Eloquent\Model
+class Frequency extends Model
 {
     /**
      * @var bool
@@ -36,8 +41,8 @@ class Frequency extends \Illuminate\Database\Eloquent\Model
     {
         $data = [];
 
-        foreach (\Illuminate\Support\Facades\Cache::get('frequencies') as $frequency) {
-            $name = \Illuminate\Support\Str::snake(str_replace(' ', '_', $frequency->name));
+        foreach (Cache::get('frequencies') as $frequency) {
+            $name = Str::snake(str_replace(' ', '_', $frequency->name));
             $data[$frequency->id] = trans('texts.freq_' . $name);
         }
 

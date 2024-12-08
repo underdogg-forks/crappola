@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\View;
 use Utils;
 
@@ -28,14 +32,14 @@ class BaseController extends Controller
         }
     }
 
-    protected function returnBulk($entityType, $action, $ids): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse
+    protected function returnBulk($entityType, $action, $ids): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
     {
         if ( ! is_array($ids)) {
             $ids = [$ids];
         }
 
         $isDatatable = filter_var(request()->datatable, FILTER_VALIDATE_BOOLEAN);
-        $referer = \Illuminate\Support\Facades\Request::server('HTTP_REFERER');
+        $referer = Request::server('HTTP_REFERER');
         $entityTypes = Utils::pluralizeEntityType($entityType);
 
         // when restoring redirect to entity

@@ -7,24 +7,26 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use Datatable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Utils;
 
 class TaskRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\Task::class;
+        return Task::class;
     }
 
     public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
     {
-        $query = \Illuminate\Support\Facades\DB::table('tasks')
+        $query = DB::table('tasks')
             ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
             ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
-            ->where('tasks.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+            ->where('tasks.account_id', '=', Auth::user()->account_id)
             ->where(function ($query): void { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
@@ -32,7 +34,7 @@ class TaskRepository extends BaseRepository
             ->where('contacts.deleted_at', '=', null)
             ->select(
                 'tasks.public_id',
-                \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
                 'clients.user_id as client_user_id',
                 'contacts.first_name',
@@ -51,7 +53,7 @@ class TaskRepository extends BaseRepository
                 'tasks.time_log',
                 'tasks.time_log as duration',
                 'tasks.created_at',
-                \Illuminate\Support\Facades\DB::raw('SUBSTRING(time_log, 3, 10) date'),
+                DB::raw('SUBSTRING(time_log, 3, 10) date'),
                 'tasks.user_id',
                 'projects.name as project',
                 'projects.public_id as project_public_id',
@@ -115,7 +117,7 @@ class TaskRepository extends BaseRepository
 
     public function getClientDatatable($clientId)
     {
-        $query = \Illuminate\Support\Facades\DB::table('tasks')
+        $query = DB::table('tasks')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
             ->where('tasks.client_id', '=', $clientId)
             ->where('tasks.is_deleted', '=', false)
@@ -124,7 +126,7 @@ class TaskRepository extends BaseRepository
                 'tasks.description',
                 'tasks.time_log',
                 'tasks.time_log as duration',
-                \Illuminate\Support\Facades\DB::raw('SUBSTRING(time_log, 3, 10) date'),
+                DB::raw('SUBSTRING(time_log, 3, 10) date'),
                 'projects.name as project'
             );
 

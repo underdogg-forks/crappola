@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * Class ExpenseCategory.
  *
- * @property \App\Models\LookupAccount|null $lookupAccount
+ * @property LookupAccount|null $lookupAccount
  *
- * @method static \Illuminate\Database\Eloquent\Builder|LookupModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LookupModel query()
+ * @method static Builder|LookupModel newModelQuery()
+ * @method static Builder|LookupModel newQuery()
+ * @method static Builder|LookupModel query()
  *
  * @mixin \Eloquent
  */
-class LookupModel extends \Illuminate\Database\Eloquent\Model
+class LookupModel extends Model
 {
     /**
      * @var bool
@@ -68,7 +72,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
-        if (env('MULTI_DB_CACHE_ENABLED') && $server = \Illuminate\Support\Facades\Cache::get($key)) {
+        if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
             static::setDbServer($server);
 
             return;
@@ -101,7 +105,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
                 abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
             }
 
-            \Illuminate\Support\Facades\Cache::put($key, $server, 120 * 60);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
@@ -109,7 +113,7 @@ class LookupModel extends \Illuminate\Database\Eloquent\Model
 
     public function lookupAccount()
     {
-        return $this->belongsTo(\App\Models\LookupAccount::class);
+        return $this->belongsTo(LookupAccount::class);
     }
 
     public function getDbServer()

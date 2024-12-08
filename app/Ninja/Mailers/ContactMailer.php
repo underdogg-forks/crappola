@@ -10,11 +10,14 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;
 use HTMLUtils;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Laracasts\Presenter\Exceptions\PresenterException;
 use Utils;
 
 class ContactMailer extends Mailer
 {
-    protected \App\Services\TemplateService $templateService;
+    protected TemplateService $templateService;
 
     /**
      * ContactMailer constructor.
@@ -273,7 +276,7 @@ class ContactMailer extends Mailer
      * @param            $documentStrings
      * @param mixed      $reminder
      *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     * @throws PresenterException
      *
      * @return bool|string
      */
@@ -391,8 +394,8 @@ class ContactMailer extends Mailer
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $day = 60 * 60 * 24;
         $day_limit = $account->getDailyEmailLimit();
-        $day_throttle = \Illuminate\Support\Facades\Cache::get('email_day_throttle:' . $key, null);
-        $last_api_request = \Illuminate\Support\Facades\Cache::get('last_email_request:' . $key, 0);
+        $day_throttle = Cache::get('email_day_throttle:' . $key, null);
+        $last_api_request = Cache::get('last_email_request:' . $key, 0);
         $last_api_diff = time() - $last_api_request;
 
         if (null === $day_throttle) {
@@ -405,20 +408,20 @@ class ContactMailer extends Mailer
             $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
         }
 
-        \Illuminate\Support\Facades\Cache::put('email_day_throttle:' . $key, $new_day_throttle, 60 * 60);
-        \Illuminate\Support\Facades\Cache::put('last_email_request:' . $key, time(), 60 * 60);
+        Cache::put('email_day_throttle:' . $key, $new_day_throttle, 60 * 60);
+        Cache::put('last_email_request:' . $key, time(), 60 * 60);
 
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
-            if ($errorEmail && ! \Illuminate\Support\Facades\Cache::get('throttle_notified:' . $key)) {
-                \Illuminate\Support\Facades\Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account): void {
+            if ($errorEmail && ! Cache::get('throttle_notified:' . $key)) {
+                Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account): void {
                     $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
                         ->subject('Email throttle triggered for account ' . $account->id);
                 });
             }
 
-            \Illuminate\Support\Facades\Cache::put('throttle_notified:' . $key, true, 60 * 24 * 60);
+            Cache::put('throttle_notified:' . $key, true, 60 * 24 * 60);
 
             return true;
         }

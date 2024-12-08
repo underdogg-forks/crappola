@@ -5,99 +5,107 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
+use App\Ninja\Mailers\UserMailer;
+use App\Ninja\Presenters\UserPresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class User.
  *
- * @property int                                                                                                           $id
- * @property int                                                                                                           $account_id
- * @property \Illuminate\Support\Carbon|null                                                                               $created_at
- * @property \Illuminate\Support\Carbon|null                                                                               $updated_at
- * @property \Illuminate\Support\Carbon|null                                                                               $deleted_at
- * @property string|null                                                                                                   $first_name
- * @property string|null                                                                                                   $last_name
- * @property string|null                                                                                                   $phone
- * @property string                                                                                                        $username
- * @property string|null                                                                                                   $email
- * @property string                                                                                                        $password
- * @property string|null                                                                                                   $confirmation_code
- * @property int                                                                                                           $registered
- * @property int                                                                                                           $confirmed
- * @property int                                                                                                           $notify_sent
- * @property int                                                                                                           $notify_viewed
- * @property int                                                                                                           $notify_paid
- * @property int|null                                                                                                      $public_id
- * @property int                                                                                                           $force_pdfjs
- * @property string|null                                                                                                   $remember_token
- * @property int|null                                                                                                      $news_feed_id
- * @property int                                                                                                           $notify_approved
- * @property int|null                                                                                                      $failed_logins
- * @property int|null                                                                                                      $dark_mode
- * @property string|null                                                                                                   $referral_code
- * @property string|null                                                                                                   $oauth_user_id
- * @property int|null                                                                                                      $oauth_provider_id
- * @property int                                                                                                           $is_admin
- * @property string|null                                                                                                   $bot_user_id
- * @property string|null                                                                                                   $google_2fa_secret
- * @property string|null                                                                                                   $remember_2fa_token
- * @property string|null                                                                                                   $slack_webhook_url
- * @property string|null                                                                                                   $accepted_terms_version
- * @property string|null                                                                                                   $accepted_terms_timestamp
- * @property string|null                                                                                                   $accepted_terms_ip
- * @property int|null                                                                                                      $only_notify_owned
- * @property string                                                                                                        $permissions
- * @property \App\Models\Account                                                                                           $account
- * @property \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property int|null                                                                                                      $notifications_count
- * @property \App\Models\Theme|null                                                                                        $theme
+ * @property int                                                       $id
+ * @property int                                                       $account_id
+ * @property Carbon|null                                               $created_at
+ * @property Carbon|null                                               $updated_at
+ * @property Carbon|null                                               $deleted_at
+ * @property string|null                                               $first_name
+ * @property string|null                                               $last_name
+ * @property string|null                                               $phone
+ * @property string                                                    $username
+ * @property string|null                                               $email
+ * @property string                                                    $password
+ * @property string|null                                               $confirmation_code
+ * @property int                                                       $registered
+ * @property int                                                       $confirmed
+ * @property int                                                       $notify_sent
+ * @property int                                                       $notify_viewed
+ * @property int                                                       $notify_paid
+ * @property int|null                                                  $public_id
+ * @property int                                                       $force_pdfjs
+ * @property string|null                                               $remember_token
+ * @property int|null                                                  $news_feed_id
+ * @property int                                                       $notify_approved
+ * @property int|null                                                  $failed_logins
+ * @property int|null                                                  $dark_mode
+ * @property string|null                                               $referral_code
+ * @property string|null                                               $oauth_user_id
+ * @property int|null                                                  $oauth_provider_id
+ * @property int                                                       $is_admin
+ * @property string|null                                               $bot_user_id
+ * @property string|null                                               $google_2fa_secret
+ * @property string|null                                               $remember_2fa_token
+ * @property string|null                                               $slack_webhook_url
+ * @property string|null                                               $accepted_terms_version
+ * @property string|null                                               $accepted_terms_timestamp
+ * @property string|null                                               $accepted_terms_ip
+ * @property int|null                                                  $only_notify_owned
+ * @property string                                                    $permissions
+ * @property Account                                                   $account
+ * @property DatabaseNotificationCollection<int, DatabaseNotification> $notifications
+ * @property int|null                                                  $notifications_count
+ * @property Theme|null                                                $theme
  *
- * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsTimestamp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsVersion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereBotUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereDarkMode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereFailedLogins($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereForcePdfjs($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogle2faSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereIsAdmin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereNewsFeedId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyApproved($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifySent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthProviderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOnlyNotifyOwned($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePermissions($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereReferralCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRegistered($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRemember2faToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereSlackWebhookUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User onlyTrashed()
+ * @method static Builder|User query()
+ * @method static Builder|User whereAcceptedTermsIp($value)
+ * @method static Builder|User whereAcceptedTermsTimestamp($value)
+ * @method static Builder|User whereAcceptedTermsVersion($value)
+ * @method static Builder|User whereAccountId($value)
+ * @method static Builder|User whereBotUserId($value)
+ * @method static Builder|User whereConfirmationCode($value)
+ * @method static Builder|User whereConfirmed($value)
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereDarkMode($value)
+ * @method static Builder|User whereDeletedAt($value)
+ * @method static Builder|User whereEmail($value)
+ * @method static Builder|User whereFailedLogins($value)
+ * @method static Builder|User whereFirstName($value)
+ * @method static Builder|User whereForcePdfjs($value)
+ * @method static Builder|User whereGoogle2faSecret($value)
+ * @method static Builder|User whereId($value)
+ * @method static Builder|User whereIsAdmin($value)
+ * @method static Builder|User whereLastName($value)
+ * @method static Builder|User whereNewsFeedId($value)
+ * @method static Builder|User whereNotifyApproved($value)
+ * @method static Builder|User whereNotifyPaid($value)
+ * @method static Builder|User whereNotifySent($value)
+ * @method static Builder|User whereNotifyViewed($value)
+ * @method static Builder|User whereOauthProviderId($value)
+ * @method static Builder|User whereOauthUserId($value)
+ * @method static Builder|User whereOnlyNotifyOwned($value)
+ * @method static Builder|User wherePassword($value)
+ * @method static Builder|User wherePermissions($value)
+ * @method static Builder|User wherePhone($value)
+ * @method static Builder|User wherePublicId($value)
+ * @method static Builder|User whereReferralCode($value)
+ * @method static Builder|User whereRegistered($value)
+ * @method static Builder|User whereRemember2faToken($value)
+ * @method static Builder|User whereRememberToken($value)
+ * @method static Builder|User whereSlackWebhookUrl($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @method static Builder|User whereUsername($value)
+ * @method static Builder|User withTrashed()
+ * @method static Builder|User withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -119,7 +127,7 @@ class User extends Authenticatable
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\UserPresenter::class;
+    protected $presenter = UserPresenter::class;
 
     /**
      * The database table used by the model.
@@ -172,7 +180,7 @@ class User extends Authenticatable
         // if the user changes their email then they need to reconfirm it
         if ($user->isEmailBeingChanged()) {
             $user->confirmed = 0;
-            $user->confirmation_code = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
         }
     }
 
@@ -193,12 +201,12 @@ class User extends Authenticatable
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function theme()
     {
-        return $this->belongsTo(\App\Models\Theme::class);
+        return $this->belongsTo(Theme::class);
     }
 
     /**
@@ -307,7 +315,7 @@ class User extends Authenticatable
 
     public function getRequestsCount()
     {
-        return \Illuminate\Support\Facades\Session::get(SESSION_COUNTER, 0);
+        return Session::get(SESSION_COUNTER, 0);
     }
 
     /**
@@ -360,7 +368,7 @@ class User extends Authenticatable
         ];
 
         foreach ($keys as $key) {
-            \Illuminate\Support\Facades\Session::forget($key);
+            Session::forget($key);
         }
     }
 
@@ -468,7 +476,7 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token): void
     {
         //$this->notify(new ResetPasswordNotification($token));
-        app(\App\Ninja\Mailers\UserMailer::class)->sendPasswordReset($this, $token);
+        app(UserMailer::class)->sendPasswordReset($this, $token);
     }
 
     public function routeNotificationForSlack()

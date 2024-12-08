@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Utils;
 
 /**
@@ -11,26 +14,26 @@ use Utils;
 class IntegrationController extends BaseAPIController
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function subscribe()
     {
-        $eventId = Utils::lookupEventId(trim(\Illuminate\Support\Facades\Request::input('event')));
+        $eventId = Utils::lookupEventId(trim(Request::input('event')));
 
         if ( ! $eventId) {
-            return \Illuminate\Support\Facades\Response::json('Event is invalid', 500);
+            return Response::json('Event is invalid', 500);
         }
 
         $subscription = Subscription::createNew();
         $subscription->event_id = $eventId;
-        $subscription->target_url = trim(\Illuminate\Support\Facades\Request::input('target_url'));
+        $subscription->target_url = trim(Request::input('target_url'));
         $subscription->save();
 
         if ( ! $subscription->id) {
-            return \Illuminate\Support\Facades\Response::json('Failed to create subscription', 500);
+            return Response::json('Failed to create subscription', 500);
         }
 
-        return \Illuminate\Support\Facades\Response::json(['id' => $subscription->public_id], 201);
+        return Response::json(['id' => $subscription->public_id], 201);
     }
 
     public function unsubscribe($publicId)

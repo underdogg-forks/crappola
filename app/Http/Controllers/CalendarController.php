@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\GenerateCalendarEvents;
+use Illuminate\Contracts\View\View;
 
 /**
  * Class ReportController.
@@ -10,7 +11,7 @@ use App\Jobs\GenerateCalendarEvents;
 class CalendarController extends BaseController
 {
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function showCalendar()
     {

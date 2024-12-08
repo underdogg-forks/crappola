@@ -15,7 +15,7 @@ class VendorApiController extends BaseAPIController
 {
     public $entityType = ENTITY_VENDOR;
 
-    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
+    protected VendorRepository $vendorRepo;
 
     public function __construct(VendorRepository $vendorRepo)
     {

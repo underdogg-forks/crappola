@@ -2,71 +2,76 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\ActivityPresenter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Activity.
  *
- * @property int                             $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int                             $account_id
- * @property int                             $user_id
- * @property int|null                        $client_id
- * @property int|null                        $contact_id
- * @property int|null                        $payment_id
- * @property int|null                        $invoice_id
- * @property int|null                        $credit_id
- * @property int|null                        $invitation_id
- * @property int|null                        $task_id
- * @property string|null                     $json_backup
- * @property int                             $activity_type_id
- * @property string|null                     $adjustment
- * @property string|null                     $balance
- * @property int|null                        $token_id
- * @property string|null                     $ip
- * @property int                             $is_system
- * @property int|null                        $expense_id
- * @property string|null                     $notes
- * @property \App\Models\Account             $account
- * @property \App\Models\Client|null         $client
- * @property \App\Models\Contact|null        $contact
- * @property \App\Models\Credit|null         $credit
- * @property \App\Models\Expense|null        $expense
- * @property \App\Models\Invoice|null        $invoice
- * @property \App\Models\Payment|null        $payment
- * @property \App\Models\Task|null           $task
- * @property \App\Models\User|null           $user
+ * @property int          $id
+ * @property Carbon|null  $created_at
+ * @property Carbon|null  $updated_at
+ * @property int          $account_id
+ * @property int          $user_id
+ * @property int|null     $client_id
+ * @property int|null     $contact_id
+ * @property int|null     $payment_id
+ * @property int|null     $invoice_id
+ * @property int|null     $credit_id
+ * @property int|null     $invitation_id
+ * @property int|null     $task_id
+ * @property string|null  $json_backup
+ * @property int          $activity_type_id
+ * @property string|null  $adjustment
+ * @property string|null  $balance
+ * @property int|null     $token_id
+ * @property string|null  $ip
+ * @property int          $is_system
+ * @property int|null     $expense_id
+ * @property string|null  $notes
+ * @property Account      $account
+ * @property Client|null  $client
+ * @property Contact|null $contact
+ * @property Credit|null  $credit
+ * @property Expense|null $expense
+ * @property Invoice|null $invoice
+ * @property Payment|null $payment
+ * @property Task|null    $task
+ * @property User|null    $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity query()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereActivityTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAdjustment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreditId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvitationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIsSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereJsonBackup($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTaskId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTokenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUserId($value)
+ * @method static Builder|Activity newModelQuery()
+ * @method static Builder|Activity newQuery()
+ * @method static Builder|Activity query()
+ * @method static Builder|Activity scope()
+ * @method static Builder|Activity whereAccountId($value)
+ * @method static Builder|Activity whereActivityTypeId($value)
+ * @method static Builder|Activity whereAdjustment($value)
+ * @method static Builder|Activity whereBalance($value)
+ * @method static Builder|Activity whereClientId($value)
+ * @method static Builder|Activity whereContactId($value)
+ * @method static Builder|Activity whereCreatedAt($value)
+ * @method static Builder|Activity whereCreditId($value)
+ * @method static Builder|Activity whereExpenseId($value)
+ * @method static Builder|Activity whereId($value)
+ * @method static Builder|Activity whereInvitationId($value)
+ * @method static Builder|Activity whereInvoiceId($value)
+ * @method static Builder|Activity whereIp($value)
+ * @method static Builder|Activity whereIsSystem($value)
+ * @method static Builder|Activity whereJsonBackup($value)
+ * @method static Builder|Activity whereNotes($value)
+ * @method static Builder|Activity wherePaymentId($value)
+ * @method static Builder|Activity whereTaskId($value)
+ * @method static Builder|Activity whereTokenId($value)
+ * @method static Builder|Activity whereUpdatedAt($value)
+ * @method static Builder|Activity whereUserId($value)
  *
  * @mixin \Eloquent
  */
-class Activity extends \Illuminate\Database\Eloquent\Model
+class Activity extends Model
 {
     use PresentableTrait;
 
@@ -78,56 +83,56 @@ class Activity extends \Illuminate\Database\Eloquent\Model
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\ActivityPresenter::class;
+    protected $presenter = ActivityPresenter::class;
 
     public function scopeScope($query)
     {
-        return $query->whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id);
+        return $query->whereAccountId(Auth::user()->account_id);
     }
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function contact()
     {
-        return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
+        return $this->belongsTo(Contact::class)->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function invoice()
     {
-        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
     public function credit()
     {
-        return $this->belongsTo(\App\Models\Credit::class)->withTrashed();
+        return $this->belongsTo(Credit::class)->withTrashed();
     }
 
     public function payment()
     {
-        return $this->belongsTo(\App\Models\Payment::class)->withTrashed();
+        return $this->belongsTo(Payment::class)->withTrashed();
     }
 
     public function task()
     {
-        return $this->belongsTo(\App\Models\Task::class)->withTrashed();
+        return $this->belongsTo(Task::class)->withTrashed();
     }
 
     public function expense()
     {
-        return $this->belongsTo(\App\Models\Expense::class)->withTrashed();
+        return $this->belongsTo(Expense::class)->withTrashed();
     }
 
     public function key(): string

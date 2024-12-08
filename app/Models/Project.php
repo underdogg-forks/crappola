@@ -2,59 +2,63 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\ProjectPresenter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class ExpenseCategory.
  *
- * @property int                                                             $id
- * @property int                                                             $user_id
- * @property int                                                             $account_id
- * @property int|null                                                        $client_id
- * @property \Illuminate\Support\Carbon|null                                 $created_at
- * @property \Illuminate\Support\Carbon|null                                 $updated_at
- * @property \Illuminate\Support\Carbon|null                                 $deleted_at
- * @property string|null                                                     $name
- * @property int                                                             $is_deleted
- * @property int                                                             $public_id
- * @property string                                                          $task_rate
- * @property string|null                                                     $due_date
- * @property string|null                                                     $private_notes
- * @property float                                                           $budgeted_hours
- * @property string|null                                                     $custom_value1
- * @property string|null                                                     $custom_value2
- * @property \App\Models\Account                                             $account
- * @property \App\Models\Client|null                                         $client
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property int|null                                                        $tasks_count
+ * @property int                   $id
+ * @property int                   $user_id
+ * @property int                   $account_id
+ * @property int|null              $client_id
+ * @property Carbon|null           $created_at
+ * @property Carbon|null           $updated_at
+ * @property Carbon|null           $deleted_at
+ * @property string|null           $name
+ * @property int                   $is_deleted
+ * @property int                   $public_id
+ * @property string                $task_rate
+ * @property string|null           $due_date
+ * @property string|null           $private_notes
+ * @property float                 $budgeted_hours
+ * @property string|null           $custom_value1
+ * @property string|null           $custom_value2
+ * @property Account               $account
+ * @property Client|null           $client
+ * @property Collection<int, Task> $tasks
+ * @property int|null              $tasks_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Project dateRange($startDate, $endDate)
- * @method static \Illuminate\Database\Eloquent\Builder|Project newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Project newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Project onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Project query()
- * @method static \Illuminate\Database\Eloquent\Builder|Project scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereBudgetedHours($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereTaskRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Project withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|Project withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Project withoutTrashed()
+ * @method static Builder|Project dateRange($startDate, $endDate)
+ * @method static Builder|Project newModelQuery()
+ * @method static Builder|Project newQuery()
+ * @method static Builder|Project onlyTrashed()
+ * @method static Builder|Project query()
+ * @method static Builder|Project scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Project whereAccountId($value)
+ * @method static Builder|Project whereBudgetedHours($value)
+ * @method static Builder|Project whereClientId($value)
+ * @method static Builder|Project whereCreatedAt($value)
+ * @method static Builder|Project whereCustomValue1($value)
+ * @method static Builder|Project whereCustomValue2($value)
+ * @method static Builder|Project whereDeletedAt($value)
+ * @method static Builder|Project whereDueDate($value)
+ * @method static Builder|Project whereId($value)
+ * @method static Builder|Project whereIsDeleted($value)
+ * @method static Builder|Project whereName($value)
+ * @method static Builder|Project wherePrivateNotes($value)
+ * @method static Builder|Project wherePublicId($value)
+ * @method static Builder|Project whereTaskRate($value)
+ * @method static Builder|Project whereUpdatedAt($value)
+ * @method static Builder|Project whereUserId($value)
+ * @method static Builder|Project withActiveOrSelected($id = false)
+ * @method static Builder|Project withArchived()
+ * @method static Builder|Project withTrashed()
+ * @method static Builder|Project withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -80,7 +84,7 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\ProjectPresenter::class;
+    protected $presenter = ProjectPresenter::class;
 
     protected $casts = ['deleted_at' => 'datetime'];
 
@@ -96,17 +100,17 @@ class Project extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function tasks()
     {
-        return $this->hasMany(\App\Models\Task::class);
+        return $this->hasMany(Task::class);
     }
 
     public function scopeDateRange($query, $startDate, $endDate)

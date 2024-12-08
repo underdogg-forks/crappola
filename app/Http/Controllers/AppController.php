@@ -16,6 +16,8 @@ use Config;
 use DB;
 use Event;
 use Exception;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Request;
 use Response;
 use Session;
@@ -24,11 +26,11 @@ use View;
 
 class AppController extends BaseController
 {
-    protected \App\Ninja\Repositories\AccountRepository $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    protected \App\Ninja\Mailers\Mailer $mailer;
+    protected Mailer $mailer;
 
-    protected \App\Services\EmailService $emailService;
+    protected EmailService $emailService;
 
     public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
@@ -42,14 +44,14 @@ class AppController extends BaseController
     public function doSetup()
     {
         if (Utils::isNinjaProd()) {
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         $valid = false;
         $test = \Illuminate\Support\Facades\Request::input('test');
 
         $app = \Illuminate\Support\Facades\Request::input('app');
-        $app['key'] = env('APP_KEY') ?: mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+        $app['key'] = env('APP_KEY') ?: mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
         $app['debug'] = \Illuminate\Support\Facades\Request::input('debug') ? 'true' : 'false';
         $app['https'] = \Illuminate\Support\Facades\Request::input('https') ? 'true' : 'false';
 
@@ -69,11 +71,11 @@ class AppController extends BaseController
         }
 
         if ( ! $valid) {
-            return \Illuminate\Support\Facades\Redirect::to('/setup')->withInput();
+            return Redirect::to('/setup')->withInput();
         }
 
         if (Utils::isDatabaseSetup() && Account::count() > 0) {
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         $_ENV['APP_ENV'] = 'production';
@@ -97,7 +99,7 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
-        $_ENV['PHANTOMJS_SECRET'] = mb_strtolower(\Illuminate\Support\Str::random(RANDOM_KEY_LENGTH));
+        $_ENV['PHANTOMJS_SECRET'] = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
         $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
@@ -140,13 +142,13 @@ class AppController extends BaseController
             $user->save();
         }
 
-        return \Illuminate\Support\Facades\Redirect::to('/login');
+        return Redirect::to('/login');
     }
 
     public function showSetup()
     {
         if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         if (file_exists(base_path() . '/.env')) {
@@ -161,13 +163,13 @@ class AppController extends BaseController
         dd('here?');
 
         if (Utils::isNinjaProd()) {
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         dd('here?');
 
         if ( ! \Illuminate\Support\Facades\Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
-            return \Illuminate\Support\Facades\Redirect::to('/');
+            return Redirect::to('/');
         }
 
         dd('here?');
@@ -175,7 +177,7 @@ class AppController extends BaseController
         if ( ! $canUpdateEnv = @fopen(base_path() . '/.env', 'w')) {
             \Illuminate\Support\Facades\Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
 
-            return \Illuminate\Support\Facades\Redirect::to('/settings/system_settings');
+            return Redirect::to('/settings/system_settings');
         }
 
         $app = \Illuminate\Support\Facades\Request::input('app');
@@ -230,7 +232,7 @@ class AppController extends BaseController
 
         \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
 
-        return \Illuminate\Support\Facades\Redirect::to('/settings/system_settings');
+        return Redirect::to('/settings/system_settings');
     }
 
     public function install()
@@ -249,7 +251,7 @@ class AppController extends BaseController
             }
         }
 
-        return \Illuminate\Support\Facades\Redirect::to('/');
+        return Redirect::to('/');
     }
 
     public function update()
@@ -305,7 +307,7 @@ class AppController extends BaseController
         }*/
         //}
 
-        return \Illuminate\Support\Facades\Redirect::to('/?clear_cache=true');
+        return Redirect::to('/?clear_cache=true');
     }
 
     // MySQL changed the default table type from MyISAM to InnoDB

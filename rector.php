@@ -28,6 +28,7 @@ return RectorConfig::configure()
         __DIR__ . '/app',
         __DIR__ . '/Modules',
     ])
+    ->withImportNames()
     ->withRules([
         ReturnTypeFromStrictTypedPropertyRector::class,
     ])

@@ -16,7 +16,9 @@ use App\Models\VendorContact;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use Excel;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 
@@ -28,7 +30,7 @@ class ExportController extends BaseController
     /**
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function doExport(Request $request)
     {
@@ -63,9 +65,9 @@ class ExportController extends BaseController
      * @param $request
      * @param $fileName
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    private function returnJSON(\Illuminate\Http\Request $request, string $fileName)
+    private function returnJSON(Request $request, string $fileName)
     {
         $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
@@ -75,7 +77,7 @@ class ExportController extends BaseController
         $manager->setSerializer(new ArraySerializer());
 
         // eager load data, include archived but exclude deleted
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $account->load(['clients' => function ($query): void {
             $query->withArchived()
                 ->with(['contacts', 'invoices' => function ($query): void {
@@ -100,7 +102,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnCSV(\Illuminate\Http\Request $request, string $fileName)
+    private function returnCSV(Request $request, string $fileName)
     {
         $data = $this->getData($request);
 
@@ -117,9 +119,9 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnXLS(\Illuminate\Http\Request $request, string $fileName): mixed
+    private function returnXLS(Request $request, string $fileName): mixed
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $data = $this->getData($request);
 
         return Excel::create($fileName, function ($excel) use ($user, $data): void {
@@ -171,7 +173,7 @@ class ExportController extends BaseController
      */
     private function getData($request): array
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
 
         $data = [
             'account'   => $account,

@@ -4,6 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 use Redirect;
 
 /**
@@ -11,7 +18,7 @@ use Redirect;
  */
 class SubscriptionController extends BaseController
 {
-    protected \App\Services\SubscriptionService $subscriptionService;
+    protected SubscriptionService $subscriptionService;
 
     /**
      * SubscriptionController constructor.
@@ -26,7 +33,7 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function index()
     {
@@ -34,11 +41,11 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable()
     {
-        return $this->subscriptionService->getDatatable(\Illuminate\Support\Facades\Auth::user()->account_id);
+        return $this->subscriptionService->getDatatable(Auth::user()->account_id);
     }
 
     /**
@@ -57,13 +64,13 @@ class SubscriptionController extends BaseController
             'title'        => trans('texts.edit_subscription'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.subscription', $data);
+        return View::make('accounts.subscription', $data);
     }
 
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update($publicId)
     {
@@ -71,7 +78,7 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store()
     {
@@ -90,20 +97,20 @@ class SubscriptionController extends BaseController
             'title'        => trans('texts.add_subscription'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.subscription', $data);
+        return View::make('accounts.subscription', $data);
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('bulk_action');
-        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.archived_subscription'));
+        Session::flash('message', trans('texts.archived_subscription'));
 
         return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
@@ -111,11 +118,11 @@ class SubscriptionController extends BaseController
     /**
      * @param bool $subscriptionPublicId
      *
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     public function save($subscriptionPublicId = false)
     {
-        if (\Illuminate\Support\Facades\Auth::user()->account->hasFeature(FEATURE_API)) {
+        if (Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
                 'event_id'   => 'required',
                 'target_url' => 'required|url',
@@ -128,7 +135,7 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = \Illuminate\Support\Facades\Validator::make(\Illuminate\Support\Facades\Request::all(), $rules);
+            $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
                 return \Illuminate\Support\Facades\Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
@@ -139,7 +146,7 @@ class SubscriptionController extends BaseController
 
             $message = $subscriptionPublicId ? trans('texts.updated_subscription') : trans('texts.created_subscription');
 
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect('/settings/api_tokens');

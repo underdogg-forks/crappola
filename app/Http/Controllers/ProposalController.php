@@ -14,16 +14,19 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
 use Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalController extends BaseController
 {
     public $entityType = ENTITY_PROPOSAL;
 
-    protected \App\Ninja\Repositories\ProposalRepository $proposalRepo;
+    protected ProposalRepository $proposalRepo;
 
-    protected \App\Services\ProposalService $proposalService;
+    protected ProposalService $proposalService;
 
-    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
+    protected ContactMailer $contactMailer;
 
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {
@@ -39,7 +42,7 @@ class ProposalController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL,
             'datatable'  => new ProposalDatatable(),
             'title'      => trans('texts.proposals'),
@@ -48,7 +51,7 @@ class ProposalController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
+        $search = Request::input('sSearch');
         //$userId = Auth::user()->filterId();
         $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
@@ -67,12 +70,12 @@ class ProposalController extends BaseController
             'templatePublicId' => $request->proposal_template_id,
         ]);
 
-        return \Illuminate\Support\Facades\View::make('proposals.edit', $data);
+        return View::make('proposals.edit', $data);
     }
 
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         return redirect(sprintf('proposals/%s/edit', $publicId));
     }
@@ -92,19 +95,19 @@ class ProposalController extends BaseController
             'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
         ]);
 
-        return \Illuminate\Support\Facades\View::make('proposals.edit', $data);
+        return View::make('proposals.edit', $data);
     }
 
     public function store(CreateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input());
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_proposal'));
+            Session::flash('message', trans('texts.emailed_proposal'));
         } else {
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal'));
+            Session::flash('message', trans('texts.created_proposal'));
         }
 
         return redirect()->to($proposal->getRoute());
@@ -113,7 +116,7 @@ class ProposalController extends BaseController
     public function update(UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input(), $request->entity());
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -121,9 +124,9 @@ class ProposalController extends BaseController
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_proposal'));
+            Session::flash('message', trans('texts.emailed_proposal'));
         } else {
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal'));
+            Session::flash('message', trans('texts.updated_proposal'));
         }
 
         return redirect()->to($proposal->getRoute());
@@ -131,15 +134,15 @@ class ProposalController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('bulk_action') ?: \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id') ?: (\Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids'));
+        $action = Request::input('bulk_action') ?: Request::input('action');
+        $ids = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
 
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? $action . 'd_proposal' : $action . 'd_proposals';
             $message = trans('texts.' . $field, ['count' => $count]);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals');

@@ -9,14 +9,18 @@ use App\Models\ProposalTemplate;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalTemplateController extends BaseController
 {
     public $entityType = ENTITY_PROPOSAL_TEMPLATE;
 
-    protected \App\Ninja\Repositories\ProposalTemplateRepository $proposalTemplateRepo;
+    protected ProposalTemplateRepository $proposalTemplateRepo;
 
-    protected \App\Services\ProposalTemplateService $proposalTemplateService;
+    protected ProposalTemplateService $proposalTemplateService;
 
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, ProposalTemplateService $proposalTemplateService)
     {
@@ -31,7 +35,7 @@ class ProposalTemplateController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL_TEMPLATE,
             'datatable'  => new ProposalTemplateDatatable(),
             'title'      => trans('texts.proposal_templates'),
@@ -40,8 +44,8 @@ class ProposalTemplateController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterId();
+        $search = Request::input('sSearch');
+        $userId = Auth::user()->filterId();
 
         return $this->proposalTemplateService->getDatatable($search, $userId);
     }
@@ -55,12 +59,12 @@ class ProposalTemplateController extends BaseController
             'title'    => trans('texts.new_proposal_template'),
         ]);
 
-        return \Illuminate\Support\Facades\View::make('proposals/templates/edit', $data);
+        return View::make('proposals/templates/edit', $data);
     }
 
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         return redirect(sprintf('proposals/templates/%s/edit', $publicId));
     }
@@ -89,7 +93,7 @@ class ProposalTemplateController extends BaseController
             'title'    => trans('texts.edit_proposal_template'),
         ]);
 
-        return \Illuminate\Support\Facades\View::make('proposals/templates/edit', $data);
+        return View::make('proposals/templates/edit', $data);
     }
 
     public function cloneProposal(ProposalTemplateRequest $request, $publicId)
@@ -101,7 +105,7 @@ class ProposalTemplateController extends BaseController
     {
         $proposalTemplate = $this->proposalTemplateService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal_template'));
+        Session::flash('message', trans('texts.created_proposal_template'));
 
         return redirect()->to($proposalTemplate->getRoute());
     }
@@ -110,9 +114,9 @@ class ProposalTemplateController extends BaseController
     {
         $proposalTemplate = $this->proposalTemplateService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal_template'));
+        Session::flash('message', trans('texts.updated_proposal_template'));
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -122,15 +126,15 @@ class ProposalTemplateController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? $action . 'd_proposal_template' : $action . 'd_proposal_templates';
             $message = trans('texts.' . $field, ['count' => $count]);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/templates');

@@ -6,6 +6,8 @@ use App\Ninja\Datatables\EntityDatatable;
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Table;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -19,7 +21,7 @@ class DatatableService
      *
      * @throws Exception
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function createDatatable(EntityDatatable $datatable, $query)
     {
@@ -27,7 +29,7 @@ class DatatableService
 
         if ($datatable->isBulkEdit) {
             $table->addColumn('checkbox', function ($model) use ($datatable): string {
-                $can_edit = \Illuminate\Support\Facades\Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && \Illuminate\Support\Facades\Auth::user()->id == $model->user_id);
+                $can_edit = Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
                 return $can_edit ? '<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>' : '';
@@ -65,7 +67,7 @@ class DatatableService
             $hasAction = false;
             $str = '<center style="min-width:100px">';
 
-            $can_edit = \Illuminate\Support\Facades\Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && \Illuminate\Support\Facades\Auth::user()->id == $model->user_id);
+            $can_edit = Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
                 $str .= '<button type="button" class="btn btn-sm btn-danger tr-status">' . trans('texts.deleted') . '</button>';

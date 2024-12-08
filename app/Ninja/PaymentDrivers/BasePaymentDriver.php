@@ -13,6 +13,8 @@ use App\Ninja\Repositories\InvoiceRepository;
 use CreditCard;
 use DateTime;
 use Exception;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Request;
 use Omnipay;
 use Omnipay\Common\Item;
 use Session;
@@ -401,7 +403,7 @@ class BasePaymentDriver
     {
         $paymentMethod = PaymentMethod::createNew($this->invitation);
         $paymentMethod->contact_id = $this->contact()->id;
-        $paymentMethod->ip = \Illuminate\Support\Facades\Request::ip();
+        $paymentMethod->ip = Request::ip();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
@@ -444,7 +446,7 @@ class BasePaymentDriver
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = $account->getDateTime()->format('Y-m-d');
-        $payment->ip = \Illuminate\Support\Facades\Request::ip();
+        $payment->ip = Request::ip();
 
         //Laravel 6 upgrade - uncommented this line as it was causing a failure
         // $payment = $this->creatingPayment($payment, $paymentMethod);
@@ -564,7 +566,7 @@ class BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $this->input = $input;
-        $transRef = \Illuminate\Support\Arr::get($this->input, 'token') ?: $this->invitation->transaction_reference;
+        $transRef = Arr::get($this->input, 'token') ?: $this->invitation->transaction_reference;
 
         if (method_exists($this->gateway(), 'completePurchase')) {
             $details = $this->paymentDetails();
@@ -873,7 +875,7 @@ class BasePaymentDriver
             'description'     => trans('texts.' . $invoice->getEntityType()) . (' ' . $invoice->invoice_number),
             'transactionId'   => $invoice->invoice_number,
             'transactionType' => 'Purchase',
-            'clientIp'        => \Illuminate\Support\Facades\Request::getClientIp(),
+            'clientIp'        => Request::getClientIp(),
         ];
 
         if ($paymentMethod) {
@@ -905,7 +907,7 @@ class BasePaymentDriver
             return true;
         }
 
-        return (bool) (\Illuminate\Support\Arr::get($this->input, 'token_billing'));
+        return (bool) (Arr::get($this->input, 'token_billing'));
     }
 
     protected function checkCustomerExists($customer): bool

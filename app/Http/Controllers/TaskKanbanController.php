@@ -6,11 +6,13 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class TaskKanbanController extends BaseController
 {
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function index($clientPublicId = false, $projectPublicId = false)
     {
@@ -108,7 +110,7 @@ class TaskKanbanController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeStatus()
     {
@@ -122,7 +124,7 @@ class TaskKanbanController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function updateStatus($publicId)
     {
@@ -148,7 +150,7 @@ class TaskKanbanController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function deleteStatus($publicId)
     {
@@ -179,7 +181,7 @@ class TaskKanbanController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function updateTask($publicId)
     {

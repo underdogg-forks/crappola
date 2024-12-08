@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class UserAccount.
  *
@@ -12,19 +15,19 @@ namespace App\Models;
  * @property int|null $user_id4
  * @property int|null $user_id5
  *
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount query()
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId5($value)
+ * @method static Builder|UserAccount newModelQuery()
+ * @method static Builder|UserAccount newQuery()
+ * @method static Builder|UserAccount query()
+ * @method static Builder|UserAccount whereId($value)
+ * @method static Builder|UserAccount whereUserId1($value)
+ * @method static Builder|UserAccount whereUserId2($value)
+ * @method static Builder|UserAccount whereUserId3($value)
+ * @method static Builder|UserAccount whereUserId4($value)
+ * @method static Builder|UserAccount whereUserId5($value)
  *
  * @mixin \Eloquent
  */
-class UserAccount extends \Illuminate\Database\Eloquent\Model
+class UserAccount extends Model
 {
     /**
      * @var bool

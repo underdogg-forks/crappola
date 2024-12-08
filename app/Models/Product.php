@@ -2,59 +2,62 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\ProductPresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Product.
  *
- * @property int                             $id
- * @property int                             $account_id
- * @property int                             $user_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string                          $product_key
- * @property string                          $notes
- * @property string                          $cost
- * @property string|null                     $qty
- * @property int                             $public_id
- * @property int                             $is_deleted
- * @property string|null                     $custom_value1
- * @property string|null                     $custom_value2
- * @property string|null                     $tax_name1
- * @property string                          $tax_rate1
- * @property string|null                     $tax_name2
- * @property string                          $tax_rate2
- * @property \App\Models\User                $user
+ * @property int         $id
+ * @property int         $account_id
+ * @property int         $user_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property string      $product_key
+ * @property string      $notes
+ * @property string      $cost
+ * @property string|null $qty
+ * @property int         $public_id
+ * @property int         $is_deleted
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $tax_name1
+ * @property string      $tax_rate1
+ * @property string|null $tax_name2
+ * @property string      $tax_rate2
+ * @property User        $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Product query()
- * @method static \Illuminate\Database\Eloquent\Builder|Product scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereProductKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereQty($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Product withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
+ * @method static Builder|Product newModelQuery()
+ * @method static Builder|Product newQuery()
+ * @method static Builder|Product onlyTrashed()
+ * @method static Builder|Product query()
+ * @method static Builder|Product scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Product whereAccountId($value)
+ * @method static Builder|Product whereCost($value)
+ * @method static Builder|Product whereCreatedAt($value)
+ * @method static Builder|Product whereCustomValue1($value)
+ * @method static Builder|Product whereCustomValue2($value)
+ * @method static Builder|Product whereDeletedAt($value)
+ * @method static Builder|Product whereId($value)
+ * @method static Builder|Product whereIsDeleted($value)
+ * @method static Builder|Product whereNotes($value)
+ * @method static Builder|Product whereProductKey($value)
+ * @method static Builder|Product wherePublicId($value)
+ * @method static Builder|Product whereQty($value)
+ * @method static Builder|Product whereTaxName1($value)
+ * @method static Builder|Product whereTaxName2($value)
+ * @method static Builder|Product whereTaxRate1($value)
+ * @method static Builder|Product whereTaxRate2($value)
+ * @method static Builder|Product whereUpdatedAt($value)
+ * @method static Builder|Product whereUserId($value)
+ * @method static Builder|Product withActiveOrSelected($id = false)
+ * @method static Builder|Product withArchived()
+ * @method static Builder|Product withTrashed()
+ * @method static Builder|Product withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -66,7 +69,7 @@ class Product extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\ProductPresenter::class;
+    protected $presenter = ProductPresenter::class;
 
     /**
      * @var array
@@ -125,6 +128,6 @@ class Product extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 }

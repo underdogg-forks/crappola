@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Expense;
 
 /**
@@ -40,7 +41,7 @@ class ExpenseTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct(?\App\Models\Account $account = null, $serializer = null, $client = null)
+    public function __construct(?Account $account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
 

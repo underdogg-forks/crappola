@@ -20,7 +20,7 @@ class TestOFX extends Command
      */
     protected $description = 'Test OFX';
 
-    protected \App\Services\BankAccountService $bankAccountService;
+    protected BankAccountService $bankAccountService;
 
     /**
      * TestOFX constructor.

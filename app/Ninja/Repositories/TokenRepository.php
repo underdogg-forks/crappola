@@ -2,16 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\AccountToken;
+use Illuminate\Support\Facades\DB;
+
 class TokenRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\AccountToken::class;
+        return AccountToken::class;
     }
 
     public function find($userId)
     {
-        $query = \Illuminate\Support\Facades\DB::table('account_tokens')
+        $query = DB::table('account_tokens')
             ->where('account_tokens.user_id', '=', $userId)
             ->whereNull('account_tokens.deleted_at');
 

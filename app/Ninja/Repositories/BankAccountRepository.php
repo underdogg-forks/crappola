@@ -4,17 +4,20 @@ namespace App\Ninja\Repositories;
 
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class BankAccountRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\BankAccount::class;
+        return BankAccount::class;
     }
 
     public function find($accountId)
     {
-        return \Illuminate\Support\Facades\DB::table('bank_accounts')
+        return DB::table('bank_accounts')
             ->join('banks', 'banks.id', '=', 'bank_accounts.bank_id')
             ->where('bank_accounts.deleted_at', '=', null)
             ->where('bank_accounts.account_id', '=', $accountId)
@@ -29,10 +32,10 @@ class BankAccountRepository extends BaseRepository
     public function save(array $input)
     {
         $bankAccount = BankAccount::createNew();
-        $bankAccount->username = \Illuminate\Support\Facades\Crypt::encrypt(trim($input['bank_username']));
+        $bankAccount->username = Crypt::encrypt(trim($input['bank_username']));
         $bankAccount->fill($input);
 
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $account->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {

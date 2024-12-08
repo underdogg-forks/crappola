@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class ClientDatatable extends EntityDatatable
@@ -32,7 +34,7 @@ class ClientDatatable extends EntityDatatable
             [
                 'id_number',
                 fn ($model) => $model->id_number,
-                \Illuminate\Support\Facades\Auth::user()->account->clientNumbersEnabled(),
+                Auth::user()->account->clientNumbersEnabled(),
             ],
             [
                 'client_created_at',
@@ -55,52 +57,52 @@ class ClientDatatable extends EntityDatatable
             [
                 trans('texts.edit_client'),
                 function ($model) {
-                    if (\Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
-                        return \Illuminate\Support\Facades\URL::to(sprintf('clients/%s/edit', $model->public_id));
+                    if (Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
+                        return URL::to(sprintf('clients/%s/edit', $model->public_id));
                     }
 
-                    if (\Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return \Illuminate\Support\Facades\URL::to('clients/' . $model->public_id);
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return URL::to('clients/' . $model->public_id);
                     }
                 },
             ],
             [
                 '--divider--', fn (): bool => false,
-                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE)),
+                fn ($model): bool => Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)),
             ],
             [
                 trans('texts.new_task'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('tasks/create/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK),
+                fn ($model) => URL::to('tasks/create/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_TASK),
             ],
             [
                 trans('texts.new_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('invoices/create/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
+                fn ($model) => URL::to('invoices/create/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_INVOICE),
             ],
             [
                 trans('texts.new_quote'),
-                fn ($model)       => \Illuminate\Support\Facades\URL::to('quotes/create/' . $model->public_id),
-                fn ($model): bool => \Illuminate\Support\Facades\Auth::user()->hasFeature(FEATURE_QUOTES) && \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE),
+                fn ($model)       => URL::to('quotes/create/' . $model->public_id),
+                fn ($model): bool => Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_QUOTE),
             ],
             [
                 '--divider--', fn (): bool => false,
-                fn ($model): bool => (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_TASK) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE)) && (\Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CREDIT) || \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE)),
+                fn ($model): bool => (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)) && (Auth::user()->can('create', ENTITY_PAYMENT) || Auth::user()->can('create', ENTITY_CREDIT) || Auth::user()->can('create', ENTITY_EXPENSE)),
             ],
             [
                 trans('texts.enter_payment'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('payments/create/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_PAYMENT),
+                fn ($model) => URL::to('payments/create/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_PAYMENT),
             ],
             [
                 trans('texts.enter_credit'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('credits/create/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_CREDIT),
+                fn ($model) => URL::to('credits/create/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_CREDIT),
             ],
             [
                 trans('texts.enter_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to('expenses/create/' . $model->public_id),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_EXPENSE),
+                fn ($model) => URL::to('expenses/create/' . $model->public_id),
+                fn ($model) => Auth::user()->can('create', ENTITY_EXPENSE),
             ],
         ];
     }

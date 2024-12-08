@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Utils;
 
 /**
@@ -11,16 +14,16 @@ use Utils;
  * @property string $alias
  * @property string $name
  *
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType query()
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereAlias($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereName($value)
+ * @method static Builder|GatewayType newModelQuery()
+ * @method static Builder|GatewayType newQuery()
+ * @method static Builder|GatewayType query()
+ * @method static Builder|GatewayType whereAlias($value)
+ * @method static Builder|GatewayType whereId($value)
+ * @method static Builder|GatewayType whereName($value)
  *
  * @mixin \Eloquent
  */
-class GatewayType extends \Illuminate\Database\Eloquent\Model
+class GatewayType extends Model
 {
     /**
      * @var bool
@@ -34,7 +37,7 @@ class GatewayType extends \Illuminate\Database\Eloquent\Model
 
     public static function getIdFromAlias($alias)
     {
-        return \Illuminate\Support\Facades\Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
+        return Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
     }
 
     public function getName()

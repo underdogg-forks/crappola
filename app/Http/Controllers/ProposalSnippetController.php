@@ -9,14 +9,18 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalSnippetController extends BaseController
 {
     public $entityType = ENTITY_PROPOSAL_SNIPPET;
 
-    protected \App\Ninja\Repositories\ProposalSnippetRepository $proposalSnippetRepo;
+    protected ProposalSnippetRepository $proposalSnippetRepo;
 
-    protected \App\Services\ProposalSnippetService $proposalSnippetService;
+    protected ProposalSnippetService $proposalSnippetService;
 
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, ProposalSnippetService $proposalSnippetService)
     {
@@ -31,7 +35,7 @@ class ProposalSnippetController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL_SNIPPET,
             'datatable'  => new ProposalSnippetDatatable(),
             'title'      => trans('texts.proposal_snippets'),
@@ -40,8 +44,8 @@ class ProposalSnippetController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Illuminate\Support\Facades\Request::input('sSearch');
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterId();
+        $search = Request::input('sSearch');
+        $userId = Auth::user()->filterId();
 
         return $this->proposalSnippetService->getDatatable($search, $userId);
     }
@@ -59,12 +63,12 @@ class ProposalSnippetController extends BaseController
             'icons'            => $this->getIcons(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('proposals/snippets/edit', $data);
+        return View::make('proposals/snippets/edit', $data);
     }
 
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         return redirect(sprintf('proposals/snippets/%s/edit', $publicId));
     }
@@ -85,14 +89,14 @@ class ProposalSnippetController extends BaseController
             'icons'            => $this->getIcons(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('proposals/snippets.edit', $data);
+        return View::make('proposals/snippets.edit', $data);
     }
 
     public function store(CreateProposalSnippetRequest $request)
     {
         $proposalSnippet = $this->proposalSnippetService->save($request->input());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.created_proposal_snippet'));
+        Session::flash('message', trans('texts.created_proposal_snippet'));
 
         return redirect()->to($proposalSnippet->getRoute());
     }
@@ -101,9 +105,9 @@ class ProposalSnippetController extends BaseController
     {
         $proposalSnippet = $this->proposalSnippetService->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_proposal_snippet'));
+        Session::flash('message', trans('texts.updated_proposal_snippet'));
 
-        $action = \Illuminate\Support\Facades\Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -113,15 +117,15 @@ class ProposalSnippetController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         $count = $this->proposalSnippetService->bulk($ids, $action);
 
         if ($count > 0) {
             $field = $count == 1 ? $action . 'd_proposal_snippet' : $action . 'd_proposal_snippets';
             $message = trans('texts.' . $field, ['count' => $count]);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/snippets');

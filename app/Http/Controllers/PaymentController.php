@@ -14,6 +14,13 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
 use DropdownButton;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class PaymentController extends BaseController
@@ -23,11 +30,11 @@ class PaymentController extends BaseController
      */
     public $entityType = ENTITY_PAYMENT;
 
-    protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
+    protected PaymentRepository $paymentRepo;
 
-    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
+    protected ContactMailer $contactMailer;
 
-    protected \App\Services\PaymentService $paymentService;
+    protected PaymentService $paymentService;
 
     /**
      * PaymentController constructor.
@@ -51,7 +58,7 @@ class PaymentController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PAYMENT,
             'datatable'  => new PaymentDatatable(),
             'title'      => trans('texts.payments'),
@@ -61,11 +68,11 @@ class PaymentController extends BaseController
     /**
      * @param null $clientPublicId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null)
     {
-        return $this->paymentService->getDatatable($clientPublicId, \Illuminate\Support\Facades\Request::input('sSearch'));
+        return $this->paymentService->getDatatable($clientPublicId, Request::input('sSearch'));
     }
 
     /**
@@ -84,8 +91,8 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0);
-        $invoicePublicId = \Illuminate\Support\Facades\Request::old('invoice') ?: ($request->invoice_id ?: 0);
+        $clientPublicId = Request::old('client') ?: ($request->client_id ?: 0);
+        $invoicePublicId = Request::old('invoice') ?: ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
@@ -95,7 +102,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'account'         => \Illuminate\Support\Facades\Auth::user()->account,
+            'account'         => Auth::user()->account,
             'clientPublicId'  => $clientPublicId,
             'invoicePublicId' => $invoicePublicId,
             'invoice'         => null,
@@ -104,22 +111,22 @@ class PaymentController extends BaseController
             'method'          => 'POST',
             'url'             => 'payments',
             'title'           => trans('texts.new_payment'),
-            'paymentTypeId'   => \Illuminate\Support\Facades\Request::input('paymentTypeId'),
+            'paymentTypeId'   => Request::input('paymentTypeId'),
             'clients'         => Client::scope()->with('contacts')->orderBy('name')->get(),
             'totalCredit'     => $totalCredit,
         ];
 
-        return \Illuminate\Support\Facades\View::make('payments.edit', $data);
+        return View::make('payments.edit', $data);
     }
 
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         return redirect()->to(sprintf('payments/%s/edit', $publicId));
     }
@@ -156,7 +163,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'account'  => \Illuminate\Support\Facades\Auth::user()->account,
+            'account'  => Auth::user()->account,
             'client'   => null,
             'invoice'  => null,
             'invoices' => Invoice::scope()
@@ -170,17 +177,17 @@ class PaymentController extends BaseController
             'url'          => 'payments/' . $payment->public_id,
             'title'        => trans('texts.edit_payment'),
             'actions'      => $actions,
-            'paymentTypes' => \Illuminate\Support\Facades\Cache::get('paymentTypes'),
+            'paymentTypes' => Cache::get('paymentTypes'),
             'clients'      => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('payments.edit', $data);
+        return View::make('payments.edit', $data);
     }
 
     /**
      * @param CreatePaymentRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreatePaymentRequest $request)
     {
@@ -197,11 +204,11 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentService->save($input, null, $request->invoice);
 
-        if (\Illuminate\Support\Facades\Request::input('email_receipt')) {
+        if (Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
-            \Illuminate\Support\Facades\Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
+            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
         } else {
-            \Illuminate\Support\Facades\Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
+            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
         }
 
         return url($payment->client->getRoute());
@@ -210,7 +217,7 @@ class PaymentController extends BaseController
     /**
      * @param UpdatePaymentRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdatePaymentRequest $request)
     {
@@ -220,28 +227,28 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentRepo->save($request->input(), $request->entity());
 
-        \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_payment'));
+        Session::flash('message', trans('texts.updated_payment'));
 
         return redirect()->to($payment->getRoute());
     }
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();
             $this->contactMailer->sendPaymentConfirmation($payment);
-            \Illuminate\Support\Facades\Session::flash('message', trans('texts.emailed_payment'));
+            Session::flash('message', trans('texts.emailed_payment'));
         } else {
             $count = $this->paymentService->bulk($ids, $action, [
-                'refund_amount' => \Illuminate\Support\Facades\Request::input('refund_amount'),
-                'refund_email'  => \Illuminate\Support\Facades\Request::input('refund_email'),
+                'refund_amount' => Request::input('refund_amount'),
+                'refund_email'  => Request::input('refund_email'),
             ]);
             if ($count > 0) {
                 $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action . 'd_payment', $count);
-                \Illuminate\Support\Facades\Session::flash('message', $message);
+                Session::flash('message', $message);
             }
         }
 

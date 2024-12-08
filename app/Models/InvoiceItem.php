@@ -2,68 +2,71 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\InvoiceItemPresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class InvoiceItem.
  *
- * @property int                             $id
- * @property int                             $account_id
- * @property int                             $user_id
- * @property int                             $invoice_id
- * @property int|null                        $product_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string                          $product_key
- * @property string                          $notes
- * @property string                          $cost
- * @property string|null                     $qty
- * @property string|null                     $tax_name1
- * @property string|null                     $tax_rate1
- * @property int                             $public_id
- * @property string|null                     $custom_value1
- * @property string|null                     $custom_value2
- * @property string|null                     $tax_name2
- * @property string                          $tax_rate2
- * @property int                             $invoice_item_type_id
- * @property string                          $discount
- * @property \App\Models\Account|null        $account
- * @property \App\Models\Invoice             $invoice
- * @property \App\Models\Product|null        $product
- * @property \App\Models\User                $user
+ * @property int          $id
+ * @property int          $account_id
+ * @property int          $user_id
+ * @property int          $invoice_id
+ * @property int|null     $product_id
+ * @property Carbon|null  $created_at
+ * @property Carbon|null  $updated_at
+ * @property Carbon|null  $deleted_at
+ * @property string       $product_key
+ * @property string       $notes
+ * @property string       $cost
+ * @property string|null  $qty
+ * @property string|null  $tax_name1
+ * @property string|null  $tax_rate1
+ * @property int          $public_id
+ * @property string|null  $custom_value1
+ * @property string|null  $custom_value2
+ * @property string|null  $tax_name2
+ * @property string       $tax_rate2
+ * @property int          $invoice_item_type_id
+ * @property string       $discount
+ * @property Account|null $account
+ * @property Invoice      $invoice
+ * @property Product|null $product
+ * @property User         $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereInvoiceItemTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereProductId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereProductKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereQty($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|InvoiceItem withoutTrashed()
+ * @method static Builder|InvoiceItem newModelQuery()
+ * @method static Builder|InvoiceItem newQuery()
+ * @method static Builder|InvoiceItem onlyTrashed()
+ * @method static Builder|InvoiceItem query()
+ * @method static Builder|InvoiceItem scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|InvoiceItem whereAccountId($value)
+ * @method static Builder|InvoiceItem whereCost($value)
+ * @method static Builder|InvoiceItem whereCreatedAt($value)
+ * @method static Builder|InvoiceItem whereCustomValue1($value)
+ * @method static Builder|InvoiceItem whereCustomValue2($value)
+ * @method static Builder|InvoiceItem whereDeletedAt($value)
+ * @method static Builder|InvoiceItem whereDiscount($value)
+ * @method static Builder|InvoiceItem whereId($value)
+ * @method static Builder|InvoiceItem whereInvoiceId($value)
+ * @method static Builder|InvoiceItem whereInvoiceItemTypeId($value)
+ * @method static Builder|InvoiceItem whereNotes($value)
+ * @method static Builder|InvoiceItem whereProductId($value)
+ * @method static Builder|InvoiceItem whereProductKey($value)
+ * @method static Builder|InvoiceItem wherePublicId($value)
+ * @method static Builder|InvoiceItem whereQty($value)
+ * @method static Builder|InvoiceItem whereTaxName1($value)
+ * @method static Builder|InvoiceItem whereTaxName2($value)
+ * @method static Builder|InvoiceItem whereTaxRate1($value)
+ * @method static Builder|InvoiceItem whereTaxRate2($value)
+ * @method static Builder|InvoiceItem whereUpdatedAt($value)
+ * @method static Builder|InvoiceItem whereUserId($value)
+ * @method static Builder|InvoiceItem withActiveOrSelected($id = false)
+ * @method static Builder|InvoiceItem withArchived()
+ * @method static Builder|InvoiceItem withTrashed()
+ * @method static Builder|InvoiceItem withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -75,7 +78,7 @@ class InvoiceItem extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = \App\Ninja\Presenters\InvoiceItemPresenter::class;
+    protected $presenter = InvoiceItemPresenter::class;
 
     /**
      * @var array
@@ -98,22 +101,22 @@ class InvoiceItem extends EntityModel
 
     public function invoice()
     {
-        return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function product()
     {
-        return $this->belongsTo(\App\Models\Product::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function getPreTaxAmount(): int|float

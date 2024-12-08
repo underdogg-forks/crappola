@@ -15,7 +15,7 @@ class PaymentTransformer extends BaseTransformer
      *
      * @return Item
      */
-    public function transform($data): \League\Fractal\Resource\Item
+    public function transform($data): Item
     {
         return new Item($data, fn ($data): array => [
             'amount'           => (float) $data->paid_to_date,

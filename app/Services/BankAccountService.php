@@ -13,6 +13,9 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
 use Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use OfxParser\Parser;
 use stdClass;
 use Utils;
 
@@ -21,13 +24,13 @@ use Utils;
  */
 class BankAccountService extends BaseService
 {
-    protected \App\Ninja\Repositories\BankAccountRepository $bankAccountRepo;
+    protected BankAccountRepository $bankAccountRepo;
 
-    protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
+    protected ExpenseRepository $expenseRepo;
 
-    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
+    protected VendorRepository $vendorRepo;
 
-    protected \App\Services\DatatableService $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * BankAccountService constructor.
@@ -174,7 +177,7 @@ class BankAccountService extends BaseService
     /**
      * @return BankAccountRepository
      */
-    protected function getRepo(): \App\Ninja\Repositories\BankAccountRepository
+    protected function getRepo(): BankAccountRepository
     {
         return $this->bankAccountRepo;
     }
@@ -214,7 +217,7 @@ class BankAccountService extends BaseService
 
         // look up bank account name
         foreach ($bankAccounts as $bankAccount) {
-            if (\Illuminate\Support\Facades\Hash::check($account->id, $bankAccount->account_number)) {
+            if (Hash::check($account->id, $bankAccount->account_number)) {
                 $obj->account_name = $bankAccount->account_name;
             }
         }
@@ -246,7 +249,7 @@ class BankAccountService extends BaseService
      */
     private function parseTransactions(stdClass $account, $data, $expenses, $vendorMap): stdClass
     {
-        $ofxParser = new \OfxParser\Parser();
+        $ofxParser = new Parser();
         $ofx = $ofxParser->loadFromString($data);
 
         $bankAccount = reset($ofx->bankAccounts);
@@ -272,7 +275,7 @@ class BankAccountService extends BaseService
             $transaction->vendor = $vendor ? $vendor->name : $this->prepareValue($vendorName);
             $transaction->info = $this->prepareValue(mb_substr($transaction->name, 20));
             $transaction->memo = $this->prepareValue($transaction->memo);
-            $transaction->date = \Illuminate\Support\Facades\Auth::user()->account->formatDate($transaction->date);
+            $transaction->date = Auth::user()->account->formatDate($transaction->date);
             $transaction->amount *= -1;
             $account->transactions[] = $transaction;
         }

@@ -9,6 +9,8 @@ use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -19,7 +21,7 @@ class ImportData extends Job implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    protected \App\Models\User $user;
+    protected User $user;
 
     /**
      * @var string
@@ -59,8 +61,8 @@ class ImportData extends Job implements ShouldQueue
     {
         $includeSettings = false;
 
-        if (\Illuminate\Support\Facades\App::runningInConsole()) {
-            \Illuminate\Support\Facades\Auth::onceUsingId($this->user->id);
+        if (App::runningInConsole()) {
+            Auth::onceUsingId($this->user->id);
             $this->user->account->loadLocalizationSettings();
         }
 
@@ -91,8 +93,8 @@ class ImportData extends Job implements ShouldQueue
 
         $userMailer->sendMessage($this->user, $subject, $message);
 
-        if (\Illuminate\Support\Facades\App::runningInConsole()) {
-            \Illuminate\Support\Facades\Auth::logout();
+        if (App::runningInConsole()) {
+            Auth::logout();
         }
     }
 }

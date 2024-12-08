@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -19,29 +20,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string                          $send_date
  * @property int|null                        $public_id
  * @property string|null                     $ip
- * @property \App\Models\Account             $account
- * @property \App\Models\User                $user
+ * @property Account                         $account
+ * @property User                            $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport query()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport scope(bool $publicId = false, bool $accountId = false)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereConfig($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereFrequency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport wherePublicId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereSendDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport withActiveOrSelected($id = false)
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport withArchived()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ScheduledReport withoutTrashed()
+ * @method static Builder|ScheduledReport newModelQuery()
+ * @method static Builder|ScheduledReport newQuery()
+ * @method static Builder|ScheduledReport onlyTrashed()
+ * @method static Builder|ScheduledReport query()
+ * @method static Builder|ScheduledReport scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|ScheduledReport whereAccountId($value)
+ * @method static Builder|ScheduledReport whereConfig($value)
+ * @method static Builder|ScheduledReport whereCreatedAt($value)
+ * @method static Builder|ScheduledReport whereDeletedAt($value)
+ * @method static Builder|ScheduledReport whereFrequency($value)
+ * @method static Builder|ScheduledReport whereId($value)
+ * @method static Builder|ScheduledReport whereIp($value)
+ * @method static Builder|ScheduledReport wherePublicId($value)
+ * @method static Builder|ScheduledReport whereSendDate($value)
+ * @method static Builder|ScheduledReport whereUpdatedAt($value)
+ * @method static Builder|ScheduledReport whereUserId($value)
+ * @method static Builder|ScheduledReport withActiveOrSelected($id = false)
+ * @method static Builder|ScheduledReport withArchived()
+ * @method static Builder|ScheduledReport withTrashed()
+ * @method static Builder|ScheduledReport withoutTrashed()
  *
  * @mixin \Eloquent
  */
@@ -60,12 +61,12 @@ class ScheduledReport extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo(\App\Models\Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function updateSendDate(): void

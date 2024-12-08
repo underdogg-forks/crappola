@@ -5,6 +5,10 @@ namespace App\Services;
 use App\Events\UserLoggedIn;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
 use Socialite;
 use Utils;
 
@@ -23,7 +27,7 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    private readonly \App\Ninja\Repositories\AccountRepository $accountRepo;
+    private readonly AccountRepository $accountRepo;
 
     /**
      * AuthService constructor.
@@ -61,7 +65,7 @@ class AuthService
      * @param $provider
      * @param $hasCode
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function execute($provider, $hasCode)
     {
@@ -76,22 +80,22 @@ class AuthService
         $oauthUserId = $socialiteUser->id;
         $name = Utils::splitName($socialiteUser->name);
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
-            $user = \Illuminate\Support\Facades\Auth::user();
+        if (Auth::check()) {
+            $user = Auth::user();
             $isRegistered = $user->registered;
             $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
                 if ( ! $isRegistered) {
-                    \Illuminate\Support\Facades\Session::flash('warning', trans('texts.success_message'));
-                    \Illuminate\Support\Facades\Session::flash('onReady', 'handleSignedUp();');
+                    Session::flash('warning', trans('texts.success_message'));
+                    Session::flash('onReady', 'handleSignedUp();');
                 } else {
-                    \Illuminate\Support\Facades\Session::flash('message', trans('texts.updated_settings'));
+                    Session::flash('message', trans('texts.updated_settings'));
 
                     return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
                 }
             } else {
-                \Illuminate\Support\Facades\Session::flash('error', $result);
+                Session::flash('error', $result);
             }
         } else {
             LookupUser::setServerByField('oauth_user_key', $providerId . '-' . $oauthUserId);
@@ -102,16 +106,16 @@ class AuthService
                     return redirect('/validate_two_factor/' . $user->account->account_key);
                 }
 
-                \Illuminate\Support\Facades\Auth::login($user);
+                Auth::login($user);
                 event(new UserLoggedIn());
             } else {
-                \Illuminate\Support\Facades\Session::flash('error', trans('texts.invalid_credentials'));
+                Session::flash('error', trans('texts.invalid_credentials'));
 
                 return redirect()->to('login');
             }
         }
 
-        $redirectTo = \Illuminate\Support\Facades\Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Illuminate\Support\Facades\Request::input('redirect_to'), '/') : 'dashboard';
+        $redirectTo = Request::input('redirect_to') ? SITE_URL . '/' . ltrim(Request::input('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }

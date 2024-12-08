@@ -2,22 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+
 /**
  * Class Client.
  *
- * @property string                          $email
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string                          $token
+ * @property string      $email
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string      $token
  *
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset query()
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PasswordReset whereUpdatedAt($value)
+ * @method static Builder|PasswordReset newModelQuery()
+ * @method static Builder|PasswordReset newQuery()
+ * @method static Builder|PasswordReset query()
+ * @method static Builder|PasswordReset whereCreatedAt($value)
+ * @method static Builder|PasswordReset whereEmail($value)
+ * @method static Builder|PasswordReset whereToken($value)
+ * @method static Builder|PasswordReset whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
-class PasswordReset extends \Illuminate\Database\Eloquent\Model {}
+class PasswordReset extends Model {}

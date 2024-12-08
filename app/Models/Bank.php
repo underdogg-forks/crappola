@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class Bank.
  *
@@ -11,18 +14,18 @@ namespace App\Models;
  * @property int    $bank_library_id
  * @property string $config
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Bank newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Bank newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Bank query()
- * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankLibraryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Bank whereConfig($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Bank whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Bank whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Bank whereRemoteId($value)
+ * @method static Builder|Bank newModelQuery()
+ * @method static Builder|Bank newQuery()
+ * @method static Builder|Bank query()
+ * @method static Builder|Bank whereBankLibraryId($value)
+ * @method static Builder|Bank whereConfig($value)
+ * @method static Builder|Bank whereId($value)
+ * @method static Builder|Bank whereName($value)
+ * @method static Builder|Bank whereRemoteId($value)
  *
  * @mixin \Eloquent
  */
-class Bank extends \Illuminate\Database\Eloquent\Model
+class Bank extends Model
 {
     /**
      * @var bool

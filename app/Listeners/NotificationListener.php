@@ -21,11 +21,11 @@ use App\Services\PushService;
  */
 class NotificationListener
 {
-    protected \App\Ninja\Mailers\UserMailer $userMailer;
+    protected UserMailer $userMailer;
 
-    protected \App\Ninja\Mailers\ContactMailer $contactMailer;
+    protected ContactMailer $contactMailer;
 
-    protected \App\Services\PushService $pushService;
+    protected PushService $pushService;
 
     /**
      * NotificationListener constructor.

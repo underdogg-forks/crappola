@@ -10,15 +10,20 @@ use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use App\Services\CreditService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class CreditController extends BaseController
 {
     public $entityType = ENTITY_CREDIT;
 
-    protected \App\Ninja\Repositories\CreditRepository $creditRepo;
+    protected CreditRepository $creditRepo;
 
-    protected \App\Services\CreditService $creditService;
+    protected CreditService $creditService;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
@@ -35,7 +40,7 @@ class CreditController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_CREDIT,
             'datatable'  => new CreditDatatable(),
             'title'      => trans('texts.credits'),
@@ -44,13 +49,13 @@ class CreditController extends BaseController
 
     public function getDatatable($clientPublicId = null)
     {
-        return $this->creditService->getDatatable($clientPublicId, \Illuminate\Support\Facades\Request::input('sSearch'));
+        return $this->creditService->getDatatable($clientPublicId, Request::input('sSearch'));
     }
 
     public function create(CreditRequest $request)
     {
         $data = [
-            'clientPublicId' => \Illuminate\Support\Facades\Request::old('client') ?: ($request->client_id ?: 0),
+            'clientPublicId' => Request::old('client') ?: ($request->client_id ?: 0),
             'credit'         => null,
             'method'         => 'POST',
             'url'            => 'credits',
@@ -58,7 +63,7 @@ class CreditController extends BaseController
             'clients'        => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('credits.edit', $data);
+        return View::make('credits.edit', $data);
     }
 
     public function edit(string $publicId)
@@ -79,19 +84,19 @@ class CreditController extends BaseController
             'clients'        => null,
         ];
 
-        return \Illuminate\Support\Facades\View::make('credits.edit', $data);
+        return View::make('credits.edit', $data);
     }
 
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function show($publicId)
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
-        return \Illuminate\Support\Facades\Redirect::to(sprintf('credits/%s/edit', $publicId));
+        return Redirect::to(sprintf('credits/%s/edit', $publicId));
     }
 
     public function update(UpdateCreditRequest $request)
@@ -108,13 +113,13 @@ class CreditController extends BaseController
 
     public function bulk()
     {
-        $action = \Illuminate\Support\Facades\Request::input('action');
-        $ids = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
         $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
             $message = Utils::pluralize($action . 'd_credit', $count);
-            \Illuminate\Support\Facades\Session::flash('message', $message);
+            Session::flash('message', $message);
         }
 
         return $this->returnBulk(ENTITY_CREDIT, $action, $ids);
@@ -122,10 +127,10 @@ class CreditController extends BaseController
 
     private function save($credit = null)
     {
-        $credit = $this->creditService->save(\Illuminate\Support\Facades\Request::all(), $credit);
+        $credit = $this->creditService->save(Request::all(), $credit);
 
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
-        \Illuminate\Support\Facades\Session::flash('message', $message);
+        Session::flash('message', $message);
 
         return redirect()->to(sprintf('clients/%s#credits', $credit->client->public_id));
     }

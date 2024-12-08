@@ -15,7 +15,7 @@ class InvoiceTransformerBAK extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): false|\League\Fractal\Resource\Item
+    public function transform($data): false|Item
     {
         if ( ! $this->getClientId($data->organization)) {
             return false;

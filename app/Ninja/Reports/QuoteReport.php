@@ -5,6 +5,7 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class QuoteReport extends AbstractReport
 {
@@ -41,7 +42,7 @@ class QuoteReport extends AbstractReport
 
     public function run(): void
     {
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $hasTaxRates = TaxRate::scope()->count();

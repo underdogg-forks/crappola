@@ -3,6 +3,7 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Client;
+use League\Fractal\Resource\Collection;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
@@ -64,7 +65,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeActivities(Client $client)
     {
@@ -76,7 +77,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeContacts(Client $client)
     {
@@ -88,7 +89,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeInvoices(Client $client)
     {
@@ -100,7 +101,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeCredits(Client $client)
     {
@@ -112,7 +113,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeExpenses(Client $client)
     {

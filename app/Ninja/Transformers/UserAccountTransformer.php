@@ -4,6 +4,7 @@ namespace App\Ninja\Transformers;
 
 use App\Models\Account;
 use App\Models\User;
+use League\Fractal\Resource\Collection;
 
 class UserAccountTransformer extends EntityTransformer
 {
@@ -85,7 +86,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeCustomPaymentTerms(User $user)
     {
@@ -97,7 +98,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeUsers(User $user)
     {
@@ -109,7 +110,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeTaskStatuses(User $user)
     {
@@ -121,7 +122,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeAccountEmailSettings(User $user)
     {
@@ -133,7 +134,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeExpenseCategories(User $user)
     {
@@ -145,7 +146,7 @@ class UserAccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeTaxRates(User $user)
     {

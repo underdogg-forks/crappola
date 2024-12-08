@@ -11,7 +11,7 @@ use App\Ninja\Notifications\PushFactory;
  */
 class PushService
 {
-    protected \App\Ninja\Notifications\PushFactory $pushFactory;
+    protected PushFactory $pushFactory;
 
     /**
      * @param PushFactory $pushFactory

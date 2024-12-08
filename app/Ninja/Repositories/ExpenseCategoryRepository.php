@@ -3,12 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ExpenseCategory;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
     public function getClassName(): string
     {
-        return \App\Models\ExpenseCategory::class;
+        return ExpenseCategory::class;
     }
 
     public function all()
@@ -18,8 +20,8 @@ class ExpenseCategoryRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $query = \Illuminate\Support\Facades\DB::table('expense_categories')
-            ->where('expense_categories.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)
+        $query = DB::table('expense_categories')
+            ->where('expense_categories.account_id', '=', Auth::user()->account_id)
             ->select(
                 'expense_categories.name as category',
                 'expense_categories.public_id',

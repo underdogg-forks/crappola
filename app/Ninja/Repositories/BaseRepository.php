@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -78,7 +79,7 @@ class BaseRepository
         $entities = $this->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if (\Illuminate\Support\Facades\Auth::user()->can('edit', $entity)) {
+            if (Auth::user()->can('edit', $entity)) {
                 $this->{$action}($entity);
             }
         }

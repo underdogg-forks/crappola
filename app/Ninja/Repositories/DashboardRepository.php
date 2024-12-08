@@ -8,6 +8,7 @@ use App\Models\Task;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class DashboardRepository
@@ -122,13 +123,13 @@ class DashboardRepository
     public function totals($accountId, $userId, $viewAll)
     {
         // total_income, billed_clients, invoice_sent and active_clients
-        $select = \Illuminate\Support\Facades\DB::raw(
-            'COUNT(DISTINCT CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('invoices.id', true) . ' IS NOT NULL THEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.id', true) . ' ELSE null END) billed_clients,
-            SUM(CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('invoices.invoice_status_id', true) . ' >= ' . INVOICE_STATUS_SENT . ' THEN 1 ELSE 0 END) invoices_sent,
-            COUNT(DISTINCT ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.id', true) . ') active_clients'
+        $select = DB::raw(
+            'COUNT(DISTINCT CASE WHEN ' . DB::getQueryGrammar()->wrap('invoices.id', true) . ' IS NOT NULL THEN ' . DB::getQueryGrammar()->wrap('clients.id', true) . ' ELSE null END) billed_clients,
+            SUM(CASE WHEN ' . DB::getQueryGrammar()->wrap('invoices.invoice_status_id', true) . ' >= ' . INVOICE_STATUS_SENT . ' THEN 1 ELSE 0 END) invoices_sent,
+            COUNT(DISTINCT ' . DB::getQueryGrammar()->wrap('clients.id', true) . ') active_clients'
         );
 
-        $metrics = \Illuminate\Support\Facades\DB::table('accounts')
+        $metrics = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
@@ -155,11 +156,11 @@ class DashboardRepository
     public function paidToDate($account, $userId, $viewAll, $startDate = false)
     {
         $accountId = $account->id;
-        $select = \Illuminate\Support\Facades\DB::raw(
-            'SUM(' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('payments.amount', true) . ' - ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('payments.refunded', true) . ') as value,'
-                  . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
+        $select = DB::raw(
+            'SUM(' . DB::getQueryGrammar()->wrap('payments.amount', true) . ' - ' . DB::getQueryGrammar()->wrap('payments.refunded', true) . ') as value,'
+                  . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
         );
-        $paidToDate = \Illuminate\Support\Facades\DB::table('payments')
+        $paidToDate = DB::table('payments')
             ->select($select)
             ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
@@ -180,18 +181,18 @@ class DashboardRepository
         }
 
         return $paidToDate->groupBy('payments.account_id')
-            ->groupBy(\Illuminate\Support\Facades\DB::raw('CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN ' . ($account->currency_id ?: DEFAULT_CURRENCY) . ' ELSE ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'))
+            ->groupBy(DB::raw('CASE WHEN ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN ' . ($account->currency_id ?: DEFAULT_CURRENCY) . ' ELSE ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'))
             ->get();
     }
 
     public function averages($account, $userId, $viewAll)
     {
         $accountId = $account->id;
-        $select = \Illuminate\Support\Facades\DB::raw(
-            'AVG(' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('invoices.amount', true) . ') as invoice_avg, '
-                  . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
+        $select = DB::raw(
+            'AVG(' . DB::getQueryGrammar()->wrap('invoices.amount', true) . ') as invoice_avg, '
+                  . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
         );
-        $averageInvoice = \Illuminate\Support\Facades\DB::table('accounts')
+        $averageInvoice = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
@@ -211,23 +212,23 @@ class DashboardRepository
         }
 
         return $averageInvoice->groupBy('accounts.id')
-            ->groupBy(\Illuminate\Support\Facades\DB::raw('CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' IS NULL THEN 1 ELSE ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' END ELSE ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'))
+            ->groupBy(DB::raw('CASE WHEN ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN CASE WHEN ' . DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' IS NULL THEN 1 ELSE ' . DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' END ELSE ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'))
             ->get();
     }
 
     public function balances($accountId, $userId, $viewAll)
     {
-        $select = \Illuminate\Support\Facades\DB::raw(
-            'SUM(' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.balance', true) . ') as value, '
-                  . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
+        $select = DB::raw(
+            'SUM(' . DB::getQueryGrammar()->wrap('clients.balance', true) . ') as value, '
+                  . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
         );
-        $balances = \Illuminate\Support\Facades\DB::table('accounts')
+        $balances = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
-            ->groupBy(\Illuminate\Support\Facades\DB::raw('CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN CASE WHEN ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' IS NULL THEN 1 ELSE ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' END ELSE ' . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'));
+            ->groupBy(DB::raw('CASE WHEN ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' IS NULL THEN CASE WHEN ' . DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' IS NULL THEN 1 ELSE ' . DB::getQueryGrammar()->wrap('accounts.currency_id', true) . ' END ELSE ' . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' END'));
 
         if ( ! $viewAll) {
             $balances->where('clients.user_id', '=', $userId);
@@ -253,7 +254,7 @@ class DashboardRepository
 
     public function pastDue($accountId, $userId, $viewAll)
     {
-        $pastDue = \Illuminate\Support\Facades\DB::table('invoices')
+        $pastDue = DB::table('invoices')
             ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
@@ -266,13 +267,13 @@ class DashboardRepository
             ->where('invoices.deleted_at', '=', null)
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
-            ->where(\Illuminate\Support\Facades\DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', date('Y-m-d'));
+            ->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', date('Y-m-d'));
 
         if ( ! $viewAll) {
             $pastDue = $pastDue->where('invoices.user_id', '=', $userId);
         }
 
-        return $pastDue->select([\Illuminate\Support\Facades\DB::raw('coalesce(invoices.partial_due_date, invoices.due_date) due_date'), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
+        return $pastDue->select([DB::raw('coalesce(invoices.partial_due_date, invoices.due_date) due_date'), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
             ->orderBy('invoices.due_date', 'asc')
             ->take(100)
             ->get();
@@ -280,7 +281,7 @@ class DashboardRepository
 
     public function upcoming($accountId, $userId, $viewAll)
     {
-        $upcoming = \Illuminate\Support\Facades\DB::table('invoices')
+        $upcoming = DB::table('invoices')
             ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('invoices.account_id', '=', $accountId)
@@ -294,7 +295,7 @@ class DashboardRepository
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
             ->where(function ($query): void {
-                $query->where(\Illuminate\Support\Facades\DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', date('Y-m-d'))
+                $query->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', date('Y-m-d'))
                     ->orWhereNull('invoices.due_date');
             })
             ->orderBy('invoices.due_date', 'asc');
@@ -304,13 +305,13 @@ class DashboardRepository
         }
 
         return $upcoming->take(100)
-            ->select([\Illuminate\Support\Facades\DB::raw('coalesce(invoices.partial_due_date, invoices.due_date) due_date'), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
+            ->select([DB::raw('coalesce(invoices.partial_due_date, invoices.due_date) due_date'), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
             ->get();
     }
 
     public function payments($accountId, $userId, $viewAll)
     {
-        $payments = \Illuminate\Support\Facades\DB::table('payments')
+        $payments = DB::table('payments')
             ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -326,7 +327,7 @@ class DashboardRepository
             $payments = $payments->where('payments.user_id', '=', $userId);
         }
 
-        return $payments->select(['payments.payment_date', \Illuminate\Support\Facades\DB::raw('(payments.amount - payments.refunded) as amount'), 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
+        return $payments->select(['payments.payment_date', DB::raw('(payments.amount - payments.refunded) as amount'), 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
             ->orderBy('payments.payment_date', 'desc')
             ->take(100)
             ->get();
@@ -334,15 +335,15 @@ class DashboardRepository
 
     public function expenses($account, $userId, $viewAll)
     {
-        $amountField = \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.amount', true);
-        $taxRate1Field = \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
-        $taxRate2Field = \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
+        $amountField = DB::getQueryGrammar()->wrap('expenses.amount', true);
+        $taxRate1Field = DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
+        $taxRate2Field = DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
 
-        $select = \Illuminate\Support\Facades\DB::raw(
+        $select = DB::raw(
             sprintf('SUM(%s + (%s * %s / 100) + (%s * %s / 100)) as value,', $amountField, $amountField, $taxRate1Field, $amountField, $taxRate2Field)
-                  . \Illuminate\Support\Facades\DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true) . ' as currency_id'
+                  . DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true) . ' as currency_id'
         );
-        $expenses = \Illuminate\Support\Facades\DB::table('accounts')
+        $expenses = DB::table('accounts')
             ->select($select)
             ->leftJoin('expenses', 'accounts.id', '=', 'expenses.account_id')
             ->where('accounts.id', '=', $account->id)
@@ -379,7 +380,7 @@ class DashboardRepository
         $currencyId = (int) $currencyId;
         $timeframe = 'concat(YEAR(' . $entityType . '_date), ' . $groupBy . '(' . $entityType . '_date))';
 
-        $records = \Illuminate\Support\Facades\DB::table($entityType . 's')
+        $records = DB::table($entityType . 's')
             ->leftJoin('clients', 'clients.id', '=', $entityType . 's.client_id')
             ->whereRaw('(clients.id IS NULL OR clients.is_deleted = 0)')
             ->where($entityType . 's.account_id', '=', $accountId)
@@ -397,17 +398,17 @@ class DashboardRepository
         }
 
         if ($entityType === ENTITY_INVOICE) {
-            $records->select(\Illuminate\Support\Facades\DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
+            $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                 ->where('invoices.is_public', '=', true)
                 ->where('is_recurring', '=', false);
         } elseif ($entityType === ENTITY_PAYMENT) {
-            $records->select(\Illuminate\Support\Facades\DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, ' . $timeframe . ' as ' . $groupBy))
+            $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                 ->where('invoices.is_deleted', '=', false)
                 ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
         } elseif ($entityType === ENTITY_EXPENSE) {
-            $records->select(\Illuminate\Support\Facades\DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, ' . $timeframe . ' as ' . $groupBy));
+            $records->select(DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, ' . $timeframe . ' as ' . $groupBy));
         }
 
         return $records->get()->all();

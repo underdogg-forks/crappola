@@ -4,6 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Expense;
 use Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class RecurringExpenseDatatable extends EntityDatatable
@@ -108,7 +109,7 @@ class RecurringExpenseDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_recurring_expense'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('recurring_expenses/%s/edit', $model->public_id)),
+                fn ($model) => URL::to(sprintf('recurring_expenses/%s/edit', $model->public_id)),
                 fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_RECURRING_EXPENSE, $model]),
             ],
         ];

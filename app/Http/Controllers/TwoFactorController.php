@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Crypt;
 use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorController extends Controller
@@ -48,7 +49,7 @@ class TwoFactorController extends Controller
         }
 
         if ( ! $user->google_2fa_secret && $user->phone && $user->confirmed) {
-            $user->google_2fa_secret = \Illuminate\Support\Facades\Crypt::encrypt($secret);
+            $user->google_2fa_secret = Crypt::encrypt($secret);
             $user->save();
 
             session()->forget('2fa:secret');

@@ -6,10 +6,18 @@ use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Models\User;
+use App\Ninja\Repositories\AccountRepository;
 use Cache;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use Utils;
 
 class LoginController extends Controller
@@ -45,7 +53,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getLoginWrapper(Request $request)
     {
@@ -73,7 +81,7 @@ class LoginController extends Controller
     /**
      * @param Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function postLoginWrapper(Request $request)
     {
@@ -101,7 +109,7 @@ class LoginController extends Controller
             }
             */
         } else {
-            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), \Illuminate\Support\Arr::get($_SERVER, 'HTTP_USER_AGENT'));
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), Arr::get($_SERVER, 'HTTP_USER_AGENT'));
             if (config('app.log') == 'single') {
                 file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             } else {
@@ -118,7 +126,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getValidateToken()
     {
@@ -132,7 +140,7 @@ class LoginController extends Controller
     /**
      * @param App\Http\Requests\ValidateSecretRequest $request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function postValidateToken(ValidateTwoFactorRequest $request)
     {
@@ -145,12 +153,12 @@ class LoginController extends Controller
 
         //login and redirect user
         auth()->loginUsingId($userId);
-        \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
+        Event::dispatch(new UserLoggedIn());
 
         if ($trust = request()->trust) {
             $user = auth()->user();
             if ( ! $user->remember_2fa_token) {
-                $user->remember_2fa_token = \Illuminate\Support\Str::random(60);
+                $user->remember_2fa_token = Str::random(60);
                 $user->save();
             }
 
@@ -162,14 +170,14 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getLogoutWrapper(Request $request)
     {
         if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
             if (request()->force_logout) {
                 $account = auth()->user()->account;
-                app(\App\Ninja\Repositories\AccountRepository::class)->unlinkAccount($account);
+                app(AccountRepository::class)->unlinkAccount($account);
 
                 if ( ! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
@@ -184,7 +192,7 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ($reason !== '' && $reason !== '0' && \Illuminate\Support\Facades\Lang::has(sprintf('texts.%s_logout', $reason))) {
+        if ($reason !== '' && $reason !== '0' && Lang::has(sprintf('texts.%s_logout', $reason))) {
             session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
         }
 
@@ -194,9 +202,9 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function sendFailedLoginResponse(Request $request)
     {
@@ -210,17 +218,17 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param \Illuminate\Http\Request                   $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * @param Request         $request
+     * @param Authenticatable $user
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     private function authenticated(Request $request, Authenticatable $user)
     {
         if ($user->google_2fa_secret) {
             $cookie = false;
             if ($user->remember_2fa_token) {
-                $cookie = \Illuminate\Support\Facades\Cookie::get('remember_2fa_' . sha1($user->id));
+                $cookie = Cookie::get('remember_2fa_' . sha1($user->id));
             }
 
             if ($cookie && hash_equals($user->remember_2fa_token, $cookie)) {
@@ -233,7 +241,7 @@ class LoginController extends Controller
             }
         }
 
-        \Illuminate\Support\Facades\Event::dispatch(new UserLoggedIn());
+        Event::dispatch(new UserLoggedIn());
 
         return redirect()->intended($this->redirectTo);
     }

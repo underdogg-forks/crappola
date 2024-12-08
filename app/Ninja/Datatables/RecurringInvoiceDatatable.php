@@ -4,6 +4,8 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Invoice;
 use Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Utils;
 
 class RecurringInvoiceDatatable extends EntityDatatable
@@ -68,18 +70,18 @@ class RecurringInvoiceDatatable extends EntityDatatable
         return [
             [
                 trans('texts.edit_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/edit', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('view', [ENTITY_INVOICE, $model]),
+                fn ($model) => URL::to(sprintf('invoices/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_INVOICE, $model]),
             ],
             [
                 trans('texts.clone_invoice'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('invoices/%s/clone', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_INVOICE),
+                fn ($model) => URL::to(sprintf('invoices/%s/clone', $model->public_id)),
+                fn ($model) => Auth::user()->can('create', ENTITY_INVOICE),
             ],
             [
                 trans('texts.clone_quote'),
-                fn ($model) => \Illuminate\Support\Facades\URL::to(sprintf('quotes/%s/clone', $model->public_id)),
-                fn ($model) => \Illuminate\Support\Facades\Auth::user()->can('create', ENTITY_QUOTE),
+                fn ($model) => URL::to(sprintf('quotes/%s/clone', $model->public_id)),
+                fn ($model) => Auth::user()->can('create', ENTITY_QUOTE),
             ],
         ];
     }
