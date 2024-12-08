@@ -308,17 +308,11 @@ class Vendor extends EntityModel
         return 'vendor';
     }
 
-    /**
-     * @return bool
-     */
     public function showMap(): bool
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAddress(): bool
     {
         $fields = [

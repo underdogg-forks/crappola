@@ -17,8 +17,8 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Carbon;
-use Crawler;
 use Exception;
+use Symfony\Component\DomCrawler\Crawler;
 use Utils;
 
 /**
@@ -45,14 +45,6 @@ class OnlinePaymentController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    /**
-     * @param       $invitationKey
-     * @param bool  $gatewayType
-     * @param bool  $sourceId
-     * @param mixed $gatewayTypeAlias
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function showPayment($invitationKey, $gatewayTypeAlias = false, $sourceId = false)
     {
         if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {

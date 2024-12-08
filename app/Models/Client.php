@@ -450,17 +450,11 @@ class Client extends EntityModel
         return ENTITY_CLIENT;
     }
 
-    /**
-     * @return bool
-     */
     public function showMap(): bool
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
-    /**
-     * @return bool
-     */
     public function addressesMatch(): bool
     {
         $fields = [
@@ -481,9 +475,6 @@ class Client extends EntityModel
         return true;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAddress($shipping = false): bool
     {
         $fields = [
@@ -517,9 +508,6 @@ class Client extends EntityModel
         return $this->created_at->format('m/d/y h:i a');
     }
 
-    /**
-     * @return bool
-     */
     public function getGatewayToken()
     {
         $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
@@ -531,9 +519,6 @@ class Client extends EntityModel
         return AccountGatewayToken::clientAndGateway($this->id, $accountGateway->id)->first();
     }
 
-    /**
-     * @return bool
-     */
     public function defaultPaymentMethod()
     {
         if ($token = $this->getGatewayToken()) {
@@ -543,9 +528,6 @@ class Client extends EntityModel
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public function autoBillLater()
     {
         if ($token = $this->getGatewayToken()) {
@@ -619,17 +601,11 @@ class Client extends EntityModel
         $this->save();
     }
 
-    /**
-     * @return bool
-     */
     public function hasAutoBillConfigurableInvoices(): bool
     {
         return $this->invoices()->whereIsPublic(true)->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
     }
 
-    /**
-     * @return bool
-     */
     public function hasRecurringInvoices(): bool
     {
         return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;

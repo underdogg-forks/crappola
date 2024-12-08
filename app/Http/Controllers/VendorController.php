@@ -10,6 +10,7 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
+use Illuminate\Support\Facades\Response;
 use Utils;
 
 class VendorController extends BaseController
@@ -89,11 +90,6 @@ class VendorController extends BaseController
         return \Illuminate\Support\Facades\View::make('vendors.show', $data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
     public function create(VendorRequest $request)
     {
         if (Vendor::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumVendors()) {
@@ -112,14 +108,7 @@ class VendorController extends BaseController
         return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function edit(VendorRequest $request)
+    public function edit(VendorRequest $request): \Illuminate\Contracts\View\View
     {
         $vendor = $request->entity();
 
@@ -132,20 +121,14 @@ class VendorController extends BaseController
 
         $data = array_merge($data, $this->getViewModel());
 
-        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
+        $client = null;
+        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client?->public_id)->first())) {
             $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
         return \Illuminate\Support\Facades\View::make('vendors.edit', $data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function update(UpdateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input(), $request->entity());

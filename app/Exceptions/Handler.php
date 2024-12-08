@@ -2,17 +2,14 @@
 
 namespace App\Exceptions;
 
-use App\Http\Requests\Request;
-use Crawler;
-use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 use Utils;
@@ -95,14 +92,9 @@ class Handler extends ExceptionHandler
         return parent::report($e);
     }
 
-    /**
-     * Render an exception into an HTTP response.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function render($request, Throwable $e)
     {
-        $value = \Illuminate\Support\Facades\Request::header('X-Ninja-Token');
+        $value = Request::header('X-Ninja-Token');
 
         if ($e instanceof ModelNotFoundException) {
             if (isset($value) && mb_strlen($value) > 1) {
@@ -178,15 +170,7 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
-    /**
-     * Convert an authentication exception into an unauthenticated response.
-     *
-     * @param \Illuminate\Http\Request                 $request
-     * @param \Illuminate\Auth\AuthenticationException $exception
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function unauthenticated($request, AuthenticationException $exception)
+    protected function unauthenticated($request, AuthenticationException $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);

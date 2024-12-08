@@ -61,7 +61,7 @@ class AccountPresenter extends Presenter
         return $currency->code;
     }
 
-    public function clientPortalLink($subdomain = false)
+    public function clientPortalLink($subdomain = false): array|string
     {
         $account = $this->entity;
         $url = Domain::getLinkFromId($account->domain_id);
@@ -136,7 +136,7 @@ class AccountPresenter extends Presenter
         $year = $yearStart->year;
         $lastYear = $year - 1;
 
-        $str = '{
+        return '{
             "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
             "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
             "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
@@ -144,8 +144,6 @@ class AccountPresenter extends Presenter
             "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
             "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
         }';
-
-        return $str;
     }
 
     public function taxRateOptions(): array
@@ -172,7 +170,7 @@ class AccountPresenter extends Presenter
     {
         $fields = [
             'client1'       => 'custom_client1',
-            'client1'       => 'custom_client2',
+            'client2'       => 'custom_client2',
             'contact1'      => 'custom_contact1',
             'contact2'      => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',

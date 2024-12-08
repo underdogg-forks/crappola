@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Credit;
@@ -116,7 +117,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnXLS(\Illuminate\Http\Request $request, string $fileName)
+    private function returnXLS(\Illuminate\Http\Request $request, string $fileName): mixed
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $data = $this->getData($request);

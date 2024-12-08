@@ -300,9 +300,6 @@ class User extends Authenticatable
         return '';
     }
 
-    /**
-     * @return bool
-     */
     public function showGreyBackground(): bool
     {
         return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
@@ -367,9 +364,6 @@ class User extends Authenticatable
         }
     }
 
-    /**
-     * @return bool
-     */
     public function isEmailBeingChanged(): bool
     {
         return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');

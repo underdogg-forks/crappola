@@ -92,10 +92,7 @@ class CreateTestData extends Command
         $this->accountRepo = $accountRepo;
     }
 
-    /**
-     * @return bool
-     */
-    public function handle()
+    public function handle(): bool
     {
         if (Utils::isNinjaProd()) {
             $this->info('Unable to run in production');

@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Storage;
  */
 trait HasLogo
 {
-    /**
-     * @return bool
-     */
     public function hasLogo(): bool
     {
         return ! empty($this->logo);
@@ -55,7 +52,7 @@ trait HasLogo
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+        if ($adapter instanceof Local) {
             // Stored locally
             $logoUrl = url('/logo/' . $this->logo);
 
@@ -78,7 +75,7 @@ trait HasLogo
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+        if ($adapter instanceof Local) {
             return $adapter->applyPathPrefix($this->logo);
         }
 
@@ -133,9 +130,6 @@ trait HasLogo
         return $this->logo;
     }
 
-    /**
-     * @return bool
-     */
     public function isLogoTooLarge(): bool
     {
         return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;

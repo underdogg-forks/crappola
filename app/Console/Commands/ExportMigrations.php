@@ -94,7 +94,7 @@ class ExportMigrations extends Command
         }
     }
 
-    private function export($user): void
+    private function export($user)
     {
         $this->account = $user->account;
         Auth::login($user);
@@ -129,7 +129,6 @@ class ExportMigrations extends Command
             'task_statuses'         => $this->getTaskStatuses(),
             'expenses'              => $this->getExpenses(),
             'tasks'                 => $this->getTasks(),
-            'documents'             => $this->getDocuments(),
             'ninja_tokens'          => $this->getNinjaToken(),
         ];
 

@@ -55,7 +55,7 @@ use Utils;
  * @property \App\Models\User                                                    $user
  * @property \App\Models\Vendor|null                                             $vendor
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Expense bankId($bankdId = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense bankId($bankId = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Expense dateRange($startDate, $endDate)
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
@@ -326,13 +326,13 @@ class Expense extends EntityModel
     }
 
     /**
-     * @param null $bankdId
+     * @param null $bankId
      *
      * @return mixed
      */
-    public function scopeBankId($query, $bankdId = null)
+    public function scopeBankId($query, $bankId = null)
     {
-        if ($bankdId) {
+        if ($bankId) {
             $query->whereBankId($bankId);
         }
 

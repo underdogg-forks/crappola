@@ -85,7 +85,7 @@ class PushService
      *
      * @return string
      */
-    private function messageType(Invoice $invoice, $type)
+    private function messageType(Invoice $invoice, $type): string
     {
         switch ($type) {
             case 'sent':

@@ -273,13 +273,6 @@ class InvoiceController extends BaseController
         return url($invoice->getRoute());
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function update(UpdateInvoiceRequest $request)
     {
         $data = $request->input();

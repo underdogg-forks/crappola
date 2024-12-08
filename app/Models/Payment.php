@@ -230,49 +230,31 @@ class Payment extends EntityModel
         return trim('payment ' . $this->transaction_reference);
     }
 
-    /**
-     * @return bool
-     */
     public function isPending(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_PENDING;
     }
 
-    /**
-     * @return bool
-     */
     public function isFailed(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_FAILED;
     }
 
-    /**
-     * @return bool
-     */
     public function isCompleted(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
     }
 
-    /**
-     * @return bool
-     */
     public function isPartiallyRefunded(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
     }
 
-    /**
-     * @return bool
-     */
     public function isRefunded(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
     }
 
-    /**
-     * @return bool
-     */
     public function isVoided(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
@@ -316,9 +298,6 @@ class Payment extends EntityModel
         return true;
     }
 
-    /**
-     * @return bool
-     */
     public function markVoided(): bool
     {
         if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
@@ -367,9 +346,6 @@ class Payment extends EntityModel
         return $this->getCompletedAmount() > 0 && ($this->isCompleted() || $this->isPartiallyRefunded());
     }
 
-    /**
-     * @return bool
-     */
     public function isExchanged(): bool
     {
         return $this->exchange_currency_id || $this->exchange_rate != 1;

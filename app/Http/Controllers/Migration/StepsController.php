@@ -49,13 +49,12 @@ class StepsController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function start()
+    public function start(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         if (Utils::isNinja()) {
             session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
-            //    session()->put('MIGRATION_ENDPOINT', 'http://ninja.test:8000');
             session()->put('MIGRATION_ACCOUNT_TOKEN', '');
-            session()->put('MIGRAITON_API_SECRET', null);
+            session()->put('MIGRATION_API_SECRET');
 
             return $this->companies();
         }
@@ -63,7 +62,7 @@ class StepsController extends BaseController
         return view('migration.start');
     }
 
-    public function import()
+    public function import(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
         return view('migration.import');
     }
@@ -71,12 +70,12 @@ class StepsController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function download()
+    public function download(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         return view('migration.download');
     }
 
-    public function handleType(MigrationTypeRequest $request)
+    public function handleType(MigrationTypeRequest $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse
     {
         session()->put('MIGRATION_TYPE', $request->option);
 
@@ -186,7 +185,7 @@ class StepsController extends BaseController
 
         if ($authentication->isSuccessful()) {
             session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
-            session()->put('MIGRAITON_API_SECRET', $authentication->getApiSecret());
+            session()->put('MIGRATION_API_SECRET', $authentication->getApiSecret());
 
             return redirect(
                 url('/migration/companies')
@@ -196,7 +195,7 @@ class StepsController extends BaseController
         return back()->with('responseErrors', $authentication->getErrors());
     }
 
-    public function companies()
+    public function companies(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
@@ -216,7 +215,7 @@ class StepsController extends BaseController
         ], 500);
     }
 
-    public function handleCompanies(MigrationCompaniesRequest $request)
+    public function handleCompanies(MigrationCompaniesRequest $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
@@ -253,7 +252,7 @@ class StepsController extends BaseController
         return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
     }
 
-    public function completed()
+    public function completed(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
         return view('migration.completed');
     }
@@ -263,22 +262,17 @@ class StepsController extends BaseController
      * Rest of functions that are used as 'actions', not controller methods.
      * ==================================.
      */
-    public function shouldGoBack(string $step)
+    public function shouldGoBack(string $step): bool
     {
         $redirect = true;
 
         foreach ($this->access[$step]['steps'] as $step) {
-            $redirect = ! (bool) session()->has($step);
+            $redirect = ! session()->has($step);
         }
 
         return $redirect;
     }
 
-    /**
-     * Handle data downloading for the migration.
-     *
-     * @return string
-     */
     public function generateMigrationData(array $data): array
     {
         set_time_limit(0);
@@ -320,7 +314,6 @@ class StepsController extends BaseController
                 'task_statuses'         => $this->getTaskStatuses(),
                 'expenses'              => $this->getExpenses(),
                 'tasks'                 => $this->getTasks(),
-                'documents'             => $this->getDocuments(),
                 'ninja_tokens'          => $this->getNinjaToken(),
             ];
 
@@ -348,7 +341,7 @@ class StepsController extends BaseController
         // header("Content-Disposition: attachment; filename={$fileName}.zip");
     }
 
-    private function autoForwardUrl()
+    private function autoForwardUrl(): \Illuminate\Http\RedirectResponse
     {
         $url = 'https://invoicing.co/api/v1/confirm_forwarding';
         // $url = 'http://devhosted.test:8000/api/v1/confirm_forwarding';
@@ -420,9 +413,8 @@ class StepsController extends BaseController
                 $company->save();
             }
         } else {
-            info('failed to autoforward');
+            info('failed to auto forward');
             info(json_decode($response->getBody()->getContents()));
-            // dd('else');
         }
 
         return back();

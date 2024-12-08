@@ -900,17 +900,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->account_gateways->count() > 0;
     }
 
-    /**
-     * @return bool
-     */
     public function isEnglish(): bool
     {
         return ! $this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
 
-    /**
-     * @return bool
-     */
     public function hasInvoicePrefix()
     {
         if ( ! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
@@ -1363,17 +1357,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         \Illuminate\Support\Facades\Session::put('start_of_week', $this->start_of_week);
     }
 
-    /**
-     * @return bool
-     */
     public function isNinjaAccount(): bool
     {
         return str_starts_with($this->account_key, 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx7');
     }
 
-    /**
-     * @return bool
-     */
     public function isNinjaOrLicenseAccount()
     {
         if ($this->isNinjaAccount()) {
@@ -1636,9 +1624,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         ];
     }
 
-    /**
-     * @return bool
-     */
     public function isTrial()
     {
         if ( ! Utils::isNinjaProd()) {
@@ -1757,9 +1742,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
                 || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 
-    /**
-     * @return bool
-     */
     public function getTokenGatewayId(): int|bool
     {
         if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
@@ -1795,9 +1777,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->language_id && $this->language ? $this->language->locale : DEFAULT_LOCALE;
     }
 
-    /**
-     * @return bool
-     */
     public function selectTokenCheckbox(): bool
     {
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
@@ -1836,17 +1815,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return ! ( ! in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain);
     }
 
-    /**
-     * @return bool
-     */
     public function attachPDF(): bool
     {
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
     }
 
-    /**
-     * @return bool
-     */
     public function attachUBL(): bool
     {
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;

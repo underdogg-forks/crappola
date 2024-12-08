@@ -37,9 +37,6 @@ class CreateLuisData extends Command
         $this->faker = Factory::create();
     }
 
-    /**
-     * @return bool
-     */
     public function handle(): void
     {
         $this->fakerField = $this->argument('faker_field');

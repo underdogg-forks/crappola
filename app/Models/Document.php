@@ -155,7 +155,7 @@ class Document extends EntityModel
         $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
 
-        if ($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
+        if ($adapter instanceof AwsS3Adapter) {
             $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
@@ -166,7 +166,7 @@ class Document extends EntityModel
         }
 
         if ( ! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
-                   && $adapter instanceof \League\Flysystem\Rackspace\RackspaceAdapter) {
+                   && $adapter instanceof RackspaceAdapter) {
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
             if ($secret) {
                 $object = $adapter->getContainer()->getObject($fullPath);
@@ -319,9 +319,6 @@ class Document extends EntityModel
         return url('proposal/image/' . $this->account->account_key . '/' . $this->document_key . '/' . $this->name);
     }
 
-    /**
-     * @return bool
-     */
     public function isPDFEmbeddable(): bool
     {
         return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;

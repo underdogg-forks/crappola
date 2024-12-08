@@ -11,9 +11,6 @@ use Utils;
  */
 trait HasRecurrence
 {
-    /**
-     * @return bool
-     */
     public function shouldSendToday()
     {
         if (Utils::isSelfHost()) {
@@ -23,9 +20,6 @@ trait HasRecurrence
         return $this->shouldSendTodayOld();
     }
 
-    /**
-     * @return bool
-     */
     public function shouldSendTodayOld()
     {
         if ( ! $this->user->confirmed) {

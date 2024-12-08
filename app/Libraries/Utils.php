@@ -6,9 +6,9 @@ use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Module;
 use stdClass;
-use WePay;
 
 class Utils
 {
@@ -22,12 +22,12 @@ class Utils
 
     public static function isRegistered(): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->registered;
+        return Auth::check() && Auth::user()->registered;
     }
 
     public static function isConfirmed(): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->confirmed;
+        return Auth::check() && Auth::user()->confirmed;
     }
 
     public static function isDatabaseSetup()
@@ -56,13 +56,13 @@ class Utils
         return env('TRAVIS') == 'true';
     }
 
-    public static function isNinja()
+    public static function isNinja(): bool
     {
         if (self::isNinjaProd()) {
             return true;
         }
 
-        return (bool) self::isNinjaDev();
+        return self::isNinjaDev();
     }
 
     public static function isSelfHost(): bool
@@ -116,8 +116,8 @@ class Utils
     {
         $account = false;
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
+        if (Auth::check()) {
+            $account = Auth::user()->account;
         } elseif ($contactKey = session('contact_key')) {
             if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
                 $account = $contact->account;
@@ -136,8 +136,8 @@ class Utils
     {
         $account = false;
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
+        if (Auth::check()) {
+            $account = Auth::user()->account;
         } elseif ($contactKey = session('contact_key')) {
             if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
                 $account = $contact->account;
@@ -157,8 +157,8 @@ class Utils
         $account = false;
 
         if (self::isNinja()) {
-            if (\Illuminate\Support\Facades\Auth::check()) {
-                $account = \Illuminate\Support\Facades\Auth::user()->account;
+            if (Auth::check()) {
+                $account = Auth::user()->account;
             } elseif ($contactKey = session('contact_key')) {
                 if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
                     $account = $contact->account;
@@ -201,37 +201,37 @@ class Utils
             return true;
         }
 
-        return \Illuminate\Support\Facades\Auth::check();
+        return Auth::check();
     }
 
     public static function isPro(): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isPro();
+        return Auth::check() && Auth::user()->isPro();
     }
 
     public static function hasFeature($feature): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasFeature($feature);
+        return Auth::check() && Auth::user()->hasFeature($feature);
     }
 
     public static function isAdmin(): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     public static function hasPermission($permission, $requireAll = false): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasPermission($permission, $requireAll);
+        return Auth::check() && Auth::user()->hasPermission($permission, $requireAll);
     }
 
     public static function hasAllPermissions($permission): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasPermission($permission);
+        return Auth::check() && Auth::user()->hasPermission($permission);
     }
 
     public static function isTrial(): bool
     {
-        return \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isTrial();
+        return Auth::check() && Auth::user()->isTrial();
     }
 
     public static function isPaidPro(): bool
@@ -251,7 +251,7 @@ class Utils
         }
 
         $mysqlVersion = '5.7';
-        $accountKey = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account->account_key : '';
+        $accountKey = Auth::check() ? Auth::user()->account->account_key : '';
 
         $info = 'App Version: v' . NINJA_VERSION . '\\n' .
                 'White Label: ' . (self::isWhiteLabel() ? 'Yes' : 'No') . sprintf(' - %s\n', $accountKey) .
@@ -296,8 +296,8 @@ class Utils
 
     public static function getProLabel($feature): string
     {
-        if (\Illuminate\Support\Facades\Auth::check()
-                && ! \Illuminate\Support\Facades\Auth::user()->isPro()
+        if (Auth::check()
+                && ! Auth::user()->isPro()
                 && $feature == ACCOUNT_ADVANCED_SETTINGS) {
             return '&nbsp;<sup class="pro-label">PRO</sup>';
         }
@@ -430,9 +430,9 @@ class Utils
     {
         $data = [
             'context'    => $context,
-            'user_id'    => \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->id : 0,
-            'account_id' => \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->account_id : 0,
-            'user_name'  => \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->getDisplayName() : '',
+            'user_id'    => Auth::check() ? Auth::user()->id : 0,
+            'account_id' => Auth::check() ? Auth::user()->account_id : 0,
+            'user_name'  => Auth::check() ? Auth::user()->getDisplayName() : '',
             'method'     => \Illuminate\Support\Facades\Request::method(),
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
             'locale'     => \Illuminate\Support\Facades\App::getLocale(),
@@ -580,8 +580,8 @@ class Utils
             $decorator = \Illuminate\Support\Facades\Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL);
         }
 
-        if ( ! $countryId && \Illuminate\Support\Facades\Auth::check()) {
-            $countryId = \Illuminate\Support\Facades\Auth::user()->account->country_id;
+        if ( ! $countryId && Auth::check()) {
+            $countryId = Auth::user()->account->country_id;
         }
 
         $currency = self::getFromCache($currencyId, 'currencies');
@@ -1286,7 +1286,7 @@ class Utils
         return $url;
     }
 
-    public static function setupWePay($accountGateway = null)
+    /*public static function setupWePay($accountGateway = null)
     {
         if (WePay::getEnvironment() == 'none') {
             if (WEPAY_ENVIRONMENT == WEPAY_STAGE) {
@@ -1301,7 +1301,7 @@ class Utils
         }
 
         return new WePay(null);
-    }
+    }*/
 
     /**
      * Gets an array of weekday names (in English).

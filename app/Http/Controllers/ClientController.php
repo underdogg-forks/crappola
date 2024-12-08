@@ -18,6 +18,7 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Auth;
 use DropdownButton;
+use Illuminate\Support\Facades\Response;
 use Utils;
 use View;
 
@@ -147,7 +148,7 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function create(ClientRequest $request)
+    public function create(ClientRequest $request): Response
     {
         //Auth::user()->can('create', ENTITY_CLIENT);
 
@@ -167,14 +168,7 @@ class ClientController extends BaseController
         return \Illuminate\Support\Facades\View::make('clients.edit', $data);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function edit(ClientRequest $request)
+    public function edit(ClientRequest $request): \Illuminate\Contracts\View\View
     {
         $client = $request->entity();
 
@@ -194,13 +188,6 @@ class ClientController extends BaseController
         return \Illuminate\Support\Facades\View::make('clients.edit', $data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function update(UpdateClientRequest $request)
     {
         $client = $this->clientService->save($request->input(), $request->entity());

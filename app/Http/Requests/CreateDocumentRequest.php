@@ -9,23 +9,11 @@ class CreateDocumentRequest extends DocumentRequest
         ENTITY_EXPENSE,
     ];
 
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        if ($this->user()->hasFeature(FEATURE_DOCUMENTS)) {
-            return true;
-        }
+        return $this->user()->hasFeature(FEATURE_DOCUMENTS);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules(): array
     {
         return [

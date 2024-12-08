@@ -31,6 +31,7 @@ use App\Services\PaymentService;
 use App\Services\TemplateService;
 use Exception;
 use File;
+use Illuminate\Http\RedirectResponse;
 use Image;
 use Nwidart\Modules\Facades\Module;
 use stdClass;
@@ -76,7 +77,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function getStarted()
     {
@@ -124,7 +125,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function changePlan()
     {
@@ -227,22 +228,14 @@ class AccountController extends BaseController
         return RESULT_SUCCESS;
     }
 
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getSearchData()
+    public function getSearchData(): \Illuminate\Http\JsonResponse
     {
         $data = $this->accountRepo->getSearchData(\Illuminate\Support\Facades\Auth::user());
 
         return \Illuminate\Support\Facades\Response::json($data);
     }
 
-    /**
-     * @param bool $section
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
-     */
-    public function showSection($section = false)
+    public function showSection($section = false): \Illuminate\Contracts\View\View|RedirectResponse
     {
         if ( ! \Illuminate\Support\Facades\Auth::user()->is_admin) {
             return \Illuminate\Support\Facades\Redirect::to('/settings/user_details');
@@ -325,7 +318,7 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function showUserDetails()
+    public function showUserDetails(): \Illuminate\Contracts\View\View
     {
         if ( ! auth()->user()->registered) {
             return redirect('/')->withError(trans('texts.sign_up_to_save'));
@@ -348,12 +341,7 @@ class AccountController extends BaseController
         return \Illuminate\Support\Facades\View::make('accounts.user_details', $data);
     }
 
-    /**
-     * @param $section
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function doSection($section)
+    public function doSection($section): RedirectResponse
     {
         if ($section === ACCOUNT_LOCALIZATION) {
             return self::saveLocalization();
@@ -405,7 +393,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function saveClientPortalSettings(SaveClientPortalSettings $request)
     {
@@ -441,7 +429,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     public function saveEmailSettings(SaveEmailSettings $request)
     {
@@ -460,7 +448,7 @@ class AccountController extends BaseController
     /**
      * @param UpdateAccountRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function updateDetails(UpdateAccountRequest $request)
     {
@@ -541,7 +529,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     public function saveUserDetails()
     {
@@ -601,7 +589,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function removeLogo()
     {
@@ -729,7 +717,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function purgeData()
     {
@@ -739,7 +727,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function cancelAccount()
     {
@@ -792,7 +780,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function resendConfirmation()
     {
@@ -807,7 +795,7 @@ class AccountController extends BaseController
      * @param      $section
      * @param bool $subSection
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function redirectLegacy($section, $subSection = false)
     {
@@ -870,7 +858,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
      */
     private function showSystemSettings()
     {
@@ -989,7 +977,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
      */
     private function showOnlinePayments()
     {
@@ -1241,7 +1229,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveAccountManagement()
     {
@@ -1292,7 +1280,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveCustomizeDesign()
     {
@@ -1315,7 +1303,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveEmailTemplates()
     {
@@ -1357,7 +1345,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveTaxRates()
     {
@@ -1371,7 +1359,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveProducts()
     {
@@ -1389,7 +1377,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     private function saveInvoiceSettings()
     {
@@ -1476,7 +1464,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveInvoiceDesign()
     {
@@ -1514,7 +1502,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveNotifications()
     {
@@ -1537,7 +1525,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveLocalization()
     {
@@ -1563,7 +1551,7 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function saveOnlinePayments()
     {

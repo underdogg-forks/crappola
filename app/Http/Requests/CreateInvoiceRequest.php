@@ -6,11 +6,6 @@ use App\Models\Client;
 
 class CreateInvoiceRequest extends InvoiceRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize(): bool
     {
         if (request()->input('is_quote')) {
@@ -22,11 +17,6 @@ class CreateInvoiceRequest extends InvoiceRequest
         return $this->user()->can('create', $standardOrRecurringInvoice);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules(): array
     {
         $rules = [

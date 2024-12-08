@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\View;
 use Utils;
 
 class BaseController extends Controller
@@ -27,7 +28,7 @@ class BaseController extends Controller
         }
     }
 
-    protected function returnBulk($entityType, $action, $ids)
+    protected function returnBulk($entityType, $action, $ids): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse
     {
         if ( ! is_array($ids)) {
             $ids = [$ids];

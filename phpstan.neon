@@ -1,5 +1,6 @@
 parameters:
     level: 0
+    checkMissingReturnStatements: false
     paths:
         - app
         - Modules

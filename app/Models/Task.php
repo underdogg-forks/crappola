@@ -273,9 +273,6 @@ class Task extends EntityModel
         return 0;
     }
 
-    /**
-     * @return bool
-     */
     public function hasPreviousDuration(): bool
     {
         $parts = json_decode($this->time_log) ?: [];

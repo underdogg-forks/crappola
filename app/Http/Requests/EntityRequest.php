@@ -56,7 +56,7 @@ class EntityRequest extends Request
         $this->entity = $entity;
     }
 
-    public function authorize()
+    public function authorize(): bool
     {
         if ($this->entity()) {
             if ($this->user()->can('view', $this->entity())) {

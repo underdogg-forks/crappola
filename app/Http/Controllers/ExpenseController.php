@@ -168,13 +168,6 @@ class ExpenseController extends BaseController
         return \Illuminate\Support\Facades\View::make('expenses.edit', $data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function update(UpdateExpenseRequest $request)
     {
         $data = $request->input();

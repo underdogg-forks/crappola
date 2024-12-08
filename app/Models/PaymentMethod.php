@@ -266,9 +266,6 @@ class PaymentMethod extends EntityModel
         return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', mb_strtolower($this->payment_type->name))));
     }
 
-    /**
-     * @return bool
-     */
     public function requiresDelayedAutoBill(): bool
     {
         return $this->payment_type_id == PAYMENT_TYPE_ACH;

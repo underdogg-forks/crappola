@@ -193,57 +193,36 @@ class AccountGateway extends EntityModel
         return $this->getConfigField('appleMerchantId');
     }
 
-    /**
-     * @return bool
-     */
     public function getAchEnabled(): bool
     {
         return ! empty($this->getConfigField('enableAch'));
     }
 
-    /**
-     * @return bool
-     */
     public function getApplePayEnabled(): bool
     {
         return ! empty($this->getConfigField('enableApplePay'));
     }
 
-    /**
-     * @return bool
-     */
     public function getAlipayEnabled(): bool
     {
         return ! empty($this->getConfigField('enableAlipay'));
     }
 
-    /**
-     * @return bool
-     */
     public function getSofortEnabled(): bool
     {
         return ! empty($this->getConfigField('enableSofort'));
     }
 
-    /**
-     * @return bool
-     */
     public function getSepaEnabled(): bool
     {
         return ! empty($this->getConfigField('enableSepa'));
     }
 
-    /**
-     * @return bool
-     */
     public function getBitcoinEnabled(): bool
     {
         return ! empty($this->getConfigField('enableBitcoin'));
     }
 
-    /**
-     * @return bool
-     */
     public function getPayPalEnabled(): bool
     {
         return ! empty($this->getConfigField('enablePayPal'));
@@ -285,9 +264,6 @@ class AccountGateway extends EntityModel
         return $this->getConfigField('plaidPublicKey');
     }
 
-    /**
-     * @return bool
-     */
     public function getPlaidEnabled(): bool
     {
         return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();

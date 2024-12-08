@@ -376,9 +376,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
     }
 
-    /**
-     * @return bool
-     */
     public function affectsBalance(): bool
     {
         return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring && $this->is_public;
@@ -460,9 +457,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->amount - $this->balance;
     }
 
-    /**
-     * @return bool
-     */
     public function trashed(): bool
     {
         if ($this->client && $this->client->trashed()) {
@@ -650,9 +644,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->invoice_type_id == $typeId;
     }
 
-    /**
-     * @return bool
-     */
     public function isQuote()
     {
         return $this->isType(INVOICE_TYPE_QUOTE);
@@ -667,9 +658,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->balance > 0 ? CUSTOM_MESSAGE_UNPAID_INVOICE : CUSTOM_MESSAGE_PAID_INVOICE;
     }
 
-    /**
-     * @return bool
-     */
     public function isStandard(): bool
     {
         return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
@@ -914,49 +902,31 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->getEntityType();
     }
 
-    /**
-     * @return bool
-     */
     public function isSent(): bool
     {
         return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->getOriginal('is_public');
     }
 
-    /**
-     * @return bool
-     */
     public function isViewed(): bool
     {
         return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;
     }
 
-    /**
-     * @return bool
-     */
     public function isApproved(): bool
     {
         return $this->invoice_status_id >= INVOICE_STATUS_APPROVED || $this->quote_invoice_id;
     }
 
-    /**
-     * @return bool
-     */
     public function isPartial(): bool
     {
         return $this->invoice_status_id >= INVOICE_STATUS_PARTIAL;
     }
 
-    /**
-     * @return bool
-     */
     public function isPaid(): bool
     {
         return $this->invoice_status_id >= INVOICE_STATUS_PAID;
     }
 
-    /**
-     * @return bool
-     */
     public function isOverdue()
     {
         return static::calcIsOverdue($this->balance, $this->partial_due_date ?: $this->due_date);
@@ -1507,9 +1477,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $count;
     }
 
-    /**
-     * @return bool
-     */
     public function hasDocuments()
     {
         if ($this->documents->count()) {
@@ -1523,9 +1490,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasExpenseDocuments();
     }
 
-    /**
-     * @return bool
-     */
     public function hasExpenseDocuments(): bool
     {
         foreach ($this->expenses as $expense) {
@@ -1537,9 +1501,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public function getAutoBillEnabled()
     {
         $recurInvoice = $this->is_recurring ? $this : $this->recurring_invoice;

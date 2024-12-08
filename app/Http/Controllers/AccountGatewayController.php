@@ -9,7 +9,6 @@ use App\Models\Gateway;
 use App\Services\AccountGatewayService;
 use stdClass;
 use Utils;
-use WePay;
 use WePayException;
 
 class AccountGatewayController extends BaseController

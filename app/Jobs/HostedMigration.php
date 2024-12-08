@@ -25,7 +25,7 @@ class HostedMigration extends Job
     public $data;
 
     /**
-     * @var \App\Models\User
+     * @var User
      */
     public $user;
 
@@ -120,7 +120,6 @@ class HostedMigration extends Job
                 'task_statuses'         => $this->getTaskStatuses(),
                 'expenses'              => $this->getExpenses(),
                 'tasks'                 => $this->getTasks(),
-                'documents'             => $this->getDocuments(),
                 'ninja_tokens'          => $this->getNinjaToken(),
             ];
 

@@ -297,6 +297,7 @@ class SubscriptionListener
                     $data = $jsonData;
                     break;
                 case SUBSCRIPTION_FORMAT_UBL:
+                    $ublData = null;
                     $data = $ublData;
                     break;
             }

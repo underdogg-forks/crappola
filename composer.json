@@ -70,6 +70,7 @@
         "therobfonz/laravel-mandrill-driver": ">=5.1",
         "vemcogroup/laravel-sparkpost-driver": "^5.0.8",
         "webpatser/laravel-countries": "dev-master#75992ad",
+        "wepay/php-sdk": "*",
         "wildbit/postmark-php": "*"
     },
     "require-dev": {
