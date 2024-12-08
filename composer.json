@@ -72,6 +72,7 @@
         "driftingly/rector-laravel": "^1.2.4",
         "fakerphp/faker": ">=1.23.1",
         "filp/whoops": ">=2.16",
+        "larastan/larastan": "^2.9",
         "laravel/pint": "dev-feat/blade",
         "laravel/tinker": ">=2.10",
         "nunomaduro/collision": "^6.4",
