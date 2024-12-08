@@ -2,11 +2,11 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use App\Libraries\Utils;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
 use Exception;
-use Utils;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {

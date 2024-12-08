@@ -91,7 +91,7 @@ class ProposalRepository extends BaseRepository
         $contactIds = [];
 
         foreach ($proposal->invoice->invitations as $invitation) {
-            $conactIds[] = $invitation->contact_id;
+            $contactIds[] = $invitation->contact_id;
             $found = false;
             foreach ($proposal->proposal_invitations as $proposalInvitation) {
                 if ($invitation->contact_id == $proposalInvitation->contact_id) {
@@ -111,7 +111,7 @@ class ProposalRepository extends BaseRepository
 
         // delete invitations
         foreach ($proposal->proposal_invitations as $proposalInvitation) {
-            if ( ! in_array($proposalInvitation->contact_id, $conactIds)) {
+            if ( ! in_array($proposalInvitation->contact_id, $contactIds)) {
                 $proposalInvitation->delete();
             }
         }

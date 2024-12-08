@@ -1018,7 +1018,7 @@ class ClientPortalController extends BaseController
         return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
     }
 
-    private function returnError($error = false)
+    private function returnError($error = false): \Illuminate\Http\Response
     {
         if (request()->phantomjs) {
             abort(404);

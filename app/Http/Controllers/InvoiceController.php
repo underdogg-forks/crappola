@@ -45,6 +45,7 @@ class InvoiceController extends BaseController
 
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
+        $this->documentRepo = $documentRepo;
         $this->invoiceService = $invoiceService;
         $this->recurringInvoiceService = $recurringInvoiceService;
         $this->paymentService = $paymentService;
@@ -392,7 +393,7 @@ class InvoiceController extends BaseController
         ];
         $invoice->invoice_type_id = (int) ($invoice->invoice_type_id);
 
-        $activities = Activity::scope(false, $invoice->account_id);
+        $activities = Activity::scope();
         if ($paymentId) {
             $activities->whereIn('activity_type_id', [ACTIVITY_TYPE_CREATE_PAYMENT])
                 ->where('payment_id', '=', $paymentId);

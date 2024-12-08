@@ -3,7 +3,7 @@
 namespace App\Models\Traits;
 
 use App\Constants\Domain;
-use HTMLUtils;
+use App\Libraries\HTMLUtils;
 use Utils;
 
 /**

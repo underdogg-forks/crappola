@@ -7,8 +7,8 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Module;
 use stdClass;
+use WePay;
 
 class Utils
 {
@@ -1286,7 +1286,7 @@ class Utils
         return $url;
     }
 
-    /*public static function setupWePay($accountGateway = null)
+    public static function setupWePay($accountGateway = null): WePay
     {
         if (WePay::getEnvironment() == 'none') {
             if (WEPAY_ENVIRONMENT == WEPAY_STAGE) {
@@ -1301,7 +1301,7 @@ class Utils
         }
 
         return new WePay(null);
-    }*/
+    }
 
     /**
      * Gets an array of weekday names (in English).

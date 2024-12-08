@@ -50,7 +50,7 @@ class BankAccountController extends BaseController
 
     public function update($publicId)
     {
-        return $this->save($publicId);
+        return BankAccount::save($publicId);
     }
 
     /**
@@ -110,7 +110,7 @@ class BankAccountController extends BaseController
 
     public function store(CreateBankAccountRequest $request)
     {
-        $bankAccount = $this->bankAccountRepo->save(Request::all());
+        $bankAccount = $this->bankAccountRepo->save($request->all());
 
         $bankId = \Illuminate\Support\Facades\Request::input('bank_id');
         $username = trim(\Illuminate\Support\Facades\Request::input('bank_username'));
@@ -121,7 +121,7 @@ class BankAccountController extends BaseController
 
     public function importExpenses($bankId)
     {
-        return $this->bankAccountService->importExpenses($bankId, Request::all());
+        return $this->bankAccountService->importExpenses($bankId, request()->all());
     }
 
     public function showImportOFX()

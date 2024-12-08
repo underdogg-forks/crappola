@@ -132,7 +132,7 @@ class ForceMigration extends Command
                 $data['companies'][$key]['force'] = $this->force;
             }
 
-            $this->dispatch(new HostedMigration($this->user, $data, $this->db, true));
+            dispatch_sync(new HostedMigration($this->user, $data, $this->db, true));
 
             $company->is_migrated = true;
             $company->save();

@@ -384,7 +384,7 @@ class AccountController extends BaseController
         }
 
         if ($section === ACCOUNT_PAYMENT_TERMS) {
-            return self::savePaymetTerms();
+            return self::savePaymentTerms();
         }
 
         if ($section === ACCOUNT_MANAGEMENT) {

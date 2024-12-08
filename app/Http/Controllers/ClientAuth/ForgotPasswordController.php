@@ -5,26 +5,26 @@ namespace App\Http\Controllers\ClientAuth;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Contact;
-use Config;
+use App\Models\Traits\SendsEmails;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
-use Password;
 use Utils;
 
 class ForgotPasswordController extends Controller
 {
     /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset emails and
-    | includes a trait which assists in sending these notifications from
-    | your application to your users. Feel free to explore this trait.
-    |
-    */
+            |--------------------------------------------------------------------------
+            | Password Reset Controller
+            |--------------------------------------------------------------------------
+            |
+            | This controller is responsible for handling password reset emails and
+            | includes a trait which assists in sending these notifications from
+            | your application to your users. Feel free to explore this trait.
+            |
+            */
 
+    use SendsEmails;
     use SendsPasswordResetEmails;
 
     /**

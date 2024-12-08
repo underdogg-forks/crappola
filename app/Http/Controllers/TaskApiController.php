@@ -158,7 +158,7 @@ class TaskApiController extends BaseAPIController
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
-        $transformer = new TaskTransformer(\Illuminate\Support\Facades\Auth::user()->account, \Illuminate\Support\Facades\Request::input('serializer'));
+        $transformer = new TaskTransformer(\Illuminate\Support\Facades\Auth::user()->account);
         $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);

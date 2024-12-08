@@ -14,7 +14,7 @@ class CreditRepository extends BaseRepository
         return \App\Models\Credit::class;
     }
 
-    public function find($clientPublicId = null, $filter = null)
+    public function find($clientPublicId = null, $filter = null): \Illuminate\Database\Query\Builder
     {
         $query = \Illuminate\Support\Facades\DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
@@ -61,7 +61,7 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
-    public function getClientDatatable($clientId)
+    public function getClientDatatable($clientId): \Illuminate\Http\JsonResponse
     {
         $query = \Illuminate\Support\Facades\DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')

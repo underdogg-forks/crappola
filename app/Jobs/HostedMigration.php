@@ -48,9 +48,6 @@ class HostedMigration extends Job
         $this->v4_secret = config('ninja.ninja_hosted_secret');
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         config(['database.default' => $this->db]);
@@ -80,9 +77,6 @@ class HostedMigration extends Job
             $this->account = $account;
 
             if ($this->forced) {
-                //forced migration - we need to set this v4 account as inactive.
-
-                //set activate URL
                 $account_email_settings = $this->account->account_email_settings;
                 $account_email_settings->account_email_settings->forward_url_for_v5 = sprintf('https://invoiceninja-%s.invoicing.co', $this->account->id);
                 $account_email_settings->save();

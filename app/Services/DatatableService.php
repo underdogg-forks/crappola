@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Ninja\Datatables\EntityDatatable;
+use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Table;
-use Datatable;
 use Exception;
 use Utils;
 

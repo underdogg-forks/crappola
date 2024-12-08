@@ -113,7 +113,7 @@ class UserAccountTransformer extends EntityTransformer
      */
     public function includeTaskStatuses(User $user)
     {
-        $transformer = new TaskStatusTransformer($this->account, $this->serializer);
+        $transformer = new TaskStatusTransformer($this->account);
 
         return $this->includeCollection($this->account->task_statuses, $transformer, 'task_statuses');
     }
