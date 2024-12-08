@@ -7,8 +7,7 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
-use Password;
-use Redirect;
+use Illuminate\Support\Facades\Password;
 use Utils;
 
 class UserController extends BaseController
@@ -254,7 +253,7 @@ class UserController extends BaseController
      */
     public function confirm($code)
     {
-        $user = User::where('confirmation_code', '=', $code)->get()->first();
+        $user = User::where('confirmation_code', '=', $code)->first();
 
         if ($user) {
             $notice_msg = trans('texts.security_confirmation');
@@ -266,7 +265,7 @@ class UserController extends BaseController
             if ($user->public_id) {
                 \Illuminate\Support\Facades\Auth::logout();
                 \Illuminate\Support\Facades\Session::flush();
-                $token = \Illuminate\Support\Facades\Password::getRepository()->create($user);
+                $token = Password::getRepository()->create($user);
 
                 return \Illuminate\Support\Facades\Redirect::to('/password/reset/' . $token);
             }

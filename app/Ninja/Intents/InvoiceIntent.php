@@ -5,6 +5,7 @@ namespace App\Ninja\Intents;
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceIntent extends BaseIntent
 {
@@ -27,7 +28,7 @@ class InvoiceIntent extends BaseIntent
         parent::__construct($state, $data);
     }
 
-    protected function stateInvoice()
+    protected function stateInvoice(): Invoice|Builder
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 

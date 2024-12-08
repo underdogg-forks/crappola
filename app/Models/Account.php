@@ -1168,9 +1168,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return false;
     }
 
-    /**
-     * @return array
-     */
     public function availableGatewaysIds(): array
     {
         if ( ! $this->relationLoaded('account_gateways')) {
@@ -1930,17 +1927,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $css;
     }
 
-    /**
-     * @return array
-     */
     public function getFonts(): array
     {
         return array_unique([$this->getHeaderFontId(), $this->getBodyFontId()]);
     }
 
-    /**
-     * @return array
-     */
     public function getFontsData(): array
     {
         $data = [];
@@ -1952,9 +1943,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $data;
     }
 
-    /**
-     * @return array
-     */
     public function getFontFolders(): array
     {
         return array_map(fn ($item) => $item['folder'], $this->getFontsData());

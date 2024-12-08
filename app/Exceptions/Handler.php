@@ -9,6 +9,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -27,9 +28,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         TokenMismatchException::class,
         ModelNotFoundException::class,
-        \Illuminate\Validation\ValidationException::class,
-        //AuthorizationException::class,
-        //HttpException::class,
+        ValidationException::class,
     ];
 
     /**

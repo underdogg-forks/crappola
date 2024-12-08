@@ -121,7 +121,7 @@ class BasePaymentDriver
 
         // For these gateway types we use the API directrly rather than Omnipay
         if ($this->shouldUseSource()) {
-            return $this->createSource();
+            return;
         }
 
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {

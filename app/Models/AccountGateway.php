@@ -100,9 +100,6 @@ class AccountGateway extends EntityModel
         return $this->belongsTo(\App\Models\Gateway::class);
     }
 
-    /**
-     * @return array
-     */
     public function getCreditcardTypes(): array
     {
         $flags = unserialize(CREDIT_CARDS);

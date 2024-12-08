@@ -58,15 +58,13 @@ class EntityRequest extends Request
 
     public function authorize(): bool
     {
-        if ($this->entity()) {
-            if ($this->user()->can('view', $this->entity())) {
-                HistoryUtils::trackViewed($this->entity());
+        if ($this->entity() && $this->user()->can('view', $this->entity())) {
+            HistoryUtils::trackViewed($this->entity());
 
-                return true;
-            }
-        } else {
-            return $this->user()->can('create', $this->entityType);
+            return true;
         }
+
+        return $this->user()->can('create', $this->entityType);
     }
 
     public function rules(): array

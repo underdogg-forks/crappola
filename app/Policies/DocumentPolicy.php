@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Document;
 use App\Models\User;
 
 /**
@@ -17,7 +18,7 @@ class DocumentPolicy extends EntityPolicy
      */
     public static function create(User $user, $item): bool
     {
-        return ! empty($user);
+        return true;
     }
 
     /**

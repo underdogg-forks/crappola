@@ -3,13 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use Exception;
 use Google2FA;
 use Illuminate\Validation\Factory as ValidationFactory;
 
 class ValidateTwoFactorRequest extends Request
 {
     /**
-     * @var \App\User
+     * @var User
      */
     private $user;
 

@@ -165,9 +165,6 @@ class Vendor extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns(): array
     {
         return [
@@ -187,9 +184,6 @@ class Vendor extends EntityModel
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap(): array
     {
         return [

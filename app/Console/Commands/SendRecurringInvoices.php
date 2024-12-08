@@ -61,17 +61,11 @@ class SendRecurringInvoices extends Command
         $this->info(date('r') . ' Done');
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

@@ -81,7 +81,7 @@ class Mailer
 
                 $fromEmail = config('mail.from.address');
                 $app = \Illuminate\Support\Facades\App::getInstance();
-                $app->singleton('swift.transport', fn ($app): \Illuminate\Mail\TransportManager => new \Illuminate\Mail\TransportManager($app));
+                $app->singleton('swift.transport', fn ($app): TransportManager => new TransportManager($app));
                 $mailer = new Swift_Mailer($app['swift.transport']->driver());
                 \Illuminate\Support\Facades\Mail::setSwiftMailer($mailer);
             }

@@ -24,7 +24,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
         if (isset($data['cost']) || isset($data['quantity'])) {
             foreach ($data['invoice_items'] as $key => $item) {
                 // if it's new or we recently created it
-                if (empty($item['public_id']) || in_array($item['public_id'], $this->entities(ENTITY_INVOICE_ITEM))) {
+                if (empty($item['public_id']) || in_array($item['public_id'], $this->stateEntity(ENTITY_INVOICE_ITEM))) {
                     $data['invoice_items'][$key]['cost'] = $data['cost'] ?? $item['cost'];
                     $data['invoice_items'][$key]['qty'] = $data['quantity'] ?? $item['qty'];
                 }

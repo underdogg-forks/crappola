@@ -279,9 +279,6 @@ class TaskController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    /**
-     * @return array
-     */
     private function getViewModel($task = false): array
     {
         return [

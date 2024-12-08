@@ -187,7 +187,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @var array
      */
-    public static $requestFields = [
+    public static array $requestFields = [
         'invoice_number',
         'invoice_date',
         'due_date',
@@ -233,9 +233,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         'deleted_at'              => 'datetime',
     ];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns(): array
     {
         return [
@@ -258,9 +255,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap(): array
     {
         return [

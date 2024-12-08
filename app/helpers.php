@@ -2,6 +2,8 @@
 
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Foundation\Bus\PendingDispatch;
+use Illuminate\Queue\CallQueuedClosure;
+use Laravel\SerializableClosure\SerializableClosure;
 
 if ( ! function_exists('dispatch')) {
     /**

@@ -86,9 +86,6 @@ class Product extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns(): array
     {
         return [
@@ -100,9 +97,6 @@ class Product extends EntityModel
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap(): array
     {
         return [

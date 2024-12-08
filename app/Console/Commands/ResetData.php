@@ -39,9 +39,6 @@ class ResetData extends Command
         Artisan::call('db:seed');
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions(): array
     {
         return [

@@ -624,7 +624,7 @@ class AccountRepository
         })->count();
 
         if ($count >= 15) {
-            abort();
+            abort('404', 'bye bye', []);
         }
     }
 

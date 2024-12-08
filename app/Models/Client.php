@@ -189,9 +189,6 @@ class Client extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns(): array
     {
         return [
@@ -220,9 +217,6 @@ class Client extends EntityModel
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap(): array
     {
         return [

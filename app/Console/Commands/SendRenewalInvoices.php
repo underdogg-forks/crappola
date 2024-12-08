@@ -116,17 +116,11 @@ class SendRenewalInvoices extends Command
         }
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

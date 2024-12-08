@@ -138,7 +138,7 @@ class BaseIntent
         return $this->state->current->entityType;
     }
 
-    public function getState()
+    public function getState(): stdClass
     {
         return $this->state;
     }
@@ -176,7 +176,7 @@ class BaseIntent
         }
     }
 
-    protected function hasField($field, $value = false)
+    protected function hasField($field, $value = false): bool
     {
         $fieldValue = $this->getField($field);
 
@@ -310,7 +310,7 @@ class BaseIntent
         return $value;
     }
 
-    protected function createResponse($type, $content)
+    protected function createResponse($type, $content): bool|string
     {
         $response = new SkypeResponse($type);
 

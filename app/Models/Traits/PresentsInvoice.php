@@ -234,9 +234,6 @@ trait PresentsInvoice
         return $this->isEnglish() ? uctrans('texts.' . $field) : trans('texts.' . $field);
     }
 
-    /**
-     * @return array
-     */
     public function getInvoiceLabels(): array
     {
         $data = [];

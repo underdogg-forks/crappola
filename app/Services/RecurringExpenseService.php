@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**

@@ -20,7 +20,7 @@ class StartupCheck
 {
     public function handle(Request $request, Closure $next)
     {
-        $this->configureTrustedProxies($request);
+        //$this->configureTrustedProxies($request);
 
         if ($this->shouldRedirectToHttps($request)) {
             return Redirect::secure($request->path());
@@ -43,7 +43,7 @@ class StartupCheck
         return $next($request);
     }
 
-    private function configureTrustedProxies(Request $request): void
+    /*private function configureTrustedProxies(Request $request): void
     {
         if ( ! env('TRUSTED_PROXIES')) {
             return;
@@ -54,7 +54,7 @@ class StartupCheck
             : array_map('trim', explode(',', env('TRUSTED_PROXIES')));
 
         $request->setTrustedProxies($proxies, Request::HEADER_X_FORWARDED_ALL);
-    }
+    }*/
 
     private function shouldRedirectToHttps(Request $request): bool
     {

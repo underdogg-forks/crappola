@@ -306,9 +306,6 @@ class Expense extends EntityModel
         return round($this->amount * $this->exchange_rate, 2);
     }
 
-    /**
-     * @return array
-     */
     public function toArray()
     {
         $array = parent::toArray();

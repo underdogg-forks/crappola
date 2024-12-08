@@ -115,17 +115,11 @@ class UpdateKey extends Command
         $this->info($message);
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

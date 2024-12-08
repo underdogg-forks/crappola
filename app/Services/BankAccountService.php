@@ -290,9 +290,6 @@ class BankAccountService extends BaseService
         return ucwords(mb_strtolower(trim($value)));
     }
 
-    /**
-     * @return array
-     */
     private function createVendorMap(): array
     {
         $vendorMap = [];

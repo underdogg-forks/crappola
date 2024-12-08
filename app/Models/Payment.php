@@ -405,8 +405,7 @@ class Payment extends EntityModel
     {
         $activity = Activity::wherePaymentId($this->id)
             ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-            ->get(['json_backup'])
-            ->first();
+            ->first(['json_backup']);
 
         return $activity->json_backup;
     }

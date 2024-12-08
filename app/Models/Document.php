@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Filesystem\AwsS3V3Adapter;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -155,7 +156,7 @@ class Document extends EntityModel
         $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
 
-        if ($adapter instanceof AwsS3Adapter) {
+        if ($adapter instanceof AwsS3V3Adapter) {
             $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
@@ -356,9 +357,6 @@ class Document extends EntityModel
         return $this->preview ? url('documents/preview/' . $this->public_id . '/' . $this->name . '.' . pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
     }
 
-    /**
-     * @return array
-     */
     public function toArray()
     {
         $array = parent::toArray();

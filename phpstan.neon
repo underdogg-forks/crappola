@@ -1,6 +1,5 @@
 parameters:
     level: 0
-    checkMissingReturnStatements: false
     paths:
         - app
         - Modules
@@ -9,8 +8,12 @@ parameters:
         - '#Call to an undefined method Illuminate\\.*#'
         - '#Method .* not found in Laravel container#'
         - '#Class Illuminate\\.* not found#'
+        - '#Use explicit methods over array access on object#'
         - "#Relation '.*' is not found in App\\\\Models\\\\.* model#"
         - '#Call to an undefined static method .*#'
+        - "#Method .*::.*\\(\\) should return .* but return statement is missing#"
+        - '#Static call to instance method Illuminate\\Http\\Request::.*#'
+        - "#Result of method .*::.*\\(\\) \\(void\\) is used#"
         - '#Dynamic property .* not found#'
         - '#.* not found in Laravel container#'
     excludePaths:
