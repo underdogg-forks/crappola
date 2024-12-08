@@ -12,6 +12,69 @@ use Utils;
 
 /**
  * Class Contact.
+ *
+ * @property int                                                                                                           $id
+ * @property int                                                                                                           $account_id
+ * @property int                                                                                                           $user_id
+ * @property int                                                                                                           $client_id
+ * @property \Illuminate\Support\Carbon|null                                                                               $created_at
+ * @property \Illuminate\Support\Carbon|null                                                                               $updated_at
+ * @property \Illuminate\Support\Carbon|null                                                                               $deleted_at
+ * @property int                                                                                                           $is_primary
+ * @property int                                                                                                           $send_invoice
+ * @property string|null                                                                                                   $first_name
+ * @property string|null                                                                                                   $last_name
+ * @property string|null                                                                                                   $email
+ * @property string|null                                                                                                   $phone
+ * @property string|null                                                                                                   $last_login
+ * @property int|null                                                                                                      $public_id
+ * @property string|null                                                                                                   $password
+ * @property int|null                                                                                                      $confirmation_code
+ * @property int|null                                                                                                      $remember_token
+ * @property mixed                                                                                                         $contact_key
+ * @property string|null                                                                                                   $bot_user_id
+ * @property string|null                                                                                                   $custom_value1
+ * @property string|null                                                                                                   $custom_value2
+ * @property \App\Models\Account|null                                                                                      $account
+ * @property \App\Models\Client                                                                                            $client
+ * @property string                                                                                                        $link
+ * @property \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property int|null                                                                                                      $notifications_count
+ * @property \App\Models\User                                                                                              $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereBotUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereContactKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereIsPrimary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereLastLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereSendInvoice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Contact withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
@@ -67,41 +130,26 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_CONTACT;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersonType(): string
     {
         return PERSON_CONTACT;

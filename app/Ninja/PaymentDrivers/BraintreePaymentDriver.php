@@ -92,7 +92,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    public function removePaymentMethod($paymentMethod): void
+    public function removePaymentMethod($paymentMethod): bool
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -107,7 +107,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         throw new Exception($response->getMessage());
     }
 
-    public function createTransactionToken(): void
+    public function createTransactionToken()
     {
         return $this->gateway()
             ->clientToken()
@@ -133,7 +133,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $customer;
     }
 
-    protected function checkCustomerExists($customer)
+    protected function checkCustomerExists($customer): bool
     {
         if ( ! parent::checkCustomerExists($customer)) {
             return false;
@@ -157,7 +157,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $url;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

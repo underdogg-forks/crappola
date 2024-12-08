@@ -10,7 +10,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
 {
     public $invoiceRepo;
 
-    public function process(): void
+    public function process(): string|bool
     {
         $invoice = $this->stateInvoice();
         $invoiceItems = $this->requestInvoiceItems();

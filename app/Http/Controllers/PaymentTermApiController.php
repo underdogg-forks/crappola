@@ -10,9 +10,9 @@ use App\Ninja\Repositories\PaymentTermRepository;
 
 class PaymentTermApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\PaymentTermRepository $paymentTermRepo;
+    public $entityType = ENTITY_PAYMENT_TERM;
 
-    protected $entityType = ENTITY_PAYMENT_TERM;
+    protected \App\Ninja\Repositories\PaymentTermRepository $paymentTermRepo;
 
     /**
      * PaymentTermApiController constructor.

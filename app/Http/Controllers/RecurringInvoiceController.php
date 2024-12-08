@@ -24,9 +24,6 @@ class RecurringInvoiceController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    /**
-     * @return mixed
-     */
     public function index()
     {
         $data = [

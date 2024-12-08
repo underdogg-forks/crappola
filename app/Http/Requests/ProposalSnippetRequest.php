@@ -6,7 +6,7 @@ use App\Models\ProposalCategory;
 
 class ProposalSnippetRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
+    public $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function sanitize()
     {

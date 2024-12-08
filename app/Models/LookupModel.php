@@ -4,6 +4,14 @@ namespace App\Models;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property \App\Models\LookupAccount|null $lookupAccount
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupModel query()
+ *
+ * @mixin \Eloquent
  */
 class LookupModel extends \Illuminate\Database\Eloquent\Model
 {

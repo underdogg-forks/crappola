@@ -7,7 +7,7 @@ use App\Models\Project;
 
 class TaskRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_TASK;
+    public $entityType = ENTITY_TASK;
 
     public function sanitize()
     {

@@ -4,6 +4,17 @@ namespace App\Models;
 
 /**
  * Class InvoiceStatus.
+ *
+ * @property int    $id
+ * @property string $name
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceStatus whereName($value)
+ *
+ * @mixin \Eloquent
  */
 class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
 {
@@ -26,9 +37,6 @@ class InvoiceStatus extends \Illuminate\Database\Eloquent\Model
         };
     }
 
-    /**
-     * @return mixed
-     */
     public function getTranslatedName()
     {
         return trans('texts.status_' . \Illuminate\Support\Str::slug($this->name, '_'));

@@ -13,11 +13,11 @@ use App\Services\ProposalCategoryService;
 
 class ProposalCategoryController extends BaseController
 {
+    public $entityType = ENTITY_PROPOSAL_CATEGORY;
+
     protected \App\Ninja\Repositories\ProposalCategoryRepository $proposalCategoryRepo;
 
     protected \App\Services\ProposalCategoryService $proposalCategoryService;
-
-    protected $entityType = ENTITY_PROPOSAL_CATEGORY;
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {

@@ -11,9 +11,9 @@ use Response;
 
 class TaskApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
+    public $entityType = ENTITY_TASK;
 
-    protected $entityType = ENTITY_TASK;
+    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
 
     public function __construct(TaskRepository $taskRepo)
     {

@@ -31,7 +31,7 @@ class PushFactory
      */
     public function customMessage($token, $message, $messageArray, $device): void
     {
-        $customMessage = PushNotification::Message($message, $messageArray);
+        $customMessage = new \NotificationChannels\PusherPushNotifications\PusherMessage($message);
 
         $this->message($token, $customMessage, $device);
     }

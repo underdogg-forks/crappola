@@ -9,6 +9,7 @@ use App\Models\GatewayType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Ninja\Repositories\InvoiceRepository;
 use CreditCard;
 use DateTime;
 use Exception;
@@ -60,7 +61,7 @@ class BasePaymentDriver
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
-    public function isValid(): bool
+    public function isValid(): string|bool
     {
         return true;
     }
@@ -78,7 +79,7 @@ class BasePaymentDriver
     }
 
     // when set to true we won't pass the card details with the form
-    public function tokenize(): bool
+    public function tokenize()
     {
         return false;
     }
@@ -114,8 +115,8 @@ class BasePaymentDriver
 
         if ( ! $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             // apply gateway fees
-            $invoicRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
-            $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
+            $invoiceRepo = app(InvoiceRepository::class);
+            $invoiceRepo->setGatewayFee($this->invoice(), $this->gatewayType);
         }
 
         // For these gateway types we use the API directrly rather than Omnipay
@@ -353,18 +354,18 @@ class BasePaymentDriver
         return $this->customer;
     }
 
-    public function verifyBankAccount($client, $publicId, $amount1, $amount2): void
+    public function verifyBankAccount($client, $publicId, $amount1, $amount2)
     {
         throw new Exception('verifyBankAccount not implemented');
     }
 
-    public function removePaymentMethod($paymentMethod): void
+    public function removePaymentMethod($paymentMethod)
     {
-        $paymentMethod->delete();
+        return $paymentMethod->delete() ?? true;
     }
 
     // Some gateways (ie, Checkout.com and Braintree) require generating a token before paying for the invoice
-    public function createTransactionToken(): void {}
+    public function createTransactionToken() {}
 
     public function createToken()
     {
@@ -424,7 +425,7 @@ class BasePaymentDriver
         return $paymentMethod;
     }
 
-    public function deleteToken(): void {}
+    public function deleteToken() {}
 
     public function createPayment($ref = false, $paymentMethod = null)
     {
@@ -692,7 +693,7 @@ class BasePaymentDriver
         return in_array($gatewayTypeId, $this->gatewayTypes());
     }
 
-    public function handleWebHook($input): void
+    public function handleWebHook($input)
     {
         throw new Exception('Unsupported gateway');
     }
@@ -780,8 +781,8 @@ class BasePaymentDriver
                     ->firstOrFail();
             }
 
-            $invoicRepo = app(\App\Ninja\Repositories\InvoiceRepository::class);
-            $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
+            $invoiceRepo = app(InvoiceRepository::class);
+            $invoiceRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
 
             if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
@@ -928,7 +929,7 @@ class BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function createLicense($payment): void
+    protected function createLicense($payment)
     {
         // TODO parse invoice to determine license
         if ($payment->amount == WHITE_LABEL_PRICE) {
@@ -983,7 +984,7 @@ class BasePaymentDriver
         return $payment;
     }
 
-    protected function updateClientFromOffsite($transRef, $paymentRef): void
+    protected function updateClientFromOffsite($transRef, $paymentRef)
     {
         // do nothing
     }
@@ -1058,7 +1059,7 @@ class BasePaymentDriver
         return $items;
     }
 
-    private function updateClient(): void
+    private function updateClient()
     {
         if ( ! $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             return;

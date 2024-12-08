@@ -25,6 +25,8 @@ use Utils;
 
 class InvoiceController extends BaseController
 {
+    public $entityType = ENTITY_INVOICE;
+
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
@@ -36,8 +38,6 @@ class InvoiceController extends BaseController
     protected \App\Services\PaymentService $paymentService;
 
     protected \App\Services\RecurringInvoiceService $recurringInvoiceService;
-
-    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
     {

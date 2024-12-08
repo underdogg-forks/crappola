@@ -87,9 +87,9 @@ class BaseIntent
         return new $className($state, $data);
     }
 
-    public function process(): void
+    public function process(): string|bool
     {
-        throw new Exception(trans('texts.intent_not_supported'));
+        throw new Exception(trans('texts.intent_not_supported')) ?? null;
     }
 
     public function setStateEntities($entityType, $entities): void

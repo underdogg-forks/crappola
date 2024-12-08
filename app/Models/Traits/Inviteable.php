@@ -79,9 +79,6 @@ trait Inviteable
         // return $hasValue ? implode($parts, '<br/>') : false;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->invitation_key;

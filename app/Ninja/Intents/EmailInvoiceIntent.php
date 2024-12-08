@@ -7,7 +7,7 @@ use Exception;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $invoice = $this->stateInvoice();
 

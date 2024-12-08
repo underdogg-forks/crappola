@@ -55,7 +55,7 @@ class MakeClass extends GeneratorCommand
         return $path . $seederPath . '/' . $this->getFileName() . '.php';
     }
 
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the module.'],
@@ -65,12 +65,7 @@ class MakeClass extends GeneratorCommand
         ];
     }
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],

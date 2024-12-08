@@ -4,6 +4,25 @@ namespace App\Models;
 
 /**
  * Class UserAccount.
+ *
+ * @property int      $id
+ * @property int|null $user_id1
+ * @property int|null $user_id2
+ * @property int|null $user_id3
+ * @property int|null $user_id4
+ * @property int|null $user_id5
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount query()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UserAccount whereUserId5($value)
+ *
+ * @mixin \Eloquent
  */
 class UserAccount extends \Illuminate\Database\Eloquent\Model
 {

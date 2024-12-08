@@ -12,6 +12,94 @@ use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class User.
+ *
+ * @property int                                                                                                           $id
+ * @property int                                                                                                           $account_id
+ * @property \Illuminate\Support\Carbon|null                                                                               $created_at
+ * @property \Illuminate\Support\Carbon|null                                                                               $updated_at
+ * @property \Illuminate\Support\Carbon|null                                                                               $deleted_at
+ * @property string|null                                                                                                   $first_name
+ * @property string|null                                                                                                   $last_name
+ * @property string|null                                                                                                   $phone
+ * @property string                                                                                                        $username
+ * @property string|null                                                                                                   $email
+ * @property string                                                                                                        $password
+ * @property string|null                                                                                                   $confirmation_code
+ * @property int                                                                                                           $registered
+ * @property int                                                                                                           $confirmed
+ * @property int                                                                                                           $notify_sent
+ * @property int                                                                                                           $notify_viewed
+ * @property int                                                                                                           $notify_paid
+ * @property int|null                                                                                                      $public_id
+ * @property int                                                                                                           $force_pdfjs
+ * @property string|null                                                                                                   $remember_token
+ * @property int|null                                                                                                      $news_feed_id
+ * @property int                                                                                                           $notify_approved
+ * @property int|null                                                                                                      $failed_logins
+ * @property int|null                                                                                                      $dark_mode
+ * @property string|null                                                                                                   $referral_code
+ * @property string|null                                                                                                   $oauth_user_id
+ * @property int|null                                                                                                      $oauth_provider_id
+ * @property int                                                                                                           $is_admin
+ * @property string|null                                                                                                   $bot_user_id
+ * @property string|null                                                                                                   $google_2fa_secret
+ * @property string|null                                                                                                   $remember_2fa_token
+ * @property string|null                                                                                                   $slack_webhook_url
+ * @property string|null                                                                                                   $accepted_terms_version
+ * @property string|null                                                                                                   $accepted_terms_timestamp
+ * @property string|null                                                                                                   $accepted_terms_ip
+ * @property int|null                                                                                                      $only_notify_owned
+ * @property string                                                                                                        $permissions
+ * @property \App\Models\Account                                                                                           $account
+ * @property \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property int|null                                                                                                      $notifications_count
+ * @property \App\Models\Theme|null                                                                                        $theme
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsTimestamp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereBotUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDarkMode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFailedLogins($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereForcePdfjs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogle2faSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsAdmin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNewsFeedId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyPaid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifySent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNotifyViewed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthProviderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOnlyNotifyOwned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePermissions($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRegistered($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRemember2faToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSlackWebhookUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
@@ -103,17 +191,11 @@ class User extends Authenticatable
         event(new UserSettingsChanged($user));
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function theme()
     {
         return $this->belongsTo(\App\Models\Theme::class);
@@ -135,9 +217,6 @@ class User extends Authenticatable
         return $this->getDisplayName();
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersonType(): string
     {
         return PERSON_USER;
@@ -153,25 +232,16 @@ class User extends Authenticatable
         return $this->email;
     }
 
-    /**
-     * @return mixed
-     */
     public function isPro()
     {
         return $this->account->isPro();
     }
 
-    /**
-     * @return mixed
-     */
     public function isEnterprise()
     {
         return $this->account->isEnterprise();
     }
 
-    /**
-     * @return mixed
-     */
     public function isTrusted(): bool
     {
         if (Utils::isSelfHost()) {
@@ -180,9 +250,6 @@ class User extends Authenticatable
         return $this->account->isPro() && ! $this->account->isTrial();
     }
 
-    /**
-     * @return mixed
-     */
     public function hasActivePromo()
     {
         return $this->account->hasActivePromo();
@@ -198,9 +265,6 @@ class User extends Authenticatable
         return $this->account->hasFeature($feature);
     }
 
-    /**
-     * @return mixed
-     */
     public function isTrial()
     {
         return $this->account->isTrial();
@@ -250,9 +314,6 @@ class User extends Authenticatable
         return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRequestsCount()
     {
         return \Illuminate\Support\Facades\Session::get(SESSION_COUNTER, 0);
@@ -273,9 +334,6 @@ class User extends Authenticatable
         return true;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMaxNumClients(): int
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
@@ -289,9 +347,6 @@ class User extends Authenticatable
         return MAX_NUM_CLIENTS;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMaxNumVendors(): int
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {

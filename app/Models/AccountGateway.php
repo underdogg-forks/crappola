@@ -9,6 +9,48 @@ use Utils;
 
 /**
  * Class AccountGateway.
+ *
+ * @property int                             $id
+ * @property int                             $account_id
+ * @property int                             $user_id
+ * @property int                             $gateway_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string                          $config
+ * @property int                             $public_id
+ * @property int|null                        $accepted_credit_cards
+ * @property int|null                        $show_address
+ * @property int|null                        $update_address
+ * @property int|null                        $require_cvv
+ * @property int|null                        $show_shipping_address
+ * @property \App\Models\Gateway             $gateway
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereAcceptedCreditCards($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereConfig($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereGatewayId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereRequireCvv($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereShowAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereShowShippingAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUpdateAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGateway withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class AccountGateway extends EntityModel
 {
@@ -48,17 +90,11 @@ class AccountGateway extends EntityModel
         return $folder . 'BasePaymentDriver';
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_ACCOUNT_GATEWAY;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function gateway()
     {
         return $this->belongsTo(\App\Models\Gateway::class);
@@ -121,9 +157,6 @@ class AccountGateway extends EntityModel
         $this->config = \Illuminate\Support\Facades\Crypt::encrypt(json_encode($config));
     }
 
-    /**
-     * @return mixed
-     */
     public function getConfig(): mixed
     {
         return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($this->config));

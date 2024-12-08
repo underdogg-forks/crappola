@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeModule extends Command
 {
@@ -31,11 +33,6 @@ class MakeModule extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
         $name = $this->argument('name');
@@ -131,7 +128,7 @@ php artisan module:migrate ' . $name);
         }
     }
 
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the module.'],
@@ -139,7 +136,7 @@ php artisan module:migrate ' . $name);
         ];
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['migrate', null, InputOption::VALUE_NONE, 'Run module migrations.', null],

@@ -12,11 +12,11 @@ use App\Services\UserService;
 
 class UserApiController extends BaseAPIController
 {
+    public $entityType = ENTITY_USER;
+
     protected \App\Services\UserService $userService;
 
     protected \App\Ninja\Repositories\UserRepository $userRepo;
-
-    protected $entityType = ENTITY_USER;
 
     public function __construct(UserService $userService, UserRepository $userRepo)
     {

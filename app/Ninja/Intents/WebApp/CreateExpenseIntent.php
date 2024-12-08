@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateExpenseIntent extends BaseIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $url = '/expenses/create';
 

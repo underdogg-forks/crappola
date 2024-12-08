@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class MobileLocalization extends Command
 {
@@ -31,11 +32,6 @@ class MobileLocalization extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));

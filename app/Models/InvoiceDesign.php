@@ -4,6 +4,21 @@ namespace App\Models;
 
 /**
  * Class InvoiceDesign.
+ *
+ * @property int         $id
+ * @property string      $name
+ * @property string|null $javascript
+ * @property string|null $pdfmake
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereJavascript($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceDesign wherePdfmake($value)
+ *
+ * @mixin \Eloquent
  */
 class InvoiceDesign extends \Illuminate\Database\Eloquent\Model
 {
@@ -63,9 +78,6 @@ class InvoiceDesign extends \Illuminate\Database\Eloquent\Model
         'Tabloid',
     ];
 
-    /**
-     * @return mixed
-     */
     public static function getDesigns()
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;

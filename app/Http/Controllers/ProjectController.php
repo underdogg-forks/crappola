@@ -14,11 +14,11 @@ use App\Services\ProjectService;
 
 class ProjectController extends BaseController
 {
+    public $entityType = ENTITY_PROJECT;
+
     protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
 
     protected \App\Services\ProjectService $projectService;
-
-    protected $entityType = ENTITY_PROJECT;
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {

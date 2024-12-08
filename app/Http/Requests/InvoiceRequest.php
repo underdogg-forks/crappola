@@ -7,7 +7,7 @@ use App\Models\Invoice;
 
 class InvoiceRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_INVOICE;
+    public $entityType = ENTITY_INVOICE;
 
     /**
      * Determine if the user is authorized to make this request.

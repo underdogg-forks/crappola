@@ -14,12 +14,12 @@ use Redirect;
  */
 class DocumentAPIController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
-
     /**
      * @var string
      */
-    protected $entityType = ENTITY_DOCUMENT;
+    public $entityType = ENTITY_DOCUMENT;
+
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     /**
      * DocumentAPIController constructor.

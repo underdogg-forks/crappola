@@ -711,9 +711,6 @@ class AccountController extends BaseController
         return sprintf('%s %s', $user->first_name, $user->last_name);
     }
 
-    /**
-     * @return mixed
-     */
     public function doRegister(): string
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();

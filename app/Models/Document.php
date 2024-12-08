@@ -6,6 +6,61 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Document.
+ *
+ * @property int                             $id
+ * @property int|null                        $public_id
+ * @property int                             $account_id
+ * @property int                             $user_id
+ * @property int|null                        $invoice_id
+ * @property int|null                        $expense_id
+ * @property string                          $path
+ * @property string                          $preview
+ * @property string                          $name
+ * @property string                          $type
+ * @property string                          $disk
+ * @property string                          $hash
+ * @property int                             $size
+ * @property int|null                        $width
+ * @property int|null                        $height
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null                        $is_default
+ * @property int                             $is_proposal
+ * @property string|null                     $document_key
+ * @property \App\Models\Account             $account
+ * @property \App\Models\Expense|null        $expense
+ * @property \App\Models\Invoice|null        $invoice
+ * @property \App\Models\User                $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Document newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document proposalImages()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDisk($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDocumentKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereHeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsProposal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document wherePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document wherePreview($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereWidth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document withArchived()
+ *
+ * @mixin \Eloquent
  */
 class Document extends EntityModel
 {
@@ -132,9 +187,6 @@ class Document extends EntityModel
         }
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_DOCUMENT;
@@ -156,41 +208,26 @@ class Document extends EntityModel
         return $this;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function expense()
     {
         return $this->belongsTo(\App\Models\Expense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisk()
     {
         return Storage::disk(empty($this->disk) ? env('DOCUMENT_FILESYSTEM', 'documents') : $this->disk);
@@ -220,9 +257,6 @@ class Document extends EntityModel
         return $this->preview ? static::getDirectFileUrl($this->preview, $this->getDisk(), true) : null;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRaw()
     {
         $disk = $this->getDisk();
@@ -230,9 +264,6 @@ class Document extends EntityModel
         return $disk->get($this->path);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRawCached()
     {
         $key = 'image:' . $this->path;
@@ -247,9 +278,6 @@ class Document extends EntityModel
         return $image;
     }
 
-    /**
-     * @return mixed
-     */
     public function getStream()
     {
         $disk = $this->getDisk();
@@ -257,9 +285,6 @@ class Document extends EntityModel
         return $disk->readStream($this->path);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRawPreview()
     {
         $disk = $this->getDisk();
@@ -352,9 +377,6 @@ class Document extends EntityModel
         return $array;
     }
 
-    /**
-     * @return mixed
-     */
     public function cloneDocument()
     {
         $document = self::createNew($this);

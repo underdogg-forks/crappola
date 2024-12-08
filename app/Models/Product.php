@@ -7,6 +7,56 @@ use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Product.
+ *
+ * @property int                             $id
+ * @property int                             $account_id
+ * @property int                             $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string                          $product_key
+ * @property string                          $notes
+ * @property string                          $cost
+ * @property string|null                     $qty
+ * @property int                             $public_id
+ * @property int                             $is_deleted
+ * @property string|null                     $custom_value1
+ * @property string|null                     $custom_value2
+ * @property string|null                     $tax_name1
+ * @property string                          $tax_rate1
+ * @property string|null                     $tax_name2
+ * @property string                          $tax_rate2
+ * @property \App\Models\User                $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereCost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereProductKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereQty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Product extends EntityModel
 {
@@ -74,17 +124,11 @@ class Product extends EntityModel
         return self::scope()->where('product_key', '=', $key)->first();
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_PRODUCT;
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();

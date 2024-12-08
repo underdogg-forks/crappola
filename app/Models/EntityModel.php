@@ -7,6 +7,15 @@ use Utils;
 
 /**
  * Class EntityModel.
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|EntityModel withArchived()
+ *
+ * @mixin \Eloquent
  */
 class EntityModel extends \Illuminate\Database\Eloquent\Model
 {
@@ -344,27 +353,16 @@ class EntityModel extends \Illuminate\Database\Eloquent\Model
             });
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeWithArchived($query)
     {
         return $query->withTrashed()->where('is_deleted', '=', false);
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         return $this->getName();

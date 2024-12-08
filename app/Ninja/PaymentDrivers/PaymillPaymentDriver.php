@@ -9,7 +9,7 @@ class PaymillPaymentDriver extends BasePaymentDriver
         return true;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

@@ -4,6 +4,29 @@ namespace App\Models;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int         $id
+ * @property int         $lookup_account_id
+ * @property string|null $email
+ * @property string|null $confirmation_code
+ * @property int         $user_id
+ * @property string|null $oauth_user_key
+ * @property string|null $referral_code
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereLookupAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereOauthUserKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupUser whereUserId($value)
+ *
+ * @property \App\Models\LookupAccount $lookupAccount
+ *
+ * @mixin \Eloquent
  */
 class LookupUser extends LookupModel
 {

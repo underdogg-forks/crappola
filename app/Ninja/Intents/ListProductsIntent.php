@@ -6,7 +6,7 @@ use App\Models\Product;
 
 class ListProductsIntent extends ProductIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $account = \Illuminate\Support\Facades\Auth::user()->account;
         $products = Product::scope()

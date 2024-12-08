@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 
@@ -41,7 +42,7 @@ class ResetData extends Command
     /**
      * @return array
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],

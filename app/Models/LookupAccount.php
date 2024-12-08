@@ -4,6 +4,23 @@ namespace App\Models;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int                       $id
+ * @property int                       $lookup_company_id
+ * @property string                    $account_key
+ * @property string|null               $subdomain
+ * @property LookupAccount|null        $lookupAccount
+ * @property \App\Models\LookupCompany $lookupCompany
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereAccountKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereLookupCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupAccount whereSubdomain($value)
+ *
+ * @mixin \Eloquent
  */
 class LookupAccount extends LookupModel
 {

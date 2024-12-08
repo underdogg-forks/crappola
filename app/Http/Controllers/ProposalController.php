@@ -17,13 +17,13 @@ use Auth;
 
 class ProposalController extends BaseController
 {
+    public $entityType = ENTITY_PROPOSAL;
+
     protected \App\Ninja\Repositories\ProposalRepository $proposalRepo;
 
     protected \App\Services\ProposalService $proposalService;
 
     protected \App\Ninja\Mailers\ContactMailer $contactMailer;
-
-    protected $entityType = ENTITY_PROPOSAL;
 
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {

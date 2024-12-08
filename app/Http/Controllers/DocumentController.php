@@ -10,9 +10,9 @@ use App\Ninja\Repositories\DocumentRepository;
 
 class DocumentController extends BaseController
 {
-    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
+    public $entityType = ENTITY_DOCUMENT;
 
-    protected $entityType = ENTITY_DOCUMENT;
+    protected \App\Ninja\Repositories\DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {

@@ -15,11 +15,11 @@ use App\Services\RecurringExpenseService;
 
 class RecurringExpenseController extends BaseController
 {
+    public $entityType = ENTITY_RECURRING_EXPENSE;
+
     protected \App\Ninja\Repositories\RecurringExpenseRepository $recurringExpenseRepo;
 
     protected \App\Services\RecurringExpenseService $recurringExpenseService;
-
-    protected $entityType = ENTITY_RECURRING_EXPENSE;
 
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, RecurringExpenseService $recurringExpenseService)
     {

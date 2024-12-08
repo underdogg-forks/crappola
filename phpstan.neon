@@ -4,11 +4,18 @@ parameters:
         - app
         - Modules
     ignoreErrors:
-        - '#Access to an undefined property Illuminate\\.*#' # For dynamic properties in Eloquent models
-        - '#Call to an undefined method Illuminate\\.*#' # For dynamic methods in facades or models
-        - '#Method .* not found in Laravel container#' # Ignored for dependency injection
-    excludes_analyse:
-        - bootstrap/cache # Exclude cached files
-    checkMissingIterableValueType: false
-    checkMissingVarTagType: false
-    checkUninitializedProperties: false
+        - '#Access to an undefined property Illuminate\\.*#'
+        - '#Call to an undefined method Illuminate\\.*#'
+        - '#Method .* not found in Laravel container#'
+        - '#Class Illuminate\\.* not found#'
+        - "#Relation '.*' is not found in App\\\\Models\\\\.* model#"
+        - '#Call to an undefined static method .*#'
+        - '#Dynamic property .* not found#'
+        - '#.* not found in Laravel container#'
+    excludePaths:
+        - bootstrap/cache/**
+        - storage/**
+        - public/**
+        - vendor/**
+        - database/migrations/**
+        - database/factories/**

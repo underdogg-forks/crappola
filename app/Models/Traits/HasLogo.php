@@ -18,9 +18,6 @@ trait HasLogo
         return ! empty($this->logo);
     }
 
-    /**
-     * @return mixed
-     */
     public function getLogoDisk()
     {
         return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));

@@ -13,6 +13,96 @@ use stdClass;
 
 /**
  * Class Payment.
+ *
+ * @property int                             $id
+ * @property int                             $invoice_id
+ * @property int                             $account_id
+ * @property int                             $client_id
+ * @property int|null                        $contact_id
+ * @property int|null                        $invitation_id
+ * @property int|null                        $user_id
+ * @property int|null                        $account_gateway_id
+ * @property int|null                        $payment_type_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int                             $is_deleted
+ * @property string                          $amount
+ * @property string|null                     $payment_date
+ * @property string|null                     $transaction_reference
+ * @property string|null                     $payer_id
+ * @property int                             $public_id
+ * @property string                          $refunded
+ * @property int                             $payment_status_id
+ * @property int|null                        $routing_number
+ * @property null|string                     $last4
+ * @property string|null                     $expiration
+ * @property string|null                     $gateway_error
+ * @property string|null                     $email
+ * @property int|null                        $payment_method_id
+ * @property null                            $bank_name
+ * @property string|null                     $ip
+ * @property string|null                     $credit_ids
+ * @property string|null                     $private_notes
+ * @property string                          $exchange_rate
+ * @property int                             $exchange_currency_id
+ * @property \App\Models\Account             $account
+ * @property \App\Models\AccountGateway|null $account_gateway
+ * @property \App\Models\Client              $client
+ * @property \App\Models\Contact|null        $contact
+ * @property mixed|null|stdClass|string      $bank_data
+ * @property \App\Models\Invitation|null     $invitation
+ * @property \App\Models\Invoice             $invoice
+ * @property \App\Models\PaymentMethod|null  $payment_method
+ * @property \App\Models\PaymentStatus       $payment_status
+ * @property \App\Models\PaymentType|null    $payment_type
+ * @property \App\Models\User|null           $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment dateRange($startDate, $endDate)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment excludeFailed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereAccountGatewayId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereBankName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCreditIds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereExchangeCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereExpiration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereGatewayError($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereInvitationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereLast4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePayerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePaymentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePaymentMethodId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePaymentStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereRefunded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereRoutingNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Payment extends EntityModel
 {
@@ -61,81 +151,51 @@ class Payment extends EntityModel
         return static::$statusClasses[$statusId];
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function invitation()
     {
         return $this->belongsTo(\App\Models\Invitation::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function contact()
     {
         return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account_gateway()
     {
         return $this->belongsTo(\App\Models\AccountGateway::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_type()
     {
         return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_method()
     {
         return $this->belongsTo(\App\Models\PaymentMethod::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_status()
     {
         return $this->belongsTo(\App\Models\PaymentStatus::class);
@@ -163,19 +223,11 @@ class Payment extends EntityModel
         return $query;
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('payment_date', [$startDate, $endDate]);
     }
 
-    /**
-     * @return mixed
-     */
     public function getName(): string
     {
         return trim('payment ' . $this->transaction_reference);
@@ -303,17 +355,11 @@ class Payment extends EntityModel
         \Illuminate\Support\Facades\Event::dispatch(new PaymentFailed($this));
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_PAYMENT;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCompletedAmount(): int|float
     {
         return $this->amount - $this->refunded;

@@ -64,9 +64,6 @@ class EntityPresenter extends Presenter
         };
     }
 
-    /**
-     * @return mixed
-     */
     public function link()
     {
         $name = $this->entity->getDisplayName();

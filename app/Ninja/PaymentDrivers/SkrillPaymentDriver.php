@@ -6,7 +6,7 @@ use Utils;
 
 class SkrillPaymentDriver extends BasePaymentDriver
 {
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
         $locale = mb_strtoupper(Utils::getLocaleRegion());

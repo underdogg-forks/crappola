@@ -9,6 +9,75 @@ use Utils;
 
 /**
  * Class Company.
+ *
+ * @property int                                                                $id
+ * @property string|null                                                        $plan
+ * @property string|null                                                        $plan_term
+ * @property string|null                                                        $plan_started
+ * @property string|null                                                        $plan_paid
+ * @property string|null                                                        $plan_expires
+ * @property int|null                                                           $payment_id
+ * @property string|null                                                        $trial_started
+ * @property string|null                                                        $trial_plan
+ * @property string|null                                                        $pending_plan
+ * @property string|null                                                        $pending_term
+ * @property \Illuminate\Support\Carbon|null                                    $created_at
+ * @property \Illuminate\Support\Carbon|null                                    $updated_at
+ * @property \Illuminate\Support\Carbon|null                                    $deleted_at
+ * @property string|null                                                        $plan_price
+ * @property string|null                                                        $pending_plan_price
+ * @property int                                                                $num_users
+ * @property int                                                                $pending_num_users
+ * @property string|null                                                        $utm_source
+ * @property string|null                                                        $utm_medium
+ * @property string|null                                                        $utm_campaign
+ * @property string|null                                                        $utm_term
+ * @property string|null                                                        $utm_content
+ * @property float                                                              $discount
+ * @property \Illuminate\Support\Carbon|null                                    $discount_expires
+ * @property \Illuminate\Support\Carbon|null                                    $promo_expires
+ * @property string|null                                                        $bluevine_status
+ * @property string|null                                                        $referral_code
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Account> $accounts
+ * @property int|null                                                           $accounts_count
+ * @property \App\Models\Payment|null                                           $payment
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereBluevineStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereDiscountExpires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereNumUsers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingNumUsers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingPlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingPlanPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePendingTerm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanExpires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanPaid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanStarted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlanTerm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company wherePromoExpires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereTrialPlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereTrialStarted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmCampaign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmMedium($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereUtmTerm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Company extends \Illuminate\Database\Eloquent\Model
 {
@@ -34,17 +103,11 @@ class Company extends \Illuminate\Database\Eloquent\Model
 
     protected $casts = ['deleted_at' => 'datetime', 'promo_expires' => 'datetime', 'discount_expires' => 'datetime'];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function accounts()
     {
         return $this->hasMany(\App\Models\Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment()
     {
         return $this->belongsTo(\App\Models\Payment::class);

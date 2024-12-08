@@ -11,9 +11,9 @@ use Response;
 
 class ClientApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\ClientRepository $clientRepo;
+    public $entityType = ENTITY_CLIENT;
 
-    protected $entityType = ENTITY_CLIENT;
+    protected ClientRepository $clientRepo;
 
     public function __construct(ClientRepository $clientRepo)
     {

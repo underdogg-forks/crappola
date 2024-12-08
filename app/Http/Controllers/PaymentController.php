@@ -21,7 +21,7 @@ class PaymentController extends BaseController
     /**
      * @var string
      */
-    protected $entityType = ENTITY_PAYMENT;
+    public $entityType = ENTITY_PAYMENT;
 
     protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
@@ -225,9 +225,6 @@ class PaymentController extends BaseController
         return redirect()->to($payment->getRoute());
     }
 
-    /**
-     * @return mixed
-     */
     public function bulk()
     {
         $action = \Illuminate\Support\Facades\Request::input('action');

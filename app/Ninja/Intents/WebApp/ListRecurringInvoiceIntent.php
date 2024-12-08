@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListRecurringInvoiceIntent extends BaseIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_RECURRING_INVOICE);
 

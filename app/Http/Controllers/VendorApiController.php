@@ -13,9 +13,9 @@ use Utils;
 
 class VendorApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
+    public $entityType = ENTITY_VENDOR;
 
-    protected $entityType = ENTITY_VENDOR;
+    protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
 
     public function __construct(VendorRepository $vendorRepo)
     {

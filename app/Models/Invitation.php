@@ -8,6 +8,59 @@ use Utils;
 
 /**
  * Class Invitation.
+ *
+ * @property int                             $id
+ * @property int                             $account_id
+ * @property int                             $user_id
+ * @property int                             $contact_id
+ * @property int                             $invoice_id
+ * @property string                          $invitation_key
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null                     $transaction_reference
+ * @property string|null                     $sent_date
+ * @property string|null                     $viewed_date
+ * @property int                             $public_id
+ * @property string|null                     $opened_date
+ * @property string|null                     $message_id
+ * @property string|null                     $email_error
+ * @property string|null                     $signature_base64
+ * @property string|null                     $signature_date
+ * @property \App\Models\Account|null        $account
+ * @property \App\Models\Contact             $contact
+ * @property \App\Models\Invoice             $invoice
+ * @property \App\Models\User                $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereEmailError($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereInvitationKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereMessageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereOpenedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereSentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereSignatureBase64($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereSignatureDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation whereViewedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invitation withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Invitation extends EntityModel
 {
@@ -16,41 +69,26 @@ class Invitation extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_INVITATION;
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function contact()
     {
         return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);

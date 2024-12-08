@@ -14,14 +14,14 @@ use App\Services\ProjectService;
  */
 class ProjectApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
-
-    protected \App\Services\ProjectService $projectService;
-
     /**
      * @var string
      */
-    protected $entityType = ENTITY_PROJECT;
+    public $entityType = ENTITY_PROJECT;
+
+    protected \App\Ninja\Repositories\ProjectRepository $projectRepo;
+
+    protected \App\Services\ProjectService $projectService;
 
     /**
      * ProjectApiController constructor.

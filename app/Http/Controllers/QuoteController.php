@@ -19,6 +19,8 @@ use Utils;
 
 class QuoteController extends BaseController
 {
+    public $entityType = ENTITY_INVOICE;
+
     protected Mailer $mailer;
 
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
@@ -26,8 +28,6 @@ class QuoteController extends BaseController
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
 
     protected \App\Services\InvoiceService $invoiceService;
-
-    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {

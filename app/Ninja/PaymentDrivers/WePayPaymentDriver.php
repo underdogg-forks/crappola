@@ -31,7 +31,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -110,7 +110,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function removePaymentMethod($paymentMethod): void
+    public function removePaymentMethod($paymentMethod): bool
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -128,7 +128,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         throw new Exception(trans('texts.failed_remove_payment_method'));
     }
 
-    public function handleWebHook($input): void
+    public function handleWebHook($input): string
     {
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
@@ -233,7 +233,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return true;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -285,7 +285,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function refundDetails($payment, $amount)
+    protected function refundDetails($payment, $amount): array
     {
         $data = parent::refundDetails($payment, $amount);
 
@@ -301,7 +301,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount)
+    protected function attemptVoidPayment($response, $payment, $amount): bool
     {
         if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;

@@ -8,6 +8,53 @@ use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Credit.
+ *
+ * @property int                             $id
+ * @property int                             $account_id
+ * @property int                             $client_id
+ * @property int                             $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int                             $is_deleted
+ * @property string                          $amount
+ * @property string                          $balance
+ * @property string|null                     $credit_date
+ * @property string|null                     $credit_number
+ * @property string                          $private_notes
+ * @property int                             $public_id
+ * @property string|null                     $public_notes
+ * @property \App\Models\Account             $account
+ * @property \App\Models\Client              $client
+ * @property \App\Models\Invoice|null        $invoice
+ * @property \App\Models\User                $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreditDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreditNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Credit extends EntityModel
 {
@@ -29,33 +76,21 @@ class Credit extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
@@ -77,9 +112,6 @@ class Credit extends EntityModel
         return '/credits/' . $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_CREDIT;

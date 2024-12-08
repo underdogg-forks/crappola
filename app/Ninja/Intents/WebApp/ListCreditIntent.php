@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListCreditIntent extends BaseIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_CREDIT);
 

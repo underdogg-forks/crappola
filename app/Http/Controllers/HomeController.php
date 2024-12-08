@@ -124,25 +124,16 @@ class HomeController extends BaseController
         return Utils::logError(\Illuminate\Support\Facades\Request::input('error'), 'JavaScript');
     }
 
-    /**
-     * @return mixed
-     */
     public function keepAlive(): string
     {
         return RESULT_SUCCESS;
     }
 
-    /**
-     * @return mixed
-     */
     public function loggedIn(): string
     {
         return RESULT_SUCCESS;
     }
 
-    /**
-     * @return mixed
-     */
     public function contactUs(): string
     {
         $message = request()->contact_us_message;

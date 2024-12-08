@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\DbServer;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class CalculatePayouts extends Command
 {
@@ -34,11 +35,6 @@ class CalculatePayouts extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));
@@ -53,7 +49,7 @@ class CalculatePayouts extends Command
         }
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],

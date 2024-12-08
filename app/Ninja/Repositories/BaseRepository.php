@@ -89,17 +89,11 @@ class BaseRepository
         return count($entities);
     }
 
-    /**
-     * @return mixed
-     */
     public function findByPublicIds($ids)
     {
         return $this->getInstance()->scope($ids)->get();
     }
 
-    /**
-     * @return mixed
-     */
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
@@ -140,9 +134,6 @@ class BaseRepository
         return $query;
     }
 
-    /**
-     * @return mixed
-     */
     private function getInstance()
     {
         $className = $this->getClassName();

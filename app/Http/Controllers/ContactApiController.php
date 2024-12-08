@@ -12,11 +12,11 @@ use Response;
 
 class ContactApiController extends BaseAPIController
 {
-    protected \App\Ninja\Repositories\ContactRepository $contactRepo;
+    public $entityType = ENTITY_CONTACT;
 
-    protected \App\Services\ContactService $contactService;
+    protected ContactRepository $contactRepo;
 
-    protected $entityType = ENTITY_CONTACT;
+    protected ContactService $contactService;
 
     public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {

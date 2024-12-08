@@ -4,6 +4,19 @@ namespace App\Models;
 
 /**
  * Class Frequency.
+ *
+ * @property int         $id
+ * @property string      $name
+ * @property string|null $date_interval
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereDateInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Frequency whereName($value)
+ *
+ * @mixin \Eloquent
  */
 class Frequency extends \Illuminate\Database\Eloquent\Model
 {

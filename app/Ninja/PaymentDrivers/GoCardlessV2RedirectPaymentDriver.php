@@ -116,7 +116,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $this->gateway;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

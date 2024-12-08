@@ -15,9 +15,6 @@ use Utils;
  */
 class AccountPresenter extends Presenter
 {
-    /**
-     * @return mixed
-     */
     public function name()
     {
         return $this->entity->name ?: trans('texts.untitled_account');
@@ -65,9 +62,6 @@ class AccountPresenter extends Presenter
         return '';
     }
 
-    /**
-     * @return mixed
-     */
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();

@@ -18,6 +18,352 @@ use Utils;
 
 /**
  * Class Account.
+ *
+ * @property int                                                                               $id
+ * @property int|null                                                                          $timezone_id
+ * @property int|null                                                                          $date_format_id
+ * @property int|null                                                                          $datetime_format_id
+ * @property int|null                                                                          $currency_id
+ * @property \Illuminate\Support\Carbon|null                                                   $created_at
+ * @property \Illuminate\Support\Carbon|null                                                   $updated_at
+ * @property \Illuminate\Support\Carbon|null                                                   $deleted_at
+ * @property string|null                                                                       $name
+ * @property string                                                                            $ip
+ * @property string                                                                            $account_key
+ * @property string|null                                                                       $last_login
+ * @property string|null                                                                       $address1
+ * @property string|null                                                                       $address2
+ * @property string|null                                                                       $city
+ * @property string|null                                                                       $state
+ * @property string|null                                                                       $postal_code
+ * @property int|null                                                                          $country_id
+ * @property string|null                                                                       $invoice_terms
+ * @property string|null                                                                       $email_footer
+ * @property int|null                                                                          $industry_id
+ * @property int|null                                                                          $size_id
+ * @property int                                                                               $invoice_taxes
+ * @property int                                                                               $invoice_item_taxes
+ * @property int                                                                               $invoice_design_id
+ * @property string|null                                                                       $work_phone
+ * @property string|null                                                                       $work_email
+ * @property int                                                                               $language_id
+ * @property string|null                                                                       $custom_value1
+ * @property string|null                                                                       $custom_value2
+ * @property int                                                                               $fill_products
+ * @property int                                                                               $update_products
+ * @property string|null                                                                       $primary_color
+ * @property string|null                                                                       $secondary_color
+ * @property int                                                                               $hide_quantity
+ * @property int                                                                               $hide_paid_to_date
+ * @property int|null                                                                          $custom_invoice_taxes1
+ * @property int|null                                                                          $custom_invoice_taxes2
+ * @property string|null                                                                       $vat_number
+ * @property string|null                                                                       $invoice_number_prefix
+ * @property int|null                                                                          $invoice_number_counter
+ * @property string|null                                                                       $quote_number_prefix
+ * @property int|null                                                                          $quote_number_counter
+ * @property int                                                                               $share_counter
+ * @property string|null                                                                       $id_number
+ * @property int                                                                               $token_billing_type_id
+ * @property string|null                                                                       $invoice_footer
+ * @property int                                                                               $pdf_email_attachment
+ * @property string|null                                                                       $subdomain
+ * @property int                                                                               $font_size
+ * @property string|null                                                                       $invoice_labels
+ * @property string|null                                                                       $custom_design1
+ * @property int                                                                               $show_item_taxes
+ * @property string|null                                                                       $iframe_url
+ * @property int                                                                               $military_time
+ * @property int                                                                               $enable_reminder1
+ * @property int                                                                               $enable_reminder2
+ * @property int                                                                               $enable_reminder3
+ * @property int                                                                               $num_days_reminder1
+ * @property int                                                                               $num_days_reminder2
+ * @property int                                                                               $num_days_reminder3
+ * @property int                                                                               $recurring_hour
+ * @property string|null                                                                       $invoice_number_pattern
+ * @property string|null                                                                       $quote_number_pattern
+ * @property string|null                                                                       $quote_terms
+ * @property int                                                                               $email_design_id
+ * @property int                                                                               $enable_email_markup
+ * @property string|null                                                                       $website
+ * @property int                                                                               $direction_reminder1
+ * @property int                                                                               $direction_reminder2
+ * @property int                                                                               $direction_reminder3
+ * @property int                                                                               $field_reminder1
+ * @property int                                                                               $field_reminder2
+ * @property int                                                                               $field_reminder3
+ * @property string|null                                                                       $client_view_css
+ * @property int                                                                               $header_font_id
+ * @property int                                                                               $body_font_id
+ * @property int                                                                               $auto_convert_quote
+ * @property int                                                                               $all_pages_footer
+ * @property int                                                                               $all_pages_header
+ * @property int                                                                               $show_currency_code
+ * @property int                                                                               $enable_portal_password
+ * @property int                                                                               $send_portal_password
+ * @property string                                                                            $recurring_invoice_number_prefix
+ * @property int                                                                               $enable_client_portal
+ * @property string|null                                                                       $invoice_fields
+ * @property string|null                                                                       $devices
+ * @property string|null                                                                       $logo
+ * @property int                                                                               $logo_width
+ * @property int                                                                               $logo_height
+ * @property int                                                                               $logo_size
+ * @property int                                                                               $invoice_embed_documents
+ * @property int                                                                               $document_email_attachment
+ * @property int                                                                               $enable_client_portal_dashboard
+ * @property int|null                                                                          $company_id
+ * @property string                                                                            $page_size
+ * @property int                                                                               $live_preview
+ * @property int                                                                               $invoice_number_padding
+ * @property int                                                                               $enable_second_tax_rate
+ * @property int                                                                               $auto_bill_on_due_date
+ * @property int                                                                               $start_of_week
+ * @property int                                                                               $enable_buy_now_buttons
+ * @property int                                                                               $include_item_taxes_inline
+ * @property string|null                                                                       $financial_year_start
+ * @property int                                                                               $enabled_modules
+ * @property int                                                                               $enabled_dashboard_sections
+ * @property int                                                                               $show_accept_invoice_terms
+ * @property int                                                                               $show_accept_quote_terms
+ * @property int                                                                               $require_invoice_signature
+ * @property int                                                                               $require_quote_signature
+ * @property string|null                                                                       $client_number_prefix
+ * @property int|null                                                                          $client_number_counter
+ * @property string|null                                                                       $client_number_pattern
+ * @property int|null                                                                          $domain_id
+ * @property int|null                                                                          $payment_terms
+ * @property int|null                                                                          $reset_counter_frequency_id
+ * @property int|null                                                                          $payment_type_id
+ * @property int                                                                               $gateway_fee_enabled
+ * @property string|null                                                                       $reset_counter_date
+ * @property string|null                                                                       $tax_name1
+ * @property string                                                                            $tax_rate1
+ * @property string|null                                                                       $tax_name2
+ * @property string                                                                            $tax_rate2
+ * @property int                                                                               $quote_design_id
+ * @property string|null                                                                       $custom_design2
+ * @property string|null                                                                       $custom_design3
+ * @property string|null                                                                       $analytics_key
+ * @property int|null                                                                          $credit_number_counter
+ * @property string|null                                                                       $credit_number_prefix
+ * @property string|null                                                                       $credit_number_pattern
+ * @property string                                                                            $task_rate
+ * @property int                                                                               $inclusive_taxes
+ * @property int                                                                               $convert_products
+ * @property int                                                                               $enable_reminder4
+ * @property int                                                                               $signature_on_pdf
+ * @property int                                                                               $ubl_email_attachment
+ * @property int|null                                                                          $auto_archive_invoice
+ * @property int|null                                                                          $auto_archive_quote
+ * @property int|null                                                                          $auto_email_invoice
+ * @property int|null                                                                          $send_item_details
+ * @property mixed|null                                                                        $custom_fields
+ * @property int|null                                                                          $background_image_id
+ * @property mixed|null                                                                        $custom_messages
+ * @property int                                                                               $is_custom_domain
+ * @property int                                                                               $show_product_notes
+ * @property \App\Models\AccountEmailSettings|null                                             $account_email_settings
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountGatewaySettings> $account_gateway_settings
+ * @property int|null                                                                          $account_gateway_settings_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountGateway>         $account_gateways
+ * @property int|null                                                                          $account_gateways_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountToken>           $account_tokens
+ * @property int|null                                                                          $account_tokens_count
+ * @property \App\Models\Document|null                                                         $background_image
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankAccount>            $bank_accounts
+ * @property int|null                                                                          $bank_accounts_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client>                 $clients
+ * @property int|null                                                                          $clients_count
+ * @property \App\Models\Company|null                                                          $company
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contact>                $contacts
+ * @property int|null                                                                          $contacts_count
+ * @property \App\Models\Country|null                                                          $country
+ * @property \App\Models\Currency|null                                                         $currency
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm>            $custom_payment_terms
+ * @property int|null                                                                          $custom_payment_terms_count
+ * @property \App\Models\DateFormat|null                                                       $date_format
+ * @property \App\Models\DatetimeFormat|null                                                   $datetime_format
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document>               $defaultDocuments
+ * @property int|null                                                                          $default_documents_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpenseCategory>        $expense_categories
+ * @property int|null                                                                          $expense_categories_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense>                $expenses
+ * @property int|null                                                                          $expenses_count
+ * @property \App\Models\Industry|null                                                         $industry
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice>                $invoices
+ * @property int|null                                                                          $invoices_count
+ * @property \App\Models\Language                                                              $language
+ * @property \App\Models\PaymentType|null                                                      $payment_type
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>                $payments
+ * @property int|null                                                                          $payments_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product>                $products
+ * @property int|null                                                                          $products_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project>                $projects
+ * @property int|null                                                                          $projects_count
+ * @property \App\Models\Size|null                                                             $size
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaskStatus>             $task_statuses
+ * @property int|null                                                                          $task_statuses_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaxRate>                $tax_rates
+ * @property int|null                                                                          $tax_rates_count
+ * @property \App\Models\Timezone|null                                                         $timezone
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>                   $users
+ * @property int|null                                                                          $users_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccountKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAddress1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAddress2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAllPagesFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAllPagesHeader($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAnalyticsKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoArchiveInvoice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoArchiveQuote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoBillOnDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoConvertQuote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAutoEmailInvoice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereBackgroundImageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereBodyFontId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberCounter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberPattern($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientNumberPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereClientViewCss($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereConvertProducts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCountryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberCounter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberPattern($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreditNumberPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomDesign3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomFields($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomInvoiceTaxes1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomInvoiceTaxes2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomMessages($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDateFormatId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDatetimeFormatId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDevices($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDirectionReminder3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDocumentEmailAttachment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDomainId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEmailDesignId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEmailFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableBuyNowButtons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableClientPortal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableClientPortalDashboard($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableEmailMarkup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnablePortalPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableReminder4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnableSecondTaxRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnabledDashboardSections($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereEnabledModules($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFieldReminder3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFillProducts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFinancialYearStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereFontSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereGatewayFeeEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereHeaderFontId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereHidePaidToDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereHideQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIdNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIframeUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIncludeItemTaxesInline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInclusiveTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIndustryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceDesignId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceEmbedDocuments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceFields($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceItemTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceLabels($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberCounter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPadding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPattern($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceNumberPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInvoiceTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsCustomDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLanguageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLastLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLivePreview($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoHeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLogoWidth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereMilitaryTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumDaysReminder3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePageSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePaymentTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePdfEmailAttachment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePostalCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePrimaryColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteDesignId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberCounter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberPattern($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteNumberPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereQuoteTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereRecurringHour($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereRecurringInvoiceNumberPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereRequireInvoiceSignature($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereRequireQuoteSignature($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereResetCounterDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereResetCounterFrequencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSecondaryColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSendItemDetails($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSendPortalPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShareCounter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowAcceptInvoiceTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowAcceptQuoteTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowCurrencyCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowItemTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereShowProductNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSignatureOnPdf($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSizeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereStartOfWeek($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSubdomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaskRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTimezoneId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTokenBillingTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUblEmailAttachment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdateProducts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereVatNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereWebsite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereWorkEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereWorkPhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Account extends \Illuminate\Database\Eloquent\Model
 {
@@ -335,105 +681,66 @@ class Account extends \Illuminate\Database\Eloquent\Model
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function account_tokens()
     {
         return $this->hasMany(\App\Models\AccountToken::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function users()
     {
         return $this->hasMany(\App\Models\User::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function clients()
     {
         return $this->hasMany(\App\Models\Client::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function contacts()
     {
         return $this->hasMany(\App\Models\Contact::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function invoices()
     {
         return $this->hasMany(\App\Models\Invoice::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function account_gateways()
     {
         return $this->hasMany(\App\Models\AccountGateway::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function account_gateway_settings()
     {
         return $this->hasMany(\App\Models\AccountGatewaySettings::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function account_email_settings()
     {
         return $this->hasOne(\App\Models\AccountEmailSettings::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function bank_accounts()
     {
         return $this->hasMany(\App\Models\BankAccount::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function tax_rates()
     {
         return $this->hasMany(\App\Models\TaxRate::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function task_statuses()
     {
         return $this->hasMany(\App\Models\TaskStatus::class)->orderBy('sort_order');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function products()
     {
         return $this->hasMany(\App\Models\Product::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function defaultDocuments()
     {
         return $this->hasMany(\App\Models\Document::class)->whereIsDefault(true);
@@ -444,121 +751,76 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->hasOne(\App\Models\Document::class, 'id', 'background_image_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function country()
     {
         return $this->belongsTo(\App\Models\Country::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function timezone()
     {
         return $this->belongsTo(\App\Models\Timezone::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function language()
     {
         return $this->belongsTo(\App\Models\Language::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function date_format()
     {
         return $this->belongsTo(\App\Models\DateFormat::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function datetime_format()
     {
         return $this->belongsTo(\App\Models\DatetimeFormat::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function size()
     {
         return $this->belongsTo(\App\Models\Size::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function currency()
     {
         return $this->belongsTo(\App\Models\Currency::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function industry()
     {
         return $this->belongsTo(\App\Models\Industry::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_type()
     {
         return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function expenses()
     {
         return $this->hasMany(\App\Models\Expense::class, 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function payments()
     {
         return $this->hasMany(\App\Models\Payment::class, 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function company()
     {
         return $this->belongsTo(\App\Models\Company::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function expense_categories()
     {
         return $this->hasMany(\App\Models\ExpenseCategory::class, 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function projects()
     {
         return $this->hasMany(\App\Models\Project::class, 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function custom_payment_terms()
     {
         return $this->hasMany(\App\Models\PaymentTerm::class, 'account_id', 'id')->withTrashed();
@@ -658,9 +920,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->invoice_number_prefix != $this->quote_number_prefix;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         if ($this->name) {
@@ -698,9 +957,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    /**
-     * @return mixed
-     */
     public function getMomentDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
@@ -762,9 +1018,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $formatted ? $date->format($this->getCustomDateTimeFormat()) : $date;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCustomDateFormat()
     {
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
@@ -819,17 +1072,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return Utils::formatNumber($amount, $currencyId, $precision);
     }
 
-    /**
-     * @return mixed
-     */
     public function getCurrencyId()
     {
         return $this->currency_id ?: DEFAULT_CURRENCY;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCountryId()
     {
         return $this->country_id ?: DEFAULT_COUNTRY;
@@ -891,9 +1138,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->military_time ? 'H:i' : 'g:i a';
     }
 
-    /**
-     * @return mixed
-     */
     public function getCustomDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
@@ -997,9 +1241,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return false;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayIds()
     {
         return $this->account_gateways()->pluck('gateway_id')->toArray();
@@ -1031,9 +1272,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return false;
     }
 
-    /**
-     * @return mixed
-     */
     public function getPrimaryUser()
     {
         return $this->users()
@@ -1285,9 +1523,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return ! empty($plan_details);
     }
 
-    /**
-     * @return mixed
-     */
     public function hasActivePromo()
     {
         return $this->company->hasActivePromo();
@@ -1444,9 +1679,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $interval ? $interval->d : 0;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRenewalDate()
     {
         $planDetails = $this->getPlanDetails();
@@ -1638,9 +1870,6 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;
     }
 
-    /**
-     * @return mixed
-     */
     public function getEmailDesignId()
     {
         return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
@@ -1689,17 +1918,11 @@ class Account extends \Illuminate\Database\Eloquent\Model
         return ($protocol ? $protocol . ':' : '') . '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts);
     }
 
-    /**
-     * @return mixed
-     */
     public function getHeaderFontId()
     {
         return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
     }
 
-    /**
-     * @return mixed
-     */
     public function getBodyFontId()
     {
         return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;

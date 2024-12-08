@@ -14,11 +14,11 @@ use Utils;
 
 class VendorController extends BaseController
 {
+    public $entityType = ENTITY_VENDOR;
+
     protected \App\Services\VendorService $vendorService;
 
     protected \App\Ninja\Repositories\VendorRepository $vendorRepo;
-
-    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {

@@ -4,6 +4,20 @@ namespace App\Models;
 
 /**
  * Class PaymentType.
+ *
+ * @property int                          $id
+ * @property string                       $name
+ * @property int|null                     $gateway_type_id
+ * @property \App\Models\GatewayType|null $gatewayType
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereGatewayTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereName($value)
+ *
+ * @mixin \Eloquent
  */
 class PaymentType extends \Illuminate\Database\Eloquent\Model
 {
@@ -45,9 +59,6 @@ class PaymentType extends \Illuminate\Database\Eloquent\Model
         return PAYMENT_TYPE_CREDIT_CARD_OTHER;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function gatewayType()
     {
         return $this->belongsTo(\App\Models\GatewayType::class);

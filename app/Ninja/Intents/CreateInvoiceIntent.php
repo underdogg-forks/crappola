@@ -7,7 +7,7 @@ use Exception;
 
 class CreateInvoiceIntent extends InvoiceIntent
 {
-    public function process(): void
+    public function process(): string|bool
     {
         $client = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();

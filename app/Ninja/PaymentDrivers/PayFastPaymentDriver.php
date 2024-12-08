@@ -13,7 +13,7 @@ class PayFastPaymentDriver extends BasePaymentDriver
         ]);
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails();
         $data['notifyUrl'] = $this->invitation->getLink('complete', true);

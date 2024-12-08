@@ -6,6 +6,19 @@ use Utils;
 
 /**
  * Class GatewayType.
+ *
+ * @property int    $id
+ * @property string $alias
+ * @property string $name
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereAlias($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereName($value)
+ *
+ * @mixin \Eloquent
  */
 class GatewayType extends \Illuminate\Database\Eloquent\Model
 {
@@ -24,9 +37,6 @@ class GatewayType extends \Illuminate\Database\Eloquent\Model
         return \Illuminate\Support\Facades\Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;

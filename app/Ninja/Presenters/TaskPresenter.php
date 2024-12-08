@@ -18,9 +18,6 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->entity->user->getDisplayName();

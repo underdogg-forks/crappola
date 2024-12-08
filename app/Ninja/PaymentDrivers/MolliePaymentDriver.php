@@ -13,7 +13,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    public function handleWebHook($input): void
+    public function handleWebHook($input): string
     {
         $ref = \Illuminate\Support\Arr::get($input, 'id');
         $data = [
@@ -45,7 +45,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         return RESULT_SUCCESS;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

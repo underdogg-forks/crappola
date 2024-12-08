@@ -78,12 +78,12 @@ class StripePaymentDriver extends BasePaymentDriver
         return \Stripe\SetupIntent::create();
     }
 
-    public function tokenize()
+    public function tokenize(): bool
     {
         return $this->accountGateway->getPublishableKey();
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -98,7 +98,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return $rules;
     }
 
-    public function isValid()
+    public function isValid(): bool|string
     {
         $result = $this->makeStripeCall(
             'GET',
@@ -304,7 +304,7 @@ class StripePaymentDriver extends BasePaymentDriver
         throw new Exception($tokenResponse->getMessage());
     }
 
-    public function removePaymentMethod($paymentMethod): void
+    public function removePaymentMethod($paymentMethod): bool
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -324,7 +324,7 @@ class StripePaymentDriver extends BasePaymentDriver
         throw new Exception($response->getMessage());
     }
 
-    public function verifyBankAccount($client, $publicId, $amount1, $amount2): void
+    public function verifyBankAccount($client, $publicId, $amount1, $amount2): string
     {
         $customer = $this->customer($client->id);
         $paymentMethod = PaymentMethod::clientId($client->id)
@@ -448,7 +448,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function handleWebHook($input): void
+    public function handleWebHook($input): array
     {
         $eventId = \Illuminate\Support\Arr::get($input, 'id');
         $eventType = \Illuminate\Support\Arr::get($input, 'type');
@@ -586,7 +586,7 @@ class StripePaymentDriver extends BasePaymentDriver
         */
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

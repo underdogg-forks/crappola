@@ -12,11 +12,11 @@ use App\Services\ProposalSnippetService;
 
 class ProposalSnippetController extends BaseController
 {
+    public $entityType = ENTITY_PROPOSAL_SNIPPET;
+
     protected \App\Ninja\Repositories\ProposalSnippetRepository $proposalSnippetRepo;
 
     protected \App\Services\ProposalSnippetService $proposalSnippetService;
-
-    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, ProposalSnippetService $proposalSnippetService)
     {

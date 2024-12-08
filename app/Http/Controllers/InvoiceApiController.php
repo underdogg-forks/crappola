@@ -28,9 +28,9 @@ class InvoiceApiController extends BaseAPIController
 
     public $paymentService;
 
-    protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
+    public $entityType = ENTITY_INVOICE;
 
-    protected $entityType = ENTITY_INVOICE;
+    protected InvoiceRepository $invoiceRepo;
 
     public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, PaymentService $paymentService)
     {

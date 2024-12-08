@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Ninja\Repositories\InvoiceRepository;
 use Response;
 
 class QuoteApiController extends InvoiceApiController
 {
-    protected $invoiceRepo;
+    public $entityType = ENTITY_INVOICE;
 
-    protected $entityType = ENTITY_INVOICE;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * @SWG\Get(

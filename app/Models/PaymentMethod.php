@@ -7,6 +7,65 @@ use stdClass;
 
 /**
  * Class PaymentMethod.
+ *
+ * @property int                                  $id
+ * @property int                                  $account_id
+ * @property int                                  $user_id
+ * @property int|null                             $contact_id
+ * @property int|null                             $account_gateway_token_id
+ * @property int                                  $payment_type_id
+ * @property string                               $source_reference
+ * @property int|null                             $routing_number
+ * @property null|string                          $last4
+ * @property string|null                          $expiration
+ * @property string|null                          $email
+ * @property int|null                             $currency_id
+ * @property string|null                          $status
+ * @property \Illuminate\Support\Carbon|null      $created_at
+ * @property \Illuminate\Support\Carbon|null      $updated_at
+ * @property \Illuminate\Support\Carbon|null      $deleted_at
+ * @property int                                  $public_id
+ * @property null                                 $bank_name
+ * @property string|null                          $ip
+ * @property \App\Models\Account                  $account
+ * @property \App\Models\AccountGatewayToken|null $account_gateway_token
+ * @property \App\Models\Contact|null             $contact
+ * @property \App\Models\Currency|null            $currency
+ * @property mixed|null|stdClass|string           $bank_data
+ * @property \App\Models\PaymentType              $payment_type
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod clientId($clientId)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod isBankAccount($isBank)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereAccountGatewayTokenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereBankName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereExpiration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereLast4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereRoutingNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereSourceReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMethod withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class PaymentMethod extends EntityModel
 {
@@ -105,49 +164,31 @@ class PaymentMethod extends EntityModel
         \Illuminate\Support\Facades\Cache::put('bankData:' . $routingNumber, false, 5 * 60);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function contact()
     {
         return $this->belongsTo(\App\Models\Contact::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account_gateway_token()
     {
         return $this->belongsTo(\App\Models\AccountGatewayToken::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_type()
     {
         return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function currency()
     {
         return $this->belongsTo(\App\Models\Currency::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function payments()
     {
         return $this->hasMany('App\Models\Payments');
@@ -233,9 +274,6 @@ class PaymentMethod extends EntityModel
         return $this->payment_type_id == PAYMENT_TYPE_ACH;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayType(): int|string
     {
         if ($this->payment_type_id == PAYMENT_TYPE_ACH) {

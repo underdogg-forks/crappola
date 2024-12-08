@@ -38,11 +38,6 @@ class ExportMigrations extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');

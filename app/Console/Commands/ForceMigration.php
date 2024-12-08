@@ -45,11 +45,6 @@ class ForceMigration extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
         if ($this->option('database')) {

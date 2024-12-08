@@ -6,6 +6,65 @@ use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Activity.
+ *
+ * @property int                             $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int                             $account_id
+ * @property int                             $user_id
+ * @property int|null                        $client_id
+ * @property int|null                        $contact_id
+ * @property int|null                        $payment_id
+ * @property int|null                        $invoice_id
+ * @property int|null                        $credit_id
+ * @property int|null                        $invitation_id
+ * @property int|null                        $task_id
+ * @property string|null                     $json_backup
+ * @property int                             $activity_type_id
+ * @property string|null                     $adjustment
+ * @property string|null                     $balance
+ * @property int|null                        $token_id
+ * @property string|null                     $ip
+ * @property int                             $is_system
+ * @property int|null                        $expense_id
+ * @property string|null                     $notes
+ * @property \App\Models\Account             $account
+ * @property \App\Models\Client|null         $client
+ * @property \App\Models\Contact|null        $contact
+ * @property \App\Models\Credit|null         $credit
+ * @property \App\Models\Expense|null        $expense
+ * @property \App\Models\Invoice|null        $invoice
+ * @property \App\Models\Payment|null        $payment
+ * @property \App\Models\Task|null           $task
+ * @property \App\Models\User|null           $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereActivityTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAdjustment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreditId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvitationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIsSystem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereJsonBackup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTaskId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTokenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUserId($value)
+ *
+ * @mixin \Eloquent
  */
 class Activity extends \Illuminate\Database\Eloquent\Model
 {
@@ -21,67 +80,41 @@ class Activity extends \Illuminate\Database\Eloquent\Model
      */
     protected $presenter = \App\Ninja\Presenters\ActivityPresenter::class;
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeScope($query)
     {
         return $query->whereAccountId(\Illuminate\Support\Facades\Auth::user()->account_id);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function contact()
     {
         return $this->belongsTo(\App\Models\Contact::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function credit()
     {
         return $this->belongsTo(\App\Models\Credit::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function payment()
     {
         return $this->belongsTo(\App\Models\Payment::class)->withTrashed();
@@ -102,9 +135,6 @@ class Activity extends \Illuminate\Database\Eloquent\Model
         return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
     }
 
-    /**
-     * @return mixed
-     */
     public function getMessage()
     {
         $activityTypeId = $this->activity_type_id;

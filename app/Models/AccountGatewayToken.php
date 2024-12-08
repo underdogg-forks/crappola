@@ -6,6 +6,42 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class AccountGatewayToken.
+ *
+ * @property int                                                                      $id
+ * @property int                                                                      $account_id
+ * @property int                                                                      $contact_id
+ * @property int                                                                      $account_gateway_id
+ * @property int                                                                      $client_id
+ * @property string                                                                   $token
+ * @property \Illuminate\Support\Carbon|null                                          $created_at
+ * @property \Illuminate\Support\Carbon|null                                          $updated_at
+ * @property \Illuminate\Support\Carbon|null                                          $deleted_at
+ * @property int|null                                                                 $default_payment_method_id
+ * @property \App\Models\AccountGateway                                               $account_gateway
+ * @property \App\Models\Contact                                                      $contact
+ * @property \App\Models\PaymentMethod|null                                           $default_payment_method
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentMethod> $payment_methods
+ * @property int|null                                                                 $payment_methods_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken clientAndGateway($clientId, $accountGatewayId)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereAccountGatewayId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereDefaultPaymentMethodId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountGatewayToken withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
 {
@@ -31,25 +67,16 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
         'token',
     ];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function payment_methods()
     {
         return $this->hasMany(\App\Models\PaymentMethod::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account_gateway()
     {
         return $this->belongsTo(\App\Models\AccountGateway::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function contact()
     {
         return $this->belongsTo(\App\Models\Contact::class);
@@ -63,17 +90,11 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
         return $this->hasOne(\App\Models\PaymentMethod::class, 'id', 'default_payment_method_id');
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_CUSTOMER;
     }
 
-    /**
-     * @return mixed
-     */
     public function autoBillLater()
     {
         if ($this->default_payment_method) {
@@ -98,9 +119,6 @@ class AccountGatewayToken extends \Illuminate\Database\Eloquent\Model
         return $query;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayName()
     {
         return $this->account_gateway->gateway->name;

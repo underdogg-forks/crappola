@@ -15,11 +15,11 @@ class PaymentApiController extends BaseAPIController
 {
     public $contactMailer;
 
+    public $entityType = ENTITY_PAYMENT;
+
     protected \App\Ninja\Repositories\PaymentRepository $paymentRepo;
 
     protected \App\Services\PaymentService $paymentService;
-
-    protected $entityType = ENTITY_PAYMENT;
 
     public function __construct(PaymentRepository $paymentRepo, PaymentService $paymentService, ContactMailer $contactMailer)
     {

@@ -10,6 +10,62 @@ use Utils;
 
 /**
  * Class Task.
+ *
+ * @property int                             $id
+ * @property int                             $user_id
+ * @property int                             $account_id
+ * @property int|null                        $client_id
+ * @property int|null                        $invoice_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null                     $description
+ * @property int                             $is_deleted
+ * @property int                             $public_id
+ * @property int                             $is_running
+ * @property string|null                     $time_log
+ * @property int|null                        $project_id
+ * @property int|null                        $task_status_id
+ * @property int                             $task_status_sort_order
+ * @property string|null                     $custom_value1
+ * @property string|null                     $custom_value2
+ * @property \App\Models\Account             $account
+ * @property \App\Models\Client|null         $client
+ * @property \App\Models\Invoice|null        $invoice
+ * @property \App\Models\Project|null        $project
+ * @property \App\Models\TaskStatus|null     $task_status
+ * @property \App\Models\User                $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Task dateRange($startDate, $endDate)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsRunning($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereTaskStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereTaskStatusSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereTimeLog($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Task extends EntityModel
 {
@@ -129,57 +185,36 @@ class Task extends EntityModel
         return 'info';
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_TASK;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function project()
     {
         return $this->belongsTo(\App\Models\Project::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function task_status()
     {
         return $this->belongsTo(\App\Models\TaskStatus::class)->withTrashed();

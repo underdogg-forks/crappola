@@ -4,6 +4,23 @@ namespace App\Models;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int         $id
+ * @property int         $lookup_account_id
+ * @property string      $invitation_key
+ * @property string|null $message_id
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereInvitationKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereLookupAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LookupProposalInvitation whereMessageId($value)
+ *
+ * @property \App\Models\LookupAccount $lookupAccount
+ *
+ * @mixin \Eloquent
  */
 class LookupProposalInvitation extends LookupModel
 {

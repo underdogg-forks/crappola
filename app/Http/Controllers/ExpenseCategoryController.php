@@ -11,11 +11,11 @@ use App\Services\ExpenseCategoryService;
 
 class ExpenseCategoryController extends BaseController
 {
+    public $entityType = ENTITY_EXPENSE_CATEGORY;
+
     protected \App\Ninja\Repositories\ExpenseCategoryRepository $categoryRepo;
 
     protected \App\Services\ExpenseCategoryService $categoryService;
-
-    protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
     {

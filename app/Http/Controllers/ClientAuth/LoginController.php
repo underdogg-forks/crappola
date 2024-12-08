@@ -42,9 +42,6 @@ class LoginController extends Controller
         $this->middleware('guest:client', ['except' => 'getLogoutWrapper']);
     }
 
-    /**
-     * @return mixed
-     */
     public function showLoginForm()
     {
         $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
@@ -63,9 +60,6 @@ class LoginController extends Controller
         return view('clientauth.login')->with(['clientauth' => true]);
     }
 
-    /**
-     * @return mixed
-     */
     public function getSessionExpired()
     {
         return view('clientauth.sessionexpired')->with(['clientauth' => true]);

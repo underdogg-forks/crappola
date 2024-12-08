@@ -19,12 +19,12 @@ use Utils;
 
 class ExpenseController extends BaseController
 {
+    public $entityType = ENTITY_EXPENSE;
+
     // Expenses
     protected \App\Ninja\Repositories\ExpenseRepository $expenseRepo;
 
     protected \App\Services\ExpenseService $expenseService;
-
-    protected $entityType = ENTITY_EXPENSE;
 
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 

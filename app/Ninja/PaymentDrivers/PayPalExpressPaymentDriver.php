@@ -11,7 +11,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         ];
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails();
 

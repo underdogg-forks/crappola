@@ -21,14 +21,14 @@ use Utils;
  */
 class TaskController extends BaseController
 {
-    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
-
-    protected \App\Services\TaskService $taskService;
-
     /**
      * @var
      */
-    protected $entityType = ENTITY_TASK;
+    public $entityType = ENTITY_TASK;
+
+    protected \App\Ninja\Repositories\TaskRepository $taskRepo;
+
+    protected \App\Services\TaskService $taskService;
 
     protected \App\Ninja\Repositories\InvoiceRepository $invoiceRepo;
 

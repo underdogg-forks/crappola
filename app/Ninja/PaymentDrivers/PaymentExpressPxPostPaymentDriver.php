@@ -4,7 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 class PaymentExpressPxPostPaymentDriver extends BasePaymentDriver
 {
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails();
 

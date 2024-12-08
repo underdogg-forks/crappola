@@ -12,11 +12,11 @@ use App\Services\ProposalTemplateService;
 
 class ProposalTemplateController extends BaseController
 {
+    public $entityType = ENTITY_PROPOSAL_TEMPLATE;
+
     protected \App\Ninja\Repositories\ProposalTemplateRepository $proposalTemplateRepo;
 
     protected \App\Services\ProposalTemplateService $proposalTemplateService;
-
-    protected $entityType = ENTITY_PROPOSAL_TEMPLATE;
 
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, ProposalTemplateService $proposalTemplateService)
     {

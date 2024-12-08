@@ -23,11 +23,11 @@ use View;
 
 class ClientController extends BaseController
 {
+    public $entityType = ENTITY_CLIENT;
+
     protected \App\Services\ClientService $clientService;
 
     protected \App\Ninja\Repositories\ClientRepository $clientRepo;
-
-    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {

@@ -14,11 +14,11 @@ use Utils;
 
 class CreditController extends BaseController
 {
+    public $entityType = ENTITY_CREDIT;
+
     protected \App\Ninja\Repositories\CreditRepository $creditRepo;
 
     protected \App\Services\CreditService $creditService;
-
-    protected $entityType = ENTITY_CREDIT;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {

@@ -10,6 +10,97 @@ use Utils;
 
 /**
  * Class Expense.
+ *
+ * @property int                                                                 $id
+ * @property \Illuminate\Support\Carbon|null                                     $created_at
+ * @property \Illuminate\Support\Carbon|null                                     $updated_at
+ * @property \Illuminate\Support\Carbon|null                                     $deleted_at
+ * @property int                                                                 $account_id
+ * @property int|null                                                            $vendor_id
+ * @property int                                                                 $user_id
+ * @property int|null                                                            $invoice_id
+ * @property int|null                                                            $client_id
+ * @property int                                                                 $is_deleted
+ * @property string                                                              $amount
+ * @property string                                                              $exchange_rate
+ * @property string|null                                                         $expense_date
+ * @property string                                                              $private_notes
+ * @property string                                                              $public_notes
+ * @property int                                                                 $invoice_currency_id
+ * @property int                                                                 $should_be_invoiced
+ * @property int                                                                 $public_id
+ * @property string|null                                                         $transaction_id
+ * @property int|null                                                            $bank_id
+ * @property int|null                                                            $expense_currency_id
+ * @property int|null                                                            $expense_category_id
+ * @property string|null                                                         $tax_name1
+ * @property string                                                              $tax_rate1
+ * @property string|null                                                         $tax_name2
+ * @property string                                                              $tax_rate2
+ * @property int|null                                                            $payment_type_id
+ * @property string|null                                                         $payment_date
+ * @property string|null                                                         $transaction_reference
+ * @property int                                                                 $invoice_documents
+ * @property int|null                                                            $recurring_expense_id
+ * @property string|null                                                         $custom_value1
+ * @property string|null                                                         $custom_value2
+ * @property \App\Models\Account                                                 $account
+ * @property \App\Models\Client|null                                             $client
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property int|null                                                            $documents_count
+ * @property \App\Models\ExpenseCategory|null                                    $expense_category
+ * @property \App\Models\Invoice|null                                            $invoice
+ * @property \App\Models\PaymentType|null                                        $payment_type
+ * @property \App\Models\RecurringExpense|null                                   $recurring_expense
+ * @property \App\Models\User                                                    $user
+ * @property \App\Models\Vendor|null                                             $vendor
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense bankId($bankdId = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense dateRange($startDate, $endDate)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense scope(bool $publicId = false, bool $accountId = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereBankId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExpenseCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExpenseCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExpenseDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceDocuments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePublicId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereRecurringExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereShouldBeInvoiced($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withActiveOrSelected($id = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withArchived()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Expense extends EntityModel
 {
@@ -127,81 +218,51 @@ class Expense extends EntityModel
         return 'primary';
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function expense_category()
     {
         return $this->belongsTo(\App\Models\ExpenseCategory::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
         return $this->belongsTo(\App\Models\Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function vendor()
     {
         return $this->belongsTo(\App\Models\Vendor::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo(\App\Models\Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo(\App\Models\Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function documents()
     {
         return $this->hasMany(\App\Models\Document::class)->orderBy('id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_type()
     {
         return $this->belongsTo(\App\Models\PaymentType::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function recurring_expense()
     {
         return $this->belongsTo(\App\Models\RecurringExpense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         if ($this->transaction_id) {
@@ -215,9 +276,6 @@ class Expense extends EntityModel
         return '#' . $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         return $this->getName();
@@ -228,9 +286,6 @@ class Expense extends EntityModel
         return '/expenses/' . $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType(): string
     {
         return ENTITY_EXPENSE;
@@ -265,9 +320,6 @@ class Expense extends EntityModel
         return $array;
     }
 
-    /**
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('expense_date', [$startDate, $endDate]);
