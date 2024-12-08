@@ -5,6 +5,7 @@ namespace App\Ninja\Mailers;
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
 use App\Jobs\ConvertInvoiceToUbl;
+use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;

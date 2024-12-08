@@ -12,12 +12,12 @@ class ProjectRepository extends BaseRepository
         return \App\Models\Project::class;
     }
 
-    public function all()
+    public function all(): \Illuminate\Database\Eloquent\Collection|array
     {
         return Project::scope()->get();
     }
 
-    public function find($filter = null, $userId = false)
+    public function find($filter = null, $userId = false): \Illuminate\Database\Query\Builder
     {
         $query = \Illuminate\Support\Facades\DB::table('projects')
             ->where('projects.account_id', '=', \Illuminate\Support\Facades\Auth::user()->account_id)

@@ -1000,9 +1000,6 @@ class ImportService
         }
     }
 
-    /**
-     * @param Customer $customer
-     */
     private function addCustomerToMaps(AccountGatewayToken $customer): void
     {
         $this->maps['customer'][$customer->token] = $customer;
