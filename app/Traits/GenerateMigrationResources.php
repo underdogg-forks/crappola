@@ -243,7 +243,7 @@ trait GenerateMigrationResources
                 'company_id'            => $invitation->account_id,
                 'user_id'               => $invitation->user_id,
                 'client_contact_id'     => $invitation->contact_id,
-                $resourceKeyId          => $invitation->invoice_id,
+                'invoice_id'            => $invitation->invoice_id,
                 'key'                   => $invitation->invitation_key,
                 'transaction_reference' => $invitation->transaction_reference,
                 'message_id'            => $invitation->message_id,
