@@ -1,0 +1,15 @@
+// InvoicePlane Website
+// Characters which are escaped by the escape-svg function
+// Characters which are escaped by the escape-svg function
+$escaped-characters: (("<", "%3c"), (">", "%3e"), ("#", "%23")) !default;
+$line-height-base: 1.5 !default;
+$input-btn-line-height: $line-height-base !default;
+$input-line-height: $input-btn-line-height !default;
+$input-btn-padding-y: 0.375rem !default;
+$input-padding-y: $input-btn-padding-y !default;
+$input-height-inner-half: calc(
+  #{$input-line-height * 0.5em} + #{$input-padding-y}
+) !default;
+$dropdown-padding-y:                .5rem !default;
+$dropdown-item-padding-x:           1.5rem !default;
+$dropdown-header-padding:           $dropdown-padding-y $dropdown-item-padding-x !default;

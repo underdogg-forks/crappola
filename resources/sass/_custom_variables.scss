@@ -1,0 +1,171 @@
+// Custom Variables
+
+$screen-xs: 0;
+$screen-xs-max: 575px;
+$screen-sm: 576px;
+$screen-sm-max: 767px;
+$screen-md: 768px;
+$screen-md-max: 991px;
+$screen-lg: 992px;
+$screen-lg-max: 1439px;
+$screen-xl: 1440px;
+
+$navbar-height: floor($navbar-toggler-padding-y + ($navbar-padding-y * 2));
+$navbar-height-lg: floor($nav-link-height + ($navbar-padding-y * 2));
+
+$body-color: $gray-900 !default;
+
+// Navbar brand label
+$navbar-light-brand-color: #deecf9 !default;
+$navbar-light-brand-hover-color: darken(
+  $navbar-light-brand-color,
+  10%
+) !default;
+
+$navbar-dark-brand-color: #005a9e !default;
+$navbar-dark-brand-hover-color: darken($navbar-dark-brand-color, 60%) !default;
+
+//navbar-dark-brand-color
+$navbar-default-brand-hover-bg: transparent !default;
+
+$font-weight-bolder: bolder !default; // <- new var
+$dropdown-font-size: $font-size-base !default;
+$dropdown-color: $body-color !default;
+$dropdown-divider-margin-y: $nav-divider-margin-y !default;
+$enable-pointer-cursor-for-buttons: true;
+$small-font-size: 0.875em !default;
+
+$caret-width: 0.3em !default;
+$caret-vertical-align: $caret-width * 0.85 !default;
+$caret-spacing: $caret-width * 0.85 !default;
+
+$grid-row-columns: 6 !default;
+$blockquote-small-font-size: $small-font-size !default;
+$table-color: $body-color !default;
+$table-hover-color: $table-color !default;
+$table-bg-level: -9 !default;
+$table-border-level: -6 !default;
+$table-dark-color: $white !default;
+$table-dark-bg: $gray-800 !default;
+$table-dark-accent-bg: rgba($white, 0.05) !default;
+$table-dark-hover-color: $table-dark-color !default;
+
+$input-btn-font-family: null !default;
+$input-font-family: $input-btn-font-family !default;
+
+$input-btn-font-size: $font-size-base !default;
+
+$input-btn-font-size-sm: $font-size-sm !default;
+$input-btn-font-size-lg: $font-size-lg !default;
+
+$input-font-size: $input-btn-font-size !default;
+$input-font-weight: $font-weight-base !default;
+$enable-prefers-reduced-motion-media-query: true !default;
+$enable-deprecation-messages: true !default;
+$enable-validation-icons: true !default;
+
+$input-btn-font-size-lg: $font-size-lg !default;
+$input-font-size-lg: $input-btn-font-size-lg !default;
+
+$input-btn-font-size-sm: $font-size-sm !default;
+$input-font-size-sm: $input-btn-font-size-sm !default;
+
+$form-grid-gutter-width: 10px !default;
+
+$form-feedback-margin-top: $form-text-margin-top !default;
+$form-feedback-font-size: $small-font-size !default;
+$form-feedback-valid-color: $success !default;
+$form-feedback-invalid-color: $danger !default;
+
+$form-feedback-icon-valid-color: $form-feedback-valid-color !default;
+
+$form-feedback-icon-valid: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path fill='#{$form-feedback-icon-valid-color}' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/></svg>") !default;
+
+$form-feedback-icon-invalid-color: $form-feedback-invalid-color !default;
+$form-feedback-icon-invalid: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='#{$form-feedback-icon-invalid-color}' viewBox='0 0 12 12'><circle cx='6' cy='6' r='4.5'/><path stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/><circle cx='6' cy='8.2' r='.6' fill='#{$form-feedback-icon-invalid-color}' stroke='none'/></svg>") !default;
+
+$form-validation-states: () !default;
+// stylelint-disable-next-line scss/dollar-variable-default
+$form-validation-states: map-merge(
+  (
+    "valid": (
+      "color": $form-feedback-valid-color,
+      "icon": $form-feedback-icon-valid
+    ),
+    "invalid": (
+      "color": $form-feedback-invalid-color,
+      "icon": $form-feedback-icon-invalid
+    )
+  ),
+  $form-validation-states
+);
+
+$tooltip-font-size: $font-size-sm !default;
+$tooltip-max-width: 200px !default;
+$tooltip-color: $white !default;
+$tooltip-bg: $black !default;
+$tooltip-border-radius: $border-radius !default;
+$tooltip-opacity: 0.9 !default;
+$tooltip-padding-y: 0.25rem !default;
+$tooltip-padding-x: 0.5rem !default;
+$tooltip-margin: 0 !default;
+
+$tooltip-arrow-width: 0.8rem !default;
+$tooltip-arrow-height: 0.4rem !default;
+$tooltip-arrow-color: $tooltip-bg !default;
+
+// Form tooltips must come after regular tooltips
+$form-feedback-tooltip-padding-y: $tooltip-padding-y !default;
+$form-feedback-tooltip-padding-x: $tooltip-padding-x !default;
+$form-feedback-tooltip-font-size: $tooltip-font-size !default;
+$form-feedback-tooltip-line-height: null !default;
+$form-feedback-tooltip-opacity: $tooltip-opacity !default;
+$form-feedback-tooltip-border-radius: $tooltip-border-radius !default;
+
+$input-btn-line-height: $line-height-base !default;
+$input-line-height: $input-btn-line-height !default;
+
+$input-height-inner: add(
+  $input-line-height * 1em,
+  $input-padding-y * 2
+) !default;
+$input-height-inner-half: add(
+  $input-line-height * 0.5em,
+  $input-padding-y
+) !default;
+
+$input-height-inner-quarter: add(
+  $input-line-height * 0.25em,
+  $input-padding-y / 2
+) !default;
+
+$custom-select-feedback-icon-padding-right: calc(
+  (1em + #{2 * 50px}) * 3 / 4 + #{$custom-select-padding-x +
+    $custom-select-indicator-padding}
+) !default;
+
+$custom-select-background: escape-svg($custom-select-indicator) no-repeat right
+  $custom-select-padding-x center / $custom-select-bg-size !default; // Used so we can have multiple background elements (e.g., arrow and feedback icon)
+$custom-select-feedback-icon-padding-right: add(
+  1em * 0.75,
+  (2 * $custom-select-padding-y * 0.75) + $custom-select-padding-x +
+    $custom-select-indicator-padding
+) !default;
+$custom-select-feedback-icon-position: center right
+  ($custom-select-padding-x + $custom-select-indicator-padding) !default;
+$custom-select-feedback-icon-size: $input-height-inner-half
+  $input-height-inner-half !default;
+
+$input-btn-font-family: null !default;
+$btn-font-family: $input-btn-font-family !default;
+
+$btn-white-space: null !default; // Set to `nowrap` to prevent text wrapping
+
+$btn-font-size: $input-btn-font-size !default;
+$btn-font-size-sm: $input-btn-font-size-sm !default;
+$btn-font-size-lg: $input-btn-font-size-lg !default;
+
+$card-height: null !default;
+$card-color: null !default;
+$table-th-font-weight:        null !default;
+$dropdown-padding-x:                0 !default;

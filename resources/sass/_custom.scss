@@ -1,0 +1,499 @@
+/* =============================================================================
+   Basic Styles
+   ========================================================================== */
+
+body {
+  padding-top: $navbar-height;
+
+  @media (min-width: $screen-sm) {
+    padding-top: $navbar-height-lg;
+  }
+}
+
+img {
+  max-width: 100%;
+}
+
+hr {
+  margin: ($spacer * 2) 0;
+}
+
+.mono {
+  font-size: $code-font-size;
+  font-family: $font-family-monospace;
+}
+
+.fa-mr {
+  margin-right: $spacer / 2;
+}
+
+.fa-ml {
+  margin-left: $spacer / 2;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =============================================================================
+   Layout
+   ========================================================================== */
+
+.wrapper {
+  background: $white;
+
+  &-primary {
+    color: $white;
+    background: $primary;
+  }
+
+  &-bg {
+    background: url("/assets/img/bg.jpg") center center no-repeat;
+    background-size: cover;
+  }
+
+  .container {
+    padding-top: $spacer * 3;
+    padding-bottom: $spacer * 3;
+
+    &-small {
+      padding-top: $spacer;
+      padding-bottom: $spacer;
+    }
+
+    &-large {
+      padding-top: $spacer * 5;
+      padding-bottom: $spacer * 5;
+    }
+
+    &-teaser {
+      overflow: hidden;
+    }
+  }
+}
+
+.content {
+  min-height: 300px;
+}
+
+.navbar {
+  @include border-top-radius(0);
+  @include border-bottom-radius(0);
+}
+
+.teaserbox {
+  .box {
+    margin-top: $spacer;
+    margin-bottom: 0;
+  }
+}
+
+/* =============================================================================
+   Home
+   ========================================================================== */
+
+.teaser {
+  display: block;
+  margin-left: -70px;
+  margin-right: -70px;
+
+  @media (min-width: $screen-sm) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.testimonials {
+
+  .card {
+    margin-bottom: $spacer * 2;
+
+    @media (min-width: $screen-lg) {
+      margin-bottom: 0;
+    }
+
+    @include media-breakpoint-only(sm) {
+      min-width: 40%;
+    }
+
+    @include media-breakpoint-only(md) {
+      min-width: 40%;
+    }
+  }
+}
+
+.btn-group.btn-group-vertical {
+  max-width: 100%;
+  overflow: auto;
+
+  .btn:first-child {
+    border-top-right-radius: $border-radius;
+  }
+
+  .btn:last-child {
+    border-bottom-left-radius: $border-radius;
+  }
+}
+
+.ip-sponsor-logo {
+  max-height: 70px;
+
+  @include media-breakpoint-only(sm) {
+    max-height: 75px;
+  }
+
+  @include media-breakpoint-only(md) {
+    max-height: 80px;
+  }
+
+  @include media-breakpoint-only(lg) {
+    max-height: 100px;
+  }
+
+  @include media-breakpoint-up(lg) {
+    max-height: 100px;
+  }
+}
+
+/* =============================================================================
+   Elements
+   ========================================================================== */
+
+.logo {
+  width: auto;
+  height: auto;
+  max-width: 300px;
+  margin: 0 auto;
+
+  @media (min-width: $screen-sm) {
+    max-width: 600px;
+  }
+
+  &-small {
+    max-width: 300px;
+    margin: 0;
+  }
+}
+
+.cta {
+  background: url('/assets/img/cta5.jpg') center center no-repeat;
+  background-size: cover;
+
+  @media (min-width: $screen-md) {
+    padding-top: $spacer * 2;
+    padding-bottom: $spacer * 2;
+  }
+
+  .box {
+    background: $white;
+  }
+}
+
+.home-headline {
+  margin: 0 auto ($spacer * 2);
+}
+
+.page-title {
+  margin-top: 0;
+  margin-bottom: $headings-margin-bottom;
+}
+
+// Timeline
+.timeline {
+  margin: ($spacer * 3) auto;
+  position: relative;
+  overflow: auto;
+
+  &:before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 5px;
+    background: $gray-200;
+    left: 10px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    z-index: 1;
+  }
+
+  li {
+    list-style: none;
+    background: $gray-100;
+    padding: 1em;
+    margin-bottom: 20px;
+    position: relative;
+    clear: both;
+
+    &:before {
+      content: '';
+      width: 0;
+      height: 0;
+      border-top: 1em solid $gray-100;
+      border-left: 1em solid transparent;
+      position: absolute;
+      left: -1em;
+      top: 0;
+    }
+
+    &.event-blue {
+      border-left: 5px solid $primary;
+
+      &:before {
+        border-top: 1em solid $primary;
+      }
+    }
+
+    &.event-red {
+      border-left: 5px solid $danger;
+
+      &:before {
+        border-top: 1em solid $danger;
+      }
+    }
+
+    &.event-orange {
+      border-left: 5px solid $warning;
+
+      &:before {
+        border-top: 1em solid $warning;
+      }
+    }
+  }
+
+  h4 {
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 40em) {
+  .timeline {
+
+    &:before {
+      left: 30px;
+    }
+
+    ul {
+      padding: 0 0 0 30px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    li {
+      width: 60%;
+      float: left;
+      margin-top: 40px;
+      margin-left: 30px;
+    }
+  }
+}
+
+.box {
+  padding: $spacer;
+  margin-bottom: $spacer;
+  @include border-top-radius($border-radius);
+  @include border-bottom-radius($border-radius);
+
+  @media screen and (min-width: $screen-md) {
+    padding: $spacer * 1.5;
+    margin-bottom: $spacer * 1.5;
+  }
+
+  &-primary {
+    color: color-yiq($primary);
+    background: $primary;
+  }
+
+  &-danger {
+    color: color-yiq($success);
+    background: $success;
+
+    a {
+      color: color-yiq($success);
+      text-decoration: underline;
+
+      &:hover,
+      &:focus,
+      &:active {
+        color: $white;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &-lg {
+    padding: $spacer * 2;
+
+    @media screen and (min-width: $screen-md) {
+      padding: $spacer * 3;
+    }
+  }
+
+  &-teaser {
+    font-size: $font-size-base;
+    letter-spacing: 1px;
+
+    @media (min-width: $screen-sm) {
+      font-size: $font-size-lg;
+    }
+  }
+
+  &-centered {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    max-width: 100%;
+
+    @media (min-width: $screen-sm) {
+      max-width: 90%;
+    }
+
+    @media (min-width: $screen-lg) {
+      max-width: 70%;
+    }
+
+    @media (min-width: $screen-xl) {
+      max-width: 60%;
+    }
+  }
+}
+
+.table {
+  &-borderless {
+    > tbody > tr > td {
+      border-top: none;
+    }
+  }
+}
+
+.show-more {
+  width: 100%;
+  margin: 30px auto 0;
+  text-align: center;
+  color: $primary;
+  opacity: 0.75;
+}
+
+.list-group {
+
+  .single-donation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &.has-link {
+      width: 100%;
+      color: $link-color;
+      text-align: inherit;
+
+      // Hover state
+      @include hover-focus-active {
+        color: $link-hover-color;
+        text-decoration: none;
+        background-color: $list-group-hover-bg;
+      }
+    }
+  }
+}
+
+.roadmap {
+
+  .version {
+    //
+  }
+
+  .issues {
+    margin-top: $spacer;
+  }
+
+  .issue {
+    padding: $btn-padding-y-sm $btn-padding-x-sm;
+    margin-bottom: $btn-padding-y-sm;
+    font-size: $font-size-sm;
+  }
+
+  .issue-link {
+    font-weight: $font-weight-bold;
+    margin-left: $btn-padding-x-sm;
+    margin-right: $btn-padding-x-sm;
+  }
+
+  .issue-icon {
+    width: $font-size-sm;
+    height: $font-size-sm;
+    margin-right: $btn-padding-y-sm;
+  }
+
+  .issue-user-link {
+    margin-left: $btn-padding-y-sm;
+    display: flex;
+
+    img {
+      width: auto;
+      height: $font-size-sm;
+    }
+  }
+
+  .dev-status {
+    border: 1px solid $gray-100;
+  }
+
+  .dev-status-blue-gray {
+    background-color: transparent;
+    border-color: #4a6785;
+    color: #4a6785;
+  }
+
+  .dev-status-green {
+    background-color: transparent;
+    border-color: #14892c;
+    color: #14892c;
+  }
+
+  .dev-status-yellow {
+    background-color: transparent;
+    border-color: #ffd351;
+    color: #ffd351;
+  }
+}
+
+.bg-dev-blue-gray {
+  background-color: #4a6785;
+  color: color-yiq(#4a6785);
+}
+
+.bg-dev-green {
+  background-color: #14892c;
+  color: color-yiq(#14892c);
+}
+
+.bg-dev-yellow {
+  background-color: #ffd351;
+  color: color-yiq(#ffd351);
+}
+
+/* =============================================================================
+   Elements
+   ========================================================================== */
+
+.table {
+  .header:after {
+    font-family: FontAwesome;
+    content: '\f0dc';
+    float: right;
+    color: $gray-300;
+    cursor: pointer;
+  }
+  .header.headerSortUp:after {
+    content: '\f0de';
+  }
+  .header.headerSortDown:after {
+    content: '\f0dd';
+  }
+}

@@ -1,0 +1,116 @@
+{
+    "name": "temp/project",
+    "description": "",
+    "keywords": [],
+    "license": "",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "require": {
+        "php": "^8.1",
+        "ext-gd": "*",
+        "ext-gmp": "*",
+        "ext-json": "*",
+        "ext-zip": "*",
+        "anahkiasen/former": "^4.6",
+        "asgrim/ofxparser": "^1.2",
+        "bacon/bacon-qr-code": "^1.0",
+        "cerdic/css-tidy": "~v1.7",
+        "chumper/datatable": "dev-add-back-options",
+        "cleverit/ubl_invoice": "^1.3",
+        "doctrine/dbal": "^2.9",
+        "dompdf/dompdf": "^0.6.2",
+        "ezyang/htmlpurifier": "^v4.13",
+        "fideloper/proxy": "^4.4",
+        "google/apiclient": "^2.9",
+        "guzzlehttp/guzzle": "^6.5",
+        "intervention/image": "dev-master",
+        "jlapp/swaggervel": "master-dev",
+        "laracasts/presenter": "dev-master",
+        "laravel/framework": "^5.8",
+        "laravel/helpers": "^1.4",
+        "laravel/legacy-encrypter": "^1.0",
+        "laravelcollective/html": "^5.8",
+        "league/csv": "^9.6",
+        "league/flysystem-aws-s3-v3": "^1.0",
+        "league/flysystem-rackspace": "^1.0",
+        "league/fractal": "^0.13",
+        "mashape/unirest-php": "^3.0",
+        "mpdf/mpdf": "8.x",
+        "nesbot/carbon": "1.26.*",
+        "nwidart/laravel-modules": "^2.0",
+        "patricktalmadge/bootstrapper": "^5.8",
+        "predis/predis": "^1.1",
+        "simshaun/recurr": "dev-master",
+        "stripe/stripe-php": "^6.43",
+        "symfony/css-selector": "^3.4",
+        "turbo124/laravel-push-notification": "^2.0",
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "wildbit/postmark-php": "^2.11"
+    },
+    "require-dev": {
+        "beyondcode/laravel-dump-server": "^1.0",
+        "codeception/c3": "2.*",
+        "codeception/codeception": "2.*",
+        "composer/composer": "^2.0",
+        "facade/ignition": "^1.16.15",
+        "fakerphp/faker": "^1.9.1",
+        "filp/whoops": "^2.9",
+        "kitloong/laravel-migrations-generator": "^4.4",
+        "laravel/tinker": "^1.0",
+        "phpunit/phpunit": "^7.5",
+        "symfony/dom-crawler": "~3.1"
+    },
+    "autoload": {
+        "classmap": [
+            "app/Console/Commands",
+            "app/Libraries",
+            "app/Http/Controllers",
+            "app/Models",
+            "app/Ninja",
+            "app/Ninja/Repositories",
+            "database"
+        ],
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "Modules/"
+        },
+        "files": [
+            "app/Libraries/lib_autolink.php",
+            "app/Libraries/OFX.php"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": []
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ],
+        "post-install-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
+            "php artisan clear-compiled"
+        ],
+        "post-update-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
+            "php artisan clear-compiled"
+        ],
+        "post-create-project-cmd": [
+            "php -r \"copy('.env.example', '.env');\"",
+            "php artisan key:generate"
+        ]
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/datatable"
+        }
+    ]
+}

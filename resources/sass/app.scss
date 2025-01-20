@@ -1,0 +1,45 @@
+
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// If you want to override variables do it here
+@import "variables";
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+// Icons
+@import '~simple-line-icons/css/simple-line-icons.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+// Import CoreUI styles
+@import '~@coreui/coreui/dist/css/coreui.min.css';
+/* @import "~@coreui/vue/Vue_Full_Project/scss/core/core"; */
+
+// Import CoreUI vendors styles
+/* @import "~@coreui/vue/Vue_Full_Project/scss/vendors/vendors"; */
+
+// Dashboard custom styles
+@import "custom";
+
+
+
+
+
+
+
+
+
+// Import styles (this is the sass)
+//@import "node_modules/@coreui/coreui/scss/coreui";
+
+// If you want to add something do it here
+//@import "custom";
+
+// styles
+//@import 'styles.scss'
+
+.navbar-laravel {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}

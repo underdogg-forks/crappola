@@ -1,0 +1,65 @@
+anahkiasen/former                     4.6.0                        A powerful form builder
+asgrim/ofxparser                      1.2.2                        Simple OFX file parser
+bacon/bacon-qr-code                   1.0.3                        BaconQrCode is a QR code generator for PHP.
+barryvdh/laravel-cors                 v0.9.3                       Adds CORS (Cross-Origin Resource Sharing) headers support in your Laravel a...
+cerdic/css-tidy                       v1.7                       CSSTidy is a CSS minifier
+chumper/datatable                     dev-add-back-options 5672e73 This is a laravel 4 package for the server and client side of datatablaes a...
+cleverit/ubl_invoice                  v1.3.0                       A PHP wrapper for UBL invoices
+doctrine/dbal                         v2.9                      Database Abstraction Layer
+dompdf/dompdf                         v0.6.2                       DOMPDF is a CSS 2.1 compliant HTML to PDF converter
+ezyang/htmlpurifier                   v4.13.0                      Standards compliant HTML filter written in PHP
+
+google/apiclient                      v2.9.1                       Client library for Google APIs
+guzzlehttp/guzzle                     6.5.5                        Guzzle is a PHP HTTP client library
+intervention/image                    dev-master 0322639           Image handling and manipulation library with support for Laravel integration
+jlapp/swaggervel                      dev-master e026d72           A great way to integrate Swagger into Laravel
+jonnyw/php-phantomjs                  dev-fixes 4b62f0b            A PHP wrapper for loading pages through PhantomJS
+laracasts/presenter                   dev-master 65fd3a7           Simple view presenters
+laravel/framework                     v5.5.50                      The Laravel Framework.
+laravel/legacy-encrypter              dev-master 0e53ea5           The legacy version of the Laravel mcrypt encrypter.
+
+laravelcollective/html                v5.5.4                       HTML and Form Builders for the Laravel Framework
+league/csv                            9.6.2                        CSV data manipulation made easy in PHP
+league/flysystem-aws-s3-v3            1.0.29                       Flysystem adapter for the AWS S3 SDK v3.x
+league/flysystem-rackspace            1.0.5                        Flysystem adapter for Rackspace
+league/fractal                        0.13.0                       Handle the output of complex data structures ready for API output.
+maatwebsite/excel                     2.1.30                       Supercharged Excel exports in Laravel
+mashape/unirest-php                   v3.0.4                       Unirest PHP
+mpdf/mpdf                             v8.0.10                      PHP library generating PDF files from UTF-8 encoded HTML
+nesbot/carbon                         1.39.1                       A simple API extension for DateTime.
+nwidart/laravel-modules               2.0.0                        Laravel Module management
+patricktalmadge/bootstrapper          5.5.3                        Twitter Bootstrap markup generator
+predis/predis                         v1.1.6                       Flexible and feature-complete Redis client for PHP and HHVM
+simshaun/recurr                       dev-master d8bc5d3           PHP library for working with recurrence rules
+stripe/stripe-php                     v6.43.1                      Stripe PHP Library
+symfony/css-selector                  v3.4.47                      Symfony CssSelector Component
+turbo124/laravel-push-notification    2.0.4                        Laravel package to send push notifications to mobile devices (apns, gcm)
+webpatser/laravel-countries           dev-master 75992ad           Laravel Countries is a bundle for Laravel, providing Almost ISO 3166_2, 316...
+wildbit/postmark-php                  2.11.0                       The officially supported client for Postmark (http://postmarkapp.com)
+
+
+
+
+
+
+
+
+
+barryvdh/laravel-debugbar             v3.0.1                       PHP Debugbar integration for Laravel
+barryvdh/laravel-ide-helper           v2.8.0                       Laravel IDE Helper, generates correct PHPDocs for all Facade classes, to im...
+fzaninotto/faker                      v1.9.2                       Faker is a PHP library that generates fake data for you.
+laravel/tinker                        v1.0.10                      Powerful REPL for the Laravel framework.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
