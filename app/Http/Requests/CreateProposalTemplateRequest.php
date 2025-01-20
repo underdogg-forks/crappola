@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\Proposal;
+
+class CreateProposalTemplateRequest extends ProposalTemplateRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return $this->user()->can('create', Proposal::class);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{name: string}
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => sprintf('required|unique:proposal_templates,name,,id,company_id,%s', $this->user()->company_id),
+        ];
+    }
+}

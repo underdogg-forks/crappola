@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Models;
+
+use App\Ninja\Presenters\ActivityPresenter;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
+use Laracasts\Presenter\PresentableTrait;
+
+/**
+ * Class Activity.
+ */
+class Activity extends Model
+{
+    use PresentableTrait;
+
+    /**
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * @var string
+     */
+    protected $presenter = ActivityPresenter::class;
+
+    /**
+     * @return mixed
+     */
+    public function scopeScope($query)
+    {
+        return $query->whereCompanyPlanId(Auth::user()->company_id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function contact()
+    {
+        return $this->belongsTo(Contact::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function credit()
+    {
+        return $this->belongsTo(Credit::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
+    }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class)->withTrashed();
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class)->withTrashed();
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class)->withTrashed();
+    }
+
+    public function key(): string
+    {
+        return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMessage()
+    {
+        $activityTypeId = $this->activity_type_id;
+        $company = $this->company;
+        $client = $this->client;
+        $user = $this->user;
+        $invoice = $this->invoice;
+        $contactId = $this->contact_id;
+        $contact = $this->contact;
+        $payment = $this->payment;
+        $credit = $this->credit;
+        $expense = $this->expense;
+        $isSystem = $this->is_system;
+        $task = $this->task;
+        $ticket = $this->ticket;
+
+        $data = [
+            'client'         => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
+            'user'           => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
+            'invoice'        => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
+            'quote'          => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
+            'contact'        => $contactId ? link_to($client->getRoute(), $contact->getDisplayName()) : e($user->getDisplayName()),
+            'payment'        => $payment ? e($payment->transaction_reference) : null,
+            'payment_amount' => $payment ? $company->formatMoney($payment->amount, $payment) : null,
+            'adjustment'     => $this->adjustment ? $company->formatMoney($this->adjustment, $this) : null,
+            'credit'         => $credit ? $company->formatMoney($credit->amount, $client) : null,
+            'task'           => $task ? link_to($task->getRoute(), substr($task->description, 0, 30) . '...') : null,
+            'expense'        => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30) . '...') : null,
+            'ticket'         => $ticket ? link_to($ticket->getRoute(), $ticket->public_id) : null,
+        ];
+
+        return trans("texts.activity_{$activityTypeId}", $data);
+    }
+
+    public function relatedEntityType()
+    {
+        switch ($this->activity_type_id) {
+            case ACTIVITY_TYPE_CREATE_CLIENT:
+            case ACTIVITY_TYPE_ARCHIVE_CLIENT:
+            case ACTIVITY_TYPE_DELETE_CLIENT:
+            case ACTIVITY_TYPE_RESTORE_CLIENT:
+            case ACTIVITY_TYPE_CREATE_CREDIT:
+            case ACTIVITY_TYPE_ARCHIVE_CREDIT:
+            case ACTIVITY_TYPE_DELETE_CREDIT:
+            case ACTIVITY_TYPE_RESTORE_CREDIT:
+                return ENTITY_CLIENT;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_INVOICE:
+            case ACTIVITY_TYPE_UPDATE_INVOICE:
+            case ACTIVITY_TYPE_EMAIL_INVOICE:
+            case ACTIVITY_TYPE_VIEW_INVOICE:
+            case ACTIVITY_TYPE_ARCHIVE_INVOICE:
+            case ACTIVITY_TYPE_DELETE_INVOICE:
+            case ACTIVITY_TYPE_RESTORE_INVOICE:
+                return ENTITY_INVOICE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_PAYMENT:
+            case ACTIVITY_TYPE_ARCHIVE_PAYMENT:
+            case ACTIVITY_TYPE_DELETE_PAYMENT:
+            case ACTIVITY_TYPE_RESTORE_PAYMENT:
+            case ACTIVITY_TYPE_VOIDED_PAYMENT:
+            case ACTIVITY_TYPE_REFUNDED_PAYMENT:
+            case ACTIVITY_TYPE_FAILED_PAYMENT:
+                return ENTITY_PAYMENT;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_QUOTE:
+            case ACTIVITY_TYPE_UPDATE_QUOTE:
+            case ACTIVITY_TYPE_EMAIL_QUOTE:
+            case ACTIVITY_TYPE_VIEW_QUOTE:
+            case ACTIVITY_TYPE_ARCHIVE_QUOTE:
+            case ACTIVITY_TYPE_DELETE_QUOTE:
+            case ACTIVITY_TYPE_RESTORE_QUOTE:
+            case ACTIVITY_TYPE_APPROVE_QUOTE:
+                return ENTITY_QUOTE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_VENDOR:
+            case ACTIVITY_TYPE_ARCHIVE_VENDOR:
+            case ACTIVITY_TYPE_DELETE_VENDOR:
+            case ACTIVITY_TYPE_RESTORE_VENDOR:
+            case ACTIVITY_TYPE_CREATE_EXPENSE:
+            case ACTIVITY_TYPE_ARCHIVE_EXPENSE:
+            case ACTIVITY_TYPE_DELETE_EXPENSE:
+            case ACTIVITY_TYPE_RESTORE_EXPENSE:
+            case ACTIVITY_TYPE_UPDATE_EXPENSE:
+                return ENTITY_EXPENSE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_TASK:
+            case ACTIVITY_TYPE_UPDATE_TASK:
+            case ACTIVITY_TYPE_ARCHIVE_TASK:
+            case ACTIVITY_TYPE_DELETE_TASK:
+            case ACTIVITY_TYPE_RESTORE_TASK:
+                return ENTITY_TASK;
+                break;
+        }
+    }
+}
