@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Handlers;
+
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
+
+class InvoiceEventHandler
+{
+    protected UserMailer $userMailer;
+
+    protected ContactMailer $contactMailer;
+
+    public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
+    {
+        $this->userMailer = $userMailer;
+        $this->contactMailer = $contactMailer;
+    }
+
+    public function subscribe($events): void
+    {
+        $events->listen('invoice.sent', 'InvoiceEventHandler@onSent');
+        $events->listen('invoice.viewed', 'InvoiceEventHandler@onViewed');
+        $events->listen('invoice.paid', 'InvoiceEventHandler@onPaid');
+    }
+
+    public function onSent($invoice): void
+    {
+        $this->sendNotifications($invoice, 'sent');
+    }
+
+    private function sendNotifications($invoice, string $type, $payment = null): void
+    {
+        foreach ($invoice->company->users as $user) {
+            if ($user->{'notify_' . $type}) {
+                $this->userMailer->sendNotification($user, $invoice, $type, $payment);
+            }
+        }
+    }
+
+    public function onViewed($invoice): void
+    {
+        $this->sendNotifications($invoice, 'viewed');
+    }
+
+    public function onPaid($payment): void
+    {
+        $this->contactMailer->sendPaymentConfirmation($payment);
+
+        $this->sendNotifications($payment->invoice, 'paid', $payment);
+    }
+}

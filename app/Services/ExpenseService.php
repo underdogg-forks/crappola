@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Services;
+
+use App\Libraries\Utils;
+use App\Models\Client;
+use App\Models\Vendor;
+use App\Ninja\Datatables\ExpenseDatatable;
+use App\Ninja\Repositories\ExpenseRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Class ExpenseService.
+ */
+class ExpenseService extends BaseService
+{
+    /**
+     * @var ExpenseRepository
+     */
+    protected $expenseRepo;
+
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
+
+    /**
+     * ExpenseService constructor.
+     */
+    public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
+    {
+        $this->expenseRepo = $expenseRepo;
+        $this->datatableService = $datatableService;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function save($data, $expense = null)
+    {
+        if (isset($data['client_id']) && $data['client_id']) {
+            $data['client_id'] = Client::getPrivateId($data['client_id']);
+        }
+
+        if (isset($data['vendor_id']) && $data['vendor_id']) {
+            $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
+        }
+
+        return $this->expenseRepo->save($data, $expense);
+    }
+
+    public function getDatatable($search)
+    {
+        $query = $this->expenseRepo->find($search);
+
+        if (! Utils::hasPermission('view_expense')) {
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
+
+        return $this->datatableService->createDatatable(new ExpenseDatatable(), $query);
+    }
+
+    public function getDatatableVendor($vendorPublicId)
+    {
+        $datatable = new ExpenseDatatable(true, true);
+
+        $query = $this->expenseRepo->findVendor($vendorPublicId);
+
+        if (! Utils::hasPermission('view_vendor')) {
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
+
+        return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    public function getDatatableClient($clientPublicId)
+    {
+        $datatable = new ExpenseDatatable(true, true);
+
+        $query = $this->expenseRepo->findClient($clientPublicId);
+
+        if (! Utils::hasPermission('view_client')) {
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
+
+        return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return ExpenseRepository
+     */
+    protected function getRepo()
+    {
+        return $this->expenseRepo;
+    }
+}

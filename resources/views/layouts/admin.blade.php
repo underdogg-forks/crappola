@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
+    <title>TiQPas</title>
+    <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://unpkg.com/@coreui/coreui@2.1.16/dist/css/coreui.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css"
+            rel="stylesheet"
+    />
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css"
+            rel="stylesheet"
+    />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet"/>
+    @stack('styles')
+</head>
+<body
+        class="app header-fixed sidebar-fixed aside-menu-fixed pace-done sidebar-lg-show"
+>
+<header class="app-header flex flex-wrap list-reset pl-0 mb-0bar">
+    <button
+            class="flex flex-wrap list-reset pl-0 mb-0bar-toggler sidebar-toggler lg:hidden mr-auto"
+            type="button"
+            data-toggle="sidebar-show"
+    >
+        <span class="flex flex-wrap list-reset pl-0 mb-0bar-toggler-icon"></span>
+    </button>
+    <a class="flex flex-wrap list-reset pl-0 mb-0bar-brand" href="#">
+        <span class="flex flex-wrap list-reset pl-0 mb-0bar-brand-full">TiQPas</span>
+        <span class="flex flex-wrap list-reset pl-0 mb-0bar-brand-minimized">TiQPas</span>
+    </a>
+    <button
+            class="flex flex-wrap list-reset pl-0 mb-0bar-toggler sidebar-toggler d-md-down-none"
+            type="button"
+            data-toggle="sidebar-lg-show"
+    >
+        <span class="flex flex-wrap list-reset pl-0 mb-0bar-toggler-icon"></span>
+    </button>
+    <ul class="flex flex-wrap list-reset pl-0 mb-0 flex flex-wrap list-reset pl-0 mb-0 ml-auto">
+        @if(count(config('panel.available_languages', [])) > 1)
+            <li class=" relative d-md-down-none">
+                <a
+                        class="inline-block py-2 px-4 no-underline"
+                        data-toggle="dropdown"
+                        href="#"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                >
+                    {{ strtoupper(app()->getLocale()) }}
+                </a>
+                <div class=" absolute pin-l z-50 float-left hidden list-reset	 py-2 mt-1 text-base bg-white border border-grey-light rounded dropdown-menu-right">
+                    @foreach(config('panel.available_languages') as
+                    $langLocale => $langName)
+                        <a
+                                class="block w-full py-1 px-6 font-normal text-grey-darkest whitespace-no-wrap border-0"
+                                href="{{ url()->current() }}?change_language={{
+                            $langLocale
+                        }}"
+                        >{{ strtoupper($langLocale) }} ({{ $langName }})</a
+                        >
+                    @endforeach
+                </div>
+            </li>
+        @endif
+    </ul>
+</header>
+<div class="app-body">
+    @include('partials.xxxxxmenu')
+    <main class="main">
+        <div class="container mx-auto mx-auto">
+            @if(session('message'))
+                <div class="flex flex-wrap mb-2">
+                    <div class="lg:w-1/6 pr-4 pl-42">
+                        <div class="relative px-3 py-3 mb-4 border rounded text-green-darker border-green-dark bg-green-lighter"
+                             role="alert">
+                            {{ session("message") }}
+                        </div>
+                    </div>
+                </div>
+            @endif @if($errors->count() > 0)
+                <div class="relative px-3 py-3 mb-4 border rounded text-red-darker border-red-dark bg-red-lighter">
+                    <ul class="list-unstyled">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            @yield('content')
+        </div>
+    </main>
+    <form
+            id="logoutform"
+            action="{{ route('logout') }}"
+            method="POST"
+            style="display: none;"
+    >
+        {{ csrf_field() }}
+    </form>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
+<script src="https://unpkg.com/@coreui/coreui@2.1.16/dist/js/coreui.min.js"></script>
+<script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.4/js/buttons.flash.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/16.0.0/classic/ckeditor.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+<script src="{{ asset('js/main.js') }}"></script>
+<script>
+    $(function () {
+        let selectAllButtonTrans = '{{ trans('global.select_all') }}'
+        let selectNoneButtonTrans = '{{ trans('global.deselect_all') }}'
+        let languages = {
+            'en': 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/English.json'
+        };
+        $.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, {className: 'btn'})
+        $.extend(true, $.fn.dataTable.defaults, {
+            language: {
+                url: languages['{{ app()->getLocale() }}']
+            },
+            {{-- columnDefs: [{
+                targets: 0,
+                orderable: false,
+                'checkboxes': {
+                    'selectRow': true
+                },
+                className: 'select-checkbox',
+            }, {
+                orderable: false,
+                searchable: false,
+                targets: -1
+            }], --}}
+            select: {
+                style: 'multi+shift',
+                selector: 'td:first-child'
+            },
+            order: [],
+            scrollX: true,
+            pageLength: 25,
+            {{--
+                l - length changing input control
+                B - Buttons
+                r - processing display element
+                t - The table!
+                i - Table information summary
+                p - pagination control
+            --}}
+            dom: 'lBrtip<"actions">',
+            buttons: [
+                {
+                    extend: 'selectAll',
+                    className: 'btn-primary',
+                    text: selectAllButtonTrans,
+                    exportOptions: {
+                        columns: ':visible'
+                    },
+                    action: function (e, dt) {
+                        e.preventDefault()
+                        dt.rows().deselect();
+                        dt.rows({search: 'applied'}).select();
+                    }
+                },
+                {
+                    extend: 'selectNone',
+                    className: 'btn-primary',
+                    text: selectNoneButtonTrans,
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+            ]
+        });
+        $.fn.dataTable.ext.classes.sPageButton = '';
+    });
+</script>
+@stack('scripts')
+</body>
+</html>

@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Listeners;
+
+use App\Events\ClientWasCreated;
+use App\Events\ClientWasDeleted;
+use App\Events\ClientWasUpdated;
+use App\Events\ExpenseWasCreated;
+use App\Events\ExpenseWasDeleted;
+use App\Events\ExpenseWasUpdated;
+use App\Events\InvoiceItemsWereCreated;
+use App\Events\InvoiceItemsWereUpdated;
+use App\Events\InvoiceWasDeleted;
+use App\Events\PaymentWasCreated;
+use App\Events\PaymentWasDeleted;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\QuoteItemsWereCreated;
+use App\Events\QuoteItemsWereUpdated;
+use App\Events\QuoteWasDeleted;
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasDeleted;
+use App\Events\TaskWasUpdated;
+use App\Events\VendorWasCreated;
+use App\Events\VendorWasDeleted;
+use App\Events\VendorWasUpdated;
+use App\Libraries\Utils;
+use App\Models\EntityModel;
+use App\Ninja\Serializers\ArraySerializer;
+use App\Ninja\Transformers\ClientTransformer;
+use App\Ninja\Transformers\ExpenseTransformer;
+use App\Ninja\Transformers\InvoiceTransformer;
+use App\Ninja\Transformers\PaymentTransformer;
+use App\Ninja\Transformers\TaskTransformer;
+use App\Ninja\Transformers\VendorTransformer;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Item;
+
+/**
+ * Class SubscriptionListener.
+ */
+class SubscriptionListener
+{
+    public function createdClient(ClientWasCreated $event): void
+    {
+        $transformer = new ClientTransformer($event->client->company);
+        $this->checkSubscriptions(EVENT_CREATE_CLIENT, $event->client, $transformer);
+    }
+
+    /**
+     * @param string $include
+     */
+    private function checkSubscriptions(int $eventId, $entity, ClientTransformer|PaymentTransformer|InvoiceTransformer|VendorTransformer|ExpenseTransformer|TaskTransformer $transformer, array|string $include = ''): void
+    {
+        /*if (!EntityModel::$notifySubscriptions) {
+            return;
+        }
+
+        $subscriptions = $entity->company->getSubscriptions($eventId);
+
+        if (!$subscriptions->count()) {
+            return;
+        }
+
+        // generate JSON data
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $manager->parseIncludes($include);
+
+        $resource = new Item($entity, $transformer, $entity->getEntityType());
+        $jsonData = $manager->createData($resource)->toArray();
+
+        // For legacy Zapier support
+        if (isset($jsonData['client_id']) && $jsonData['client_id'] != 0) {
+            $jsonData['client_name'] = $entity->client->getDisplayName();
+        }
+
+        foreach ($subscriptions as $subscription) {
+            switch ($subscription->format) {
+                case SUBSCRIPTION_FORMAT_JSON:
+                    $data = $jsonData;
+                    break;
+                case SUBSCRIPTION_FORMAT_UBL:
+                    $data = $ublData;
+                    break;
+            }
+            self::notifySubscription($subscription, $data);
+        }*/
+    }
+
+    private static function notifySubscription($subscription, $data): void
+    {
+        $curl = curl_init();
+        $jsonEncodedData = json_encode($data);
+        $url = $subscription->target_url;
+
+        if (! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
+            $url .= '?secret=' . $secret;
+        }
+
+        $opts = [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POST           => 1,
+            CURLOPT_POSTFIELDS     => $jsonEncodedData,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Content-Length: ' . strlen($jsonEncodedData)],
+        ];
+
+        curl_setopt_array($curl, $opts);
+
+        $result = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        if ($status == 410) {
+            $subscription->delete();
+        }
+    }
+
+    public function updatedClient(ClientWasUpdated $event): void
+    {
+        $transformer = new ClientTransformer($event->client->company);
+        $this->checkSubscriptions(EVENT_UPDATE_CLIENT, $event->client, $transformer);
+    }
+
+    public function deletedClient(ClientWasDeleted $event): void
+    {
+        $transformer = new ClientTransformer($event->client->company);
+        $this->checkSubscriptions(EVENT_DELETE_CLIENT, $event->client, $transformer);
+    }
+
+    public function createdPayment(PaymentWasCreated $event): void
+    {
+        $transformer = new PaymentTransformer($event->payment->company);
+        $this->checkSubscriptions(EVENT_CREATE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
+    }
+
+    public function deletedPayment(PaymentWasDeleted $event): void
+    {
+        $transformer = new PaymentTransformer($event->payment->company);
+        $this->checkSubscriptions(EVENT_DELETE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
+    }
+
+    /**
+     * @param InvoiceWasCreated $event
+     */
+    public function createdInvoice(InvoiceItemsWereCreated $event): void
+    {
+        $transformer = new InvoiceTransformer($event->invoice->company);
+        $this->checkSubscriptions(EVENT_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param InvoiceWasUpdated $event
+     */
+    public function updatedInvoice(InvoiceItemsWereUpdated $event): void
+    {
+        $transformer = new InvoiceTransformer($event->invoice->company);
+        $this->checkSubscriptions(EVENT_UPDATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    public function deletedInvoice(InvoiceWasDeleted $event): void
+    {
+        $transformer = new InvoiceTransformer($event->invoice->company);
+        $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param QuoteWasCreated $event
+     */
+    public function createdQuote(QuoteItemsWereCreated $event): void
+    {
+        $transformer = new InvoiceTransformer($event->quote->company);
+        $this->checkSubscriptions(EVENT_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param QuoteWasUpdated $event
+     */
+    public function updatedQuote(QuoteItemsWereUpdated $event): void
+    {
+        $transformer = new InvoiceTransformer($event->quote->company);
+        $this->checkSubscriptions(EVENT_UPDATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    public function approvedQuote(QuoteInvitationWasApproved $event): void
+    {
+        $transformer = new InvoiceTransformer($event->quote->company);
+        $this->checkSubscriptions(EVENT_APPROVE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param InvoiceWasDeleted $event
+     */
+    public function deletedQuote(QuoteWasDeleted $event): void
+    {
+        $transformer = new InvoiceTransformer($event->quote->company);
+        $this->checkSubscriptions(EVENT_DELETE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    public function createdVendor(VendorWasCreated $event): void
+    {
+        $transformer = new VendorTransformer($event->vendor->company);
+        $this->checkSubscriptions(EVENT_CREATE_VENDOR, $event->vendor, $transformer);
+    }
+
+    public function updatedVendor(VendorWasUpdated $event): void
+    {
+        $transformer = new VendorTransformer($event->vendor->company);
+        $this->checkSubscriptions(EVENT_UPDATE_VENDOR, $event->vendor, $transformer);
+    }
+
+    public function deletedVendor(VendorWasDeleted $event): void
+    {
+        $transformer = new VendorTransformer($event->vendor->company);
+        $this->checkSubscriptions(EVENT_DELETE_VENDOR, $event->vendor, $transformer);
+    }
+
+    public function createdExpense(ExpenseWasCreated $event): void
+    {
+        $transformer = new ExpenseTransformer($event->expense->company);
+        $this->checkSubscriptions(EVENT_CREATE_EXPENSE, $event->expense, $transformer);
+    }
+
+    public function updatedExpense(ExpenseWasUpdated $event): void
+    {
+        $transformer = new ExpenseTransformer($event->expense->company);
+        $this->checkSubscriptions(EVENT_UPDATE_EXPENSE, $event->expense, $transformer);
+    }
+
+    public function deletedExpense(ExpenseWasDeleted $event): void
+    {
+        $transformer = new ExpenseTransformer($event->expense->company);
+        $this->checkSubscriptions(EVENT_DELETE_EXPENSE, $event->expense, $transformer);
+    }
+
+    public function createdTask(TaskWasCreated $event): void
+    {
+        $transformer = new TaskTransformer($event->task->company);
+        $this->checkSubscriptions(EVENT_CREATE_TASK, $event->task, $transformer);
+    }
+
+    public function updatedTask(TaskWasUpdated $event): void
+    {
+        $transformer = new TaskTransformer($event->task->company);
+        $this->checkSubscriptions(EVENT_UPDATE_TASK, $event->task, $transformer);
+    }
+
+    public function deletedTask(TaskWasDeleted $event): void
+    {
+        $transformer = new TaskTransformer($event->task->company);
+        $this->checkSubscriptions(EVENT_DELETE_TASK, $event->task, $transformer);
+    }
+}
