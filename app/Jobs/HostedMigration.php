@@ -1,0 +1,184 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Libraries\Utils;
+use App\Models\Account;
+use App\Models\User;
+use App\Services\Migration\CompleteService;
+use App\Traits\GenerateMigrationResources;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
+
+// use Unirest\Request;
+
+class HostedMigration extends Job
+{
+    use GenerateMigrationResources;
+
+    public $db;
+
+    /**
+     * @var mixed[]
+     */
+    public $data;
+
+    /**
+     * @var User
+     */
+    public $user;
+
+    public $migration_token;
+
+    public $tries = 1;
+
+    public $timeout = 0;
+
+    private $v4_secret;
+
+    private $forced;
+
+    public function __construct(User $user, array $data, $db, $forced = false)
+    {
+        $this->user = $user;
+        $this->data = $data;
+        $this->db = $db;
+        $this->forced = $forced;
+        $this->v4_secret = config('ninja.ninja_hosted_secret');
+    }
+
+    public function handle(): void
+    {
+        config(['database.default' => $this->db]);
+
+        //Create or get a token
+        $this->getToken();
+
+        $completeService = (new CompleteService($this->migration_token));
+
+        $migrationData = $this->generateMigrationData($this->data);
+
+        $completeService->data($migrationData)
+            ->endpoint('https://v5-app1.invoicing.co')
+//         ->endpoint('http://devhosted.test:8000')
+            ->start();
+    }
+
+    public function generateMigrationData(array $data): array
+    {
+        set_time_limit(0);
+
+        $migrationData = [];
+
+        foreach ($data['companies'] as $company) {
+            $account = Account::where('account_key', $company['id'])->firstOrFail();
+
+            $this->account = $account;
+
+            if ($this->forced) {
+                $account_email_settings = $this->account->account_email_settings;
+                $account_email_settings->account_email_settings->forward_url_for_v5 = sprintf('https://invoiceninja-%s.invoicing.co', $this->account->id);
+                $account_email_settings->save();
+
+                $this->account->subdomain = 'invoiceninja-' . $this->account->id;
+            }
+
+            $date = date('Y-m-d');
+            $accountKey = $this->account->account_key;
+
+            $output = fopen('php://output', 'w') || Utils::fatalError();
+
+            $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
+
+            $localMigrationData['data'] = [
+                'account'               => $this->getAccount(),
+                'company'               => $this->getCompany(),
+                'users'                 => $this->getUsers(),
+                'tax_rates'             => $this->getTaxRates(),
+                'payment_terms'         => $this->getPaymentTerms(),
+                'clients'               => $this->getClients(),
+                'company_gateways'      => $this->getCompanyGateways(),
+                'client_gateway_tokens' => $this->getClientGatewayTokens(),
+                'vendors'               => $this->getVendors(),
+                'projects'              => $this->getProjects(),
+                'products'              => $this->getProducts(),
+                'credits'               => $this->getCreditsNotes(),
+                'invoices'              => $this->getInvoices(),
+                'recurring_expenses'    => $this->getRecurringExpenses(),
+                'recurring_invoices'    => $this->getRecurringInvoices(),
+                'quotes'                => $this->getQuotes(),
+                'payments'              => $this->getPayments(),
+                'documents'             => $this->getDocuments(),
+                'expense_categories'    => $this->getExpenseCategories(),
+                'task_statuses'         => $this->getTaskStatuses(),
+                'expenses'              => $this->getExpenses(),
+                'tasks'                 => $this->getTasks(),
+                'ninja_tokens'          => $this->getNinjaToken(),
+            ];
+
+            $localMigrationData['force'] = array_key_exists('force', $company);
+
+            Storage::makeDirectory('migrations');
+            $file = Storage::path(sprintf('app/migrations/%s.zip', $fileName));
+
+            //$file = storage_path("migrations/{$fileName}.zip");
+
+            ksort($localMigrationData);
+
+            $zip = new ZipArchive();
+            $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
+            $zip->close();
+
+            $localMigrationData['file'] = $file;
+
+            $migrationData[] = $localMigrationData;
+        }
+
+        return $migrationData;
+    }
+
+    private function getToken(): static
+    {
+        $url = 'https://invoicing.co/api/v1/get_migration_account';
+        // $url = 'http://devhosted.test:8000/api/v1/get_migration_account';
+
+        $headers = [
+            'X-API-HOSTED-SECRET' => $this->v4_secret,
+            'X-Requested-With'    => 'XMLHttpRequest',
+            'Content-Type'        => 'application/json',
+        ];
+
+        $body = [
+            'first_name'       => $this->user->first_name,
+            'last_name'        => $this->user->last_name,
+            'email'            => $this->user->email,
+            'privacy_policy'   => true,
+            'terms_of_service' => true,
+            'password'         => '',
+        ];
+
+        $client = new Client([
+            'headers' => $headers,
+        ]);
+
+        $response = $client->post($url, [
+            RequestOptions::JSON            => $body,
+            RequestOptions::ALLOW_REDIRECTS => false,
+        ]);
+
+        if ($response->getStatusCode() == 401) {
+            info($response->getBody());
+        } elseif ($response->getStatusCode() == 200) {
+            $message_body = json_decode($response->getBody(), true);
+
+            $this->migration_token = $message_body['token'];
+        }
+
+        // info(json_decode($response->getBody()->getContents()));
+
+        return $this;
+    }
+}
