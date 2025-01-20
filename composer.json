@@ -1,0 +1,100 @@
+{
+  "name": "invoiceninja/invoiceninja",
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": "^8.1",
+    "ext-json": "*",
+    "ext-zip": "*",
+    "anahkiasen/former": "^4.8.1",
+    "awssat/tailwindo": "^3.0.6",
+    "doctrine/dbal": "^3.8.2",
+    "ezyang/htmlpurifier": "^4.17",
+    "fideloper/proxy": "^4.4.2",
+    "guzzlehttp/guzzle": "^7.8.1",
+    "intervention/image": "^2.7.2",
+    "laracasts/presenter": "^0.2.6",
+    "laravel/framework": "^8.83.27",
+    "laravel/helpers": "^1.7",
+    "laravel/ui": "^3.4.6",
+    "laravelcollective/html": "^6.4.1",
+    "league/fractal": "^0.20.1",
+    "nesbot/carbon": "^2.72.3",
+    "patricktalmadge/bootstrapper": "^5.12",
+    "predis/predis": "^2.2.2",
+    "webpatser/laravel-countries": "^1.5.4",
+    "yajra/laravel-datatables-buttons": "^4.13.3",
+    "yajra/laravel-datatables-html": "^4.41.1",
+    "yajra/laravel-datatables-oracle": "^9.21.2"
+  },
+  "require-dev": {
+    "barryvdh/laravel-debugbar": "^3.7",
+    "barryvdh/laravel-ide-helper": "^2.14",
+    "driftingly/rector-laravel": "^0.21.0",
+    "filp/whoops": "^2.15.4",
+    "fakerphp/faker": "^1.23.1",
+    "laravel/tinker": "^2.9.0",
+    "mockery/mockery": "^1.6.7",
+    "nunomaduro/collision": "^5.11",
+    "nunomaduro/larastan": "^1.0.3",
+    "phpstan/phpstan": "^1.10.58",
+    "phpunit/phpunit": "^10.5.10",
+    "rector/rector": "^0.16"
+  },
+  "autoload": {
+    "classmap": [
+      "app/Console/Commands",
+      "app/Libraries",
+      "app/Http/Controllers",
+      "app/Models",
+      "app/Ninja",
+      "app/Ninja/Repositories",
+      "database/seeders",
+      "database/factories"
+    ],
+    "psr-4": {
+      "App\\": "app/",
+      "Modules\\": "Modules/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    },
+    "files": [
+      "app/Libraries/lib_autolink.php",
+      "app/Libraries/OFX.php"
+    ]
+  },
+  "autoload-dev": {},
+  "extra": {
+    "laravel": {
+      "dont-discover": [
+      ]
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "rm bootstrap/cache/compiled.php || true",
+      "php artisan view:clear",
+      "php artisan clear-compiled"
+    ],
+    "post-update-cmd": [
+      "rm bootstrap/cache/compiled.php || true",
+      "php artisan view:clear",
+      "php artisan clear-compiled"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate"
+    ],
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover"
+    ]
+  }
+}

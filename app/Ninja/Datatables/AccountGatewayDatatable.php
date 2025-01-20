@@ -1,0 +1,265 @@
+<?php
+
+namespace App\Ninja\Datatables;
+
+use App\Libraries\Utils;
+use App\Models\AccountGateway;
+use App\Models\AccountGatewaySettings;
+use Cache;
+use Illuminate\Contracts\Translation\Translator;
+use URL;
+use WePayException;
+
+class AccountGatewayDatatable extends EntityDatatable
+{
+    private static ?array $companyGateways = null;
+
+    private static ?array $companyGatewaySettings = null;
+
+    public $entityType = ENTITY_ACCOUNT_GATEWAY;
+
+    public function columns(): array
+    {
+        return [
+            [
+                'gateway',
+                function ($model) {
+                    $companyGateway = $this->getAccountGateway($model->id);
+                    if ($model->deleted_at) {
+                        return $model->name;
+                    }
+                    if (in_array($model->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3])) {
+                        $name = $companyGateway->getConfigField('name') . ' [' . trans('texts.custom') . ']';
+
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
+                    } elseif ($model->gateway_id != GATEWAY_WEPAY) {
+                        $name = $model->name;
+                        if ($companyGateway->isTestMode()) {
+                            $name .= sprintf(' [%s]', trans('texts.test'));
+                        }
+
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
+                    }
+                    $config = $companyGateway->getConfig();
+                    $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
+                    $wepayAccountId = $config->accountId;
+                    $wepayState = isset($config->state) ? $config->state : null;
+                    $linkText = $model->name;
+                    $url = $endpoint . 'company/' . $wepayAccountId;
+                    $html = link_to($url, $linkText, ['target' => '_blank'])->toHtml();
+
+                    try {
+                        if ($wepayState == 'action_required') {
+                            $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(URL::to('gateways'));
+                            $linkText .= ' <span style="color:#d9534f">(' . trans('texts.action_required') . ')</span>';
+                            $url = $updateUri;
+                            $html = "<a href=\"{$url}\">{$linkText}</a>";
+                            $model->setupUrl = $url;
+                        } elseif ($wepayState == 'pending') {
+                            $linkText .= ' (' . trans('texts.resend_confirmation_email') . ')';
+                            $model->resendConfirmationUrl = $url = URL::to("gateways/{$companyGateway->public_id}/resend_confirmation");
+                            $html = link_to($url, $linkText)->toHtml();
+                        }
+                    } catch (WePayException $ex) {
+                    }
+
+                    return $html;
+                },
+            ],
+            [
+                'limit',
+                function ($model) {
+                    $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
+                    $html = '';
+                    foreach ($gatewayTypes as $gatewayTypeId) {
+                        $companyGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
+                        $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
+
+                        if (count($gatewayTypes) > 1) {
+                            if ($html) {
+                                $html .= '<br>';
+                            }
+                            $html .= $gatewayType->name . ' &mdash; ';
+                        }
+
+                        if ($companyGatewaySettings && $companyGatewaySettings->min_limit !== null && $companyGatewaySettings->max_limit !== null) {
+                            $html .= Utils::formatMoney($companyGatewaySettings->min_limit) . ' - ' . Utils::formatMoney($companyGatewaySettings->max_limit);
+                        } elseif ($companyGatewaySettings && $companyGatewaySettings->min_limit !== null) {
+                            $html .= trans(
+                                'texts.min_limit',
+                                ['min' => Utils::formatMoney($companyGatewaySettings->min_limit)]
+                            );
+                        } elseif ($companyGatewaySettings && $companyGatewaySettings->max_limit !== null) {
+                            $html .= trans(
+                                'texts.max_limit',
+                                ['max' => Utils::formatMoney($companyGatewaySettings->max_limit)]
+                            );
+                        } else {
+                            $html .= trans('texts.no_limit');
+                        }
+                    }
+
+                    return $html;
+                },
+            ],
+            [
+                'fees',
+                function ($model): array|Translator|string|null {
+                    if (! $model->gateway_fee_enabled) {
+                        return trans('texts.fees_disabled');
+                    }
+
+                    $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
+                    $html = '';
+                    foreach ($gatewayTypes as $gatewayTypeId) {
+                        $companyGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
+                        if (! $companyGatewaySettings) {
+                            continue;
+                        }
+                        if (! $companyGatewaySettings->areFeesEnabled()) {
+                            continue;
+                        }
+
+                        $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
+
+                        if (count($gatewayTypes) > 1) {
+                            if ($html) {
+                                $html .= '<br>';
+                            }
+                            $html .= $gatewayType->name . ' &mdash; ';
+                        }
+                        $html .= $companyGatewaySettings->feesToString();
+
+                        if ($companyGatewaySettings->hasTaxes()) {
+                            $html .= ' + ' . trans('texts.tax');
+                        }
+                    }
+
+                    return $html ?: trans('texts.no_fees');
+                },
+            ],
+        ];
+    }
+
+    private function getAccountGateway($id)
+    {
+        if (isset(static::$companyGateways[$id])) {
+            return static::$companyGateways[$id];
+        }
+
+        static::$companyGateways[$id] = AccountGateway::find($id);
+
+        return static::$companyGateways[$id];
+    }
+
+    private function getGatewayTypes($id, $gatewayId)
+    {
+        if ($gatewayId == GATEWAY_CUSTOM1) {
+            $gatewayTypes = [GATEWAY_TYPE_CUSTOM1];
+        } elseif ($gatewayId == GATEWAY_CUSTOM2) {
+            $gatewayTypes = [GATEWAY_TYPE_CUSTOM2];
+        } elseif ($gatewayId == GATEWAY_CUSTOM3) {
+            $gatewayTypes = [GATEWAY_TYPE_CUSTOM3];
+        } else {
+            $companyGateway = $this->getAccountGateway($id);
+            $paymentDriver = $companyGateway->paymentDriver();
+            $gatewayTypes = $paymentDriver->gatewayTypes();
+            $gatewayTypes = array_diff($gatewayTypes, [GATEWAY_TYPE_TOKEN]);
+        }
+
+        return $gatewayTypes;
+    }
+
+    private function getAccountGatewaySetting($gatewayTypeId)
+    {
+        if (isset(static::$companyGatewaySettings[$gatewayTypeId])) {
+            return static::$companyGatewaySettings[$gatewayTypeId];
+        }
+
+        static::$companyGatewaySettings[$gatewayTypeId] = AccountGatewaySettings::scope()
+            ->where('account_gateway_settings.gateway_type_id', '=', $gatewayTypeId)->first();
+
+        return static::$companyGatewaySettings[$gatewayTypeId];
+    }
+
+    /**
+     * @return array<int, mixed[]>
+     */
+    public function actions(): array
+    {
+        $actions = [
+            [
+                uctrans('texts.resend_confirmation_email'),
+                function ($model) {
+                    return $model->resendConfirmationUrl;
+                },
+                function ($model): bool {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl);
+                },
+            ], [
+                uctrans('texts.edit_gateway'),
+                function ($model) {
+                    return URL::to("gateways/{$model->public_id}/edit");
+                },
+                function ($model): bool {
+                    return ! $model->deleted_at;
+                },
+            ], [
+                uctrans('texts.finish_setup'),
+                function ($model) {
+                    return $model->setupUrl;
+                },
+                function ($model): bool {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->setupUrl);
+                },
+            ], [
+                uctrans('texts.manage_account'),
+                function ($model): array {
+                    $companyGateway = $this->getAccountGateway($model->id);
+                    $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
+
+                    return [
+                        'url'        => $endpoint . 'company/' . $companyGateway->getConfig()->accountId,
+                        'attributes' => 'target="_blank"',
+                    ];
+                },
+                function ($model): bool {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
+                },
+            ], [
+                uctrans('texts.terms_of_service'),
+                function ($model): string {
+                    return 'https://go.wepay.com/terms-of-service-us';
+                },
+                function ($model): bool {
+                    return $model->gateway_id == GATEWAY_WEPAY;
+                },
+            ],
+        ];
+
+        foreach (Cache::get('gatewayTypes') as $gatewayType) {
+            $actions[] = [
+                trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
+                function () use ($gatewayType) {
+                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
+                },
+                function ($model) use ($gatewayType) {
+                    // Only show this action if the given gateway supports this gateway type
+                    if ($model->gateway_id == GATEWAY_CUSTOM1) {
+                        return $gatewayType->id == GATEWAY_TYPE_CUSTOM1;
+                    }
+                    if ($model->gateway_id == GATEWAY_CUSTOM2) {
+                        return $gatewayType->id == GATEWAY_TYPE_CUSTOM2;
+                    } elseif ($model->gateway_id == GATEWAY_CUSTOM3) {
+                        return $gatewayType->id == GATEWAY_TYPE_CUSTOM3;
+                    }
+                    $companyGateway = $this->getAccountGateway($model->id);
+
+                    return $companyGateway->paymentDriver()->supportsGatewayType($gatewayType->id);
+                },
+            ];
+        }
+
+        return $actions;
+    }
+}
