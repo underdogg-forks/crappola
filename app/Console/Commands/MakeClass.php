@@ -1,0 +1,172 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Str;
+use Nwidart\Modules\Commands\GeneratorCommand;
+use Nwidart\Modules\Support\Stub;
+use Nwidart\Modules\Traits\ModuleCommandTrait;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+
+class MakeClass extends GeneratorCommand
+{
+    use ModuleCommandTrait;
+
+    protected $argumentName = 'name';
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $name = 'ninja:make-class';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Create class stub';
+
+    protected function getTemplateContents()
+    {
+        $module = $this->laravel['modules']->findOrFail($this->getModuleName());
+        $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
+
+        return (new Stub('/' . $this->argument('prefix') . $this->argument('class') . '.stub', [
+            'NAMESPACE'          => $this->getClassNamespace($module) . '\\' . $path,
+            'LOWER_NAME'         => $module->getLowerName(),
+            'CLASS'              => $this->getClass(),
+            'STUDLY_NAME'        => Str::studly($module->getLowerName()),
+            'DATATABLE_COLUMNS'  => $this->getColumns(),
+            'FORM_FIELDS'        => $this->getFormFields(),
+            'DATABASE_FIELDS'    => $this->getDatabaseFields($module),
+            'TRANSFORMER_FIELDS' => $this->getTransformerFields($module),
+        ]))->render();
+    }
+
+    protected function getDestinationFilePath()
+    {
+        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
+
+        return $path . $seederPath . '/' . $this->getFileName() . '.php';
+    }
+
+    protected function getArguments(): array
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the module.'],
+            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['class', InputArgument::REQUIRED, 'The name of the class.'],
+            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
+        ];
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
+        ];
+    }
+
+    protected function getFileName(): string
+    {
+        if ($this->option('filename')) {
+            return $this->option('filename');
+        }
+
+        return Str::studly($this->argument('prefix')) . Str::studly($this->argument('name')) . Str::studly($this->argument('class'));
+    }
+
+    protected function getColumns(): string
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+
+        $str = '';
+
+        foreach ($fields as $field) {
+            if ($field === '' || $field === '0') {
+                continue;
+            }
+
+            $field = explode(':', $field)[0];
+            $str .= '[
+                \'' . $field . '\',
+                function ($model) {
+                    return $model->' . $field . ';
+                }
+            ],';
+        }
+
+        return $str;
+    }
+
+    protected function getFormFields(): string
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+
+        $str = '';
+
+        foreach ($fields as $field) {
+            if ($field === '' || $field === '0') {
+                continue;
+            }
+
+            $parts = explode(':', $field);
+            $field = $parts[0];
+            $type = $parts[1];
+
+            if ($type === 'text') {
+                $str .= "{!! Former::textarea('" . $field . "') !!}\n";
+            } else {
+                $str .= "{!! Former::text('" . $field . "') !!}\n";
+            }
+        }
+
+        return $str;
+    }
+
+    protected function getDatabaseFields($module): string
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+
+        $str = '';
+
+        foreach ($fields as $field) {
+            if ($field === '' || $field === '0') {
+                continue;
+            }
+
+            $field = explode(':', $field)[0];
+            $str .= "'" . $module->getLowerName() . sprintf(".%s', ", $field);
+        }
+
+        return $str;
+    }
+
+    protected function getTransformerFields($module): string
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+
+        $str = '';
+
+        foreach ($fields as $field) {
+            if ($field === '' || $field === '0') {
+                continue;
+            }
+
+            $field = explode(':', $field)[0];
+            $str .= sprintf("'%s' => \$", $field) . $module->getLowerName() . "->{$field},\n            ";
+        }
+
+        return rtrim($str);
+    }
+}

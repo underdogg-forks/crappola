@@ -1,0 +1,24 @@
+<?php
+
+namespace $NAMESPACE$;
+
+class Create$CLASS$Request extends $CLASS$Request
+{
+
+    public function authorize(): bool
+    {
+        return $this->user()->can('create', '$LOWER_NAME$');
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+
+        ];
+    }
+}
