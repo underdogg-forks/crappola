@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models\Traits;
+
+/**
+ * Class HasCustomMessages.
+ */
+trait HasCustomMessages
+{
+    /**
+     * @param $value
+     */
+    public function setCustomMessagesAttribute($data): void
+    {
+        $fields = [];
+
+        if (! is_array($data)) {
+            $data = json_decode($data);
+        }
+
+        $fields = array_filter($data, fn ($value) => $value);
+
+        $this->attributes['custom_messages'] = count($fields) ? json_encode($fields) : null;
+    }
+
+    public function getCustomMessagesAttribute($value)
+    {
+        return json_decode($value ?: '{}');
+    }
+
+    public function customMessage($type)
+    {
+        $messages = $this->custom_messages;
+
+        if (! empty($messages->$type)) {
+            return $messages->$type;
+        }
+
+        if ($this->company) {
+            return $this->company->customMessage($type);
+        }
+
+        return '';
+    }
+}

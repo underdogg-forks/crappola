@@ -1,0 +1,164 @@
+<?php
+
+namespace App\Listeners;
+
+use App\Events\InvoiceInvitationWasViewed;
+use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasEmailed;
+use App\Events\InvoiceWasUpdated;
+use App\Events\PaymentFailed;
+use App\Events\PaymentWasCreated;
+use App\Events\PaymentWasDeleted;
+use App\Events\PaymentWasRefunded;
+use App\Events\PaymentWasRestored;
+use App\Events\PaymentWasVoided;
+use App\Libraries\Utils;
+use App\Models\Activity;
+use App\Ninja\Repositories\InvoiceRepository;
+use Illuminate\Queue\Events\JobExceptionOccurred;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Class InvoiceListener.
+ */
+class InvoiceListener
+{
+    public function createdInvoice(InvoiceWasCreated $event): void
+    {
+        if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
+            return;
+        }
+
+        // Make sure the company has the same design set as the invoice does
+        if (Auth::check()) {
+            $invoice = $event->invoice;
+            $company = Auth::user()->company;
+
+            if ($invoice->invoice_design_id && $company->invoice_design_id != $invoice->invoice_design_id) {
+                $company->invoice_design_id = $invoice->invoice_design_id;
+                $company->save();
+            }
+        }
+    }
+
+    public function updatedInvoice(InvoiceWasUpdated $event): void
+    {
+        $invoice = $event->invoice;
+        $invoice->updatePaidStatus(false, false);
+    }
+
+    public function viewedInvoice(InvoiceInvitationWasViewed $event): void
+    {
+        $invitation = $event->invitation;
+        $invitation->markViewed();
+    }
+
+    public function emailedInvoice(InvoiceWasEmailed $event): void
+    {
+        $invoice = $event->invoice;
+        $invoice->last_sent_date = date('Y-m-d');
+        $invoice->save();
+    }
+
+    public function createdPayment(PaymentWasCreated $event): void
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount * -1;
+        $partial = max(0, $invoice->partial - $payment->amount);
+
+        $invoice->updateBalances($adjustment, $partial);
+        $invoice->updatePaidStatus(true);
+
+        // store a backup of the invoice
+        $activity = Activity::wherePaymentId($payment->id)
+            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+            ->first();
+        $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
+        $activity->save();
+
+        if ($invoice->balance == 0 && $payment->company->auto_archive_invoice) {
+            $invoiceRepo = app(InvoiceRepository::class);
+            $invoiceRepo->archive($invoice);
+        }
+    }
+
+    public function deletedPayment(PaymentWasDeleted $event): void
+    {
+        $payment = $event->payment;
+
+        if ($payment->isFailedOrVoided()) {
+            return;
+        }
+
+        $invoice = $payment->invoice;
+        $adjustment = $payment->getCompletedAmount();
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function refundedPayment(PaymentWasRefunded $event): void
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $event->refundAmount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function voidedPayment(PaymentWasVoided $event): void
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function failedPayment(PaymentFailed $event): void
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->getCompletedAmount();
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function restoredPayment(PaymentWasRestored $event): void
+    {
+        if (! $event->fromDeleted) {
+            return;
+        }
+
+        $payment = $event->payment;
+
+        if ($payment->isFailedOrVoided()) {
+            return;
+        }
+
+        $invoice = $payment->invoice;
+        $adjustment = $payment->getCompletedAmount() * -1;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function jobFailed(JobExceptionOccurred $exception): void
+    {
+        /*
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw(print_r($exception->data, true), function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Job failed');
+            });
+        }
+        */
+
+        Utils::logError($exception->exception);
+    }
+}
