@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Ninja\PaymentDrivers;
+
+use Exception;
+
+class CybersourcePaymentDriver extends BasePaymentDriver
+{
+    protected $transactionReferenceParam = 'transaction_uuid';
+
+    public function completeOffsitePurchase($input)
+    {
+        if ($input['decision'] == 'ACCEPT') {
+            return $this->createPayment($input['bill_trans_ref_no']);
+        }
+        throw new Exception($input['message'] . ': ' . $input['invalid_fields']);
+    }
+}

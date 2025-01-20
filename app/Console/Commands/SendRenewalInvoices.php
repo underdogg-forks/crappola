@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\CompanyPlan;
+use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Repositories\AccountRepository;
+use Illuminate\Console\Command;
+use Mail;
+use Symfony\Component\Console\Input\InputOption;
+use App\Libraries\Utils;
+
+/**
+ * Class SendRenewalInvoices.
+ */
+class SendRenewalInvoices extends Command
+{
+    /**
+     * @var string
+     */
+    protected $name = 'ninja:send-renewals';
+
+    /**
+     * @var string
+     */
+    protected $description = 'Send renewal invoices';
+
+    /**
+     * @var Mailer
+     */
+    protected $mailer;
+
+    /**
+     * @var AccountRepository
+     */
+    protected $companyRepo;
+
+    /**
+     * SendRenewalInvoices constructor.
+     *
+     * @param Mailer $mailer
+     * @param AccountRepository $repo
+     */
+    public function __construct(Mailer $mailer, AccountRepository $repo)
+    {
+        parent::__construct();
+
+        $this->mailer = $mailer;
+        $this->accountRepo = $repo;
+    }
+
+    public function handle(): void
+    {
+        $this->info(date('r') . ' Running SendRenewalInvoices...');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
+        // get all accounts with plans expiring in 10 days
+        $companies = CompanyPlan::whereRaw("datediff(plan_expires, curdate()) = 10 and (plan = 'pro' or plan = 'enterprise')")
+            ->orderBy('id')
+            ->get();
+        $this->info($companies->count() . ' companies found renewing in 10 days');
+
+        foreach ($companies as $companyPlan) {
+            if (!$companyPlan->accounts->count()) {
+                continue;
+            }
+
+            $company = $companyPlan->accounts->sortBy('id')->first();
+            $plan = [];
+            $plan['plan'] = $companyPlan->plan;
+            $plan['term'] = $companyPlan->plan_term;
+            $plan['num_users'] = $companyPlan->num_users;
+            $plan['price'] = min($companyPlan->plan_price, Utils::getPlanPrice($plan));
+
+            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']) {
+                continue;
+            }
+
+            $client = $this->accountRepo->getNinjaClient($company);
+            $invitation = $this->accountRepo->createNinjaInvoice($client, $company, $plan, 0, false);
+
+            // set the due date to 10 days from now
+            $invoice = $invitation->invoice;
+            $invoice->due_date = date('Y-m-d', strtotime('+ 10 days'));
+            $invoice->save();
+
+            $term = $plan['term'];
+            $plan = $plan['plan'];
+
+            if ($term == PLAN_TERM_YEARLY) {
+                $this->mailer->sendInvoice($invoice);
+                $this->info("Sent {$term}ly {$plan} invoice to {$client->getDisplayName()}");
+            } else {
+                $this->info("Created {$term}ly {$plan} invoice for {$client->getDisplayName()}");
+            }
+        }
+
+        $this->info('Done');
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
+                $message->to($errorEmail)
+                    ->from(CONTACT_EMAIL)
+                    ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
+            });
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
+    }
+}
