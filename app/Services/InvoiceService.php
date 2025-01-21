@@ -3,33 +3,24 @@
 namespace App\Services;
 
 use App\Events\QuoteInvitationWasApproved;
+use App\Jobs\DownloadInvoices;
 use App\Models\Client;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
-use App\Jobs\DownloadInvoices;
-use Auth;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class InvoiceService extends BaseService
 {
-    /**
-     * @var ClientRepository
-     */
-    protected $clientRepo;
+    protected ClientRepository $clientRepo;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * InvoiceService constructor.
@@ -49,52 +40,47 @@ class InvoiceService extends BaseService
     }
 
     /**
-     * @return InvoiceRepository
-     */
-    protected function getRepo()
-    {
-        return $this->invoiceRepo;
-    }
-
-    /**
      * @param $ids
      * @param $action
      *
      * @return int
      */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
-            dispatch(new DownloadInvoices(Auth::user(), $invoices));
+            dispatch_sync(new DownloadInvoices(Auth::user(), $invoices));
+
             return count($invoices);
-        } else {
-            return parent::bulk($ids, $action);
         }
+
+        return parent::bulk($ids, $action);
     }
 
     /**
      * @param array        $data
      * @param Invoice|null $invoice
      *
-     * @return \App\Models\Invoice|Invoice|mixed
+     * @return Invoice|Invoice|mixed
      */
-    public function save(array $data, Invoice $invoice = null)
+    public function save(array $data, ?Invoice $invoice = null)
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
             $canViewClient = false;
             $clientPublicId = Arr::get($data, 'client.public_id') ?: Arr::get($data, 'client.id');
-            if (empty($clientPublicId) || intval($clientPublicId) < 0) {
+            if (empty($clientPublicId) || (int) $clientPublicId < 0) {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $client = Client::scope($clientPublicId)->first();
                 $canSaveClient = Auth::user()->can('edit', $client);
                 $canViewClient = Auth::user()->can('view', $client);
             }
+
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
             }
+
             if ($canSaveClient || $canViewClient) {
                 $data['client_id'] = $client->id;
             }
@@ -104,7 +90,7 @@ class InvoiceService extends BaseService
     }
 
     /**
-     * @param $quote
+     * @param                 $quote
      * @param Invitation|null $invitation
      *
      * @return mixed
@@ -122,16 +108,16 @@ class InvoiceService extends BaseService
     }
 
     /**
-     * @param $quote
+     * @param                 $quote
      * @param Invitation|null $invitation
      *
      * @return mixed|null
      */
-    public function approveQuote($quote, Invitation $invitation = null)
+    public function approveQuote($quote, ?Invitation $invitation = null)
     {
         $account = $quote->account;
 
-        if (! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
+        if ( ! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
             return null;
         }
 
@@ -152,18 +138,26 @@ class InvoiceService extends BaseService
         return $invitation->invitation_key;
     }
 
-    public function getDatatable($accountId, $clientPublicId, $entityType, $search)
+    public function getDatatable($accountId, $clientPublicId, string $entityType, $search)
     {
         $datatable = new InvoiceDatatable(true, $clientPublicId);
         $datatable->entityType = $entityType;
 
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
-                    ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
+            ->where('invoices.invoice_type_id', '=', $entityType === ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
-        if (! Utils::hasPermission('view_' . $entityType)) {
+        if ( ! Utils::hasPermission('view_' . $entityType)) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return InvoiceRepository
+     */
+    protected function getRepo(): InvoiceRepository
+    {
+        return $this->invoiceRepo;
     }
 }

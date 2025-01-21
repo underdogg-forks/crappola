@@ -3,12 +3,11 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
-use App\Models\Activity;
 use Carbon;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 use Utils;
-use Auth;
 
 class InvoicePresenter extends EntityPresenter
 {
@@ -62,15 +61,17 @@ class InvoicePresenter extends EntityPresenter
         return $account->formatMoney($invoice->getRequestedAmount(), $invoice->client);
     }
 
-    public function balanceDueLabel()
+    public function balanceDueLabel(): string
     {
         if ($this->entity->partial > 0) {
             return 'partial_due';
-        } elseif ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
-            return 'total';
-        } else {
-            return 'balance_due';
         }
+
+        if ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
+            return 'total';
+        }
+
+        return 'balance_due';
     }
 
     public function age()
@@ -78,7 +79,7 @@ class InvoicePresenter extends EntityPresenter
         $invoice = $this->entity;
         $dueDate = $invoice->partial_due_date ?: $invoice->due_date;
 
-        if (! $dueDate || $dueDate == '0000-00-00') {
+        if ( ! $dueDate || $dueDate == '0000-00-00') {
             return 0;
         }
 
@@ -91,30 +92,36 @@ class InvoicePresenter extends EntityPresenter
         return $date->diffInDays();
     }
 
-    public function ageGroup()
+    public function ageGroup(): string
     {
         $age = $this->age();
 
         if ($age > 120) {
             return 'age_group_120';
-        } elseif ($age > 90) {
-            return 'age_group_90';
-        } elseif ($age > 60) {
-            return 'age_group_60';
-        } elseif ($age > 30) {
-            return 'age_group_30';
-        } else {
-            return 'age_group_0';
         }
+
+        if ($age > 90) {
+            return 'age_group_90';
+        }
+
+        if ($age > 60) {
+            return 'age_group_60';
+        }
+
+        if ($age > 30) {
+            return 'age_group_30';
+        }
+
+        return 'age_group_0';
     }
 
     public function dueDateLabel()
     {
         if ($this->entity->isType(INVOICE_TYPE_STANDARD)) {
             return trans('texts.due_date');
-        } else {
-            return trans('texts.valid_until');
         }
+
+        return trans('texts.valid_until');
     }
 
     public function discount()
@@ -123,37 +130,43 @@ class InvoicePresenter extends EntityPresenter
 
         if ($invoice->is_amount_discount) {
             return $invoice->account->formatMoney($invoice->discount);
-        } else {
-            return $invoice->discount . '%';
         }
+
+        return $invoice->discount . '%';
     }
 
     // https://schema.org/PaymentStatusType
-    public function paymentStatus()
+    public function paymentStatus(): string
     {
-        if (! $this->entity->balance) {
+        if ( ! $this->entity->balance) {
             return 'PaymentComplete';
-        } elseif ($this->entity->isOverdue()) {
-            return 'PaymentPastDue';
-        } else {
-            return 'PaymentDue';
         }
+
+        if ($this->entity->isOverdue()) {
+            return 'PaymentPastDue';
+        }
+
+        return 'PaymentDue';
     }
 
     public function status()
     {
         if ($this->entity->is_deleted) {
             return trans('texts.deleted');
-        } elseif ($this->entity->trashed()) {
-            return trans('texts.archived');
-        } elseif ($this->entity->is_recurring) {
-            return trans('texts.active');
-        } else {
-            $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
-            $status = strtolower($status);
-
-            return trans("texts.status_{$status}");
         }
+
+        if ($this->entity->trashed()) {
+            return trans('texts.archived');
+        }
+
+        if ($this->entity->is_recurring) {
+            return trans('texts.active');
+        }
+
+        $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
+        $status = mb_strtolower($status);
+
+        return trans('texts.status_' . $status);
     }
 
     public function invoice_date()
@@ -174,9 +187,9 @@ class InvoicePresenter extends EntityPresenter
     public function frequency()
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
-        $frequency = strtolower($frequency);
+        $frequency = mb_strtolower($frequency);
 
-        return trans('texts.freq_'.$frequency);
+        return trans('texts.freq_' . $frequency);
     }
 
     public function email()
@@ -191,7 +204,7 @@ class InvoicePresenter extends EntityPresenter
         $client = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
-        if (! $paymentMethod) {
+        if ( ! $paymentMethod) {
             return false;
         }
 
@@ -205,18 +218,18 @@ class InvoicePresenter extends EntityPresenter
 
         $data = [
             'payment_method' => $paymentMethodString,
-            'due_date' => $this->due_date(),
+            'due_date'       => $this->due_date(),
         ];
 
         return trans('texts.auto_bill_notification', $data);
     }
 
-    public function skypeBot()
+    public function skypeBot(): InvoiceCard
     {
         return new InvoiceCard($this->entity);
     }
 
-    public function rBits()
+    public function rBits(): array
     {
         $properties = new stdClass();
         $properties->terms_text = $this->entity->terms;
@@ -236,39 +249,40 @@ class InvoicePresenter extends EntityPresenter
         return [$data];
     }
 
-    public function moreActions()
+    public function moreActions(): array
     {
         $invoice = $this->entity;
         $entityType = $invoice->getEntityType();
 
         $actions = [
-            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
+            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans('texts.clone_invoice')],
         ];
 
         if (Auth::user()->can('create', ENTITY_QUOTE)) {
-            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
+            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans('texts.clone_quote')];
         }
 
-        $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
+        $actions[] = ['url' => url(sprintf('%ss/%s_history/%s', $entityType, $entityType, $invoice->public_id)), 'label' => trans('texts.view_history')];
 
         if ($entityType == ENTITY_INVOICE) {
-            $actions[] = ['url' => url("invoices/delivery_note/{$invoice->public_id}"), 'label' => trans('texts.delivery_note')];
+            $actions[] = ['url' => url('invoices/delivery_note/' . $invoice->public_id), 'label' => trans('texts.delivery_note')];
         }
 
         $actions[] = DropdownButton::DIVIDER;
 
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {
-                $actions[] = ['url' => url("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
+                $actions[] = ['url' => url(sprintf('invoices/%s/edit', $invoice->quote_invoice_id)), 'label' => trans('texts.view_invoice')];
             } else {
-                if (! $invoice->isApproved()) {
-                    $actions[] = ['url' => url("proposals/create/{$invoice->public_id}"), 'label' => trans('texts.new_proposal')];
+                if ( ! $invoice->isApproved()) {
+                    $actions[] = ['url' => url('proposals/create/' . $invoice->public_id), 'label' => trans('texts.new_proposal')];
                 }
+
                 $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
             }
         } elseif ($entityType == ENTITY_INVOICE) {
             if ($invoice->quote_id && $invoice->quote) {
-                $actions[] = ['url' => url("quotes/{$invoice->quote->public_id}/edit"), 'label' => trans('texts.view_quote')];
+                $actions[] = ['url' => url(sprintf('quotes/%s/edit', $invoice->quote->public_id)), 'label' => trans('texts.view_quote')];
             }
 
             if ($invoice->onlyHasTasks()) {
@@ -285,6 +299,7 @@ class InvoicePresenter extends EntityPresenter
                 if ($invoice->payments->count() > 1) {
                     $label .= ' - ' . $invoice->account->formatMoney($payment->amount, $invoice->client);
                 }
+
                 $actions[] = ['url' => $payment->present()->url, 'label' => $label];
             }
         }
@@ -293,28 +308,29 @@ class InvoicePresenter extends EntityPresenter
             $actions[] = DropdownButton::DIVIDER;
         }
 
-        if (! $invoice->trashed()) {
-            $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        if ( ! $invoice->trashed()) {
+            $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans('texts.archive_' . $entityType)];
         }
-        if (! $invoice->is_deleted) {
-            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+
+        if ( ! $invoice->is_deleted) {
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_' . $entityType)];
         }
 
         return $actions;
     }
 
-    public function gatewayFee($gatewayTypeId = false)
+    public function gatewayFee($gatewayTypeId = false): string
     {
         $invoice = $this->entity;
         $account = $invoice->account;
 
-        if (! $account->gateway_fee_enabled) {
+        if ( ! $account->gateway_fee_enabled) {
             return '';
         }
 
         $settings = $account->getGatewaySettings($gatewayTypeId);
 
-        if (! $settings || ! $settings->areFeesEnabled()) {
+        if ( ! $settings || ! $settings->areFeesEnabled()) {
             return '';
         }
 
@@ -324,7 +340,7 @@ class InvoicePresenter extends EntityPresenter
             $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
             $fee = $account->formatMoney($fee, $invoice->client);
 
-            if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+            if ((float) ($settings->fee_amount) < 0 || (float) ($settings->fee_percent) < 0) {
                 $label = trans('texts.discount');
             } else {
                 $label = trans('texts.fee');
@@ -344,27 +360,27 @@ class InvoicePresenter extends EntityPresenter
         $account = $invoice->account;
 
         if ($account->hasMultipleAccounts()) {
-            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
-        } else {
-            $link = $invoice->present()->url;
+            return url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
         }
 
-        return $link;
+        return $invoice->present()->url;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $invoice = $this->entity;
         $entityType = $invoice->getEntityType();
 
-        $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
+        $data->title = trans('texts.' . $entityType) . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
         $data->start = $invoice->due_date ?: $invoice->invoice_date;
 
         if ($subColors) {
-            $data->borderColor = $data->backgroundColor = $invoice->present()->statusColor();
+            $data->borderColor = $invoice->present()->statusColor();
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#716cb1' : '#377eb8';
+            $data->borderColor = $invoice->isQuote() ? '#716cb1' : '#377eb8';
+            $data->backgroundColor = $invoice->isQuote() ? '#716cb1' : '#377eb8';
         }
 
         return $data;

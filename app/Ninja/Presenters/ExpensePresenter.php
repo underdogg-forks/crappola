@@ -3,6 +3,8 @@
 namespace App\Ninja\Presenters;
 
 use Carbon;
+use DateTime;
+use stdClass;
 use Utils;
 
 /**
@@ -10,16 +12,13 @@ use Utils;
  */
 class ExpensePresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function vendor()
     {
         return $this->entity->vendor ? $this->entity->vendor->getDisplayName() : '';
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function expense_date()
     {
@@ -27,7 +26,7 @@ class ExpensePresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function payment_date()
     {
@@ -61,35 +60,37 @@ class ExpensePresenter extends EntityPresenter
 
     public function payment_type()
     {
-        if (! $this->payment_type_id) {
+        if ( ! $this->payment_type_id) {
             return '';
         }
 
         return Utils::getFromCache($this->payment_type_id, 'paymentTypes')->name;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $expense = $this->entity;
 
-        $data->title = trans('texts.expense')  . ' ' . $this->amount() . ' | ' . $this->category();
+        $data->title = trans('texts.expense') . ' ' . $this->amount() . ' | ' . $this->category();
 
         $data->title = trans('texts.expense') . ' ' . $this->amount();
         if ($category = $this->category()) {
             $data->title .= ' | ' . $category;
         }
+
         if ($this->public_notes) {
             $data->title .= ' | ' . $this->public_notes;
         }
 
-
         $data->start = $expense->expense_date;
 
         if ($subColors && $expense->expense_category_id) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->borderColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#d95d02';
+            $data->borderColor = '#d95d02';
+            $data->backgroundColor = '#d95d02';
         }
 
         return $data;

@@ -2,14 +2,13 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ConfideSetupUsersTable extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::dropIfExists('payment_terms');
         Schema::dropIfExists('themes');
@@ -39,7 +38,7 @@ class ConfideSetupUsersTable extends Migration
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payment_types');
 
-        Schema::create('countries', function ($table) {
+        Schema::create('countries', function ($table): void {
             $table->increments('id');
             $table->string('capital', 255)->nullable();
             $table->string('citizenship', 255)->nullable();
@@ -56,42 +55,42 @@ class ConfideSetupUsersTable extends Migration
             $table->boolean('eea')->default(0);
         });
 
-        Schema::create('themes', function ($t) {
+        Schema::create('themes', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('payment_types', function ($t) {
+        Schema::create('payment_types', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('payment_terms', function ($t) {
+        Schema::create('payment_terms', function ($t): void {
             $t->increments('id');
             $t->integer('num_days');
             $t->string('name');
         });
 
-        Schema::create('timezones', function ($t) {
+        Schema::create('timezones', function ($t): void {
             $t->increments('id');
             $t->string('name');
             $t->string('location');
         });
 
-        Schema::create('date_formats', function ($t) {
+        Schema::create('date_formats', function ($t): void {
             $t->increments('id');
             $t->string('format');
             $t->string('picker_format');
             $t->string('label');
         });
 
-        Schema::create('datetime_formats', function ($t) {
+        Schema::create('datetime_formats', function ($t): void {
             $t->increments('id');
             $t->string('format');
             $t->string('label');
         });
 
-        Schema::create('currencies', function ($t) {
+        Schema::create('currencies', function ($t): void {
             $t->increments('id');
 
             $t->string('name');
@@ -102,17 +101,17 @@ class ConfideSetupUsersTable extends Migration
             $t->string('code');
         });
 
-        Schema::create('sizes', function ($t) {
+        Schema::create('sizes', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('industries', function ($t) {
+        Schema::create('industries', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('accounts', function ($t) {
+        Schema::create('accounts', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('timezone_id')->nullable();
             $t->unsignedInteger('date_format_id')->nullable();
@@ -150,7 +149,7 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('size_id')->references('id')->on('sizes');
         });
 
-        Schema::create('gateways', function ($t) {
+        Schema::create('gateways', function ($t): void {
             $t->increments('id');
             $t->timestamps();
 
@@ -159,7 +158,7 @@ class ConfideSetupUsersTable extends Migration
             $t->boolean('visible')->default(true);
         });
 
-        Schema::create('users', function ($t) {
+        Schema::create('users', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->timestamps();
@@ -186,7 +185,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('account_gateways', function ($t) {
+        Schema::create('account_gateways', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -204,14 +203,14 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('password_reminders', function ($t) {
+        Schema::create('password_reminders', function ($t): void {
             $t->string('email');
             $t->timestamps();
 
             $t->string('token');
         });
 
-        Schema::create('clients', function ($t) {
+        Schema::create('clients', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -248,7 +247,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('contacts', function ($t) {
+        Schema::create('contacts', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -271,17 +270,17 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('invoice_statuses', function ($t) {
+        Schema::create('invoice_statuses', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('frequencies', function ($t) {
+        Schema::create('frequencies', function ($t): void {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('invoices', function ($t) {
+        Schema::create('invoices', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
@@ -322,7 +321,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'invoice_number']);
         });
 
-        Schema::create('invitations', function ($t) {
+        Schema::create('invitations', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -344,7 +343,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('tax_rates', function ($t) {
+        Schema::create('tax_rates', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('user_id');
@@ -361,7 +360,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('products', function ($t) {
+        Schema::create('products', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('user_id');
@@ -380,7 +379,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('invoice_items', function ($t) {
+        Schema::create('invoice_items', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -405,7 +404,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('payments', function ($t) {
+        Schema::create('payments', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('account_id')->index();
@@ -437,7 +436,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('credits', function ($t) {
+        Schema::create('credits', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('client_id')->index();
@@ -460,7 +459,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('activities', function ($t) {
+        Schema::create('activities', function ($t): void {
             $t->increments('id');
             $t->timestamps();
 
@@ -488,7 +487,7 @@ class ConfideSetupUsersTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('payment_terms');
         Schema::dropIfExists('themes');
@@ -518,4 +517,4 @@ class ConfideSetupUsersTable extends Migration
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payment_types');
     }
-}
+};

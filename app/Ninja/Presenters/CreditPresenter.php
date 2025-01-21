@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use DateTime;
 use Utils;
 
 /**
@@ -9,16 +10,13 @@ use Utils;
  */
 class CreditPresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function credit_date()
     {

@@ -2,20 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCompanyIdNumber extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('id_number')->nullable();
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->string('id_number')->nullable();
         });
     }
@@ -25,13 +24,13 @@ class AddCompanyIdNumber extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('id_number');
         });
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->dropColumn('id_number');
         });
     }
-}
+};

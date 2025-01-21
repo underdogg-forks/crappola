@@ -7,7 +7,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateRecurringInvoiceIntent extends BaseIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $client = $this->requestClient();
         $clientPublicId = $client ? $client->public_id : null;

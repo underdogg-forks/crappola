@@ -2,18 +2,19 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
-use Artisan;
-use Crypt;
+use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Laravel\LegacyEncrypter\McryptEncrypter;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Class UpdateKey
+ * Class UpdateKey.
  */
 class UpdateKey extends Command
 {
@@ -27,7 +28,7 @@ class UpdateKey extends Command
      */
     protected $description = 'Update application key';
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running UpdateKey...');
 
@@ -35,7 +36,7 @@ class UpdateKey extends Command
             config(['database.default' => $database]);
         }
 
-        if (! env('APP_KEY') || ! env('APP_CIPHER')) {
+        if ( ! env('APP_KEY') || ! env('APP_CIPHER')) {
             $this->info(date('r') . ' Error: app key and cipher are not set');
             exit;
         }
@@ -51,19 +52,11 @@ class UpdateKey extends Command
         $twoFactorSecrets = [];
 
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
-            if ($legacy) {
-                $gatewayConfigs[$gateway->id] = json_decode($legacy->decrypt($gateway->config));
-            } else {
-                $gatewayConfigs[$gateway->id] = $gateway->getConfig();
-            }
+            $gatewayConfigs[$gateway->id] = $legacy ? json_decode($legacy->decrypt($gateway->config)) : $gateway->getConfig();
         }
 
         foreach (BankAccount::withTrashed()->get() as $bank) {
-            if ($legacy) {
-                $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
-            } else {
-                $bankUsernames[$bank->id] = $bank->getUsername();
-            }
+            $bankUsernames[$bank->id] = $legacy ? $legacy->decrypt($bank->username) : $bank->getUsername();
         }
 
         foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
@@ -116,28 +109,20 @@ class UpdateKey extends Command
             } else {
                 $message .= 'the key';
             }
+        } elseif ($legacy) {
+            $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
         } else {
-            if ($legacy) {
-                $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
-            } else {
-                $message .= 'the data, make sure to set the new key: ' . $key;
-            }
+            $message .= 'the data, make sure to set the new key: ' . $key;
         }
+
         $this->info($message);
-        return 0;
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

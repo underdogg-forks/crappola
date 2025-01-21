@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPdfmakeSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('invoice_designs', function ($table) {
+        Schema::table('invoice_designs', function ($table): void {
             $table->mediumText('pdfmake')->nullable();
         });
     }
@@ -21,10 +20,10 @@ class AddPdfmakeSupport extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('invoice_designs', function ($table) {
+        Schema::table('invoice_designs', function ($table): void {
             $table->dropColumn('pdfmake');
         });
     }
-}
+};

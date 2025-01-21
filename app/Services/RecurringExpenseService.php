@@ -2,32 +2,28 @@
 
 namespace App\Services;
 
-use Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class RecurringExpenseService.
  */
 class RecurringExpenseService extends BaseService
 {
-    /**
-     * @var RecurringExpenseRepository
-     */
-    protected $recurringExpenseRepo;
+    protected RecurringExpenseRepository $recurringExpenseRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param RecurringExpenseRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService           $datatableService
      */
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, DatatableService $datatableService)
     {
@@ -36,15 +32,7 @@ class RecurringExpenseService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->recurringExpenseRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $recurringExpense
      *
      * @return mixed|null
@@ -63,20 +51,28 @@ class RecurringExpenseService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
         $query = $this->recurringExpenseRepo->find($search);
 
-        if (! Utils::hasPermission('view_expense')) {
+        if ( ! Utils::hasPermission('view_expense')) {
             $query->where('recurring_expenses.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable(new RecurringExpenseDatatable(), $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo(): RecurringExpenseRepository
+    {
+        return $this->recurringExpenseRepo;
     }
 }

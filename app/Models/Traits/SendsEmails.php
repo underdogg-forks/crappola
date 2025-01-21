@@ -3,8 +3,8 @@
 namespace App\Models\Traits;
 
 use App\Constants\Domain;
+use App\Libraries\HTMLUtils;
 use Utils;
-use HTMLUtils;
 
 /**
  * Class SendsEmails.
@@ -18,15 +18,15 @@ trait SendsEmails
      */
     public function getDefaultEmailSubject($entityType)
     {
-        if (strpos($entityType, 'reminder') !== false) {
+        if (str_contains($entityType, 'reminder')) {
             $entityType = 'reminder';
         }
 
-        return trans("texts.{$entityType}_subject", [
+        return trans(sprintf('texts.%s_subject', $entityType), [
             'invoice' => '$invoice',
             'account' => '$account',
-            'quote' => '$quote',
-            'number' => '$number',
+            'quote'   => '$quote',
+            'number'  => '$number',
         ]);
     }
 
@@ -38,11 +38,12 @@ trait SendsEmails
     public function getEmailSubject($entityType)
     {
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $field = "email_subject_{$entityType}";
-            $value = $this->account_email_settings->$field;
+            $field = 'email_subject_' . $entityType;
+            $value = $this->account_email_settings->{$field};
 
             if ($value) {
                 $value = preg_replace("/\r\n|\r|\n/", ' ', $value);
+
                 return HTMLUtils::sanitizeHTML($value);
             }
         }
@@ -51,36 +52,36 @@ trait SendsEmails
     }
 
     /**
-     * @param $entityType
+     * @param      $entityType
      * @param bool $message
      *
      * @return string
      */
-    public function getDefaultEmailTemplate($entityType, $message = false)
+    public function getDefaultEmailTemplate($entityType, $message = false): string
     {
-        if (strpos($entityType, 'reminder') !== false) {
+        if (str_contains($entityType, 'reminder')) {
             $entityType = ENTITY_INVOICE;
         }
 
         $template = '<div>$client,</div><br />';
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS) && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
-            $template .= '<div>' . trans("texts.{$entityType}_message_button", ['amount' => '$amount']) . '</div><br />' .
+            $template .= '<div>' . trans(sprintf('texts.%s_message_button', $entityType), ['amount' => '$amount']) . '</div><br />' .
                          '<div style="text-align:center;">$viewButton</div><br />';
         } else {
-            $template .= '<div>' . trans("texts.{$entityType}_message", ['amount' => '$amount']) . '</div><br />' .
+            $template .= '<div>' . trans(sprintf('texts.%s_message', $entityType), ['amount' => '$amount']) . '</div><br />' .
                          '<div>$viewLink</div><br />';
         }
 
         if ($message) {
-            $template .= "$message<p/>";
+            $template .= $message . '<p/>';
         }
 
         return $template . '$emailSignature';
     }
 
     /**
-     * @param $entityType
+     * @param      $entityType
      * @param bool $message
      *
      * @return mixed
@@ -90,11 +91,11 @@ trait SendsEmails
         $template = false;
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $field = "email_template_{$entityType}";
-            $template = $this->account_email_settings->$field;
+            $field = 'email_template_' . $entityType;
+            $template = $this->account_email_settings->{$field};
         }
 
-        if (! $template) {
+        if ( ! $template) {
             $template = $this->getDefaultEmailTemplate($entityType, $message);
         }
 
@@ -124,9 +125,9 @@ trait SendsEmails
         if ($this->isPro() && $this->email_footer) {
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
-        } else {
-            return '<p><div>' . trans('texts.email_signature') . "\n<br>\$account</div></p>";
         }
+
+        return '<p><div>' . trans('texts.email_signature') . "\n<br>\$account</div></p>";
     }
 
     /**
@@ -134,16 +135,16 @@ trait SendsEmails
      *
      * @return bool
      */
-    public function getReminderDate($reminder, $filterEnabled = true)
+    public function getReminderDate($reminder, $filterEnabled = true): false|string
     {
-        if ($filterEnabled && ! $this->{"enable_reminder{$reminder}"}) {
+        if ($filterEnabled && ! $this->{'enable_reminder' . $reminder}) {
             return false;
         }
 
-        $numDays = $this->{"num_days_reminder{$reminder}"};
-        $plusMinus = $this->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
+        $numDays = $this->{'num_days_reminder' . $reminder};
+        $plusMinus = $this->{'direction_reminder' . $reminder} == REMINDER_DIRECTION_AFTER ? '-' : '+';
 
-        return date('Y-m-d', strtotime("$plusMinus $numDays days"));
+        return date('Y-m-d', strtotime(sprintf('%s %s days', $plusMinus, $numDays)));
     }
 
     /**
@@ -151,19 +152,17 @@ trait SendsEmails
      *
      * @return bool|string
      */
-    public function getInvoiceReminder($invoice, $filterEnabled = true)
+    public function getInvoiceReminder($invoice, $filterEnabled = true): string|false
     {
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i, $filterEnabled)) {
-                if ($this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                if ($this->{'field_reminder' . $i} == REMINDER_FIELD_DUE_DATE) {
                     if (($invoice->partial && $invoice->partial_due_date == $date)
                         || $invoice->due_date == $date) {
-                        return "reminder{$i}";
+                        return 'reminder' . $i;
                     }
-                } else {
-                    if ($invoice->invoice_date == $date) {
-                        return "reminder{$i}";
-                    }
+                } elseif ($invoice->invoice_date == $date) {
+                    return 'reminder' . $i;
                 }
             }
         }
@@ -171,16 +170,16 @@ trait SendsEmails
         return false;
     }
 
-    public function setTemplateDefaults($type, $subject, $body)
+    public function setTemplateDefaults(string $type, $subject, $body): void
     {
         $settings = $this->account_email_settings;
 
         if ($subject) {
-            $settings->{"email_subject_" . $type} = $subject;
+            $settings->{'email_subject_' . $type} = $subject;
         }
 
         if ($body) {
-            $settings->{"email_template_" . $type} = $body;
+            $settings->{'email_template_' . $type} = $body;
         }
 
         $settings->save();
@@ -196,16 +195,16 @@ trait SendsEmails
         return $this->isPro() ? $this->account_email_settings->reply_to_email : false;
     }
 
-    public function getFromEmail()
+    public function getFromEmail(): false|string
     {
-        if (! $this->isPro() || ! Utils::isNinja() || Utils::isReseller()) {
+        if ( ! $this->isPro() || ! Utils::isNinja() || Utils::isReseller()) {
             return false;
         }
 
         return Domain::getEmailFromId($this->domain_id);
     }
 
-    public function getDailyEmailLimit()
+    public function getDailyEmailLimit(): int|float
     {
         $limit = MAX_EMAILS_SENT_PER_DAY;
 

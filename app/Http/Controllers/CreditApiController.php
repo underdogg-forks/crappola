@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreditRequest;
 use App\Http\Requests\CreateCreditRequest;
+use App\Http\Requests\CreditRequest;
 use App\Http\Requests\UpdateCreditRequest;
-use App\Models\Invoice;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Input;
 use Response;
 
 class CreditApiController extends BaseAPIController
 {
-    protected $creditRepo;
+    public $entityType = ENTITY_CREDIT;
 
-    protected $entityType = ENTITY_CREDIT;
+    protected CreditRepository $creditRepo;
 
     public function __construct(CreditRepository $creditRepo)
     {
@@ -30,11 +28,14 @@ class CreditApiController extends BaseAPIController
      *   summary="List credits",
      *   operationId="listCredits",
      *   tags={"credit"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of credits",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Credit"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -44,9 +45,9 @@ class CreditApiController extends BaseAPIController
     public function index()
     {
         $credits = Credit::scope()
-                        ->withTrashed()
-                        ->with(['client'])
-                        ->orderBy('updated_at', 'desc');
+            ->withTrashed()
+            ->with(['client'])
+            ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($credits);
     }
@@ -57,17 +58,21 @@ class CreditApiController extends BaseAPIController
      *   summary="Retrieve a credit",
      *   operationId="getCredit",
      *   tags={"credit"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="credit_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single credit",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Credit"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -85,16 +90,21 @@ class CreditApiController extends BaseAPIController
      *   summary="Create a credit",
      *   operationId="createCredit",
      *   tags={"credit"},
+     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="credit",
+     *
      *     @SWG\Schema(ref="#/definitions/Credit")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="New credit",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Credit"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -114,6 +124,7 @@ class CreditApiController extends BaseAPIController
      *   summary="Update a credit",
      *   operationId="updateCredit",
      *   tags={"credit"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="credit_id",
@@ -123,13 +134,17 @@ class CreditApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="credit",
+     *
      *     @SWG\Schema(ref="#/definitions/Credit")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated credit",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Credit"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -157,17 +172,21 @@ class CreditApiController extends BaseAPIController
      *   summary="Delete a credit",
      *   operationId="deleteCredit",
      *   tags={"credit"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="credit_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted credit",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Credit"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

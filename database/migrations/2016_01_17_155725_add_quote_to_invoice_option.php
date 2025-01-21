@@ -3,17 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddQuoteToInvoiceOption extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      * Make the conversion of a quote into an invoice automatically after a client approves optional.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->boolean('auto_convert_quote')->default(true);
         });
 
@@ -35,9 +34,9 @@ class AddQuoteToInvoiceOption extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->dropColumn('auto_convert_quote');
         });
 
@@ -45,4 +44,4 @@ class AddQuoteToInvoiceOption extends Migration
             ->whereIn('invoice_status_id', [5, 6])
             ->decrement('invoice_status_id');
     }
-}
+};

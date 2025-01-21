@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddZapierSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('subscriptions', function ($table) {
+        Schema::create('subscriptions', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id')->nullable();
 
@@ -30,8 +29,8 @@ class AddZapierSupport extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('subscriptions');
     }
-}
+};

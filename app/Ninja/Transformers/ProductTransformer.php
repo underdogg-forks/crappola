@@ -18,23 +18,23 @@ class ProductTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
-    public function transform(Product $product)
+    public function transform(Product $product): array
     {
         return array_merge($this->getDefaults($product), [
-            'id' => (int) $product->public_id,
-            'product_key' => $product->product_key,
-            'notes' => $product->notes,
-            'cost' => (float) $product->cost,
-            'qty' => (float) ($product->qty ?: 0.0),
-            'tax_name1' => $product->tax_name1 ?: '',
-            'tax_rate1' => (float) $product->tax_rate1,
-            'tax_name2' => $product->tax_name2 ?: '',
-            'tax_rate2' => (float) $product->tax_rate2,
-            'updated_at' => $this->getTimestamp($product->updated_at),
-            'archived_at' => $this->getTimestamp($product->deleted_at),
+            'id'            => (int) $product->public_id,
+            'product_key'   => $product->product_key,
+            'notes'         => $product->notes,
+            'cost'          => (float) $product->cost,
+            'qty'           => (float) ($product->qty ?: 0.0),
+            'tax_name1'     => $product->tax_name1 ?: '',
+            'tax_rate1'     => (float) $product->tax_rate1,
+            'tax_name2'     => $product->tax_name2 ?: '',
+            'tax_rate2'     => (float) $product->tax_rate2,
+            'updated_at'    => $this->getTimestamp($product->updated_at),
+            'archived_at'   => $this->getTimestamp($product->deleted_at),
             'custom_value1' => $product->custom_value1 ?: '',
             'custom_value2' => $product->custom_value2 ?: '',
-            'is_deleted' => (bool) $product->is_deleted,
+            'is_deleted'    => (bool) $product->is_deleted,
         ]);
     }
 }

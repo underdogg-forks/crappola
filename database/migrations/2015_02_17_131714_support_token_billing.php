@@ -2,20 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SupportTokenBilling extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->smallInteger('token_billing_type_id')->default(TOKEN_BILLING_ALWAYS);
         });
 
-        Schema::create('account_gateway_tokens', function ($table) {
+        Schema::create('account_gateway_tokens', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('contact_id');
@@ -40,12 +39,12 @@ class SupportTokenBilling extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('token_billing_type_id');
         });
 
         Schema::drop('account_gateway_tokens');
     }
-}
+};

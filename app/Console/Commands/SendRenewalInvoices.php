@@ -6,8 +6,9 @@ use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
-use Utils;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
+use Utils;
 
 /**
  * Class SendRenewalInvoices.
@@ -27,12 +28,9 @@ class SendRenewalInvoices extends Command
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * SendRenewalInvoices constructor.
@@ -48,9 +46,9 @@ class SendRenewalInvoices extends Command
         $this->accountRepo = $repo;
     }
 
-    public function handle()
+    public function handle(): void
     {
-        $this->info(date('r').' Running SendRenewalInvoices...');
+        $this->info(date('r') . ' Running SendRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -58,12 +56,12 @@ class SendRenewalInvoices extends Command
 
         // get all accounts with plans expiring in 10 days
         $companies = Company::whereRaw("datediff(plan_expires, curdate()) = 10 and (plan = 'pro' or plan = 'enterprise')")
-                        ->orderBy('id')
-                        ->get();
+            ->orderBy('id')
+            ->get();
         $this->info($companies->count() . ' companies found renewing in 10 days');
 
         foreach ($companies as $company) {
-            if (! $company->accounts->count()) {
+            if ( ! $company->accounts->count()) {
                 continue;
             }
 
@@ -73,13 +71,24 @@ class SendRenewalInvoices extends Command
             $plan['term'] = $company->plan_term;
             $plan['num_users'] = $company->num_users;
             $plan['price'] = min($company->plan_price, Utils::getPlanPrice($plan));
+            if ($plan['plan'] == PLAN_FREE) {
+                continue;
+            }
 
-            if ($plan['plan'] == PLAN_FREE || ! $plan['plan'] || ! $plan['term'] || ! $plan['price']) {
+            if ( ! $plan['plan']) {
+                continue;
+            }
+
+            if ( ! $plan['term']) {
+                continue;
+            }
+
+            if ( ! $plan['price']) {
                 continue;
             }
 
             $client = $this->accountRepo->getNinjaClient($account);
-            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0, false);
+            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0);
 
             // set the due date to 10 days from now
             $invoice = $invitation->invoice;
@@ -91,35 +100,28 @@ class SendRenewalInvoices extends Command
 
             if ($term == PLAN_TERM_YEARLY) {
                 $this->mailer->sendInvoice($invoice);
-                $this->info("Sent {$term}ly {$plan} invoice to {$client->getDisplayName()}");
+                $this->info(sprintf('Sent %sly %s invoice to %s', $term, $plan, $client->getDisplayName()));
             } else {
-                $this->info("Created {$term}ly {$plan} invoice for {$client->getDisplayName()}");
+                $this->info(sprintf('Created %sly %s invoice for %s', $term, $plan, $client->getDisplayName()));
             }
         }
 
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
+            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
+                    ->from(CONTACT_EMAIL)
+                    ->subject(sprintf('SendRenewalInvoices [%s]: Finished successfully', $database));
             });
         }
-        return 0;
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

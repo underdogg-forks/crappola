@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 /**
@@ -13,36 +13,9 @@ class BaseRepository
     /**
      * @return null
      */
-    public function getClassName()
-    {
-        return null;
-    }
+    public function getClassName() {}
 
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    /**
-     * @param $entity
-     * @param $type
-     *
-     * @return string
-     */
-    private function getEventClass($entity, $type)
-    {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
-    }
-
-    /**
-     * @param $entity
-     */
-    public function archive($entity)
+    public function archive($entity): void
     {
         if ($entity->trashed()) {
             return;
@@ -57,12 +30,9 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $entity
-     */
-    public function restore($entity)
+    public function restore($entity): void
     {
-        if (! $entity->trashed()) {
+        if ( ! $entity->trashed()) {
             return;
         }
 
@@ -82,10 +52,7 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $entity
-     */
-    public function delete($entity)
+    public function delete($entity): void
     {
         if ($entity->is_deleted) {
             return;
@@ -103,15 +70,9 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $ids
-     * @param $action
-     *
-     * @return int
-     */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
-        if (! $ids) {
+        if ( ! $ids) {
             return 0;
         }
 
@@ -119,63 +80,67 @@ class BaseRepository
 
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
-                $this->$action($entity);
+                $this->{$action}($entity);
             }
         }
 
         return count($entities);
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
     public function findByPublicIds($ids)
     {
         return $this->getInstance()->scope($ids)->get();
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    protected function applyFilters($query, $entityType, $table = false)
+    protected function applyFilters($query, string $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
 
         if ($filter = session('entity_state_filter:' . $entityType, STATUS_ACTIVE)) {
             $filters = explode(',', $filter);
-            $query->where(function ($query) use ($filters, $table) {
+            $query->where(function ($query) use ($filters, $table): void {
                 $query->whereNull($table . '.id');
 
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
+
                 if (in_array(STATUS_ARCHIVED, $filters)) {
-                    $query->orWhere(function ($query) use ($table) {
+                    $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if (! in_array($table, ['users'])) {
+                        if ($table != 'users') {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
                 }
+
                 if (in_array(STATUS_DELETED, $filters)) {
-                    $query->orWhere(function ($query) use ($table) {
+                    $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at')
-                              ->where($table . '.is_deleted', '=', 1);
+                            ->where($table . '.is_deleted', '=', 1);
                     });
                 }
             });
         }
 
         return $query;
+    }
+
+    private function getInstance()
+    {
+        $className = $this->getClassName();
+
+        return new $className();
+    }
+
+    private function getEventClass($entity, string $type): string
+    {
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 }

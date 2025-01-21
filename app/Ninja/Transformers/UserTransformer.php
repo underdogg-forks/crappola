@@ -30,28 +30,28 @@ class UserTransformer extends EntityTransformer
      * @SWG\Property(property="is_admin", type="boolean", example=false)
      * @SWG\Property(property="permissions", type="integer", example=1)
      */
-    public function transform(User $user)
+    public function transform(User $user): array
     {
         return [
-            'id' => (int) ($user->public_id + 1),
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
+            'id'          => (int) ($user->public_id + 1),
+            'first_name'  => $user->first_name,
+            'last_name'   => $user->last_name,
+            'email'       => $user->email,
             'account_key' => $user->account->account_key,
-            'updated_at' => $this->getTimestamp($user->updated_at),
-            'deleted_at' => $this->getTimestamp($user->deleted_at),
-            'phone' => $user->phone,
+            'updated_at'  => $this->getTimestamp($user->updated_at),
+            'deleted_at'  => $this->getTimestamp($user->deleted_at),
+            'phone'       => $user->phone,
             //'username' => $user->username,
-            'registered' => (bool) $user->registered,
-            'confirmed' => (bool) $user->confirmed,
-            'oauth_user_id' => $user->oauth_user_id,
+            'registered'        => (bool) $user->registered,
+            'confirmed'         => (bool) $user->confirmed,
+            'oauth_user_id'     => $user->oauth_user_id,
             'oauth_provider_id' => $user->oauth_provider_id,
-            'notify_sent' => (bool) $user->notify_sent,
-            'notify_viewed' => (bool) $user->notify_viewed,
-            'notify_paid' => (bool) $user->notify_paid,
-            'notify_approved' => (bool) $user->notify_approved,
-            'is_admin' => (bool) $user->is_admin,
-            'permissions' => $user->permissionsMap(),
+            'notify_sent'       => (bool) $user->notify_sent,
+            'notify_viewed'     => (bool) $user->notify_viewed,
+            'notify_paid'       => (bool) $user->notify_paid,
+            'notify_approved'   => (bool) $user->notify_approved,
+            'is_admin'          => (bool) $user->is_admin,
+            'permissions'       => $user->permissionsMap(),
         ];
     }
 }

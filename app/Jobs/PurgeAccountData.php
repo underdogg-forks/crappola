@@ -2,13 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Models\Document;
 use App\Models\LookupAccount;
-use Auth;
-use DB;
-use Exception;
 use App\Ninja\Mailers\UserMailer;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PurgeAccountData extends Job
 {
@@ -17,17 +16,17 @@ class PurgeAccountData extends Job
      *
      * @return void
      */
-    public function handle(UserMailer $userMailer)
+    public function handle(UserMailer $userMailer): void
     {
         $user = Auth::user();
         $account = $user->account;
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             throw new Exception(trans('texts.forbidden'));
         }
 
         // delete the documents from cloud storage
-        Document::scope()->each(function ($item, $key) {
+        Document::scope()->each(function ($item, $key): void {
             $item->delete();
         });
 

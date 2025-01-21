@@ -3,16 +3,15 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class SupportNewPricing extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table): void {
             $table->decimal('plan_price', 7, 2)->nullable();
             $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
@@ -27,7 +26,7 @@ class SupportNewPricing extends Migration
         DB::table('companies')->where('plan', 'enterprise')->update(['num_users' => 5]);
 
         // https://github.com/invoiceninja/invoiceninja/pull/955
-        Schema::table('activities', function (Blueprint $table) {
+        Schema::table('activities', function (Blueprint $table): void {
             $table->integer('task_id')->after('invitation_id')->nullable();
             if (Schema::hasColumn('activities', 'client_id')) {
                 $table->unsignedInteger('client_id')->nullable()->change();
@@ -36,7 +35,7 @@ class SupportNewPricing extends Migration
 
         // This may fail if the table was created as MyISAM
         try {
-            Schema::table('activities', function (Blueprint $table) {
+            Schema::table('activities', function (Blueprint $table): void {
                 $table->dropForeign('activities_client_id_foreign');
             });
         } catch (Exception $e) {
@@ -44,12 +43,12 @@ class SupportNewPricing extends Migration
         }
 
         // https://github.com/invoiceninja/invoiceninja/pull/950
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->integer('start_of_week');
         });
 
         // https://github.com/invoiceninja/invoiceninja/pull/959
-        Schema::create('jobs', function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table): void {
             $table->bigIncrements('id');
             $table->string('queue');
             $table->longText('payload');
@@ -61,7 +60,7 @@ class SupportNewPricing extends Migration
             $table->index(['queue', 'reserved', 'reserved_at']);
         });
 
-        Schema::create('failed_jobs', function (Blueprint $table) {
+        Schema::create('failed_jobs', function (Blueprint $table): void {
             $table->increments('id');
             $table->text('connection');
             $table->text('queue');
@@ -75,24 +74,24 @@ class SupportNewPricing extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table): void {
             $table->dropColumn('plan_price');
             $table->dropColumn('pending_plan_price');
             $table->dropColumn('num_users');
             $table->dropColumn('pending_num_users');
         });
 
-        Schema::table('activities', function (Blueprint $table) {
+        Schema::table('activities', function (Blueprint $table): void {
             $table->dropColumn('task_id');
         });
 
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->dropColumn('start_of_week');
         });
 
         Schema::drop('jobs');
         Schema::drop('failed_jobs');
     }
-}
+};

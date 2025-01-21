@@ -5,27 +5,22 @@ namespace App\Services;
 use App\Models\Client;
 use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Repositories\ProposalRepository;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class ProposalService.
  */
 class ProposalService extends BaseService
 {
-    /**
-     * @var ProposalRepository
-     */
-    protected $proposalRepo;
+    protected ProposalRepository $proposalRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ProposalRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService   $datatableService
      */
     public function __construct(ProposalRepository $proposalRepo, DatatableService $datatableService)
     {
@@ -34,15 +29,7 @@ class ProposalService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $proposal
      *
      * @return mixed|null
@@ -53,11 +40,11 @@ class ProposalService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -67,5 +54,13 @@ class ProposalService extends BaseService
         $query = $this->proposalRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo(): ProposalRepository
+    {
+        return $this->proposalRepo;
     }
 }

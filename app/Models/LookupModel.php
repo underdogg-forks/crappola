@@ -2,27 +2,31 @@
 
 namespace App\Models;
 
-use Eloquent;
-use Cache;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property LookupAccount|null $lookupAccount
+ *
+ * @method static Builder|LookupModel newModelQuery()
+ * @method static Builder|LookupModel newQuery()
+ * @method static Builder|LookupModel query()
+ *
+ * @mixin \Eloquent
  */
-class LookupModel extends Eloquent
+class LookupModel extends Model
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
-    public function lookupAccount()
+    public static function createNew(string $accountKey, array $data): void
     {
-        return $this->belongsTo('App\Models\LookupAccount');
-    }
-
-    public static function createNew($accountKey, $data)
-    {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -42,9 +46,9 @@ class LookupModel extends Eloquent
         config(['database.default' => $current]);
     }
 
-    public static function deleteWhere($where)
+    public static function deleteWhere($where): void
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -54,22 +58,23 @@ class LookupModel extends Eloquent
         static::where($where)->delete();
 
         config(['database.default' => $current]);
-
     }
 
-    public static function setServerByField($field, $value)
+    public static function setServerByField($field, $value): void
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
         $className = str_replace('Lookup', '', $className);
+
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
             static::setDbServer($server);
+
             return;
         }
 
@@ -84,38 +89,44 @@ class LookupModel extends Eloquent
 
             // check entity is found on the server
             if ($field === 'oauth_user_key') {
-                $providerId = substr($value, 0, 1);
-                $oauthId = substr($value, 2);
+                $providerId = mb_substr($value, 0, 1);
+                $oauthId = mb_substr($value, 2);
                 $isFound = $entity::where('oauth_provider_id', '=', $providerId)
-                                ->where('oauth_user_id', '=', $oauthId)
-                                ->withTrashed()
-                                ->first();
+                    ->where('oauth_user_id', '=', $oauthId)
+                    ->withTrashed()
+                    ->first();
             } else {
                 $isFound = $entity::where($field, '=', $value)
-                                ->withTrashed()
-                                ->first();
-            }
-            if (! $isFound) {
-                abort(404, "Looked up {$className} not found: {$field} => {$value}");
+                    ->withTrashed()
+                    ->first();
             }
 
-            Cache::put($key, $server, 120);
+            if ( ! $isFound) {
+                abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
+            }
+
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
     }
 
-    protected static function setDbServer($server)
+    public function lookupAccount()
     {
-        if (! env('MULTI_DB_ENABLED')) {
-            return;
-        }
-
-        config(['database.default' => $server]);
+        return $this->belongsTo(LookupAccount::class);
     }
 
     public function getDbServer()
     {
         return $this->lookupAccount->lookupCompany->dbServer->name;
+    }
+
+    protected static function setDbServer($server): void
+    {
+        if ( ! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        config(['database.default' => $server]);
     }
 }

@@ -16,30 +16,28 @@ class VendorTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
         if ($this->hasVendor($data->vendor_name)) {
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'name' => $data->vendor_name,
-                'work_phone' => $data->tel,
-                'website' => $data->website,
-                'address1' => $data->address,
-                'city' => $data->city,
-                'state' => $data->state,
-                'postal_code' => $data->postcode,
-                'country_id' => $this->getCountryIdBy2($data->country),
-                'private_notes' => $data->notes,
-                'contacts' => [
-                    [
-                        'email' => $data->email,
-                        'phone' => $data->mobile,
-                    ],
+        return new Item($data, fn ($data): array => [
+            'name'          => $data->vendor_name,
+            'work_phone'    => $data->tel,
+            'website'       => $data->website,
+            'address1'      => $data->address,
+            'city'          => $data->city,
+            'state'         => $data->state,
+            'postal_code'   => $data->postcode,
+            'country_id'    => $this->getCountryIdBy2($data->country),
+            'private_notes' => $data->notes,
+            'contacts'      => [
+                [
+                    'email' => $data->email,
+                    'phone' => $data->mobile,
                 ],
-            ];
-        });
+            ],
+        ]);
     }
 }

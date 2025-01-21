@@ -5,27 +5,22 @@ namespace App\Services;
 use App\Models\Client;
 use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class ProposalCategoryService.
  */
 class ProposalCategoryService extends BaseService
 {
-    /**
-     * @var ProposalCategoryRepository
-     */
-    protected $proposalCategoryRepo;
+    protected ProposalCategoryRepository $proposalCategoryRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ProposalCategoryRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService           $datatableService
      */
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, DatatableService $datatableService)
     {
@@ -34,15 +29,7 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalCategoryRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $proposalCategory
      *
      * @return mixed|null
@@ -53,11 +40,11 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -67,5 +54,13 @@ class ProposalCategoryService extends BaseService
         $query = $this->proposalCategoryRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo(): ProposalCategoryRepository
+    {
+        return $this->proposalCategoryRepo;
     }
 }

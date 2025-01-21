@@ -11,7 +11,7 @@ class BankAccountPolicy extends EntityPolicy
 {
     /**
      * @param User $user
-     * @param $item
+     * @param      $item
      *
      * @return bool
      */

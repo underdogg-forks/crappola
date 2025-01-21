@@ -8,9 +8,9 @@ use Response;
 
 class QuoteApiController extends InvoiceApiController
 {
-    protected $invoiceRepo;
+    public $entityType = ENTITY_INVOICE;
 
-    protected $entityType = ENTITY_INVOICE;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * @SWG\Get(
@@ -18,25 +18,28 @@ class QuoteApiController extends InvoiceApiController
      *   summary="List quotes",
      *   operationId="listQuotes",
      *   tags={"quote"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of quotes",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
      * )
      */
-     public function index()
-     {
-         $invoices = Invoice::scope()
-                         ->withTrashed()
-                         ->quotes()
-                         ->with('invoice_items', 'client')
-                         ->orderBy('updated_at', 'desc');
+    public function index()
+    {
+        $invoices = Invoice::scope()
+            ->withTrashed()
+            ->quotes()
+            ->with('invoice_items', 'client')
+            ->orderBy('updated_at', 'desc');
 
-         return $this->listResponse($invoices);
-     }
+        return $this->listResponse($invoices);
+    }
 }

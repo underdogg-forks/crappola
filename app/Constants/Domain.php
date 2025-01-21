@@ -2,31 +2,27 @@
 
 namespace App\Constants;
 
-use App\Libraries\Utils;
-
 class Domain
 {
-    const INVOICENINJA_COM = 1;
-    const INVOICE_SERVICES = 2;
+    public const INVOICENINJA_COM = 1;
 
-    public static function getDomainFromId($id)
+    public const INVOICE_SERVICES = 2;
+
+    public static function getDomainFromId($id): string
     {
-        switch ($id) {
-            case static::INVOICENINJA_COM:
-                return 'invoiceninja.com';
-            case static::INVOICE_SERVICES:
-                return 'invoice.services';
-        }
-
-        return 'invoiceninja.com';
+        return match ($id) {
+            static::INVOICENINJA_COM => 'invoiceninja.com',
+            static::INVOICE_SERVICES => 'invoice.services',
+            default                  => 'invoiceninja.com',
+        };
     }
 
-    public static function getLinkFromId($id)
+    public static function getLinkFromId($id): string
     {
         return 'https://app.' . static::getDomainFromId($id);
     }
 
-    public static function getEmailFromId($id)
+    public static function getEmailFromId($id): string
     {
         return 'maildelivery@' . static::getDomainFromId($id);
     }

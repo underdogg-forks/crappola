@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDocuments extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('logo')->nullable()->default(null);
             $table->unsignedInteger('logo_width');
             $table->unsignedInteger('logo_height');
@@ -22,7 +21,7 @@ class AddDocuments extends Migration
 
         \DB::table('accounts')->update(['logo' => '']);
         Schema::dropIfExists('documents');
-        Schema::create('documents', function ($t) {
+        Schema::create('documents', function ($t): void {
             $t->increments('id');
             $t->unsignedInteger('public_id')->nullable();
             $t->unsignedInteger('account_id');
@@ -41,7 +40,7 @@ class AddDocuments extends Migration
             $t->timestamps();
         });
 
-        Schema::table('documents', function ($t) {
+        Schema::table('documents', function ($t): void {
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
@@ -55,9 +54,9 @@ class AddDocuments extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('logo');
             $table->dropColumn('logo_width');
             $table->dropColumn('logo_height');
@@ -68,4 +67,4 @@ class AddDocuments extends Migration
 
         Schema::dropIfExists('documents');
     }
-}
+};

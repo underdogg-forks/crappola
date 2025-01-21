@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddTasks extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('tasks', function ($table) {
+        Schema::create('tasks', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -46,8 +45,8 @@ class AddTasks extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('tasks');
     }
-}
+};

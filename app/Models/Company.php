@@ -2,24 +2,98 @@
 
 namespace App\Models;
 
+use App\Ninja\Presenters\CompanyPresenter;
+use App\Ninja\Repositories\AccountRepository;
 use Carbon;
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
 
 /**
  * Class Company.
+ *
+ * @property int                             $id
+ * @property string|null                     $plan
+ * @property string|null                     $plan_term
+ * @property string|null                     $plan_started
+ * @property string|null                     $plan_paid
+ * @property string|null                     $plan_expires
+ * @property int|null                        $payment_id
+ * @property string|null                     $trial_started
+ * @property string|null                     $trial_plan
+ * @property string|null                     $pending_plan
+ * @property string|null                     $pending_term
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null                     $plan_price
+ * @property string|null                     $pending_plan_price
+ * @property int                             $num_users
+ * @property int                             $pending_num_users
+ * @property string|null                     $utm_source
+ * @property string|null                     $utm_medium
+ * @property string|null                     $utm_campaign
+ * @property string|null                     $utm_term
+ * @property string|null                     $utm_content
+ * @property float                           $discount
+ * @property \Illuminate\Support\Carbon|null $discount_expires
+ * @property \Illuminate\Support\Carbon|null $promo_expires
+ * @property string|null                     $bluevine_status
+ * @property string|null                     $referral_code
+ * @property Collection<int, Account>        $accounts
+ * @property int|null                        $accounts_count
+ * @property Payment|null                    $payment
+ *
+ * @method static Builder|Company newModelQuery()
+ * @method static Builder|Company newQuery()
+ * @method static Builder|Company onlyTrashed()
+ * @method static Builder|Company query()
+ * @method static Builder|Company whereBluevineStatus($value)
+ * @method static Builder|Company whereCreatedAt($value)
+ * @method static Builder|Company whereDeletedAt($value)
+ * @method static Builder|Company whereDiscount($value)
+ * @method static Builder|Company whereDiscountExpires($value)
+ * @method static Builder|Company whereId($value)
+ * @method static Builder|Company whereNumUsers($value)
+ * @method static Builder|Company wherePaymentId($value)
+ * @method static Builder|Company wherePendingNumUsers($value)
+ * @method static Builder|Company wherePendingPlan($value)
+ * @method static Builder|Company wherePendingPlanPrice($value)
+ * @method static Builder|Company wherePendingTerm($value)
+ * @method static Builder|Company wherePlan($value)
+ * @method static Builder|Company wherePlanExpires($value)
+ * @method static Builder|Company wherePlanPaid($value)
+ * @method static Builder|Company wherePlanPrice($value)
+ * @method static Builder|Company wherePlanStarted($value)
+ * @method static Builder|Company wherePlanTerm($value)
+ * @method static Builder|Company wherePromoExpires($value)
+ * @method static Builder|Company whereReferralCode($value)
+ * @method static Builder|Company whereTrialPlan($value)
+ * @method static Builder|Company whereTrialStarted($value)
+ * @method static Builder|Company whereUpdatedAt($value)
+ * @method static Builder|Company whereUtmCampaign($value)
+ * @method static Builder|Company whereUtmContent($value)
+ * @method static Builder|Company whereUtmMedium($value)
+ * @method static Builder|Company whereUtmSource($value)
+ * @method static Builder|Company whereUtmTerm($value)
+ * @method static Builder|Company withTrashed()
+ * @method static Builder|Company withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
-class Company extends Eloquent
+class Company extends Model
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\CompanyPresenter';
+    protected $presenter = CompanyPresenter::class;
 
     /**
      * @var array
@@ -33,29 +107,16 @@ class Company extends Eloquent
         'plan_expires',
     ];
 
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-    ];
+    protected $casts = ['deleted_at' => 'datetime', 'promo_expires' => 'datetime', 'discount_expires' => 'datetime'];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function accounts()
     {
-        return $this->hasMany('App\Models\Account');
+        return $this->hasMany(Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment()
     {
-        return $this->belongsTo('App\Models\Payment');
+        return $this->belongsTo(Payment::class);
     }
 
     public function hasActivePromo()
@@ -68,9 +129,9 @@ class Company extends Eloquent
     }
 
     // handle promos and discounts
-    public function hasActiveDiscount(Carbon $date = null)
+    public function hasActiveDiscount(?Carbon $date = null)
     {
-        if (! $this->discount || ! $this->discount_expires) {
+        if ( ! $this->discount || ! $this->discount_expires) {
             return false;
         }
 
@@ -78,14 +139,14 @@ class Company extends Eloquent
 
         if ($this->plan_term == PLAN_TERM_MONTHLY) {
             return $this->discount_expires->gt($date);
-        } else {
-            return $this->discount_expires->subMonths(11)->gt($date);
         }
+
+        return $this->discount_expires->subMonths(11)->gt($date);
     }
 
     public function discountedPrice($price)
     {
-        if (! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
+        if ( ! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
             return $price;
         }
 
@@ -94,14 +155,14 @@ class Company extends Eloquent
 
     public function daysUntilPlanExpires()
     {
-        if (! $this->hasActivePlan()) {
+        if ( ! $this->hasActivePlan()) {
             return 0;
         }
 
         return Carbon::parse($this->plan_expires)->diffInDays(Carbon::today());
     }
 
-    public function hasActivePlan()
+    public function hasActivePlan(): bool
     {
         return $this->plan_expires && Carbon::parse($this->plan_expires) >= Carbon::today();
     }
@@ -115,9 +176,9 @@ class Company extends Eloquent
         return Carbon::parse($this->plan_expires) < Carbon::today();
     }
 
-    public function hasEarnedPromo()
+    public function hasEarnedPromo(): bool
     {
-        if (! Utils::isNinjaProd() || Utils::isPro()) {
+        if ( ! Utils::isNinjaProd() || Utils::isPro()) {
             return false;
         }
 
@@ -143,7 +204,7 @@ class Company extends Eloquent
         ];
 
         foreach ($discounts as $weeks => $promo) {
-            list($discount, $validFor) = $promo;
+            [$discount, $validFor] = $promo;
             $difference = $this->created_at->diffInWeeks();
             if ($difference >= $weeks && $discount > $this->discount) {
                 $this->discount = $discount;
@@ -161,33 +222,33 @@ class Company extends Eloquent
     {
         $account = $this->accounts()->first();
 
-        if (! $account) {
+        if ( ! $account) {
             return false;
         }
 
         return $account->getPlanDetails($includeInactive, $includeTrial);
     }
 
-    public function processRefund($user)
+    public function processRefund($user): bool
     {
-        if (! $this->payment) {
+        if ( ! $this->payment) {
             return false;
         }
 
         $account = $this->accounts()->first();
         $planDetails = $account->getPlanDetails(false, false);
 
-        if (! empty($planDetails['started'])) {
+        if ( ! empty($planDetails['started'])) {
             $deadline = clone $planDetails['started'];
             $deadline->modify('+30 days');
 
             if ($deadline >= date_create()) {
-                $accountRepo = app('App\Ninja\Repositories\AccountRepository');
+                $accountRepo = app(AccountRepository::class);
                 $ninjaAccount = $accountRepo->getNinjaAccount();
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
-                \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+                Log::info(sprintf('Refunded Plan Payment: %s - %s - Deadline: %s', $account->name, $user->email, $deadline->format('Y-m-d')));
 
                 return true;
             }
@@ -196,13 +257,13 @@ class Company extends Eloquent
         return false;
     }
 
-    public function applyDiscount($amount)
+    public function applyDiscount($amount): void
     {
         $this->discount = $amount;
         $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
     }
 
-    public function applyFreeYear($numYears = 1)
+    public function applyFreeYear($numYears = 1): void
     {
         if ($this->plan_started && $this->plan_started != '0000-00-00') {
             return;
@@ -217,16 +278,15 @@ class Company extends Eloquent
     }
 }
 
-Company::deleted(function ($company)
-{
-    if (! env('MULTI_DB_ENABLED')) {
+Company::deleted(function ($company): void {
+    if ( ! env('MULTI_DB_ENABLED')) {
         return;
     }
 
-    $server = \App\Models\DbServer::whereName(config('database.default'))->firstOrFail();
+    $server = DbServer::whereName(config('database.default'))->firstOrFail();
 
     LookupCompany::deleteWhere([
-        'company_id' => $company->id,
+        'company_id'   => $company->id,
         'db_server_id' => $server->id,
     ]);
 });

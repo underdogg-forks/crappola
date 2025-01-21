@@ -2,20 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceFooter extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->text('invoice_footer')->nullable();
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->text('invoice_footer')->nullable();
         });
     }
@@ -25,14 +24,14 @@ class AddInvoiceFooter extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('invoice_footer');
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->dropColumn('invoice_footer');
         });
     }
-}
+};

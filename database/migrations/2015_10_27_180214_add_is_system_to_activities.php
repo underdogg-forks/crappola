@@ -3,16 +3,15 @@
 use App\Models\Activity;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsSystemToActivities extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->boolean('is_system')->default(0);
         });
 
@@ -22,7 +21,7 @@ class AddIsSystemToActivities extends Migration
             $activity->save();
         }
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->dropColumn('message');
         });
     }
@@ -32,14 +31,14 @@ class AddIsSystemToActivities extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->dropColumn('is_system');
         });
 
-        Schema::table('activities', function ($table) {
+        Schema::table('activities', function ($table): void {
             $table->text('message')->nullable();
         });
     }
-}
+};

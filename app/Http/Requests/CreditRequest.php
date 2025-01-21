@@ -4,5 +4,5 @@ namespace App\Http\Requests;
 
 class CreditRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_CREDIT;
+    public $entityType = ENTITY_CREDIT;
 }

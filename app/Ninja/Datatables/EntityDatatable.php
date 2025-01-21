@@ -5,8 +5,11 @@ namespace App\Ninja\Datatables;
 class EntityDatatable
 {
     public $entityType;
+
     public $isBulkEdit;
+
     public $hideClient;
+
     public $sortCol = 1;
 
     public function __construct($isBulkEdit = true, $hideClient = false, $entityType = false)
@@ -19,31 +22,31 @@ class EntityDatatable
         }
     }
 
-    public function columns()
+    public function columns(): array
     {
         return [];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [];
     }
 
-    public function bulkActions()
+    public function bulkActions(): array
     {
         return [
             [
-                'label' => mtrans($this->entityType, 'archive_'.$this->entityType),
-                'url' => 'javascript:submitForm_'.$this->entityType.'("archive")',
+                'label' => mtrans($this->entityType, 'archive_' . $this->entityType),
+                'url'   => 'javascript:submitForm_' . $this->entityType . '("archive")',
             ],
             [
-                'label' => mtrans($this->entityType, 'delete_'.$this->entityType),
-                'url' => 'javascript:submitForm_'.$this->entityType.'("delete")',
+                'label' => mtrans($this->entityType, 'delete_' . $this->entityType),
+                'url'   => 'javascript:submitForm_' . $this->entityType . '("delete")',
             ],
         ];
     }
 
-    public function columnFields()
+    public function columnFields(): array
     {
         $data = [];
         $columns = $this->columns();
@@ -53,12 +56,11 @@ class EntityDatatable
         }
 
         foreach ($columns as $column) {
-            if (count($column) == 3) {
-                // third column is optionally used to determine visibility
-                if (! $column[2]) {
-                    continue;
-                }
+            // third column is optionally used to determine visibility
+            if (count($column) == 3 && ! $column[2]) {
+                continue;
             }
+
             $data[] = $column[0];
         }
 
@@ -77,7 +79,10 @@ class EntityDatatable
         return $this->alignIndices(['status']);
     }
 
-    public function alignIndices($fields)
+    /**
+     * @return float[]|int[]
+     */
+    public function alignIndices($fields): array
     {
         $columns = $this->columnFields();
         $indices = [];
@@ -91,21 +96,23 @@ class EntityDatatable
         return $indices;
     }
 
-    public function addNote($str, $note) {
-        if (! $note) {
+    public function addNote(string $str, $note): string
+    {
+        if ( ! $note) {
             return $str;
         }
 
         return $str . '&nbsp; <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="' . e($note) . '"></span>';
     }
 
-    public function showWithTooltip($str, $max = 60) {
+    public function showWithTooltip($str, $max = 60)
+    {
         $str = e($str);
 
-        if (strlen($str) > $max) {
+        if (mb_strlen($str) > $max) {
             return '<span data-toggle="tooltip" data-placement="bottom" title="' . mb_substr($str, 0, 500) . '">' . trim(mb_substr($str, 0, $max)) . '...' . '</span>';
-        } else {
-            return $str;
         }
+
+        return $str;
     }
 }

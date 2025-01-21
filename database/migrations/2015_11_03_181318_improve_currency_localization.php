@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ImproveCurrencyLocalization extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('countries', function ($table) {
+        Schema::table('countries', function ($table): void {
             $table->boolean('swap_currency_symbol')->default(0);
             $table->string('thousand_separator')->nullable();
             $table->string('decimal_separator')->nullable();
@@ -23,12 +22,12 @@ class ImproveCurrencyLocalization extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('countries', function ($table) {
+        Schema::table('countries', function ($table): void {
             $table->dropColumn('swap_currency_symbol');
             $table->dropColumn('thousand_separator');
             $table->dropColumn('decimal_separator');
         });
     }
-}
+};

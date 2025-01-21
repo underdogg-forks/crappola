@@ -12,10 +12,7 @@ use Carbon;
  */
 class CreditListener
 {
-    /**
-     * @var CreditRepository
-     */
-    protected $creditRepo;
+    protected CreditRepository $creditRepo;
 
     /**
      * CreditListener constructor.
@@ -30,7 +27,7 @@ class CreditListener
     /**
      * @param PaymentWasDeleted $event
      */
-    public function deletedPayment(PaymentWasDeleted $event)
+    public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
 
@@ -42,7 +39,8 @@ class CreditListener
         $credit = Credit::createNew();
         $credit->client_id = $payment->client_id;
         $credit->credit_date = Carbon::now()->toDateTimeString();
-        $credit->balance = $credit->amount = $payment->getCompletedAmount();
+        $credit->balance = $payment->getCompletedAmount();
+        $credit->amount = $credit->balance;
         $credit->private_notes = trans('texts.refunded_credit_payment');
         $credit->save();
     }

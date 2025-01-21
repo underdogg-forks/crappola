@@ -7,25 +7,19 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Redirect;
-use Response;
-use View;
+use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
-    protected $documentRepo;
-    protected $entityType = ENTITY_DOCUMENT;
+    public $entityType = ENTITY_DOCUMENT;
+
+    protected DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
         // parent::__construct();
 
         $this->documentRepo = $documentRepo;
-    }
-
-    public function get(DocumentRequest $request)
-    {
-        return static::getDownloadResponse($request->entity());
     }
 
     public static function getDownloadResponse($document)
@@ -39,11 +33,11 @@ class DocumentController extends BaseController
 
         if ($stream) {
             $headers = [
-                'Content-Type' => Document::$types[$document->type]['mime'],
+                'Content-Type'   => Document::$types[$document->type]['mime'],
                 'Content-Length' => $document->size,
             ];
 
-            $response = Response::stream(function () use ($stream) {
+            $response = Response::stream(function () use ($stream): void {
                 fpassthru($stream);
             }, 200, $headers);
         } else {
@@ -52,6 +46,11 @@ class DocumentController extends BaseController
         }
 
         return $response;
+    }
+
+    public function get(DocumentRequest $request)
+    {
+        return static::getDownloadResponse($request->entity());
     }
 
     public function getPreview(DocumentRequest $request)
@@ -78,16 +77,17 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (substr($name, -3) == '.js') {
-            $name = substr($name, 0, -3);
+        if (mb_substr($name, -3) === '.js') {
+            $name = mb_substr($name, 0, -3);
         }
 
-        if (! $document->isPDFEmbeddable()) {
+        if ( ! $document->isPDFEmbeddable()) {
             return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -102,27 +102,28 @@ class DocumentController extends BaseController
         if (is_string($result)) {
             return Response::json([
                 'error' => $result,
-                'code' => 400,
+                'code'  => 400,
             ], 400);
-        } else {
-            if ($request->grapesjs) {
-                $response = [
-                    'data' => [
-                        $result->getProposalUrl()
-                    ]
-                ];
-            } else {
-                $response = [
-                    'error' => false,
-                    'document' => $doc_array,
-                    'code' => 200,
-                ];
-            }
-            return Response::json($response, 200);
         }
+
+        if ($request->grapesjs) {
+            $response = [
+                'data' => [
+                    $result->getProposalUrl(),
+                ],
+            ];
+        } else {
+            $response = [
+                'error'    => false,
+                'document' => $doc_array,
+                'code'     => 200,
+            ];
+        }
+
+        return Response::json($response, 200);
     }
 
-    public function delete(UpdateDocumentRequest $request)
+    public function delete(UpdateDocumentRequest $request): string
     {
         $request->entity()->delete();
 

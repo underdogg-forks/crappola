@@ -2,35 +2,34 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDefaultNoteToClient extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->text('public_notes')->nullable();
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->text('private_notes')->nullable();
         });
 
-        Schema::table('payments', function ($table) {
+        Schema::table('payments', function ($table): void {
             $table->text('private_notes')->nullable();
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
             $table->string('tax_name2')->nullable();
             $table->decimal('tax_rate2', 13, 3);
         });
 
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
             $table->string('tax_name2')->nullable();
@@ -46,24 +45,24 @@ class AddDefaultNoteToClient extends Migration
             set accounts.tax_name1 = tax_rates.name, accounts.tax_rate1 = tax_rates.rate');
 
         if (Schema::hasColumn('accounts', 'default_tax_rate_id')) {
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 $table->dropColumn('default_tax_rate_id');
             });
         }
 
         if (Schema::hasColumn('products', 'default_tax_rate_id')) {
-            Schema::table('products', function ($table) {
+            Schema::table('products', function ($table): void {
                 $table->dropColumn('default_tax_rate_id');
             });
         }
 
         if (Utils::isNinja()) {
-            Schema::table('users', function ($table) {
+            Schema::table('users', function ($table): void {
                 $table->unique(['oauth_user_id', 'oauth_provider_id']);
             });
         }
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->unsignedInteger('quote_design_id')->default(1);
             $table->renameColumn('custom_design', 'custom_design1');
             $table->mediumText('custom_design2')->nullable();
@@ -85,21 +84,21 @@ class AddDefaultNoteToClient extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->dropColumn('public_notes');
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->dropColumn('private_notes');
         });
 
-        Schema::table('payments', function ($table) {
+        Schema::table('payments', function ($table): void {
             $table->dropColumn('private_notes');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->renameColumn('custom_design1', 'custom_design');
             $table->dropColumn('custom_design2');
             $table->dropColumn('custom_design3');
@@ -110,11 +109,11 @@ class AddDefaultNoteToClient extends Migration
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->dropColumn('tax_name1');
             $table->dropColumn('tax_rate1');
             $table->dropColumn('tax_name2');
             $table->dropColumn('tax_rate2');
         });
     }
-}
+};

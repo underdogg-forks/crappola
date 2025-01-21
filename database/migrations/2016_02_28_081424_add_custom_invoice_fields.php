@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomInvoiceFields extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('custom_invoice_item_label1')->nullable();
             $table->string('custom_invoice_item_label2')->nullable();
             $table->string('recurring_invoice_number_prefix')->default('R');
@@ -20,7 +19,7 @@ class AddCustomInvoiceFields extends Migration
             $table->text('devices')->nullable();
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
         });
@@ -31,9 +30,9 @@ class AddCustomInvoiceFields extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('custom_invoice_item_label1');
             $table->dropColumn('custom_invoice_item_label2');
             $table->dropColumn('recurring_invoice_number_prefix');
@@ -42,9 +41,9 @@ class AddCustomInvoiceFields extends Migration
             $table->dropColumn('devices');
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
     }
-}
+};

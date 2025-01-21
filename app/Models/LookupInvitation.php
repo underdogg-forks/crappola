@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int           $id
+ * @property int           $lookup_account_id
+ * @property string        $invitation_key
+ * @property string|null   $message_id
+ * @property LookupAccount $lookupAccount
+ *
+ * @method static Builder|LookupInvitation newModelQuery()
+ * @method static Builder|LookupInvitation newQuery()
+ * @method static Builder|LookupInvitation query()
+ * @method static Builder|LookupInvitation whereId($value)
+ * @method static Builder|LookupInvitation whereInvitationKey($value)
+ * @method static Builder|LookupInvitation whereLookupAccountId($value)
+ * @method static Builder|LookupInvitation whereMessageId($value)
+ *
+ * @mixin \Eloquent
  */
 class LookupInvitation extends LookupModel
 {
@@ -18,13 +34,13 @@ class LookupInvitation extends LookupModel
         'message_id',
     ];
 
-    public static function updateInvitation($accountKey, $invitation)
+    public static function updateInvitation($accountKey, $invitation): void
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
-        if (! $invitation->message_id) {
+        if ( ! $invitation->message_id) {
             return;
         }
 
@@ -32,16 +48,15 @@ class LookupInvitation extends LookupModel
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-                            ->firstOrFail();
+            ->firstOrFail();
 
-        $lookupInvitation = LookupInvitation::whereLookupAccountId($lookupAccount->id)
-                                ->whereInvitationKey($invitation->invitation_key)
-                                ->firstOrFail();
+        $lookupInvitation = self::whereLookupAccountId($lookupAccount->id)
+            ->whereInvitationKey($invitation->invitation_key)
+            ->firstOrFail();
 
         $lookupInvitation->message_id = $invitation->message_id;
         $lookupInvitation->save();
 
         config(['database.default' => $current]);
     }
-
 }

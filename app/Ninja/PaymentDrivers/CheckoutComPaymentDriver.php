@@ -6,26 +6,20 @@ use Illuminate\Support\Arr;
 
 class CheckoutComPaymentDriver extends BasePaymentDriver
 {
-    public function createTransactionToken()
+    public function createTransactionToken(): ?string
     {
-        if( $this->invoice()->getCurrencyCode() == 'BHD')
-        {
-            $amount = $this->invoice()->getRequestedAmount()/10;
-        }
-        elseif($this->invoice()->getCurrencyCode() == 'KWD') 
-        {
-            $amount = $this->invoice()->getRequestedAmount()*10;
-
-        }
-        elseif($this->invoice()->getCurrencyCode() == 'OMR')
-        {
+        if ($this->invoice()->getCurrencyCode() == 'BHD') {
+            $amount = $this->invoice()->getRequestedAmount() / 10;
+        } elseif ($this->invoice()->getCurrencyCode() == 'KWD') {
+            $amount = $this->invoice()->getRequestedAmount() * 10;
+        } elseif ($this->invoice()->getCurrencyCode() == 'OMR') {
+            $amount = $this->invoice()->getRequestedAmount();
+        } else {
             $amount = $this->invoice()->getRequestedAmount();
         }
-        else
-            $amount = $this->invoice()->getRequestedAmount();
 
         $response = $this->gateway()->purchase([
-            'amount' => $amount,
+            'amount'   => $amount,
             'currency' => $this->client()->getCurrencyCode(),
         ])->send();
 
@@ -41,7 +35,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails();
 

@@ -4,9 +4,20 @@ namespace App\Libraries\Skype;
 
 class InvoiceItemCard
 {
+    /**
+     * @var string
+     */
+    public $title;
+
+    public $subtitle;
+
+    public $quantity;
+
+    public $price;
+
     public function __construct($invoiceItem, $account)
     {
-        $this->title = intval($invoiceItem->qty) . ' ' . $invoiceItem->product_key;
+        $this->title = (int) ($invoiceItem->qty) . ' ' . $invoiceItem->product_key;
         $this->subtitle = $invoiceItem->notes;
         $this->quantity = $invoiceItem->qty;
         $this->price = $account->formatMoney($invoiceItem->cost);

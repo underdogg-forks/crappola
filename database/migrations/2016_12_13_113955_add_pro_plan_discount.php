@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddProPlanDiscount extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->float('discount');
             $table->date('discount_expires')->nullable();
             $table->date('promo_expires')->nullable();
@@ -23,12 +22,12 @@ class AddProPlanDiscount extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->dropColumn('discount');
             $table->dropColumn('discount_expires');
             $table->dropColumn('promo_expires');
         });
     }
-}
+};
