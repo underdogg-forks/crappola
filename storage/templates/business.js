@@ -4,17 +4,17 @@
 		"columns":
 			[
 			{
-				"image": "$companyLogo",
+				"image": "$accountLogo",
 					"fit": [120, 80]
 			},
 			{
 				"width": 300,
-				"stack": "$companyDetails",
+				"stack": "$accountDetails",
 				"margin": [140, 0, 0, 0]
 			},
 			{
 				"width": 150,
-				"stack": "$companyAddress"
+				"stack": "$accountAddress"
 			}
 			]
 	},
@@ -250,7 +250,7 @@
 	"pageMargins": [40, 40, 40, 40],
 	"background": [
 		{
-			"image": "$companyBackground",
+			"image": "$accountBackground",
 			"alignment": "center"
 		}
 	]

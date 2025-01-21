@@ -5,6 +5,4 @@ namespace App\Ninja\Presenters;
 /**
  * Class ProposalPresenter.
  */
-class ProposalSnippetPresenter extends EntityPresenter
-{
-}
+class ProposalSnippetPresenter extends EntityPresenter {}

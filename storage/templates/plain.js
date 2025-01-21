@@ -3,14 +3,14 @@
 	{
 		"columns": [
 		{
-			"stack": "$companyDetails"
+			"stack": "$accountDetails"
 		},
 		{
-			"stack": "$companyAddress"
+			"stack": "$accountAddress"
 		},
 		[
 		{
-			"image": "$companyLogo",
+			"image": "$accountLogo",
 			"fit": [120, 80]
 		}
 		]
@@ -187,7 +187,7 @@
 	"pageMargins": [40, 40, 40, 60],
 	"background": [
 		{
-			"image": "$companyBackground",
+			"image": "$accountBackground",
 			"alignment": "center"
 		}
 	]

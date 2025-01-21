@@ -10,14 +10,14 @@
 			"width":120,
 			"stack": [
 			{"text": "$fromLabelUC", "style": "fromLabel"},
-			"$companyDetails"
+			"$accountDetails"
 			]
 		},
 		{
 			"width":120,
 			"stack": [
 			{"text": " "},
-			"$companyAddress"
+			"$accountAddress"
 			],
 			"margin": [10, 0, 0, 16]
 		},
@@ -33,7 +33,7 @@
 		},
 		[
 		{
-			"image": "$companyLogo",
+			"image": "$accountLogo",
 			"fit": [120, 80]
 		}
 		]
@@ -218,7 +218,7 @@
 	"pageMargins": [40, 40, 40, 40],
 	"background": [
 		{
-			"image": "$companyBackground",
+			"image": "$accountBackground",
 			"alignment": "center"
 		}
 	]

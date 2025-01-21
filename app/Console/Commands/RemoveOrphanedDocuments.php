@@ -42,17 +42,11 @@ class RemoveOrphanedDocuments extends Command
         $this->info('Done');
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

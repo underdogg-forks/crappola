@@ -55,13 +55,13 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function selectDropdownRow(self $I, $option, $dropdownSelector): void
     {
-        $I->click("$dropdownSelector span.dropdown-toggle");
-        $I->click("$dropdownSelector ul li:nth-child($option)");
+        $I->click("{$dropdownSelector} span.dropdown-toggle");
+        $I->click("{$dropdownSelector} ul li:nth-child({$option})");
     }
 
     public function createGateway(self $I): void
     {
-        if (! $I->grabFromDatabase('account_gateways', 'id', ['id' => 1])) {
+        if ( ! $I->grabFromDatabase('account_gateways', 'id', ['id' => 1])) {
             $I->wantTo('create a gateway');
             $I->amOnPage('/gateways/create');
             $I->fillField(['name' => '23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
@@ -120,7 +120,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function createOnlinePayment(self $I, $invitationKey): void
     {
         $clientSession = $I->haveFriend('client');
-        $clientSession->does(function (self $I) use ($invitationKey): void {
+        $clientSession->does(function (AcceptanceTester $I) use ($invitationKey): void {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Pay Now');
             $I->click('Credit Card');

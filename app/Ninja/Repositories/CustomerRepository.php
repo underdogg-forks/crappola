@@ -7,24 +7,24 @@ use App\Models\PaymentMethod;
 
 class CustomerRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\AccountGatewayToken';
+        return AccountGatewayToken::class;
     }
 
     public function all()
     {
-        return AccountGatewayToken::whereCompanyPlanId(auth()->user()->company_id)
+        return AccountGatewayToken::whereAccountId(auth()->user()->account_id)
             ->with(['contact'])
             ->get();
     }
 
-    public function save($data)
+    public function save(array $data): AccountGatewayToken
     {
-        $company = auth()->user()->company;
+        $account = auth()->user()->account;
 
         $customer = new AccountGatewayToken();
-        $customer->company_id = $company->id;
+        $customer->account_id = $account->id;
         $customer->fill($data);
         $customer->save();
 

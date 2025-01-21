@@ -13,7 +13,7 @@ class GenerateCalendarEvents extends Job
     /**
      * Execute the job.
      *
-     * @return mixed[]
+     * @return void
      */
     public function handle(): array
     {
@@ -30,7 +30,7 @@ class GenerateCalendarEvents extends Job
         ];
 
         foreach ($data as $type => $source) {
-            if (! count($filter) || in_array($type, $filter)) {
+            if ( ! count($filter) || in_array($type, $filter)) {
                 $source->where(function ($query) {
                     $start = date_create(request()->start);
                     $end = date_create(request()->end);
@@ -38,7 +38,7 @@ class GenerateCalendarEvents extends Job
                     return $query->dateRange($start, $end);
                 });
 
-                foreach ($source->with(['company', 'client.contacts'])->get() as $entity) {
+                foreach ($source->with(['account', 'client.contacts'])->get() as $entity) {
                     if ($entity->client && $entity->client->trashed()) {
                         continue;
                     }

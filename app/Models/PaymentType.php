@@ -2,11 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class PaymentType.
+ *
+ * @property int              $id
+ * @property string           $name
+ * @property int|null         $gateway_type_id
+ * @property GatewayType|null $gatewayType
+ *
+ * @method static Builder|PaymentType newModelQuery()
+ * @method static Builder|PaymentType newQuery()
+ * @method static Builder|PaymentType query()
+ * @method static Builder|PaymentType whereGatewayTypeId($value)
+ * @method static Builder|PaymentType whereId($value)
+ * @method static Builder|PaymentType whereName($value)
+ *
+ * @mixin \Eloquent
  */
 class PaymentType extends Model
 {
@@ -15,7 +29,7 @@ class PaymentType extends Model
      */
     public $timestamps = false;
 
-    public static function parseCardType($cardName)
+    public static function parseCardType($cardName): int
     {
         $cardTypes = [
             'visa'            => PAYMENT_TYPE_VISA,
@@ -34,23 +48,20 @@ class PaymentType extends Model
             'switch'          => PAYMENT_TYPE_SWITCH,
         ];
 
-        $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
+        $cardName = mb_strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
         if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }
 
-        if (! empty($cardTypes[$cardName])) {
+        if (isset($cardTypes[$cardName]) && $cardTypes[$cardName] !== 0) {
             return $cardTypes[$cardName];
         }
 
         return PAYMENT_TYPE_CREDIT_CARD_OTHER;
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function gatewayType()
     {
         return $this->belongsTo(GatewayType::class);

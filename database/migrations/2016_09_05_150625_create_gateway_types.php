@@ -1,11 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
-class CreateGatewayTypes extends Migration
-{
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up(): void
     {
         Schema::dropIfExists('gateway_types');
@@ -19,7 +21,7 @@ class CreateGatewayTypes extends Migration
         Schema::create('account_gateway_settings', function ($table): void {
             $table->increments('id');
 
-            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('gateway_type_id')->nullable();
 
@@ -27,8 +29,10 @@ class CreateGatewayTypes extends Migration
 
             $table->unsignedInteger('min_limit')->nullable();
             $table->unsignedInteger('max_limit')->nullable();
+        });
 
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+        Schema::table('account_gateway_settings', function ($table): void {
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
         });
@@ -45,6 +49,11 @@ class CreateGatewayTypes extends Migration
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down(): void
     {
         Schema::table('payment_types', function ($table): void {
@@ -55,4 +64,4 @@ class CreateGatewayTypes extends Migration
         Schema::dropIfExists('account_gateway_settings');
         Schema::dropIfExists('gateway_types');
     }
-}
+};

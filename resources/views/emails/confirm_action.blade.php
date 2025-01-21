@@ -2,11 +2,11 @@
     {
         "@context":"http://schema.org",
         "@type":"EmailMessage",
-        "description":"Confirm your Invoice Ninja company",
+        "description":"Confirm your Invoice Ninja account",
         "action":
         {
             "@type":"ConfirmAction",
-            "name":"Confirm company",
+            "name":"Confirm account",
             "handler": {
                 "@type": "HttpActionHandler",
                 "url": "{{{ URL::to("user/confirm/{$user->confirmation_code}") }}}"

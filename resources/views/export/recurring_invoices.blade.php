@@ -9,32 +9,32 @@
     <td>{{ trans('texts.amount') }}</td>
     <td>{{ trans('texts.po_number') }}</td>
     <td>{{ trans('texts.status') }}</td>
-    @if ($company->customLabel('invoice1'))
-        <td>{{ $company->present()->customLabel('invoice1') }}</td>
+    @if ($account->customLabel('invoice1'))
+        <td>{{ $account->present()->customLabel('invoice1') }}</td>
     @endif
-    @if ($company->customLabel('invoice2'))
-        <td>{{ $company->present()->customLabel('invoice2') }}</td>
+    @if ($account->customLabel('invoice2'))
+        <td>{{ $account->present()->customLabel('invoice2') }}</td>
     @endif
-    @if ($company->customLabel('invoice_text1'))
-        <td>{{ $company->present()->customLabel('invoice_text1') }}</td>
+    @if ($account->customLabel('invoice_text1'))
+        <td>{{ $account->present()->customLabel('invoice_text1') }}</td>
     @endif
-    @if ($company->customLabel('invoice_text2'))
-        <td>{{ $company->present()->customLabel('invoice_text2') }}</td>
+    @if ($account->customLabel('invoice_text2'))
+        <td>{{ $account->present()->customLabel('invoice_text2') }}</td>
     @endif
     <td>{{ trans('texts.item_product') }}</td>
     <td>{{ trans('texts.item_notes') }}</td>
-    @if ($company->customLabel('product1'))
-        <td>{{ $company->present()->customLabel('product1') }}</td>
+    @if ($account->customLabel('product1'))
+        <td>{{ $account->present()->customLabel('product1') }}</td>
     @endif
-    @if ($company->customLabel('product2'))
-        <td>{{ $company->present()->customLabel('product2') }}</td>
+    @if ($account->customLabel('product2'))
+        <td>{{ $account->present()->customLabel('product2') }}</td>
     @endif
     <td>{{ trans('texts.item_cost') }}</td>
     <td>{{ trans('texts.item_quantity') }}</td>
-    @if ($company->invoice_item_taxes)
+    @if ($account->invoice_item_taxes)
         <td>{{ trans('texts.item_tax_name') }}</td>
         <td>{{ trans('texts.item_tax_rate') }}</td>
-        @if ($company->enable_second_tax_rate)
+        @if ($account->enable_second_tax_rate)
             <td>{{ trans('texts.item_tax_name') }}</td>
             <td>{{ trans('texts.item_tax_rate') }}</td>
         @endif
@@ -51,36 +51,36 @@
                     <td>{{ $invoice->present()->user }}</td>
                 @endif
                 <td>{{ $invoice->present()->frequency }}</td>
-                <td>{{ $company->formatMoney($invoice->balance, $invoice->client) }}</td>
-                <td>{{ $company->formatMoney($invoice->amount, $invoice->client) }}</td>
+                <td>{{ $account->formatMoney($invoice->balance, $invoice->client) }}</td>
+                <td>{{ $account->formatMoney($invoice->amount, $invoice->client) }}</td>
                 <td>{{ $invoice->po_number }}</td>
                 <td>{{ $invoice->present()->status }}</td>
-                @if ($company->customLabel('invoice1'))
+                @if ($account->customLabel('invoice1'))
                     <td>{{ $invoice->custom_value1 }}</td>
                 @endif
-                @if ($company->customLabel('invoice2'))
+                @if ($account->customLabel('invoice2'))
                     <td>{{ $invoice->custom_value2 }}</td>
                 @endif
-                @if ($company->customLabel('invoice_text1'))
+                @if ($account->customLabel('invoice_text1'))
                     <td>{{ $invoice->custom_text_value1 }}</td>
                 @endif
-                @if ($company->customLabel('invoice_text2'))
+                @if ($account->customLabel('invoice_text2'))
                     <td>{{ $invoice->custom_text_value2 }}</td>
                 @endif
                 <td>{{ $item->product_key }}</td>
                 <td>{{ $item->notes }}</td>
-                @if ($company->customLabel('product1'))
+                @if ($account->customLabel('product1'))
                     <td>{{ $item->custom_value1 }}</td>
                 @endif
-                @if ($company->customLabel('product2'))
+                @if ($account->customLabel('product2'))
                     <td>{{ $item->custom_value2 }}</td>
                 @endif
                 <td>{{ $item->cost }}</td>
                 <td>{{ $item->qty }}</td>
-                @if ($company->invoice_item_taxes)
+                @if ($account->invoice_item_taxes)
                     <td>{{ $item->tax_name1 }}</td>
                     <td>{{ $item->tax_rate1 }}</td>
-                    @if ($company->enable_second_tax_rate)
+                    @if ($account->enable_second_tax_rate)
                         <td>{{ $item->tax_name2 }}</td>
                         <td>{{ $item->tax_rate2 }}</td>
                     @endif

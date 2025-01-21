@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Module Namespace
@@ -92,32 +91,30 @@ return [
         */
 
         'generator' => [
-            'assets'                 => 'Assets',
-            'config'                 => 'Config',
-            'command'                => 'Console',
-            'event'                  => 'Events',
-            'listener'               => 'Events/Handlers',
-            'migration'              => 'Database/Migrations',
-            'model'                  => 'Models',
-            'repository'             => 'Repositories',
-            'seeder'                 => 'Database/Seeders',
-            'controller'             => 'Http/Controllers',
-            'filter'                 => 'Http/Middleware',
-            'request'                => 'Http/Requests',
-            'provider'               => 'Providers',
-            'lang'                   => 'Resources/lang/en',
-            'views'                  => 'Resources/views',
-            'test'                   => 'Tests',
-            'jobs'                   => 'Jobs',
-            'emails'                 => 'Emails',
-            'notifications'          => 'Notifications',
-            'datatable'              => 'Datatables',
-            'policy'                 => 'Policies',
-            'presenter'              => 'Presenters',
-            'api-controller'         => 'Http/ApiControllers',
-            'transformer'            => 'Transformers',
-            'module-settings-view'   => 'Resources/views',
-            'module-settings-routes' => 'Http',
+            'assets'         => 'Assets',
+            'config'         => 'Config',
+            'command'        => 'Console',
+            'event'          => 'Events',
+            'listener'       => 'Events/Handlers',
+            'migration'      => 'Database/Migrations',
+            'model'          => 'Models',
+            'repository'     => 'Repositories',
+            'seeder'         => 'Database/Seeders',
+            'controller'     => 'Http/Controllers',
+            'filter'         => 'Http/Middleware',
+            'request'        => 'Http/Requests',
+            'provider'       => 'Providers',
+            'lang'           => 'Resources/lang/en',
+            'views'          => 'Resources/views',
+            'test'           => 'Tests',
+            'jobs'           => 'Jobs',
+            'emails'         => 'Emails',
+            'notifications'  => 'Notifications',
+            'datatable'      => 'Datatables',
+            'policy'         => 'Policies',
+            'presenter'      => 'Presenters',
+            'api-controller' => 'Http/ApiControllers',
+            'transformer'    => 'Transformers',
         ],
     ],
     /*

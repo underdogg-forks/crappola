@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
-use URL;
+use Illuminate\Support\Facades\URL;
+use Utils;
 
 class CreditDatatable extends EntityDatatable
 {
@@ -12,16 +12,14 @@ class CreditDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public $fieldToSum = 'amount';
-
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'client_name',
                 function ($model) {
                     if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
+                        return $model->client_public_id ? link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
                     return Utils::getClientDisplayName($model);
@@ -48,7 +46,7 @@ class CreditDatatable extends EntityDatatable
                 'credit_date',
                 function ($model) {
                     if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
-                        return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
+                        return link_to(sprintf('credits/%s/edit', $model->public_id), Utils::fromSqlDate($model->credit_date_sql))->toHtml();
                     }
 
                     return Utils::fromSqlDate($model->credit_date_sql);
@@ -73,26 +71,18 @@ class CreditDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_credit'),
-                function ($model) {
-                    return URL::to("credits/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return Auth::user()->can('view', [ENTITY_CREDIT, $model]);
-                },
+                fn ($model) => URL::to(sprintf('credits/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_CREDIT, $model]),
             ],
             [
                 trans('texts.apply_credit'),
-                function ($model) {
-                    return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
-                },
-                function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_PAYMENT);
-                },
+                fn ($model): string => URL::to('payments/create/' . $model->client_public_id) . '?paymentTypeId=1',
+                fn ($model)         => Auth::user()->can('create', ENTITY_PAYMENT),
             ],
         ];
     }

@@ -3,7 +3,7 @@
 	{
 		"columns": [
 		{
-			"image": "$companyLogo",
+			"image": "$accountLogo",
 				"fit": [120, 80]
 		},
 		{"canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 190, "h": "$invoiceDetailsHeight","r":5, "lineWidth": 1,"color":"$primaryColor:#009d91"}],"width":10,"margin":[200,0,0,0]},
@@ -42,8 +42,8 @@
 				"margin": [0, 0, 0, 4]
 			},
 			{"columns":[
-				"$companyDetails",
-				"$companyAddress"
+				"$accountDetails",
+				"$accountAddress"
 			], "columnGap": 4},
 			{"canvas": [{ "type": "line", "x1": 0, "y1": 9, "x2": 250, "y2": 9, "lineWidth": 1,"dash": { "length": 3 },"lineColor":"$primaryColor:#009d91"}]}
 			]
@@ -272,7 +272,7 @@
 	"pageMargins": [40, 40, 40, 40],
 	"background": [
 		{
-			"image": "$companyBackground",
+			"image": "$accountBackground",
 			"alignment": "center"
 		}
 	]

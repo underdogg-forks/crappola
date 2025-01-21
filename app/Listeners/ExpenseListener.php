@@ -16,12 +16,17 @@ class ExpenseListener
 
     /**
      * ExpenseListener constructor.
+     *
+     * @param ExpenseRepository $expenseRepo
      */
     public function __construct(ExpenseRepository $expenseRepo)
     {
         $this->expenseRepo = $expenseRepo;
     }
 
+    /**
+     * @param InvoiceWasDeleted $event
+     */
     public function deletedInvoice(InvoiceWasDeleted $event): void
     {
         // Release any tasks associated with the deleted invoice

@@ -4,52 +4,62 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\ProductRepository;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
+    /**
+     * @var mixed
+     */
+    public $invoiceRepo;
+
+    public $data;
+
     protected $fieldMap = [
         'deposit' => 'partial',
-        'due'     => 'due_at',
+        'due'     => 'due_date',
     ];
 
     public function __construct($state, $data)
     {
-        $this->invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $this->invoiceRepo = app(InvoiceRepository::class);
 
         parent::__construct($state, $data);
     }
 
-    protected function stateInvoice()
+    protected function stateInvoice(): Invoice|Builder
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
-        if (! $invoiceId) {
+        if ( ! $invoiceId) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
         $invoice = Invoice::scope($invoiceId)->first();
 
-        if (! $invoice) {
+        if ( ! $invoice) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        if (! Auth::user()->can('view', $invoice)) {
+        if ( ! Auth::user()->can('view', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
         return $invoice;
     }
 
-    protected function requestInvoiceItems()
+    protected function requestInvoiceItems(): array
     {
-        $productRepo = app('App\Ninja\Repositories\ProductRepository');
+        $productRepo = app(ProductRepository::class);
 
         $invoiceItems = [];
         $offset = 0;
 
-        if (! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
+        if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
         }
 
@@ -62,15 +72,16 @@ class InvoiceIntent extends BaseIntent
                         // check additional words in product name
                         // https://social.msdn.microsoft.com/Forums/azure/en-US/a508e039-0f76-4280-8156-4a017bcfc6dd/none-of-your-composite-entities-contain-all-of-the-highlighted-entities?forum=LUIS
                         $query = $this->data->query;
-                        $startIndex = strpos($query, $child->value, $offset);
-                        $endIndex = strlen($query);
+                        $startIndex = mb_strpos($query, $child->value, $offset);
+                        $endIndex = mb_strlen($query);
                         $offset = $startIndex + 1;
                         foreach ($this->data->entities as $indexChild) {
                             if ($indexChild->startIndex > $startIndex) {
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
-                        $productName = substr($query, $startIndex, ($endIndex - $startIndex));
+
+                        $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
                         $product = $productRepo->findPhonetically($productName);
                     } else {
                         $qty = $child->value;
@@ -108,7 +119,7 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses($entityType): void
+    protected function loadStatuses(string $entityType): void
     {
         $statusIds = [];
         $statuses = $this->getFields('Filter');

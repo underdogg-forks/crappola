@@ -6187,7 +6187,7 @@ module.exports = function(Chart) {
 
 			helpers.each(leftBoxes.concat(topBoxes), placeBox);
 
-			// Corporation for chart width and height
+			// Account for chart width and height
 			left += maxChartAreaWidth;
 			top += maxChartAreaHeight;
 
@@ -7185,7 +7185,7 @@ module.exports = function(Chart) {
 					// A vertical axis is more constrained by the width. Labels are the dominant factor here, so get that length first
 					var maxLabelWidth = me.maxWidth - minSize.width;
 
-					// Corporation for padding
+					// Account for padding
 					var mirror = tickOpts.mirror;
 					if (!mirror) {
 						largestTextWidth += me.options.ticks.padding;
@@ -9959,7 +9959,7 @@ module.exports = function(Chart) {
 				return 0; // null always in center
 			}
 
-			// Take into corporation half font size + the yPadding of the top value
+			// Take into account half font size + the yPadding of the top value
 			var scalingFactor = me.drawingArea / (me.max - me.min);
 			if (me.options.reverse) {
 				return (me.max - value) * scalingFactor;

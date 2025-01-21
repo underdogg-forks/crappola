@@ -21,6 +21,9 @@ class PaymentWasRestored extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param Payment $payment
+     * @param         $fromDeleted
      */
     public function __construct(Payment $payment, $fromDeleted)
     {

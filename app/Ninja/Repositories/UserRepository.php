@@ -2,19 +2,20 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class UserRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\User';
+        return User::class;
     }
 
-    public function find($companyId)
+    public function find($accountId)
     {
         $query = DB::table('users')
-            ->where('users.company_id', '=', $companyId);
+            ->where('users.account_id', '=', $accountId);
 
         $this->applyFilters($query, ENTITY_USER);
 

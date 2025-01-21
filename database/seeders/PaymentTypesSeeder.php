@@ -9,6 +9,8 @@ class PaymentTypesSeeder extends Seeder
 {
     public function run(): void
     {
+        Eloquent::unguard();
+
         $paymentTypes = [
             ['name' => 'Apply Credit'],
             ['name' => 'Bank Transfer', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER],

@@ -6,15 +6,11 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListCreditIntent extends BaseIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_CREDIT);
 
-        if ($client = $this->requestClient()) {
-            $url = $client->present()->url . '#credits';
-        } else {
-            $url = '/credits';
-        }
+        $url = ($client = $this->requestClient()) ? $client->present()->url . '#credits' : '/credits';
 
         return redirect($url);
     }

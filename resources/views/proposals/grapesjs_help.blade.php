@@ -4,14 +4,13 @@
 
 <script>
 
-    function showProposalHelp() {
-        $('#proposalHelpModal').modal('show');
-    }
+function showProposalHelp() {
+    $('#proposalHelpModal').modal('show');
+}
 
 </script>
 
-<div class="modal fade" id="proposalHelpModal" tabindex="-1" role="dialog" aria-labelledby="proposalHelpModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="proposalHelpModal" tabindex="-1" role="dialog" aria-labelledby="proposalHelpModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="text-align:left">
         <div class="modal-content">
             <div class="modal-header">
@@ -22,7 +21,7 @@
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        @include('partials/variables_help', ['entityType' => ENTITY_QUOTE, 'company' => auth()->user()->company])
+                        @include('partials/variables_help', ['entityType' => ENTITY_QUOTE, 'account' => auth()->user()->account])
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('head')
 	@parent

@@ -16,6 +16,7 @@ class ClientPortalHeaderComposer
     /**
      * Bind data to the view.
      *
+     * @param View $view
      *
      * @return void
      */
@@ -23,22 +24,20 @@ class ClientPortalHeaderComposer
     {
         $contactKey = session('contact_key');
 
-        if (! $contactKey) {
+        if ( ! $contactKey) {
             return false;
         }
 
         $contact = Contact::where('contact_key', '=', $contactKey)
             ->with('client')
             ->first();
-        if (! $contact) {
-            return false;
-        }
-        if ($contact->is_deleted) {
+
+        if ( ! $contact || $contact->is_deleted) {
             return false;
         }
 
         $client = $contact->client;
-        $company = $contact->company;
+        $account = $contact->account;
 
         $hasDocuments = DB::table('invoices')
             ->where('invoices.client_id', '=', $client->id)
@@ -47,7 +46,7 @@ class ClientPortalHeaderComposer
             ->count();
 
         $hasPaymentMethods = false;
-        if ($company->getTokenGatewayId() && ! $company->enable_client_portal_dashboard) {
+        if ($account->getTokenGatewayId() && ! $account->enable_client_portal_dashboard) {
             $hasPaymentMethods = DB::table('payment_methods')
                 ->where('contacts.client_id', '=', $client->id)
                 ->whereNull('payment_methods.deleted_at')

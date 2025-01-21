@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
-use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
+use App\Models\Contact;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Utils;
 
 class LoginController extends Controller
 {
@@ -44,32 +45,24 @@ class LoginController extends Controller
         $this->middleware('guest:client', ['except' => 'getLogoutWrapper']);
     }
 
-    /**
-     * @return mixed
-     */
     public function showLoginForm()
     {
-        $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+        $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
         $hasAccountIndentifier = request()->account_key || ($subdomain && ! in_array($subdomain, ['www', 'app']));
 
-        if (! session('contact_key')) {
+        if ( ! session('contact_key')) {
             if (Utils::isNinja()) {
-                if (! $hasAccountIndentifier) {
+                if ( ! $hasAccountIndentifier) {
                     return redirect('/client/session_expired');
                 }
-            } else {
-                if (! $hasAccountIndentifier && Company::count() > 1) {
-                    return redirect('/client/session_expired');
-                }
+            } elseif ( ! $hasAccountIndentifier && Account::count() > 1) {
+                return redirect('/client/session_expired');
             }
         }
 
         return view('clientauth.login')->with(['clientauth' => true]);
     }
 
-    /**
-     * @return mixed
-     */
     public function getSessionExpired()
     {
         return view('clientauth.sessionexpired')->with(['clientauth' => true]);
@@ -98,6 +91,7 @@ class LoginController extends Controller
     /**
      * Get the needed authorization credentials from the request.
      *
+     * @param Request $request
      *
      * @return array
      */
@@ -108,24 +102,24 @@ class LoginController extends Controller
             $credentials['contact_key'] = $contactKey;
         } else {
             $credentials = $request->only('email', 'password');
-            $company = false;
+            $account = false;
 
-            // resolve the email to a contact/company
-            if (! Utils::isNinja() && Company::count() == 1) {
-                $company = Company::first();
-            } elseif ($companyKey = request()->account_key) {
-                $company = Company::whereAccountKey($companyKey)->first();
+            // resolve the email to a contact/account
+            if ( ! Utils::isNinja() && Account::count() == 1) {
+                $account = Account::first();
+            } elseif ($accountKey = request()->account_key) {
+                $account = Account::whereAccountKey($accountKey)->first();
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain && $subdomain != 'app') {
-                    $company = Company::whereSubdomain($subdomain)->first();
+                    $account = Account::whereSubdomain($subdomain)->first();
                 }
             }
 
-            if ($company) {
-                $credentials['company_id'] = $company->id;
+            if ($account) {
+                $credentials['account_id'] = $account->id;
             } else {
-                abort(500, 'company not resolved in client login');
+                abort(500, 'Account not resolved in client login');
             }
         }
 
@@ -135,6 +129,7 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
+     * @param Request $request
      *
      * @return RedirectResponse
      */
@@ -149,6 +144,10 @@ class LoginController extends Controller
 
     /**
      * Validate the user login request - don't require the email.
+     *
+     * @param Request $request
+     *
+     * @return void
      */
     protected function validateLogin(Request $request): void
     {
@@ -156,7 +155,7 @@ class LoginController extends Controller
             'password' => 'required',
         ];
 
-        if (! session('contact_key')) {
+        if ( ! session('contact_key')) {
             $rules['email'] = 'required|email';
         }
 
@@ -166,6 +165,7 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
+     * @param Request         $request
      * @param Authenticatable $user
      *
      * @return Response

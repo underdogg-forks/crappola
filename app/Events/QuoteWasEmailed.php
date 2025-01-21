@@ -20,6 +20,8 @@ class QuoteWasEmailed extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param $quote
      */
     public function __construct($quote, $notes)
     {

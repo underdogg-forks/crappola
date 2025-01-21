@@ -6,16 +6,12 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class ListInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_INVOICE);
         $this->loadStatuses(ENTITY_INVOICE);
 
-        if ($client = $this->requestClient()) {
-            $url = $client->present()->url . '#invoices';
-        } else {
-            $url = '/invoices';
-        }
+        $url = ($client = $this->requestClient()) ? $client->present()->url . '#invoices' : '/invoices';
 
         return redirect($url);
     }
