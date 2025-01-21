@@ -2,19 +2,24 @@
 
 namespace App\Http\Requests;
 
-class ClientRequest extends EntityRequest
+class ClientRequest extends Request
 {
-    public $entityType = ENTITY_CLIENT;
+    protected string $entityType = ENTITY_CLIENT;
 
-    public function entity()
+    /*public function entity()
     {
         $client = parent::entity();
+        dd($client);
 
         // eager load the contacts
-        if ($client && ! $client->relationLoaded('contacts')) {
+        if ($client && !$client->relationLoaded('contacts')) {
             $client->load('contacts');
         }
 
         return $client;
+    }*/
+    public function rules(): array
+    {
+        return [];
     }
 }

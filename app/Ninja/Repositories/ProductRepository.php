@@ -4,16 +4,16 @@ namespace App\Ninja\Repositories;
 
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
+use App\Libraries\Utils;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Utils;
+use Log;
 
 class ProductRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Product::class;
+        return 'App\Models\Product';
     }
 
     public function all()
@@ -24,10 +24,10 @@ class ProductRepository extends BaseRepository
             ->get();
     }
 
-    public function find($accountId, $filter = null)
+    public function find($companyId, $filter = null)
     {
         $query = DB::table('products')
-            ->where('products.account_id', '=', $accountId)
+            ->where('products.company_id', '=', $companyId)
             ->select(
                 'products.public_id',
                 'products.product_key',
@@ -57,7 +57,7 @@ class ProductRepository extends BaseRepository
 
     public function save($data, $product = null)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($product) {
             // do nothing
@@ -95,7 +95,7 @@ class ProductRepository extends BaseRepository
         $products = Product::scope()->get();
 
         foreach ($products as $product) {
-            if ( ! $product->product_key) {
+            if (! $product->product_key) {
                 continue;
             }
 

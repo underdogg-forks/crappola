@@ -14,42 +14,25 @@ use Illuminate\Support\Facades\Session;
 class HandleUserSettingsChanged
 {
     /**
-     * @var AccountRepository
-     */
-    public $accountRepo;
-
-    /**
-     * @var UserMailer
-     */
-    public $userMailer;
-
-    /**
      * Create the event handler.
-     *
-     * @param AccountRepository $accountRepo
-     * @param UserMailer        $userMailer
      */
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
+    public function __construct(AccountRepository $companyRepo, UserMailer $userMailer)
     {
-        $this->accountRepo = $accountRepo;
+        $this->accountRepo = $companyRepo;
         $this->userMailer = $userMailer;
     }
 
     /**
      * Handle the event.
-     *
-     * @param UserSettingsChanged $event
-     *
-     * @return void
      */
     public function handle(UserSettingsChanged $event): void
     {
-        if ( ! Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
-        $account = Auth::user()->account;
-        $account->loadLocalizationSettings();
+        $company = Auth::user()->company;
+        $company->loadLocalizationSettings();
 
         $users = $this->accountRepo->loadAccounts(Auth::user()->id);
         Session::put(SESSION_USER_ACCOUNTS, $users);

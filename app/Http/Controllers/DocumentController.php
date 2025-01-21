@@ -11,15 +11,20 @@ use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
-    public $entityType = ENTITY_DOCUMENT;
-
     protected DocumentRepository $documentRepo;
+
+    protected $entityType = ENTITY_DOCUMENT;
 
     public function __construct(DocumentRepository $documentRepo)
     {
         // parent::__construct();
 
         $this->documentRepo = $documentRepo;
+    }
+
+    public function get(DocumentRequest $request)
+    {
+        return static::getDownloadResponse($request->entity());
     }
 
     public static function getDownloadResponse($document)
@@ -48,11 +53,6 @@ class DocumentController extends BaseController
         return $response;
     }
 
-    public function get(DocumentRequest $request)
-    {
-        return static::getDownloadResponse($request->entity());
-    }
-
     public function getPreview(DocumentRequest $request)
     {
         $document = $request->entity();
@@ -77,17 +77,16 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (mb_substr($name, -3) === '.js') {
-            $name = mb_substr($name, 0, -3);
+        if (substr($name, -3) == '.js') {
+            $name = substr($name, 0, -3);
         }
 
-        if ( ! $document->isPDFEmbeddable()) {
+        if (! $document->isPDFEmbeddable()) {
             return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
-
+        $content = 'ninjaAddVFSDoc(' . json_encode(intval($publicId) . '/' . strval($name)) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -105,7 +104,6 @@ class DocumentController extends BaseController
                 'code'  => 400,
             ], 400);
         }
-
         if ($request->grapesjs) {
             $response = [
                 'data' => [
@@ -123,7 +121,7 @@ class DocumentController extends BaseController
         return Response::json($response, 200);
     }
 
-    public function delete(UpdateDocumentRequest $request): string
+    public function delete(UpdateDocumentRequest $request)
     {
         $request->entity()->delete();
 

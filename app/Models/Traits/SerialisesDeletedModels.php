@@ -12,13 +12,11 @@ use Illuminate\Contracts\Database\ModelIdentifier;
 trait SerialisesDeletedModels
 {
     /**
-     * @param $value
-     *
      * @return mixed
      */
     protected function getRestoredPropertyValue($value)
     {
-        if ( ! $value instanceof ModelIdentifier) {
+        if (! $value instanceof ModelIdentifier) {
             return $value;
         }
 

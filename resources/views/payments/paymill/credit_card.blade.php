@@ -11,7 +11,7 @@
 
 
     <script type="text/javascript">
-    var PAYMILL_PUBLIC_KEY = '{{ $accountGateway->getPublishableKey() }}';
+    var PAYMILL_PUBLIC_KEY = '{{ $companyGateway->getPublishableKey() }}';
     </script>
 
     <script type="text/javascript" src = "https://bridge.paymill.com/"></script>

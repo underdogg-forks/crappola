@@ -4,5 +4,5 @@ namespace App\Http\Requests;
 
 class UserRequest extends EntityRequest
 {
-    public $entityType = ENTITY_USER;
+    protected $entityType = ENTITY_USER;
 }

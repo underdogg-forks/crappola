@@ -6,11 +6,15 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListRecurringInvoiceIntent extends BaseIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $this->loadStates(ENTITY_RECURRING_INVOICE);
 
-        $url = ($client = $this->requestClient()) ? $client->present()->url . '#recurring_invoices' : '/recurring_invoices';
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#recurring_invoices';
+        } else {
+            $url = '/recurring_invoices';
+        }
 
         return redirect($url);
     }

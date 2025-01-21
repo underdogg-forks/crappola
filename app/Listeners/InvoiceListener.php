@@ -12,59 +12,47 @@ use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
+use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class InvoiceListener.
  */
 class InvoiceListener
 {
-    /**
-     * @param InvoiceWasCreated $event
-     */
     public function createdInvoice(InvoiceWasCreated $event): void
     {
         if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
             return;
         }
 
-        // Make sure the account has the same design set as the invoice does
+        // Make sure the company has the same design set as the invoice does
         if (Auth::check()) {
             $invoice = $event->invoice;
-            $account = Auth::user()->account;
+            $company = Auth::user()->company;
 
-            if ($invoice->invoice_design_id && $account->invoice_design_id != $invoice->invoice_design_id) {
-                $account->invoice_design_id = $invoice->invoice_design_id;
-                $account->save();
+            if ($invoice->invoice_design_id && $company->invoice_design_id != $invoice->invoice_design_id) {
+                $company->invoice_design_id = $invoice->invoice_design_id;
+                $company->save();
             }
         }
     }
 
-    /**
-     * @param InvoiceWasUpdated $event
-     */
     public function updatedInvoice(InvoiceWasUpdated $event): void
     {
         $invoice = $event->invoice;
         $invoice->updatePaidStatus(false, false);
     }
 
-    /**
-     * @param InvoiceInvitationWasViewed $event
-     */
     public function viewedInvoice(InvoiceInvitationWasViewed $event): void
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
     }
 
-    /**
-     * @param InvoiceWasEmailed $event
-     */
     public function emailedInvoice(InvoiceWasEmailed $event): void
     {
         $invoice = $event->invoice;
@@ -72,9 +60,6 @@ class InvoiceListener
         $invoice->save();
     }
 
-    /**
-     * @param PaymentWasCreated $event
-     */
     public function createdPayment(PaymentWasCreated $event): void
     {
         $payment = $event->payment;
@@ -92,15 +77,12 @@ class InvoiceListener
         $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
         $activity->save();
 
-        if ($invoice->balance == 0 && $payment->account->auto_archive_invoice) {
+        if ($invoice->balance == 0 && $payment->company->auto_archive_invoice) {
             $invoiceRepo = app(InvoiceRepository::class);
             $invoiceRepo->archive($invoice);
         }
     }
 
-    /**
-     * @param PaymentWasDeleted $event
-     */
     public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
@@ -116,9 +98,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasRefunded $event
-     */
     public function refundedPayment(PaymentWasRefunded $event): void
     {
         $payment = $event->payment;
@@ -129,9 +108,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasVoided $event
-     */
     public function voidedPayment(PaymentWasVoided $event): void
     {
         $payment = $event->payment;
@@ -142,9 +118,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentFailed $event
-     */
     public function failedPayment(PaymentFailed $event): void
     {
         $payment = $event->payment;
@@ -155,12 +128,9 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasRestored $event
-     */
     public function restoredPayment(PaymentWasRestored $event): void
     {
-        if ( ! $event->fromDeleted) {
+        if (! $event->fromDeleted) {
             return;
         }
 

@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Utils;
 
 class SelfUpdateController extends BaseController
 {
-    protected UpdaterManager $updater;
+    /**
+     * @var UpdaterManager
+     */
+    protected $updater;
 
     /**
      * SelfUpdateController constructor.
-     *
-     * @param UpdaterManager $updater
      */
     public function __construct(UpdaterManager $updater)
     {

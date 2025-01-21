@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
@@ -41,6 +42,7 @@ return [
     */
 
     'disks' => [
+
         'local' => [
             'driver' => 'local',
             'root'   => storage_path() . '/app',
@@ -75,13 +77,14 @@ return [
         ],
 
         'gcs' => [
-            'driver' => 'gcs',
-            'bucket' => env('GCS_BUCKET', 'cloud-storage-bucket'),
+            'driver'      => 'gcs',
+            'bucket'      => env('GCS_BUCKET', 'cloud-storage-bucket'),
             //'service_account'                      => env('GCS_USERNAME', ''),
             //'service_account_certificate'          => storage_path() . '/credentials.p12',
             //'service_account_certificate_password' => env('GCS_PASSWORD', ''),
-            'project_id' => env('GCS_PROJECT_ID'),
-            'key_file'   => storage_path() . '/gcs-credentials.json',
+            'project_id'  => env('GCS_PROJECT_ID'),
+            'credentials' => storage_path() . '/gcs-credentials.json',
         ],
     ],
+
 ];

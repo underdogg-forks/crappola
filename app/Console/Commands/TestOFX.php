@@ -24,8 +24,6 @@ class TestOFX extends Command
 
     /**
      * TestOFX constructor.
-     *
-     * @param BankAccountService $bankAccountService
      */
     public function __construct(BankAccountService $bankAccountService)
     {

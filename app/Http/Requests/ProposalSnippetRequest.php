@@ -7,7 +7,7 @@ use App\Ninja\Repositories\ProposalCategoryRepository;
 
 class ProposalSnippetRequest extends EntityRequest
 {
-    public $entityType = ENTITY_PROPOSAL_SNIPPET;
+    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function sanitize()
     {
@@ -31,5 +31,14 @@ class ProposalSnippetRequest extends EntityRequest
         $this->replace($input);
 
         return $this->all();
+    }
+
+    public function authorize(): bool
+    {
+        if ($this->user()->can('view', ENTITY_PROPOSAL)) {
+            return true;
+        }
+
+        return (bool) $this->user()->can('createEntity', ENTITY_PROPOSAL);
     }
 }

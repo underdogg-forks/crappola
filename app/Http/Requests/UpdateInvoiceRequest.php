@@ -6,14 +6,24 @@ use App\Models\Client;
 
 class UpdateInvoiceRequest extends InvoiceRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
-        return $this->entity() && $this->user()->can('edit', $this->entity());
+        if (! $this->entity()) {
+            return false;
+        }
+
+        return (bool) $this->user()->can('edit', $this->entity());
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     */
     public function rules(): array
     {
-        if ( ! $this->entity()) {
+        if (! $this->entity()) {
             return [];
         }
 
@@ -22,17 +32,17 @@ class UpdateInvoiceRequest extends InvoiceRequest
         $rules = [
             'client'         => 'required',
             'invoice_items'  => 'valid_invoice_items',
-            'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
+            'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,company_id,' . $this->user()->company_id,
             'discount'       => 'positive',
             'invoice_date'   => 'required',
-            //'due_date' => 'date',
+            //'due_at' => 'date',
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
 
-        if ($this->user()->account->client_number_counter) {
+        if ($this->user()->company->client_number_counter) {
             $clientId = Client::getPrivateId(request()->input('client')['public_id']);
-            $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,account_id,' . $this->user()->account_id;
+            $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,company_id,' . $this->user()->company_id;
         }
 
         /* There's a problem parsing the dates

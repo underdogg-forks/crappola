@@ -11,13 +11,11 @@ use League\Fractal\Resource\Item;
 class InvoiceTransformer extends BaseTransformer
 {
     /**
-     * @param $data
-     *
      * @return bool|Item
      */
-    public function transform($data): false|Item
+    public function transform($data)
     {
-        if ( ! $this->getClientId($data->client)) {
+        if (! $this->getClientId($data->client)) {
             return false;
         }
 
@@ -25,21 +23,23 @@ class InvoiceTransformer extends BaseTransformer
             return false;
         }
 
-        return new Item($data, fn ($data): array => [
-            'client_id'        => $this->getClientId($data->client),
-            'invoice_number'   => $this->getInvoiceNumber($data->number),
-            'paid'             => (float) $data->total - (float) $data->balance,
-            'public_notes'     => $this->getString($data, 'subject'),
-            'invoice_date_sql' => $data->date_sent,
-            'due_date_sql'     => $data->date_due,
-            'invoice_items'    => [
-                [
-                    'product_key' => '',
-                    'notes'       => $this->getString($data, 'line_item'),
-                    'cost'        => (float) $data->total,
-                    'qty'         => 1,
+        return new Item($data, function ($data) {
+            return [
+                'client_id'        => $this->getClientId($data->client),
+                'invoice_number'   => $this->getInvoiceNumber($data->number),
+                'paid'             => (float) $data->total - (float) $data->balance,
+                'public_notes'     => $this->getString($data, 'subject'),
+                'invoice_date_sql' => $data->date_sent,
+                'due_date_sql'     => $data->date_due,
+                'invoice_items'    => [
+                    [
+                        'product_key' => '',
+                        'notes'       => $this->getString($data, 'line_item'),
+                        'cost'        => (float) $data->total,
+                        'qty'         => 1,
+                    ],
                 ],
-            ],
-        ]);
+            ];
+        });
     }
 }

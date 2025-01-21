@@ -35,7 +35,7 @@ class HTMLUtils
         $css = $purifier->context->get('StyleBlocks');
 
         // Get the first style block
-        return count($css) > 0 ? $css[0] : '';
+        return count($css) ? $css[0] : '';
     }
 
     public static function sanitizeHTML($html)
@@ -50,6 +50,15 @@ class HTMLUtils
         return $purifier->purify($html);
     }
 
+    public static function sanitizeJS($js)
+    {
+        if (! stripos($js, '<script')) {
+            return "<script type=\"text/javascript\">{$js}</script>";
+        }
+
+        return $js;
+    }
+
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();
@@ -62,12 +71,12 @@ class HTMLUtils
         return $previous;
     }
 
-    public static function getEnvForAccount(string $field, $default = '')
+    public static function getEnvForAccount($field, $default = '')
     {
         $key = '';
 
         if ($user = auth()->user()) {
-            $key .= $user->account->id . '_';
+            $key .= $user->company->id . '_';
         }
 
         $key .= $field;

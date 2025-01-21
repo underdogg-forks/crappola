@@ -6,9 +6,9 @@ use App\Libraries\Skype\SkypeResponse;
 
 class DownloadInvoiceIntent extends InvoiceIntent
 {
-    public function process(): string|bool
+    public function process()
     {
-        $invoice = $this->stateInvoice();
+        $invoice = $this->invoice();
 
         $message = trans('texts.' . $invoice->getEntityType()) . ' ' . $invoice->invoice_number;
         $message = link_to('/download/' . $invoice->invitations[0]->invitation_key, $message);

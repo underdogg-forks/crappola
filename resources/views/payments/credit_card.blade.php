@@ -3,7 +3,7 @@
 @section('head')
     @parent
 
-    <script src="{{ asset('js/card.min.js') }}"></script>
+    <script src="{{ asset('/js/card.min.js') }}"></script>
 
     <style type="text/css">
         div.jp-card-container {
@@ -23,7 +23,7 @@
                 'postal_code',
                 'country_id',
             ]
-            $.each(fields, function(i, field) {
+            $.each(fields, function (i, field) {
                 $('#shipping_' + field).val($('#' + field).val());
             })
             $('#shipping_country_id').combobox('refresh');
@@ -38,15 +38,15 @@
                 'postal_code',
                 'country_id',
             ]
-            $.each(fields, function(i, field) {
+            $.each(fields, function (i, field) {
                 $('#shipping_' + field).val('');
             })
             $('#shipping_country_id').combobox('toggle');
             $('#shipping_address1').focus();
         }
 
-        $(function() {
-            $('.payment-form').submit(function(event) {
+        $(function () {
+            $('.payment-form').submit(function (event) {
                 var $form = $(this);
 
                 if ($form.find('button').is(':disabled')) {
@@ -60,7 +60,7 @@
                 return true;
             });
 
-            $('#shipToBillingAddress').click(function() {
+            $('#shipToBillingAddress').click(function () {
                 var checked = $('#shipToBillingAddress').is(':checked');
                 $('.shipping-address input').prop('readonly', checked);
                 if (checked) {
@@ -70,48 +70,48 @@
                 }
             })
 
-            $('.billing-address').change(function() {
+            $('.billing-address').change(function () {
                 if ($('#shipToBillingAddress').is(':checked')) {
                     copyBillingAddress();
                 }
             });
 
-            @if ($accountGateway->gateway_id != GATEWAY_BRAINTREE)
-                if ($('#card_number').length) {
-                    var card = new Card({
-                        form: 'form#payment-form', // *required*
-                        container: '.card-wrapper', // *required*
+            @if ($companyGateway->gateway_id != GATEWAY_BRAINTREE)
+            if ($('#card_number').length) {
+                var card = new Card({
+                    form: 'form#payment-form', // *required*
+                    container: '.card-wrapper', // *required*
 
-                        formSelectors: {
-                            numberInput: 'input#card_number', // optional — default input[name="number"]
-                            expiryInput: 'input#expiry', // optional — default input[name="expiry"]
-                            cvcInput: 'input#cvv', // optional — default input[name="cvc"]
-                            nameInput: 'input#first_name, input#last_name'
-                        },
+                    formSelectors: {
+                        numberInput: 'input#card_number', // optional — default input[name="number"]
+                        expiryInput: 'input#expiry', // optional — default input[name="expiry"]
+                        cvcInput: 'input#cvv', // optional — default input[name="cvc"]
+                        nameInput: 'input#first_name, input#last_name'
+                    },
 
-                        //width: 100, // optional — default 350px
-                        formatting: true, // optional - default true
+                    //width: 100, // optional — default 350px
+                    formatting: true, // optional - default true
 
-                        // Strings for translation - optional
-                        messages: {
-                            monthYear: "{{ trans('texts.month_year') }}",
-                            validDate: "{{ trans('texts.valid_thru') }}",
-                        },
+                    // Strings for translation - optional
+                    messages: {
+                        monthYear: "{{ trans('texts.month_year') }}",
+                        validDate: "{{ trans('texts.valid_thru') }}",
+                    },
 
-                        // Default placeholders for rendered fields - optional
-                        placeholders: {
-                            number: '•••• •••• •••• ••••',
-                            name: "{{ $client ? ($contact->first_name . ' ' . $contact->last_name) : trans('texts.full_name') }}",
-                            expiry: '••/••',
-                            cvc: '•••'
-                        },
+                    // Default placeholders for rendered fields - optional
+                    placeholders: {
+                        number: '•••• •••• •••• ••••',
+                        name: "{{ $client ? ($contact->first_name . ' ' . $contact->last_name) : trans('texts.full_name') }}",
+                        expiry: '••/••',
+                        cvc: '•••'
+                    },
 
-                        masks: {
-                            cardNumber: '•' // optional - mask card number
-                        },
-                        debug: true,
-                    });
-                }
+                    masks: {
+                        cardNumber: '•' // optional - mask card number
+                    },
+                    debug: true,
+                });
+            }
             @endif
         });
     </script>
@@ -133,7 +133,7 @@
                 'cvv' => 'required',
                 'address1' => 'required',
                 'city' => 'required',
-                'state' => $account->requiresAddressState() ? 'required' : '',
+                'state' => $company->requiresAddressState() ? 'required' : '',
                 'postal_code' => 'required',
                 'country_id' => 'required',
                 'phone' => 'required',
@@ -146,7 +146,7 @@
                 'account_holder_type' => 'required',
                 'shipping_address1' => 'required',
                 'shipping_city' => 'required',
-                'shipping_state' => $account->requiresAddressState() ? 'required' : '',
+                'shipping_state' => $company->requiresAddressState() ? 'required' : '',
                 'shipping_postal_code' => 'required',
                 'shipping_country_id' => 'required',
             )) !!}
@@ -158,9 +158,9 @@
         {{ Former::populateField('first_name', $contact->first_name) }}
         {{ Former::populateField('last_name', $contact->last_name) }}
         {{ Former::populateField('email', $contact->email) }}
-        @if (!$client->country_id && $client->account->country_id)
-            {{ Former::populateField('country_id', (string) $client->account->country_id) }}
-            {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
+        @if (!$client->country_id && $client->company->country_id)
+            {{ Former::populateField('country_id', (string) $client->company->country_id) }}
+            {{ Former::populateField('shipping_country_id', $client->company->country_id) }}
         @endif
     @endif
 
@@ -174,7 +174,7 @@
         {{ Former::populateField('country_id', (string) 840) }}
 
         <script>
-            $(function() {
+            $(function () {
                 $('#card_number').val('4242424242424242');
                 $('#cvv').val('1234');
                 $('#expiration_month').val(1);
@@ -211,8 +211,9 @@
         </div>
     </div>
 
-    @if (!empty($accountGateway->show_address))
-        <h3>{{ trans('texts.billing_address') }} &nbsp;&nbsp; <span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
+    @if (!empty($companyGateway->show_address))
+        <h3>{{ trans('texts.billing_address') }} &nbsp;&nbsp; <span
+                    class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <hr class="form-legend"/>
 
         <div style="padding-bottom: 22px;" class="billing-address">
@@ -262,9 +263,9 @@
         </div>
     @endif
 
-    @if (!empty($accountGateway->show_shipping_address))
+    @if (!empty($companyGateway->show_shipping_address))
         <h3>{{ trans('texts.shipping_address') }} &nbsp;&nbsp;
-            @if ($accountGateway->show_address)
+            @if ($companyGateway->show_address)
                 <span>
                     <label for="shipToBillingAddress" style="font-weight:normal">
                         <input id="shipToBillingAddress" type="checkbox"/>
@@ -322,40 +323,40 @@
         </div>
     @endif
 
-    @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id == TOKEN_BILLING_DISABLED)
+    @if ($companyGateway->isGateway(GATEWAY_WEPAY) && $company->token_billing_type_id == TOKEN_BILLING_DISABLED)
         {{--- do nothing --}}
-    @elseif($accountGateway->isGateway(GATEWAY_STRIPE))
+    @elseif($companyGateway->isGateway(GATEWAY_STRIPE))
 
-    <div class="ninja stripe">
-        <div class="row">
-            <div class="field">
-              <div id="card-number" class="input empty"></div>
-              <label for="card-number" data-tid="card_number_label">Card number</label>
-              <div class="baseline"></div>
+        <div class="ninja stripe">
+            <div class="row">
+                <div class="field">
+                    <div id="card-number" class="input empty"></div>
+                    <label for="card-number" data-tid="card_number_label">Card number</label>
+                    <div class="baseline"></div>
+                </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="field half-width">
-              <div id="card-expiry" class="input empty"></div>
-              <label for="card-expiry" data-tid="card_expiry_label">Expiration</label>
-              <div class="baseline"></div>
+            <div class="row">
+                <div class="field half-width">
+                    <div id="card-expiry" class="input empty"></div>
+                    <label for="card-expiry" data-tid="card_expiry_label">Expiration</label>
+                    <div class="baseline"></div>
+                </div>
+                <div class="field half-width">
+                    <div id="card-cvc" class="input empty"></div>
+                    <label for="card-cvc" data-tid="card_cvc_label">CVC</label>
+                    <div class="baseline"></div>
+                </div>
             </div>
-            <div class="field half-width">
-              <div id="card-cvc" class="input empty"></div>
-              <label for="card-cvc" data-tid="card_cvc_label">CVC</label>
-              <div class="baseline"></div>
-            </div>
-          </div>
 
-          <div id="card-errors" role="alert"></div>
-    </div>
+            <div id="card-errors" role="alert"></div>
+        </div>
 
-    @include("payments.stripe.credit_card_stripe_css")
+        @include("payments.stripe.credit_card_stripe_css")
 
         <script type="text/javascript">
 
             // Create a Stripe client.
-            var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
+            var stripe = Stripe('{{ $companyGateway->getPublishableKey() }}');
 
             // Create an instance of Elements.
             var elements = stripe.elements();
@@ -364,84 +365,84 @@
             // (Note that this demo uses a wider set of styles than the guide below.)
             var elementStyles = {
                 base: {
-                  color: '#32325D',
-                  fontWeight: 500,
-                  fontFamily: 'Source Code Pro, Consolas, Menlo, monospace',
-                  fontSize: '16px',
-                  fontSmoothing: 'antialiased',
+                    color: '#32325D',
+                    fontWeight: 500,
+                    fontFamily: 'Source Code Pro, Consolas, Menlo, monospace',
+                    fontSize: '16px',
+                    fontSmoothing: 'antialiased',
 
-                  '::placeholder': {
-                    color: '#CFD7DF',
-                  },
-                  ':-webkit-autofill': {
-                    color: '#e39f48',
-                  },
+                    '::placeholder': {
+                        color: '#CFD7DF',
+                    },
+                    ':-webkit-autofill': {
+                        color: '#e39f48',
+                    },
                 },
                 invalid: {
-                  color: '#E25950',
+                    color: '#E25950',
 
-                  '::placeholder': {
-                    color: '#FFCCA5',
-                  },
+                    '::placeholder': {
+                        color: '#FFCCA5',
+                    },
                 },
-              };
+            };
 
-              var elementClasses = {
+            var elementClasses = {
                 focus: 'focused',
                 empty: 'empty',
                 invalid: 'invalid',
-              };
+            };
 
-              var cardNumber = elements.create('cardNumber', {
+            var cardNumber = elements.create('cardNumber', {
                 style: elementStyles,
                 classes: elementClasses,
-              });
-              cardNumber.mount('#card-number');
+            });
+            cardNumber.mount('#card-number');
 
-              var cardExpiry = elements.create('cardExpiry', {
+            var cardExpiry = elements.create('cardExpiry', {
                 style: elementStyles,
                 classes: elementClasses,
-              });
-              cardExpiry.mount('#card-expiry');
+            });
+            cardExpiry.mount('#card-expiry');
 
-              var cardCvc = elements.create('cardCvc', {
+            var cardCvc = elements.create('cardCvc', {
                 style: elementStyles,
                 classes: elementClasses,
-              });
-              cardCvc.mount('#card-cvc');
+            });
+            cardCvc.mount('#card-cvc');
 
 
-            cardNumber.addEventListener('change', function(event){
+            cardNumber.addEventListener('change', function (event) {
                 var displayError = document.getElementById('card-errors');
-                    if (event.error) {
+                if (event.error) {
                     displayError.textContent = event.error.message;
-                    } else {
+                } else {
                     displayError.textContent = '';
-                    }
+                }
 
             });
 
-            cardExpiry.addEventListener('change', function(event){
+            cardExpiry.addEventListener('change', function (event) {
                 var displayError = document.getElementById('card-errors');
-                    if (event.error) {
+                if (event.error) {
                     displayError.textContent = event.error.message;
-                    } else {
+                } else {
                     displayError.textContent = '';
-                    }
+                }
 
             });
 
-            cardCvc.addEventListener('change', function(event){
+            cardCvc.addEventListener('change', function (event) {
                 var displayError = document.getElementById('card-errors');
-                    if (event.error) {
+                if (event.error) {
                     displayError.textContent = event.error.message;
-                    } else {
+                } else {
                     displayError.textContent = '';
-                    }
+                }
 
             });
 
-            function releaseSubmitButton(){
+            function releaseSubmitButton() {
                 $('.payment-form').find('button').prop('disabled', false);
 
             }
@@ -449,18 +450,18 @@
 
             // Handle form submission.
             var form = document.getElementById('payment-form');
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 var options = {
                     billing_details: {
                         name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
-                        @if (!empty($accountGateway->show_address))
+                        @if (!empty($companyGateway->show_address))
                         address: {
                             line1: $('#address1').val(),
                             line2: $('#address2').val(),
                             city: $('#city').val(),
                             state: $('#state').val(),
-                            postal_code: document.getElementById('postal_code')?$('#postal_code').val():null,
+                            postal_code: $('#postal_code').val(),
                             country: $("#country_id option:selected").attr('data-iso_3166_2')
                         }
                         @endif
@@ -482,13 +483,13 @@
                 @else
                 stripe.createPaymentMethod('card', cardNumber, options).then(function (result) {
                     if (result.error) {
-                      // Inform the user if there was an error.
-                      var errorElement = document.getElementById('card-errors');
-                      errorElement.textContent = result.error.message;
+                        // Inform the user if there was an error.
+                        var errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = result.error.message;
                         releaseSubmitButton();
                     } else {
-                      // Send the ID to your server.
-                      stripePaymentMethodHandler(result.paymentMethod.id);
+                        // Send the ID to your server.
+                        stripePaymentMethodHandler(result.paymentMethod.id);
                     }
                 });
                 @endif
@@ -496,16 +497,16 @@
 
 
             function stripePaymentMethodHandler(paymentMethodID) {
-              // Insert the token ID into the form so it gets submitted to the server
-              var form = document.getElementById('payment-form');
-              var hiddenInput = document.createElement('input');
-              hiddenInput.setAttribute('type', 'hidden');
-              hiddenInput.setAttribute('name', 'paymentMethodID');
-              hiddenInput.setAttribute('value', paymentMethodID);
-              form.appendChild(hiddenInput);
+                // Insert the token ID into the form so it gets submitted to the server
+                var form = document.getElementById('payment-form');
+                var hiddenInput = document.createElement('input');
+                hiddenInput.setAttribute('type', 'hidden');
+                hiddenInput.setAttribute('name', 'paymentMethodID');
+                hiddenInput.setAttribute('value', paymentMethodID);
+                form.appendChild(hiddenInput);
 
-              // Submit the form
-              form.submit();
+                // Submit the form
+                form.submit();
             }
 
         </script>
@@ -517,7 +518,8 @@
                     @if (isset($acceptedCreditCardTypes))
                         &nbsp;
                         @foreach ($acceptedCreditCardTypes as $card)
-                            <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 34px; display: inline; margin-left: 7px;"/>
+                            <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}"
+                                 style="width: 34px; display: inline; margin-left: 7px;"/>
                         @endforeach
                     @endif
                     <br/>
@@ -525,17 +527,17 @@
                 <hr class="form-legend"/>
             </div>
 
-            @if ($accountGateway->isGateway(GATEWAY_PAYMILL))
+            @if ($companyGateway->isGateway(GATEWAY_PAYMILL))
                 <div class="paymill-form">
                     <div id="paymillCardFields"></div>
                     <input id="sourceToken" name="sourceToken" type="hidden"/>
                 </div>
             @else
-                <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
+                <div class="col-lg-{{ ($companyGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
 
                     <div class="row">
                         <div class="col-md-12">
-                            @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            @if ($companyGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="card_number" class="braintree-hosted form-control"></div>
                             @else
                                 {!! Former::text(!empty($tokenize) ? '' : 'card_number')
@@ -548,7 +550,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-5">
-                            @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            @if ($companyGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="expiration_month" class="braintree-hosted form-control"></div>
                             @else
                                 {!! Former::select(!empty($tokenize) ? '' : 'expiration_month')
@@ -571,7 +573,7 @@
                             @endif
                         </div>
                         <div class="col-md-4">
-                            @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            @if ($companyGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="expiration_year" class="braintree-hosted form-control"></div>
                             @else
                                 {!! Former::select(!empty($tokenize) ? '' : 'expiration_year')
@@ -588,7 +590,7 @@
                             @endif
                         </div>
                         <div class="col-md-3">
-                            @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            @if ($companyGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="cvv" class="braintree-hosted form-control"></div>
                             @else
                                 {!! Former::text(!empty($tokenize) ? '' : 'cvv')
@@ -610,9 +612,12 @@
 
     <div class="row" style="padding-top:18px">
         <div class="col-md-12">
-            @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
-                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
-                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
+            @if (isset($amount) && $client && $company->showTokenCheckbox($storageGateway/* will contain gateway id */))
+                <input id="token_billing" type="checkbox" name="token_billing"
+                       {{ $company->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1"
+                       style="margin-left:0px; vertical-align:top">
+                <label for="token_billing" class="checkbox"
+                       style="display: inline;">{{ trans('texts.token_billing') }}</label>
                 <span class="help-block" style="font-size:15px">
                     @if ($storageGateway == GATEWAY_STRIPE)
                         {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
@@ -637,7 +642,7 @@
         @endif
 
         @if (isset($amount))
-            {!! Button::success(request()->capture ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
+            {!! Button::success(request()->capture ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $company->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                             ->submit()
                             ->large() !!}
         @else

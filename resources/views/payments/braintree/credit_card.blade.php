@@ -4,8 +4,8 @@
     @parent
 
     <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
-    <script type="text/javascript" >
-        $(function() {
+    <script type="text/javascript">
+        $(function () {
             var $form = $('.payment-form');
             $form.unbind('submit');
             braintree.setup("{{ $transactionToken }}", "custom", {
@@ -29,13 +29,13 @@
                     },
                     styles: {
                         'input': {
-                            'font-family': {!!  json_encode(Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_stack']) !!},
-                            'font-weight': "{{ Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_weight'] }}",
+                            'font-family': {!!  json_encode(Utils::getFromCache($company->getBodyFontId(), 'fonts')['css_stack']) !!},
+                            'font-weight': "{{ Utils::getFromCache($company->getBodyFontId(), 'fonts')['css_weight'] }}",
                             'font-size': '16px'
                         }
                     }
                 },
-                onError: function(e) {
+                onError: function (e) {
                     $form.find('button').prop('disabled', false);
 
                     // Show the errors on the form
@@ -44,19 +44,16 @@
 
                         if (invalidField == 'number') {
                             $('#js-error-message').html('{{ trans('texts.invalid_card_number') }}').fadeIn();
-                        }
-                        else if (invalidField == 'expirationDate' || invalidField == 'expirationYear' || invalidField == 'expirationMonth') {
+                        } else if (invalidField == 'expirationDate' || invalidField == 'expirationYear' || invalidField == 'expirationMonth') {
                             $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
-                        }
-                        else if (invalidField == 'cvv') {
+                        } else if (invalidField == 'cvv') {
                             $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
                         }
-                    }
-                    else {
+                    } else {
                         $('#js-error-message').html(e.message).fadeIn();
                     }
                 },
-                onPaymentMethodReceived: function(event) {
+                onPaymentMethodReceived: function (event) {
                     if ($form.find('button').is(':disabled')) {
                         event.preventDefault();
                         return false;

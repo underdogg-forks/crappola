@@ -11,15 +11,18 @@ use Illuminate\Http\JsonResponse;
  */
 class TaxRateService extends BaseService
 {
-    protected TaxRateRepository $taxRateRepo;
+    /**
+     * @var TaxRateRepository
+     */
+    protected $taxRateRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * TaxRateService constructor.
-     *
-     * @param TaxRateRepository $taxRateRepo
-     * @param DatatableService  $datatableService
      */
     public function __construct(TaxRateRepository $taxRateRepo, DatatableService $datatableService)
     {
@@ -27,15 +30,10 @@ class TaxRateService extends BaseService
         $this->datatableService = $datatableService;
     }
 
-    /**
-     * @param $accountId
-     *
-     * @return JsonResponse
-     */
-    public function getDatatable($accountId)
+    public function getDatatable($companyId)
     {
         $datatable = new TaxRateDatatable(false);
-        $query = $this->taxRateRepo->find($accountId);
+        $query = $this->taxRateRepo->find($companyId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
@@ -43,7 +41,7 @@ class TaxRateService extends BaseService
     /**
      * @return TaxRateRepository
      */
-    protected function getRepo(): TaxRateRepository
+    protected function getRepo()
     {
         return $this->taxRateRepo;
     }

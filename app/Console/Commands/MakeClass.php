@@ -30,7 +30,7 @@ class MakeClass extends GeneratorCommand
      */
     protected $description = 'Create class stub';
 
-    protected function getTemplateContents()
+    public function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
         $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
@@ -47,53 +47,16 @@ class MakeClass extends GeneratorCommand
         ]))->render();
     }
 
-    protected function getDestinationFilePath()
-    {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
-        $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
-
-        return $path . $seederPath . '/' . $this->getFileName() . '.php';
-    }
-
-    protected function getArguments(): array
-    {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the module.'],
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['class', InputArgument::REQUIRED, 'The name of the class.'],
-            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
-        ];
-    }
-
-    protected function getOptions(): array
-    {
-        return [
-            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
-            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
-        ];
-    }
-
-    protected function getFileName(): string
-    {
-        if ($this->option('filename')) {
-            return $this->option('filename');
-        }
-
-        return Str::studly($this->argument('prefix')) . Str::studly($this->argument('name')) . Str::studly($this->argument('class'));
-    }
-
-    protected function getColumns(): string
+    protected function getColumns()
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-
         $str = '';
 
         foreach ($fields as $field) {
-            if ($field === '' || $field === '0') {
+            if (! $field) {
                 continue;
             }
-
             $field = explode(':', $field)[0];
             $str .= '[
                 \'' . $field . '\',
@@ -106,23 +69,21 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getFormFields(): string
+    protected function getFormFields()
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-
         $str = '';
 
         foreach ($fields as $field) {
-            if ($field === '' || $field === '0') {
+            if (! $field) {
                 continue;
             }
-
             $parts = explode(':', $field);
             $field = $parts[0];
             $type = $parts[1];
 
-            if ($type === 'text') {
+            if ($type == 'text') {
                 $str .= "{!! Former::textarea('" . $field . "') !!}\n";
             } else {
                 $str .= "{!! Former::text('" . $field . "') !!}\n";
@@ -132,20 +93,18 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getDatabaseFields($module): string
+    protected function getDatabaseFields($module)
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-
         $str = '';
 
         foreach ($fields as $field) {
-            if ($field === '' || $field === '0') {
+            if (! $field) {
                 continue;
             }
-
             $field = explode(':', $field)[0];
-            $str .= "'" . $module->getLowerName() . sprintf(".%s', ", $field);
+            $str .= "'" . $module->getLowerName() . ".{$field}', ";
         }
 
         return $str;
@@ -155,18 +114,57 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-
         $str = '';
 
         foreach ($fields as $field) {
-            if ($field === '' || $field === '0') {
+            if (! $field) {
                 continue;
             }
-
             $field = explode(':', $field)[0];
-            $str .= sprintf("'%s' => \$", $field) . $module->getLowerName() . "->{$field},\n            ";
+            $str .= "'{$field}' => $" . $module->getLowerName() . "->$field,\n            ";
         }
 
         return rtrim($str);
+    }
+
+    public function getDestinationFilePath(): string
+    {
+        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
+
+        return $path . $seederPath . '/' . $this->getFileName() . '.php';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFileName()
+    {
+        if ($this->option('filename')) {
+            return $this->option('filename');
+        }
+
+        return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
+    }
+
+    protected function getArguments(): array
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the module.'],
+            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['class', InputArgument::REQUIRED, 'The name of the class.'],
+            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     */
+    protected function getOptions(): array
+    {
+        return [
+            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
+        ];
     }
 }
