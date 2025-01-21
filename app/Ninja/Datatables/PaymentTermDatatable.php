@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class PaymentTermDatatable extends EntityDatatable
 {
@@ -10,22 +10,26 @@ class PaymentTermDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
                 'num_days',
-                fn ($model) => link_to(sprintf('payment_terms/%s/edit', $model->public_id), trans('texts.payment_terms_net') . ' ' . ($model->num_days == -1 ? 0 : $model->num_days))->toHtml(),
+                function ($model) {
+                    return link_to("payment_terms/{$model->public_id}/edit", trans('texts.payment_terms_net') . ' ' . ($model->num_days == -1 ? 0 : $model->num_days))->toHtml();
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 trans('texts.edit_payment_term'),
-                fn ($model) => URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
+                function ($model) {
+                    return URL::to("payment_terms/{$model->public_id}/edit");
+                },
             ],
         ];
     }

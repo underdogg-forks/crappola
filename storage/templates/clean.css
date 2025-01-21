@@ -44,14 +44,14 @@ span.client.address1, span.client.city, span.client.state, span.client.postal-co
 	line-height: 18.5px;
 }
 
-h3.account.name {
+h3.company.name {
 	padding: 0;
 	margin: 0 0 -10px 0;
 	font-size:18px;
 	font-weight: 600;
 }
 
-span.account.address1, span.account.city, span.account.state, span.account.postal-code {
+span.company.address1, span.company.city, span.company.state, span.company.postal-code {
 	font-size: 14px;
 	line-height: 18.5px;
 }

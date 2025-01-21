@@ -4,17 +4,19 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class VendorPolicy.
+ */
 class VendorPolicy extends EntityPolicy
 {
     /**
-     * @param User  $user
      * @param mixed $item
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function create(User $user)
     {
-        if ( ! parent::create($user, $item)) {
+        if (! $this->createPermission($user, ENTITY_VENDOR)) {
             return false;
         }
 

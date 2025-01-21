@@ -3,38 +3,34 @@
 namespace App\Listeners;
 
 use App\Events\UserSignedUp;
+use App\Libraries\Utils;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class HandleUserSignedUp.
  */
 class HandleUserSignedUp
 {
-    protected AccountRepository $accountRepo;
+    /**
+     * @var AccountRepository
+     */
+    protected $companyRepo;
 
     protected UserMailer $userMailer;
 
     /**
      * Create the event handler.
-     *
-     * @param AccountRepository $accountRepo
-     * @param UserMailer        $userMailer
      */
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
+    public function __construct(AccountRepository $companyRepo, UserMailer $userMailer)
     {
-        $this->accountRepo = $accountRepo;
+        $this->accountRepo = $companyRepo;
         $this->userMailer = $userMailer;
     }
 
     /**
      * Handle the event.
-     *
-     * @param UserSignedUp $event
-     *
-     * @return void
      */
     public function handle(UserSignedUp $event): void
     {

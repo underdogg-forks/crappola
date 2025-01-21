@@ -4,18 +4,10 @@ namespace App\Libraries\Skype;
 
 class SkypeResponse
 {
-    public $type;
-
-    /**
-     * @var never[]|mixed[]
-     */
-    public $attachments = [];
-
-    public $text;
-
     public function __construct($type)
     {
         $this->type = $type;
+        $this->attachments = [];
     }
 
     public static function message($message)

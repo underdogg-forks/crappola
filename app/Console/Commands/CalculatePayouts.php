@@ -3,11 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Libraries\CurlUtils;
-use App\Models\Company;
+use App\Models\CompanyPlan;
 use App\Models\DbServer;
 use App\Models\User;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 
 class CalculatePayouts extends Command
 {
@@ -35,9 +34,15 @@ class CalculatePayouts extends Command
         parent::__construct();
     }
 
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle(): void
     {
-        $type = mb_strtolower($this->option('type'));
+        $this->info('Running CalculatePayouts...');
+        $type = strtolower($this->option('type'));
 
         switch ($type) {
             case 'referral':
@@ -49,21 +54,13 @@ class CalculatePayouts extends Command
         }
     }
 
-    protected function getOptions(): array
-    {
-        return [
-            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
-            ['url', null, InputOption::VALUE_OPTIONAL, 'Url', null],
-            ['password', null, InputOption::VALUE_OPTIONAL, 'Password', null],
-        ];
-    }
-
     private function referralPayouts(): void
     {
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
 
         foreach ($servers as $server) {
+            $this->info('Processing users: ' . $server->name);
             config(['database.default' => $server->name]);
 
             $users = User::where('referral_code', '!=', '')
@@ -74,35 +71,27 @@ class CalculatePayouts extends Command
         }
 
         foreach ($servers as $server) {
+            $this->info('Processing companies: ' . $server->name);
             config(['database.default' => $server->name]);
 
-            $companies = Company::where('referral_code', '!=', '')
+            $companies = CompanyPlan::where('referral_code', '!=', '')
                 ->with('payment.client.payments')
                 ->whereNotNull('payment_id')
                 ->get();
 
-            $this->info('User,Client,Date,Amount,Reference');
-
-            foreach ($companies as $company) {
-                if ( ! isset($userMap[$company->referral_code])) {
-                    continue;
-                }
-
-                $user = $userMap[$company->referral_code];
-                $payment = $company->payment;
+            foreach ($companies as $companyPlan) {
+                $user = $userMap[$companyPlan->referral_code];
+                $payment = $companyPlan->payment;
 
                 if ($payment) {
                     $client = $payment->client;
 
+                    $this->info("User: $user");
+                    $this->info('Client: ' . $client->getDisplayName());
+
                     foreach ($client->payments as $payment) {
                         $amount = $payment->getCompletedAmount();
-                        $this->info(
-                            '"' . $user . '",' .
-                            '"' . $client->getDisplayName() . '",' .
-                            $payment->payment_date . ',' .
-                            $amount . ',' .
-                            $payment->transaction_reference
-                        );
+                        $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
                     }
                 }
             }
@@ -117,5 +106,14 @@ class CalculatePayouts extends Command
 
         $this->info('Response:');
         $this->info($response);
+    }
+
+    protected function getOptions()
+    {
+        return [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
+            ['url', null, InputOption::VALUE_OPTIONAL, 'Url', null],
+            ['password', null, InputOption::VALUE_OPTIONAL, 'Password', null],
+        ];
     }
 }

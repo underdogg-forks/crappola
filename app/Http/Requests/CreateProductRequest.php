@@ -2,13 +2,25 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
+
 class CreateProductRequest extends ProductRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PRODUCT);
+        return $this->user()->can('create', Product::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{product_key: string}
+     */
     public function rules(): array
     {
         return [

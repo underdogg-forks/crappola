@@ -2,35 +2,33 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
-use Datatable;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Http\JsonResponse;
+use Yajra\DataTables\Services\DataTable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Utils;
+use Log;
 
 class CreditRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Credit::class;
+        return 'App\Models\Credit';
     }
 
-    public function find($clientPublicId = null, $filter = null): Builder
+    public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('credits')
-            ->join('accounts', 'accounts.id', '=', 'credits.account_id')
+            ->join('companies', 'companies.id', '=', 'credits.company_id')
             ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.account_id', '=', Auth::user()->account_id)
+            ->where('clients.company_id', '=', Auth::user()->company_id)
             ->where('contacts.deleted_at', '=', null)
             ->where('contacts.is_primary', '=', true)
             ->select(
-                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
                 'credits.public_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
@@ -66,17 +64,17 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
-    public function getClientDatatable($clientId): JsonResponse
+    public function getClientDatatable($clientId)
     {
         $query = DB::table('credits')
-            ->join('accounts', 'accounts.id', '=', 'credits.account_id')
+            ->join('companies', 'companies.id', '=', 'credits.company_id')
             ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->where('credits.client_id', '=', $clientId)
             ->where('clients.deleted_at', '=', null)
             ->where('credits.deleted_at', '=', null)
             ->select(
-                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
                 'credits.amount',
                 'credits.balance',
                 'credits.credit_date',
@@ -84,10 +82,18 @@ class CreditRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('credit_date', fn ($model) => Utils::fromSqlDate($model->credit_date))
-            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
-            ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
-            ->addColumn('public_notes', fn ($model) => e($model->public_notes))
+            ->addColumn('credit_date', function ($model) {
+                return Utils::fromSqlDate($model->credit_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('balance', function ($model) {
+                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('public_notes', function ($model) {
+                return e($model->public_notes);
+            })
             ->make();
 
         return $table;
@@ -95,7 +101,7 @@ class CreditRepository extends BaseRepository
 
     public function save($input, $credit = null)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($credit) {
             // do nothing
@@ -114,11 +120,9 @@ class CreditRepository extends BaseRepository
         if (isset($input['credit_date'])) {
             $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         }
-
         if (isset($input['amount'])) {
             $credit->amount = Utils::parseFloat($input['amount']);
         }
-
         if (isset($input['balance'])) {
             $credit->balance = Utils::parseFloat($input['balance']);
         }

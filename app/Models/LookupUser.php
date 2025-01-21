@@ -2,33 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-
 /**
  * Class ExpenseCategory.
- *
- * @property int         $id
- * @property int         $lookup_account_id
- * @property string|null $email
- * @property string|null $confirmation_code
- * @property int         $user_id
- * @property string|null $oauth_user_key
- * @property string|null $referral_code
- *
- * @method static Builder|LookupUser newModelQuery()
- * @method static Builder|LookupUser newQuery()
- * @method static Builder|LookupUser query()
- * @method static Builder|LookupUser whereConfirmationCode($value)
- * @method static Builder|LookupUser whereEmail($value)
- * @method static Builder|LookupUser whereId($value)
- * @method static Builder|LookupUser whereLookupAccountId($value)
- * @method static Builder|LookupUser whereOauthUserKey($value)
- * @method static Builder|LookupUser whereReferralCode($value)
- * @method static Builder|LookupUser whereUserId($value)
- *
- * @property LookupAccount $lookupAccount
- *
- * @mixin \Eloquent
  */
 class LookupUser extends LookupModel
 {
@@ -44,16 +19,16 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($accountKey, $user): void
+    public static function updateUser($companyKey, $user): void
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
+        $lookupAccount = LookupAccount::whereAccountKey($companyKey)
             ->firstOrFail();
 
         $lookupUser = self::whereLookupAccountId($lookupAccount->id)
@@ -71,19 +46,19 @@ class LookupUser extends LookupModel
 
     public static function validateField($field, $value, $user = false)
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
         $current = config('database.default');
-        $accountKey = $user ? $user->account->account_key : false;
+        $companyKey = $user ? $user->company->account_key : false;
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupUser = self::where($field, '=', $value)->first();
 
         if ($user) {
-            $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
+            $lookupAccount = LookupAccount::whereAccountKey($companyKey)->firstOrFail();
             $isValid = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
         } else {
             $isValid = ! $lookupUser;

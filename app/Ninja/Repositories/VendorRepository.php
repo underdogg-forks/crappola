@@ -2,18 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Utils;
+use Log;
 
 // vendor
 class VendorRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Vendor::class;
+        return 'App\Models\Vendor';
     }
 
     public function all()
@@ -28,14 +28,14 @@ class VendorRepository extends BaseRepository
     public function find($filter = null)
     {
         $query = DB::table('vendors')
-            ->join('accounts', 'accounts.id', '=', 'vendors.account_id')
+            ->join('companies', 'companies.id', '=', 'vendors.company_id')
             ->join('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
-            ->where('vendors.account_id', '=', Auth::user()->account_id)
+            ->where('vendors.company_id', '=', Auth::user()->company_id)
             ->where('vendor_contacts.is_primary', '=', true)
             ->where('vendor_contacts.deleted_at', '=', null)
             ->select(
-                DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
+                DB::raw('COALESCE(vendors.currency_id, companies.currency_id) currency_id'),
+                DB::raw('COALESCE(vendors.country_id, companies.country_id) country_id'),
                 'vendors.public_id',
                 'vendors.name',
                 'vendor_contacts.first_name',
@@ -66,11 +66,11 @@ class VendorRepository extends BaseRepository
 
     public function save($data, $vendor = null)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($vendor) {
             // do nothing
-        } elseif ( ! $publicId || (int) $publicId < 0) {
+        } elseif (! $publicId || intval($publicId) < 0) {
             $vendor = Vendor::createNew();
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
@@ -98,8 +98,8 @@ class VendorRepository extends BaseRepository
         $vendorcontactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($vendorcontacts, function ($left, $right): int|float {
-            if (isset($right['is_primary'], $left['is_primary'])) {
+        usort($vendorcontacts, function ($left, $right) {
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }
 
@@ -112,9 +112,9 @@ class VendorRepository extends BaseRepository
             $first = false;
         }
 
-        if ( ! $vendor->wasRecentlyCreated) {
+        if (! $vendor->wasRecentlyCreated) {
             foreach ($vendor->vendor_contacts as $contact) {
-                if ( ! in_array($contact->public_id, $vendorcontactIds)) {
+                if (! in_array($contact->public_id, $vendorcontactIds)) {
                     $contact->delete();
                 }
             }

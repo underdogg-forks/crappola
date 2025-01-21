@@ -3,20 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Webpatser\Countries\Countries;
 
 class CountriesSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */
     public function run(): void
     {
-        Eloquent::unguard();
-
-        $countries = Countries::getList();
+        $countries = (new Countries())->getList();
         foreach ($countries as $countryId => $country) {
             if ($record = Country::whereCountryCode($country['country-code'])->first()) {
                 $record->name = $country['name'];
@@ -81,6 +82,7 @@ class CountriesSeeder extends Seeder
             ],
             'EE' => [ // Estonia
                 'swap_currency_symbol' => true,
+                'thousand_separator'   => ' ',
             ],
             'ES' => [ // Spain
                 'swap_postal_code'     => true,

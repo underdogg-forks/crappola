@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 class ProductReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'         => [],
@@ -22,21 +22,21 @@ class ProductReport extends AbstractReport
             //'tax_rate2',
         ];
 
-        $account = auth()->user()->account;
+        $company = auth()->user()->company;
 
-        if ($account->invoice_item_taxes) {
+        if ($company->invoice_item_taxes) {
             $columns['tax'] = ['columnSelector-false'];
-            if ($account->enable_second_tax_rate) {
+            if ($company->enable_second_tax_rate) {
                 $columns['tax'] = ['columnSelector-false'];
             }
         }
 
-        if ($account->customLabel('product1')) {
-            $columns[$account->present()->customLabel('product1')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('product1')) {
+            $columns[$company->present()->customLabel('product1')] = ['columnSelector-false', 'custom'];
         }
 
-        if ($account->customLabel('product2')) {
-            $columns[$account->present()->customLabel('product2')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('product2')) {
+            $columns[$company->present()->customLabel('product2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -44,7 +44,7 @@ class ProductReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $company = Auth::user()->company;
         $statusIds = $this->options['status_ids'];
         $subgroup = $this->options['subgroup'];
 
@@ -74,28 +74,29 @@ class ProductReport extends AbstractReport
                         Utils::roundSignificant($item->cost, 2),
                     ];
 
-                    if ($account->invoice_item_taxes) {
+                    if ($company->invoice_item_taxes) {
                         $row[] = Utils::roundSignificant($item->getTaxAmount(), 2);
                     }
 
-                    if ($account->customLabel('product1')) {
+                    if ($company->customLabel('product1')) {
                         $row[] = $item->custom_value1;
                     }
 
-                    if ($account->customLabel('product2')) {
+                    if ($company->customLabel('product2')) {
                         $row[] = $item->custom_value2;
                     }
 
                     $this->data[] = $row;
 
-                    $dimension = $subgroup == 'product' ? $item->product_key : $this->getDimension($client);
+                    if ($subgroup == 'product') {
+                        $dimension = $item->product_key;
+                    } else {
+                        $dimension = $this->getDimension($client);
+                    }
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
+                    $this->addToTotals($client->currency_id, 'total', $item->qty * $item->cost);
                 }
-
-                //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
-                //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
-                //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
             }
         }
     }

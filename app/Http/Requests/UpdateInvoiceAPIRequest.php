@@ -4,14 +4,24 @@ namespace App\Http\Requests;
 
 class UpdateInvoiceAPIRequest extends InvoiceRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
-        return $this->entity() && $this->user()->can('edit', $this->entity());
+        if (! $this->entity()) {
+            return false;
+        }
+
+        return (bool) $this->user()->can('edit', $this->entity());
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     */
     public function rules(): array
     {
-        if ( ! $this->entity()) {
+        if (! $this->entity()) {
             return [];
         }
 
@@ -21,16 +31,14 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
 
         $invoiceId = $this->entity()->id;
 
-        $rules = [
+        return [
             'invoice_items'  => 'valid_invoice_items',
-            'invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
+            'invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,company_id,' . $this->user()->company_id,
             'discount'       => 'positive',
             //'invoice_date' => 'date',
-            //'due_date' => 'date',
+            //'due_at' => 'date',
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
-
-        return $rules;
     }
 }

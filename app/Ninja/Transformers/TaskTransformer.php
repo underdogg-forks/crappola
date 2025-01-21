@@ -2,8 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Account;
-use App\Models\Client;
+use App\Models\Company;
 use App\Models\Task;
 
 /**
@@ -13,7 +12,10 @@ class TaskTransformer extends EntityTransformer
 {
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="description", type="string", example="Description")
+     * @SWG\Property(property="duration", type="string", example="Duration")
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="recurring_invoice_id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="client_id", type="integer", example=1)
@@ -29,15 +31,15 @@ class TaskTransformer extends EntityTransformer
         'project',
     ];
 
-    public function __construct(Account $account)
+    public function __construct(company $company)
     {
-        parent::__construct($account);
+        parent::__construct($company);
     }
 
     public function includeClient(Task $task)
     {
         if ($task->client) {
-            $transformer = new ClientTransformer($this->account, $this->serializer);
+            $transformer = new ClientTransformer($this->company, $this->serializer);
 
             return $this->includeItem($task->client, $transformer, 'client');
         }
@@ -46,16 +48,18 @@ class TaskTransformer extends EntityTransformer
     public function includeProject(Task $task)
     {
         if ($task->project) {
-            $transformer = new ProjectTransformer($this->account, $this->serializer);
+            $transformer = new ProjectTransformer($this->company, $this->serializer);
 
             return $this->includeItem($task->project, $transformer, 'project');
         }
     }
 
-    public function transform(Task $task): array
+    public function transform(Task $task)
     {
         return array_merge($this->getDefaults($task), [
             'id'                     => (int) $task->public_id,
+            'user_id'                => (int) $task->user->public_id,
+            'user'                   => $task->user->getDisplayName(),
             'description'            => $task->description ?: '',
             'duration'               => $task->getDuration() ?: 0,
             'updated_at'             => (int) $this->getTimestamp($task->updated_at),

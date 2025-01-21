@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -13,26 +14,27 @@ return [
     |
     */
 
-    'postmark' => env('POSTMARK_API_TOKEN', ''),
+    'postmark'          => env('POSTMARK_API_TOKEN', ''),
+    'postmark_ticket'   => env('POSTMARK_API_TICKET_TOKEN'),
+    'postmark_ticket_2' => env('POSTMARK_API_TICKET_TOKEN_2'),
 
     'mailgun' => [
-        'domain'   => env('MAILGUN_DOMAIN', ''),
-        'secret'   => env('MAILGUN_SECRET', ''),
-        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'domain' => env('MAILGUN_DOMAIN', ''),
+        'secret' => env('MAILGUN_SECRET', ''),
     ],
 
     'mandrill' => [
         'secret' => '',
     ],
 
-    'ses' => [
-        'key'    => env('SES_KEY', ''),
-        'secret' => env('SES_SECRET', ''),
-        'region' => env('SES_DEFAULT_REGION', 'us-east-1'),
-    ],
-
     'sparkpost' => [
-        'secret' => env('SPARKPOST_SECRET'),
+                'secret' => env('SPARKPOST_API_KEY'),
+        ],
+
+    'ses' => [
+        'key'    => '',
+        'secret' => '',
+        'region' => 'us-east-1',
     ],
 
     'stripe' => [
@@ -63,4 +65,5 @@ return [
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
         'redirect'      => env('LINKEDIN_OAUTH_REDIRECT'),
     ],
+
 ];

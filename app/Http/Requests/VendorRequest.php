@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 class VendorRequest extends EntityRequest
 {
-    public $entityType = ENTITY_VENDOR;
+    protected $entityType = ENTITY_VENDOR;
 
     public function entity()
     {

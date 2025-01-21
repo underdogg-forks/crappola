@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 class PaymentReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'client'         => [],
@@ -25,7 +25,7 @@ class PaymentReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $company = Auth::user()->company;
         $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
         $subgroup = $this->options['subgroup'];
@@ -56,14 +56,14 @@ class PaymentReport extends AbstractReport
                 $amount = Utils::formatMoney($amount, $payment->exchange_currency_id);
             } else {
                 $this->addToTotals($client->currency_id, 'paid', $amount);
-                $amount = $account->formatMoney($amount, $client);
+                $amount = $company->formatMoney($amount, $client);
             }
 
             $this->data[] = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                 $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                $lastInvoiceId == $invoice->id ? '' : $account->formatMoney($invoice->amount, $client),
+                $lastInvoiceId == $invoice->id ? '' : $company->formatMoney($invoice->amount, $client),
                 $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
@@ -71,7 +71,7 @@ class PaymentReport extends AbstractReport
                 $payment->user->getDisplayName(),
             ];
 
-            if ( ! isset($invoiceMap[$invoice->id])) {
+            if (! isset($invoiceMap[$invoice->id])) {
                 $invoiceMap[$invoice->id] = true;
 
                 if ($currencyType == 'converted') {
@@ -81,7 +81,11 @@ class PaymentReport extends AbstractReport
                 }
             }
 
-            $dimension = $subgroup == 'method' ? $payment->present()->method : $this->getDimension($payment);
+            if ($subgroup == 'method') {
+                $dimension = $payment->present()->method;
+            } else {
+                $dimension = $this->getDimension($payment);
+            }
 
             $convertedAmount = $currencyType == 'converted' ? ($invoice->amount * $payment->exchange_rate) : $invoice->amount;
             $this->addChartData($dimension, $payment->payment_date, $convertedAmount);

@@ -4,5 +4,5 @@ namespace App\Http\Requests;
 
 class ProjectRequest extends EntityRequest
 {
-    public $entityType = ENTITY_PROJECT;
+    protected $entityType = ENTITY_PROJECT;
 }

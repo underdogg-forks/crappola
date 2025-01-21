@@ -4,23 +4,23 @@ namespace App\Ninja\Repositories;
 
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
+use Crypt;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class BankAccountRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return BankAccount::class;
+        return 'App\Models\BankAccount';
     }
 
-    public function find($accountId)
+    public function find($companyId)
     {
         return DB::table('bank_accounts')
             ->join('banks', 'banks.id', '=', 'bank_accounts.bank_id')
             ->where('bank_accounts.deleted_at', '=', null)
-            ->where('bank_accounts.account_id', '=', $accountId)
+            ->where('bank_accounts.company_id', '=', $companyId)
             ->select(
                 'bank_accounts.public_id',
                 'banks.name as bank_name',
@@ -29,26 +29,22 @@ class BankAccountRepository extends BaseRepository
             );
     }
 
-    public function save(array $input)
+    public function save($input)
     {
         $bankAccount = BankAccount::createNew();
         $bankAccount->username = Crypt::encrypt(trim($input['bank_username']));
         $bankAccount->fill($input);
 
-        $account = Auth::user()->account;
-        $account->bank_accounts()->save($bankAccount);
+        $company = Auth::user()->company;
+        $company->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {
-            if ( ! isset($data['include'])) {
-                continue;
-            }
-
-            if ( ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
+            if (! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
                 continue;
             }
 
             $subaccount = BankSubaccount::createNew();
-            $subaccount->account_name = trim($data['account_name']);
+            $subaccount->company_name = trim($data['company_name']);
             $subaccount->account_number = trim($data['hashed_account_number']);
             $bankAccount->bank_subaccounts()->save($subaccount);
         }

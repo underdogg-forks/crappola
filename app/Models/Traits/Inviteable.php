@@ -2,8 +2,8 @@
 
 namespace App\Models\Traits;
 
+use App\Libraries\Utils;
 use Carbon;
-use Utils;
 
 /**
  * Class SendsEmails.
@@ -18,75 +18,73 @@ trait Inviteable
      *
      * @return string
      */
-    public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false): string
+    public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if ( ! $this->account) {
-            $this->load('account');
+        if (! $this->company) {
+            $this->load('company');
         }
 
         if ($this->proposal_id) {
             $type = 'proposal';
         }
 
-        $account = $this->account;
-        $iframe_url = $account->iframe_url;
+        $company = $this->company;
+        $iframe_url = $company->iframe_url;
         $url = trim(SITE_URL, '/');
 
         if (env('REQUIRE_HTTPS')) {
             $url = str_replace('http://', 'https://', $url);
         }
 
-        if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
+        if ($company->hasFeature(FEATURE_CUSTOM_URL)) {
             if (Utils::isNinjaProd() && ! Utils::isReseller()) {
-                $url = $account->present()->clientPortalLink();
+                $url = $company->present()->clientPortalLink();
             }
 
             if ($iframe_url && ! $forceOnsite) {
-                if ($account->is_custom_domain) {
+                if ($company->is_custom_domain) {
                     $url = $iframe_url;
                 } else {
-                    return sprintf('%s?%s/%s', $iframe_url, $this->invitation_key, $type);
+                    return "{$iframe_url}?{$this->invitation_key}/{$type}";
                 }
-            } elseif ($this->account->subdomain && ! $forcePlain) {
-                $url = Utils::replaceSubdomain($url, $account->subdomain);
+            } elseif ($this->company->subdomain && ! $forcePlain) {
+                $url = Utils::replaceSubdomain($url, $company->subdomain);
             }
         }
 
-        return sprintf('%s/%s/%s', $url, $type, $this->invitation_key);
+        return "{$url}/{$type}/{$this->invitation_key}";
     }
 
     /**
      * @return bool|string
      */
-    public function getStatus(): string|false
+    public function getStatus()
     {
         $hasValue = false;
         $parts = [];
         $statuses = $this->message_id ? ['sent', 'opened', 'viewed'] : ['sent', 'viewed'];
 
         foreach ($statuses as $status) {
-            $field = $status . '_date';
+            $field = "{$status}_date";
             $date = '';
-            if ($this->{$field} && $this->field != '0000-00-00 00:00:00') {
-                $date = Utils::dateToString($this->{$field});
+            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
+                $date = Utils::dateToString($this->$field);
                 $hasValue = true;
                 $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
         }
 
-        return $hasValue ? implode('<br/>', $parts) : false;
-
-        // return $hasValue ? implode($parts, '<br/>') : false;
+        return $hasValue ? implode($parts, '<br/>') : false;
     }
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->invitation_key;
     }
 
-    /**
-     * @param null $messageId
-     */
     public function markSent($messageId = null): void
     {
         $this->message_id = $messageId;
