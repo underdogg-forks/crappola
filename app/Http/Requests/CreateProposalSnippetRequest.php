@@ -2,17 +2,29 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proposal;
+
 class CreateProposalSnippetRequest extends ProposalSnippetRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROPOSAL_SNIPPET);
+        return $this->user()->can('create', Proposal::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{name: string}
+     */
     public function rules(): array
     {
         return [
-            'name' => sprintf('required|unique:proposal_snippets,name,,id,account_id,%s', $this->user()->account_id),
+            'name' => sprintf('required|unique:proposal_snippets,name,,id,company_id,%s', $this->user()->company_id),
         ];
     }
 }

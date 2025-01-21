@@ -3,14 +3,11 @@
 namespace App\Ninja\Intents;
 
 use App\Models\EntityModel;
-use App\Models\Invoice;
 use Exception;
 
 class UpdateInvoiceIntent extends InvoiceIntent
 {
-    public $invoiceRepo;
-
-    public function process(): string|bool
+    public function process()
     {
         $invoice = $this->stateInvoice();
         $invoiceItems = $this->requestInvoiceItems();
@@ -24,9 +21,9 @@ class UpdateInvoiceIntent extends InvoiceIntent
         if (isset($data['cost']) || isset($data['quantity'])) {
             foreach ($data['invoice_items'] as $key => $item) {
                 // if it's new or we recently created it
-                if (empty($item['public_id']) || in_array($item['public_id'], $this->stateEntity(ENTITY_INVOICE_ITEM))) {
-                    $data['invoice_items'][$key]['cost'] = $data['cost'] ?? $item['cost'];
-                    $data['invoice_items'][$key]['qty'] = $data['quantity'] ?? $item['qty'];
+                if (empty($item['public_id']) || in_array($item['public_id'], $this->entities(ENTITY_INVOICE_ITEM))) {
+                    $data['invoice_items'][$key]['cost'] = isset($data['cost']) ? $data['cost'] : $item['cost'];
+                    $data['invoice_items'][$key]['qty'] = isset($data['quantity']) ? $data['quantity'] : $item['qty'];
                 }
             }
         }
@@ -42,7 +39,9 @@ class UpdateInvoiceIntent extends InvoiceIntent
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $invoiceItems = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
-        $invoiceItemIds = array_map(fn ($item) => $item['public_id'], $invoiceItems);
+        $invoiceItemIds = array_map(function ($item) {
+            return $item['public_id'];
+        }, $invoiceItems);
 
         $this->setStateEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 

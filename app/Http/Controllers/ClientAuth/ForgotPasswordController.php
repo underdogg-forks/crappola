@@ -3,35 +3,29 @@
 namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account;
+use App\Libraries\Utils;
+use App\Models\Company;
 use App\Models\Contact;
-use App\Models\Traits\SendsEmails;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
+use Config;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Mail\Message;
-use Illuminate\Support\Facades\Password;
-use Illuminate\View\View;
-use Utils;
+use Password;
 
 class ForgotPasswordController extends Controller
 {
     /*
-            |--------------------------------------------------------------------------
-            | Password Reset Controller
-            |--------------------------------------------------------------------------
-            |
-            | This controller is responsible for handling password reset emails and
-            | includes a trait which assists in sending these notifications from
-            | your application to your users. Feel free to explore this trait.
-            |
-            */
+    |--------------------------------------------------------------------------
+    | Password Reset Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller is responsible for handling password reset emails and
+    | includes a trait which assists in sending these notifications from
+    | your application to your users. Feel free to explore this trait.
+    |
+    */
 
-    use SendsEmails;
     use SendsPasswordResetEmails;
 
     /**
@@ -47,7 +41,7 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * @return Factory|Application|RedirectResponse|View
+     * @return RedirectResponse
      */
     public function showLinkRequestForm()
     {
@@ -61,31 +55,32 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param Request $request
      *
-     * @return JsonResponse|RedirectResponse|Response
+     * @return Response
      */
     public function sendResetLinkEmail(Request $request)
     {
-        // resolve the email to a contact/account
-        $account = false;
-        if ( ! Utils::isNinja() && Account::count() == 1) {
-            $account = Account::first();
-        } elseif ($accountKey = request()->account_key) {
-            $account = Account::whereAccountKey($accountKey)->first();
+        // resolve the email to a contact/company
+        $company = false;
+        if (! Utils::isNinja() && Company::count() == 1) {
+            $company = Company::first();
+        } elseif ($companyKey = request()->account_key) {
+            $company = Company::whereAccountKey($companyKey)->first();
         } else {
-            $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
+            $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
             if ($subdomain && $subdomain != 'app') {
-                $account = Account::whereSubdomain($subdomain)->first();
+                $company = Company::whereSubdomain($subdomain)->first();
             }
         }
-
-        if ( ! $account || ! request()->email) {
+        if (! $company) {
+            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
+        }
+        if (! request()->email) {
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
         $contact = Contact::where('email', '=', request()->email)
-            ->where('account_id', '=', $account->id)
+            ->where('company_id', '=', $company->id)
             ->first();
 
         if ($contact) {
@@ -99,8 +94,8 @@ class ForgotPasswordController extends Controller
         });
 
         return $response == Password::RESET_LINK_SENT
-                    ? $this->sendResetLinkResponse($request, $response)
-                    : $this->sendResetLinkFailedResponse($request, $response);
+            ? $this->sendResetLinkResponse($response)
+            : $this->sendResetLinkFailedResponse($request, $response);
     }
 
     protected function broker()

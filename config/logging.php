@@ -3,6 +3,7 @@
 use Monolog\Handler\StreamHandler;
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Default Log Channel
@@ -14,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', env('LOG', 'daily')),
+    'default' => env('LOG_CHANNEL', 'stack'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +42,6 @@ return [
             'driver' => 'single',
             'path'   => storage_path('logs/laravel.log'),
             'level'  => 'debug',
-            'tap'    => [\App\Logging\CustomizeSingleLogger::class],
         ],
 
         'daily' => [
@@ -77,4 +77,5 @@ return [
             'level'  => 'debug',
         ],
     ],
+
 ];

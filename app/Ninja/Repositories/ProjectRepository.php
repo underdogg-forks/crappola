@@ -2,29 +2,28 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Project;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Utils;
 
 class ProjectRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Project::class;
+        return 'App\Models\Project';
     }
 
-    public function all(): Collection|array
+    public function all()
     {
         return Project::scope()->get();
     }
 
-    public function find($filter = null, $userId = false): Builder
+    public function find($filter = null, $userId = false)
     {
         $query = DB::table('projects')
-            ->where('projects.account_id', '=', Auth::user()->account_id)
+            ->where('projects.company_id', '=', Auth::user()->company_id)
+            ->join('companies', 'companies.id', '=', 'projects.company_id')
             ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
@@ -45,7 +44,9 @@ class ProjectRepository extends BaseRepository
                 'projects.private_notes',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
-                'clients.public_id as client_public_id'
+                'clients.public_id as client_public_id',
+                'clients.task_rate as client_task_rate',
+                'companies.task_rate as account_task_rate'
             );
 
         $this->applyFilters($query, ENTITY_PROJECT);
@@ -71,15 +72,15 @@ class ProjectRepository extends BaseRepository
     {
         $publicId = $data['public_id'] ?? false;
 
-        if ( ! $project) {
+        if (! $project) {
             $project = Project::createNew();
             $project['client_id'] = $input['client_id'];
         }
 
         $project->fill($input);
 
-        if (isset($input['due_date'])) {
-            $project->due_date = Utils::toSqlDate($input['due_date']);
+        if (isset($input['due_at'])) {
+            $project->due_date = Utils::toSqlDate($input['due_at']);
         }
 
         $project->save();

@@ -9,163 +9,21 @@ use App\Events\QuoteInvitationWasEmailed;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
 use App\Ninja\Presenters\InvoicePresenter;
+use Cache;
 use DateTime;
 use Exception;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Query\Builder;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Invoice.
- *
- * @property int                          $id
- * @property int                          $client_id
- * @property int                          $user_id
- * @property int                          $account_id
- * @property int                          $invoice_status_id
- * @property Carbon|null                  $created_at
- * @property Carbon|null                  $updated_at
- * @property Carbon|null                  $deleted_at
- * @property string                       $invoice_number
- * @property string                       $discount
- * @property string                       $po_number
- * @property string|null                  $invoice_date
- * @property string|null                  $due_date
- * @property string                       $terms
- * @property string                       $public_notes
- * @property int                          $is_deleted
- * @property bool                         $is_recurring
- * @property int                          $frequency_id
- * @property string|null                  $start_date
- * @property string|null                  $end_date
- * @property string|null                  $last_sent_date
- * @property int|null                     $recurring_invoice_id
- * @property string                       $tax_name1
- * @property string                       $tax_rate1
- * @property string                       $amount
- * @property string                       $balance
- * @property int                          $public_id
- * @property int                          $invoice_design_id
- * @property int                          $invoice_type_id
- * @property int|null                     $quote_id
- * @property int|null                     $quote_invoice_id
- * @property string                       $custom_value1
- * @property string                       $custom_value2
- * @property int                          $custom_taxes1
- * @property int                          $custom_taxes2
- * @property int|null                     $is_amount_discount
- * @property string|null                  $invoice_footer
- * @property string|null                  $partial
- * @property bool                         $has_tasks
- * @property int                          $auto_bill
- * @property string|null                  $custom_text_value1
- * @property string|null                  $custom_text_value2
- * @property bool                         $has_expenses
- * @property string|null                  $tax_name2
- * @property string                       $tax_rate2
- * @property bool                         $client_enable_auto_bill
- * @property int                          $is_public
- * @property string|null                  $private_notes
- * @property string|null                  $partial_due_date
- * @property Account                      $account
- * @property Client                       $client
- * @property Collection<int, Document>    $documents
- * @property int|null                     $documents_count
- * @property Collection<int, Expense>     $expenses
- * @property int|null                     $expenses_count
- * @property Frequency|null               $frequency
- * @property Collection<int, Invitation>  $invitations
- * @property int|null                     $invitations_count
- * @property InvoiceDesign                $invoice_design
- * @property Collection<int, InvoiceItem> $invoice_items
- * @property int|null                     $invoice_items_count
- * @property InvoiceStatus                $invoice_status
- * @property Collection<int, Payment>     $payments
- * @property int|null                     $payments_count
- * @property Invoice|null                 $quote
- * @property Invoice|null                 $recurring_invoice
- * @property Collection<int, Invoice>     $recurring_invoices
- * @property int|null                     $recurring_invoices_count
- * @property User                         $user
- *
- * @method static Builder|Invoice dateRange($startDate, $endDate)
- * @method static Builder|Invoice invoiceType($typeId)
- * @method static Builder|Invoice invoices()
- * @method static Builder|Invoice newModelQuery()
- * @method static Builder|Invoice newQuery()
- * @method static Builder|Invoice onlyTrashed()
- * @method static Builder|Invoice query()
- * @method static Builder|Invoice quotes()
- * @method static Builder|Invoice recurring()
- * @method static Builder|Invoice scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|Invoice statusIds($statusIds)
- * @method static Builder|Invoice unapprovedQuotes($includeInvoiceId = false)
- * @method static Builder|Invoice whereAccountId($value)
- * @method static Builder|Invoice whereAmount($value)
- * @method static Builder|Invoice whereAutoBill($value)
- * @method static Builder|Invoice whereBalance($value)
- * @method static Builder|Invoice whereClientEnableAutoBill($value)
- * @method static Builder|Invoice whereClientId($value)
- * @method static Builder|Invoice whereCreatedAt($value)
- * @method static Builder|Invoice whereCustomTaxes1($value)
- * @method static Builder|Invoice whereCustomTaxes2($value)
- * @method static Builder|Invoice whereCustomTextValue1($value)
- * @method static Builder|Invoice whereCustomTextValue2($value)
- * @method static Builder|Invoice whereCustomValue1($value)
- * @method static Builder|Invoice whereCustomValue2($value)
- * @method static Builder|Invoice whereDeletedAt($value)
- * @method static Builder|Invoice whereDiscount($value)
- * @method static Builder|Invoice whereDueDate($value)
- * @method static Builder|Invoice whereEndDate($value)
- * @method static Builder|Invoice whereFrequencyId($value)
- * @method static Builder|Invoice whereHasExpenses($value)
- * @method static Builder|Invoice whereHasTasks($value)
- * @method static Builder|Invoice whereId($value)
- * @method static Builder|Invoice whereInvoiceDate($value)
- * @method static Builder|Invoice whereInvoiceDesignId($value)
- * @method static Builder|Invoice whereInvoiceFooter($value)
- * @method static Builder|Invoice whereInvoiceNumber($value)
- * @method static Builder|Invoice whereInvoiceStatusId($value)
- * @method static Builder|Invoice whereInvoiceTypeId($value)
- * @method static Builder|Invoice whereIsAmountDiscount($value)
- * @method static Builder|Invoice whereIsDeleted($value)
- * @method static Builder|Invoice whereIsPublic($value)
- * @method static Builder|Invoice whereIsRecurring($value)
- * @method static Builder|Invoice whereLastSentDate($value)
- * @method static Builder|Invoice wherePartial($value)
- * @method static Builder|Invoice wherePartialDueDate($value)
- * @method static Builder|Invoice wherePoNumber($value)
- * @method static Builder|Invoice wherePrivateNotes($value)
- * @method static Builder|Invoice wherePublicId($value)
- * @method static Builder|Invoice wherePublicNotes($value)
- * @method static Builder|Invoice whereQuoteId($value)
- * @method static Builder|Invoice whereQuoteInvoiceId($value)
- * @method static Builder|Invoice whereRecurringInvoiceId($value)
- * @method static Builder|Invoice whereStartDate($value)
- * @method static Builder|Invoice whereTaxName1($value)
- * @method static Builder|Invoice whereTaxName2($value)
- * @method static Builder|Invoice whereTaxRate1($value)
- * @method static Builder|Invoice whereTaxRate2($value)
- * @method static Builder|Invoice whereTerms($value)
- * @method static Builder|Invoice whereUpdatedAt($value)
- * @method static Builder|Invoice whereUserId($value)
- * @method static Builder|Invoice withActiveOrSelected($id = false)
- * @method static Builder|Invoice withArchived()
- * @method static Builder|Invoice withTrashed()
- * @method static Builder|Invoice withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class Invoice extends EntityModel implements BalanceAffecting
 {
@@ -177,7 +35,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         SoftDeletes::trashed as parentTrashed;
     }
 
-    // used for custom invoice numbers
     /**
      * @var array
      */
@@ -195,10 +52,10 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @var array
      */
-    public static array $requestFields = [
+    public static $requestFields = [
         'invoice_number',
         'invoice_date',
-        'due_date',
+        'due_at',
         'po_number',
         'discount',
         'partial',
@@ -216,6 +73,12 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @var string
      */
     protected $presenter = InvoicePresenter::class;
+
+    // used for custom invoice numbers
+    /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     /**
      * @var array
@@ -238,7 +101,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         'has_tasks'               => 'boolean',
         'client_enable_auto_bill' => 'boolean',
         'has_expenses'            => 'boolean',
-        'deleted_at'              => 'datetime',
     ];
 
     public static function getImportColumns(): array
@@ -249,7 +111,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_number',
             'po_number',
             'invoice_date',
-            'due_date',
+            'due_at',
             'paid',
             'terms',
             'public_notes',
@@ -260,6 +122,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'item_cost',
             'item_tax1',
             'item_tax2',
+            'payment_date',
+            'payment_reference',
         ];
     }
 
@@ -272,7 +136,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'paid^date'                => 'paid',
             'invoice date|create date' => 'invoice_date',
             'po number'                => 'po_number',
-            'due date'                 => 'due_date',
+            'due date'                 => 'due_at',
             'terms'                    => 'terms',
             'public notes'             => 'public_notes',
             'private notes'            => 'private_notes',
@@ -281,66 +145,18 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount|cost'              => 'item_cost',
             'product'                  => 'item_product',
             'tax'                      => 'item_tax1',
+            'payment date'             => 'payment_date',
+            'transaction'              => 'payment_reference',
         ];
     }
 
-    public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId): Application|array|string|Translator|\Illuminate\Contracts\Foundation\Application|null
-    {
-        if ($quoteInvoiceId) {
-            $label = 'converted';
-        } elseif ($class == 'danger') {
-            $label = $entityType == ENTITY_INVOICE ? 'past_due' : 'expired';
-        } else {
-            $label = 'status_' . mb_strtolower($status);
-        }
-
-        return trans('texts.' . $label);
-    }
-
-    public static function calcStatusClass($statusId, $balance, $dueDate, $isRecurring): string
-    {
-        if ($statusId >= INVOICE_STATUS_SENT && ! $isRecurring && static::calcIsOverdue($balance, $dueDate)) {
-            return 'danger';
-        }
-
-        return static::$statusClasses[$statusId] ?? 'default';
-    }
-
-    public static function calcIsOverdue($balance, $dueDate): bool
-    {
-        if ( ! Utils::parseFloat($balance) > 0) {
-            return false;
-        }
-
-        if ( ! $dueDate || $dueDate == '0000-00-00') {
-            return false;
-        }
-
-        // it isn't considered overdue until the end of the day
-        return time() > (strtotime($dueDate) + (60 * 60 * 24));
-    }
-
-    /**
-     * @param $invoice
-     *
-     * @return string
-     */
-    public static function calcLink($invoice): string
-    {
-        if (isset($invoice->invoice_type_id)) {
-            $linkPrefix = ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) ? 'quotes/' : 'invoices/';
-        } else {
-            $linkPrefix = 'invoices/';
-        }
-
-        return link_to($linkPrefix . $invoice->public_id, $invoice->invoice_number);
-    }
-
-    public static function getStatuses($entityType = false): array
+    public static function getStatuses($entityType = false)
     {
         $statuses = [];
-
         if ($entityType == ENTITY_RECURRING_INVOICE) {
+            return $statuses;
+        }
+        if ($entityType == ENTITY_RECURRING_QUOTE) {
             return $statuses;
         }
 
@@ -350,12 +166,12 @@ class Invoice extends EntityModel implements BalanceAffecting
                     continue;
                 }
             } elseif ($entityType == ENTITY_INVOICE) {
-                if ($status->id == INVOICE_STATUS_APPROVED) {
+                if (in_array($status->id, [INVOICE_STATUS_APPROVED])) {
                     continue;
                 }
             }
 
-            $statuses[$status->id] = trans('texts.status_' . mb_strtolower($status->name));
+            $statuses[$status->id] = trans('texts.status_' . strtolower($status->name));
         }
 
         if ($entityType == ENTITY_INVOICE) {
@@ -366,36 +182,79 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $statuses;
     }
 
-    public function getRoute(): string
+    /**
+     * @return string
+     */
+    public function getRoute()
     {
-        $entityType = $this->is_recurring ? 'recurring_invoice' : $this->getEntityType();
+        if ($this->is_recurring) {
+            $entityType = $this->isType(INVOICE_TYPE_STANDARD) ? ENTITY_RECURRING_INVOICE : ENTITY_RECURRING_QUOTE;
+        } else {
+            $entityType = $this->getEntityType();
+        }
 
-        return sprintf('/%ss/%s/edit', $entityType, $this->public_id);
+        return "/{$entityType}s/{$this->public_id}/edit";
     }
 
-    public function getDisplayName(): Application|float|array|int|string|Translator|\Illuminate\Contracts\Foundation\Application|null
+    public function isType($typeId): bool
+    {
+        return $this->invoice_type_id == $typeId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType(): string
+    {
+        return $this->isType(INVOICE_TYPE_QUOTE) ? ENTITY_QUOTE : ENTITY_INVOICE;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDisplayName()
     {
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
-    }
-
-    public function affectsBalance(): bool
-    {
-        return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring && $this->is_public;
     }
 
     /**
      * @return float|int
      */
-    public function getAdjustment(): float|int|string
+    public function getAdjustment()
     {
-        if ( ! $this->affectsBalance()) {
+        if (! $this->affectsBalance()) {
             return 0;
         }
 
         return $this->getRawAdjustment();
     }
 
-    public function isChanged(): bool
+    public function affectsBalance(): bool
+    {
+        if (! $this->isType(INVOICE_TYPE_STANDARD)) {
+            return false;
+        }
+        if ($this->is_recurring) {
+            return false;
+        }
+
+        return (bool) $this->is_public;
+    }
+
+    /**
+     * @return float
+     */
+    private function getRawAdjustment()
+    {
+        // if we've just made the invoice public then apply the full amount
+        if ($this->is_public && ! $this->getOriginal('is_public')) {
+            return $this->amount;
+        }
+
+        return floatval($this->amount) - floatval($this->getOriginal('amount'));
+    }
+
+    public function isChanged()
     {
         if (Utils::isNinja()) {
             if ($this->getRawAdjustment() != 0) {
@@ -406,97 +265,76 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'invoice_number',
                 'po_number',
                 'invoice_date',
-                'due_date',
+                'due_at',
                 'terms',
                 'public_notes',
                 'invoice_footer',
                 'partial',
                 'partial_due_date',
             ] as $field) {
-                if ($this->{$field} != $this->getOriginal($field)) {
+                if ($this->$field != $this->getOriginal($field)) {
                     return true;
                 }
             }
 
             return false;
         }
-
         $dirty = $this->getDirty();
 
-        unset($dirty['invoice_status_id'], $dirty['client_enable_auto_bill'], $dirty['quote_invoice_id']);
+        unset($dirty['invoice_status_id']);
+        unset($dirty['client_enable_auto_bill']);
+        unset($dirty['quote_invoice_id']);
 
         return count($dirty) > 0;
     }
 
     /**
-     * @param bool $calculate
-     *
-     * @return int|mixed
+     * @return BelongsTo
      */
-    public function getAmountPaid($calculate = false): int|float
+    public function company()
     {
-        if ($this->isType(INVOICE_TYPE_QUOTE) || $this->is_recurring) {
-            return 0;
-        }
-
-        if ($calculate) {
-            $amount = 0;
-            foreach ($this->payments as $payment) {
-                if ($payment->payment_status_id == PAYMENT_STATUS_VOIDED) {
-                    continue;
-                }
-
-                if ($payment->payment_status_id == PAYMENT_STATUS_FAILED) {
-                    continue;
-                }
-
-                $amount += $payment->getCompletedAmount();
-            }
-
-            return $amount;
-        }
-
-        return $this->amount - $this->balance;
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
-    public function trashed(): bool
-    {
-        if ($this->client && $this->client->trashed()) {
-            return true;
-        }
-
-        return self::parentTrashed();
-    }
-
-    public function account(): BelongsTo
-    {
-        return $this->belongsTo(Account::class);
-    }
-
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function invoice_items()
+    /**
+     * @return mixed
+     */
+    public function invoice_items(): Builder
     {
         return $this->hasMany(InvoiceItem::class)->orderBy('id');
     }
 
-    public function documents()
+    /**
+     * @return mixed
+     */
+    public function documents(): Builder
     {
         return $this->hasMany(Document::class)->orderBy('id');
     }
 
+    /**
+     * @return mixed
+     */
     public function allDocuments()
     {
         $documents = $this->documents;
-        $documents = $documents->merge($this->account->defaultDocuments);
+        $documents = $documents->merge($this->company->defaultDocuments);
 
         foreach ($this->expenses as $expense) {
             if ($expense->invoice_documents) {
@@ -507,78 +345,145 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $documents;
     }
 
-    public function invoice_status(): BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function invoice_status()
     {
         return $this->belongsTo(InvoiceStatus::class);
     }
 
-    public function invoice_design(): BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function invoice_design()
     {
         return $this->belongsTo(InvoiceDesign::class);
     }
 
-    public function payments(): HasMany
+    /**
+     * @return HasMany
+     */
+    public function payments()
     {
         return $this->hasMany(Payment::class, 'invoice_id', 'id');
     }
 
-    public function recurring_invoice(): BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function recurring_invoice()
     {
         return $this->belongsTo(self::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function recurring_quote()
+    {
+        return $this->belongsTo(self::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
     public function quote()
     {
         return $this->belongsTo(self::class)->withTrashed();
     }
 
-    public function recurring_invoices(): HasMany
+    /**
+     * @return HasMany
+     */
+    public function recurring_invoices()
     {
         return $this->hasMany(self::class, 'recurring_invoice_id');
     }
 
-    public function frequency(): BelongsTo
+    /**
+     * @return HasMany
+     */
+    public function recurring_quotes()
+    {
+        return $this->hasMany(self::class, 'recurring_invoice_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function frequency()
     {
         return $this->belongsTo(Frequency::class);
     }
 
-    public function invitations(): HasMany
+    /**
+     * @return mixed
+     */
+    public function invitations(): Builder
     {
         return $this->hasMany(Invitation::class)->orderBy('invitations.contact_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function expenses()
     {
         return $this->hasMany(Expense::class, 'invoice_id', 'id')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function scopeInvoices($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', '=', false);
     }
 
+    /**
+     * @return mixed
+     */
     public function scopeRecurring($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', '=', true);
     }
 
+    /**
+     * @return mixed
+     */
+    public function scopeRecurringQuote($query)
+    {
+        return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+            ->where('is_recurring', '=', true);
+    }
+
+    /**
+     * @return mixed
+     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->where(function ($query) use ($startDate, $endDate): void {
             $query->whereBetween('invoice_date', [$startDate, $endDate]);
         })->orWhere(function ($query) use ($startDate, $endDate): void {
-            $query->whereBetween('due_date', [$startDate, $endDate]);
+            $query->whereBetween('due_at', [$startDate, $endDate]);
         });
     }
 
+    /**
+     * @return mixed
+     */
     public function scopeQuotes($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
             ->where('is_recurring', '=', false);
     }
 
+    /**
+     * @return mixed
+     */
     public function scopeUnapprovedQuotes($query, $includeInvoiceId = false)
     {
         return $query->quotes()
@@ -592,9 +497,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param $query
-     * @param $typeId
-     *
      * @return mixed
      */
     public function scopeInvoiceType($query, $typeId)
@@ -603,14 +505,16 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param $query
      * @param $typeId
      *
      * @return mixed
      */
     public function scopeStatusIds($query, $statusIds)
     {
-        if ( ! $statusIds || (is_array($statusIds) && $statusIds === [])) {
+        if (! $statusIds) {
+            return $query;
+        }
+        if (is_array($statusIds) && ! count($statusIds)) {
             return $query;
         }
 
@@ -618,18 +522,16 @@ class Invoice extends EntityModel implements BalanceAffecting
             foreach ($statusIds as $statusId) {
                 $query->orWhere('invoice_status_id', '=', $statusId);
             }
-
             if (in_array(INVOICE_STATUS_UNPAID, $statusIds)) {
                 $query->orWhere(function ($query): void {
                     $query->where('balance', '>', 0)
                         ->where('is_public', '=', true);
                 });
             }
-
             if (in_array(INVOICE_STATUS_OVERDUE, $statusIds)) {
                 $query->orWhere(function ($query): void {
                     $query->where('balance', '>', 0)
-                        ->where('due_date', '<', date('Y-m-d'))
+                        ->where('due_at', '<', date('Y-m-d'))
                         ->where('is_public', '=', true);
                 });
             }
@@ -637,21 +539,21 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param $typeId
-     *
-     * @return bool
+     * @return Invitation|null
      */
-    public function isType($typeId): bool
+    public function invitationByContactId(int $contactId)
     {
-        return $this->invoice_type_id == $typeId;
+        foreach ($this->invitations as $invitation) {
+            if ($invitation->contact_id === $contactId) {
+                return $invitation;
+            }
+        }
     }
 
-    public function isQuote()
-    {
-        return $this->isType(INVOICE_TYPE_QUOTE);
-    }
-
-    public function getCustomMessageType(): string
+    /**
+     * @return string
+     */
+    public function getCustomMessageType()
     {
         if ($this->isQuote()) {
             return $this->quote_invoice_id ? CUSTOM_MESSAGE_APPROVED_QUOTE : CUSTOM_MESSAGE_UNAPPROVED_QUOTE;
@@ -660,16 +562,25 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->balance > 0 ? CUSTOM_MESSAGE_UNPAID_INVOICE : CUSTOM_MESSAGE_PAID_INVOICE;
     }
 
-    public function isStandard(): bool
+    public function isQuote(): bool
     {
-        return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
+        if (! $this->isType(INVOICE_TYPE_QUOTE)) {
+            return false;
+        }
+
+        return ! $this->is_recurring;
     }
 
     public function markSentIfUnsent(): void
     {
-        if ( ! $this->isSent()) {
+        if (! $this->isSent()) {
             $this->markSent();
         }
+    }
+
+    public function isSent(): bool
+    {
+        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->getOriginal('is_public');
     }
 
     public function markSent(): void
@@ -678,7 +589,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        if ( ! $this->isSent()) {
+        if (! $this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
         }
 
@@ -698,7 +609,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        if ( ! $this->relationLoaded('invitations')) {
+        if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
@@ -707,23 +618,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
-    public function areInvitationsSent(): bool
-    {
-        if ( ! $this->relationLoaded('invitations')) {
-            $this->load('invitations');
-        }
-
-        foreach ($this->invitations as $invitation) {
-            if ( ! $invitation->isSent()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
-     * @param       $invitation
      * @param bool  $messageId
      * @param bool  $notify
      * @param mixed $notes
@@ -734,7 +629,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        if ( ! $this->isSent()) {
+        if (! $this->isSent()) {
             $this->is_public = true;
             $this->invoice_status_id = INVOICE_STATUS_SENT;
             $this->save();
@@ -744,7 +639,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         // if the user marks it as sent rather than acually sending it
         // then we won't track it in the activity log
-        if ( ! $notify) {
+        if (! $notify) {
             return;
         }
 
@@ -755,12 +650,35 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
+    public function areInvitationsSent(): bool
+    {
+        if (! $this->relationLoaded('invitations')) {
+            $this->load('invitations');
+        }
+
+        foreach ($this->invitations as $invitation) {
+            if (! $invitation->isSent()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function markViewed(): void
     {
-        if ( ! $this->isViewed()) {
+        if (! $this->isViewed()) {
             $this->invoice_status_id = INVOICE_STATUS_VIEWED;
             $this->save();
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isViewed()
+    {
+        return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;
     }
 
     /**
@@ -785,6 +703,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
+    /**
+     * @return bool
+     */
+    public function isPartial()
+    {
+        return $this->invoice_status_id >= INVOICE_STATUS_PARTIAL;
+    }
+
     public function markApproved(): void
     {
         if ($this->isType(INVOICE_TYPE_QUOTE)) {
@@ -794,7 +720,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param     $balanceAdjustment
      * @param int $partial
      */
     public function updateBalances($balanceAdjustment, $partial = 0): void
@@ -803,55 +728,78 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        $balanceAdjustment = (float) $balanceAdjustment;
-        $partial = (float) $partial;
+        $balanceAdjustment = floatval($balanceAdjustment);
+        $partial = floatval($partial);
 
-        if ( ! $balanceAdjustment && $this->partial == $partial) {
+        if (! $balanceAdjustment && $this->partial == $partial) {
             return;
         }
 
-        $this->balance += $balanceAdjustment;
+        $this->balance = $this->balance + $balanceAdjustment;
 
         if ($this->partial > 0) {
             $this->partial = $partial;
 
             // clear the partial due date and set the due date
             // using payment terms if it's blank
-            if ( ! $this->partial && $this->partial_due_date) {
+            if (! $this->partial && $this->partial_due_date) {
                 $this->partial_due_date = null;
-                if ( ! $this->due_date) {
-                    $this->due_date = $this->account->defaultDueDate($this->client);
+                if (! $this->due_date) {
+                    $this->due_date = $this->company->defaultDueDate($this->client);
                 }
             }
         }
 
         $this->save();
-
         // mark fees as paid
-        if ($balanceAdjustment != 0 && $this->account->gateway_fee_enabled && ($invoiceItem = $this->getGatewayFeeItem())) {
+        if ($balanceAdjustment == 0) {
+            return;
+        }
+        if (! $this->company->gateway_fee_enabled) {
+            return;
+        }
+        if ($invoiceItem = $this->getGatewayFeeItem()) {
             $invoiceItem->markFeePaid();
         }
     }
 
     public function activeUser()
     {
-        if ( ! $this->user->trashed()) {
+        if (! $this->user->trashed()) {
             return $this->user;
         }
 
-        return $this->account->users->first();
+        return $this->company->users->first();
     }
 
+    /**
+     * @return bool
+     */
+    public function trashed()
+    {
+        if (! $this->client) {
+            return self::parentTrashed();
+        }
+        if (! $this->client->trashed()) {
+            return self::parentTrashed();
+        }
+
+        return true;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
     }
 
-    public function getFileName(string $extension = 'pdf'): string
+    public function getFileName($extension = 'pdf'): string
     {
         $entityType = $this->getEntityType();
 
-        return trans('texts.' . $entityType) . '_' . $this->invoice_number . '.' . $extension;
+        return trans("texts.$entityType") . '_' . $this->invoice_number . '.' . $extension;
     }
 
     public function getPDFPath(): string
@@ -859,59 +807,123 @@ class Invoice extends EntityModel implements BalanceAffecting
         return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
     }
 
-    public function canBePaid(): bool
+    public function canBePaid()
     {
-        return ! $this->isPaid() && ! $this->is_deleted && $this->isStandard();
+        // already paid or deleted
+        if ($this->isPaid()) {
+            return false;
+        }
+        if ($this->is_deleted) {
+            return false;
+        }
+        // if quote approve is required, them only standard invoices can be paid
+        if ($this->company->require_approve_quote) {
+            return $this->isStandard();
+        }
+
+        return true;
     }
 
-    public function statusClass(): string
+    /**
+     * @return bool
+     */
+    public function isPaid()
     {
-        $dueDate = $this->getOriginal('partial_due_date') ?: $this->getOriginal('due_date');
-
-        return static::calcStatusClass($this->invoice_status_id, $this->balance, $dueDate, $this->is_recurring);
+        return $this->invoice_status_id >= INVOICE_STATUS_PAID;
     }
 
-    public function statusLabel(): string
+    public function isStandard(): bool
+    {
+        if (! $this->isType(INVOICE_TYPE_STANDARD)) {
+            return false;
+        }
+
+        return ! $this->is_recurring;
+    }
+
+    public function statusLabel()
     {
         return static::calcStatusLabel($this->invoice_status->name, $this->statusClass(), $this->getEntityType(), $this->quote_invoice_id);
     }
 
-    public function getLink()
+    public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
     {
-        return self::calcLink($this);
+        if ($quoteInvoiceId) {
+            $label = 'converted';
+        } elseif ($class == 'danger') {
+            $label = $entityType == ENTITY_INVOICE ? 'past_due' : 'expired';
+        } else {
+            $label = 'status_' . strtolower($status);
+        }
+
+        return trans("texts.{$label}");
+    }
+
+    public function statusClass()
+    {
+        $dueDate = $this->getOriginal('partial_due_date') ?: $this->getOriginal('due_at');
+
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $dueDate, $this->is_recurring);
+    }
+
+    public static function calcStatusClass($statusId, $balance, $dueDate, $isRecurring)
+    {
+        if ($statusId >= INVOICE_STATUS_SENT && ! $isRecurring && static::calcIsOverdue($balance, $dueDate)) {
+            return 'danger';
+        }
+
+        if (isset(static::$statusClasses[$statusId])) {
+            return static::$statusClasses[$statusId];
+        }
+
+        return 'default';
+    }
+
+    public static function calcIsOverdue($balance, $dueDate)
+    {
+        if (! Utils::parseFloat($balance) > 0) {
+            return false;
+        }
+        if (! $dueDate) {
+            return false;
+        }
+        if ($dueDate == '0000-00-00') {
+            return false;
+        }
+
+        // it isn't considered overdue until the end of the day
+        return time() > (strtotime($dueDate) + (60 * 60 * 24));
     }
 
     public function getInvitationLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if ( ! $this->relationLoaded('invitations')) {
+        if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
         return $this->invitations[0]->getLink($type, $forceOnsite, $forcePlain);
     }
 
-    public function getEntityType(): string
+    /**
+     * @return string
+     */
+    public function getLink()
     {
-        return $this->isType(INVOICE_TYPE_QUOTE) ? ENTITY_QUOTE : ENTITY_INVOICE;
+        return self::calcLink($this);
     }
 
-    public function subEntityType()
+    /**
+     * @return string
+     */
+    public static function calcLink($invoice)
     {
-        if ($this->is_recurring) {
-            return ENTITY_RECURRING_INVOICE;
+        if (isset($invoice->invoice_type_id)) {
+            $linkPrefix = ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) ? 'quotes/' : 'invoices/';
+        } else {
+            $linkPrefix = 'invoices/';
         }
 
-        return $this->getEntityType();
-    }
-
-    public function isSent(): bool
-    {
-        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->getOriginal('is_public');
-    }
-
-    public function isViewed(): bool
-    {
-        return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;
+        return link_to($linkPrefix . $invoice->public_id, $invoice->invoice_number);
     }
 
     public function isApproved(): bool
@@ -919,25 +931,21 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->invoice_status_id >= INVOICE_STATUS_APPROVED || $this->quote_invoice_id;
     }
 
-    public function isPartial(): bool
-    {
-        return $this->invoice_status_id >= INVOICE_STATUS_PARTIAL;
-    }
-
-    public function isPaid(): bool
-    {
-        return $this->invoice_status_id >= INVOICE_STATUS_PAID;
-    }
-
+    /**
+     * @return bool
+     */
     public function isOverdue()
     {
         return static::calcIsOverdue($this->balance, $this->partial_due_date ?: $this->due_date);
     }
 
+    /**
+     * @return mixed
+     */
     public function getRequestedAmount()
     {
         $fee = 0;
-        if ($this->account->gateway_fee_enabled) {
+        if ($this->company->gateway_fee_enabled) {
             $fee = $this->getGatewayFee();
         }
 
@@ -948,14 +956,16 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->balance;
     }
 
+    /**
+     * @return string
+     */
     public function getCurrencyCode()
     {
         if ($this->client->currency) {
             return $this->client->currency->code;
         }
-
-        if ($this->account->currency) {
-            return $this->account->currency->code;
+        if ($this->company->currency) {
+            return $this->company->currency->code;
         }
 
         return 'USD';
@@ -964,7 +974,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return $this
      */
-    public function hidePrivateFields(): static
+    public function hidePrivateFields()
     {
         $this->setVisible([
             'invoice_number',
@@ -972,7 +982,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'is_amount_discount',
             'po_number',
             'invoice_date',
-            'due_date',
+            'due_at',
             'terms',
             'invoice_footer',
             'public_notes',
@@ -987,16 +997,12 @@ class Invoice extends EntityModel implements BalanceAffecting
             'tax_rate1',
             'tax_name2',
             'tax_rate2',
-            'account',
+            'company',
             'invoice_design',
             'invoice_design_id',
             'invoice_fonts',
             'features',
             'invoice_type_id',
-            'custom_value1',
-            'custom_value2',
-            'custom_taxes1',
-            'custom_taxes2',
             'partial',
             'partial_due_date',
             'has_tasks',
@@ -1026,7 +1032,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_value2',
         ]);
 
-        $this->account->setVisible([
+        $this->company->setVisible([
             'name',
             'website',
             'id_number',
@@ -1123,16 +1129,41 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param null $invoice_date
-     *
+     * @param int $min
+     * @param int $max
+     */
+    public function getPrettySchedule($min = 0, $max = 10)
+    {
+        if (! $schedule = $this->getSchedule($max)) {
+            return;
+        }
+
+        $dates = [];
+
+        for ($i = $min; $i < min($max, count($schedule)); $i++) {
+            $date = $schedule[$i];
+            $dateStart = $date->getStart();
+            $date = $this->company->formatDate($dateStart);
+            $dueDate = $this->getDueDate($dateStart);
+
+            if ($dueDate) {
+                $date .= ' <small>(' . trans('texts.due') . ' ' . $this->company->formatDate($dueDate) . ')</small>';
+            }
+
+            $dates[] = $date;
+        }
+
+        return implode('<br/>', $dates);
+    }
+
+    /**
      * @return mixed|null
      */
     public function getDueDate($invoice_date = null)
     {
-        if ( ! $this->is_recurring) {
-            return $this->due_date ?: null;
+        if (! $this->is_recurring) {
+            return $this->due_date ? $this->due_date : null;
         }
-
         $now = time();
         if ($invoice_date) {
             // If $invoice_date is specified, all calculations are based on that date
@@ -1203,16 +1234,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             $days = $this->client->defaultDaysDue();
 
             return date('Y-m-d', strtotime('+' . $days . ' day', $now));
-        } elseif ($this->account->payment_terms != 0) {
-            $days = $this->account->defaultDaysDue();
-
-            return date('Y-m-d', strtotime('+' . $days . ' day', $now));
-        } elseif ($this->account->payment_terms != 0) {
-            // No custom due date set for this invoice; use the client's payment terms
-            $days = $this->account->payment_terms;
-            if ($days == -1) {
-                $days = 0;
-            }
+        } elseif ($this->company->payment_terms != 0) {
+            $days = $this->company->defaultDaysDue();
 
             return date('Y-m-d', strtotime('+' . $days . ' day', $now));
         }
@@ -1221,41 +1244,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param int $min
-     * @param int $max
-     *
-     * @return null
-     */
-    public function getPrettySchedule($min = 0, $max = 10)
-    {
-        if ( ! $schedule = $this->getSchedule()) {
-            return;
-        }
-
-        $dates = [];
-
-        for ($i = $min; $i < min($max, count($schedule)); $i++) {
-            $date = $schedule[$i];
-            $dateStart = $date->getStart();
-            $date = $this->account->formatDate($dateStart);
-            $dueDate = $this->getDueDate($dateStart);
-
-            if ($dueDate) {
-                $date .= ' <small>(' . trans('texts.due') . ' ' . $this->account->formatDate($dueDate) . ')</small>';
-            }
-
-            $dates[] = $date;
-        }
-
-        return implode('<br/>', $dates);
-    }
-
-    /**
      * @return bool|string
      */
     public function getPDFString($invitation = false, $decode = true)
     {
-        if ( ! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
+        if (! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
@@ -1267,7 +1260,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');
-        $phantomjsLink = $link . ('?phantomjs=true&phantomjs_secret=' . $phantomjsSecret);
+        $phantomjsLink = $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}";
 
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
@@ -1275,32 +1268,30 @@ class Invoice extends EntityModel implements BalanceAffecting
                 for ($i = 1; $i <= 5; $i++) {
                     $pdfString = CurlUtils::phantom('GET', $phantomjsLink);
                     $pdfString = strip_tags($pdfString);
-                    if (str_starts_with($pdfString, 'data')) {
+                    if (strpos($pdfString, 'data') === 0) {
                         break;
                     }
-
                     if (Utils::isNinjaDev() || Utils::isTravis()) {
                         Utils::logError('Failed to generate: ' . $i);
                     }
-
                     $pdfString = false;
                     sleep(2);
                 }
             }
 
-            if ( ! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
-                $url = sprintf('http://api.phantomjscloud.com/api/browser/v2/%s/?request=%%7Burl:%%22%s?phantomjs=true%%26phantomjs_secret=%s%%22,renderType:%%22html%%22%%7D', $key, $link, $phantomjsSecret);
+            if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
+                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%26phantomjs_secret={$phantomjsSecret}%22,renderType:%22html%22%7D";
                 $pdfString = CurlUtils::get($url);
                 $pdfString = strip_tags($pdfString);
             }
         } catch (Exception $exception) {
-            Utils::logError(sprintf('PhantomJS - Failed to load %s: %s', $phantomjsLink, $exception->getMessage()));
+            Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
 
             return false;
         }
 
-        if ( ! $pdfString || mb_strlen($pdfString) < 200) {
-            Utils::logError(sprintf('PhantomJS - Invalid response %s: %s', $phantomjsLink, $pdfString));
+        if (! $pdfString || strlen($pdfString) < 200) {
+            Utils::logError("PhantomJS - Invalid response {$phantomjsLink}: {$pdfString}");
 
             return false;
         }
@@ -1309,8 +1300,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf = Utils::decodePDF($pdfString)) {
                 return $pdf;
             }
-
-            Utils::logError('PhantomJS - Unable to decode ' . $phantomjsLink);
+            Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}");
 
             return false;
         }
@@ -1318,10 +1308,160 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $pdfString;
     }
 
+    public function getTaxTotal()
+    {
+        $total = 0;
+
+        foreach ($this->getTaxes() as $tax) {
+            $total += $tax['amount'];
+        }
+
+        return $total;
+    }
+
     /**
-     * @param $invoiceItem
-     * @param $invoiceTotal
+     * @param bool $calculatePaid
      *
+     * @return array
+     */
+    public function getTaxes($calculatePaid = false)
+    {
+        $taxes = [];
+        $company = $this->company;
+        $taxable = $this->getTaxable();
+        $paidAmount = $this->getAmountPaid($calculatePaid);
+
+        if ($this->tax_name1) {
+            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate1);
+            $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
+        }
+        if ($this->tax_name2) {
+            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate2);
+            $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
+        }
+
+        foreach ($this->invoice_items as $invoiceItem) {
+            $itemTaxable = $this->getItemTaxable($invoiceItem, $taxable);
+
+            if ($invoiceItem->tax_name1) {
+                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate1);
+                $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
+            }
+            if ($invoiceItem->tax_name2) {
+                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate2);
+                $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
+            }
+        }
+
+        return $taxes;
+    }
+
+    /**
+     * @return float|int|mixed
+     */
+    public function getTaxable()
+    {
+        $total = 0;
+
+        foreach ($this->invoice_items as $invoiceItem) {
+            $lineTotal = $invoiceItem->qty * $invoiceItem->cost;
+
+            if ($invoiceItem->discount != 0) {
+                if ($this->is_amount_discount) {
+                    $lineTotal -= $invoiceItem->discount;
+                } else {
+                    $lineTotal -= $lineTotal * $invoiceItem->discount / 100;
+                }
+            }
+
+            $total += $lineTotal;
+        }
+
+        if ($this->discount > 0) {
+            if ($this->is_amount_discount) {
+                $total -= $this->discount;
+            } else {
+                $total *= (100 - $this->discount) / 100;
+                $total = round($total, 2);
+            }
+        }
+
+        return $total;
+    }
+
+    // if $calculatePaid is true we'll loop through each payment to
+    // determine the sum, otherwise we'll use the cached paid_to_date amount
+
+    /**
+     * @param bool $calculate
+     *
+     * @return int|mixed
+     */
+    public function getAmountPaid($calculate = false)
+    {
+        if ($this->isType(INVOICE_TYPE_QUOTE)) {
+            return 0;
+        }
+        if ($this->is_recurring) {
+            return 0;
+        }
+        if ($calculate) {
+            $amount = 0;
+            foreach ($this->payments as $payment) {
+                if ($payment->payment_status_id == PAYMENT_STATUS_VOIDED) {
+                    continue;
+                }
+                if ($payment->payment_status_id == PAYMENT_STATUS_FAILED) {
+                    continue;
+                }
+                $amount += $payment->getCompletedAmount();
+            }
+
+            return $amount;
+        }
+
+        return $this->amount - $this->balance;
+    }
+
+    public function taxAmount($taxable, $rate): float
+    {
+        $company = $this->company;
+
+        if ($company->inclusive_taxes) {
+            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
+        }
+
+        return round($taxable * ($rate / 100), 2);
+    }
+
+    private function calculateTax(&$taxes, $name, $rate, $amount, int|float $paid): void
+    {
+        if (! $amount) {
+            return;
+        }
+
+        $amount = round($amount, 2);
+        $paid = round($paid, 2);
+        $key = $rate . ' ' . $name;
+
+        if (! isset($taxes[$key])) {
+            $taxes[$key] = [
+                'name'   => $name,
+                'rate'   => $rate + 0,
+                'amount' => 0,
+                'paid'   => 0,
+            ];
+        }
+
+        $taxes[$key]['amount'] += $amount;
+        $taxes[$key]['paid'] += $paid;
+    }
+
+    /**
      * @return float|int
      */
     public function getItemTaxable($invoiceItem, $invoiceTotal): float
@@ -1350,114 +1490,8 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @return float|int|mixed
+     * @return int
      */
-    public function getTaxable(): int|float
-    {
-        $total = 0;
-
-        foreach ($this->invoice_items as $invoiceItem) {
-            $lineTotal = $invoiceItem->qty * $invoiceItem->cost;
-
-            if ($invoiceItem->discount != 0) {
-                if ($this->is_amount_discount) {
-                    $lineTotal -= $invoiceItem->discount;
-                } else {
-                    $lineTotal -= $lineTotal * $invoiceItem->discount / 100;
-                }
-            }
-
-            $total += $lineTotal;
-        }
-
-        if ($this->discount > 0) {
-            if ($this->is_amount_discount) {
-                $total -= $this->discount;
-            } else {
-                $total *= (100 - $this->discount) / 100;
-                $total = round($total, 2);
-            }
-        }
-
-        if ($this->custom_value1 && $this->custom_taxes1) {
-            $total += $this->custom_value1;
-        }
-
-        if ($this->custom_value2 && $this->custom_taxes2) {
-            $total += $this->custom_value2;
-        }
-
-        return $total;
-    }
-
-    // if $calculatePaid is true we'll loop through each payment to
-    // determine the sum, otherwise we'll use the cached paid_to_date amount
-
-    /**
-     * @param bool $calculatePaid
-     *
-     * @return array
-     */
-    public function getTaxes($calculatePaid = false)
-    {
-        $taxes = [];
-        $account = $this->account;
-        $taxable = $this->getTaxable();
-        $paidAmount = $this->getAmountPaid($calculatePaid);
-
-        if ($this->tax_name1) {
-            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate1);
-            $invoicePaidAmount = (float) ($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
-            $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
-        }
-
-        if ($this->tax_name2) {
-            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate2);
-            $invoicePaidAmount = (float) ($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
-            $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
-        }
-
-        foreach ($this->invoice_items as $invoiceItem) {
-            $itemTaxable = $this->getItemTaxable($invoiceItem, $taxable);
-
-            if ($invoiceItem->tax_name1) {
-                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate1);
-                $itemPaidAmount = (float) ($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
-                $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
-            }
-
-            if ($invoiceItem->tax_name2) {
-                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate2);
-                $itemPaidAmount = (float) ($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
-                $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
-            }
-        }
-
-        return $taxes;
-    }
-
-    public function getTaxTotal(): int|float
-    {
-        $total = 0;
-
-        foreach ($this->getTaxes() as $tax) {
-            $total += $tax['amount'];
-        }
-
-        return $total;
-    }
-
-    public function taxAmount($taxable, $rate): float
-    {
-        $account = $this->account;
-
-        if ($account->inclusive_taxes) {
-            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
-        }
-
-        return round($taxable * ($rate / 100), 2);
-    }
-
     public function countDocuments($expenses = false)
     {
         $count = $this->documents->count();
@@ -1479,13 +1513,16 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $count;
     }
 
+    /**
+     * @return bool
+     */
     public function hasDocuments()
     {
         if ($this->documents->count()) {
             return true;
         }
 
-        if ($this->account->defaultDocuments->count()) {
+        if ($this->company->defaultDocuments->count()) {
             return true;
         }
 
@@ -1495,23 +1532,39 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function hasExpenseDocuments(): bool
     {
         foreach ($this->expenses as $expense) {
-            if ($expense->invoice_documents && $expense->documents->count()) {
-                return true;
+            if (! $expense->invoice_documents) {
+                continue;
             }
+            if (! $expense->documents->count()) {
+                continue;
+            }
+
+            return true;
         }
 
         return false;
     }
 
-    public function getAutoBillEnabled()
+    public function getAutoBillEnabled(): bool
     {
-        $recurInvoice = $this->is_recurring ? $this : $this->recurring_invoice;
-
-        if ( ! $recurInvoice) {
+        $recurInvoice = ! $this->is_recurring ? $this->recurring_invoice : $this;
+        if (! $recurInvoice) {
+            return false;
+        }
+        if ($this->subEntityType() == ENTITY_RECURRING_QUOTE) {
             return false;
         }
 
         return $recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill);
+    }
+
+    public function subEntityType()
+    {
+        if ($this->is_recurring) {
+            return $this->isType(INVOICE_TYPE_STANDARD) ? ENTITY_RECURRING_INVOICE : ENTITY_RECURRING_QUOTE;
+        }
+
+        return $this->getEntityType();
     }
 
     public function emailHistory()
@@ -1526,7 +1579,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function getDueDateLabel(): string
     {
-        return $this->isQuote() ? 'valid_until' : 'due_date';
+        return $this->isType(INVOICE_TYPE_QUOTE) ? 'valid_until' : 'due_at';
     }
 
     public function onlyHasTasks(): bool
@@ -1542,10 +1595,12 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function hasTaxes(): bool
     {
-        if ($this->tax_name1 || $this->tax_rate1) {
+        if ($this->tax_name1) {
             return true;
         }
-
+        if ($this->tax_rate1) {
+            return true;
+        }
         if ($this->tax_name2 || $this->tax_rate2) {
             return false;
         }
@@ -1553,24 +1608,27 @@ class Invoice extends EntityModel implements BalanceAffecting
         return false;
     }
 
-    public function isLocked()
+    public function isLocked(): bool
     {
-        if ( ! config('ninja.lock_sent_invoices')) {
+        if (! config('ninja.lock_sent_invoices')) {
+            return false;
+        }
+        if (! $this->isSent()) {
             return false;
         }
 
-        return $this->isSent() && ! $this->is_recurring;
+        return ! $this->is_recurring;
     }
 
     public function getInvoiceLinkForQuote($contactId)
     {
-        if ( ! $this->quote_invoice_id) {
+        if (! $this->quote_invoice_id) {
             return false;
         }
 
-        $invoice = static::scope($this->quote_invoice_id, $this->account_id)->with('invitations')->first();
+        $invoice = static::scope($this->quote_invoice_id, $this->company_id)->with('invitations')->first();
 
-        if ( ! $invoice) {
+        if (! $invoice) {
             return false;
         }
 
@@ -1582,58 +1640,15 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return false;
     }
-
-    /**
-     * @return float
-     */
-    private function getRawAdjustment()
-    {
-        // if we've just made the invoice public then apply the full amount
-        if ($this->is_public && ! $this->getOriginal('is_public')) {
-            return $this->amount;
-        }
-
-        return (float) ($this->amount) - (float) ($this->getOriginal('amount'));
-    }
-
-    /**
-     * @param $taxes
-     * @param $name
-     * @param $rate
-     * @param $amount
-     * @param $paid
-     */
-    private function calculateTax(&$taxes, string $name, string $rate, $amount, int|float $paid): void
-    {
-        if ( ! $amount) {
-            return;
-        }
-
-        $amount = round($amount, 2);
-        $paid = round($paid, 2);
-        $key = $rate . ' ' . $name;
-
-        if ( ! isset($taxes[$key])) {
-            $taxes[$key] = [
-                'name'   => $name,
-                'rate'   => $rate + 0,
-                'amount' => 0,
-                'paid'   => 0,
-            ];
-        }
-
-        $taxes[$key]['amount'] += $amount;
-        $taxes[$key]['paid'] += $paid;
-    }
 }
 
 Invoice::creating(function ($invoice): void {
-    if ( ! $invoice->is_recurring) {
-        $account = $invoice->account;
+    if (! $invoice->is_recurring) {
+        $company = $invoice->company;
         if ($invoice->amount >= 0) {
-            $account->incrementCounter($invoice);
-        } elseif ($account->credit_number_counter > 0) {
-            $account->incrementCounter(new Credit());
+            $company->incrementCounter($invoice);
+        } elseif ($company->credit_number_counter > 0) {
+            $company->incrementCounter(new Credit());
         }
     }
 });

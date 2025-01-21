@@ -17,13 +17,11 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function createPermission(User $user, $entityType)
     {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+        if (! $this->checkModuleEnabled($user, $entityType)) {
             return false;
         }
-
-        $entityType = is_string($item) ? $item : $item->getEntityType();
 
         return $user->hasPermission('create_' . $entityType);
     }
@@ -33,18 +31,11 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function edit(User $user, $item)
+    public function checkModuleEnabled(User $user, $item)
     {
-        if ( ! static::checkModuleEnabled($user, $item)) {
-            return false;
-        }
-
         $entityType = is_string($item) ? $item : $item->getEntityType();
-        if ($user->hasPermission('edit_' . $entityType)) {
-            return true;
-        }
 
-        return $user->owns($item);
+        return $user->company->isModuleEnabled($entityType);
     }
 
     /**
@@ -52,18 +43,44 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $item)
+    public function edit(User $user, $item)
     {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+        if (! $this->checkModuleEnabled($user, $item)) {
             return false;
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
-        if ($user->hasPermission('view_' . $entityType)) {
+
+        return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
+    }
+
+    /**
+     * @param $item - entity name or object
+     *
+     * @return bool
+     */
+    public function view(User $user, $item, $entityType = null)
+    {
+        if (! $this->checkModuleEnabled($user, $item)) {
+            return false;
+        }
+
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+
+        return $user->hasPermission('view_' . $entityType) || $user->owns($item);
+    }
+
+    public function viewModel(User $user, $model)
+    {
+        if ($user->hasPermission('view_' . $model->entityType)) {
+            return true;
+        } elseif ($model->user_id == $user->id) {
+            return true;
+        } elseif (isset($model->agent_id) && ($model->agent_id == $user->id)) {
             return true;
         }
 
-        return $user->owns($item);
+        return false;
     }
 
     /**
@@ -73,8 +90,10 @@ class EntityPolicy
      *                      should use auth()->user()->can('view', $ENTITY_TYPE)
      *
      * $ENTITY_TYPE can be either the constant ie ENTITY_INVOICE, or the entity $object
+     *
+     * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId): bool
+    public function viewByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
@@ -89,20 +108,13 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId): mixed
+    public function editByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
 
-    /**
-     * @param $item - entity name or object
-     *
-     * @return bool
-     */
-    private static function checkModuleEnabled(User $user, $item)
+    public function createEntity(User $user, $entityType)
     {
-        $entityType = is_string($item) ? $item : $item->getEntityType();
-
-        return $user->account->isModuleEnabled($entityType);
+        return $user->hasPermission('create_' . $entityType);
     }
 }

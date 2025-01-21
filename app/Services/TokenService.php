@@ -11,15 +11,18 @@ use Illuminate\Http\JsonResponse;
  */
 class TokenService extends BaseService
 {
-    protected TokenRepository $tokenRepo;
+    /**
+     * @var TokenRepository
+     */
+    protected $tokenRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * TokenService constructor.
-     *
-     * @param TokenRepository  $tokenRepo
-     * @param DatatableService $datatableService
      */
     public function __construct(TokenRepository $tokenRepo, DatatableService $datatableService)
     {
@@ -27,11 +30,6 @@ class TokenService extends BaseService
         $this->datatableService = $datatableService;
     }
 
-    /**
-     * @param $userId
-     *
-     * @return JsonResponse
-     */
     public function getDatatable($userId)
     {
         $datatable = new TokenDatatable(false);
@@ -43,7 +41,7 @@ class TokenService extends BaseService
     /**
      * @return TokenRepository
      */
-    protected function getRepo(): TokenRepository
+    protected function getRepo()
     {
         return $this->tokenRepo;
     }

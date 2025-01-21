@@ -20,13 +20,13 @@ class VerifyCsrfToken extends BaseVerifier
         'payment_hook/*',
         'buy_now*',
         'hook/bot/*',
+        'tickets/inbound',
     ];
 
     /**
      * Handle an incoming request.
      *
      * @param Request $request
-     * @param Closure $next
      *
      * @return mixed
      */

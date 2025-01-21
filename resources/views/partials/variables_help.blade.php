@@ -17,38 +17,38 @@
         <li>${{ $entityType }}.footer</li>
         <li>${{ $entityType }}.partial</li>
         <li>${{ $entityType }}.partialDueDate</li>
-        @if ($account->customLabel('invoice1'))
+        @if ($company->customLabel('invoice1'))
             <li>${{ $entityType }}.customValue1</li>
         @endif
-        @if ($account->customLabel('invoice2'))
+        @if ($company->customLabel('invoice2'))
             <li>${{ $entityType }}.customValue2</li>
         @endif
-        @if ($account->customLabel('invoice_text1'))
+        @if ($company->customLabel('invoice_text1'))
             <li>${{ $entityType }}.customTextValue1</li>
         @endif
-        @if ($account->customLabel('invoice_text2'))
+        @if ($company->customLabel('invoice_text2'))
             <li>${{ $entityType }}.customTextValue2</li>
         @endif
     </ul>
     <ul>
-        <li>$account.name</li>
-        <li>$account.idNumber</li>
-        <li>$account.vatNumber</li>
-        <li>$account.address1</li>
-        <li>$account.address2</li>
-        <li>$account.city</li>
-        <li>$account.state</li>
-        <li>$account.postalCode</li>
-        <li>$account.country.name</li>
-        <li>$account.phone</li>
-        @if ($account->custom_label1)
-            <li>$account.customValue1</li>
+        <li>$company.name</li>
+        <li>$company.idNumber</li>
+        <li>$company.vatNumber</li>
+        <li>$company.address1</li>
+        <li>$company.address2</li>
+        <li>$company.city</li>
+        <li>$company.state</li>
+        <li>$company.postalCode</li>
+        <li>$company.country.name</li>
+        <li>$company.phone</li>
+        @if ($company->custom_label1)
+            <li>$company.customValue1</li>
         @endif
-        @if ($account->custom_label2)
-            <li>$account.customValue2</li>
+        @if ($company->custom_label2)
+            <li>$company.customValue2</li>
         @endif
     </ul>
-</ul>
+    </ul>
 </div>
 <div class="col-md-6">
     <ul>
@@ -61,12 +61,12 @@
         <li>$client.state</li>
         <li>$client.postalCode</li>
         <li>$client.country.name</li>
-        <li>$client.workPhone</li>
+        <li>$client.phone</li>
         <li>$client.balance</li>
-        @if ($account->customLabel('client1'))
+        @if ($company->customLabel('client1'))
             <li>$client.customValue1</li>
         @endif
-        @if ($account->customLabel('client2'))
+        @if ($company->customLabel('client2'))
             <li>$client.customValue2</li>
         @endif
     </ul>
@@ -75,10 +75,10 @@
         <li>$contact.lastName</li>
         <li>$contact.email</li>
         <li>$contact.phone</li>
-        @if ($account->customLabel('contact1'))
+        @if ($company->customLabel('contact1'))
             <li>$contact.customValue1</li>
         @endif
-        @if ($account->customLabel('contact2'))
+        @if ($company->customLabel('contact2'))
             <li>$contact.customValue2</li>
         @endif
     </ul>

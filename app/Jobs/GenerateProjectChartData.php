@@ -8,8 +8,6 @@ use stdClass;
 
 class GenerateProjectChartData extends Job
 {
-    public $project;
-
     public function __construct($project)
     {
         $this->project = $project;
@@ -23,7 +21,7 @@ class GenerateProjectChartData extends Job
     public function handle(): stdClass
     {
         $project = $this->project;
-        $account = $project->account;
+        $company = $project->company;
         $taskMap = [];
         $startTimestamp = time();
         $endTimestamp = max(time(), strtotime($project->due_date));
@@ -33,7 +31,7 @@ class GenerateProjectChartData extends Job
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if (count($parts) === 0) {
+            if (! count($parts)) {
                 continue;
             }
 
@@ -43,11 +41,11 @@ class GenerateProjectChartData extends Job
                 $start = $part[0];
                 $end = (count($part) > 1 && $part[1]) ? $part[1] : time();
 
-                $date = $account->getDateTime();
+                $date = $company->getDateTime();
                 $date->setTimestamp($part[0]);
                 $sqlDate = $date->format('Y-m-d');
 
-                if ( ! isset($taskMap[$sqlDate])) {
+                if (! isset($taskMap[$sqlDate])) {
                     $taskMap[$sqlDate] = 0;
                 }
 
@@ -60,8 +58,8 @@ class GenerateProjectChartData extends Job
 
         $labels = [];
         $records = [];
-        $startDate = $account->getDateTime()->setTimestamp($startTimestamp);
-        $endDate = $account->getDateTime()->setTimestamp($endTimestamp);
+        $startDate = $company->getDateTime()->setTimestamp($startTimestamp);
+        $endDate = $company->getDateTime()->setTimestamp($endTimestamp);
 
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($startDate, $interval, $endDate);
@@ -85,8 +83,8 @@ class GenerateProjectChartData extends Job
         $dataset->label = trans('texts.tasks');
         $dataset->lineTension = 0;
         $dataset->borderWidth = 4;
-        $dataset->borderColor = sprintf('rgba(%s, 1)', $color);
-        $dataset->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
+        $dataset->borderColor = "rgba({$color}, 1)";
+        $dataset->backgroundColor = "rgba({$color}, 0.1)";
 
         $data = new stdClass();
         $data->labels = $labels;

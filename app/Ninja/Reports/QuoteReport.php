@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class QuoteReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'           => [],
@@ -27,14 +27,13 @@ class QuoteReport extends AbstractReport
             $columns['tax'] = ['columnSelector-false'];
         }
 
-        $account = auth()->user()->account;
+        $company = auth()->user()->company;
 
-        if ($account->customLabel('invoice_text1')) {
-            $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('invoice_text1')) {
+            $columns[$company->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-
-        if ($account->customLabel('invoice_text2')) {
-            $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('invoice_text2')) {
+            $columns[$company->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -42,7 +41,7 @@ class QuoteReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $company = Auth::user()->company;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $hasTaxRates = TaxRate::scope()->count();
@@ -62,8 +61,8 @@ class QuoteReport extends AbstractReport
             }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if ( ! extension_loaded('GMP')) {
-                die(trans('texts.gmp_required'));
+            if (! extension_loaded('GMP')) {
+                exit(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
@@ -76,7 +75,6 @@ class QuoteReport extends AbstractReport
                     }
                 }
             }
-
             $zip->finish();
             exit;
         }
@@ -87,7 +85,7 @@ class QuoteReport extends AbstractReport
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                    $account->formatMoney($invoice->amount, $client),
+                    $company->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
                     $invoice->private_notes,
                     $invoice->user->getDisplayName(),
@@ -96,14 +94,13 @@ class QuoteReport extends AbstractReport
                 ];
 
                 if ($hasTaxRates) {
-                    $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
+                    $row[] = $company->formatMoney($invoice->getTaxTotal(), $client);
                 }
 
-                if ($account->customLabel('invoice_text1')) {
+                if ($company->customLabel('invoice_text1')) {
                     $row[] = $invoice->custom_text_value1;
                 }
-
-                if ($account->customLabel('invoice_text2')) {
+                if ($company->customLabel('invoice_text2')) {
                     $row[] = $invoice->custom_text_value2;
                 }
 
@@ -111,7 +108,11 @@ class QuoteReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
 
-                $dimension = $subgroup == 'status' ? $invoice->statusLabel() : $this->getDimension($client);
+                if ($subgroup == 'status') {
+                    $dimension = $invoice->statusLabel();
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
 
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }

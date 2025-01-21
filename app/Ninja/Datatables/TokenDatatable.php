@@ -2,32 +2,38 @@
 
 namespace App\Ninja\Datatables;
 
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class TokenDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TOKEN;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
                 'name',
-                fn ($model) => link_to(sprintf('tokens/%s/edit', $model->public_id), $model->name)->toHtml(),
+                function ($model) {
+                    return link_to("tokens/{$model->public_id}/edit", $model->name)->toHtml();
+                },
             ],
             [
                 'token',
-                fn ($model) => $model->token,
+                function ($model) {
+                    return $model->token;
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 uctrans('texts.edit_token'),
-                fn ($model) => URL::to(sprintf('tokens/%s/edit', $model->public_id)),
+                function ($model) {
+                    return URL::to("tokens/{$model->public_id}/edit");
+                },
             ],
         ];
     }
