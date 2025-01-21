@@ -12,7 +12,10 @@ use App\Ninja\Repositories\ExpenseRepository;
 class ExpenseListener
 {
     // Expenses
-    protected ExpenseRepository $expenseRepo;
+    /**
+     * @var ExpenseRepository
+     */
+    protected $expenseRepo;
 
     /**
      * ExpenseListener constructor.
@@ -27,10 +30,10 @@ class ExpenseListener
     /**
      * @param InvoiceWasDeleted $event
      */
-    public function deletedInvoice(InvoiceWasDeleted $event): void
+    public function deletedInvoice(InvoiceWasDeleted $event)
     {
         // Release any tasks associated with the deleted invoice
         Expense::where('invoice_id', '=', $event->invoice->id)
-            ->update(['invoice_id' => null]);
+                ->update(['invoice_id' => null]);
     }
 }

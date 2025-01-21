@@ -2,4 +2,6 @@
 
 namespace App\Policies;
 
-class ContactPolicy extends EntityPolicy {}
+class ContactPolicy extends EntityPolicy
+{
+}

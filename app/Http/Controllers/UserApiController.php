@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Ninja\Repositories\UserRepository;
 use App\Ninja\Transformers\UserTransformer;
 use App\Services\UserService;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class UserApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_USER;
+    protected $userService;
+    protected $userRepo;
 
-    protected UserService $userService;
-
-    protected UserRepository $userRepo;
+    protected $entityType = ENTITY_USER;
 
     public function __construct(UserService $userService, UserRepository $userRepo)
     {
@@ -33,14 +32,11 @@ class UserApiController extends BaseAPIController
      *   summary="List users",
      *   operationId="listUsers",
      *   tags={"user"},
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of users",
-     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/User"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -50,8 +46,8 @@ class UserApiController extends BaseAPIController
     public function index()
     {
         $users = User::whereAccountId(Auth::user()->account_id)
-            ->withTrashed()
-            ->orderBy('created_at', 'desc');
+                        ->withTrashed()
+                        ->orderBy('created_at', 'desc');
 
         return $this->listResponse($users);
     }
@@ -62,21 +58,17 @@ class UserApiController extends BaseAPIController
      *   summary="Retrieve a user",
      *   operationId="getUser",
      *   tags={"client"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="user_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single user",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/User"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -94,21 +86,16 @@ class UserApiController extends BaseAPIController
      *   summary="Create a user",
      *   operationId="createUser",
      *   tags={"user"},
-     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="user",
-     *
      *     @SWG\Schema(ref="#/definitions/User")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="New user",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/User"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -126,7 +113,6 @@ class UserApiController extends BaseAPIController
      *   summary="Update a user",
      *   operationId="updateUser",
      *   tags={"user"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="user_id",
@@ -136,17 +122,13 @@ class UserApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="user",
-     *
      *     @SWG\Schema(ref="#/definitions/User")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated user",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/User"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -166,9 +148,19 @@ class UserApiController extends BaseAPIController
             $data = $this->createItem($user, $transformer, 'users');
 
             return $this->response($data);
+        } else {
+            return $this->save($request, $user);
         }
+    }
 
-        return $this->save($request, $user);
+    private function save($request, $user = false)
+    {
+        $user = $this->userRepo->save($request->input(), $user);
+
+        $transformer = new UserTransformer(\Auth::user()->account, $request->serializer);
+        $data = $this->createItem($user, $transformer, 'users');
+
+        return $this->response($data);
     }
 
     /**
@@ -177,21 +169,17 @@ class UserApiController extends BaseAPIController
      *   summary="Delete a user",
      *   operationId="deleteUser",
      *   tags={"user"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="user_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted user",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/User"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -205,15 +193,5 @@ class UserApiController extends BaseAPIController
         $this->userRepo->delete($entity);
 
         return $this->itemResponse($entity);
-    }
-
-    private function save($request, $user = false)
-    {
-        $user = $this->userRepo->save($request->input(), $user);
-
-        $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
-        $data = $this->createItem($user, $transformer, 'users');
-
-        return $this->response($data);
     }
 }

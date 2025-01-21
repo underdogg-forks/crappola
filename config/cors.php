@@ -10,10 +10,11 @@ return [
      | to accept any value.
      |
      */
-    'supports_credentials' => false,
-    'allowed_origins'      => ['*'],
-    'allowed_headers'      => ['*'],
-    'allowed_methods'      => ['*'],
-    'exposed_headers'      => [],
-    'max_age'              => 0,
+    'supportsCredentials' => false,
+    'allowedOrigins' => ['*'],
+    'allowedHeaders' => ['*'],
+    'allowedMethods' => ['*'],
+    'exposedHeaders' => [],
+    'maxAge' => 0,
 ];
+

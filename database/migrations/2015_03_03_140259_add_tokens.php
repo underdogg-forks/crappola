@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddTokens extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('account_tokens', function ($table): void {
+        Schema::create('account_tokens', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id');
@@ -27,7 +28,7 @@ return new class () extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('activities', function ($table): void {
+        Schema::table('activities', function ($table) {
             $table->unsignedInteger('token_id')->nullable();
         });
     }
@@ -37,12 +38,12 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::drop('account_tokens');
 
-        Schema::table('activities', function ($table): void {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('token_id');
         });
     }
-};
+}

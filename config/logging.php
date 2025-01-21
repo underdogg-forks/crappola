@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', env('LOG', 'daily')),
+    'default' => env('LOG_CHANNEL', 'stack'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,21 +34,20 @@ return [
     'channels' => [
         'stack' => [
             'driver'   => 'stack',
-            'channels' => ['daily'],
+            'channels' => ['single'],
         ],
 
         'single' => [
             'driver' => 'single',
             'path'   => storage_path('logs/laravel.log'),
             'level'  => 'debug',
-            'tap'    => [\App\Logging\CustomizeSingleLogger::class],
         ],
 
         'daily' => [
             'driver' => 'daily',
             'path'   => storage_path('logs/laravel.log'),
             'level'  => 'debug',
-            'days'   => 4,
+            'days'   => 7,
         ],
 
         'slack' => [

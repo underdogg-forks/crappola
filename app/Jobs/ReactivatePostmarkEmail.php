@@ -2,12 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
 use Postmark\PostmarkClient;
 
 class ReactivatePostmarkEmail extends Job
 {
-    public $bounceId;
-
     public function __construct($bounceId)
     {
         $this->bounceId = $bounceId;
@@ -20,7 +19,7 @@ class ReactivatePostmarkEmail extends Job
      */
     public function handle()
     {
-        if ( ! config('services.postmark')) {
+        if (! config('services.postmark')) {
             return false;
         }
 

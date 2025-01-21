@@ -3,9 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Input\InputOption;
 use Utils;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class ResetData.
@@ -22,11 +21,11 @@ class ResetData extends Command
      */
     protected $description = 'Reset data';
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running ResetData...');
 
-        if ( ! Utils::isNinjaDev()) {
+        if (! Utils::isNinjaDev()) {
             return;
         }
 
@@ -37,9 +36,13 @@ class ResetData extends Command
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');
+        return 0;
     }
 
-    protected function getOptions(): array
+    /**
+     * @return array
+     */
+    protected function getOptions()
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],

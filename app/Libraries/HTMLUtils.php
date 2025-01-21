@@ -29,13 +29,13 @@ class HTMLUtils
 
         // Wrap our CSS in style tags and pass to purifier.
         // we're not actually interested in the html response though
-        $purifier->purify('<style>' . $css . '</style>');
+        $purifier->purify('<style>'.$css.'</style>');
 
         // The "style" blocks are stored seperately
         $css = $purifier->context->get('StyleBlocks');
 
         // Get the first style block
-        return count($css) > 0 ? $css[0] : '';
+        return count($css) ? $css[0] : '';
     }
 
     public static function sanitizeHTML($html)
@@ -57,12 +57,12 @@ class HTMLUtils
 
         if ($previous == $current) {
             return url($fallback);
+        } else {
+            return $previous;
         }
-
-        return $previous;
     }
 
-    public static function getEnvForAccount(string $field, $default = '')
+    public static function getEnvForAccount($field, $default = '')
     {
         $key = '';
 

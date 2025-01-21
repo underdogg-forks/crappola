@@ -2,20 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Invitation;
-use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Models\ProposalInvitation;
+use App\Models\Invoice;
 use App\Models\ProposalTemplate;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Models\ProposalInvitation;
+use Auth;
+use DB;
+use Utils;
 
 class ProposalRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Proposal::class;
+        return 'App\Models\Proposal';
     }
 
     public function all()
@@ -26,43 +25,43 @@ class ProposalRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposals')
-            ->where('proposals.account_id', '=', Auth::user()->account_id)
-            ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
-            ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
-            ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->leftJoin('proposal_templates', 'proposal_templates.id', '=', 'proposals.proposal_template_id')
-            ->where('clients.deleted_at', '=', null)
-            ->where('contacts.deleted_at', '=', null)
-            ->where('contacts.is_primary', '=', true)
-            ->select(
-                'proposals.public_id',
-                'proposals.user_id',
-                'proposals.deleted_at',
-                'proposals.created_at',
-                'proposals.is_deleted',
-                'proposals.private_notes',
-                'proposals.html as content',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
-                'clients.user_id as client_user_id',
-                'clients.public_id as client_public_id',
-                'invoices.invoice_number as quote',
-                'invoices.invoice_number as invoice_number',
-                'invoices.public_id as invoice_public_id',
-                'invoices.user_id as invoice_user_id',
-                'proposal_templates.name as template',
-                'proposal_templates.public_id as template_public_id',
-                'proposal_templates.user_id as template_user_id'
-            );
+                ->where('proposals.account_id', '=', Auth::user()->account_id)
+                ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
+                ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
+                ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
+                ->leftJoin('proposal_templates', 'proposal_templates.id', '=', 'proposals.proposal_template_id')
+                ->where('clients.deleted_at', '=', null)
+                ->where('contacts.deleted_at', '=', null)
+                ->where('contacts.is_primary', '=', true)
+                ->select(
+                    'proposals.public_id',
+                    'proposals.user_id',
+                    'proposals.deleted_at',
+                    'proposals.created_at',
+                    'proposals.is_deleted',
+                    'proposals.private_notes',
+                    'proposals.html as content',
+                    DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
+                    'clients.user_id as client_user_id',
+                    'clients.public_id as client_public_id',
+                    'invoices.invoice_number as quote',
+                    'invoices.invoice_number as invoice_number',
+                    'invoices.public_id as invoice_public_id',
+                    'invoices.user_id as invoice_user_id',
+                    'proposal_templates.name as template',
+                    'proposal_templates.public_id as template_public_id',
+                    'proposal_templates.user_id as template_user_id'
+                );
 
         $this->applyFilters($query, ENTITY_PROPOSAL);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
-                $query->where('clients.name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.email', 'like', '%' . $filter . '%')
-                    ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%');
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%')
+                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%');
             });
         }
 
@@ -75,7 +74,7 @@ class ProposalRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        if ( ! $proposal) {
+        if (! $proposal) {
             $proposal = Proposal::createNew();
         }
 
@@ -95,7 +94,7 @@ class ProposalRepository extends BaseRepository
         $contactIds = [];
 
         foreach ($proposal->invoice->invitations as $invitation) {
-            $contactIds[] = $invitation->contact_id;
+            $conactIds[] = $invitation->contact_id;
             $found = false;
             foreach ($proposal->proposal_invitations as $proposalInvitation) {
                 if ($invitation->contact_id == $proposalInvitation->contact_id) {
@@ -103,19 +102,18 @@ class ProposalRepository extends BaseRepository
                     break;
                 }
             }
-
-            if ( ! $found) {
+            if (! $found) {
                 $proposalInvitation = ProposalInvitation::createNew();
                 $proposalInvitation->proposal_id = $proposal->id;
                 $proposalInvitation->contact_id = $invitation->contact_id;
-                $proposalInvitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+                $proposalInvitation->invitation_key = strtolower(Str::random(RANDOM_KEY_LENGTH));
                 $proposalInvitation->save();
             }
         }
 
         // delete invitations
         foreach ($proposal->proposal_invitations as $proposalInvitation) {
-            if ( ! in_array($proposalInvitation->contact_id, $contactIds)) {
+            if (! in_array($proposalInvitation->contact_id, $conactIds)) {
                 $proposalInvitation->delete();
             }
         }
@@ -131,27 +129,27 @@ class ProposalRepository extends BaseRepository
     public function findInvitationByKey($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        [$invitationKey] = explode('&', $invitationKey);
-        $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
+        list($invitationKey) = explode('&', $invitationKey);
+        $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = ProposalInvitation::where('invitation_key', '=', $invitationKey)->first();
-        if ( ! $invitation) {
+        if (! $invitation) {
             return false;
         }
 
         $proposal = $invitation->proposal;
-        if ( ! $proposal || $proposal->is_deleted) {
+        if (! $proposal || $proposal->is_deleted) {
             return false;
         }
 
         $invoice = $proposal->invoice;
-        if ( ! $invoice || $invoice->is_deleted) {
+        if (! $invoice || $invoice->is_deleted) {
             return false;
         }
 
         $client = $invoice->client;
-        if ( ! $client || $client->is_deleted) {
+        if (! $client || $client->is_deleted) {
             return false;
         }
 

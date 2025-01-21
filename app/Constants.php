@@ -1,24 +1,6 @@
 <?php
 
-use App\Models\Bank;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\Font;
-use App\Models\Frequency;
-use App\Models\Gateway;
-use App\Models\GatewayType;
-use App\Models\Industry;
-use App\Models\InvoiceDesign;
-use App\Models\InvoiceStatus;
-use App\Models\Language;
-use App\Models\PaymentType;
-use App\Models\Size;
-use App\Models\Timezone;
-use Illuminate\Support\Facades\Session;
-
-if ( ! defined('APP_NAME')) {
+if (! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('APP_DOMAIN', env('APP_DOMAIN', 'invoiceninja.com'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS'));
@@ -379,7 +361,7 @@ if ( ! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'https://invoice-ninja.readthedocs.io/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.5.50' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.18' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -649,34 +631,32 @@ if ( ! defined('APP_NAME')) {
     define('INVOICE_FIELDS_PRODUCT', 'product_fields');
     define('INVOICE_FIELDS_TASK', 'task_fields');
 
-    define('NINJA_V5_TOKEN', env('NINJA_V5_TOKEN', false));
-
     $creditCards = [
-        1  => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
-        2  => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
-        4  => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
-        8  => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-        16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
-    ];
+                1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
+                2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
+                4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
+                8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
+                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
+            ];
     define('CREDIT_CARDS', serialize($creditCards));
 
     $cachedTables = [
-        'currencies'      => Currency::class,
-        'sizes'           => Size::class,
-        'industries'      => Industry::class,
-        'timezones'       => Timezone::class,
-        'dateFormats'     => DateFormat::class,
-        'datetimeFormats' => DatetimeFormat::class,
-        'languages'       => Language::class,
-        'paymentTypes'    => PaymentType::class,
-        'countries'       => Country::class,
-        'invoiceDesigns'  => InvoiceDesign::class,
-        'invoiceStatus'   => InvoiceStatus::class,
-        'frequencies'     => Frequency::class,
-        'gateways'        => Gateway::class,
-        'gatewayTypes'    => GatewayType::class,
-        'fonts'           => Font::class,
-        'banks'           => Bank::class,
+        'currencies' => 'App\Models\Currency',
+        'sizes' => 'App\Models\Size',
+        'industries' => 'App\Models\Industry',
+        'timezones' => 'App\Models\Timezone',
+        'dateFormats' => 'App\Models\DateFormat',
+        'datetimeFormats' => 'App\Models\DatetimeFormat',
+        'languages' => 'App\Models\Language',
+        'paymentTypes' => 'App\Models\PaymentType',
+        'countries' => 'App\Models\Country',
+        'invoiceDesigns' => 'App\Models\InvoiceDesign',
+        'invoiceStatus' => 'App\Models\InvoiceStatus',
+        'frequencies' => 'App\Models\Frequency',
+        'gateways' => 'App\Models\Gateway',
+        'gatewayTypes' => 'App\Models\GatewayType',
+        'fonts' => 'App\Models\Font',
+        'banks' => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
@@ -696,7 +676,7 @@ if ( ! defined('APP_NAME')) {
         $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
-        return $locale == 'en' ? mb_strtoupper($text) : $text;
+        return $locale == 'en' ? strtoupper($text) : $text;
     }
 
     // optional trans: only return the string if it's translated
@@ -706,30 +686,30 @@ if ( ! defined('APP_NAME')) {
 
         if ($locale == 'en') {
             return trans($text);
+        } else {
+            $string = trans($text);
+            $english = trans($text, [], 'en');
+
+            return $string != $english ? $string : '';
         }
-
-        $string = trans($text);
-        $english = trans($text, [], 'en');
-
-        return $string != $english ? $string : '';
     }
 
     // include modules in translations
     function mtrans($entityType, $text = false, $replace = [])
     {
-        if ( ! $text) {
+        if (! $text) {
             $text = $entityType;
         }
 
         // check if this has been translated in a module language file
-        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
-            $key = sprintf('%s::texts.%s', $module->getLowerName(), $text);
+        if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+            $key = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;
             }
         }
 
-        return trans('texts.' . $text);
+        return trans("texts.{$text}");
     }
 }

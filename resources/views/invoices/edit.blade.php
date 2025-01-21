@@ -1270,7 +1270,7 @@
     }
 
 	function onDownloadClick() {
-		trackEvent('/activity', '/download_pdf');
+		//trackEvent('/activity', '/download_pdf');
 		var invoice = createInvoiceModel();
         var design  = getDesignJavascript();
 		if (!design) return;

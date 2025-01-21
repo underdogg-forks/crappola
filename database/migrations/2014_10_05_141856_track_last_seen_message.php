@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class TrackLastSeenMessage extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->unsignedInteger('news_feed_id')->nullable();
         });
 
@@ -32,10 +33,10 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->dropColumn('news_feed_id');
         });
     }
-};
+}

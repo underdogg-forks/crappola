@@ -2,4 +2,6 @@
 
 namespace App\Policies;
 
-class ProposalSnippetPolicy extends EntityPolicy {}
+class ProposalSnippetPolicy extends EntityPolicy
+{
+}

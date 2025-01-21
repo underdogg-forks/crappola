@@ -3,11 +3,11 @@
 namespace App\Ninja\Intents;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class ListProductsIntent extends ProductIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $account = Auth::user()->account;
         $products = Product::scope()

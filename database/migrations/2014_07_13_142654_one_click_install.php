@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class OneClickInstall extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('affiliates', function ($table): void {
+        Schema::create('affiliates', function ($table) {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -22,7 +23,7 @@ return new class () extends Migration {
             $table->text('payment_subtitle');
         });
 
-        Schema::create('licenses', function ($table): void {
+        Schema::create('licenses', function ($table) {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -45,9 +46,9 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('licenses');
         Schema::dropIfExists('affiliates');
     }
-};
+}

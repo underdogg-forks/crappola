@@ -2,27 +2,28 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class SupportMultipleTaxRates extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             if (Schema::hasColumn('invoices', 'tax_rate')) {
                 $table->decimal('tax_rate', 13, 3)->change();
             }
         });
 
-        Schema::table('invoice_items', function ($table): void {
+        Schema::table('invoice_items', function ($table) {
             if (Schema::hasColumn('invoice_items', 'tax_rate')) {
                 $table->decimal('tax_rate', 13, 3)->change();
             }
         });
 
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             if (Schema::hasColumn('invoices', 'tax_rate')) {
                 $table->renameColumn('tax_rate', 'tax_rate1');
                 $table->renameColumn('tax_name', 'tax_name1');
@@ -31,7 +32,7 @@ return new class () extends Migration {
             $table->decimal('tax_rate2', 13, 3);
         });
 
-        Schema::table('invoice_items', function ($table): void {
+        Schema::table('invoice_items', function ($table) {
             if (Schema::hasColumn('invoice_items', 'tax_rate')) {
                 $table->renameColumn('tax_rate', 'tax_rate1');
                 $table->renameColumn('tax_name', 'tax_name1');
@@ -40,7 +41,7 @@ return new class () extends Migration {
             $table->decimal('tax_rate2', 13, 3);
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->boolean('enable_client_portal_dashboard')->default(true);
         });
     }
@@ -50,9 +51,9 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->decimal('tax_rate1', 13, 2)->change();
             $table->renameColumn('tax_rate1', 'tax_rate');
             $table->renameColumn('tax_name1', 'tax_name');
@@ -60,7 +61,7 @@ return new class () extends Migration {
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('invoice_items', function ($table): void {
+        Schema::table('invoice_items', function ($table) {
             $table->decimal('tax_rate1', 13, 2)->change();
             $table->renameColumn('tax_rate1', 'tax_rate');
             $table->renameColumn('tax_name1', 'tax_name');
@@ -68,8 +69,8 @@ return new class () extends Migration {
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('enable_client_portal_dashboard');
         });
     }
-};
+}

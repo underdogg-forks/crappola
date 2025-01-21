@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
+use App\Models\DbServer;
+use App\Models\User;
+use App\Models\Company;
+use App\Libraries\CurlUtils;
 
 class MobileLocalization extends Command
 {
@@ -22,6 +24,7 @@ class MobileLocalization extends Command
      */
     protected $description = 'Generate mobile localization resources';
 
+
     /**
      * Create a new command instance.
      *
@@ -32,36 +35,39 @@ class MobileLocalization extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
-        $type = mb_strtolower($this->option('type'));
+        $type = strtolower($this->option('type'));
 
-        match ($type) {
-            'laravel' => $this->laravelResources(),
-            default   => $this->flutterResources(),
-        };
+        switch ($type) {
+            case 'laravel':
+                $this->laravelResources();
+                break;
+            default:
+                $this->flutterResources();
+                break;
+        }
+        return 0;
     }
 
-    protected function getOptions()
-    {
-        return [
-            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
-        ];
-    }
-
-    private function laravelResources(): void
+    private function laravelResources()
     {
         $resources = $this->getResources();
 
         foreach ($resources as $key => $val) {
-            $transKey = 'texts.' . $key;
+            $transKey = "texts.{$key}";
             if (trans($transKey) == $transKey) {
-                echo "'{$key}' => '{$val}',\n";
+                echo "'$key' => '$val',\n";
             }
         }
     }
 
-    private function flutterResources(): void
+    private function flutterResources()
     {
         $languages = cache('languages');
         $resources = $this->getResources();
@@ -74,35 +80,38 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = trim(addslashes(trans('texts.' . $key, [], $language->locale)));
-                if (mb_substr($text, 0, 6) === 'texts.') {
-                    $text = $resources->{$key};
+                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
+                if (substr($text, 0, 6) == 'texts.') {
+                    $text = $resources->$key;
                 }
-
-                $text = str_replace(['<b>', '</b>'], '', $text);
-                $text = str_replace(['<i>', '</i>'], '', $text);
-                $text = str_replace(['<strong>', '</strong>'], '', $text);
-
-                echo "'{$key}': '{$text}',\n";
+                echo "'$key': '$text',\n";
             }
 
             echo "},\n";
         }
     }
 
-    private function getResources(): mixed
+    private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
-        $start = mb_strpos($data, 'do not remove comment') + 25;
-        $end = mb_strpos($data, '},', $start);
-        $data = mb_substr($data, $start, $end - $start - 5);
+        $start = strpos($data, 'do not remove comment') + 25;
+        $end = strpos($data, '},', $start);
+        $data = substr($data, $start, $end - $start - 5);
 
-        $data = str_replace("\n", '', $data);
-        $data = str_replace('"', "\'", $data);
-        $data = str_replace("'", '"', $data);
+        $data = str_replace("\n", "", $data);
+        $data = str_replace("\"", "\'", $data);
+        $data = str_replace("'", "\"", $data);
 
         return json_decode('{' . rtrim($data, ',') . '}');
     }
+
+    protected function getOptions()
+    {
+        return [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
+        ];
+    }
+
 }

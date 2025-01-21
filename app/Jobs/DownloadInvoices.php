@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Models\User;
-use App\Ninja\Mailers\UserMailer;
-use Barracuda\ArchiveStream\Archive;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\User;
+use App\Ninja\Mailers\UserMailer;
+use Barracuda\ArchiveStream\Archive;
 
 /**
  * Class SendInvoiceEmail.
@@ -16,7 +16,11 @@ use Illuminate\Queue\SerializesModels;
 class DownloadInvoices extends Job
 {
     //use InteractsWithQueue, SerializesModels;
-    protected User $user;
+
+    /**
+     * @var User
+     */
+    protected $user;
 
     /**
      * @var array
@@ -26,8 +30,8 @@ class DownloadInvoices extends Job
     /**
      * Create a new job instance.
      *
-     * @param mixed $files
-     * @param mixed $settings
+     * @param mixed   $files
+     * @param mixed   $settings
      */
     public function __construct(User $user, $invoices)
     {
@@ -40,9 +44,9 @@ class DownloadInvoices extends Job
      *
      * @param ContactMailer $mailer
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
-        if ( ! extension_loaded('GMP')) {
+        if (! extension_loaded('GMP')) {
             die(trans('texts.gmp_required'));
         }
 

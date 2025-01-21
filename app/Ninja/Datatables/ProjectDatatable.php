@@ -2,70 +2,84 @@
 
 namespace App\Ninja\Datatables;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
+use Auth;
+use URL;
 use Utils;
 
 class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
-
     public $sortCol = 1;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
                 'project',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
-                        return $this->addNote(link_to('projects/' . $model->public_id, $model->project)->toHtml(), $model->private_notes);
-                    }
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
+                        return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
+                    else
+                        return $model->project;
 
-                    return $model->project;
+
                 },
             ],
             [
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                            return link_to('clients/' . $model->client_public_id, $model->client_name)->toHtml();
-                        }
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                            return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
+                        else
+                            return Utils::getClientDisplayName($model);
 
-                        return Utils::getClientDisplayName($model);
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
             ],
             [
                 'due_date',
-                fn ($model) => Utils::fromSqlDate($model->due_date),
+                function ($model) {
+                    return Utils::fromSqlDate($model->due_date);
+                },
             ],
             [
                 'budgeted_hours',
-                fn ($model) => $model->budgeted_hours ?: '',
+                function ($model) {
+                    return $model->budgeted_hours ?: '';
+                },
             ],
             [
                 'task_rate',
-                fn ($model) => (float) ($model->task_rate) !== 0.0 ? Utils::formatMoney($model->task_rate) : '',
+                function ($model) {
+                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
+                }
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 trans('texts.edit_project'),
-                fn ($model) => URL::to(sprintf('projects/%s/edit', $model->public_id)),
-                fn ($model) => Auth::user()->can('view', [ENTITY_PROJECT, $model]),
+                function ($model) {
+                    return URL::to("projects/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Auth::user()->can('view', [ENTITY_PROJECT, $model]);
+                },
             ],
             [
                 trans('texts.invoice_project'),
-                fn ($model): string => sprintf("javascript:submitForm_project('invoice', %s)", $model->public_id),
-                fn ($model)         => Auth::user()->can('create', ENTITY_INVOICE),
+                function ($model) {
+                    return "javascript:submitForm_project('invoice', {$model->public_id})";
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
         ];
     }

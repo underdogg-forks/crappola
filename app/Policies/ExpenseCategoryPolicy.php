@@ -19,7 +19,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param      $item
+     * @param $item
      *
      * @return bool
      */
@@ -30,33 +30,33 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param      $item
+     * @param $item
      *
      * @return bool
      */
-    public static function view(User $user, $item): bool
+    public static function view(User $user, $item)
     {
         return true;
     }
 
     /**
      * @param User $user
-     * @param      $ownerUserId
+     * @param $ownerUserId
      *
      * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId): bool
+    public static function viewByOwner(User $user, $ownerUserId)
     {
         return true;
     }
 
     /**
      * @param User $user
-     * @param      $ownerUserId
+     * @param $ownerUserId
      *
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId): bool
+    public static function editByOwner(User $user, $ownerUserId)
     {
         return $user->is_admin;
     }

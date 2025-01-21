@@ -3,15 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+class LimitNotifications extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->boolean('only_notify_owned')->nullable()->default(false);
         });
     }
@@ -21,5 +22,8 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void {}
-};
+    public function down()
+    {
+        //
+    }
+}

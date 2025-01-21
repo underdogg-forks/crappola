@@ -2,54 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Eloquent;
 use Omnipay;
 use Utils;
 
 /**
  * Class Gateway.
- *
- * @property int         $id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property string      $name
- * @property string      $provider
- * @property int         $visible
- * @property int         $payment_library_id
- * @property int         $sort_order
- * @property int         $recommended
- * @property string|null $site_url
- * @property int         $is_offsite
- * @property int         $is_secure
- *
- * @method static Builder|Gateway newModelQuery()
- * @method static Builder|Gateway newQuery()
- * @method static Builder|Gateway primary($accountGatewaysIds)
- * @method static Builder|Gateway query()
- * @method static Builder|Gateway secondary($accountGatewaysIds)
- * @method static Builder|Gateway whereCreatedAt($value)
- * @method static Builder|Gateway whereId($value)
- * @method static Builder|Gateway whereIsOffsite($value)
- * @method static Builder|Gateway whereIsSecure($value)
- * @method static Builder|Gateway whereName($value)
- * @method static Builder|Gateway wherePaymentLibraryId($value)
- * @method static Builder|Gateway whereProvider($value)
- * @method static Builder|Gateway whereRecommended($value)
- * @method static Builder|Gateway whereSiteUrl($value)
- * @method static Builder|Gateway whereSortOrder($value)
- * @method static Builder|Gateway whereUpdatedAt($value)
- * @method static Builder|Gateway whereVisible($value)
- *
- * @mixin \Eloquent
  */
-class Gateway extends Model
+class Gateway extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = true;
+
+    protected $fillable = [
+        'provider',
+        'is_offsite',
+        'sort_order',
+    ];
 
     /**
      * @var array
@@ -132,11 +103,23 @@ class Gateway extends Model
         'secretWord',
     ];
 
-    protected $fillable = [
-        'provider',
-        'is_offsite',
-        'sort_order',
-    ];
+    /**
+     * @return string
+     */
+    public function getLogoUrl()
+    {
+        return '/images/gateways/logo_'.$this->provider.'.png';
+    }
+
+    /**
+     * @param $gatewayId
+     *
+     * @return bool
+     */
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
 
     /**
      * @param $type
@@ -145,7 +128,7 @@ class Gateway extends Model
      */
     public static function getPaymentTypeName($type)
     {
-        return Utils::toCamelCase(mb_strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+        return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
 
     /**
@@ -153,39 +136,24 @@ class Gateway extends Model
      *
      * @return int
      */
-    public static function hasStandardGateway($gatewayIds): int
+    public static function hasStandardGateway($gatewayIds)
     {
         $diff = array_diff($gatewayIds, static::$alternate);
 
         return count($diff);
     }
 
-    public function getLogoUrl(): string
-    {
-        return '/images/gateways/logo_' . $this->provider . '.png';
-    }
-
-    /**
-     * @param $gatewayId
-     *
-     * @return bool
-     */
-    public function isGateway($gatewayId): bool
-    {
-        return $this->id == $gatewayId;
-    }
-
     /**
      * @param $query
      * @param $accountGatewaysIds
      */
-    public function scopePrimary($query, $accountGatewaysIds): void
+    public function scopePrimary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
 
-        if ( ! Utils::isNinja()) {
+        if (! Utils::isNinja()) {
             $query->where('id', '!=', GATEWAY_WEPAY);
         }
     }
@@ -194,7 +162,7 @@ class Gateway extends Model
      * @param $query
      * @param $accountGatewaysIds
      */
-    public function scopeSecondary($query, $accountGatewaysIds): void
+    public function scopeSecondary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
             ->whereNotIn('id', static::$preferred)
@@ -226,15 +194,18 @@ class Gateway extends Model
             $link = url('/gateways/create?wepay=true');
         }
 
-        $key = 'texts.gateway_help_' . $this->id;
+        $key = 'texts.gateway_help_'.$this->id;
         $str = trans($key, [
-            'link'          => sprintf("<a href='%s' >Click here</a>", $link),
+            'link' => "<a href='$link' >Click here</a>",
             'complete_link' => url('/complete'),
         ]);
 
         return $key != $str ? $str : '';
     }
 
+    /**
+     * @return mixed
+     */
     public function getFields()
     {
         if ($this->isCustom()) {
@@ -242,12 +213,12 @@ class Gateway extends Model
                 'name' => '',
                 'text' => '',
             ];
+        } else {
+            return Omnipay::create($this->provider)->getDefaultParameters();
         }
-
-        return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
-    public function isCustom(): bool
+    public function isCustom()
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }

@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
 use App\Models\EntityModel;
+use Input;
 use Utils;
 
 class EntityRequest extends Request
 {
     protected $entityType;
-
     private $entity;
 
     public function entity()
@@ -23,23 +23,21 @@ class EntityRequest extends Request
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
-        if ( ! empty($this->{$field})) {
-            $publicId = $this->{$field};
+        if (! empty($this->$field)) {
+            $publicId = $this->$field;
         }
-
-        if ( ! $publicId) {
+        if (! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
-            if ( ! empty($this->{$field})) {
-                $publicId = $this->{$field};
+            if (! empty($this->$field)) {
+                $publicId = $this->$field;
             }
         }
-
-        if ( ! $publicId) {
-            $publicId = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('id');
+        if (! $publicId) {
+            $publicId = request()->get('public_id') ?: request()->get('id');
         }
 
-        if ( ! $publicId) {
-            return;
+        if (! $publicId) {
+            return null;
         }
 
         if (method_exists($class, 'trashed')) {
@@ -51,23 +49,25 @@ class EntityRequest extends Request
         return $this->entity;
     }
 
-    public function setEntity($entity): void
+    public function setEntity($entity)
     {
         $this->entity = $entity;
     }
 
-    public function authorize(): bool
+    public function authorize()
     {
-        if ($this->entity() && $this->user()->can('view', $this->entity())) {
-            HistoryUtils::trackViewed($this->entity());
+        if ($this->entity()) {
+            if ($this->user()->can('view', $this->entity())) {
+                HistoryUtils::trackViewed($this->entity());
 
-            return true;
+                return true;
+            }
+        } else {
+            return $this->user()->can('create', $this->entityType);
         }
-
-        return $this->user()->can('create', $this->entityType);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [];
     }

@@ -2,19 +2,14 @@
 
 namespace App\Jobs\Client;
 
-use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use App\Models\Payment;
 use Utils;
+use App\Models\InvoiceItem;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Eloquent;
 
 class GenerateStatementData
 {
-    public $client;
-
-    public $options;
-
-    public $contact;
-
     public function __construct($client, $options, $contact = false)
     {
         $this->client = $client;
@@ -54,7 +49,7 @@ class GenerateStatementData
 
     private function getInvoices()
     {
-        $statusId = (int) ($this->options['status_id']);
+        $statusId = intval($this->options['status_id']);
 
         $invoices = Invoice::with(['client'])
             ->invoices()
@@ -71,11 +66,11 @@ class GenerateStatementData
 
         if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
             $invoices->where('invoice_date', '>=', $this->options['start_date'])
-                ->where('invoice_date', '<=', $this->options['end_date']);
+                    ->where('invoice_date', '<=', $this->options['end_date']);
         }
 
         if ($this->contact) {
-            $invoices->whereHas('invitations', function ($query): void {
+            $invoices->whereHas('invitations', function ($query) {
                 $query->where('contact_id', $this->contact->id);
             });
         }
@@ -83,7 +78,7 @@ class GenerateStatementData
         $invoices = $invoices->get();
         $data = collect();
 
-        for ($i = 0; $i < $invoices->count(); $i++) {
+        for ($i=0; $i<$invoices->count(); $i++) {
             $invoice = $invoices[$i];
             $item = new InvoiceItem();
             $item->id = $invoice->id;
@@ -121,7 +116,7 @@ class GenerateStatementData
         $payments = $payments->get();
         $data = collect();
 
-        for ($i = 0; $i < $payments->count(); $i++) {
+        for ($i=0; $i<$payments->count(); $i++) {
             $payment = $payments[$i];
             $item = new InvoiceItem();
             $item->product_key = $payment->invoice->invoice_number;
@@ -140,10 +135,10 @@ class GenerateStatementData
     {
         $data = collect();
         $ageGroups = [
-            'age_group_0'   => 0,
-            'age_group_30'  => 0,
-            'age_group_60'  => 0,
-            'age_group_90'  => 0,
+            'age_group_0' => 0,
+            'age_group_30' => 0,
+            'age_group_60' => 0,
+            'age_group_90' => 0,
             'age_group_120' => 0,
         ];
 

@@ -2,10 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Client;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Session;
 
 /**
  * Class RedirectIfAuthenticated.
@@ -14,8 +16,10 @@ class RedirectIfAuthenticated
 {
     /**
      * The Guard implementation.
+     *
+     * @var Guard
      */
-    protected Guard $auth;
+    protected $auth;
 
     /**
      * Create a new filter instance.
@@ -45,7 +49,6 @@ class RedirectIfAuthenticated
                     if (session('contact_key')) {
                         return redirect('/client/dashboard');
                     }
-
                     break;
                 default:
                     return redirect('/dashboard');

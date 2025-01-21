@@ -3,19 +3,20 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-return new class () extends Migration {
+class UpdateDarkMode extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->boolean('dark_mode')->default(true)->change();
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->integer('credit_number_counter')->default(0)->nullable();
             $table->text('credit_number_prefix')->nullable();
             $table->text('credit_number_pattern')->nullable();
@@ -30,7 +31,7 @@ return new class () extends Migration {
             where invoices.has_tasks = 1
             and invoice_item_type_id = 1');
 
-        Schema::create('recurring_expenses', function (Blueprint $table): void {
+        Schema::create('recurring_expenses', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -69,11 +70,11 @@ return new class () extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('expenses', function ($table): void {
+        Schema::table('expenses', function ($table) {
             $table->unsignedInteger('recurring_expense_id')->nullable();
         });
 
-        Schema::table('bank_accounts', function ($table): void {
+        Schema::table('bank_accounts', function ($table) {
             $table->mediumInteger('app_version')->default(DEFAULT_BANK_APP_VERSION);
             $table->mediumInteger('ofx_version')->default(DEFAULT_BANK_OFX_VERSION);
         });
@@ -84,23 +85,23 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::drop('recurring_expenses');
 
-        Schema::table('expenses', function ($table): void {
+        Schema::table('expenses', function ($table) {
             $table->dropColumn('recurring_expense_id');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('credit_number_counter');
             $table->dropColumn('credit_number_prefix');
             $table->dropColumn('credit_number_pattern');
         });
 
-        Schema::table('bank_accounts', function ($table): void {
+        Schema::table('bank_accounts', function ($table) {
             $table->dropColumn('app_version');
             $table->dropColumn('ofx_version');
         });
     }
-};
+}

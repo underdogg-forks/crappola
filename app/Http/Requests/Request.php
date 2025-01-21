@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Libraries\Utils;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Response;
 
@@ -18,16 +17,14 @@ abstract class Request extends FormRequest
     /**
      * Validate the input.
      *
-     * @param Factory $factory
+     * @param \Illuminate\Validation\Factory $factory
      *
-     * @return Validator
+     * @return \Illuminate\Validation\Validator
      */
     public function validator($factory)
     {
         return $factory->make(
-            $this->sanitizeInput(),
-            $this->container->call([$this, 'rules']),
-            $this->messages()
+            $this->sanitizeInput(), $this->container->call([$this, 'rules']), $this->messages()
         );
     }
 
@@ -38,11 +35,15 @@ abstract class Request extends FormRequest
      */
     protected function sanitizeInput()
     {
-        $input = method_exists($this, 'sanitize') ? $this->container->call([$this, 'sanitize']) : $this->all();
+        if (method_exists($this, 'sanitize')) {
+            $input = $this->container->call([$this, 'sanitize']);
+        } else {
+            $input = $this->all();
+        }
 
         // autoload referenced entities
         foreach ($this->autoload as $entityType) {
-            if ($id = $this->input($entityType . '_public_id') ?: $this->input($entityType . '_id')) {
+            if ($id = $this->input("{$entityType}_public_id") ?: $this->input("{$entityType}_id")) {
                 $class = 'App\\Models\\' . ucwords($entityType);
                 $entity = $class::scope($id)->firstOrFail();
                 $input[$entityType] = $entity;
@@ -55,20 +56,20 @@ abstract class Request extends FormRequest
         return $this->all();
     }
 
-    protected function failedValidation(Validator $validator): void
+    protected function failedValidation(Validator $validator)
     {
-        // If the user is not validating from a mobile app - pass through parent::response
+        /* If the user is not validating from a mobile app - pass through parent::response */
         if ( ! request()->api_secret) {
             parent::failedValidation($validator);
         }
 
-        // If the user is validating from a mobile app - pass through first error string and return error
+        /* If the user is validating from a mobile app - pass through first error string and return error */
         if ($value = $validator->getMessageBag()->first()) {
             $message['error'] = ['message' => $value];
-            $message = json_encode($message, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
+            $message          = json_encode($message, JSON_PRETTY_PRINT);
+            $headers          = Utils::getApiHeaders();
 
-            throw new ValidationException($validator, \Illuminate\Support\Facades\Response::make($message, 400, $headers));
+            throw new ValidationException($validator, Response::make($message, 400, $headers));
         }
     }
 }

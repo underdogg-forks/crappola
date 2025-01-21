@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddTimesheets extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('projects', function ($t): void {
+        Schema::create('projects', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -27,7 +28,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'name']);
         });
 
-        Schema::create('project_codes', function ($t): void {
+        Schema::create('project_codes', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -45,7 +46,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'name']);
         });
 
-        Schema::create('timesheets', function ($t): void {
+        Schema::create('timesheets', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -65,7 +66,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('timesheet_event_sources', function ($t): void {
+        Schema::create('timesheet_event_sources', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -84,7 +85,7 @@ return new class () extends Migration {
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
-        Schema::create('timesheet_events', function ($t): void {
+        Schema::create('timesheet_events', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -137,7 +138,7 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('timesheet_events');
         Schema::dropIfExists('timesheet_event_sources');
@@ -145,4 +146,4 @@ return new class () extends Migration {
         Schema::dropIfExists('project_codes');
         Schema::dropIfExists('projects');
     }
-};
+}

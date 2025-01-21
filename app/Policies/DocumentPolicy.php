@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Document;
 use App\Models\User;
 
 /**
@@ -16,9 +15,9 @@ class DocumentPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function create(User $user, $item): bool
+    public static function create(User $user, $item)
     {
-        return true;
+        return ! empty($user);
     }
 
     /**
@@ -32,7 +31,6 @@ class DocumentPolicy extends EntityPolicy
         if ($user->hasPermission(['view_expense', 'view_invoice'], true)) {
             return true;
         }
-
         if ($document->expense) {
             if ($document->expense->invoice) {
                 return $user->can('view', $document->expense->invoice);
@@ -40,7 +38,6 @@ class DocumentPolicy extends EntityPolicy
 
             return $user->can('view', $document->expense);
         }
-
         if ($document->invoice) {
             return $user->can('view', $document->invoice);
         }

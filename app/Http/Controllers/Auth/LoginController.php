@@ -6,18 +6,15 @@ use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Models\User;
-use App\Ninja\Repositories\AccountRepository;
 use Cache;
+use Cookie;
+use Event;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Str;
+use Lang;
+use Str;
 use Utils;
 
 class LoginController extends Controller
@@ -53,7 +50,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function getLoginWrapper(Request $request)
     {
@@ -61,7 +58,7 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        if ( ! Utils::isNinja() && ! User::count()) {
+        if (! Utils::isNinja() && ! User::count()) {
             return redirect()->to('/setup');
         }
 
@@ -70,18 +67,18 @@ class LoginController extends Controller
             $requestURL = request()->url();
             $loginURL = SITE_URL . '/login';
             $subdomain = Utils::getSubdomain(request()->url());
-            if ($requestURL != $loginURL && ! mb_strstr($subdomain, 'webapp-')) {
+            if ($requestURL != $loginURL && ! strstr($subdomain, 'webapp-')) {
                 return redirect()->to($loginURL);
             }
         }
 
-        return self::showLoginForm();
+        return self::showLoginForm($request);
     }
 
     /**
      * @param Request $request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function postLoginWrapper(Request $request)
     {
@@ -109,91 +106,16 @@ class LoginController extends Controller
             }
             */
         } else {
-            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), Arr::get($_SERVER, 'HTTP_USER_AGENT'));
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Request::getClientIp(), Arr::get($_SERVER, 'HTTP_USER_AGENT'));
             if (config('app.log') == 'single') {
                 file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             } else {
                 Utils::logError('[failed login] ' . $stacktrace);
             }
-
             if ($user) {
-                $user->failed_logins += 1;
+                $user->failed_logins = $user->failed_logins + 1;
                 $user->save();
             }
-        }
-
-        return $response;
-    }
-
-    /**
-     * @return Response
-     */
-    public function getValidateToken()
-    {
-        if (session('2fa:user:id')) {
-            return view('auth.two_factor');
-        }
-
-        return redirect('login');
-    }
-
-    /**
-     * @param App\Http\Requests\ValidateSecretRequest $request
-     *
-     * @return Response
-     */
-    public function postValidateToken(ValidateTwoFactorRequest $request)
-    {
-        //get user id and create cache key
-        $userId = session()->pull('2fa:user:id');
-        $key = $userId . ':' . $request->totp;
-
-        //use cache to store token to blacklist
-        \Illuminate\Support\Facades\Cache::add($key, true, 4 * 60);
-
-        //login and redirect user
-        auth()->loginUsingId($userId);
-        Event::dispatch(new UserLoggedIn());
-
-        if ($trust = request()->trust) {
-            $user = auth()->user();
-            if ( ! $user->remember_2fa_token) {
-                $user->remember_2fa_token = Str::random(60);
-                $user->save();
-            }
-
-            $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
-            cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
-        }
-
-        return redirect()->intended($this->redirectTo);
-    }
-
-    /**
-     * @return Response
-     */
-    public function getLogoutWrapper(Request $request)
-    {
-        if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
-            if (request()->force_logout) {
-                $account = auth()->user()->account;
-                app(AccountRepository::class)->unlinkAccount($account);
-
-                if ( ! $account->hasMultipleAccounts()) {
-                    $account->company->forceDelete();
-                }
-
-                $account->forceDelete();
-            } else {
-                return redirect('/');
-            }
-        }
-
-        $response = self::logout($request);
-
-        $reason = htmlentities(request()->reason);
-        if ($reason !== '' && $reason !== '0' && Lang::has(sprintf('texts.%s_logout', $reason))) {
-            session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
         }
 
         return $response;
@@ -202,9 +124,9 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendFailedLoginResponse(Request $request)
     {
@@ -218,10 +140,10 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param Request         $request
-     * @param Authenticatable $user
+     * @param \Illuminate\Http\Request                   $request
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     private function authenticated(Request $request, Authenticatable $user)
     {
@@ -244,5 +166,77 @@ class LoginController extends Controller
         Event::dispatch(new UserLoggedIn());
 
         return redirect()->intended($this->redirectTo);
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    public function getValidateToken()
+    {
+        if (session('2fa:user:id')) {
+            return view('auth.two_factor');
+        }
+
+        return redirect('login');
+    }
+
+    /**
+     * @param App\Http\Requests\ValidateSecretRequest $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function postValidateToken(ValidateTwoFactorRequest $request)
+    {
+        //get user id and create cache key
+        $userId = session()->pull('2fa:user:id');
+        $key = $userId . ':' . $request->totp;
+
+        //use cache to store token to blacklist
+        Cache::add($key, true, 4);
+
+        //login and redirect user
+        auth()->loginUsingId($userId);
+        Event::dispatch(new UserLoggedIn());
+
+        if ($trust = request()->trust) {
+            $user = auth()->user();
+            if (! $user->remember_2fa_token) {
+                $user->remember_2fa_token = Str::random(60);
+                $user->save();
+            }
+            $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
+            cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
+        }
+
+        return redirect()->intended($this->redirectTo);
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    public function getLogoutWrapper(Request $request)
+    {
+        if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
+            if (request()->force_logout) {
+                $account = auth()->user()->account;
+                app('App\Ninja\Repositories\AccountRepository')->unlinkAccount($account);
+
+                if (! $account->hasMultipleAccounts()) {
+                    $account->company->forceDelete();
+                }
+                $account->forceDelete();
+            } else {
+                return redirect('/');
+            }
+        }
+
+        $response = self::logout($request);
+
+        $reason = htmlentities(request()->reason);
+        if (!empty($reason) && Lang::has("texts.{$reason}_logout")) {
+            session()->flash('warning', trans("texts.{$reason}_logout"));
+        }
+
+        return $response;
     }
 }

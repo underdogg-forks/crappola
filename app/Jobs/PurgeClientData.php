@@ -2,13 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
+use App\Models\Invoice;
+use App\Models\LookupAccount;
+use DB;
+use Exception;
 use App\Libraries\HistoryUtils;
 use Utils;
 
 class PurgeClientData extends Job
 {
-    public $client;
-
     public function __construct($client)
     {
         $this->client = $client;
@@ -19,13 +22,13 @@ class PurgeClientData extends Job
      *
      * @return void
      */
-    public function handle(): void
+    public function handle()
     {
         $user = auth()->user();
         $client = $this->client;
         $contact = $client->getPrimaryContact();
 
-        if ( ! $user->is_admin) {
+        if (! $user->is_admin) {
             return;
         }
 
@@ -45,7 +48,6 @@ class PurgeClientData extends Job
                 $document->delete();
             }
         }
-
         foreach ($expenses as $expense) {
             foreach ($expense->documents as $document) {
                 $document->delete();

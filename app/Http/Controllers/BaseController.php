@@ -2,21 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\View;
+use Request;
 use Utils;
 
 class BaseController extends Controller
 {
-    use AuthorizesRequests;
-    use DispatchesJobs;
-
-    public $layout;
+    use DispatchesJobs, AuthorizesRequests;
 
     protected $entityType;
 
@@ -25,16 +18,16 @@ class BaseController extends Controller
      *
      * @return void
      */
-    protected function setupLayout(): void
+    protected function setupLayout()
     {
-        if (null !== $this->layout) {
+        if (! is_null($this->layout)) {
             $this->layout = View::make($this->layout);
         }
     }
 
-    protected function returnBulk($entityType, $action, $ids): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
+    protected function returnBulk($entityType, $action, $ids)
     {
-        if ( ! is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = [$ids];
         }
 
@@ -44,32 +37,26 @@ class BaseController extends Controller
 
         // when restoring redirect to entity
         if ($action == 'restore' && count($ids) == 1) {
-            return redirect($entityTypes . '/' . $ids[0]);
-            // when viewing from a datatable list
-        }
-
-        if (mb_strpos($referer, '/clients/') || mb_strpos($referer, '/projects/')) {
+            return redirect("{$entityTypes}/" . $ids[0]);
+        // when viewing from a datatable list
+        } elseif (strpos($referer, '/clients/') || strpos($referer, '/projects/')) {
             return redirect($referer);
+        } elseif ($isDatatable || ($action == 'archive' || $action == 'delete')) {
+            return redirect("{$entityTypes}");
+        // when viewing individual entity
+        } elseif (count($ids)) {
+            return redirect("{$entityTypes}/" . $ids[0] . '/edit');
+        } else {
+            return redirect("{$entityTypes}");
         }
-
-        if ($isDatatable || ($action == 'archive' || $action == 'delete')) {
-            return redirect($entityTypes);
-            // when viewing individual entity
-        }
-
-        if ($ids !== []) {
-            return redirect($entityTypes . '/' . $ids[0] . '/edit');
-        }
-
-        return redirect($entityTypes);
     }
 
-    protected function downloadResponse(string $filename, $contents, string $type = 'application/pdf'): void
+    protected function downloadResponse($filename, $contents, $type = 'application/pdf')
     {
         header('Content-Type: ' . $type);
-        header('Content-Length: ' . mb_strlen($contents));
+        header('Content-Length: ' . strlen($contents));
 
-        if ( ! request()->debug) {
+        if (! request()->debug) {
             header('Content-disposition: attachment; filename="' . $filename . '"');
         }
 
@@ -80,4 +67,5 @@ class BaseController extends Controller
 
         exit;
     }
+
 }

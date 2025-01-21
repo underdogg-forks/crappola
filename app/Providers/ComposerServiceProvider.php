@@ -2,10 +2,6 @@
 
 namespace App\Providers;
 
-use App\Http\ViewComposers\AppLanguageComposer;
-use App\Http\ViewComposers\ClientPortalHeaderComposer;
-use App\Http\ViewComposers\ProposalComposer;
-use App\Http\ViewComposers\TranslationComposer;
 use Illuminate\Support\ServiceProvider;
 
 class ComposerServiceProvider extends ServiceProvider
@@ -15,7 +11,7 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         view()->composer(
             [
@@ -29,22 +25,22 @@ class ComposerServiceProvider extends ServiceProvider
                 'payments.credit_card',
                 'invited.details',
             ],
-            TranslationComposer::class
+            'App\Http\ViewComposers\TranslationComposer'
         );
 
         view()->composer(
-            [
-                'header',
-                'tasks.edit',
-            ],
-            AppLanguageComposer::class
+             [
+                 'header',
+                 'tasks.edit',
+             ],
+             'App\Http\ViewComposers\AppLanguageComposer'
         );
 
         view()->composer(
-            [
-                'public.header',
-            ],
-            ClientPortalHeaderComposer::class
+             [
+                 'public.header',
+             ],
+             'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
 
         view()->composer(
@@ -53,7 +49,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'proposals.templates.edit',
                 'proposals.snippets.edit',
             ],
-            ProposalComposer::class
+             'App\Http\ViewComposers\ProposalComposer'
         );
     }
 
@@ -62,5 +58,7 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register(): void {}
+    public function register()
+    {
+    }
 }

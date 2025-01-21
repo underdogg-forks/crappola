@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddCustomFields extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('custom_label1')->nullable();
             $table->string('custom_value1')->nullable();
 
@@ -21,7 +22,7 @@ return new class () extends Migration {
             $table->string('custom_client_label2')->nullable();
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
         });
@@ -32,9 +33,9 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('custom_label1');
             $table->dropColumn('custom_value1');
 
@@ -45,9 +46,9 @@ return new class () extends Migration {
             $table->dropColumn('custom_client_label2');
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
     }
-};
+}

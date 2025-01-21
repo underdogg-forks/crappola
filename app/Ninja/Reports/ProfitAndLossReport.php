@@ -4,46 +4,41 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\Payment;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
-            'type'   => [],
+            'type' => [],
             'client' => [],
             'vendor' => [],
             'amount' => [],
-            'date'   => [],
-            'notes'  => [],
+            'date' => [],
+            'notes' => [],
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
-            ->orderBy('payment_date', 'desc')
-            ->with('client.contacts', 'invoice', 'user')
-            ->withArchived()
-            ->excludeFailed()
-            ->where('payment_date', '>=', $this->startDate)
-            ->where('payment_date', '<=', $this->endDate);
+                        ->orderBy('payment_date', 'desc')
+                        ->with('client.contacts', 'invoice', 'user')
+                        ->withArchived()
+                        ->excludeFailed()
+                        ->where('payment_date', '>=', $this->startDate)
+                        ->where('payment_date', '<=', $this->endDate);
 
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
             $invoice = $payment->invoice;
-            if ($client->is_deleted) {
+            if ($client->is_deleted || $invoice->is_deleted) {
                 continue;
             }
-
-            if ($invoice->is_deleted) {
-                continue;
-            }
-
             $this->data[] = [
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
@@ -57,16 +52,20 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($client->currency_id, 'expenses', 0, $payment->present()->month);
             $this->addToTotals($client->currency_id, 'profit', $payment->getCompletedAmount(), $payment->present()->month);
 
-            $dimension = $subgroup == 'type' ? trans('texts.payment') : $this->getDimension($payment);
+            if ($subgroup == 'type') {
+                $dimension = trans('texts.payment');
+            } else {
+                $dimension = $this->getDimension($payment);
+            }
             $this->addChartData($dimension, $payment->payment_date, $payment->getCompletedAmount());
         }
 
         $expenses = Expense::scope()
-            ->orderBy('expense_date', 'desc')
-            ->with('client.contacts', 'vendor')
-            ->withArchived()
-            ->where('expense_date', '>=', $this->startDate)
-            ->where('expense_date', '<=', $this->endDate);
+                        ->orderBy('expense_date', 'desc')
+                        ->with('client.contacts', 'vendor')
+                        ->withArchived()
+                        ->where('expense_date', '>=', $this->startDate)
+                        ->where('expense_date', '<=', $this->endDate);
 
         foreach ($expenses->get() as $expense) {
             $client = $expense->client;
@@ -84,7 +83,11 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
             $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
 
-            $dimension = $subgroup == 'type' ? trans('texts.expense') : $this->getDimension($expense);
+            if ($subgroup == 'type') {
+                $dimension = trans('texts.expense');
+            } else {
+                $dimension = $this->getDimension($expense);
+            }
             $this->addChartData($dimension, $expense->expense_date, $expense->amountWithTax());
         }
 

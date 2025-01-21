@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreateTaskIntent extends BaseIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $client = $this->requestClient();
         $clientPublicId = $client ? $client->public_id : null;

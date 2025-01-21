@@ -2,28 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class DatetimeFormat.
- *
- * @property int    $id
- * @property string $format
- * @property string $format_moment
- * @property string $format_dart
- *
- * @method static Builder|DatetimeFormat newModelQuery()
- * @method static Builder|DatetimeFormat newQuery()
- * @method static Builder|DatetimeFormat query()
- * @method static Builder|DatetimeFormat whereFormat($value)
- * @method static Builder|DatetimeFormat whereFormatDart($value)
- * @method static Builder|DatetimeFormat whereFormatMoment($value)
- * @method static Builder|DatetimeFormat whereId($value)
- *
- * @mixin \Eloquent
  */
-class DatetimeFormat extends Model
+class DatetimeFormat extends Eloquent
 {
     /**
      * @var bool
@@ -33,7 +17,7 @@ class DatetimeFormat extends Model
     /**
      * @return bool|string
      */
-    public function __toString(): string
+    public function __toString()
     {
         $date = mktime(0, 0, 0, 12, 31, date('Y'));
 

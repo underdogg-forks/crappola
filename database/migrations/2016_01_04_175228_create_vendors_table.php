@@ -3,15 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-return new class () extends Migration {
+class CreateVendorsTable extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('vendors', function (Blueprint $table): void {
+        Schema::create('vendors', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -39,7 +40,7 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
         });
 
-        Schema::create('vendor_contacts', function (Blueprint $table): void {
+        Schema::create('vendor_contacts', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -61,7 +62,7 @@ return new class () extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('expenses', function (Blueprint $table): void {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
@@ -90,7 +91,7 @@ return new class () extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('payment_terms', function (Blueprint $table): void {
+        Schema::table('payment_terms', function (Blueprint $table) {
             $table->timestamps();
             $table->softDeletes();
             $table->unsignedInteger('user_id');
@@ -104,20 +105,20 @@ return new class () extends Migration {
 
         // Update public id
         $paymentTerms = DB::table('payment_terms')
-            ->where('public_id', '=', 0)
-            ->select('id', 'public_id')
-            ->get();
+                    ->where('public_id', '=', 0)
+                    ->select('id', 'public_id')
+                    ->get();
         $i = 1;
         foreach ($paymentTerms as $pTerm) {
             $data = ['public_id' => $i++];
             DB::table('payment_terms')->where('id', $pTerm->id)->update($data);
         }
 
-        Schema::table('invoices', function (Blueprint $table): void {
+        Schema::table('invoices', function (Blueprint $table) {
             $table->boolean('has_expenses')->default(false);
         });
 
-        Schema::table('payment_terms', function (Blueprint $table): void {
+        Schema::table('payment_terms', function (Blueprint $table) {
             $table->unique(['account_id', 'public_id']);
         });
     }
@@ -127,10 +128,10 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::drop('expenses');
         Schema::drop('vendor_contacts');
         Schema::drop('vendors');
     }
-};
+}

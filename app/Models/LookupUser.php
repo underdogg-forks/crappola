@@ -2,33 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use Eloquent;
+use App\Models\User;
 
 /**
  * Class ExpenseCategory.
- *
- * @property int         $id
- * @property int         $lookup_account_id
- * @property string|null $email
- * @property string|null $confirmation_code
- * @property int         $user_id
- * @property string|null $oauth_user_key
- * @property string|null $referral_code
- *
- * @method static Builder|LookupUser newModelQuery()
- * @method static Builder|LookupUser newQuery()
- * @method static Builder|LookupUser query()
- * @method static Builder|LookupUser whereConfirmationCode($value)
- * @method static Builder|LookupUser whereEmail($value)
- * @method static Builder|LookupUser whereId($value)
- * @method static Builder|LookupUser whereLookupAccountId($value)
- * @method static Builder|LookupUser whereOauthUserKey($value)
- * @method static Builder|LookupUser whereReferralCode($value)
- * @method static Builder|LookupUser whereUserId($value)
- *
- * @property LookupAccount $lookupAccount
- *
- * @mixin \Eloquent
  */
 class LookupUser extends LookupModel
 {
@@ -44,9 +22,9 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($accountKey, $user): void
+    public static function updateUser($accountKey, $user)
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -54,11 +32,11 @@ class LookupUser extends LookupModel
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-            ->firstOrFail();
+                            ->firstOrFail();
 
-        $lookupUser = self::whereLookupAccountId($lookupAccount->id)
-            ->whereUserId($user->id)
-            ->firstOrFail();
+        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)
+                            ->whereUserId($user->id)
+                            ->firstOrFail();
 
         $lookupUser->email = $user->email;
         $lookupUser->confirmation_code = $user->confirmation_code ?: null;
@@ -71,7 +49,7 @@ class LookupUser extends LookupModel
 
     public static function validateField($field, $value, $user = false)
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
@@ -80,7 +58,7 @@ class LookupUser extends LookupModel
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupUser = self::where($field, '=', $value)->first();
+        $lookupUser = LookupUser::where($field, '=', $value)->first();
 
         if ($user) {
             $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
@@ -93,4 +71,5 @@ class LookupUser extends LookupModel
 
         return $isValid;
     }
+
 }

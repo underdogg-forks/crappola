@@ -4,10 +4,12 @@ namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\Invitation;
+use Config;
+use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Redirect;
 
 class PasswordController extends Controller
 {
@@ -16,25 +18,25 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param Request     $request
-     * @param string|null $key
-     * @param string|null $token
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function showResetForm(Request $request, $token = null)
     {
-        if (null === $token) {
+        if (is_null($token)) {
             return $this->getEmail();
         }
 
-        $data = [
-            'token'      => $token,
-            'clientauth' => true,
-        ];
+        $data = array(
+        	'token' => $token,
+			'clientauth' => true,
+		);
 
-        if ( ! session('contact_key')) {
-            return Redirect::to('/client/session_expired');
+        if (! session('contact_key')) {
+            return \Redirect::to('/client/session_expired');
         }
 
         return view('clientauth.reset')->with($data);
@@ -45,11 +47,11 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param Request     $request
-     * @param string|null $key
-     * @param string|null $token
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function getReset(Request $request, $token = null)
     {
@@ -59,18 +61,16 @@ class PasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
     {
         $this->validate($request, $this->getResetValidationRules());
 
         $credentials = $request->only(
-            'password',
-            'password_confirmation',
-            'token'
+            'password', 'password_confirmation', 'token'
         );
 
         $credentials['id'] = null;
@@ -85,14 +85,17 @@ class PasswordController extends Controller
 
         $broker = $this->getBroker();
 
-        $response = Password::broker($broker)->reset($credentials, function ($user, $password): void {
+        $response = Password::broker($broker)->reset($credentials, function ($user, $password) {
             $this->resetPassword($user, $password);
         });
 
-        return match ($response) {
-            Password::PASSWORD_RESET => $this->getResetSuccessResponse($response),
-            default                  => $this->getResetFailureResponse($request, $response),
-        };
+        switch ($response) {
+            case Password::PASSWORD_RESET:
+                return $this->getResetSuccessResponse($response);
+
+            default:
+                return $this->getResetFailureResponse($request, $response);
+        }
     }
 
     /**
@@ -100,10 +103,10 @@ class PasswordController extends Controller
      *
      * @return array
      */
-    protected function getResetValidationRules(): array
+    protected function getResetValidationRules()
     {
         return [
-            'token'    => 'required',
+            'token' => 'required',
             'password' => 'required|confirmed|min:6',
         ];
     }

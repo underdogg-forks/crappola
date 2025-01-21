@@ -3,23 +3,23 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use App\Models\TaxRate;
+use Auth;
 use Barracuda\ArchiveStream\Archive;
-use Illuminate\Support\Facades\Auth;
+use App\Models\TaxRate;
 
 class QuoteReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
-            'client'           => [],
-            'quote_number'     => [],
-            'quote_date'       => [],
-            'amount'           => [],
-            'status'           => [],
-            'private_notes'    => ['columnSelector-false'],
-            'user'             => ['columnSelector-false'],
-            'billing_address'  => ['columnSelector-false'],
+            'client' => [],
+            'quote_number' => [],
+            'quote_date' => [],
+            'amount' => [],
+            'status' => [],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+            'billing_address' => ['columnSelector-false'],
             'shipping_address' => ['columnSelector-false'],
         ];
 
@@ -32,7 +32,6 @@ class QuoteReport extends AbstractReport
         if ($account->customLabel('invoice_text1')) {
             $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-
         if ($account->customLabel('invoice_text2')) {
             $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
@@ -40,7 +39,7 @@ class QuoteReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
@@ -49,20 +48,20 @@ class QuoteReport extends AbstractReport
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with('contacts', 'user')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
-                $query->quotes()
-                    ->withArchived()
-                    ->statusIds($statusIds)
-                    ->where('invoice_date', '>=', $this->startDate)
-                    ->where('invoice_date', '<=', $this->endDate)
-                    ->with(['invoice_items', 'invoice_status']);
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with('contacts', 'user')
+                        ->with(['invoices' => function ($query) use ($statusIds) {
+                            $query->quotes()
+                                  ->withArchived()
+                                  ->statusIds($statusIds)
+                                  ->where('invoice_date', '>=', $this->startDate)
+                                  ->where('invoice_date', '<=', $this->endDate)
+                                  ->with(['invoice_items', 'invoice_status']);
+                        }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if ( ! extension_loaded('GMP')) {
+            if (! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
@@ -76,7 +75,6 @@ class QuoteReport extends AbstractReport
                     }
                 }
             }
-
             $zip->finish();
             exit;
         }
@@ -102,7 +100,6 @@ class QuoteReport extends AbstractReport
                 if ($account->customLabel('invoice_text1')) {
                     $row[] = $invoice->custom_text_value1;
                 }
-
                 if ($account->customLabel('invoice_text2')) {
                     $row[] = $invoice->custom_text_value2;
                 }
@@ -111,7 +108,11 @@ class QuoteReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
 
-                $dimension = $subgroup == 'status' ? $invoice->statusLabel() : $this->getDimension($client);
+                if ($subgroup == 'status') {
+                    $dimension = $invoice->statusLabel();
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
 
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }

@@ -4,16 +4,21 @@ namespace App\Services;
 
 use App\Ninja\Datatables\UserDatatable;
 use App\Ninja\Repositories\UserRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class UserService.
  */
 class UserService extends BaseService
 {
-    protected UserRepository $userRepo;
+    /**
+     * @var UserRepository
+     */
+    protected $userRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * UserService constructor.
@@ -28,9 +33,17 @@ class UserService extends BaseService
     }
 
     /**
+     * @return UserRepository
+     */
+    protected function getRepo()
+    {
+        return $this->userRepo;
+    }
+
+    /**
      * @param $accountId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId)
     {
@@ -38,13 +51,5 @@ class UserService extends BaseService
         $query = $this->userRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return UserRepository
-     */
-    protected function getRepo(): UserRepository
-    {
-        return $this->userRepo;
     }
 }

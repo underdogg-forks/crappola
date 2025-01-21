@@ -3,31 +3,30 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Expense;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
+use Auth;
+use URL;
 use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
-
     public $sortCol = 3;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
-                            return link_to('vendors/' . $model->vendor_public_id, $model->vendor_name)->toHtml();
-                        }
+                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model]))
+                            return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
+                        else
+                            return $model->vendor_name;
 
-                        return $model->vendor_name;
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
                 ! $this->hideClient,
             ],
@@ -35,25 +34,25 @@ class ExpenseDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                            return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml();
-                        }
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                            return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        else
+                            return Utils::getClientDisplayName($model);
 
-                        return Utils::getClientDisplayName($model);
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
                 ! $this->hideClient,
             ],
             [
                 'expense_date',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
-                        return $this->addNote(link_to(sprintf('expenses/%s/edit', $model->public_id), Utils::fromSqlDate($model->expense_date_sql))->toHtml(), $model->private_notes);
-                    }
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
+                        return $this->addNote(link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml(), $model->private_notes);
+                    else
+                        return Utils::fromSqlDate($model->expense_date_sql);
 
-                    return Utils::fromSqlDate($model->expense_date_sql);
                 },
             ],
             [
@@ -74,56 +73,76 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
-                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
-                        return $model->category_public_id ? link_to(sprintf('expense_categories/%s/edit', $model->category_public_id), $category)->toHtml() : '';
-                    }
+                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model]))
+                        return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
+                    else
+                        return $category;
 
-                    return $category;
                 },
             ],
             [
                 'public_notes',
-                fn ($model) => $this->showWithTooltip($model->public_notes),
+                function ($model) {
+                    return $this->showWithTooltip($model->public_notes);
+                },
             ],
             [
                 'status',
-                fn ($model) => self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date),
+                function ($model) {
+                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date);
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 trans('texts.edit_expense'),
-                fn ($model) => URL::to(sprintf('expenses/%s/edit', $model->public_id)),
-                fn ($model) => Auth::user()->can('view', [ENTITY_EXPENSE, $model]),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Auth::user()->can('view', [ENTITY_EXPENSE, $model]);
+                },
             ],
             [
-                trans('texts.clone_expense'),
-                fn ($model) => URL::to(sprintf('expenses/%s/clone', $model->public_id)),
-                fn ($model) => Auth::user()->can('create', ENTITY_EXPENSE),
+                trans("texts.clone_expense"),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                },
             ],
             [
                 trans('texts.view_invoice'),
-                fn ($model)       => URL::to(sprintf('/invoices/%s/edit', $model->invoice_public_id)),
-                fn ($model): bool => $model->invoice_public_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]),
+                function ($model) {
+                    return URL::to("/invoices/{$model->invoice_public_id}/edit");
+                },
+                function ($model) {
+                    return $model->invoice_public_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                },
             ],
             [
                 trans('texts.invoice_expense'),
-                fn ($model): string => sprintf("javascript:submitForm_expense('invoice', %s)", $model->public_id),
-                fn ($model): bool   => ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE),
+                function ($model) {
+                    return "javascript:submitForm_expense('invoice', {$model->public_id})";
+                },
+                function ($model) {
+                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
         ];
     }
 
-    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate): string
+    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate)
     {
         $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
         $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
-        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

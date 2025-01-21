@@ -3,7 +3,6 @@
 namespace App\Ninja\Presenters;
 
 use Carbon;
-use stdClass;
 use Utils;
 
 class PaymentPresenter extends EntityPresenter
@@ -20,7 +19,7 @@ class PaymentPresenter extends EntityPresenter
 
     public function currencySymbol()
     {
-        return Utils::getFromCache($this->entity->client->currency_id ?: DEFAULT_CURRENCY, 'currencies')->symbol;
+        return Utils::getFromCache($this->entity->client->currency_id ? $this->entity->client->currency_id : DEFAULT_CURRENCY, 'currencies')->symbol;
     }
 
     public function client()
@@ -42,23 +41,21 @@ class PaymentPresenter extends EntityPresenter
     {
         if ($this->payer_id) {
             return 'PayPal';
+        } else {
+            return $this->entity->payment_type ? $this->entity->payment_type->name : trans('texts.manual_entry');
         }
-
-        return $this->entity->payment_type ? $this->entity->payment_type->name : trans('texts.manual_entry');
     }
 
     public function method()
     {
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
-        }
-
-        if ($this->entity->payment_type) {
+        } elseif ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
 
-    public function calendarEvent($subColors = false): stdClass
+    public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $payment = $this->entity;
@@ -68,11 +65,9 @@ class PaymentPresenter extends EntityPresenter
         $data->start = $payment->payment_date;
 
         if ($subColors) {
-            $data->borderColor = Utils::brewerColor($payment->payment_status_id);
-            $data->backgroundColor = $data->borderColor;
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
         } else {
-            $data->borderColor = '#5fa213';
-            $data->backgroundColor = '#5fa213';
+            $data->borderColor = $data->backgroundColor = '#5fa213';
         }
 
         return $data;

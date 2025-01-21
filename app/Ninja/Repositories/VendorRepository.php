@@ -3,61 +3,59 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Vendor;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use DB;
 use Utils;
 
 // vendor
 class VendorRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Vendor::class;
+        return 'App\Models\Vendor';
     }
 
     public function all()
     {
         return Vendor::scope()
-            ->with('user', 'vendor_contacts', 'country')
-            ->withTrashed()
-            ->where('is_deleted', '=', false)
-            ->get();
+                ->with('user', 'vendor_contacts', 'country')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
+                ->get();
     }
 
     public function find($filter = null)
     {
         $query = DB::table('vendors')
-            ->join('accounts', 'accounts.id', '=', 'vendors.account_id')
-            ->join('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
-            ->where('vendors.account_id', '=', Auth::user()->account_id)
-            ->where('vendor_contacts.is_primary', '=', true)
-            ->where('vendor_contacts.deleted_at', '=', null)
-            ->select(
-                DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
-                'vendors.public_id',
-                'vendors.name',
-                'vendor_contacts.first_name',
-                'vendor_contacts.last_name',
-                'vendors.created_at',
-                'vendors.work_phone',
-                'vendors.city',
-                'vendor_contacts.email',
-                'vendors.deleted_at',
-                'vendors.is_deleted',
-                'vendors.user_id',
-                'vendors.private_notes'
-            );
+                    ->join('accounts', 'accounts.id', '=', 'vendors.account_id')
+                    ->join('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
+                    ->where('vendors.account_id', '=', \Auth::user()->account_id)
+                    ->where('vendor_contacts.is_primary', '=', true)
+                    ->where('vendor_contacts.deleted_at', '=', null)
+                    ->select(
+                        DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
+                        'vendors.public_id',
+                        'vendors.name',
+                        'vendor_contacts.first_name',
+                        'vendor_contacts.last_name',
+                        'vendors.created_at',
+                        'vendors.work_phone',
+                        'vendors.city',
+                        'vendor_contacts.email',
+                        'vendors.deleted_at',
+                        'vendors.is_deleted',
+                        'vendors.user_id',
+                        'vendors.private_notes'
+                    );
 
         $this->applyFilters($query, ENTITY_VENDOR);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
-                $query->where('vendors.name', 'like', '%' . $filter . '%')
-                    ->orWhere('vendor_contacts.first_name', 'like', '%' . $filter . '%')
-                    ->orWhere('vendor_contacts.last_name', 'like', '%' . $filter . '%')
-                    ->orWhere('vendor_contacts.email', 'like', '%' . $filter . '%');
+            $query->where(function ($query) use ($filter) {
+                $query->where('vendors.name', 'like', '%'.$filter.'%')
+                      ->orWhere('vendor_contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('vendor_contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('vendor_contacts.email', 'like', '%'.$filter.'%');
             });
         }
 
@@ -66,16 +64,16 @@ class VendorRepository extends BaseRepository
 
     public function save($data, $vendor = null)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($vendor) {
             // do nothing
-        } elseif ( ! $publicId || (int) $publicId < 0) {
+        } elseif (! $publicId || intval($publicId) < 0) {
             $vendor = Vendor::createNew();
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
             if (Utils::isNinjaDev()) {
-                Log::warning('Entity not set in vendor repo save');
+                \Log::warning('Entity not set in vendor repo save');
             }
         }
 
@@ -98,12 +96,12 @@ class VendorRepository extends BaseRepository
         $vendorcontactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($vendorcontacts, function ($left, $right): int|float {
-            if (isset($right['is_primary'], $left['is_primary'])) {
+        usort($vendorcontacts, function ($left, $right) {
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
             }
-
-            return 0;
         });
 
         foreach ($vendorcontacts as $vendorcontact) {
@@ -112,9 +110,9 @@ class VendorRepository extends BaseRepository
             $first = false;
         }
 
-        if ( ! $vendor->wasRecentlyCreated) {
+        if (! $vendor->wasRecentlyCreated) {
             foreach ($vendor->vendor_contacts as $contact) {
-                if ( ! in_array($contact->public_id, $vendorcontactIds)) {
+                if (! in_array($contact->public_id, $vendorcontactIds)) {
                     $contact->delete();
                 }
             }

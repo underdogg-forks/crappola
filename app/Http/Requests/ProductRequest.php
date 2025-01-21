@@ -4,5 +4,5 @@ namespace App\Http\Requests;
 
 class ProductRequest extends EntityRequest
 {
-    public $entityType = ENTITY_PRODUCT;
+    protected $entityType = ENTITY_PRODUCT;
 }

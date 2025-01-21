@@ -3,79 +3,19 @@
 namespace App\Models;
 
 // vendor
-use Illuminate\Database\Eloquent\Builder;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * Class VendorContact.
- *
- * @property int         $id
- * @property int         $account_id
- * @property int         $user_id
- * @property int         $vendor_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int         $is_primary
- * @property string|null $first_name
- * @property string|null $last_name
- * @property string|null $email
- * @property string|null $phone
- * @property int|null    $public_id
- * @property Account     $account
- * @property User        $user
- * @property Vendor      $vendor
- *
- * @method static Builder|VendorContact newModelQuery()
- * @method static Builder|VendorContact newQuery()
- * @method static Builder|VendorContact onlyTrashed()
- * @method static Builder|VendorContact query()
- * @method static Builder|VendorContact scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|VendorContact whereAccountId($value)
- * @method static Builder|VendorContact whereCreatedAt($value)
- * @method static Builder|VendorContact whereDeletedAt($value)
- * @method static Builder|VendorContact whereEmail($value)
- * @method static Builder|VendorContact whereFirstName($value)
- * @method static Builder|VendorContact whereId($value)
- * @method static Builder|VendorContact whereIsPrimary($value)
- * @method static Builder|VendorContact whereLastName($value)
- * @method static Builder|VendorContact wherePhone($value)
- * @method static Builder|VendorContact wherePublicId($value)
- * @method static Builder|VendorContact whereUpdatedAt($value)
- * @method static Builder|VendorContact whereUserId($value)
- * @method static Builder|VendorContact whereVendorId($value)
- * @method static Builder|VendorContact withActiveOrSelected($id = false)
- * @method static Builder|VendorContact withArchived()
- * @method static Builder|VendorContact withTrashed()
- * @method static Builder|VendorContact withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class VendorContact extends EntityModel
 {
     use SoftDeletes;
-
     /**
-     * @var string
+     * @var array
      */
-    public static $fieldFirstName = 'first_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldLastName = 'last_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldEmail = 'email';
-
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'phone';
-
+    protected $dates = ['deleted_at'];
     /**
      * @var string
      */
@@ -92,24 +32,51 @@ class VendorContact extends EntityModel
         'send_invoice',
     ];
 
-    protected $casts = ['deleted_at' => 'datetime'];
+    /**
+     * @var string
+     */
+    public static $fieldFirstName = 'first_name';
+    /**
+     * @var string
+     */
+    public static $fieldLastName = 'last_name';
+    /**
+     * @var string
+     */
+    public static $fieldEmail = 'email';
+    /**
+     * @var string
+     */
+    public static $fieldPhone = 'phone';
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class)->withTrashed();
+        return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
-    public function getPersonType(): string
+    /**
+     * @return mixed
+     */
+    public function getPersonType()
     {
         return PERSON_VENDOR_CONTACT;
     }
@@ -127,19 +94,22 @@ class VendorContact extends EntityModel
      */
     public function getDisplayName()
     {
-        if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
+        if ($this->getFullName()) {
             return $this->getFullName();
+        } else {
+            return $this->email;
         }
-
-        return $this->email;
     }
 
-    public function getFullName(): string
+    /**
+     * @return string
+     */
+    public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name . ' ' . $this->last_name;
+            return $this->first_name.' '.$this->last_name;
+        } else {
+            return '';
         }
-
-        return '';
     }
 }

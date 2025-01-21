@@ -4,32 +4,25 @@ namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
 use App\Models\Client;
-use App\Ninja\Repositories\ClientRepository;
-use App\Ninja\Repositories\InvoiceRepository;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use stdClass;
 
 class BaseIntent
 {
-    public $data;
-
     protected $state;
-
     protected $parameters;
-
     protected $fieldMap = [];
 
     public function __construct($state, $data)
     {
         //if (true) {
-        if ( ! $state || is_string($state)) {
+        if (! $state || is_string($state)) {
             $state = new stdClass();
             foreach (['current', 'previous'] as $reference) {
-                $state->{$reference} = new stdClass();
-                $state->{$reference}->entityType = false;
+                $state->$reference = new stdClass();
+                $state->$reference->entityType = false;
                 foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
-                    $state->{$reference}->{$entityType} = [];
+                    $state->$reference->$entityType = [];
                 }
             }
         }
@@ -38,11 +31,13 @@ class BaseIntent
         $this->data = $data;
 
         // If they're viewing a client set it as the current state
-        if ( ! $this->hasField('Filter', 'all')) {
+        if (! $this->hasField('Filter', 'all')) {
             $url = url()->previous();
             preg_match('/clients\/(\d*)/', $url, $matches);
-            if (count($matches) >= 2 && ($client = Client::scope($matches[1])->first())) {
-                $this->state->current->client = $client;
+            if (count($matches) >= 2) {
+                if ($client = Client::scope($matches[1])->first()) {
+                    $this->state->current->client = $client;
+                }
             }
         }
 
@@ -51,7 +46,7 @@ class BaseIntent
 
     public static function createIntent($platform, $state, $data)
     {
-        if (count($data->intents) === 0) {
+        if (! count($data->intents)) {
             throw new Exception(trans('texts.intent_not_found'));
         }
 
@@ -68,82 +63,24 @@ class BaseIntent
         if ($state && ! $entityType) {
             $entityType = $state->current->entityType;
         }
-
         $entityType = $entityType ?: 'client';
-        $entityType = ucwords(mb_strtolower($entityType));
-        if ($entityType === 'Recurring') {
+        $entityType = ucwords(strtolower($entityType));
+        if ($entityType == 'Recurring') {
             $entityType = 'RecurringInvoice';
         }
-
         $intent = str_replace('Entity', $entityType, $intent);
 
         if ($platform == BOT_PLATFORM_WEB_APP) {
-            $className = sprintf('App\Ninja\Intents\WebApp\%sIntent', $intent);
+            $className = "App\\Ninja\\Intents\\WebApp\\{$intent}Intent";
         } else {
-            $className = sprintf('App\Ninja\Intents\%sIntent', $intent);
+            $className = "App\\Ninja\\Intents\\{$intent}Intent";
         }
 
-        if ( ! class_exists($className)) {
+        if (! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
         return new $className($state, $data);
-    }
-
-    public function process(): string|bool
-    {
-        throw new Exception(trans('texts.intent_not_supported')) ?? null;
-    }
-
-    public function setStateEntities($entityType, $entities): void
-    {
-        if ( ! is_array($entities)) {
-            $entities = [$entities];
-        }
-
-        $state = $this->state;
-
-        $state->previous->{$entityType} = $state->current->{$entityType};
-        $state->current->{$entityType} = $entities;
-    }
-
-    public function setStateEntityType($entityType): void
-    {
-        $state = $this->state;
-
-        if ($state->current->entityType == $entityType) {
-            return;
-        }
-
-        $state->previous->entityType = $state->current->entityType;
-        $state->current->entityType = $entityType;
-    }
-
-    public function stateEntities($entityType)
-    {
-        return $this->state->current->{$entityType};
-    }
-
-    public function stateEntity($entityType)
-    {
-        $entities = $this->state->current->{$entityType};
-
-        return count($entities) > 0 ? $entities[0] : false;
-    }
-
-    public function previousStateEntities($entityType)
-    {
-        return $this->state->previous->{$entityType};
-    }
-
-    public function stateEntityType()
-    {
-        return $this->state->current->entityType;
-    }
-
-    public function getState(): stdClass
-    {
-        return $this->state;
     }
 
     protected function getField($field)
@@ -157,7 +94,7 @@ class BaseIntent
         return false;
     }
 
-    protected function getFields($field): array
+    protected function getFields($field)
     {
         $data = [];
 
@@ -170,40 +107,98 @@ class BaseIntent
         return $data;
     }
 
-    protected function loadStates(string $entityType): void
+    protected function loadStates($entityType)
     {
-        $states = array_filter($this->getFields('Filter'), fn ($state): bool => in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]));
+        $states = array_filter($this->getFields('Filter'), function($state) {
+            return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
+        });
 
         if (count($states) || $this->hasField('Filter', 'all')) {
-            session(['entity_state_filter:' . $entityType => implode(',', $states)]);
+            session(['entity_state_filter:' . $entityType => join(',', $states)]);
         }
     }
 
-    protected function hasField($field, $value = false): bool
+    protected function hasField($field, $value = false)
     {
         $fieldValue = $this->getField($field);
 
         if ($value) {
             return $fieldValue && $fieldValue == $value;
+        } else {
+            return $fieldValue ? true : false;
+        }
+    }
+
+    public function process()
+    {
+        throw new Exception(trans('texts.intent_not_supported'));
+    }
+
+    public function setStateEntities($entityType, $entities)
+    {
+        if (! is_array($entities)) {
+            $entities = [$entities];
         }
 
-        return (bool) $fieldValue;
+        $state = $this->state;
+
+        $state->previous->$entityType = $state->current->$entityType;
+        $state->current->$entityType = $entities;
+    }
+
+    public function setStateEntityType($entityType)
+    {
+        $state = $this->state;
+
+        if ($state->current->entityType == $entityType) {
+            return;
+        }
+
+        $state->previous->entityType = $state->current->entityType;
+        $state->current->entityType = $entityType;
+    }
+
+    public function stateEntities($entityType)
+    {
+        return $this->state->current->$entityType;
+    }
+
+    public function stateEntity($entityType)
+    {
+        $entities = $this->state->current->$entityType;
+
+        return count($entities) ? $entities[0] : false;
+    }
+
+    public function previousStateEntities($entityType)
+    {
+        return $this->state->previous->$entityType;
+    }
+
+    public function stateEntityType()
+    {
+        return $this->state->current->entityType;
+    }
+
+    public function getState()
+    {
+        return $this->state;
     }
 
     protected function requestClient()
     {
-        $clientRepo = app(ClientRepository::class);
+        $clientRepo = app('App\Ninja\Repositories\ClientRepository');
         $client = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'Name') {
-                $param->type = rtrim($param->type, " ' s");
+                $param->type = rtrim($param->type, ' \' s');
                 $client = $clientRepo->findPhonetically($param->entity);
             }
         }
 
-        if ( ! $client) {
-            return $this->state->current->client;
+        if (! $client) {
+            $client = $this->state->current->client;
         }
 
         return $client;
@@ -211,7 +206,7 @@ class BaseIntent
 
     protected function requestInvoice()
     {
-        $invoiceRepo = app(InvoiceRepository::class);
+        $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
         $invoice = false;
 
         foreach ($this->data->entities as $param) {
@@ -223,11 +218,11 @@ class BaseIntent
         return false;
     }
 
-    protected function requestFields(): array
+    protected function requestFields()
     {
         $data = [];
 
-        if ( ! isset($this->data->compositeEntities)) {
+        if (! isset($this->data->compositeEntities)) {
             return [];
         }
 
@@ -265,7 +260,7 @@ class BaseIntent
         return $data;
     }
 
-    protected function requestFieldsAsString($fields): string
+    protected function requestFieldsAsString($fields)
     {
         $str = '';
 
@@ -281,7 +276,7 @@ class BaseIntent
         return $str;
     }
 
-    protected function processField($field): string|array
+    protected function processField($field)
     {
         $field = str_replace(' ', '_', $field);
 
@@ -298,31 +293,27 @@ class BaseIntent
     {
         // look for LUIS pre-built entity matches
         foreach ($this->data->entities as $entity) {
-            if ($entity->entity !== $value) {
-                continue;
+            if ($entity->entity === $value) {
+                if ($entity->type == 'builtin.datetime.date') {
+                    $value = $entity->resolution->date;
+                    $value = str_replace('XXXX', date('Y'), $value);
+                }
             }
-
-            if ($entity->type != 'builtin.datetime.date') {
-                continue;
-            }
-
-            $value = $entity->resolution->date;
-            $value = str_replace('XXXX', date('Y'), $value);
         }
 
         return $value;
     }
 
-    protected function createResponse($type, $content): bool|string
+    protected function createResponse($type, $content)
     {
         $response = new SkypeResponse($type);
 
         if (is_string($content)) {
             $response->setText($content);
         } else {
-            if ($content instanceof Collection) {
+            if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
                 // do nothing
-            } elseif ( ! is_array($content)) {
+            } elseif (! is_array($content)) {
                 $content = [$content];
             }
 

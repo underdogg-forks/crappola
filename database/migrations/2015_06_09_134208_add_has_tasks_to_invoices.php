@@ -2,22 +2,23 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddHasTasksToInvoices extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->boolean('has_tasks')->default(false);
         });
 
         $invoices = DB::table('invoices')
-            ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
-            ->selectRaw('DISTINCT invoices.id')
-            ->get();
+                    ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
+                    ->selectRaw('DISTINCT invoices.id')
+                    ->get();
 
         foreach ($invoices as $invoice) {
             DB::table('invoices')
@@ -31,10 +32,10 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropColumn('has_tasks');
         });
     }
-};
+}

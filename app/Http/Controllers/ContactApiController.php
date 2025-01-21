@@ -7,16 +7,17 @@ use App\Http\Requests\CreateContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use App\Ninja\Repositories\ContactRepository;
-use App\Services\ContactService;
+use Input;
 use Response;
+use Utils;
+use App\Services\ContactService;
 
 class ContactApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_CONTACT;
+    protected $contactRepo;
+    protected $contactService;
 
-    protected ContactRepository $contactRepo;
-
-    protected ContactService $contactService;
+    protected $entityType = ENTITY_CONTACT;
 
     public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {
@@ -31,14 +32,11 @@ class ContactApiController extends BaseAPIController
      *   path="/contacts",
      *   summary="List contacts",
      *   tags={"contact"},
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of contacts",
-     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Contact"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -48,8 +46,8 @@ class ContactApiController extends BaseAPIController
     public function index()
     {
         $contacts = Contact::scope()
-            ->withTrashed()
-            ->orderBy('created_at', 'desc');
+                    ->withTrashed()
+                    ->orderBy('created_at', 'desc');
 
         return $this->listResponse($contacts);
     }
@@ -59,21 +57,17 @@ class ContactApiController extends BaseAPIController
      *   path="/contacts/{contact_id}",
      *   summary="Retrieve a contact",
      *   tags={"contact"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="contact_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single contact",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Contact"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -90,21 +84,16 @@ class ContactApiController extends BaseAPIController
      *   path="/contacts",
      *   tags={"contact"},
      *   summary="Create a contact",
-     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="contact",
-     *
      *     @SWG\Schema(ref="#/definitions/Contact")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="New contact",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Contact"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -123,7 +112,6 @@ class ContactApiController extends BaseAPIController
      *   path="/contacts/{contact_id}",
      *   tags={"contact"},
      *   summary="Update a contact",
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="contact_id",
@@ -133,17 +121,13 @@ class ContactApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="contact",
-     *
      *     @SWG\Schema(ref="#/definitions/Contact")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated contact",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Contact"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -170,21 +154,17 @@ class ContactApiController extends BaseAPIController
      *   path="/contacts/{contact_id}",
      *   tags={"contact"},
      *   summary="Delete a contact",
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="contact_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted contact",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Contact"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

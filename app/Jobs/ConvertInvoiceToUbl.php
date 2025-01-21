@@ -2,29 +2,27 @@
 
 namespace App\Jobs;
 
-use CleverIt\UBL\Invoice\Address;
-use CleverIt\UBL\Invoice\Contact;
-use CleverIt\UBL\Invoice\Country;
+use Utils;
+use Exception;
+use App\Jobs\Job;
 use CleverIt\UBL\Invoice\Generator;
 use CleverIt\UBL\Invoice\Invoice;
+use CleverIt\UBL\Invoice\Party;
+use CleverIt\UBL\Invoice\Address;
+use CleverIt\UBL\Invoice\Country;
+use CleverIt\UBL\Invoice\Contact;
+use CleverIt\UBL\Invoice\TaxTotal;
+use CleverIt\UBL\Invoice\TaxSubTotal;
+use CleverIt\UBL\Invoice\TaxCategory;
+use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\InvoiceLine;
 use CleverIt\UBL\Invoice\Item;
 use CleverIt\UBL\Invoice\LegalMonetaryTotal;
-use CleverIt\UBL\Invoice\Party;
-use CleverIt\UBL\Invoice\TaxCategory;
-use CleverIt\UBL\Invoice\TaxScheme;
-use CleverIt\UBL\Invoice\TaxSubTotal;
-use CleverIt\UBL\Invoice\TaxTotal;
-use Exception;
-use Utils;
 
 class ConvertInvoiceToUbl extends Job
 {
-    public const INVOICE_TYPE_STANDARD = 380;
-
-    public const INVOICE_TYPE_CREDIT = 381;
-
-    public $invoice;
+    const INVOICE_TYPE_STANDARD = 380;
+    const INVOICE_TYPE_CREDIT = 381;
 
     public function __construct($invoice)
     {
@@ -62,11 +60,10 @@ class ConvertInvoiceToUbl extends Job
         $ublInvoice->setInvoiceLines($invoiceLines);
 
         $taxtotal = new TaxTotal();
-        $taxAmount1 = 0;
-        $taxAmount2 = 0;
+        $taxAmount1 = $taxAmount2 = 0;
 
         $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
-        if ($invoice->tax_name2 || (float) ($invoice->tax_rate2)) {
+        if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
             $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
         }
 
@@ -87,11 +84,10 @@ class ConvertInvoiceToUbl extends Job
         }
     }
 
-    private function createParty($company, $user): Party
+    private function createParty($company, $user)
     {
         $party = new Party();
         $party->setName($company->name);
-
         $address = (new Address())
             ->setCityName($company->city)
             ->setStreetName($company->address1)
@@ -109,7 +105,6 @@ class ConvertInvoiceToUbl extends Job
 
         $contact = new Contact();
         $contact->setElectronicMail($user->email);
-
         $party->setContact($contact);
 
         return $party;
@@ -124,14 +119,13 @@ class ConvertInvoiceToUbl extends Job
             ->setItem((new Item())
                 ->setName($item->product_key)
                 ->setDescription($item->description));
-        //->setSellersItemIdentification("1ABCD"));
+                //->setSellersItemIdentification("1ABCD"));
 
         $taxtotal = new TaxTotal();
-        $itemTaxAmount1 = 0;
-        $itemTaxAmount2 = 0;
+        $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
         $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
-        if ($item->tax_name2 || (float) ($item->tax_rate2)) {
+        if ($item->tax_name2 || floatval($item->tax_rate2)) {
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 
@@ -148,13 +142,13 @@ class ConvertInvoiceToUbl extends Job
         $taxScheme = ((new TaxScheme()))->setId($taxName);
 
         $taxtotal->addTaxSubTotal((new TaxSubTotal())
-            ->setTaxAmount($taxAmount)
-            ->setTaxableAmount($taxable)
-            ->setTaxCategory((new TaxCategory())
-                ->setId($taxName)
-                ->setName($taxName)
-                ->setTaxScheme($taxScheme)
-                ->setPercent($taxRate)));
+                ->setTaxAmount($taxAmount)
+                ->setTaxableAmount($taxable)
+                ->setTaxCategory((new TaxCategory())
+                    ->setId($taxName)
+                    ->setName($taxName)
+                    ->setTaxScheme($taxScheme)
+                    ->setPercent($taxRate)));
 
         return $taxAmount;
     }

@@ -6,17 +6,16 @@ use App\Models\Account;
 
 class NinjaRepository
 {
-    public function updatePlanDetails($clientPublicId, $data): void
+    public function updatePlanDetails($clientPublicId, $data)
     {
         $account = Account::whereId($clientPublicId)->first();
 
-        if ( ! $account) {
+        if (! $account) {
             return;
         }
 
         $company = $account->company;
         $company->fill($data);
-
         $company->plan_expires = $company->plan_expires ?: null;
         $company->save();
     }

@@ -2,30 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Industry.
- *
- * @property int    $id
- * @property string $name
- *
- * @method static Builder|Industry newModelQuery()
- * @method static Builder|Industry newQuery()
- * @method static Builder|Industry query()
- * @method static Builder|Industry whereId($value)
- * @method static Builder|Industry whereName($value)
- *
- * @mixin \Eloquent
  */
-class Industry extends Model
+class Industry extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->name;

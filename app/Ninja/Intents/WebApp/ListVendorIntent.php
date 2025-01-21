@@ -6,7 +6,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListVendorIntent extends BaseIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $this->loadStates(ENTITY_VENDOR);
 

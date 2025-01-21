@@ -2,17 +2,18 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class CreatePaymentLibraries extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::dropIfExists('payment_libraries');
 
-        Schema::create('payment_libraries', function ($t): void {
+        Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
             $t->timestamps();
 
@@ -20,13 +21,13 @@ return new class () extends Migration {
             $t->boolean('visible')->default(true);
         });
 
-        Schema::table('gateways', function ($table): void {
+        Schema::table('gateways', function ($table) {
             $table->unsignedInteger('payment_library_id')->default(1);
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
 
-        Schema::table('gateways', function ($table): void {
+        Schema::table('gateways', function ($table) {
             $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
         });
     }
@@ -36,10 +37,10 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         if (Schema::hasColumn('gateways', 'payment_library_id')) {
-            Schema::table('gateways', function ($table): void {
+            Schema::table('gateways', function ($table) {
                 $table->dropForeign('gateways_payment_library_id_foreign');
                 $table->dropColumn('payment_library_id');
             });
@@ -47,4 +48,4 @@ return new class () extends Migration {
 
         Schema::dropIfExists('payment_libraries');
     }
-};
+}

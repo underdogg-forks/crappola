@@ -6,25 +6,39 @@ use App\Models\Client;
 
 class CreateInvoiceRequest extends InvoiceRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        if (request()->input('is_quote')) {
+        if (request()->input('is_quote'))
             return $this->user()->can('create', ENTITY_QUOTE);
+        else {
+
+            if(request()->input('is_recurring'))
+                $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
+            else
+                $standardOrRecurringInvoice = ENTITY_INVOICE;
+
+            return $this->user()->can('create', $standardOrRecurringInvoice);
         }
-
-        $standardOrRecurringInvoice = request()->input('is_recurring') ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
-
-        return $this->user()->can('create', $standardOrRecurringInvoice);
     }
 
-    public function rules(): array
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
     {
         $rules = [
-            'client'         => 'required',
-            'invoice_items'  => 'valid_invoice_items',
+            'client' => 'required',
+            'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,' . $this->user()->account_id,
-            'discount'       => 'positive',
-            'invoice_date'   => 'required',
+            'discount' => 'positive',
+            'invoice_date' => 'required',
             //'due_date' => 'date',
             //'start_date' => 'date',
             //'end_date' => 'date',
@@ -32,7 +46,7 @@ class CreateInvoiceRequest extends InvoiceRequest
 
         if ($this->user()->account->client_number_counter) {
             $clientId = Client::getPrivateId(request()->input('client')['public_id']);
-            $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,account_id,' . $this->user()->account_id;
+            $rules['client.id_number'] = 'unique:clients,id_number,'.$clientId.',id,account_id,' . $this->user()->account_id;
         }
 
         /* There's a problem parsing the dates

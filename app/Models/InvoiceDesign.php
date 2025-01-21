@@ -2,30 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
+use Auth;
+use Cache;
+use Eloquent;
 
 /**
  * Class InvoiceDesign.
- *
- * @property int         $id
- * @property string      $name
- * @property string|null $javascript
- * @property string|null $pdfmake
- *
- * @method static Builder|InvoiceDesign newModelQuery()
- * @method static Builder|InvoiceDesign newQuery()
- * @method static Builder|InvoiceDesign query()
- * @method static Builder|InvoiceDesign whereId($value)
- * @method static Builder|InvoiceDesign whereJavascript($value)
- * @method static Builder|InvoiceDesign whereName($value)
- * @method static Builder|InvoiceDesign wherePdfmake($value)
- *
- * @mixin \Eloquent
  */
-class InvoiceDesign extends Model
+class InvoiceDesign extends Eloquent
 {
     /**
      * @var bool
@@ -33,56 +17,59 @@ class InvoiceDesign extends Model
     public $timestamps = false;
 
     public static $pageSizes = [
-        'A0',
-        'A1',
-        'A2',
-        'A3',
-        'A4',
-        'A5',
-        'A6',
-        'A7',
-        'A8',
-        'A9',
-        'A10',
-        'B0',
-        'B1',
-        'B2',
-        'B3',
-        'B4',
-        'B5',
-        'B6',
-        'B7',
-        'B8',
-        'B9',
-        'B10',
-        'C0',
-        'C1',
-        'C2',
-        'C3',
-        'C4',
-        'C5',
-        'C6',
-        'C7',
-        'C8',
-        'C9',
-        'C10',
-        'RA0',
-        'RA1',
-        'RA2',
-        'RA3',
-        'RA4',
-        'SRA0',
-        'SRA1',
-        'SRA2',
-        'SRA3',
-        'SRA4',
-        'Executive',
-        'Folio',
-        'Legal',
-        'Letter',
-        'Tabloid',
-    ];
+                'A0',
+                'A1',
+                'A2',
+                'A3',
+                'A4',
+                'A5',
+                'A6',
+                'A7',
+                'A8',
+                'A9',
+                'A10',
+                'B0',
+                'B1',
+                'B2',
+                'B3',
+                'B4',
+                'B5',
+                'B6',
+                'B7',
+                'B8',
+                'B9',
+                'B10',
+                'C0',
+                'C1',
+                'C2',
+                'C3',
+                'C4',
+                'C5',
+                'C6',
+                'C7',
+                'C8',
+                'C9',
+                'C10',
+                'RA0',
+                'RA1',
+                'RA2',
+                'RA3',
+                'RA4',
+                'SRA0',
+                'SRA1',
+                'SRA2',
+                'SRA3',
+                'SRA4',
+                'Executive',
+                'Folio',
+                'Legal',
+                'Letter',
+                'Tabloid',
+            ];
 
+    /**
+     * @return mixed
+     */
     public static function getDesigns()
     {
         $account = Auth::user()->account;

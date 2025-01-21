@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
+use Auth;
+use Input;
+use Password;
+use Redirect;
+use Request;
+use Session;
+use URL;
 use Utils;
+use Validator;
+use View;
 
 class UserController extends BaseController
 {
-    protected AccountRepository $accountRepo;
-
-    protected ContactMailer $contactMailer;
-
-    protected UserMailer $userMailer;
-
-    protected UserService $userService;
+    protected $accountRepo;
+    protected $contactMailer;
+    protected $userMailer;
+    protected $userService;
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
@@ -71,20 +68,20 @@ class UserController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('users/%s/edit', $publicId));
+        return redirect("users/$publicId/edit");
     }
 
-    public function edit(string $publicId)
+    public function edit($publicId)
     {
         $user = User::where('account_id', '=', Auth::user()->account_id)
-            ->where('public_id', '=', $publicId)
-            ->withTrashed()
-            ->firstOrFail();
+                        ->where('public_id', '=', $publicId)
+                        ->withTrashed()
+                        ->firstOrFail();
 
         $data = [
-            'user'   => $user,
+            'user' => $user,
             'method' => 'PUT',
-            'url'    => 'users/' . $publicId,
+            'url' => 'users/'.$publicId,
         ];
 
         return View::make('users.edit', $data);
@@ -105,13 +102,13 @@ class UserController extends BaseController
      */
     public function create()
     {
-        if ( ! Auth::user()->registered) {
+        if (! Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
 
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
-        if ( ! Auth::user()->confirmed) {
+        if (! Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]));
 
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
@@ -124,9 +121,9 @@ class UserController extends BaseController
         }
 
         $data = [
-            'user'   => null,
-            'method' => 'POST',
-            'url'    => 'users',
+          'user' => null,
+          'method' => 'POST',
+          'url' => 'users',
         ];
 
         return View::make('users.edit', $data);
@@ -134,18 +131,18 @@ class UserController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $id = Request::input('bulk_public_id');
+        $action = request()->get('bulk_action');
+        $id = request()->get('bulk_public_id');
 
         $user = User::where('account_id', '=', Auth::user()->account_id)
-            ->where('public_id', '=', $id)
-            ->withTrashed()
-            ->firstOrFail();
+                    ->where('public_id', '=', $id)
+                    ->withTrashed()
+                    ->firstOrFail();
 
         if ($action === 'archive') {
             $user->delete();
         } else {
-            if ( ! Auth::user()->caddAddUsers()) {
+            if (! Auth::user()->caddAddUsers()) {
                 return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT)
                     ->with('error', trans('texts.max_users_reached'));
             }
@@ -153,7 +150,7 @@ class UserController extends BaseController
             $user->restore();
         }
 
-        Session::flash('message', trans(sprintf('texts.%sd_user', $action)));
+        Session::flash('message', trans("texts.{$action}d_user"));
 
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
@@ -165,73 +162,74 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
-        if ( ! Auth::user()->hasFeature(FEATURE_USERS)) {
+
+        if (! Auth::user()->hasFeature(FEATURE_USERS)) {
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         $rules = [
             'first_name' => 'required',
-            'last_name'  => 'required',
+            'last_name' => 'required',
         ];
 
         if ($userPublicId) {
             $user = User::where('account_id', '=', Auth::user()->account_id)
-                ->where('public_id', '=', $userPublicId)
-                ->withTrashed()
-                ->firstOrFail();
+                        ->where('public_id', '=', $userPublicId)
+                        ->withTrashed()
+                        ->firstOrFail();
 
-            $rules['email'] = 'required|email|unique:users,email,' . $user->id . ',id';
+            $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
         } else {
             $user = false;
             $rules['email'] = 'required|email|unique:users';
         }
 
-        $validator = Validator::make(Request::all(), $rules);
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
-                ->withErrors($validator)
-                ->withInput();
+                        ->withErrors($validator)
+                        ->withInput();
         }
 
-        if ( ! LookupUser::validateField('email', Request::input('email'), $user)) {
+        if (! \App\Models\LookupUser::validateField('email', request()->get('email'), $user)) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
         }
 
         if ($userPublicId) {
-            $user->first_name = trim(Request::input('first_name'));
-            $user->last_name = trim(Request::input('last_name'));
-            $user->username = trim(Request::input('email'));
-            $user->email = trim(Request::input('email'));
+            $user->first_name = trim(request()->get('first_name'));
+            $user->last_name = trim(request()->get('last_name'));
+            $user->username = trim(request()->get('email'));
+            $user->email = trim(request()->get('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = (bool) (Request::input('is_admin'));
-                $user->permissions = self::formatUserPermissions(Request::input('permissions'));
+                $user->is_admin = boolval(request()->get('is_admin'));
+                $user->permissions = self::formatUserPermissions(request()->get('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
-                ->orderBy('public_id', 'DESC')->first();
+                        ->orderBy('public_id', 'DESC')->first();
 
             $user = new User();
             $user->account_id = Auth::user()->account_id;
-            $user->first_name = trim(Request::input('first_name'));
-            $user->last_name = trim(Request::input('last_name'));
-            $user->username = trim(Request::input('email'));
-            $user->email = trim(Request::input('email'));
+            $user->first_name = trim(request()->get('first_name'));
+            $user->last_name = trim(request()->get('last_name'));
+            $user->username = trim(request()->get('email'));
+            $user->email = trim(request()->get('email'));
             $user->registered = true;
-            $user->password = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
-            $user->confirmation_code = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->password = strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = strtolower(Str::random(RANDOM_KEY_LENGTH));
             $user->public_id = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = (bool) (Request::input('is_admin'));
-                $user->permissions = self::formatUserPermissions(Request::input('permissions'));
+                $user->is_admin = boolval(request()->get('is_admin'));
+                $user->permissions = self::formatUserPermissions(request()->get('permissions'));
             }
         }
 
         $user->save();
 
-        if ( ! $user->confirmed && Request::input('action') === 'email') {
+        if (! $user->confirmed && request()->get('action') === 'email') {
             $this->userMailer->sendConfirmation($user, Auth::user());
             $message = trans('texts.sent_invite');
         } else {
@@ -243,10 +241,16 @@ class UserController extends BaseController
         return Redirect::to('users/' . $user->public_id . '/edit');
     }
 
+    private function formatUserPermissions(array $permissions) {
+
+        return json_encode(array_diff(array_values($permissions),[0]));
+
+    }
+
     public function sendConfirmation($userPublicId)
     {
         $user = User::where('account_id', '=', Auth::user()->account_id)
-            ->where('public_id', '=', $userPublicId)->firstOrFail();
+                    ->where('public_id', '=', $userPublicId)->firstOrFail();
 
         $this->userMailer->sendConfirmation($user, Auth::user());
         Session::flash('message', trans('texts.sent_invite'));
@@ -261,7 +265,7 @@ class UserController extends BaseController
      */
     public function confirm($code)
     {
-        $user = User::where('confirmation_code', '=', $code)->first();
+        $user = User::where('confirmation_code', '=', $code)->get()->first();
 
         if ($user) {
             $notice_msg = trans('texts.security_confirmation');
@@ -275,43 +279,43 @@ class UserController extends BaseController
                 Session::flush();
                 $token = Password::getRepository()->create($user);
 
-                return Redirect::to('/password/reset/' . $token);
-            }
-
-            if (Auth::check()) {
-                if (Session::has(REQUESTED_PRO_PLAN)) {
-                    Session::forget(REQUESTED_PRO_PLAN);
-                    $url = '/settings/account_management?upgrade=true';
-                } else {
-                    $url = '/dashboard';
-                }
+                return Redirect::to("/password/reset/{$token}");
             } else {
-                $url = '/login';
+                if (Auth::check()) {
+                    if (Session::has(REQUESTED_PRO_PLAN)) {
+                        Session::forget(REQUESTED_PRO_PLAN);
+                        $url = '/settings/account_management?upgrade=true';
+                    } else {
+                        $url = '/dashboard';
+                    }
+                } else {
+                    $url = '/login';
+                }
+
+                return Redirect::to($url)->with('message', $notice_msg);
             }
+        } else {
+            $error_msg = trans('texts.wrong_confirmation');
 
-            return Redirect::to($url)->with('message', $notice_msg);
+            return Redirect::to('/login')->with('error', $error_msg);
         }
-
-        $error_msg = trans('texts.wrong_confirmation');
-
-        return Redirect::to('/login')->with('error', $error_msg);
     }
 
     public function changePassword()
     {
         // check the current password is correct
-        if ( ! Auth::validate([
-            'email'    => Auth::user()->email,
-            'password' => Request::input('current_password'),
+        if (! Auth::validate([
+            'email' => Auth::user()->email,
+            'password' => request()->get('current_password'),
         ])) {
             return trans('texts.password_error_incorrect');
         }
 
         // validate the new password
-        $password = Request::input('new_password');
-        $confirm = Request::input('confirm_password');
+        $password = request()->get('new_password');
+        $confirm = request()->get('confirm_password');
 
-        if (mb_strlen($password) < 6 || $password != $confirm) {
+        if (strlen($password) < 6 || $password != $confirm) {
             return trans('texts.password_error_invalid');
         }
 
@@ -329,28 +333,31 @@ class UserController extends BaseController
         $referer = Request::header('referer');
         $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
 
-        if ($account && ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId))) {
-            Auth::loginUsingId($newUserId);
-            Auth::user()->account->loadLocalizationSettings();
-            // regenerate token to prevent open pages
-            // from saving under the wrong account
-            Session::put('_token', Str::random(40));
+        if ($account) {
+            if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
+                Auth::loginUsingId($newUserId);
+                Auth::user()->account->loadLocalizationSettings();
+
+                // regenerate token to prevent open pages
+                // from saving under the wrong account
+                Session::put('_token', Str::random(40));
+            }
         }
 
         // If the user is looking at an entity redirect to the dashboard
         preg_match('/\/[0-9*][\/edit]*$/', $referer, $matches);
-        if ($matches !== []) {
+        if (count($matches)) {
             return Redirect::to('/dashboard');
+        } else {
+            return Redirect::to($referer);
         }
-
-        return Redirect::to($referer);
     }
 
     public function viewAccountByKey($accountKey)
     {
         $user = $this->accountRepo->findUser(Auth::user(), $accountKey);
 
-        if ( ! $user) {
+        if (! $user) {
             return redirect()->to('/');
         }
 
@@ -380,14 +387,14 @@ class UserController extends BaseController
         return View::make('users.account_management');
     }
 
-    public function saveSidebarState(): string
+    public function saveSidebarState()
     {
-        if (Request::has('show_left')) {
-            Session::put(SESSION_LEFT_SIDEBAR, (bool) (Request::input('show_left')));
+        if (request()->has('show_left')) {
+            Session::put(SESSION_LEFT_SIDEBAR, boolval(request()->get('show_left')));
         }
 
-        if (Request::has('show_right')) {
-            Session::put(SESSION_RIGHT_SIDEBAR, (bool) (Request::input('show_right')));
+        if (request()->has('show_right')) {
+            Session::put(SESSION_RIGHT_SIDEBAR, boolval(request()->get('show_right')));
         }
 
         return RESULT_SUCCESS;
@@ -405,10 +412,5 @@ class UserController extends BaseController
         }
 
         return redirect($referer)->withMessage($message);
-    }
-
-    private function formatUserPermissions(array $permissions)
-    {
-        return json_encode(array_diff(array_values($permissions), [0]));
     }
 }

@@ -5,8 +5,7 @@ namespace App\Services;
 use App\Ninja\Datatables\ProjectTaskDatatable;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\TaskRepository;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use Utils;
 
 /**
@@ -14,9 +13,8 @@ use Utils;
  */
 class TaskService extends BaseService
 {
-    protected DatatableService $datatableService;
-
-    protected TaskRepository $taskRepo;
+    protected $datatableService;
+    protected $taskRepo;
 
     /**
      * TaskService constructor.
@@ -31,10 +29,18 @@ class TaskService extends BaseService
     }
 
     /**
+     * @return TaskRepository
+     */
+    protected function getRepo()
+    {
+        return $this->taskRepo;
+    }
+
+    /**
      * @param $clientPublicId
      * @param $search
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId, $projectPublicId, $search)
     {
@@ -46,18 +52,10 @@ class TaskService extends BaseService
 
         $query = $this->taskRepo->find($clientPublicId, $projectPublicId, $search);
 
-        if ( ! Utils::hasPermission('view_task')) {
+        if (! Utils::hasPermission('view_task')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return TaskRepository
-     */
-    protected function getRepo(): TaskRepository
-    {
-        return $this->taskRepo;
     }
 }

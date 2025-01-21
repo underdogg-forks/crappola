@@ -2,44 +2,46 @@
 
 namespace App\Services\Migration;
 
-use App\Models\Account;
-use Exception;
+use Unirest\Request;
+use Unirest\Request\Body;
 
 class CompanyService
 {
-    public $errors;
-
+    protected $token;
+    protected $endpoint = 'https://app.invoiceninja.com';
+    protected $uri = '/api/v1/companies';
+    protected $errors = [];
     protected $isSuccessful;
-
     protected $companies = [];
 
-    public function start(): static
+
+    public function __construct(string $token)
     {
-        try {
-            if (session(SESSION_USER_ACCOUNTS)) {
-                foreach (session(SESSION_USER_ACCOUNTS) as $company) {
-                    $account = Account::find($company->account_id);
+        $this->token = $token;
+    }
 
-                    if ($account) {
-                        $this->companies[] = [
-                            'id'          => $account->id,
-                            'name'        => $account->present()->name(),
-                            'company_key' => $account->account_key,
-                        ];
-                    }
-                }
-            } else {
-                $this->companies[] = [
-                    'id'          => auth()->user()->account->id,
-                    'name'        => auth()->user()->account->present()->name(),
-                    'company_key' => auth()->user()->account->account_key,
-                ];
-            }
+    public function endpoint(string $endpoint)
+    {
+        $this->endpoint = $endpoint;
 
+        return $this;
+    }
+
+    public function start()
+    {
+        $response = Request::get($this->getUrl(), $this->getHeaders());
+
+        if ($response->code == 200) {
             $this->isSuccessful = true;
-        } catch (Exception) {
+
+            foreach($response->body->data as $company) {
+                $this->companies[] = $company;
+            }
+        }
+
+        if (in_array($response->code, [401, 422, 500])) {
             $this->isSuccessful = false;
-            $this->errors = [];
+            $this->processErrors($response->body);
         }
 
         return $this;
@@ -59,8 +61,29 @@ class CompanyService
         return [];
     }
 
+
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    private function getHeaders()
+    {
+        return [
+            'X-Requested-With' => 'XMLHttpRequest',
+            'X-Api-Token' => $this->token,
+        ];
+    }
+
+    private function getUrl()
+    {
+        return $this->endpoint . $this->uri;
+    }
+
+    private function processErrors($errors)
+    {
+        $array = (array) $errors;
+
+        $this->errors = $array;
     }
 }

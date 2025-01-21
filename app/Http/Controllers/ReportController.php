@@ -7,12 +7,13 @@ use App\Jobs\LoadPostmarkStats;
 use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
-use Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\View;
+use Auth;
+use Input;
 use Utils;
+use View;
+use Carbon;
+use Validator;
+
 
 /**
  * Class ReportController.
@@ -25,12 +26,12 @@ class ReportController extends BaseController
     public function d3()
     {
         $message = '';
-        $fileName = storage_path() . '/dataviz_sample.txt';
+        $fileName = storage_path().'/dataviz_sample.txt';
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $account = Account::where('id', '=', Auth::user()->account->id)
-                ->with(['clients.invoices.invoice_items', 'clients.contacts', 'clients.currency'])
-                ->first();
+                            ->with(['clients.invoices.invoice_items', 'clients.contacts', 'clients.currency'])
+                            ->first();
             $account = $account->hideFieldsForViz();
             $clients = $account->clients;
         } elseif (file_exists($fileName)) {
@@ -53,18 +54,18 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
-        if ( ! Auth::user()->hasPermission('view_reports')) {
+        if (! Auth::user()->hasPermission('view_reports')) {
             return redirect('/');
         }
 
-        $action = Request::input('action');
-        $format = Request::input('format');
+        $action = request()->get('action');
+        $format = request()->get('format');
 
-        if (Request::input('report_type')) {
-            $reportType = Request::input('report_type');
-            $dateField = Request::input('date_field');
-            $startDate = date_create(Request::input('start_date'));
-            $endDate = date_create(Request::input('end_date'));
+        if (request()->get('report_type')) {
+            $reportType = request()->get('report_type');
+            $dateField = request()->get('date_field');
+            $startDate = date_create(request()->get('start_date'));
+            $endDate = date_create(request()->get('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
@@ -89,41 +90,39 @@ class ReportController extends BaseController
         ];
 
         $params = [
-            'startDate'   => $startDate->format('Y-m-d'),
-            'endDate'     => $endDate->format('Y-m-d'),
+            'startDate' => $startDate->format('Y-m-d'),
+            'endDate' => $endDate->format('Y-m-d'),
             'reportTypes' => array_combine($reportTypes, Utils::trans($reportTypes)),
-            'reportType'  => $reportType,
-            'title'       => trans('texts.charts_and_reports'),
-            'account'     => Auth::user()->account,
+            'reportType' => $reportType,
+            'title' => trans('texts.charts_and_reports'),
+            'account' => Auth::user()->account,
         ];
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
             $config = [
-                'date_field'      => $dateField,
-                'status_ids'      => request()->status_ids,
-                'group'           => request()->group,
-                'subgroup'        => request()->subgroup,
+                'date_field' => $dateField,
+                'status_ids' => request()->status_ids,
+                'group' => request()->group,
+                'subgroup' => request()->subgroup,
                 'document_filter' => request()->document_filter,
-                'currency_type'   => request()->currency_type,
-                'export_format'   => $format,
-                'start_date'      => $params['startDate'],
-                'end_date'        => $params['endDate'],
+                'currency_type' => request()->currency_type,
+                'export_format' => $format,
+                'start_date' => $params['startDate'],
+                'end_date' => $params['endDate'],
             ];
-            $report = dispatch_sync(new RunReport(auth()->user(), $reportType, $config, $isExport));
+            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':
-                    return dispatch_sync(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
+                    return dispatch_now(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
                     break;
                 case 'schedule':
                     self::schedule($params, $config);
-
                     return redirect('/reports');
                     break;
                 case 'cancel_schedule':
                     self::cancelSchdule();
-
                     return redirect('/reports');
                     break;
             }
@@ -139,23 +138,7 @@ class ReportController extends BaseController
         return View::make('reports.report_builder', $params);
     }
 
-    public function showEmailReport()
-    {
-        $data = [
-            'account' => auth()->user()->account,
-        ];
-
-        return view('reports.emails', $data);
-    }
-
-    public function loadEmailReport($startDate, $endDate)
-    {
-        $data = dispatch_sync(new LoadPostmarkStats($startDate, $endDate));
-
-        return response()->json($data);
-    }
-
-    private function schedule(array $params, array $options): void
+    private function schedule($params, $options)
     {
         $validator = Validator::make(request()->all(), [
             'frequency' => 'required|in:daily,weekly,biweekly,monthly',
@@ -170,7 +153,10 @@ class ReportController extends BaseController
             $options['start_date_offset'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
             $options['end_date_offset'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
 
-            unset($options['start_date'], $options['end_date'], $options['group'], $options['subgroup']);
+            unset($options['start_date']);
+            unset($options['end_date']);
+            unset($options['group']);
+            unset($options['subgroup']);
 
             $schedule = ScheduledReport::createNew();
             $schedule->config = json_encode($options);
@@ -183,7 +169,7 @@ class ReportController extends BaseController
         }
     }
 
-    private function cancelSchdule(): void
+    private function cancelSchdule()
     {
         ScheduledReport::scope()
             ->whereUserId(auth()->user()->id)
@@ -191,5 +177,21 @@ class ReportController extends BaseController
             ->delete();
 
         session()->flash('message', trans('texts.deleted_scheduled_report'));
+    }
+
+    public function showEmailReport()
+    {
+        $data = [
+            'account' => auth()->user()->account,
+        ];
+
+        return view('reports.emails', $data);
+    }
+
+    public function loadEmailReport($startDate, $endDate)
+    {
+        $data = dispatch_now(new LoadPostmarkStats($startDate, $endDate));
+
+        return response()->json($data);
     }
 }

@@ -6,8 +6,7 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use Utils;
 
 /**
@@ -16,13 +15,14 @@ use Utils;
 class VendorService extends BaseService
 {
     /**
-     * @var NinjaRepository
+     * @var VendorRepository
      */
-    public $ninjaRepo;
+    protected $vendorRepo;
 
-    protected VendorRepository $vendorRepo;
-
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * VendorService constructor.
@@ -42,12 +42,20 @@ class VendorService extends BaseService
     }
 
     /**
+     * @return VendorRepository
+     */
+    protected function getRepo()
+    {
+        return $this->vendorRepo;
+    }
+
+    /**
      * @param array       $data
      * @param Vendor|null $vendor
      *
      * @return mixed|null
      */
-    public function save(array $data, ?Vendor $vendor = null)
+    public function save(array $data, Vendor $vendor = null)
     {
         return $this->vendorRepo->save($data, $vendor);
     }
@@ -55,25 +63,17 @@ class VendorService extends BaseService
     /**
      * @param $search
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search)
     {
         $datatable = new VendorDatatable();
         $query = $this->vendorRepo->find($search);
 
-        if ( ! Utils::hasPermission('view_vendor')) {
+        if (! Utils::hasPermission('view_vendor')) {
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return VendorRepository
-     */
-    protected function getRepo(): VendorRepository
-    {
-        return $this->vendorRepo;
     }
 }

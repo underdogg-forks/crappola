@@ -5,16 +5,21 @@ namespace App\Services;
 use App\Models\Client;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class ProjectService.
  */
 class ProjectService extends BaseService
 {
-    protected ProjectRepository $projectRepo;
+    /**
+     * @var ProjectRepository
+     */
+    protected $projectRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * CreditService constructor.
@@ -29,7 +34,15 @@ class ProjectService extends BaseService
     }
 
     /**
-     * @param       $data
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->projectRepo;
+    }
+
+    /**
+     * @param $data
      * @param mixed $project
      *
      * @return mixed|null
@@ -44,11 +57,11 @@ class ProjectService extends BaseService
     }
 
     /**
-     * @param       $clientPublicId
-     * @param       $search
+     * @param $clientPublicId
+     * @param $search
      * @param mixed $userId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -58,13 +71,5 @@ class ProjectService extends BaseService
         $query = $this->projectRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return CreditRepository
-     */
-    protected function getRepo(): ProjectRepository
-    {
-        return $this->projectRepo;
     }
 }

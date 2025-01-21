@@ -11,7 +11,10 @@ use Carbon;
  */
 class EmailService
 {
-    protected UserMailer $userMailer;
+    /**
+     * @var UserMailer
+     */
+    protected $userMailer;
 
     /**
      * EmailService constructor.
@@ -28,12 +31,12 @@ class EmailService
      *
      * @return bool
      */
-    public function markOpened($messageId): bool
+    public function markOpened($messageId)
     {
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::whereMessageId($messageId)->first();
 
-        if ( ! $invitation) {
+        if (! $invitation) {
             return false;
         }
 
@@ -49,14 +52,14 @@ class EmailService
      *
      * @return bool
      */
-    public function markBounced($messageId, $error): bool
+    public function markBounced($messageId, $error)
     {
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::with('user', 'invoice', 'contact')
-            ->whereMessageId($messageId)
-            ->first();
+                        ->whereMessageId($messageId)
+                        ->first();
 
-        if ( ! $invitation) {
+        if (! $invitation) {
             return false;
         }
 

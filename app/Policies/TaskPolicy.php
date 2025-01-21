@@ -14,7 +14,7 @@ class TaskPolicy extends EntityPolicy
      */
     public static function create(User $user, $item)
     {
-        if ( ! parent::create($user, $item)) {
+        if (! parent::create($user, $item)) {
             return false;
         }
 

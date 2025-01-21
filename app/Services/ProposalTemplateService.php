@@ -5,22 +5,27 @@ namespace App\Services;
 use App\Models\Client;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class ProposalTemplateService.
  */
 class ProposalTemplateService extends BaseService
 {
-    protected ProposalTemplateRepository $proposalTemplateRepo;
+    /**
+     * @var ProposalTemplateRepository
+     */
+    protected $proposalTemplateRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ProposalTemplateRepository $creditRepo
-     * @param DatatableService           $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, DatatableService $datatableService)
     {
@@ -29,7 +34,15 @@ class ProposalTemplateService extends BaseService
     }
 
     /**
-     * @param       $data
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->proposalTemplateRepo;
+    }
+
+    /**
+     * @param $data
      * @param mixed $proposalTemplate
      *
      * @return mixed|null
@@ -40,11 +53,11 @@ class ProposalTemplateService extends BaseService
     }
 
     /**
-     * @param       $clientPublicId
-     * @param       $search
+     * @param $clientPublicId
+     * @param $search
      * @param mixed $userId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -54,13 +67,5 @@ class ProposalTemplateService extends BaseService
         $query = $this->proposalTemplateRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return CreditRepository
-     */
-    protected function getRepo(): ProposalTemplateRepository
-    {
-        return $this->proposalTemplateRepo;
     }
 }

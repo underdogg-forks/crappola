@@ -6,12 +6,16 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class ListQuoteIntent extends InvoiceIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $this->loadStates(ENTITY_QUOTE);
         $this->loadStatuses(ENTITY_QUOTE);
 
-        $url = ($client = $this->requestClient()) ? $client->present()->url . '#quotes' : '/quotes';
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#quotes';
+        } else {
+            $url = '/quotes';
+        }
 
         return redirect($url);
     }

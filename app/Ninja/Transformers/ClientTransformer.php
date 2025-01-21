@@ -3,7 +3,6 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Client;
-use League\Fractal\Resource\Collection;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
@@ -65,7 +64,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeActivities(Client $client)
     {
@@ -77,7 +76,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeContacts(Client $client)
     {
@@ -89,7 +88,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeInvoices(Client $client)
     {
@@ -101,7 +100,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeCredits(Client $client)
     {
@@ -113,7 +112,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeExpenses(Client $client)
     {
@@ -127,50 +126,50 @@ class ClientTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(Client $client): array
+    public function transform(Client $client)
     {
         return array_merge($this->getDefaults($client), [
-            'id'                     => (int) $client->public_id,
-            'name'                   => $client->name ?: '',
-            'display_name'           => $client->getDisplayName() ?: '',
-            'balance'                => (float) ($client->balance ?: 0.0),
-            'paid_to_date'           => (float) ($client->paid_to_date ?: 0.0),
-            'updated_at'             => $this->getTimestamp($client->updated_at),
-            'archived_at'            => $this->getTimestamp($client->deleted_at),
-            'address1'               => $client->address1 ?: '',
-            'address2'               => $client->address2 ?: '',
-            'city'                   => $client->city ?: '',
-            'state'                  => $client->state ?: '',
-            'postal_code'            => $client->postal_code ?: '',
-            'country_id'             => (int) ($client->country_id ?: 0),
-            'work_phone'             => $client->work_phone ?: '',
-            'private_notes'          => $client->private_notes ?: '',
-            'public_notes'           => $client->public_notes ?: '',
-            'last_login'             => $client->last_login ?: '',
-            'website'                => $client->website ?: '',
-            'industry_id'            => (int) ($client->industry_id ?: 0),
-            'size_id'                => (int) ($client->size_id ?: 0),
-            'is_deleted'             => (bool) $client->is_deleted,
-            'payment_terms'          => (int) ($client->payment_terms ?: 0),
-            'vat_number'             => $client->vat_number ?: '',
-            'id_number'              => $client->id_number ?: '',
-            'language_id'            => (int) ($client->language_id ?: 0),
-            'currency_id'            => (int) ($client->currency_id ?: 0),
-            'custom_value1'          => $client->custom_value1 ?: '',
-            'custom_value2'          => $client->custom_value2 ?: '',
+            'id' => (int) $client->public_id,
+            'name' => $client->name ?: '',
+            'display_name' => $client->getDisplayName() ?: '',
+            'balance' => (float) ($client->balance ?: 0.0),
+            'paid_to_date' => (float) ($client->paid_to_date ?: 0.0),
+            'updated_at' => $this->getTimestamp($client->updated_at),
+            'archived_at' => $this->getTimestamp($client->deleted_at),
+            'address1' => $client->address1 ?: '',
+            'address2' => $client->address2 ?: '',
+            'city' => $client->city ?: '',
+            'state' => $client->state ?: '',
+            'postal_code' => $client->postal_code ?: '',
+            'country_id' => (int) ($client->country_id ?: 0),
+            'work_phone' => $client->work_phone ?: '',
+            'private_notes' => $client->private_notes ?: '',
+            'public_notes' => $client->public_notes ?: '',
+            'last_login' => $client->last_login ?: '',
+            'website' => $client->website ?: '',
+            'industry_id' => (int) ($client->industry_id ?: 0),
+            'size_id' => (int) ($client->size_id ?: 0),
+            'is_deleted' => (bool) $client->is_deleted,
+            'payment_terms' => (int) ($client->payment_terms ?: 0),
+            'vat_number' => $client->vat_number ?: '',
+            'id_number' => $client->id_number ?: '',
+            'language_id' => (int) ($client->language_id ?: 0),
+            'currency_id' => (int) ($client->currency_id ?: 0),
+            'custom_value1' => $client->custom_value1 ?: '',
+            'custom_value2' => $client->custom_value2 ?: '',
             'invoice_number_counter' => (int) ($client->invoice_number_counter ?: 0),
-            'quote_number_counter'   => (int) ($client->quote_number_counter ?: 0),
-            'task_rate'              => (float) $client->task_rate,
-            'shipping_address1'      => $client->shipping_address1 ?: '',
-            'shipping_address2'      => $client->shipping_address2 ?: '',
-            'shipping_city'          => $client->shipping_city ?: '',
-            'shipping_state'         => $client->shipping_state ?: '',
-            'shipping_postal_code'   => $client->shipping_postal_code ?: '',
-            'shipping_country_id'    => (int) ($client->shipping_country_id ?: 0),
-            'show_tasks_in_portal'   => (bool) $client->show_tasks_in_portal,
-            'send_reminders'         => (bool) $client->send_reminders,
-            'credit_number_counter'  => (int) ($client->credit_number_counter ?: 0),
-            'custom_messages'        => json_encode($client->custom_messages),
+            'quote_number_counter' => (int) ($client->quote_number_counter ?: 0),
+            'task_rate' => (float) $client->task_rate,
+            'shipping_address1' => $client->shipping_address1 ?: '',
+            'shipping_address2' => $client->shipping_address2 ?: '',
+            'shipping_city' => $client->shipping_city ?: '',
+            'shipping_state' => $client->shipping_state ?: '',
+            'shipping_postal_code' => $client->shipping_postal_code ?: '',
+            'shipping_country_id' => (int) ($client->shipping_country_id ?: 0),
+            'show_tasks_in_portal' => (bool) $client->show_tasks_in_portal,
+            'send_reminders' => (bool) $client->send_reminders,
+            'credit_number_counter' => (int) ($client->credit_number_counter ?: 0),
+            'custom_messages' => json_encode($client->custom_messages),
         ]);
     }
 }

@@ -5,22 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateProposalTemplateRequest;
 use App\Http\Requests\ProposalTemplateRequest;
 use App\Http\Requests\UpdateProposalTemplateRequest;
+use App\Models\Invoice;
 use App\Models\ProposalTemplate;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
+use Auth;
+use Input;
+use Session;
+use View;
 
 class ProposalTemplateController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_TEMPLATE;
-
-    protected ProposalTemplateRepository $proposalTemplateRepo;
-
-    protected ProposalTemplateService $proposalTemplateService;
+    protected $proposalTemplateRepo;
+    protected $proposalTemplateService;
+    protected $entityType = ENTITY_PROPOSAL_TEMPLATE;
 
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, ProposalTemplateService $proposalTemplateService)
     {
@@ -37,14 +36,14 @@ class ProposalTemplateController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => ENTITY_PROPOSAL_TEMPLATE,
-            'datatable'  => new ProposalTemplateDatatable(),
-            'title'      => trans('texts.proposal_templates'),
+            'datatable' => new ProposalTemplateDatatable(),
+            'title' => trans('texts.proposal_templates'),
         ]);
     }
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
+        $search = request()->get('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalTemplateService->getDatatable($search, $userId);
@@ -54,19 +53,51 @@ class ProposalTemplateController extends BaseController
     {
         $data = array_merge($this->getViewmodel(), [
             'template' => null,
-            'method'   => 'POST',
-            'url'      => 'proposals/templates',
-            'title'    => trans('texts.new_proposal_template'),
+            'method' => 'POST',
+            'url' => 'proposals/templates',
+            'title' => trans('texts.new_proposal_template'),
         ]);
 
         return View::make('proposals/templates/edit', $data);
+    }
+
+    private function getViewmodel()
+    {
+        $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
+        $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
+
+        $options = [];
+        $customLabel = trans('texts.custom');
+        $defaultLabel = trans('texts.default');
+
+        foreach ($customTemplates as $template) {
+            if (! isset($options[$customLabel])) {
+                $options[$customLabel] = [];
+            }
+            $options[trans('texts.custom')][$template->public_id] = $template->name;
+        }
+        foreach ($defaultTemplates as $template) {
+            if (! isset($options[$defaultLabel])) {
+                $options[$defaultLabel] = [];
+            }
+            $options[trans('texts.default')][$template->public_id] = $template->name;
+        }
+
+        $data = [
+            'account' => auth()->user()->account,
+            'customTemplates' => $customTemplates,
+            'defaultTemplates' => $defaultTemplates,
+            'templateOptions' => $options,
+        ];
+
+        return $data;
     }
 
     public function show($publicId)
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/templates/%s/edit', $publicId));
+        return redirect("proposals/templates/$publicId/edit");
     }
 
     public function edit(ProposalTemplateRequest $request, $publicId = false, $clone = false)
@@ -87,10 +118,10 @@ class ProposalTemplateController extends BaseController
 
         $data = array_merge($this->getViewmodel(), [
             'template' => $template,
-            'entity'   => $clone ? false : $template,
-            'method'   => $method,
-            'url'      => $url,
-            'title'    => trans('texts.edit_proposal_template'),
+            'entity' => $clone ? false : $template,
+            'method' => $method,
+            'url' => $url,
+            'title' => trans('texts.edit_proposal_template'),
         ]);
 
         return View::make('proposals/templates/edit', $data);
@@ -116,7 +147,7 @@ class ProposalTemplateController extends BaseController
 
         Session::flash('message', trans('texts.updated_proposal_template'));
 
-        $action = Request::input('action');
+        $action = request()->get('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -126,52 +157,17 @@ class ProposalTemplateController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $action = request()->get('action');
+        $ids = request()->get('public_id') ? request()->get('public_id') : request()->get('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_template' : $action . 'd_proposal_templates';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
+            $message = trans("texts.$field", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/templates');
-    }
-
-    private function getViewmodel(): array
-    {
-        $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
-        $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
-
-        $options = [];
-        $customLabel = trans('texts.custom');
-        $defaultLabel = trans('texts.default');
-
-        foreach ($customTemplates as $template) {
-            if ( ! isset($options[$customLabel])) {
-                $options[$customLabel] = [];
-            }
-
-            $options[trans('texts.custom')][$template->public_id] = $template->name;
-        }
-
-        foreach ($defaultTemplates as $template) {
-            if ( ! isset($options[$defaultLabel])) {
-                $options[$defaultLabel] = [];
-            }
-
-            $options[trans('texts.default')][$template->public_id] = $template->name;
-        }
-
-        $data = [
-            'account'          => auth()->user()->account,
-            'customTemplates'  => $customTemplates,
-            'defaultTemplates' => $defaultTemplates,
-            'templateOptions'  => $options,
-        ];
-
-        return $data;
     }
 }

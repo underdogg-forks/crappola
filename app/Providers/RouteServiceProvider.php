@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -21,8 +21,10 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(): void
+    public function boot()
     {
+        //
+
         parent::boot();
     }
 
@@ -31,11 +33,13 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function map(): void
+    public function map()
     {
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
+
+        //
     }
 
     /**
@@ -45,12 +49,12 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapWebRoutes(): void
+    protected function mapWebRoutes()
     {
         Route::group([
             'middleware' => 'web',
-            'namespace'  => $this->namespace,
-        ], function ($router): void {
+            'namespace' => $this->namespace,
+        ], function ($router) {
             require base_path('routes/web.php');
         });
     }
@@ -62,13 +66,13 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapApiRoutes(): void
+    protected function mapApiRoutes()
     {
         Route::group([
             'middleware' => ['lookup:api', 'api'],
-            'namespace'  => $this->namespace,
-            'prefix'     => 'api/v1',
-        ], function ($router): void {
+            'namespace' => $this->namespace,
+            'prefix' => 'api/v1',
+        ], function ($router) {
             require base_path('routes/api.php');
         });
     }

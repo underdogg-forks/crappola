@@ -4,12 +4,12 @@ namespace App\Libraries;
 
 use App\Models\Activity;
 use App\Models\EntityModel;
-use Illuminate\Support\Facades\Session;
+use Session;
 use stdClass;
 
 class HistoryUtils
 {
-    public static function loadHistory($users): void
+    public static function loadHistory($users)
     {
         $userIds = [];
         session([RECENTLY_VIEWED => false]);
@@ -54,10 +54,9 @@ class HistoryUtils
                 $entity = $activity->client;
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_TASK || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_TASK) {
                 $entity = $activity->task;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
 
                 if ($entity->project) {
@@ -67,17 +66,15 @@ class HistoryUtils
                 }
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
                 $entity = $activity->expense;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
             }
 
@@ -85,14 +82,13 @@ class HistoryUtils
         }
     }
 
-    public static function deleteHistory(EntityModel $entity): void
+    public static function deleteHistory(EntityModel $entity)
     {
         $history = Session::get(RECENTLY_VIEWED) ?: [];
-        $accountHistory = $history[$entity->account_id] ?? [];
+        $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
         $remove = [];
-        $counter = count($accountHistory);
 
-        for ($i = 0; $i < $counter; $i++) {
+        for ($i=0; $i<count($accountHistory); $i++) {
             $item = $accountHistory[$i];
             if ($entity->equalTo($item)) {
                 $remove[] = $i;
@@ -101,14 +97,14 @@ class HistoryUtils
             }
         }
 
-        for ($i = count($remove) - 1; $i >= 0; $i--) {
+        for ($i=count($remove) - 1; $i>=0; $i--) {
             array_splice($history[$entity->account_id], $remove[$i], 1);
         }
 
         Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function trackViewed(EntityModel $entity): void
+    public static function trackViewed(EntityModel $entity)
     {
         $entityType = $entity->getEntityType();
         $trackedTypes = [
@@ -122,7 +118,7 @@ class HistoryUtils
             //ENTITY_RECURRING_EXPENSE,
         ];
 
-        if ( ! in_array($entityType, $trackedTypes)) {
+        if (! in_array($entityType, $trackedTypes)) {
             return;
         }
 
@@ -132,20 +128,18 @@ class HistoryUtils
 
         $object = static::convertToObject($entity);
         $history = Session::get(RECENTLY_VIEWED) ?: [];
-        $accountHistory = $history[$entity->account_id] ?? [];
+        $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
         $data = [];
-        // Add to the list and make sure to only show each item once
-        $counter = count($accountHistory);
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i < $counter; $i++) {
+        for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
                 continue;
             }
 
-            $data[] = $item;
+            array_push($data, $item);
 
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
@@ -165,55 +159,7 @@ class HistoryUtils
         Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function renderHtml($accountId): string
-    {
-        $lastClientId = false;
-        $clientMap = [];
-        $str = '';
-
-        $history = Session::get(RECENTLY_VIEWED, []);
-        $history = $history[$accountId] ?? [];
-
-        foreach ($history as $item) {
-            if ($item->entityType == ENTITY_CLIENT && isset($clientMap[$item->client_id])) {
-                continue;
-            }
-
-            $clientMap[$item->client_id] = true;
-
-            if ($lastClientId === false || $item->client_id != $lastClientId) {
-                $icon = '<i class="fa fa-users" style="width:32px"></i>';
-                if ($item->client_id) {
-                    $link = url('/clients/' . $item->client_id);
-                    $name = e($item->client_name);
-
-                    $buttonLink = url('/invoices/create/' . $item->client_id);
-                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
-                                    <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
-                                </a>';
-                } else {
-                    $link = '#';
-                    $name = trans('texts.unassigned');
-                    $button = '';
-                }
-
-                $padding = $str !== '' && $str !== '0' ? 16 : 0;
-                $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
-                $lastClientId = $item->client_id;
-            }
-
-            if ($item->entityType == ENTITY_CLIENT) {
-                continue;
-            }
-
-            $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '" style="width:24px"></i>';
-            $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, e($item->name), $icon);
-        }
-
-        return $str;
-    }
-
-    private static function convertToObject(EntityModel $entity): stdClass
+    private static function convertToObject($entity)
     {
         $object = new stdClass();
         $object->id = $entity->id;
@@ -238,5 +184,53 @@ class HistoryUtils
         }
 
         return $object;
+    }
+
+    public static function renderHtml($accountId)
+    {
+        $lastClientId = false;
+        $clientMap = [];
+        $str = '';
+
+        $history = Session::get(RECENTLY_VIEWED, []);
+        $history = isset($history[$accountId]) ? $history[$accountId] : [];
+
+        foreach ($history as $item) {
+            if ($item->entityType == ENTITY_CLIENT && isset($clientMap[$item->client_id])) {
+                continue;
+            }
+
+            $clientMap[$item->client_id] = true;
+
+            if ($lastClientId === false || $item->client_id != $lastClientId) {
+                $icon = '<i class="fa fa-users" style="width:32px"></i>';
+                if ($item->client_id) {
+                    $link = url('/clients/' . $item->client_id);
+                    $name = e($item->client_name);
+
+                    $buttonLink = url('/invoices/create/' . $item->client_id);
+                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
+                                    <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
+                                </a>';
+                } else {
+                    $link = '#';
+                    $name = trans('texts.unassigned');
+                    $button = '';
+                }
+
+                $padding = $str ? 16 : 0;
+                $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
+                $lastClientId = $item->client_id;
+            }
+
+            if ($item->entityType == ENTITY_CLIENT) {
+                continue;
+            }
+
+            $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '" style="width:24px"></i>';
+            $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, e($item->name), $icon);
+        }
+
+        return $str;
     }
 }

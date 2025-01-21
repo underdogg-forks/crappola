@@ -2,28 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Cache;
+use Eloquent;
+use Str;
 
 /**
  * Class Frequency.
- *
- * @property int         $id
- * @property string      $name
- * @property string|null $date_interval
- *
- * @method static Builder|Frequency newModelQuery()
- * @method static Builder|Frequency newQuery()
- * @method static Builder|Frequency query()
- * @method static Builder|Frequency whereDateInterval($value)
- * @method static Builder|Frequency whereId($value)
- * @method static Builder|Frequency whereName($value)
- *
- * @mixin \Eloquent
  */
-class Frequency extends Model
+class Frequency extends Eloquent
 {
     /**
      * @var bool
@@ -37,7 +23,7 @@ class Frequency extends Model
         'name',
     ];
 
-    public static function selectOptions(): array
+    public static function selectOptions()
     {
         $data = [];
 
