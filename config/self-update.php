@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Default source repository type
@@ -91,4 +92,5 @@ return [
         'address' => env('SELF_UPDATER_MAILTO_ADDRESS', ''),
         'name'    => env('SELF_UPDATER_MAILTO_NAME', ''),
     ],
+
 ];

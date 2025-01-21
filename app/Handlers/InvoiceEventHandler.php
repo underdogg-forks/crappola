@@ -29,6 +29,15 @@ class InvoiceEventHandler
         $this->sendNotifications($invoice, 'sent');
     }
 
+    private function sendNotifications($invoice, string $type, $payment = null): void
+    {
+        foreach ($invoice->company->users as $user) {
+            if ($user->{'notify_' . $type}) {
+                $this->userMailer->sendNotification($user, $invoice, $type, $payment);
+            }
+        }
+    }
+
     public function onViewed($invoice): void
     {
         $this->sendNotifications($invoice, 'viewed');
@@ -39,14 +48,5 @@ class InvoiceEventHandler
         $this->contactMailer->sendPaymentConfirmation($payment);
 
         $this->sendNotifications($payment->invoice, 'paid', $payment);
-    }
-
-    private function sendNotifications($invoice, string $type, $payment = null): void
-    {
-        foreach ($invoice->account->users as $user) {
-            if ($user->{'notify_' . $type}) {
-                $this->userMailer->sendNotification($user, $invoice, $type, $payment);
-            }
-        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class BankAccountDatatable extends EntityDatatable
 {
@@ -13,11 +13,15 @@ class BankAccountDatatable extends EntityDatatable
         return [
             [
                 'bank_name',
-                fn ($model) => link_to(sprintf('bank_accounts/%s/edit', $model->public_id), $model->bank_name)->toHtml(),
+                function ($model): string {
+                    return link_to("bank_accounts/{$model->public_id}/edit", $model->bank_name)->toHtml();
+                },
             ],
             [
                 'bank_library_id',
-                fn ($model): string => 'OFX',
+                function ($model): string {
+                    return 'OFX';
+                },
             ],
         ];
     }
@@ -27,7 +31,9 @@ class BankAccountDatatable extends EntityDatatable
         return [
             [
                 uctrans('texts.edit_bank_account'),
-                fn ($model) => URL::to(sprintf('bank_accounts/%s/edit', $model->public_id)),
+                function ($model) {
+                    return URL::to("bank_accounts/{$model->public_id}/edit");
+                },
             ],
         ];
     }

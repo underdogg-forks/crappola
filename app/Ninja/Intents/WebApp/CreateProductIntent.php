@@ -6,7 +6,7 @@ use App\Ninja\Intents\ProductIntent;
 
 class CreateProductIntent extends ProductIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $url = '/products/create';
 

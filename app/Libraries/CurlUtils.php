@@ -11,12 +11,7 @@ class CurlUtils
         return self::exec('POST', $url, $data, $headers);
     }
 
-    public static function get($url, $headers = false)
-    {
-        return self::exec('GET', $url, null, $headers);
-    }
-
-    public static function exec($method, $url, $data, $headers = false): bool|string
+    public static function exec($method, $url, $data, $headers = false)
     {
         $curl = curl_init();
 
@@ -34,7 +29,7 @@ class CurlUtils
         curl_setopt_array($curl, $opts);
         $response = curl_exec($curl);
 
-        if (($error = curl_error($curl)) !== '' && ($error = curl_error($curl)) !== '0') {
+        if ($error = curl_error($curl)) {
             Utils::logError('CURL Error #' . curl_errno($curl) . ': ' . $error);
         }
 
@@ -43,9 +38,14 @@ class CurlUtils
         return $response;
     }
 
+    public static function get($url, $headers = false)
+    {
+        return self::exec('GET', $url, null, $headers);
+    }
+
     public static function phantom($method, $url)
     {
-        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
@@ -56,7 +56,6 @@ class CurlUtils
 
         $request = $client->getMessageFactory()->createRequest($url, $method);
         $request->setTimeout(5000);
-
         $response = $client->getMessageFactory()->createResponse();
 
         // Send the request
@@ -69,9 +68,9 @@ class CurlUtils
         return false;
     }
 
-    public static function renderPDF($url, $filename): false|string
+    public static function renderPDF($url, $filename)
     {
-        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 

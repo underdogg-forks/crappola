@@ -6,9 +6,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class BlueVineController extends BaseController
 {
@@ -17,24 +16,24 @@ class BlueVineController extends BaseController
         $user = Auth::user();
 
         $data = [
-            'personal_user_full_name'               => Request::input('name'),
-            'business_phone_number'                 => Request::input('phone'),
-            'email'                                 => Request::input('email'),
-            'personal_fico_score'                   => (int) (Request::input('fico_score')),
-            'business_annual_revenue'               => (int) (Request::input('annual_revenue')),
-            'business_monthly_average_bank_balance' => (int) (Request::input('average_bank_balance')),
-            'business_inception_date'               => date('Y-m-d', strtotime(Request::input('business_inception'))),
-            'partner_internal_business_id'          => 'ninja_account_' . $user->account_id,
+            'personal_user_full_name'               => $request->get('name'),
+            'business_phone_number'                 => $request->get('phone'),
+            'email'                                 => $request->get('email'),
+            'personal_fico_score'                   => intval($request->get('fico_score')),
+            'business_annual_revenue'               => intval($request->get('annual_revenue')),
+            'business_monthly_average_bank_balance' => intval($request->get('average_bank_balance')),
+            'business_inception_date'               => date('Y-m-d', strtotime($request->get('business_inception'))),
+            'partner_internal_business_id'          => 'ninja_account_' . $user->company_id,
         ];
 
-        if ( ! empty(Request::input('quote_type_factoring'))) {
+        if (! empty($request->get('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line'] = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line'] = intval($request->get('desired_credit_limit')['invoice_factoring']);
         }
 
-        if ( ! empty(Request::input('quote_type_loc'))) {
+        if (! empty($request->get('quote_type_loc'))) {
             $data['line_of_credit_offer'] = true;
-            $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
+            $data['desired_credit_line_for_loc'] = intval($request->get('desired_credit_limit')['line_of_credit']);
         }
 
         $api_client = new Client();
@@ -50,9 +49,9 @@ class BlueVineController extends BaseController
                     'json' => $data,
                 ]
             );
-        } catch (RequestException $requestException) {
-            if ($requestException->getCode() == 403) {
-                $response_body = $requestException->getResponse()->getBody(true);
+        } catch (RequestException $ex) {
+            if ($ex->getCode() == 403) {
+                $response_body = $ex->getResponse()->getBody(true);
                 $response_data = json_decode($response_body);
 
                 return response()->json([
@@ -66,9 +65,9 @@ class BlueVineController extends BaseController
             ]);
         }
 
-        $company = $user->account->company;
-        $company->bluevine_status = 'signed_up';
-        $company->save();
+        $companyPlan = $user->company->companyPlan;
+        $companyPlan->bluevine_status = 'signed_up';
+        $companyPlan->save();
 
         $quote_data = json_decode($response->getBody());
 
@@ -80,9 +79,9 @@ class BlueVineController extends BaseController
         $user = Auth::user();
 
         if ($user) {
-            $company = $user->account->company;
-            $company->bluevine_status = 'ignored';
-            $company->save();
+            $companyPlan = $user->company->companyPlan;
+            $companyPlan->bluevine_status = 'ignored';
+            $companyPlan->save();
         }
 
         return 'success';

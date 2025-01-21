@@ -9,7 +9,6 @@ use App\Ninja\Repositories\TaxRateRepository;
 use App\Services\TaxRateService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
@@ -34,10 +33,10 @@ class TaxRateController extends BaseController
 
     public function getDatatable()
     {
-        return $this->taxRateService->getDatatable(Auth::user()->account_id);
+        return $this->taxRateService->getDatatable(Auth::user()->company_id);
     }
 
-    public function edit(string $publicId)
+    public function edit($publicId)
     {
         $data = [
             'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
@@ -46,7 +45,7 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.edit_tax_rate'),
         ];
 
-        return View::make('accounts.tax_rate', $data);
+        return View::make('companies.tax_rate', $data);
     }
 
     public function create()
@@ -58,7 +57,7 @@ class TaxRateController extends BaseController
             'title'   => trans('texts.create_tax_rate'),
         ];
 
-        return View::make('accounts.tax_rate', $data);
+        return View::make('companies.tax_rate', $data);
     }
 
     public function store(CreateTaxRateRequest $request)
@@ -81,8 +80,8 @@ class TaxRateController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $action = $request->get('bulk_action');
+        $ids = $request->get('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));

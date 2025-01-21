@@ -3,14 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Font;
+
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class FontsSeeder extends Seeder
 {
     public function run(): void
     {
-        Eloquent::unguard();
-
         $this->createFonts();
     }
 
@@ -60,6 +60,7 @@ class FontsSeeder extends Seeder
                 'italics'     => 'JosefinSans-Italic.ttf',
                 'bolditalics' => 'JosefinSans-Italic.ttf',
                 'sort_order'  => 400,
+
             ],
             [
                 'folder'      => 'josefin_sans_light',
@@ -106,6 +107,7 @@ class FontsSeeder extends Seeder
                 'italics'     => 'OpenSans-Italic.ttf',
                 'bolditalics' => 'OpenSans-Italic.ttf',
                 'sort_order'  => 900,
+
             ],
             [
                 'folder'      => 'open_sans_light',
@@ -246,7 +248,7 @@ class FontsSeeder extends Seeder
         ];
 
         foreach ($fonts as $font) {
-            if ( ! DB::table('fonts')->where('name', '=', $font['name'])->count()) {
+            if (! DB::table('fonts')->where('name', '=', $font['name'])->count()) {
                 Font::create($font);
             }
         }

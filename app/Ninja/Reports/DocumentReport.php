@@ -8,7 +8,7 @@ use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'document'           => [],
@@ -20,13 +20,13 @@ class DocumentReport extends AbstractReport
 
     public function run(): void
     {
-        $account = auth()->user()->account;
+        $company = auth()->user()->company;
         $filter = $this->options['document_filter'];
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];
         $records = false;
 
-        if ( ! $filter || $filter == ENTITY_INVOICE) {
+        if (! $filter || $filter == ENTITY_INVOICE) {
             $records = Invoice::scope()
                 ->withArchived()
                 ->with(['documents'])
@@ -35,7 +35,7 @@ class DocumentReport extends AbstractReport
                 ->get();
         }
 
-        if ( ! $filter || $filter == ENTITY_EXPENSE) {
+        if (! $filter || $filter == ENTITY_EXPENSE) {
             $expenses = Expense::scope()
                 ->withArchived()
                 ->with(['documents'])
@@ -43,12 +43,16 @@ class DocumentReport extends AbstractReport
                 ->where('expense_date', '<=', $this->endDate)
                 ->get();
 
-            $records = $records ? $records->merge($expenses) : $expenses;
+            if ($records) {
+                $records = $records->merge($expenses);
+            } else {
+                $records = $expenses;
+            }
         }
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if ( ! extension_loaded('GMP')) {
-                die(trans('texts.gmp_required'));
+            if (! extension_loaded('GMP')) {
+                exit(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
@@ -60,7 +64,6 @@ class DocumentReport extends AbstractReport
                     $zip->add_file($name, $document->getRaw());
                 }
             }
-
             $zip->finish();
             exit;
         }

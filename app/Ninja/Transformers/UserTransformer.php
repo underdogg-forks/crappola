@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\User;
 
 /**
@@ -30,14 +29,14 @@ class UserTransformer extends EntityTransformer
      * @SWG\Property(property="is_admin", type="boolean", example=false)
      * @SWG\Property(property="permissions", type="integer", example=1)
      */
-    public function transform(User $user): array
+    public function transform(User $user)
     {
         return [
             'id'          => (int) ($user->public_id + 1),
             'first_name'  => $user->first_name,
             'last_name'   => $user->last_name,
             'email'       => $user->email,
-            'account_key' => $user->account->account_key,
+            'account_key' => $user->company->account_key,
             'updated_at'  => $this->getTimestamp($user->updated_at),
             'deleted_at'  => $this->getTimestamp($user->deleted_at),
             'phone'       => $user->phone,

@@ -2,51 +2,51 @@
 
 namespace App\Jobs;
 
-use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\User;
+use App\Models\Traits\SerialisesDeletedModels;
 use App\Ninja\Mailers\UserMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class SendInvoiceEmail.
  */
 class SendNotificationEmail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue;
-
-    public $deleteWhenMissingModels = true;
+    use InteractsWithQueue, SerialisesDeletedModels, SerializesModels {
+        SerialisesDeletedModels::getRestoredPropertyValue insteadof SerializesModels;
+    }
 
     /**
      * @var User
      */
-    public User $user;
+    protected $user;
 
     /**
      * @var Invoice
      */
-    public Invoice $invoice;
+    protected $invoice;
 
     /**
      * @var string
      */
-    public $type;
+    protected $type;
 
     /**
      * @var Payment
      */
-    public ?Payment $payment;
+    protected $payment;
 
     /**
      * @var string
      */
-    public $notes;
+    protected $notes;
 
     /**
      * @var string
      */
-    public $server;
+    protected $server;
 
     /**
      * Create a new job instance.
@@ -59,7 +59,7 @@ class SendNotificationEmail extends Job implements ShouldQueue
      * @param mixed         $type
      * @param mixed         $payment
      */
-    public function __construct(User $user, Invoice $invoice, $type, ?Payment $payment, $notes)
+    public function __construct($user, $invoice, $type, $payment, $notes)
     {
         $this->user = $user;
         $this->invoice = $invoice;
@@ -77,7 +77,7 @@ class SendNotificationEmail extends Job implements ShouldQueue
     public function handle(UserMailer $userMailer): void
     {
         if (config('queue.default') !== 'sync') {
-            $this->user->account->loadLocalizationSettings();
+            $this->user->company->loadLocalizationSettings();
         }
 
         $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment, $this->notes);

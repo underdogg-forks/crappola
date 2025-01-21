@@ -16,8 +16,6 @@ class CreditWasCreated extends Event
 
     /**
      * Create a new event instance.
-     *
-     * @param Credit $credit
      */
     public function __construct(Credit $credit)
     {

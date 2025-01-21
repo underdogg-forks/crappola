@@ -9,11 +9,7 @@ class InvoiceStatusSeeder extends Seeder
 {
     public function run(): void
     {
-        Eloquent::unguard();
-
         $this->createInvoiceStatuses();
-
-        Eloquent::reguard();
     }
 
     private function createInvoiceStatuses(): void

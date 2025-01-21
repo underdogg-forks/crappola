@@ -2,13 +2,25 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Client;
+
 class CreateContactRequest extends ContactRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        return $this->user()->can('create', ENTITY_CONTACT);
+        return $this->user()->can('create', Client::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{first_name: string, last_name: string, email: string, client_id: string}
+     */
     public function rules(): array
     {
         return [

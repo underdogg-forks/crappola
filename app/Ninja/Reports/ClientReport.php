@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'        => [],
@@ -22,14 +22,13 @@ class ClientReport extends AbstractReport
         ];
 
         $user = auth()->user();
-        $account = $user->account;
+        $company = $user->company;
 
-        if ($account->customLabel('client1')) {
-            $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('client1')) {
+            $columns[$company->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
-
-        if ($account->customLabel('client2')) {
-            $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
+        if ($company->customLabel('client2')) {
+            $columns[$company->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -37,7 +36,7 @@ class ClientReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $company = Auth::user()->company;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -60,15 +59,19 @@ class ClientReport extends AbstractReport
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
 
-                $dimension = $subgroup == 'country' ? $client->present()->country : $this->getDimension($client);
+                if ($subgroup == 'country') {
+                    $dimension = $client->present()->country;
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $account->formatMoney($amount, $client),
-                $account->formatMoney($paid, $client),
-                $account->formatMoney($amount - $paid, $client),
+                $company->formatMoney($amount, $client),
+                $company->formatMoney($paid, $client),
+                $company->formatMoney($amount - $paid, $client),
                 $client->id_number,
                 $client->vat_number,
                 $client->public_notes,
@@ -76,11 +79,10 @@ class ClientReport extends AbstractReport
                 $client->user->getDisplayName(),
             ];
 
-            if ($account->customLabel('client1')) {
+            if ($company->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
-
-            if ($account->customLabel('client2')) {
+            if ($company->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }
 

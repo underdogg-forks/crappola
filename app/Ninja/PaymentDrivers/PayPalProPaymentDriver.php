@@ -4,14 +4,14 @@ namespace App\Ninja\PaymentDrivers;
 
 class PayPalProPaymentDriver extends BasePaymentDriver
 {
-    public function gatewayTypes(): array
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_CREDIT_CARD,
         ];
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
 

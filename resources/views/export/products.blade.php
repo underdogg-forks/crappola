@@ -5,11 +5,11 @@
     <td>{{ trans('texts.product') }}</td>
     <td>{{ trans('texts.notes') }}</td>
     <td>{{ trans('texts.cost') }}</td>
-    @if ($account->customLabel('product1'))
-        <td>{{ $account->present()->customLabel('product1') }}</td>
+    @if ($company->customLabel('product1'))
+        <td>{{ $company->present()->customLabel('product1') }}</td>
     @endif
-    @if ($account->customLabel('product2'))
-        <td>{{ $account->present()->customLabel('product2') }}</td>
+    @if ($company->customLabel('product2'))
+        <td>{{ $company->present()->customLabel('product2') }}</td>
     @endif
 </tr>
 
@@ -21,13 +21,13 @@
         <td>{{ $product->product_key }}</td>
         <td>{{ $product->notes }}</td>
         <td>{{ $product->cost }}</td>
-        @if ($account->customLabel('product1'))
+        @if ($company->customLabel('product1'))
 
         @endif
-        @if ($account->customLabel('product1'))
+        @if ($company->customLabel('product1'))
             <td>{{ $product->custom_value1 }}</td>
         @endif
-        @if ($account->customLabel('product2'))
+        @if ($company->customLabel('product2'))
             <td>{{ $product->custom_value2 }}</td>
         @endif
     </tr>

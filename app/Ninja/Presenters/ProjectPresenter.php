@@ -2,12 +2,11 @@
 
 namespace App\Ninja\Presenters;
 
-use stdClass;
-use Utils;
+use App\Libraries\Utils;
 
 class ProjectPresenter extends EntityPresenter
 {
-    public function calendarEvent($subColors = false): stdClass
+    public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $project = $this->entity;
@@ -16,25 +15,17 @@ class ProjectPresenter extends EntityPresenter
         $data->start = $project->due_date;
 
         if ($subColors) {
-            $data->borderColor = Utils::brewerColor($project->public_id);
-            $data->backgroundColor = $data->borderColor;
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($project->public_id);
         } else {
-            $data->borderColor = '#676767';
-            $data->backgroundColor = '#676767';
+            $data->borderColor = $data->backgroundColor = '#676767';
         }
 
         return $data;
     }
 
-    public function taskRate()
-    {
-        if ((float) ($this->entity->task_rate) !== 0.0) {
-            return Utils::roundSignificant($this->entity->task_rate);
-        }
-
-        return '';
-    }
-
+    /**
+     * @return string
+     */
     public function defaultTaskRate()
     {
         if ($rate = $this->taskRate()) {
@@ -42,5 +33,17 @@ class ProjectPresenter extends EntityPresenter
         }
 
         return $this->entity->client->present()->defaultTaskRate;
+    }
+
+    /**
+     * @return string
+     */
+    public function taskRate()
+    {
+        if (floatval($this->entity->task_rate)) {
+            return Utils::roundSignificant($this->entity->task_rate);
+        }
+
+        return '';
     }
 }

@@ -1,7 +1,7 @@
 {
 	"content": [
 	{
-		"image": "$accountLogo",
+		"image": "$companyLogo",
 			"fit": [120, 80],
 			"alignment": "center",
 			"margin": [0, 0, 0, 30]
@@ -23,12 +23,12 @@
 		},
 		{
 			"width": 120,
-			"stack": "$accountDetails",
+			"stack": "$companyDetails",
 			"margin": [0, 20, 0, 0]
 		},
 		{
 			"width": 110,
-			"stack": "$accountAddress",
+			"stack": "$companyAddress",
 			"margin": [0, 20, 0, 0]
 		},
 		{
@@ -216,7 +216,7 @@
 	"pageMargins": [40, 40, 40, 40],
 	"background": [
 		{
-			"image": "$accountBackground",
+			"image": "$companyBackground",
 			"alignment": "center"
 		}
 	]

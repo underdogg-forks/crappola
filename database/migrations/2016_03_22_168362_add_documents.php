@@ -1,70 +1,46 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+class AddDocuments extends Migration
+{
     public function up(): void
     {
-        Schema::table('accounts', function ($table): void {
-            $table->string('logo')->nullable()->default(null);
-            $table->unsignedInteger('logo_width');
-            $table->unsignedInteger('logo_height');
-            $table->unsignedInteger('logo_size');
-            $table->boolean('invoice_embed_documents')->default(0);
-            $table->boolean('document_email_attachment')->default(0);
-        });
+        Schema::create('documents', function ($table): void {
+            $table->increments('id');
 
-        \DB::table('accounts')->update(['logo' => '']);
-        Schema::dropIfExists('documents');
-        Schema::create('documents', function ($t): void {
-            $t->increments('id');
-            $t->unsignedInteger('public_id')->nullable();
-            $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
-            $t->unsignedInteger('invoice_id')->nullable();
-            $t->unsignedInteger('expense_id')->nullable();
-            $t->string('path');
-            $t->string('preview');
-            $t->string('name');
-            $t->string('type');
-            $t->string('disk');
-            $t->string('hash', 40);
-            $t->unsignedInteger('size');
-            $t->unsignedInteger('width')->nullable();
-            $t->unsignedInteger('height')->nullable();
-            $t->timestamps();
-        });
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('invoice_id')->nullable();
+            $table->unsignedInteger('expense_id')->nullable();
+            $table->unsignedInteger('ticket_id')->nullable();
 
-        Schema::table('documents', function ($t): void {
-            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-            $t->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
-            $t->unique(['account_id', 'public_id']);
+            $table->string('document_key')->nullable()->unique();
+            $table->string('name');
+
+            $table->boolean('is_proposal')->default(false);
+
+            $table->string('path');
+            $table->string('preview');
+
+            $table->string('type');
+            $table->string('disk');
+            $table->string('hash', 40);
+            $table->unsignedInteger('size');
+            $table->unsignedInteger('width')->nullable();
+            $table->unsignedInteger('height')->nullable();
+            $table->timestamps();
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            $table->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down(): void
     {
-        Schema::table('accounts', function ($table): void {
-            $table->dropColumn('logo');
-            $table->dropColumn('logo_width');
-            $table->dropColumn('logo_height');
-            $table->dropColumn('logo_size');
-            $table->dropColumn('invoice_embed_documents');
-            $table->dropColumn('document_email_attachment');
-        });
-
         Schema::dropIfExists('documents');
     }
-};
+}

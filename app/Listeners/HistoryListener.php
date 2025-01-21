@@ -16,57 +16,36 @@ use App\Libraries\HistoryUtils;
  */
 class HistoryListener
 {
-    /**
-     * @param ClientWasDeleted $event
-     */
     public function deletedClient(ClientWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->client);
     }
 
-    /**
-     * @param InvoiceWasDeleted $event
-     */
     public function deletedInvoice(InvoiceWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->invoice);
     }
 
-    /**
-     * @param QuoteWasDeleted $event
-     */
     public function deletedQuote(QuoteWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->quote);
     }
 
-    /**
-     * @param TaskWasDeleted $event
-     */
     public function deletedTask(TaskWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->task);
     }
 
-    /**
-     * @param ExpenseWasDeleted $event
-     */
     public function deletedExpense(ExpenseWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->expense);
     }
 
-    /**
-     * @param ProjectWasDeleted $event
-     */
     public function deletedProject(ProjectWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->project);
     }
 
-    /**
-     * @param ProposalWasDeleted $event
-     */
     public function deletedProposal(ProposalWasDeleted $event): void
     {
         HistoryUtils::deleteHistory($event->proposal);

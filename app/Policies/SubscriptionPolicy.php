@@ -4,14 +4,23 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class SubscriptionPolicy.
+ */
 class SubscriptionPolicy extends EntityPolicy
 {
-    public static function edit(User $user, $item)
+    /**
+     * @return bool
+     */
+    public function edit(User $user, $item)
     {
         return $user->hasPermission('admin');
     }
 
-    public static function create(User $user, $item)
+    /**
+     * @return bool
+     */
+    public function create(User $user)
     {
         return $user->hasPermission('admin');
     }
