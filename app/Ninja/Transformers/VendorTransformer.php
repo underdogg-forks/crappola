@@ -2,10 +2,11 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Vendor;
+use League\Fractal\Resource\Collection;
 
 // vendor
-
 /**
  * @SWG\Definition(definition="Vendor", @SWG\Xml(name="Vendor"))
  */
@@ -13,7 +14,6 @@ class VendorTransformer extends EntityTransformer
 {
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="name", type="string", example="Name")
      * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="paid_to_date", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="user_id", type="integer", example=1)
@@ -27,15 +27,12 @@ class VendorTransformer extends EntityTransformer
      * @SWG\Property(property="postal_code", type="string", example=10010)
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
-     * @SWG\Property(property="private_notes", type="string", example="Notes")
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
      * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
-     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false)
      * @SWG\Property(property="vat_number", type="string", example="123456")
      * @SWG\Property(property="id_number", type="string", example="123456")
-     * @SWG\Property(property="currency_id", type="integer", example=1)
-     * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
-     * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
     protected array $defaultIncludes = [
         'vendor_contacts',
@@ -46,28 +43,28 @@ class VendorTransformer extends EntityTransformer
         //'expenses',
     ];
 
-    public function includeVendorContacts(Vendor $vendor)
+    public function includeVendorContacts(Vendor $vendor): Collection
     {
-        $transformer = new VendorContactTransformer($this->company, $this->serializer);
+        $transformer = new VendorContactTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($vendor->vendor_contacts, $transformer, ENTITY_CONTACT);
     }
 
-    public function includeInvoices(Vendor $vendor)
+    public function includeInvoices(Vendor $vendor): Collection
     {
-        $transformer = new InvoiceTransformer($this->company, $this->serializer);
+        $transformer = new InvoiceTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($vendor->invoices, $transformer, ENTITY_INVOICE);
     }
 
-    public function includeExpenses(Vendor $vendor)
+    public function includeExpenses(Vendor $vendor): Collection
     {
-        $transformer = new ExpenseTransformer($this->company, $this->serializer);
+        $transformer = new ExpenseTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($vendor->expenses, $transformer, ENTITY_EXPENSE);
     }
 
-    public function transform(Vendor $vendor)
+    public function transform(Vendor $vendor): array
     {
         return array_merge($this->getDefaults($vendor), [
             'id'            => (int) $vendor->public_id,

@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Import\FreshBooks;
 
+use App\Ninja\Import\BaseTransformer;
+
 /*
 class TaskTransformer extends BaseTransformer
 {

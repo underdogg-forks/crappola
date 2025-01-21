@@ -11,18 +11,15 @@ use Illuminate\Http\JsonResponse;
  */
 class SubscriptionService extends BaseService
 {
-    /**
-     * @var SubscriptionRepository
-     */
-    protected $subscriptionRepo;
+    protected SubscriptionRepository $subscriptionRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * SubscriptionService constructor.
+     *
+     * @param SubscriptionRepository $subscriptionRepo
+     * @param DatatableService       $datatableService
      */
     public function __construct(SubscriptionRepository $subscriptionRepo, DatatableService $datatableService)
     {
@@ -33,11 +30,12 @@ class SubscriptionService extends BaseService
     /**
      * @param $userId
      *
+     * @return JsonResponse
      */
-    public function getDatatable($companyId)
+    public function getDatatable($accountId)
     {
         $datatable = new SubscriptionDatatable(false);
-        $query = $this->subscriptionRepo->find($companyId);
+        $query = $this->subscriptionRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
@@ -45,7 +43,7 @@ class SubscriptionService extends BaseService
     /**
      * @return SubscriptionRepository
      */
-    protected function getRepo()
+    protected function getRepo(): SubscriptionRepository
     {
         return $this->subscriptionRepo;
     }

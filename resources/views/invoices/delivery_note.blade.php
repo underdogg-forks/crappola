@@ -1,43 +1,43 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('head')
     @parent
 
     @include('money_script')
-    @foreach (Auth::user()->company->getFontFolders() as $font)
-        <script src="{{ asset('/js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @foreach (Auth::user()->account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
     <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
-    <script>
+  <script>
 
-        var invoice = {!! $invoice !!};
-        var invoiceDesign = false;
-        var invoiceDesigns = {!! $invoiceDesigns !!};
-        var invoiceFonts = {!! $invoiceFonts !!};
+    var invoice = {!! $invoice !!};
+    var invoiceDesign = false;
+    var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
 
-        function getPDFString(cb) {
-            invoice.image = window.accountLogo;
-            invoice.is_delivery_note = true;
-            var invoiceDesignId = parseInt(invoice.invoice_design_id);
-            invoiceDesign = _.findWhere(invoiceDesigns, {id: invoiceDesignId});
-            if (!invoiceDesign) {
-                invoiceDesign = invoiceDesigns[0];
-            }
-            generatePDF(invoice, invoiceDesign.javascript, true, cb);
+    function getPDFString(cb) {
+        invoice.image = window.accountLogo;
+        invoice.is_delivery_note = true;
+        var invoiceDesignId = parseInt(invoice.invoice_design_id);
+        invoiceDesign = _.findWhere(invoiceDesigns, {id: invoiceDesignId});
+        if (!invoiceDesign) {
+            invoiceDesign = invoiceDesigns[0];
         }
+        generatePDF(invoice, invoiceDesign.javascript, true, cb);
+    }
 
-        function onDownloadClick() {
-            trackEvent('/activity', '/download_pdf');
-            var doc = generatePDF(invoice, invoiceDesign.javascript, true);
-            doc.save('{{ str_replace(' ', '_', trans('texts.delivery_note')) }}-{{ $invoice->invoice_number }}.pdf');
-        }
+    function onDownloadClick() {
+		trackEvent('/activity', '/download_pdf');
+		var doc = generatePDF(invoice, invoiceDesign.javascript, true);
+        doc.save('{{ str_replace(' ', '_', trans('texts.delivery_note')) }}-{{ $invoice->invoice_number }}.pdf');
+	}
 
-        $(function () {
-            refreshPDF();
-        });
+    $(function() {
+        refreshPDF();
+    });
 
-    </script>
+  </script>
 
 @stop
 
@@ -55,9 +55,10 @@
 
 @section('content')
 
-    @include('invoices.pdf', ['company' => Auth::user()->company, 'pdfHeight' => 800])
 
-    @if (Utils::hasFeature(FEATURE_DOCUMENTS) && $invoice->company->invoice_embed_documents)
+    @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
+
+    @if (Utils::hasFeature(FEATURE_DOCUMENTS) && $invoice->account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
             @if($document->isPDFEmbeddable())
                 <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>

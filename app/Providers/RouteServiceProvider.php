@@ -18,30 +18,49 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Define your route model bindings, pattern filters, etc.
+     *
+     * @return void
      */
     public function boot(): void
     {
-        //
-
         parent::boot();
     }
 
     /**
      * Define the routes for the application.
+     *
+     * @return void
      */
     public function map(): void
     {
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
+    }
 
-        //
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes(): void
+    {
+        Route::group([
+            'middleware' => 'web',
+            'namespace'  => $this->namespace,
+        ], function ($router): void {
+            require base_path('routes/web.php');
+        });
     }
 
     /**
      * Define the "api" routes for the application.
      *
      * These routes are typically stateless.
+     *
+     * @return void
      */
     protected function mapApiRoutes(): void
     {
@@ -51,21 +70,6 @@ class RouteServiceProvider extends ServiceProvider
             'prefix'     => 'api/v1',
         ], function ($router): void {
             require base_path('routes/api.php');
-        });
-    }
-
-    /**
-     * Define the "web" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     */
-    protected function mapWebRoutes(): void
-    {
-        Route::group([
-            'middleware' => 'web',
-            'namespace'  => $this->namespace,
-        ], function ($router): void {
-            require base_path('routes/web.php');
         });
     }
 }

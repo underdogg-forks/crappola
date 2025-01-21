@@ -20,7 +20,7 @@
                 <td>{{ $payment->user->getDisplayName() }}</td>
             @endif
             <td>{{ $payment->invoice->invoice_number }}</td>
-            <td>{{ $company->formatMoney($payment->amount, $payment->client) }}</td>
+            <td>{{ $account->formatMoney($payment->amount, $payment->client) }}</td>
             <td>{{ $payment->payment_date }}</td>
             <td>{{ $payment->present()->method }}</td>
             <td>{{ $payment->transaction_reference }}</td>

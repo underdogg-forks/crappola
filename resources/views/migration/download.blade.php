@@ -1,8 +1,8 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('content')
     @parent
-    @include('companies.nav', ['selected' => ACCOUNT_MANAGEMENT])
+    @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -10,13 +10,13 @@
         </div>
         <div class="panel-body">
             <h4>{!! trans('texts.download_data') !!}</h4>
-            <form action="/migration/download" method="post">
+            <form action="{{ url('/migration/download') }}" method="post">
                 {!! csrf_field() !!}
-                <button class="btn btn-primary">Download</button>
+                <button class="btn btn-primary">{!! trans('texts.download') !!}</button>
             </form>
         </div>
         <div class="panel-footer text-right">
-            <a href="/migration/import" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
+            <a href="{{ url('/migration/import') }}" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
         </div>
     </div>
 @stop

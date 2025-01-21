@@ -2,18 +2,16 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
 use Carbon;
 use DateTime;
+use stdClass;
+use Utils;
 
 /**
  * Class ExpensePresenter.
  */
 class ExpensePresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function vendor()
     {
         return $this->entity->vendor ? $this->entity->vendor->getDisplayName() : '';
@@ -40,26 +38,36 @@ class ExpensePresenter extends EntityPresenter
         return Carbon::parse($this->entity->expense_date)->format('Y m');
     }
 
+    public function amount()
+    {
+        return Utils::formatMoney($this->entity->amountWithTax(), $this->entity->expense_currency_id);
+    }
+
     public function currencyCode()
     {
-        return Utils::getFromCache($this->entity->invoice_currency_id, 'currencies')->code;
+        return Utils::getFromCache($this->entity->expense_currency_id, 'currencies')->code;
     }
 
     public function taxAmount()
     {
-        return Utils::formatMoney($this->entity->taxAmount(), $this->entity->invoice_currency_id);
+        return Utils::formatMoney($this->entity->taxAmount(), $this->entity->expense_currency_id);
+    }
+
+    public function category()
+    {
+        return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
 
     public function payment_type()
     {
-        if (! $this->payment_type_id) {
+        if ( ! $this->payment_type_id) {
             return '';
         }
 
         return Utils::getFromCache($this->payment_type_id, 'paymentTypes')->name;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $expense = $this->entity;
@@ -70,6 +78,7 @@ class ExpensePresenter extends EntityPresenter
         if ($category = $this->category()) {
             $data->title .= ' | ' . $category;
         }
+
         if ($this->public_notes) {
             $data->title .= ' | ' . $this->public_notes;
         }
@@ -77,21 +86,13 @@ class ExpensePresenter extends EntityPresenter
         $data->start = $expense->expense_date;
 
         if ($subColors && $expense->expense_category_id) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->borderColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#d95d02';
+            $data->borderColor = '#d95d02';
+            $data->backgroundColor = '#d95d02';
         }
 
         return $data;
-    }
-
-    public function amount()
-    {
-        return Utils::formatMoney($this->entity->amountWithTax(), $this->entity->invoice_currency_id);
-    }
-
-    public function category()
-    {
-        return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
 }

@@ -6,15 +6,11 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListTaskIntent extends BaseIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_TASK);
 
-        if ($client = $this->requestClient()) {
-            $url = $client->present()->url . '#tasks';
-        } else {
-            $url = '/tasks';
-        }
+        $url = ($client = $this->requestClient()) ? $client->present()->url . '#tasks' : '/tasks';
 
         return redirect($url);
     }

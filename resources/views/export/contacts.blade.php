@@ -7,11 +7,11 @@
     <td>{{ trans('texts.last_name') }}</td>
     <td>{{ trans('texts.email') }}</td>
     <td>{{ trans('texts.phone') }}</td>
-    @if ($company->customLabel('contact1'))
-        <td>{{ $company->present()->customLabel('contact1') }}</td>
+    @if ($account->customLabel('contact1'))
+        <td>{{ $account->present()->customLabel('contact1') }}</td>
     @endif
-    @if ($company->customLabel('contact2'))
-        <td>{{ $company->present()->customLabel('contact2') }}</td>
+    @if ($account->customLabel('contact2'))
+        <td>{{ $account->present()->customLabel('contact2') }}</td>
     @endif
 </tr>
 
@@ -26,10 +26,10 @@
             <td>{{ $contact->last_name }}</td>
             <td>{{ $contact->email }}</td>
             <td>{{ $contact->phone }}</td>
-            @if ($company->customLabel('contact1'))
+            @if ($account->customLabel('contact1'))
                 <td>{{ $contact->custom_value1 }}</td>
             @endif
-            @if ($company->customLabel('contact2'))
+            @if ($account->customLabel('contact2'))
                 <td>{{ $contact->custom_value2 }}</td>
             @endif
         </tr>

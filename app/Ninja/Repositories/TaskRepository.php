@@ -2,133 +2,20 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Client;
-use App\Models\Product;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Yajra\DataTables\Services\DataTable;
+use Datatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Utils;
 
 class TaskRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Task';
-    }
-
-    public function getClientDatatable($clientId)
-    {
-        $query = DB::table('tasks')
-            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-            ->where('tasks.client_id', '=', $clientId)
-            ->where('tasks.is_deleted', '=', false)
-            ->whereNull('tasks.invoice_id')
-            ->select(
-                'tasks.description',
-                'tasks.time_log',
-                'tasks.time_log as duration',
-                DB::raw('SUBSTRING(time_log, 3, 10) date'),
-                'projects.name as project'
-            );
-
-        $table = Datatable::query($query)
-            ->addColumn('project', function ($model) {
-                return $model->project;
-            })
-            ->addColumn('date', function ($model) {
-                return Task::calcStartTime($model);
-            })
-            ->addColumn('duration', function ($model) {
-                return Utils::formatTime(Task::calcDuration($model));
-            })
-            ->addColumn('description', function ($model) {
-                return $model->description;
-            });
-
-        return $table->make();
-    }
-
-    public function save($publicId, $data, $task = null)
-    {
-        if ($task) {
-            // do nothing
-        } elseif ($publicId) {
-            $task = Task::scope($publicId)->withTrashed()->firstOrFail();
-        } else {
-            $task = Task::createNew();
-            $task->task_status_sort_order = 9999;
-        }
-
-        if ($task->is_deleted) {
-            return $task;
-        }
-
-        $task->fill($data);
-
-        if (! empty($data['project_id'])) {
-            $project = Project::find($data['project_id'])->firstOrFail();
-            $task->project_id = $project->id;
-            $task->client_id = $project->client_id;
-        } else {
-            if (isset($data['client'])) {
-                $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
-            } elseif (isset($data['client_id'])) {
-                $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
-            }
-        }
-
-        if (! empty($data['product_id'])) {
-            $product = Product::scope($data['product_id'])->firstOrFail();
-            $task->product_id = $product->id;
-        }
-
-        if (isset($data['description'])) {
-            $task->description = trim($data['description']);
-        }
-        if (isset($data['task_status_id'])) {
-            $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
-        }
-        if (isset($data['task_status_sort_order'])) {
-            $task->task_status_sort_order = $data['task_status_sort_order'];
-        }
-
-        if (isset($data['time_log'])) {
-            $timeLog = json_decode($data['time_log']);
-        } elseif ($task->time_log) {
-            $timeLog = json_decode($task->time_log);
-        } else {
-            $timeLog = [];
-        }
-
-        array_multisort($timeLog);
-
-        if (isset($data['action'])) {
-            if ($data['action'] == 'start') {
-                $task->is_running = true;
-                $timeLog[] = [strtotime('now'), false];
-            } elseif ($data['action'] == 'resume') {
-                $task->is_running = true;
-                $timeLog[] = [strtotime('now'), false];
-            } elseif ($data['action'] == 'stop' && $task->is_running) {
-                $timeLog[count($timeLog) - 1][1] = time();
-                $task->is_running = false;
-            } elseif ($data['action'] == 'offline') {
-                $task->is_running = $data['is_running'] ? 1 : 0;
-            }
-        } elseif (isset($data['is_running'])) {
-            $task->is_running = $data['is_running'] ? 1 : 0;
-        }
-
-        $task->time_log = json_encode($timeLog);
-
-        $task->company_id = 1;
-
-        $task->save();
-
-        return $task;
+        return Task::class;
     }
 
     public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
@@ -138,9 +25,8 @@ class TaskRepository extends BaseRepository
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-            ->leftJoin('products', 'products.id', '=', 'tasks.product_id')
             ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
-            ->where('tasks.company_id', '=', Auth::user()->company_id)
+            ->where('tasks.account_id', '=', Auth::user()->account_id)
             ->where(function ($query): void { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
@@ -192,18 +78,22 @@ class TaskRepository extends BaseRepository
                     $query->orWhere('tasks.invoice_id', '=', 0)
                         ->orWhereNull('tasks.invoice_id');
                 }
+
                 if (in_array(TASK_STATUS_RUNNING, $statuses)) {
                     $query->orWhere('tasks.is_running', '=', 1);
                 }
+
                 if (in_array(TASK_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '>', 0);
-                    if (! in_array(TASK_STATUS_PAID, $statuses)) {
+                    if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
+
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
+
                 $query->orWhere(function ($query) use ($statuses): void {
                     $query->whereIn('task_statuses.public_id', $statuses)
                         ->whereNull('tasks.invoice_id');
@@ -223,5 +113,101 @@ class TaskRepository extends BaseRepository
         }
 
         return $query;
+    }
+
+    public function getClientDatatable($clientId)
+    {
+        $query = DB::table('tasks')
+            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+            ->where('tasks.client_id', '=', $clientId)
+            ->where('tasks.is_deleted', '=', false)
+            ->whereNull('tasks.invoice_id')
+            ->select(
+                'tasks.description',
+                'tasks.time_log',
+                'tasks.time_log as duration',
+                DB::raw('SUBSTRING(time_log, 3, 10) date'),
+                'projects.name as project'
+            );
+
+        $table = Datatable::query($query)
+            ->addColumn('project', fn ($model) => $model->project)
+            ->addColumn('date', fn ($model) => Task::calcStartTime($model))
+            ->addColumn('duration', fn ($model) => Utils::formatTime(Task::calcDuration($model)))
+            ->addColumn('description', fn ($model) => $model->description);
+
+        return $table->make();
+    }
+
+    public function save($publicId, $data, $task = null)
+    {
+        if ($task) {
+            // do nothing
+        } elseif ($publicId) {
+            $task = Task::scope($publicId)->withTrashed()->firstOrFail();
+        } else {
+            $task = Task::createNew();
+            $task->task_status_sort_order = 9999;
+        }
+
+        if ($task->is_deleted) {
+            return $task;
+        }
+
+        $task->fill($data);
+
+        if ( ! empty($data['project_id'])) {
+            $project = Project::scope($data['project_id'])->firstOrFail();
+            $task->project_id = $project->id;
+            $task->client_id = $project->client_id;
+        } elseif (isset($data['client'])) {
+            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+        } elseif (isset($data['client_id'])) {
+            $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
+        }
+
+        if (isset($data['description'])) {
+            $task->description = trim($data['description']);
+        }
+
+        if (isset($data['task_status_id'])) {
+            $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
+        }
+
+        if (isset($data['task_status_sort_order'])) {
+            $task->task_status_sort_order = $data['task_status_sort_order'];
+        }
+
+        if (isset($data['time_log'])) {
+            $timeLog = json_decode($data['time_log']);
+        } elseif ($task->time_log) {
+            $timeLog = json_decode($task->time_log);
+        } else {
+            $timeLog = [];
+        }
+
+        array_multisort($timeLog);
+
+        if (isset($data['action'])) {
+            if ($data['action'] == 'start') {
+                $task->is_running = true;
+                $timeLog[] = [strtotime('now'), false];
+            } elseif ($data['action'] == 'resume') {
+                $task->is_running = true;
+                $timeLog[] = [strtotime('now'), false];
+            } elseif ($data['action'] == 'stop' && $task->is_running) {
+                $timeLog[count($timeLog) - 1][1] = time();
+                $task->is_running = false;
+            } elseif ($data['action'] == 'offline') {
+                $task->is_running = $data['is_running'] ? 1 : 0;
+            }
+        } elseif (isset($data['is_running'])) {
+            $task->is_running = $data['is_running'] ? 1 : 0;
+        }
+
+        $task->time_log = json_encode($timeLog);
+        $task->save();
+
+        return $task;
     }
 }

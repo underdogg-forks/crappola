@@ -18,7 +18,7 @@ class DocumentTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
-    public function transform(Document $document)
+    public function transform(Document $document): array
     {
         return array_merge($this->getDefaults($document), [
             'id'         => (int) $document->public_id,

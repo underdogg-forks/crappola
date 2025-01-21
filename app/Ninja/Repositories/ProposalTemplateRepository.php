@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProposalTemplateRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalTemplate';
+        return ProposalTemplate::class;
     }
 
     public function all()
@@ -21,7 +21,7 @@ class ProposalTemplateRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposal_templates')
-            ->where('proposal_templates.company_id', '=', Auth::user()->company_id)
+            ->where('proposal_templates.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_templates.name',
                 'proposal_templates.public_id',
@@ -53,9 +53,9 @@ class ProposalTemplateRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
 
-        if (! $proposal) {
+        if ( ! $proposal) {
             $proposal = ProposalTemplate::createNew();
         }
 

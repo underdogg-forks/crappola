@@ -4,21 +4,26 @@ namespace App\Ninja\Presenters;
 
 class UserPresenter extends EntityPresenter
 {
-    public function email()
+    public function email(): string
     {
         return htmlentities(sprintf('%s <%s>', $this->fullName(), $this->entity->email));
     }
 
-    public function fullName()
+    public function emailForDisplay(): string
+    {
+        return htmlspecialchars($this->entity->email, ENT_QUOTES, 'UTF-8');
+    }
+
+    public function fullName(): string
     {
         return $this->entity->first_name . ' ' . $this->entity->last_name;
     }
 
-    public function statusCode()
+    public function statusCode(): string
     {
         $status = '';
         $user = $this->entity;
-        $company = $user->company;
+        $account = $user->account;
 
         if ($user->confirmed) {
             $status .= 'C';
@@ -28,11 +33,11 @@ class UserPresenter extends EntityPresenter
             $status .= 'N';
         }
 
-        if ($company->isTrial()) {
+        if ($account->isTrial()) {
             $status .= 'T';
-        } elseif ($company->isEnterprise()) {
+        } elseif ($account->isEnterprise()) {
             $status .= 'E';
-        } elseif ($company->isPro()) {
+        } elseif ($account->isPro()) {
             $status .= 'P';
         } else {
             $status .= 'H';

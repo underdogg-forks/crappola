@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     // The default gateway to use
     'default' => 'paypal',
 

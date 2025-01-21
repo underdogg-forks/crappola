@@ -9,6 +9,8 @@ class IndustrySeeder extends Seeder
 {
     public function run(): void
     {
+        Eloquent::unguard();
+
         $industries = [
             ['name' => 'Accounting & Legal'],
             ['name' => 'Advertising'],
@@ -47,9 +49,11 @@ class IndustrySeeder extends Seeder
 
         foreach ($industries as $industry) {
             $record = Industry::whereName($industry['name'])->first();
-            if (! $record) {
+            if ( ! $record) {
                 Industry::create($industry);
             }
         }
+
+        Eloquent::reguard();
     }
 }

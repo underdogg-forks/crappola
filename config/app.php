@@ -87,21 +87,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure the log settings for your application. Out of
-    | the box, Laravel uses the Monolog PHP logging library. This gives
-    | you a variety of powerful log handlers / formatters to utilize.
-    |
-    | Available Settings: "single", "daily", "syslog", "errorlog"
-    |
-    */
-
-    'log' => env('LOG', 'single'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |
@@ -136,15 +121,22 @@ return [
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
-        //'App\Ninja\Translation\TranslationServiceProvider',
 
         // Additional Providers
+        'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
-        'Intervention\Image\ImageServiceProvider',
+        'Intervention\Image\Laravel\ServiceProvider',
         'Webpatser\Countries\CountriesServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        //'Chumper\Datatable\DatatableServiceProvider',
+        'Laravel\Socialite\SocialiteServiceProvider',
+        'Jlapp\Swaggervel\SwaggervelServiceProvider',
+        'Maatwebsite\Excel\ExcelServiceProvider',
+        Codedge\Updater\UpdaterServiceProvider::class,
+        Nwidart\Modules\LaravelModulesServiceProvider::class,
+        Fruitcake\Cors\CorsServiceProvider::class,
+        PragmaRX\Google2FALaravel\ServiceProvider::class,
+        'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
 
         // Application Service Providers...
@@ -156,7 +148,6 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
     ],
 
     /*
@@ -208,41 +199,42 @@ return [
         'View'        => 'Illuminate\Support\Facades\View',
 
         // Added Class Aliases
-        'Form'             => 'Collective\Html\FormFacade',
-        'HTML'             => 'Collective\Html\HtmlFacade',
-        'SSH'              => 'Illuminate\Support\Facades\SSH',
-        'Alert'            => 'Bootstrapper\Facades\Alert',
-        'Badge'            => 'Bootstrapper\Facades\Badge',
-        'Breadcrumb'       => 'Bootstrapper\Facades\Breadcrumb',
-        'Button'           => 'Bootstrapper\Facades\Button',
-        'ButtonGroup'      => 'Bootstrapper\Facades\ButtonGroup',
-        'ButtonToolbar'    => 'Bootstrapper\Facades\ButtonToolbar',
-        'Carousel'         => 'Bootstrapper\Facades\Carousel',
-        'DropdownButton'   => 'Bootstrapper\Facades\DropdownButton',
-        'Helpers'          => 'Bootstrapper\Facades\Helpers',
-        'Icon'             => 'Bootstrapper\Facades\Icon',
-        'Label'            => 'Bootstrapper\Facades\Label',
-        'MediaObject'      => 'Bootstrapper\Facades\MediaObject',
-        'Navbar'           => 'Bootstrapper\Facades\Navbar',
-        'Navigation'       => 'Bootstrapper\Facades\Navigation',
-        'Paginator'        => 'Bootstrapper\Facades\Paginator',
-        'Progress'         => 'Bootstrapper\Facades\Progress',
-        'Tabbable'         => 'Bootstrapper\Facades\Tabbable',
-        'Table'            => 'Bootstrapper\Facades\Table',
-        'Thumbnail'        => 'Bootstrapper\Facades\Thumbnail',
-        'Typeahead'        => 'Bootstrapper\Facades\Typeahead',
-        'Typography'       => 'Bootstrapper\Facades\Typography',
-        'Former'           => 'Former\Facades\Former',
-        'Omnipay'          => 'Omnipay\Omnipay',
-        'CreditCard'       => 'Omnipay\Common\CreditCard',
-        'Image'            => 'Intervention\Image\Facades\Image',
-        'Countries'        => 'Webpatser\Countries\CountriesFacade',
-        'Carbon'           => 'Carbon\Carbon',
-        'Rocketeer'        => 'Rocketeer\Facades\Rocketeer',
-        'Socialite'        => 'Laravel\Socialite\Facades\Socialite',
-        'Excel'            => 'Maatwebsite\Excel\Facades\Excel',
-        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
-        //'Datatable'        => 'Chumper\Datatable\Facades\DatatableFacade',
+        'Form'           => 'Collective\Html\FormFacade',
+        'HTML'           => 'Collective\Html\HtmlFacade',
+        'SSH'            => 'Illuminate\Support\Facades\SSH',
+        'Alert'          => 'Bootstrapper\Facades\Alert',
+        'Badge'          => 'Bootstrapper\Facades\Badge',
+        'Breadcrumb'     => 'Bootstrapper\Facades\Breadcrumb',
+        'Button'         => 'Bootstrapper\Facades\Button',
+        'ButtonGroup'    => 'Bootstrapper\Facades\ButtonGroup',
+        'ButtonToolbar'  => 'Bootstrapper\Facades\ButtonToolbar',
+        'Carousel'       => 'Bootstrapper\Facades\Carousel',
+        'DropdownButton' => 'Bootstrapper\Facades\DropdownButton',
+        'Helpers'        => 'Bootstrapper\Facades\Helpers',
+        'Icon'           => 'Bootstrapper\Facades\Icon',
+        'Label'          => 'Bootstrapper\Facades\Label',
+        'MediaObject'    => 'Bootstrapper\Facades\MediaObject',
+        'Navbar'         => 'Bootstrapper\Facades\Navbar',
+        'Navigation'     => 'Bootstrapper\Facades\Navigation',
+        'Paginator'      => 'Bootstrapper\Facades\Paginator',
+        'Progress'       => 'Bootstrapper\Facades\Progress',
+        'Tabbable'       => 'Bootstrapper\Facades\Tabbable',
+        'Table'          => 'Bootstrapper\Facades\Table',
+        'Thumbnail'      => 'Bootstrapper\Facades\Thumbnail',
+        'Typeahead'      => 'Bootstrapper\Facades\Typeahead',
+        'Typography'     => 'Bootstrapper\Facades\Typography',
+        'Former'         => 'Former\Facades\Former',
+        'Omnipay'        => 'Omnipay\Omnipay',
+        'CreditCard'     => 'Omnipay\Common\CreditCard',
+        'Image'          => Intervention\Image\Facades\Image::class,
+        'Countries'      => 'Webpatser\Countries\CountriesFacade',
+        'Carbon'         => 'Carbon\Carbon',
+        'Rocketeer'      => 'Rocketeer\Facades\Rocketeer',
+        'Socialite'      => 'Laravel\Socialite\Facades\Socialite',
+        'Excel'          => 'Maatwebsite\Excel\Facades\Excel',
+        'Datatable'      => 'Chumper\Datatable\Facades\DatatableFacade',
+        'Updater'        => Codedge\Updater\UpdaterFacade::class,
+        'Module'         => Nwidart\Modules\Facades\Module::class,
 
         'Utils'     => App\Libraries\Utils::class,
         'DateUtils' => App\Libraries\DateUtils::class,

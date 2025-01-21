@@ -50,7 +50,7 @@ class ResetPasswordController extends Controller
         ]);
     }
 
-    protected function sendResetResponse($response)
+    protected function sendResetResponse(Request $request, $response)
     {
         $user = auth()->user();
 
@@ -58,10 +58,11 @@ class ResetPasswordController extends Controller
             auth()->logout();
             session(['2fa:user:id' => $user->id]);
 
-            return redirect('/validate_two_factor/' . $user->company->account_key);
+            return redirect('/validate_two_factor/' . $user->account->account_key);
         }
+
         Event::dispatch(new UserLoggedIn());
 
-        return $this->traitSendResetResponse($response);
+        return $this->traitSendResetResponse($request, $response);
     }
 }

@@ -7,9 +7,18 @@ use stdClass;
 
 class InvoiceCard
 {
+    /**
+     * @var string
+     */
+    public $contentType = 'application/vnd.microsoft.card.receipt';
+
+    /**
+     * @var stdClass
+     */
+    public $content;
+
     public function __construct($invoice)
     {
-        $this->contentType = 'application/vnd.microsoft.card.receipt';
         $this->content = new stdClass();
         $this->content->facts = [];
         $this->content->items = [];
@@ -24,7 +33,7 @@ class InvoiceCard
 
         $this->addFact(trans('texts.email'), HTML::mailto($invoice->client->contacts[0]->email)->toHtml());
 
-        if ($invoice->due_at) {
+        if ($invoice->due_date) {
             $this->addFact($invoice->present()->dueDateLabel, $invoice->present()->due_date);
         }
 
@@ -37,12 +46,12 @@ class InvoiceCard
         }
 
         foreach ($invoice->invoice_items as $item) {
-            $this->addItem($item, $invoice->company);
+            $this->addItem($item, $invoice->account);
         }
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if (floatval($invoice->amount)) {
+        if ((float) ($invoice->amount) !== 0.0) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
@@ -55,6 +64,11 @@ class InvoiceCard
         $this->content->title = $title;
     }
 
+    public function setTotal($value): void
+    {
+        $this->content->total = $value;
+    }
+
     public function addFact($key, $value): void
     {
         $fact = new stdClass();
@@ -64,14 +78,9 @@ class InvoiceCard
         $this->content->facts[] = $fact;
     }
 
-    public function addItem($item, $company): void
+    public function addItem($item, $account): void
     {
-        $this->content->items[] = new InvoiceItemCard($item, $company);
-    }
-
-    public function setTotal($value): void
-    {
-        $this->content->total = $value;
+        $this->content->items[] = new InvoiceItemCard($item, $account);
     }
 
     public function addButton($type, $title, $value, $url = false): void

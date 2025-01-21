@@ -2,28 +2,34 @@
 
 namespace App\Providers;
 
+use App\Http\ViewComposers\AppLanguageComposer;
+use App\Http\ViewComposers\ClientPortalHeaderComposer;
+use App\Http\ViewComposers\ProposalComposer;
+use App\Http\ViewComposers\TranslationComposer;
 use Illuminate\Support\ServiceProvider;
 
 class ComposerServiceProvider extends ServiceProvider
 {
     /**
      * Register bindings in the container.
+     *
+     * @return void
      */
     public function boot(): void
     {
         view()->composer(
             [
-                'companies.details',
+                'accounts.details',
                 'clients.edit',
                 'vendors.edit',
                 'payments.edit',
                 'invoices.edit',
                 'expenses.edit',
-                'companies.localization',
+                'accounts.localization',
                 'payments.credit_card',
                 'invited.details',
             ],
-            'App\Http\ViewComposers\TranslationComposer'
+            TranslationComposer::class
         );
 
         view()->composer(
@@ -31,14 +37,14 @@ class ComposerServiceProvider extends ServiceProvider
                 'header',
                 'tasks.edit',
             ],
-            'App\Http\ViewComposers\AppLanguageComposer'
+            AppLanguageComposer::class
         );
 
         view()->composer(
             [
                 'public.header',
             ],
-            'App\Http\ViewComposers\ClientPortalHeaderComposer'
+            ClientPortalHeaderComposer::class
         );
 
         view()->composer(
@@ -47,14 +53,14 @@ class ComposerServiceProvider extends ServiceProvider
                 'proposals.templates.edit',
                 'proposals.snippets.edit',
             ],
-            'App\Http\ViewComposers\ProposalComposer'
+            ProposalComposer::class
         );
     }
 
     /**
      * Register the service provider.
+     *
+     * @return void
      */
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 }

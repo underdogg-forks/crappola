@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ConvertProposalToPdf;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Document;
 use App\Models\Invitation;
 use App\Ninja\Repositories\ProposalRepository;
@@ -16,7 +16,7 @@ class ClientPortalProposalController extends BaseController
 
     private $documentRepo;
 
-    private ProposalRepository $propoosalRepo;
+    private readonly ProposalRepository $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {
@@ -25,11 +25,11 @@ class ClientPortalProposalController extends BaseController
 
     public function viewProposal($invitationKey)
     {
-        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
+        if ( ! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
             return $this->returnError(trans('texts.proposal_not_found'));
         }
 
-        $company = $invitation->company;
+        $account = $invitation->account;
         $proposal = $invitation->proposal;
         $invoiceInvitation = Invitation::whereContactId($invitation->contact_id)
             ->whereInvoiceId($proposal->invoice_id)
@@ -37,7 +37,7 @@ class ClientPortalProposalController extends BaseController
 
         $data = [
             'proposal'           => $proposal,
-            'company'            => $company,
+            'account'            => $account,
             'invoiceInvitation'  => $invoiceInvitation,
             'proposalInvitation' => $invitation,
         ];
@@ -51,23 +51,23 @@ class ClientPortalProposalController extends BaseController
 
     public function downloadProposal($invitationKey)
     {
-        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
+        if ( ! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
             return $this->returnError(trans('texts.proposal_not_found'));
         }
 
         $proposal = $invitation->proposal;
 
-        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    public function getProposalImage($companyKey, $documentKey)
+    public function getProposalImage($accountKey, $documentKey)
     {
-        $company = Company::whereAccountKey($companyKey)
+        $account = Account::whereAccountKey($accountKey)
             ->firstOrFail();
 
-        $document = Document::whereCompanyPlanId($company->id)
+        $document = Document::whereAccountId($account->id)
             ->whereDocumentKey($documentKey)
             ->whereIsProposal(true)
             ->firstOrFail();

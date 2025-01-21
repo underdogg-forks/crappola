@@ -2,14 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class BaseRepository.
  */
 class BaseRepository
 {
+    /**
+     * @return null
+     */
+    public function getClassName() {}
+
     public function archive($entity): void
     {
         if ($entity->trashed()) {
@@ -25,35 +30,9 @@ class BaseRepository
         }
     }
 
-    public function delete($entity)
+    public function restore($entity): void
     {
-        if ($entity->is_deleted) {
-            return;
-        }
-
-        $entity->is_deleted = true;
-        $entity->save();
-
-        $entity->delete();
-
-        $className = $this->getEventClass($entity, 'Deleted');
-
-        if (class_exists($className)) {
-            event(new $className($entity));
-        }
-    }
-
-    /**
-     * @return string
-     */
-    private function getEventClass($entity, $type)
-    {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
-    }
-
-    public function restore($entity)
-    {
-        if (! $entity->trashed()) {
+        if ( ! $entity->trashed()) {
             return;
         }
 
@@ -73,12 +52,27 @@ class BaseRepository
         }
     }
 
-    /**
-     * @return int
-     */
-    public function bulk($ids, $action)
+    public function delete($entity): void
     {
-        if (! $ids) {
+        if ($entity->is_deleted) {
+            return;
+        }
+
+        $entity->is_deleted = true;
+        $entity->save();
+
+        $entity->delete();
+
+        $className = $this->getEventClass($entity, 'Deleted');
+
+        if (class_exists($className)) {
+            event(new $className($entity));
+        }
+    }
+
+    public function bulk($ids, $action): int
+    {
+        if ( ! $ids) {
             return 0;
         }
 
@@ -86,44 +80,24 @@ class BaseRepository
 
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
-                $this->$action($entity);
+                $this->{$action}($entity);
             }
         }
 
         return count($entities);
     }
 
-    /**
-     * @return mixed
-     */
-    public function findByPublicIdsWithTrashed($ids)
-    {
-        return $this->getInstance()->scope($ids)->withTrashed()->get();
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    public function getClassName()
-    {
-    }
-
-    /**
-     * @return mixed
-     */
     public function findByPublicIds($ids)
     {
         return $this->getInstance()->scope($ids)->get();
     }
 
-    protected function applyFilters($query, $entityType, $table = false)
+    public function findByPublicIdsWithTrashed($ids)
+    {
+        return $this->getInstance()->scope($ids)->withTrashed()->get();
+    }
+
+    protected function applyFilters($query, string $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
 
@@ -135,15 +109,17 @@ class BaseRepository
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
+
                 if (in_array(STATUS_ARCHIVED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if (! in_array($table, ['users'])) {
+                        if ($table != 'users') {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
                 }
+
                 if (in_array(STATUS_DELETED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at')
@@ -154,5 +130,17 @@ class BaseRepository
         }
 
         return $query;
+    }
+
+    private function getInstance()
+    {
+        $className = $this->getClassName();
+
+        return new $className();
+    }
+
+    private function getEventClass($entity, string $type): string
+    {
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 }

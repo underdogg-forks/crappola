@@ -1,14 +1,13 @@
 <?php
 
 return [
-
-    'devNinjaIOS'     => [
+    'devNinjaIOS' => [
         'environment' => 'development',
         'certificate' => storage_path() . '/ninjaIOS.pem',
         'passPhrase'  => '',
         'service'     => 'apns',
     ],
-    'ninjaIOS'     => [
+    'ninjaIOS' => [
         'environment' => 'production',
         'certificate' => storage_path() . '/productionNinjaIOS.pem',
         'passPhrase'  => '',
@@ -19,5 +18,4 @@ return [
         'apiKey'      => env('FCM_API_TOKEN'),
         'service'     => 'gcm',
     ],
-
 ];

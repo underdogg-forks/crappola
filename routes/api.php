@@ -1,14 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 Route::get('ping', 'AccountApiController@ping');
 Route::post('login', 'AccountApiController@login');
 Route::post('oauth_login', 'AccountApiController@oauthLogin');
 Route::post('register', 'AccountApiController@register');
 Route::get('static', 'AccountApiController@getStaticData');
-Route::get('companies', 'AccountApiController@show');
-Route::put('companies', 'AccountApiController@update');
+Route::get('accounts', 'AccountApiController@show');
+Route::put('accounts', 'AccountApiController@update');
 Route::post('refresh', 'AccountApiController@refresh');
 Route::post('upgrade', 'AccountApiController@upgrade');
 

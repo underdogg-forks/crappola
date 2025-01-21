@@ -12,7 +12,7 @@
     @endif
 
     {!! Former::checkbox('authorize_ach')
-            ->text(trans('texts.ach_authorization', ['companyPlan'=>$company->getDisplayName(), 'email' => $company->work_email]))
+            ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
             ->label(' ')
             ->value(1) !!}
 
@@ -33,7 +33,7 @@
         {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
         &nbsp;&nbsp;
         @if (isset($amount))
-            {!! Button::success(request()->capture ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $company->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
+            {!! Button::success(request()->capture ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                             ->submit()
                             ->large() !!}
         @else

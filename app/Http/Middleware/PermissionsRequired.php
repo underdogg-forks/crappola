@@ -19,6 +19,9 @@ class PermissionsRequired
 
     /**
      * add a controller's action permission.
+     *
+     * @param Controller $controller
+     * @param array      $permissions
      */
     public static function addPermission(Controller $controller, array $permissions): void
     {
@@ -28,7 +31,9 @@ class PermissionsRequired
     /**
      * Handle an incoming request.
      *
-     * @param string $guard
+     * @param Request $request
+     * @param Closure $next
+     * @param string  $guard
      *
      * @return mixed
      */
@@ -41,17 +46,15 @@ class PermissionsRequired
         $actions = $route->getAction();
 
         // Check if we have any permissions to check the user has.
-        if ($permissions = ! empty($actions['permissions']) ? $actions['permissions'] : null) {
-            if (! Auth::user($guard)->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
-                return response('Unauthorized.', 401);
-            }
+        if (($permissions = empty($actions['permissions']) ? null : $actions['permissions']) && ! Auth::user()->hasPermission($permissions, ! empty($actions['permissions_require_all']))) {
+            return response('Unauthorized.', 401);
         }
 
         // Check controller permissions
         $action = explode('@', $request->route()->getActionName());
-        if (isset(static::$actions[$action[0]]) && isset(static::$actions[$action[0]][$action[1]])) {
+        if (isset(static::$actions[$action[0]], static::$actions[$action[0]][$action[1]])) {
             $controller_permissions = static::$actions[$action[0]][$action[1]];
-            if (! Auth::user($guard)->hasPermission($controller_permissions)) {
+            if ( ! Auth::user()->hasPermission($controller_permissions)) {
                 return response('Unauthorized.', 401);
             }
         }
