@@ -19,8 +19,6 @@ class VendorWasUpdated extends Event
 
     /**
      * Create a new event instance.
-     *
-     * @param Vendor $vendor
      */
     public function __construct(Vendor $vendor)
     {

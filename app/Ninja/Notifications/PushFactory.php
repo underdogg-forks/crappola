@@ -5,7 +5,6 @@ namespace App\Ninja\Notifications;
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use NotificationChannels\PusherPushNotifications\PusherMessage;
 
 /**
  * Class PushFactory.
@@ -15,7 +14,9 @@ class PushFactory
     /**
      * PushFactory constructor.
      */
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * customMessage function.
@@ -23,16 +24,11 @@ class PushFactory
      * Send a message with a nested custom payload to perform additional trickery within application
      *
      *
-     * @param        $token
-     * @param        $message
-     * @param        $messageArray
-     * @param string $device       - Type of device the message is being pushed to
-     *
-     * @return void
+     * @param string $device - Type of device the message is being pushed to
      */
     public function customMessage($token, $message, $messageArray, $device): void
     {
-        $customMessage = new PusherMessage($message);
+        $customMessage = PushNotification::Message($message, $messageArray);
 
         $this->message($token, $customMessage, $device);
     }
@@ -46,8 +42,6 @@ class PushFactory
      * @param       $token   - device token
      * @param       $message - user specific message
      * @param mixed $device
-     *
-     * @return void
      */
     public function message($token, $message, $device): void
     {
@@ -55,8 +49,8 @@ class PushFactory
             PushNotification::app($device)
                 ->to($token)
                 ->send($message);
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
         }
     }
 

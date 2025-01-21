@@ -10,8 +10,6 @@ class DateFormatsSeeder extends Seeder
 {
     public function run(): void
     {
-        Eloquent::unguard();
-
         // Date formats
         $formats = [
             ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],

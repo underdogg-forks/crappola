@@ -3,7 +3,7 @@
 	{
 		"columns": [
 		{
-			"image": "$accountLogo",
+			"image": "$companyLogo",
 				"fit": [120, 80],
 				"margin": [0, 60, 0, 30]
 		},
@@ -117,12 +117,12 @@
 			]
 		},
 		{
-			"stack": "$accountDetails",
+			"stack": "$companyDetails",
 			"margin": [0, -40, 0, 0],
 			"width": "*"
 		},
 		{
-			"stack": "$accountAddress",
+			"stack": "$companyAddress",
 			"margin": [0, -40, 0, 0],
 			"width": "*"
 		}
@@ -136,7 +136,7 @@
 	{
 		"columns": [
 		{
-			"text": "$accountName", "bold": true,"font":"$headerFont","fontSize":30,"color":"#ffffff","margin":[40,20,0,0],"width":350
+			"text": "$companyName", "bold": true,"font":"$headerFont","fontSize":30,"color":"#ffffff","margin":[40,20,0,0],"width":350
 		}
 		]
 	},
@@ -263,7 +263,7 @@
 	"pageMargins": [40, 120, 40, 50],
 	"background": [
 		{
-			"image": "$accountBackground",
+			"image": "$companyBackground",
 			"alignment": "center"
 		}
 	]

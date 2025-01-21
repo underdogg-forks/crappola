@@ -8,39 +8,34 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
-     *
-     * @return void
+     * Run the database seeders.
      */
     public function run(): void
     {
         $this->command->info('Running DatabaseSeeder');
 
-        if (Timezone::count()) {
-            $this->command->info('Skipping: already run');
+        $this->call(ConstantsSeeder::class);
+        $this->call(CountriesSeeder::class);
+        $this->call(PaymentLibrariesSeeder::class);
+        $this->call(FontsSeeder::class);
+        $this->call(GatewayTypesSeeder::class);
+        $this->call(BanksSeeder::class);
+        $this->call(InvoiceStatusSeeder::class);
+        $this->call(ProposalTemplatesSeeder::class);
+        $this->call(PaymentStatusSeeder::class);
+        $this->call(CurrenciesSeeder::class);
+        $this->call(DateFormatsSeeder::class);
+        $this->call(InvoiceDesignsSeeder::class);
+        $this->call(PaymentTermsSeeder::class);
+        $this->call(PaymentTypesSeeder::class);
+        $this->call(LanguageSeeder::class);
+        $this->call(IndustrySeeder::class);
+        $this->call(FrequencySeeder::class);
 
+        /*if (Timezone::count()) {
+            $this->command->info('Skipping: already run::class);
             return;
-        }
-
-        Eloquent::unguard();
-
-        $this->call('ConstantsSeeder');
-        $this->call('CountriesSeeder');
-        $this->call('PaymentLibrariesSeeder');
-        $this->call('FontsSeeder');
-        $this->call('GatewayTypesSeeder');
-        $this->call('BanksSeeder');
-        $this->call('InvoiceStatusSeeder');
-        $this->call('ProposalTemplatesSeeder');
-        $this->call('PaymentStatusSeeder');
-        $this->call('CurrenciesSeeder');
-        $this->call('DateFormatsSeeder');
-        $this->call('InvoiceDesignsSeeder');
-        $this->call('PaymentTermsSeeder');
-        $this->call('PaymentTypesSeeder');
-        $this->call('LanguageSeeder');
-        $this->call('IndustrySeeder');
-        $this->call('FrequencySeeder');
-        $this->call('DbServerSeeder');
+        }*/
+        //$this->call(UserTableSeeder::class);
     }
 }

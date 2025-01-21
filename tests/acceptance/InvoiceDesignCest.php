@@ -13,7 +13,9 @@ class InvoiceDesignCest
         $this->faker = Factory::create();
     }
 
-    public function _after(AcceptanceTester $I): void {}
+    public function _after(AcceptanceTester $I): void
+    {
+    }
 
     // tests
     public function updateInvoiceDesign(AcceptanceTester $I): void
@@ -48,6 +50,6 @@ class InvoiceDesignCest
         $I->click('Save');
         $I->wait(3);
 
-        $I->seeInDatabase('accounts', ['font_size' => 10]);
+        $I->seeInDatabase('corporations', ['font_size' => 10]);
     }
 }

@@ -2,26 +2,29 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class CreditService.
  */
 class CreditService extends BaseService
 {
-    protected CreditRepository $creditRepo;
+    /**
+     * @var CreditRepository
+     */
+    protected $creditRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * CreditService constructor.
-     *
-     * @param CreditRepository $creditRepo
-     * @param DatatableService $datatableService
      */
     public function __construct(CreditRepository $creditRepo, DatatableService $datatableService)
     {
@@ -30,7 +33,6 @@ class CreditService extends BaseService
     }
 
     /**
-     * @param            $data
      * @param null|mixed $credit
      *
      * @return mixed|null
@@ -40,19 +42,13 @@ class CreditService extends BaseService
         return $this->creditRepo->save($data, $credit);
     }
 
-    /**
-     * @param $clientPublicId
-     * @param $search
-     *
-     * @return JsonResponse
-     */
     public function getDatatable($clientPublicId, $search)
     {
         // we don't support bulk edit and hide the client on the individual client page
         $datatable = new CreditDatatable(true, $clientPublicId);
         $query = $this->creditRepo->find($clientPublicId, $search);
 
-        if ( ! Utils::hasPermission('view_credit')) {
+        if (! Utils::hasPermission('view_credit')) {
             $query->where('credits.user_id', '=', Auth::user()->id);
         }
 
@@ -62,7 +58,7 @@ class CreditService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo(): CreditRepository
+    protected function getRepo()
     {
         return $this->creditRepo;
     }

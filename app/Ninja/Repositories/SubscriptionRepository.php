@@ -2,20 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Subscription;
 use Illuminate\Support\Facades\DB;
 
 class SubscriptionRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Subscription::class;
+        return 'App\Models\Subscription';
     }
 
-    public function find($accountId)
+    public function find($companyId)
     {
         $query = DB::table('subscriptions')
-            ->where('subscriptions.account_id', '=', $accountId)
+            ->where('subscriptions.company_id', '=', $companyId)
             ->whereNull('subscriptions.deleted_at')
             ->select(
                 'subscriptions.public_id',

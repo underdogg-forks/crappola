@@ -2,4 +2,18 @@
 
 namespace App\Policies;
 
-class ProposalPolicy extends EntityPolicy {}
+use App\Models\User;
+
+/**
+ * Class ProposalPolicy.
+ */
+class ProposalPolicy extends EntityPolicy
+{
+    /**
+     * @return bool
+     */
+    public function create(User $user)
+    {
+        return $this->createPermission($user, ENTITY_PROPOSAL);
+    }
+}

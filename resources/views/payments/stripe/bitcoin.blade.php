@@ -3,7 +3,7 @@
 @section('head')
     @parent
 
-    <script type="text/javascript" src="{{ asset('js/qrcode.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/qrcode.min.js') }}"></script>
     <script type="text/javascript">
         $(function() {
             var qrcode = new QRCode(document.getElementById("qrcode"), {

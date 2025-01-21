@@ -2,27 +2,17 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use Excel;
 use Exception;
-use Utils;
+use Illuminate\Contracts\Translation\Translator;
 
 class ExportReportResults extends Job
 {
-    public $user;
-
-    /**
-     * @var lowercase-string
-     */
-    public $format;
-
-    public $reportType;
-
-    public $params;
-
     public function __construct($user, $format, $reportType, $params)
     {
         $this->user = $user;
-        $this->format = mb_strtolower($format);
+        $this->format = strtolower($format);
         $this->reportType = $reportType;
         $this->params = $params;
     }
@@ -34,7 +24,7 @@ class ExportReportResults extends Job
      */
     public function handle()
     {
-        if ( ! $this->user->hasPermission('view_reports')) {
+        if (! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
@@ -47,42 +37,55 @@ class ExportReportResults extends Job
         $totals = $params['reportTotals'];
         $report = $params['report'];
 
-        $filename = sprintf('%s-%s_invoiceninja-', $params['startDate'], $params['endDate']) . mb_strtolower(Utils::normalizeChars(trans('texts.' . $reportType))) . '-report';
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . strtolower(Utils::normalizeChars(trans("texts.$reportType"))) . '-report';
 
         $formats = ['csv', 'pdf', 'xlsx', 'zip'];
-        if ( ! in_array($format, $formats)) {
+        if (! in_array($format, $formats)) {
             throw new Exception('Invalid format request to export report');
         }
 
         //Get labeled header
         $data = array_merge(
             [
-                array_map(fn ($col) => $col['label'], $report->tableHeaderArray()),
+                array_map(function ($col) {
+                    return $col['label'];
+                }, $report->tableHeaderArray()),
             ],
             $data
         );
 
         $summary = [];
-        if (array_values($totals) !== []) {
+        if (count(array_values($totals))) {
             $summary[] = array_merge([
                 trans('texts.totals'),
-            ], array_map(fn ($key) => trans('texts.' . $key), array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(function ($key): array|Translator|string|null {
+                return trans("texts.{$key}");
+            }, array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {
             foreach ($each as $dimension => $val) {
                 $tmp = [];
-                $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
+
+                $currency = Utils::getFromCache($currencyId, 'currencies');
+                if (! $currency) {
+                    $name = $currencyId;
+                    $company = $this->user->company->first();
+                    $currencyId = $company->currency_id;
+                } else {
+                    $name = $currency->name;
+                }
+
+                $tmp[] = $dimension ? $name . ' - ' . $dimension : $name;
                 foreach ($val as $field => $value) {
                     $tmp[] = $field == 'duration' ? Utils::formatTime($value) : Utils::formatMoney($value, $currencyId);
                 }
-
                 $summary[] = $tmp;
             }
         }
 
         return Excel::create($filename, function ($excel) use ($data, $reportType, $format, $summary): void {
-            $excel->sheet(trans('texts.' . $reportType), function ($sheet) use ($data, $format, $summary): void {
+            $excel->sheet(trans("texts.$reportType"), function ($sheet) use ($data, $format, $summary): void {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
                 if ($format == 'pdf') {
@@ -106,7 +109,7 @@ class ExportReportResults extends Job
                 $sheet->setAutoSize(true);
             });
 
-            if ($summary !== []) {
+            if (count($summary)) {
                 $excel->sheet(trans('texts.totals'), function ($sheet) use ($summary, $format): void {
                     $sheet->setOrientation('landscape');
                     $sheet->freezeFirstRow();
@@ -114,7 +117,6 @@ class ExportReportResults extends Job
                     if ($format == 'pdf') {
                         $sheet->setAllBorders('thin');
                     }
-
                     $sheet->rows($summary);
 
                     // Styling header

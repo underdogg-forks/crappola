@@ -11,12 +11,12 @@ use App\Services\ExpenseService;
 
 class ExpenseApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_EXPENSE;
-
     // Expenses
     protected ExpenseRepository $expenseRepo;
 
     protected ExpenseService $expenseService;
+
+    protected $entityType = ENTITY_EXPENSE;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {

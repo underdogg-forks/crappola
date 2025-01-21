@@ -4,19 +4,18 @@ namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Invitation;
 use App\Models\Payment;
-use Illuminate\Support\Arr;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
-    public function completeOffsitePurchase($input): bool
+    public function completeOffsitePurchase($input)
     {
         // payment is created by the webhook
         return false;
     }
 
-    public function handleWebHook($input): string
+    public function handleWebHook($input)
     {
-        $ref = Arr::get($input, 'id');
+        $ref = array_get($input, 'id');
         $data = [
             'transactionReference' => $ref,
         ];
@@ -24,7 +23,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         $response = $this->gateway()->fetchTransaction($data)->send();
 
         if ($response->isPaid() || $response->isPaidOut()) {
-            $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
+            $invitation = Invitation::whereCompanyPlanId($this->accountGateway->company_id)
                 ->whereTransactionReference($ref)
                 ->first();
             if ($invitation) {
@@ -33,7 +32,7 @@ class MolliePaymentDriver extends BasePaymentDriver
             }
         } else {
             // check if payment has failed
-            $payment = Payment::whereAccountId($this->accountGateway->account_id)
+            $payment = Payment::whereCompanyPlanId($this->accountGateway->company_id)
                 ->whereTransactionReference($ref)
                 ->first();
             if ($payment) {
@@ -46,12 +45,12 @@ class MolliePaymentDriver extends BasePaymentDriver
         return RESULT_SUCCESS;
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
 
         // Enable webhooks
-        $data['notifyUrl'] = url('/payment_hook/' . $this->account()->account_key . '/' . GATEWAY_MOLLIE);
+        $data['notifyUrl'] = url('/payment_hook/' . $this->company()->account_key . '/' . GATEWAY_MOLLIE);
 
         return $data;
     }

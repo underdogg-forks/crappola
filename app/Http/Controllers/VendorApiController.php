@@ -6,16 +6,16 @@ use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\DeleteVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
+use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use Response;
-use Utils;
+use Illuminate\Support\Facades\Response;
 
 class VendorApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_VENDOR;
-
     protected VendorRepository $vendorRepo;
+
+    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo)
     {
@@ -28,7 +28,7 @@ class VendorApiController extends BaseAPIController
     {
         $headers = Utils::getApiHeaders();
 
-        return \Illuminate\Support\Facades\Response::make('', 200, $headers);
+        return Response::make('', 200, $headers);
     }
 
     /**

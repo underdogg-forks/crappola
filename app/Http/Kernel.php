@@ -6,9 +6,8 @@ use App\Http\Middleware\ApiCheck;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\DatabaseLookup;
 use App\Http\Middleware\DuplicateSubmissionCheck;
-use App\Http\Middleware\EligibleForMigration;
 use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\MigrationLookup;
+use App\Http\Middleware\InboundTicketCheck;
 use App\Http\Middleware\PermissionsRequired;
 use App\Http\Middleware\QueryLogging;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -75,7 +74,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $middlewareAliases = [
+    protected $routeMiddleware = [
         'auth'                 => Authenticate::class,
         'auth.basic'           => AuthenticateWithBasicAuth::class,
         'bindings'             => SubstituteBindings::class,
@@ -84,7 +83,6 @@ class Kernel extends HttpKernel
         'throttle'             => ThrottleRequests::class,
         'lookup'               => DatabaseLookup::class,
         'permissions.required' => PermissionsRequired::class,
-        'migration'            => EligibleForMigration::class,
-        'migration_channel'    => MigrationLookup::class,
+        'ticket'               => InboundTicketCheck::class,
     ];
 }

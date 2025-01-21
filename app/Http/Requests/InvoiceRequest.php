@@ -7,65 +7,78 @@ use App\Models\Invoice;
 
 class InvoiceRequest extends EntityRequest
 {
-    public $entityType = ENTITY_INVOICE;
+    protected $entityType = ENTITY_INVOICE;
 
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         $invoice = parent::entity();
+        $entity = $invoice ? $invoice->subEntityType() : ENTITY_INVOICE;
 
-        if ($invoice && $invoice->isQuote()) {
-            $standardOrRecurringInvoice = ENTITY_QUOTE;
-        } elseif ($invoice && $invoice->is_recurring) {
-            $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
-        } else {
-            $standardOrRecurringInvoice = ENTITY_INVOICE;
+        switch ($entity) {
+            case ENTITY_INVOICE:
+                $crossCloneEntity = ENTITY_QUOTE;
+                break;
+            case ENTITY_QUOTE:
+                $crossCloneEntity = ENTITY_INVOICE;
+                break;
+            case ENTITY_RECURRING_INVOICE:
+                $crossCloneEntity = ENTITY_RECURRING_QUOTE;
+                break;
+            case ENTITY_RECURRING_QUOTE:
+                $crossCloneEntity = ENTITY_RECURRING_INVOICE;
+                break;
         }
 
-        if (request()->is('invoices/*/edit') && request()->isMethod('get') && $this->user()->can('edit', $invoice)) {
+        if (request()->is('invoices/create*') && $this->user()->can('createEntity', ENTITY_INVOICE)) {
             return true;
         }
 
-        if (request()->is('quotes/*/edit') && request()->isMethod('get') && $this->user()->can('edit', $invoice)) {
+        if (request()->is('recurring_invoices/create*') && $this->user()->can('createEntity', ENTITY_INVOICE)) {
             return true;
         }
 
-        if (request()->is('invoices/create*') && $this->user()->can('create', ENTITY_INVOICE)) {
+        if (request()->is('quotes/create*') && $this->user()->can('createEntity', ENTITY_QUOTE)) {
             return true;
         }
 
-        if (request()->is('invoices/create*') && ! $this->user()->can('create', ENTITY_INVOICE)) {
-            return false;
+        if (request()->is('recurring_quotes/create*') && $this->user()->can('createEntity', ENTITY_QUOTE)) {
+            return true;
         }
 
-        if (request()->is('recurring_invoices/create') && ! $this->user()->can('create', ENTITY_RECURRING_INVOICE)) {
-            return false;
+        if ($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*invoices/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice)) {
+            return true;
         }
 
-        if (request()->is('quotes/create*') && ! $this->user()->can('create', ENTITY_QUOTE)) {
-            return false;
+        if ($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*quotes/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice)) {
+            return true;
         }
 
-        if (request()->is('invoices/*/edit') && request()->isMethod('put') && ! $this->user()->can('edit', $standardOrRecurringInvoice)) {
-            return false;
+        // allow cross clone quote to invoice
+        if ($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*invoices/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity)) {
+            return true;
         }
 
-        if (request()->is('quotes/*/edit') && request()->isMethod('put') && ! $this->user()->can('edit', ENTITY_QUOTE)) {
-            return false;
+        // allow cross clone invoice to quote
+        if ($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*quotes/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity)) {
+            return true;
         }
 
-        if (request()->is('invoices/*') && request()->isMethod('get') && ! $this->user()->can('view', $standardOrRecurringInvoice)) {
-            return false;
+        if ($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity)) {
+            return true;
         }
 
-        if (request()->is('quotes/*') && request()->isMethod('get') && ! $this->user()->can('view', ENTITY_QUOTE)) {
-            return false;
+        if ($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity)) {
+            return true;
         }
 
         if ($invoice) {
             HistoryUtils::trackViewed($invoice);
         }
 
-        return true;
+        return false;
     }
 
     public function entity()
@@ -79,7 +92,7 @@ class InvoiceRequest extends EntityRequest
                 ->withTrashed()
                 ->first();
 
-            if ( ! $invoice) {
+            if (! $invoice) {
                 abort(404);
             }
         }

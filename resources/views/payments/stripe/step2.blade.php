@@ -5,7 +5,7 @@
 
     <script type="text/javascript">
         // Create a Stripe client.
-        var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}', {locale: "{{$client->language?$client->language->locale:$client->account->language->locale}}"});
+        var stripe = Stripe('{{ $companyGateway->getPublishableKey() }}', {locale: "{{$client->language?$client->language->locale:$client->company->language->locale}}"});
 
         stripe.handleCardAction("{{$step2_details['payment_intent']->client_secret}}"
         ).then(function (result) {

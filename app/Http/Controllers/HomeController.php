@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
-use App\Models\Account;
+use App\Models\Company;
 use App\Ninja\Mailers\Mailer;
-use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
-use Redirect;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 /**
  * Class HomeController.
@@ -24,8 +24,6 @@ class HomeController extends BaseController
 
     /**
      * HomeController constructor.
-     *
-     * @param Mailer $mailer
      */
     public function __construct(Mailer $mailer)
     {
@@ -39,17 +37,16 @@ class HomeController extends BaseController
      */
     public function showIndex()
     {
-        \Illuminate\Support\Facades\Session::reflash();
-
-        if ( ! Utils::isNinja() && ( ! Utils::isDatabaseSetup() || Account::count() == 0)) {
-            return \Illuminate\Support\Facades\Redirect::to('/setup');
+        Session::reflash();
+        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Company::count() == 0)) {
+            return Redirect::to('/setup');
         }
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
-            return \Illuminate\Support\Facades\Redirect::to('/dashboard');
+        if (Auth::check()) {
+            return Redirect::to('/dashboard');
         }
 
-        return \Illuminate\Support\Facades\Redirect::to('/login');
+        return Redirect::to('/login');
     }
 
     /**
@@ -57,43 +54,28 @@ class HomeController extends BaseController
      */
     public function viewLogo()
     {
-        return \Illuminate\Support\Facades\View::make('public.logo');
+        return View::make('public.logo');
     }
 
     /**
      * @return \Illuminate\Contracts\View\View|RedirectResponse
      */
-    public function invoiceNow()
+    public function invoiceNow(Request $request)
     {
-        $url = 'https://invoicing.co';
-
-        if (\Illuminate\Support\Facades\Request::has('rc')) {
-            $url = $url . '?rc=' . \Illuminate\Support\Facades\Request::input('rc');
-        }
-
-        return \Illuminate\Support\Facades\Redirect::to($url);
-
-        /*
         // Track the referral/campaign code
-        if (Request::has('rc')) {
-            session([SESSION_REFERRAL_CODE => \Request::input('rc')]);
+        if (request()->has('rc')) {
+            session([SESSION_REFERRAL_CODE => $request->get('rc')]);
         }
 
         if (Auth::check()) {
-            $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'invoices/create';
-            return Redirect::to($redirectTo)->with('sign_up', \Request::input('sign_up'));
-        } else {
-            return View::make('public.invoice_now');
+            $redirectTo = $request->get('redirect_to') ? SITE_URL . '/' . ltrim($request->get('redirect_to'), '/') : 'invoices/create';
+
+            return Redirect::to($redirectTo)->with('sign_up', $request->get('sign_up'));
         }
-        */
+
+        return View::make('public.invoice_now');
     }
 
-    /**
-     * @param $userType
-     * @param $version
-     *
-     * @return JsonResponse
-     */
     public function newsFeed($userType, $version)
     {
         $response = Utils::getNewsFeedResponse($userType);
@@ -103,36 +85,48 @@ class HomeController extends BaseController
 
     public function hideMessage(): string
     {
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
-            $newsFeedId = \Illuminate\Support\Facades\Session::get('news_feed_id');
-            if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > \Illuminate\Support\Facades\Auth::user()->news_feed_id) {
-                $user = \Illuminate\Support\Facades\Auth::user();
+        if (Auth::check() && Session::has('news_feed_id')) {
+            $newsFeedId = Session::get('news_feed_id');
+            if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > Auth::user()->news_feed_id) {
+                $user = Auth::user();
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
         }
 
-        \Illuminate\Support\Facades\Session::forget('news_feed_message');
+        Session::forget('news_feed_message');
 
         return 'success';
     }
 
+    /**
+     * @return string
+     */
     public function logError()
     {
-        return Utils::logError(\Illuminate\Support\Facades\Request::input('error'), 'JavaScript');
+        return Utils::logError(request()->get('error'), 'JavaScript');
     }
 
-    public function keepAlive(): string
+    /**
+     * @return mixed
+     */
+    public function keepAlive()
     {
         return RESULT_SUCCESS;
     }
 
-    public function loggedIn(): string
+    /**
+     * @return mixed
+     */
+    public function loggedIn()
     {
         return RESULT_SUCCESS;
     }
 
-    public function contactUs(): string
+    /**
+     * @return mixed
+     */
+    public function contactUs()
     {
         $message = request()->contact_us_message;
 
@@ -144,15 +138,14 @@ class HomeController extends BaseController
             $subject = 'Customer Message [';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-ninja-', '', config('database.default'));
-                $subject .= \Illuminate\Support\Facades\Auth::user()->present()->statusCode . '] ';
+                $subject .= Auth::user()->present()->statusCode . '] ';
             } else {
                 $subject .= 'Self-Host] | ';
             }
-
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
-                ->from(CONTACT_EMAIL, \Illuminate\Support\Facades\Auth::user()->present()->fullName)
-                ->replyTo(\Illuminate\Support\Facades\Auth::user()->email, \Illuminate\Support\Facades\Auth::user()->present()->fullName)
+                ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
                 ->subject($subject);
         });
 

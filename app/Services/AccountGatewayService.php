@@ -11,30 +11,28 @@ use Illuminate\Http\JsonResponse;
  */
 class AccountGatewayService extends BaseService
 {
-    protected AccountGatewayRepository $accountGatewayRepo;
+    /**
+     * @var AccountGatewayRepository
+     */
+    protected $companyGatewayRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * AccountGatewayService constructor.
-     *
-     * @param AccountGatewayRepository $accountGatewayRepo
-     * @param DatatableService         $datatableService
      */
-    public function __construct(AccountGatewayRepository $accountGatewayRepo, DatatableService $datatableService)
+    public function __construct(AccountGatewayRepository $companyGatewayRepo, DatatableService $datatableService)
     {
-        $this->accountGatewayRepo = $accountGatewayRepo;
+        $this->accountGatewayRepo = $companyGatewayRepo;
         $this->datatableService = $datatableService;
     }
 
-    /**
-     * @param $accountId
-     *
-     * @return JsonResponse
-     */
-    public function getDatatable($accountId)
+    public function getDatatable($companyId)
     {
-        $query = $this->accountGatewayRepo->find($accountId);
+        $query = $this->accountGatewayRepo->find($companyId);
 
         return $this->datatableService->createDatatable(new AccountGatewayDatatable(false), $query);
     }
@@ -42,7 +40,7 @@ class AccountGatewayService extends BaseService
     /**
      * @return AccountGatewayRepository
      */
-    protected function getRepo(): AccountGatewayRepository
+    protected function getRepo()
     {
         return $this->accountGatewayRepo;
     }

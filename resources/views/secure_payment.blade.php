@@ -6,8 +6,8 @@
   <div class="container">
     <div class="row">
       <h1>Secure Payment</h1>
-      <p class="thin"><img src="{{ asset('images/icon-secure-pay.png') }}">256-BiT Encryption</p>
-      <img src="{{ asset('images/providers.png') }}">
+      <p class="thin"><img src="{{ asset('/images/icon-secure-pay.png') }}">256-BiT Encryption</p>
+      <img src="{{ asset('/images/providers.png') }}">
     </div>
   </div>
 </section>
