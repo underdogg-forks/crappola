@@ -11,18 +11,15 @@ use Illuminate\Http\JsonResponse;
  */
 class UserService extends BaseService
 {
-    /**
-     * @var UserRepository
-     */
-    protected $userRepo;
+    protected UserRepository $userRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * UserService constructor.
+     *
+     * @param UserRepository   $userRepo
+     * @param DatatableService $datatableService
      */
     public function __construct(UserRepository $userRepo, DatatableService $datatableService)
     {
@@ -30,10 +27,15 @@ class UserService extends BaseService
         $this->datatableService = $datatableService;
     }
 
-    public function getDatatable($companyId)
+    /**
+     * @param $accountId
+     *
+     * @return JsonResponse
+     */
+    public function getDatatable($accountId)
     {
         $datatable = new UserDatatable(false);
-        $query = $this->userRepo->find($companyId);
+        $query = $this->userRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
@@ -41,7 +43,7 @@ class UserService extends BaseService
     /**
      * @return UserRepository
      */
-    protected function getRepo()
+    protected function getRepo(): UserRepository
     {
         return $this->userRepo;
     }

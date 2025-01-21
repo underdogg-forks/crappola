@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeModule extends Command
 {
@@ -33,38 +34,31 @@ class MakeModule extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
         $name = $this->argument('name');
         $fields = $this->argument('fields');
         $migrate = $this->option('migrate');
         $plain = $this->option('plain');
-        $lower = strtolower($name);
+        $lower = mb_strtolower($name);
 
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);
-        $fillable = array_map(function ($item): string {
-            return explode(':', $item)[0];
-        }, $fillable);
+        $fillable = array_map(fn ($item): string => explode(':', $item)[0], $fillable);
         $fillable = implode(',', $fillable);
 
         ProgressBar::setFormatDefinition('custom', '%current%/%max% %elapsed:6s% [%bar%] %percent:3s%% %message%');
         $progressBar = $this->output->createProgressBar($plain ? 2 : ($migrate ? 15 : 14));
         $progressBar->setFormat('custom');
 
-        $this->info("Creating module: {$name}...");
+        $this->info(sprintf('Creating module: %s...', $name));
         $progressBar->setMessage('Starting module creation...');
         Artisan::call('module:make', ['name' => [$name]]);
         $progressBar->advance();
 
-        if (! $plain) {
+        if ( ! $plain) {
             $progressBar->setMessage('Creating migrations...');
-            Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
+            Artisan::call('module:make-migration', ['name' => sprintf('create_%s_table', $lower), '--fields' => $fields, 'module' => $name]);
             $progressBar->advance();
 
             $progressBar->setMessage('Creating models...');
@@ -128,13 +122,14 @@ class MakeModule extends Command
 
         $this->info('Done');
 
-        if (! $migrate && ! $plain) {
+        if ( ! $migrate && ! $plain) {
             $this->info('==> Migrations were not run because the --migrate flag was not specified.');
-            $this->info("==> Use the following command to run the migrations:\nphp artisan module:migrate $name");
+            $this->info('==> Use the following command to run the migrations:
+php artisan module:migrate ' . $name);
         }
     }
 
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the module.'],
@@ -142,7 +137,7 @@ class MakeModule extends Command
         ];
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['migrate', null, InputOption::VALUE_NONE, 'Run module migrations.', null],

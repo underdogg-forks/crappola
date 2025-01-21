@@ -21,13 +21,10 @@ use App\Models\Proposal;
 use App\Models\ProposalCategory;
 use App\Models\ProposalSnippet;
 use App\Models\ProposalTemplate;
-use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaxRate;
-use App\Models\Ticket;
-use App\Models\TicketCategory;
 use App\Models\Vendor;
 use App\Policies\AccountGatewayPolicy;
 use App\Policies\BankAccountPolicy;
@@ -38,6 +35,7 @@ use App\Policies\CustomerPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\ExpenseCategoryPolicy;
 use App\Policies\ExpensePolicy;
+use App\Policies\GenericEntityPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PaymentTermPolicy;
@@ -47,17 +45,14 @@ use App\Policies\ProposalCategoryPolicy;
 use App\Policies\ProposalPolicy;
 use App\Policies\ProposalSnippetPolicy;
 use App\Policies\ProposalTemplatePolicy;
-use App\Policies\QuotePolicy;
 use App\Policies\RecurringExpensePolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TaxRatePolicy;
-use App\Policies\TicketCategoryPolicy;
-use App\Policies\TicketPolicy;
 use App\Policies\TokenPolicy;
 use App\Policies\VendorPolicy;
-use Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -75,7 +70,6 @@ class AuthServiceProvider extends ServiceProvider
         RecurringExpense::class    => RecurringExpensePolicy::class,
         ExpenseCategory::class     => ExpenseCategoryPolicy::class,
         Invoice::class             => InvoicePolicy::class,
-        Quote::class               => QuotePolicy::class,
         Payment::class             => PaymentPolicy::class,
         Task::class                => TaskPolicy::class,
         Vendor::class              => VendorPolicy::class,
@@ -92,21 +86,19 @@ class AuthServiceProvider extends ServiceProvider
         ProposalSnippet::class     => ProposalSnippetPolicy::class,
         ProposalTemplate::class    => ProposalTemplatePolicy::class,
         ProposalCategory::class    => ProposalCategoryPolicy::class,
-        Ticket::class              => TicketPolicy::class,
-        TicketCategory::class      => TicketCategoryPolicy::class,
     ];
 
     /**
      * Register any application authentication / authorization services.
      *
      * @param \Illuminate\Contracts\Auth\Access\Gate $gate
+     *
+     * @return void
      */
     public function boot(): void
     {
-        foreach ($this->policies as $key => $policy) {
-            foreach (get_class_methods(new $policy()) as $method) {
-                Gate::define($method, "{$policy}@{$method}");
-            }
+        foreach (get_class_methods(new GenericEntityPolicy()) as $method) {
+            Gate::define($method, 'App\Policies\GenericEntityPolicy@' . $method);
         }
 
         $this->registerPolicies();

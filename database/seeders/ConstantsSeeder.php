@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentLibrary;
-
 use App\Models\PaymentTerm;
 use App\Models\Size;
 use App\Models\Theme;
@@ -34,13 +33,13 @@ class ConstantsSeeder extends Seeder
         Size::create(['name' => '101 - 500']);
         Size::create(['name' => '500+']);
 
-        PaymentTerm::create(['num_days' => 7, 'name' => 'Net 7']);
-        PaymentTerm::create(['num_days' => 10, 'name' => 'Net 10']);
-        PaymentTerm::create(['num_days' => 14, 'name' => 'Net 14']);
-        PaymentTerm::create(['num_days' => 15, 'name' => 'Net 15']);
-        PaymentTerm::create(['num_days' => 30, 'name' => 'Net 30']);
-        PaymentTerm::create(['num_days' => 60, 'name' => 'Net 60']);
-        PaymentTerm::create(['num_days' => 90, 'name' => 'Net 90']);
+        PaymentTerm::create(['num_days' => 7, 'name' => 'Net 7', 'public_id' => 1]);
+        PaymentTerm::create(['num_days' => 10, 'name' => 'Net 10', 'public_id' => 2]);
+        PaymentTerm::create(['num_days' => 14, 'name' => 'Net 14', 'public_id' => 3]);
+        PaymentTerm::create(['num_days' => 15, 'name' => 'Net 15', 'public_id' => 4]);
+        PaymentTerm::create(['num_days' => 30, 'name' => 'Net 30', 'public_id' => 5]);
+        PaymentTerm::create(['num_days' => 60, 'name' => 'Net 60', 'public_id' => 6]);
+        PaymentTerm::create(['num_days' => 90, 'name' => 'Net 90', 'public_id' => 7]);
 
         PaymentLibrary::create(['name' => 'Omnipay']);
         PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
@@ -72,7 +71,7 @@ class ConstantsSeeder extends Seeder
             'US/East-Indiana'      => '(GMT-05:00) Indiana (East)',
             'America/Bogota'       => '(GMT-05:00) Bogota',
             'America/Lima'         => '(GMT-05:00) Lima',
-            'America/Caracas'      => '(GMT-04:00) Caracas',
+            'America/Caracas'      => '(GMT-04:30) Caracas',
             'Canada/Atlantic'      => '(GMT-04:00) Atlantic Time (Canada)',
             'America/La_Paz'       => '(GMT-04:00) La Paz',
             'America/Santiago'     => '(GMT-04:00) Santiago',
@@ -110,7 +109,6 @@ class ConstantsSeeder extends Seeder
             'Africa/Cairo'         => '(GMT+02:00) Cairo',
             'Africa/Harare'        => '(GMT+02:00) Harare',
             'Europe/Helsinki'      => '(GMT+02:00) Helsinki',
-            'Europe/Istanbul'      => '(GMT+02:00) Istanbul',
             'Asia/Jerusalem'       => '(GMT+02:00) Jerusalem',
             'Europe/Kiev'          => '(GMT+02:00) Kyiv',
             'Europe/Minsk'         => '(GMT+02:00) Minsk',
@@ -118,6 +116,7 @@ class ConstantsSeeder extends Seeder
             'Europe/Sofia'         => '(GMT+02:00) Sofia',
             'Europe/Tallinn'       => '(GMT+02:00) Tallinn',
             'Europe/Vilnius'       => '(GMT+02:00) Vilnius',
+            'Europe/Istanbul'      => '(GMT+03:00) Istanbul',
             'Asia/Baghdad'         => '(GMT+03:00) Baghdad',
             'Asia/Kuwait'          => '(GMT+03:00) Kuwait',
             'Africa/Nairobi'       => '(GMT+03:00) Nairobi',

@@ -6,6 +6,7 @@ namespace App\Libraries;
 
 use Log;
 use SimpleXMLElement;
+use Utils;
 
 class OFX
 {
@@ -23,6 +24,13 @@ class OFX
     {
         $this->bank = $bank;
         $this->request = $request;
+    }
+
+    public static function closeTags($x): string|array|null
+    {
+        $x = preg_replace('/\s+/', '', $x);
+
+        return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
     }
 
     public function go(): void
@@ -53,14 +61,9 @@ class OFX
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
 
-        return new SimpleXMLElement($xml);
-    }
+        $x = new SimpleXMLElement($xml);
 
-    public static function closeTags($x): string|array|null
-    {
-        $x = preg_replace('/\s+/', '', $x);
-
-        return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
+        return $x;
     }
 }
 
@@ -92,7 +95,7 @@ class Bank
 
 class Login
 {
-    public $companys;
+    public $accounts;
 
     public $bank;
 
@@ -114,54 +117,56 @@ class Login
     public function setup(): void
     {
         $ofxRequest =
-            "OFXHEADER:100\n" .
-            "DATA:OFXSGML\n" .
-            'VERSION:' . $this->ofxVersion . "\n" .
-            "SECURITY:NONE\n" .
-            "ENCODING:USASCII\n" .
-            "CHARSET:1252\n" .
-            "COMPRESSION:NONE\n" .
-            "OLDFILEUID:NONE\n" .
-            "NEWFILEUID:NONE\n" .
-            "\n" .
-            "<OFX>\n" .
+        "OFXHEADER:100\n" .
+        "DATA:OFXSGML\n" .
+        'VERSION:' . $this->ofxVersion . "\n" .
+        "SECURITY:NONE\n" .
+        "ENCODING:USASCII\n" .
+        "CHARSET:1252\n" .
+        "COMPRESSION:NONE\n" .
+        "OLDFILEUID:NONE\n" .
+        "NEWFILEUID:NONE\n" .
+        "\n" .
+        "<OFX>\n" .
             "<SIGNONMSGSRQV1>\n" .
-            "<SONRQ>\n" .
-            "<DTCLIENT>20110412162900.000[-7:MST]\n" .
-            '<USERID>' . $this->id . "\n" .
-            '<USERPASS>' . $this->pass . "\n" .
-            "<GENUSERKEY>N\n" .
-            "<LANGUAGE>ENG\n" .
-            "<FI>\n" .
-            '<ORG>' . $this->bank->org . "\n" .
-            '<FID>' . $this->bank->fid . "\n" .
-            "</FI>\n" .
-            "<APPID>QWIN\n" .
-            '<APPVER>' . $this->appVersion . "\n" .
-            "</SONRQ>\n" .
+                "<SONRQ>\n" .
+                    "<DTCLIENT>20110412162900.000[-7:MST]\n" .
+                    '<USERID>' . $this->id . "\n" .
+                    '<USERPASS>' . $this->pass . "\n" .
+                    "<GENUSERKEY>N\n" .
+                    "<LANGUAGE>ENG\n" .
+                    "<FI>\n" .
+                        '<ORG>' . $this->bank->org . "\n" .
+                        '<FID>' . $this->bank->fid . "\n" .
+                    "</FI>\n" .
+                    "<APPID>QWIN\n" .
+                    '<APPVER>' . $this->appVersion . "\n" .
+                "</SONRQ>\n" .
             "</SIGNONMSGSRQV1>\n" .
             "<SIGNUPMSGSRQV1>\n" .
-            "<ACCTINFOTRNRQ>\n" .
-            '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
-            "<ACCTINFORQ>\n" .
-            "<DTACCTUP>19900101\n" .
-            "</ACCTINFORQ>\n" .
-            "</ACCTINFOTRNRQ> \n" .
+                "<ACCTINFOTRNRQ>\n" .
+                    '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
+                    "<ACCTINFORQ>\n" .
+                        "<DTACCTUP>19900101\n" .
+                    "</ACCTINFORQ>\n" .
+                "</ACCTINFOTRNRQ> \n" .
             "</SIGNUPMSGSRQV1>\n" .
-            "</OFX>\n";
+        "</OFX>\n";
         $o = new OFX($this->bank, $ofxRequest);
         $o->go();
+
         $x = $o->xml();
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/BANKACCTINFO/BANKACCTFROM') as $a) {
-            $this->accounts[] = new company($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
+            $this->accounts[] = new Account($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
         }
+
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/CCACCTINFO/CCACCTFROM') as $a) {
-            $this->accounts[] = new company($this, (string) $a->ACCTID, 'CC');
+            $this->accounts[] = new Account($this, (string) $a->ACCTID, 'CC');
         }
     }
 }
 
-class company
+class Account
 {
     public $login;
 
@@ -202,20 +207,20 @@ class company
             "NEWFILEUID:NONE\n" .
             "\n" .
             "<OFX>\n" .
-            "<SIGNONMSGSRQV1>\n" .
-            "<SONRQ>\n" .
-            "<DTCLIENT>20110412162900.000[-7:MST]\n" .
-            '<USERID>' . $this->login->id . "\n" .
-            '<USERPASS>' . $this->login->pass . "\n" .
-            "<LANGUAGE>ENG\n" .
-            "<FI>\n" .
-            '<ORG>' . $this->login->bank->org . "\n" .
-            '<FID>' . $this->login->bank->fid . "\n" .
-            "</FI>\n" .
-            "<APPID>QWIN\n" .
-            '<APPVER>' . $this->login->appVersion . "\n" .
-            "</SONRQ>\n" .
-            "</SIGNONMSGSRQV1>\n";
+                "<SIGNONMSGSRQV1>\n" .
+                    "<SONRQ>\n" .
+                        "<DTCLIENT>20110412162900.000[-7:MST]\n" .
+                        '<USERID>' . $this->login->id . "\n" .
+                        '<USERPASS>' . $this->login->pass . "\n" .
+                        "<LANGUAGE>ENG\n" .
+                        "<FI>\n" .
+                            '<ORG>' . $this->login->bank->org . "\n" .
+                            '<FID>' . $this->login->bank->fid . "\n" .
+                        "</FI>\n" .
+                        "<APPID>QWIN\n" .
+                        '<APPVER>' . $this->login->appVersion . "\n" .
+                    "</SONRQ>\n" .
+                "</SIGNONMSGSRQV1>\n";
         if ($this->type == 'BANK') {
             $ofxRequest .=
                 "	<BANKMSGSRQV1>\n" .
@@ -251,10 +256,12 @@ class company
                 "		</CCSTMTTRNRQ>\n" .
                 "	</CREDITCARDMSGSRQV1>\n";
         }
+
         $ofxRequest .=
             '</OFX>';
         $o = new OFX($this->login->bank, $ofxRequest);
         $o->go();
+
         $this->response = $o->response;
         $x = $o->xml();
         $a = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');

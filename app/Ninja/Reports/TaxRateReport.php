@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class TaxRateReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'client'         => [],
@@ -23,7 +23,7 @@ class TaxRateReport extends AbstractReport
 
     public function run(): void
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -31,9 +31,7 @@ class TaxRateReport extends AbstractReport
             ->withArchived()
             ->with('contacts', 'user')
             ->with(['invoices' => function ($query): void {
-                $query
-                    ->with('company', 'client')
-                    ->with('invoice_items')
+                $query->with('invoice_items')
                     ->withArchived()
                     ->invoices()
                     ->where('is_public', '=', true);
@@ -56,15 +54,16 @@ class TaxRateReport extends AbstractReport
             }]);
 
         foreach ($clients->get() as $client) {
-            $currencyId = $client->currency_id ?: Auth::user()->company->getCurrencyId();
+            $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
 
             foreach ($client->invoices as $invoice) {
                 $taxTotals = [];
 
                 foreach ($invoice->getTaxes(true) as $key => $tax) {
-                    if (! isset($taxTotals[$currencyId])) {
+                    if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
+
                     if (isset($taxTotals[$currencyId][$key])) {
                         $taxTotals[$currencyId][$key]['amount'] += $tax['amount'];
                         $taxTotals[$currencyId][$key]['paid'] += $tax['paid'];
@@ -80,8 +79,8 @@ class TaxRateReport extends AbstractReport
                             $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                             $tax['name'],
                             $tax['rate'] . '%',
-                            $company->formatMoney($tax['amount'], $client),
-                            $company->formatMoney($tax['paid'], $client),
+                            $account->formatMoney($tax['amount'], $client),
+                            $account->formatMoney($tax['paid'], $client),
                             $invoice->present()->amount,
                             $invoice->present()->paid,
                         ];

@@ -81,7 +81,7 @@
               $(element).val('');
           }
 
-          if (field == 'start_at') {
+          if (field == 'start_time') {
               setTimeout(function() {
                   $input = $(element).closest('td').next('td').find('input');
                   var time = $(element).val();

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CreditReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'  => [],
@@ -21,7 +21,7 @@ class CreditReport extends AbstractReport
 
     public function run(): void
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -45,14 +45,14 @@ class CreditReport extends AbstractReport
                 $this->addChartData($dimension, $credit->credit_date, $credit->amount);
             }
 
-            if (! $amount && ! $balance) {
+            if ( ! $amount && ! $balance) {
                 continue;
             }
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $company->formatMoney($amount, $client),
-                $company->formatMoney($balance, $client),
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($balance, $client),
                 $client->user->getDisplayName(),
             ];
 

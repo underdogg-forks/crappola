@@ -12,18 +12,20 @@ use League\Fractal\Resource\Item;
 class CustomerTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
-        if (! $contact = $this->getContact($data->email)) {
+        if ( ! $contact = $this->getContact($data->email)) {
             return false;
         }
 
-        $company = auth()->user()->company;
-        $companyGateway = $company->getGatewayConfig(GATEWAY_STRIPE);
+        $account = auth()->user()->account;
+        $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
 
-        if (! $companyGateway) {
+        if ( ! $accountGateway) {
             return false;
         }
 
@@ -31,22 +33,20 @@ class CustomerTransformer extends BaseTransformer
             return false;
         }
 
-        return new Item($data, function ($data) use ($company, $contact, $companyGateway) {
-            return [
-                'contact_id'         => $contact->id,
-                'client_id'          => $contact->client_id,
-                'account_gateway_id' => $companyGateway->id,
-                'token'              => $data->id,
-                'payment_method'     => [
-                    'contact_id'       => $contact->id,
-                    'payment_type_id'  => PaymentType::parseCardType($data->card_brand),
-                    'source_reference' => $data->card_id,
-                    'last4'            => $data->card_last4,
-                    'expiration'       => $data->card_exp_year . '-' . $data->card_exp_month . '-01',
-                    'email'            => $contact->email,
-                    'currency_id'      => $company->getCurrencyId(),
-                ],
-            ];
-        });
+        return new Item($data, fn ($data): array => [
+            'contact_id'         => $contact->id,
+            'client_id'          => $contact->client_id,
+            'account_gateway_id' => $accountGateway->id,
+            'token'              => $data->id,
+            'payment_method'     => [
+                'contact_id'       => $contact->id,
+                'payment_type_id'  => PaymentType::parseCardType($data->card_brand),
+                'source_reference' => $data->card_id,
+                'last4'            => $data->card_last4,
+                'expiration'       => $data->card_exp_year . '-' . $data->card_exp_month . '-01',
+                'email'            => $contact->email,
+                'currency_id'      => $account->getCurrencyId(),
+            ],
+        ]);
     }
 }

@@ -10,6 +10,9 @@ use App\Events\QuoteWasEmailed;
  */
 class QuoteListener
 {
+    /**
+     * @param QuoteInvitationWasViewed $event
+     */
     public function viewedQuote(QuoteInvitationWasViewed $event): void
     {
         $invitation = $event->invitation;

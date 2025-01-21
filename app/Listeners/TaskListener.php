@@ -10,6 +10,9 @@ use App\Models\Task;
  */
 class TaskListener
 {
+    /**
+     * @param InvoiceWasDeleted $event
+     */
     public function deletedInvoice(InvoiceWasDeleted $event): void
     {
         // Release any tasks associated with the deleted invoice

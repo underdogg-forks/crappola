@@ -1,6 +1,6 @@
 <?php
 
-class entity
+class Entity
 {
     public $id;
 

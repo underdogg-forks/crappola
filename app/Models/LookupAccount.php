@@ -2,8 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Class ExpenseCategory.
+ *
+ * @property int                $id
+ * @property int                $lookup_company_id
+ * @property string             $account_key
+ * @property string|null        $subdomain
+ * @property LookupAccount|null $lookupAccount
+ * @property LookupCompany      $lookupCompany
+ *
+ * @method static Builder|LookupAccount newModelQuery()
+ * @method static Builder|LookupAccount newQuery()
+ * @method static Builder|LookupAccount query()
+ * @method static Builder|LookupAccount whereAccountKey($value)
+ * @method static Builder|LookupAccount whereId($value)
+ * @method static Builder|LookupAccount whereLookupCompanyId($value)
+ * @method static Builder|LookupAccount whereSubdomain($value)
+ *
+ * @mixin \Eloquent
  */
 class LookupAccount extends LookupModel
 {
@@ -13,12 +32,11 @@ class LookupAccount extends LookupModel
     protected $fillable = [
         'lookup_company_id',
         'account_key',
-        'support_email_local_part',
     ];
 
-    public static function createAccount($companyKey, $companyId): void
+    public static function createAccount($accountKey, $companyId): void
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -26,63 +44,45 @@ class LookupAccount extends LookupModel
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $server = DbServer::whereName($current)->firstOrFail();
-        $lookupCompanyPlan = LookupCompanyPlan::whereDbServerId($server->id)
-            ->whereCompanyPlanId($companyId)->first();
+        $lookupCompany = LookupCompany::whereDbServerId($server->id)
+            ->whereCompanyId($companyId)->first();
 
-        if (! $lookupCompanyPlan) {
-            $lookupCompanyPlan = LookupCompanyPlan::create([
+        if ( ! $lookupCompany) {
+            $lookupCompany = LookupCompany::create([
                 'db_server_id' => $server->id,
                 'company_id'   => $companyId,
             ]);
         }
 
         self::create([
-            'lookup_company_id' => $lookupCompanyPlan->id,
-            'account_key'       => $companyKey,
+            'lookup_company_id' => $lookupCompany->id,
+            'account_key'       => $accountKey,
         ]);
 
         static::setDbServer($current);
     }
 
-    public static function updateAccount($companyKey, $company): void
+    public static function updateAccount($accountKey, $account): void
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = self::whereAccountKey($companyKey)
+        $lookupAccount = self::whereAccountKey($accountKey)
             ->firstOrFail();
 
-        $lookupAccount->subdomain = $company->subdomain ?: null;
+        $lookupAccount->subdomain = $account->subdomain ?: null;
         $lookupAccount->save();
 
         config(['database.default' => $current]);
     }
 
-    public static function updateSupportLocalPart($companyKey, $support_email_local_part): void
+    public static function validateField($field, $value, $account = false)
     {
-        if (! config('ninja.multi_db_enabled')) {
-            return;
-        }
-
-        $current = config('database.default');
-        config(['database.default' => DB_NINJA_LOOKUP]);
-
-        $lookupAccount = self::whereAccountKey($companyKey)
-            ->firstOrFail();
-
-        $lookupAccount->support_email_local_part = $support_email_local_part ?: null;
-        $lookupAccount->save();
-
-        config(['database.default' => $current]);
-    }
-
-    public static function validateField($field, $value, $company = false)
-    {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
@@ -92,20 +92,20 @@ class LookupAccount extends LookupModel
 
         $lookupAccount = self::where($field, '=', $value)->first();
 
-        $isValid = $company ? ! $lookupAccount || ($lookupAccount->account_key == $company->account_key) : ! $lookupAccount;
+        $isValid = $account ? ! $lookupAccount || ($lookupAccount->account_key == $account->account_key) : ! $lookupAccount;
 
         config(['database.default' => $current]);
 
         return $isValid;
     }
 
-    public function lookupCompanyPlan()
+    public function lookupCompany()
     {
-        return $this->belongsTo('App\Models\LookupCompanyPlan');
+        return $this->belongsTo(LookupCompany::class);
     }
 
     public function getDbServer()
     {
-        return $this->lookupCompanyPlan->dbServer->name;
+        return $this->lookupCompany->dbServer->name;
     }
 }

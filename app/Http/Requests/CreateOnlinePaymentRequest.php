@@ -7,24 +7,16 @@ use App\Models\Invitation;
 
 class CreateOnlinePaymentRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
-        $company = $this->invitation->company;
+        $account = $this->invitation->account;
 
-        $paymentDriver = $company->paymentDriver($this->invitation, $this->gateway_type);
+        $paymentDriver = $account->paymentDriver($this->invitation, $this->gateway_type);
 
         return $paymentDriver->rules();
     }
@@ -33,7 +25,7 @@ class CreateOnlinePaymentRequest extends Request
     {
         $input = $this->all();
 
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.company.currency', 'invoice.client.company.account_gateways.gateway')
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')
             ->where('invitation_key', '=', $this->invitation_key)
             ->firstOrFail();
 

@@ -5,9 +5,9 @@ namespace App\Http\Requests;
 use App\Libraries\Utils;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use Response;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
 abstract class Request extends FormRequest
@@ -20,7 +20,7 @@ abstract class Request extends FormRequest
      *
      * @param Factory $factory
      *
-     * @return \Illuminate\Validation\Validator
+     * @return Validator
      */
     public function validator($factory)
     {
@@ -42,7 +42,7 @@ abstract class Request extends FormRequest
 
         // autoload referenced entities
         foreach ($this->autoload as $entityType) {
-            if ($id = $this->input("{$entityType}_public_id") ?: $this->input("{$entityType}_id")) {
+            if ($id = $this->input($entityType . '_public_id') ?: $this->input($entityType . '_id')) {
                 $class = 'App\\Models\\' . ucwords($entityType);
                 $entity = $class::scope($id)->firstOrFail();
                 $input[$entityType] = $entity;
@@ -58,7 +58,7 @@ abstract class Request extends FormRequest
     protected function failedValidation(Validator $validator): void
     {
         // If the user is not validating from a mobile app - pass through parent::response
-        if (! request()->api_secret) {
+        if ( ! request()->api_secret) {
             parent::failedValidation($validator);
         }
 
@@ -68,7 +68,7 @@ abstract class Request extends FormRequest
             $message = json_encode($message, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
 
-            throw new ValidationException($validator, Response::make($message, 400, $headers));
+            throw new ValidationException($validator, \Illuminate\Support\Facades\Response::make($message, 400, $headers));
         }
     }
 }

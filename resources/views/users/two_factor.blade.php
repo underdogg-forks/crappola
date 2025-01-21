@@ -1,11 +1,11 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('content')
     @parent
 
 
     @if (Utils::isAdmin())
-        @include('companies.nav', ['selected' => ACCOUNT_USER_DETAILS])
+        @include('accounts.nav', ['selected' => ACCOUNT_USER_DETAILS])
     @endif
 
     {!! Former::open()->rules(['one_time_password' => 'required']) !!}

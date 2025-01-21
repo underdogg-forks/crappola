@@ -3,7 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use Illuminate\Support\Facades\Auth;
-use URL;
+use Illuminate\Support\Facades\URL;
 
 class ProposalCategoryDatatable extends EntityDatatable
 {
@@ -11,14 +11,14 @@ class ProposalCategoryDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'name',
                 function ($model) {
                     if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
-                        return link_to("proposals/categories/{$model->public_id}/edit", $model->name)->toHtml();
+                        return link_to(sprintf('proposals/categories/%s/edit', $model->public_id), $model->name)->toHtml();
                     }
 
                     return $model->name;
@@ -27,17 +27,13 @@ class ProposalCategoryDatatable extends EntityDatatable
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 trans('texts.edit_category'),
-                function ($model) {
-                    return URL::to("proposals/categories/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]);
-                },
+                fn ($model) => URL::to(sprintf('proposals/categories/%s/edit', $model->public_id)),
+                fn ($model) => Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]),
             ],
         ];
     }

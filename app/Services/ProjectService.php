@@ -12,20 +12,15 @@ use Illuminate\Http\JsonResponse;
  */
 class ProjectService extends BaseService
 {
-    /**
-     * @var ProjectRepository
-     */
-    protected $projectRepo;
+    protected ProjectRepository $projectRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ProjectRepository $creditRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(ProjectRepository $projectRepo, DatatableService $datatableService)
     {
@@ -34,6 +29,7 @@ class ProjectService extends BaseService
     }
 
     /**
+     * @param       $data
      * @param mixed $project
      *
      * @return mixed|null
@@ -49,8 +45,10 @@ class ProjectService extends BaseService
 
     /**
      * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -65,7 +63,7 @@ class ProjectService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): ProjectRepository
     {
         return $this->projectRepo;
     }

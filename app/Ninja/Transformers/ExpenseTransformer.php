@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Expense;
 
 /**
@@ -9,6 +10,8 @@ use App\Models\Expense;
  */
 class ExpenseTransformer extends EntityTransformer
 {
+    public $client;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
@@ -19,7 +22,7 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="transaction_id", type="integer", example=1)
      * @SWG\Property(property="transaction_reference", type="string", example="")
      * @SWG\Property(property="bank_id", type="integer", example=1)
-     * @SWG\Property(property="invoice_currency_id", type="integer", example=1)
+     * @SWG\Property(property="expense_currency_id", type="integer", example=1)
      * @SWG\Property(property="expense_category_id", type="integer", example=1)
      * @SWG\Property(property="amount", type="number", format="float,", example="17.5")
      * @SWG\Property(property="expense_date", type="string", format="date", example="2016-01-01")
@@ -38,16 +41,16 @@ class ExpenseTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct($company = null, $serializer = null, $client = null)
+    public function __construct(?Account $account = null, $serializer = null, $client = null)
     {
-        parent::__construct($company, $serializer);
+        parent::__construct($account, $serializer);
 
         $this->client = $client;
     }
 
     public function includeDocuments(Expense $expense)
     {
-        $transformer = new DocumentTransformer($this->company, $this->serializer);
+        $transformer = new DocumentTransformer($this->account, $this->serializer);
 
         $expense->documents->each(function ($document) use ($expense): void {
             $document->setRelation('expense', $expense);
@@ -57,7 +60,7 @@ class ExpenseTransformer extends EntityTransformer
         return $this->includeCollection($expense->documents, $transformer, ENTITY_DOCUMENT);
     }
 
-    public function transform(Expense $expense)
+    public function transform(Expense $expense): array
     {
         return array_merge($this->getDefaults($expense), [
             'id'                    => (int) $expense->public_id,
@@ -69,7 +72,7 @@ class ExpenseTransformer extends EntityTransformer
             'transaction_id'        => $expense->transaction_id ?: '',
             'transaction_reference' => $expense->transaction_reference ?: '',
             'bank_id'               => (int) ($expense->bank_id ?: 0),
-            'invoice_currency_id'   => (int) ($expense->invoice_currency_id ?: 0),
+            'expense_currency_id'   => (int) ($expense->expense_currency_id ?: 0),
             'expense_category_id'   => (int) ($expense->expense_category ? $expense->expense_category->public_id : 0),
             'amount'                => (float) $expense->amount,
             'expense_date'          => $expense->expense_date ?: '',
@@ -83,9 +86,9 @@ class ExpenseTransformer extends EntityTransformer
             'tax_name2'             => $expense->tax_name2 ?: '',
             'tax_rate1'             => (float) ($expense->tax_rate1 ?: 0),
             'tax_rate2'             => (float) ($expense->tax_rate2 ?: 0),
-            'client_id'             => (int) ($this->client ? $this->client->public_id : (isset($expense->client->public_id) ? $expense->client->public_id : 0)),
-            'invoice_id'            => (int) (isset($expense->invoice->public_id) ? $expense->invoice->public_id : 0),
-            'vendor_id'             => (int) (isset($expense->vendor->public_id) ? $expense->vendor->public_id : 0),
+            'client_id'             => (int) ($this->client ? $this->client->public_id : ($expense->client->public_id ?? 0)),
+            'invoice_id'            => (int) ($expense->invoice->public_id ?? 0),
+            'vendor_id'             => (int) ($expense->vendor->public_id ?? 0),
             'custom_value1'         => $expense->custom_value1 ?: '',
             'custom_value2'         => $expense->custom_value2 ?: '',
         ]);
