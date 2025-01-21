@@ -12,18 +12,15 @@ use Illuminate\Http\JsonResponse;
  */
 class ActivityService extends BaseService
 {
-    /**
-     * @var ActivityRepository
-     */
-    protected $activityRepo;
+    protected ActivityRepository $activityRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * ActivityService constructor.
+     *
+     * @param ActivityRepository $activityRepo
+     * @param DatatableService   $datatableService
      */
     public function __construct(ActivityRepository $activityRepo, DatatableService $datatableService)
     {
@@ -31,6 +28,11 @@ class ActivityService extends BaseService
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @param null $clientPublicId
+     *
+     * @return JsonResponse
+     */
     public function getDatatable($clientPublicId = null)
     {
         $clientId = Client::getPrivateId($clientPublicId);

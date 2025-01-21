@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class TaskReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'      => [],
@@ -21,13 +21,14 @@ class TaskReport extends AbstractReport
         ];
 
         $user = auth()->user();
-        $company = $user->company;
+        $account = $user->account;
 
-        if ($company->customLabel('task1')) {
-            $columns[$company->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('task1')) {
+            $columns[$account->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('task2')) {
-            $columns[$company->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
+
+        if ($account->customLabel('task2')) {
+            $columns[$account->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -35,14 +36,14 @@ class TaskReport extends AbstractReport
 
     public function run(): void
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];
 
         $tasks = Task::scope()
             ->orderBy('created_at', 'desc')
-            ->with('client.contacts', 'project', 'company', 'user')
+            ->with('client.contacts', 'project', 'account', 'user')
             ->withArchived()
             ->dateRange($startDate, $endDate);
 
@@ -52,7 +53,7 @@ class TaskReport extends AbstractReport
             if ($task->client && $task->client->currency_id) {
                 $currencyId = $task->client->currency_id;
             } else {
-                $currencyId = auth()->user()->company->getCurrencyId();
+                $currencyId = auth()->user()->account->getCurrencyId();
             }
 
             $row = [
@@ -65,10 +66,11 @@ class TaskReport extends AbstractReport
                 $task->user->getDisplayName(),
             ];
 
-            if ($company->customLabel('task1')) {
+            if ($account->customLabel('task1')) {
                 $row[] = $task->custom_value1;
             }
-            if ($company->customLabel('task2')) {
+
+            if ($account->customLabel('task2')) {
                 $row[] = $task->custom_value2;
             }
 
@@ -77,11 +79,7 @@ class TaskReport extends AbstractReport
             $this->addToTotals($currencyId, 'duration', $duration);
             $this->addToTotals($currencyId, 'amount', $amount);
 
-            if ($subgroup == 'project') {
-                $dimension = $task->present()->project;
-            } else {
-                $dimension = $this->getDimension($task);
-            }
+            $dimension = $subgroup == 'project' ? $task->present()->project : $this->getDimension($task);
             $this->addChartData($dimension, $task->created_at, round($duration / 60 / 60, 2));
         }
     }

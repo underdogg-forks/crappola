@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\Account;
 use App\Models\AccountEmailSettings;
-use App\Models\AccountTicketSettings;
-
 use App\Models\Affiliate;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\CompanyPlan;
 use App\Models\Contact;
 use App\Models\Country;
+use App\Models\Font;
+use App\Models\InvoiceDesign;
 use App\Models\Product;
 use App\Models\User;
-use Faker\Factory;
 use Illuminate\Database\Seeder;
 
 class UserTableSeeder extends Seeder
@@ -22,35 +21,35 @@ class UserTableSeeder extends Seeder
     {
         $this->command->info('Running UserTableSeeder');
 
-        $faker = Factory::create();
-        //$companyPlan = CompanyPlan::create();
+        Eloquent::unguard();
 
-        $company = Company::create([
-            'name'        => $faker->name,
-            'address1'    => $faker->streetAddress,
-            'address2'    => $faker->secondaryAddress,
-            'city'        => $faker->city,
-            'state'       => $faker->state,
-            'postal_code' => $faker->postcode,
-            'currency_id' => DEFAULT_CURRENCY,
-            //Country::all()->random()->id
-            'country_id'    => null,
-            'account_key'   => strtolower(str_random(RANDOM_KEY_LENGTH)),
+        $faker = Faker\Factory::create();
+        $company = Company::create();
+
+        $account = Account::create([
+            'name'          => $faker->name,
+            'address1'      => $faker->streetAddress,
+            'address2'      => $faker->secondaryAddress,
+            'city'          => $faker->city,
+            'state'         => $faker->state,
+            'postal_code'   => $faker->postcode,
+            'currency_id'   => DEFAULT_CURRENCY,
+            'country_id'    => Country::all()->random()->id,
+            'account_key'   => mb_strtolower(str_random(RANDOM_KEY_LENGTH)),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone'    => $faker->phoneNumber,
             'work_email'    => $faker->safeEmail,
             //'invoice_design_id' => InvoiceDesign::where('id', '<', CUSTOM_DESIGN1)->get()->random()->id,
             //'header_font_id' => min(Font::all()->random()->id, 17),
             //'body_font_id' => min(Font::all()->random()->id, 17),
-            'primary_color' => $faker->hexcolor,
-            'timezone_id'   => 58,
-            //$companyPlan->id
-            'company_plan_id'      => null,
+            'primary_color'        => $faker->hexcolor,
+            'timezone_id'          => 58,
+            'company_id'           => $company->id,
             'pdf_email_attachment' => true,
         ]);
 
         $emailSettings = AccountEmailSettings::create([
-            'company_id' => $company->id,
+            'account_id' => $account->id,
         ]);
 
         $user = User::create([
@@ -58,7 +57,7 @@ class UserTableSeeder extends Seeder
             'last_name'              => $faker->lastName,
             'email'                  => TEST_USERNAME,
             'username'               => TEST_USERNAME,
-            'company_id'             => $company->id,
+            'account_id'             => $account->id,
             'password'               => Hash::make(TEST_PASSWORD),
             'registered'             => true,
             'confirmed'              => true,
@@ -68,17 +67,12 @@ class UserTableSeeder extends Seeder
             'accepted_terms_version' => NINJA_TERMS_VERSION,
         ]);
 
-        $ticketSettings = AccountTicketSettings::create([
-            'company_id'       => $company->id,
-            'ticket_master_id' => $user->id,
-        ]);
-
         $permissionsUser = User::create([
             'first_name'             => $faker->firstName,
             'last_name'              => $faker->lastName,
             'email'                  => TEST_PERMISSIONS_USERNAME,
             'username'               => TEST_PERMISSIONS_USERNAME,
-            'company_id'             => $company->id,
+            'account_id'             => $account->id,
             'password'               => Hash::make(TEST_PASSWORD),
             'registered'             => true,
             'confirmed'              => true,
@@ -90,7 +84,7 @@ class UserTableSeeder extends Seeder
 
         $client = Client::create([
             'user_id'     => $user->id,
-            'company_id'  => $company->id,
+            'account_id'  => $account->id,
             'public_id'   => 1,
             'name'        => $faker->name,
             'address1'    => $faker->streetAddress,
@@ -104,18 +98,18 @@ class UserTableSeeder extends Seeder
 
         Contact::create([
             'user_id'      => $user->id,
-            'company_id'   => $company->id,
+            'account_id'   => $account->id,
             'client_id'    => $client->id,
             'public_id'    => 1,
             'email'        => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary'   => true,
             'send_invoice' => true,
-            'contact_key'  => strtolower(str_random(RANDOM_KEY_LENGTH)),
+            'contact_key'  => mb_strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
 
         Product::create([
             'user_id'     => $user->id,
-            'company_id'  => $company->id,
+            'account_id'  => $account->id,
             'public_id'   => 1,
             'product_key' => 'ITEM',
             'notes'       => 'Something nice...',

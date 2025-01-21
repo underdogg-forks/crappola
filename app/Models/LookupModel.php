@@ -2,11 +2,20 @@
 
 namespace App\Models;
 
-use Cache;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property LookupAccount|null $lookupAccount
+ *
+ * @method static Builder|LookupModel newModelQuery()
+ * @method static Builder|LookupModel newQuery()
+ * @method static Builder|LookupModel query()
+ *
+ * @mixin \Eloquent
  */
 class LookupModel extends Model
 {
@@ -15,21 +24,21 @@ class LookupModel extends Model
      */
     public $timestamps = false;
 
-    public static function createNew($companyKey, $data): void
+    public static function createNew(string $accountKey, array $data): void
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($companyKey)->first();
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)->first();
 
         if ($lookupAccount) {
             $data['lookup_account_id'] = $lookupAccount->id;
         } else {
-            abort(500, 'Lookup company not found for ' . $companyKey);
+            abort(500, 'Lookup account not found for ' . $accountKey);
         }
 
         static::create($data);
@@ -39,7 +48,7 @@ class LookupModel extends Model
 
     public static function deleteWhere($where): void
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -53,12 +62,13 @@ class LookupModel extends Model
 
     public static function setServerByField($field, $value): void
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
         $className = str_replace('Lookup', '', $className);
+
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
@@ -79,8 +89,8 @@ class LookupModel extends Model
 
             // check entity is found on the server
             if ($field === 'oauth_user_key') {
-                $providerId = substr($value, 0, 1);
-                $oauthId = substr($value, 2);
+                $providerId = mb_substr($value, 0, 1);
+                $oauthId = mb_substr($value, 2);
                 $isFound = $entity::where('oauth_provider_id', '=', $providerId)
                     ->where('oauth_user_id', '=', $oauthId)
                     ->withTrashed()
@@ -90,32 +100,33 @@ class LookupModel extends Model
                     ->withTrashed()
                     ->first();
             }
-            if (! $isFound) {
-                abort(404, "Looked up {$className} not found: {$field} => {$value}");
+
+            if ( ! $isFound) {
+                abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
             }
 
-            Cache::put($key, $server, 120);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
     }
 
-    protected static function setDbServer($server): void
+    public function lookupAccount()
     {
-        if (! config('ninja.multi_db_enabled')) {
-            return;
-        }
-
-        config(['database.default' => $server]);
+        return $this->belongsTo(LookupAccount::class);
     }
 
     public function getDbServer()
     {
-        return $this->lookupAccount->lookupCompanyPlan->dbServer->name;
+        return $this->lookupAccount->lookupCompany->dbServer->name;
     }
 
-    public function lookupAccount()
+    protected static function setDbServer($server): void
     {
-        return $this->belongsTo(LookupAccount::class);
+        if ( ! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        config(['database.default' => $server]);
     }
 }

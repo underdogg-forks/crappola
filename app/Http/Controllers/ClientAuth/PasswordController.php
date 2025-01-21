@@ -16,6 +16,36 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
+     * @param Request     $request
+     * @param string|null $key
+     * @param string|null $token
+     *
+     * @return Response
+     */
+    public function showResetForm(Request $request, $token = null)
+    {
+        if (null === $token) {
+            return $this->getEmail();
+        }
+
+        $data = [
+            'token'      => $token,
+            'clientauth' => true,
+        ];
+
+        if ( ! session('contact_key')) {
+            return Redirect::to('/client/session_expired');
+        }
+
+        return view('clientauth.reset')->with($data);
+    }
+
+    /**
+     * Display the password reset view for the given token.
+     *
+     * If no token is present, display the link request form.
+     *
+     * @param Request     $request
      * @param string|null $key
      * @param string|null $token
      *
@@ -27,36 +57,9 @@ class PasswordController extends Controller
     }
 
     /**
-     * Display the password reset view for the given token.
-     *
-     * If no token is present, display the link request form.
-     *
-     * @param string|null $key
-     * @param string|null $token
-     *
-     * @return Response
-     */
-    public function showResetForm(Request $request, $token = null)
-    {
-        if (is_null($token)) {
-            return $this->getEmail();
-        }
-
-        $data = [
-            'token'      => $token,
-            'clientauth' => true,
-        ];
-
-        if (! session('contact_key')) {
-            return Redirect::to('/client/session_expired');
-        }
-
-        return view('clientauth.reset')->with($data);
-    }
-
-    /**
      * Reset the given user's password.
      *
+     * @param Request $request
      *
      * @return Response
      */
@@ -86,19 +89,16 @@ class PasswordController extends Controller
             $this->resetPassword($user, $password);
         });
 
-        switch ($response) {
-            case Password::PASSWORD_RESET:
-                return $this->getResetSuccessResponse($response);
-
-            default:
-                return $this->getResetFailureResponse($request, $response);
-        }
+        return match ($response) {
+            Password::PASSWORD_RESET => $this->getResetSuccessResponse($response),
+            default                  => $this->getResetFailureResponse($request, $response),
+        };
     }
 
     /**
      * Get the password reset validation rules.
      *
-     * @return array{token: string, password: string}
+     * @return array
      */
     protected function getResetValidationRules(): array
     {

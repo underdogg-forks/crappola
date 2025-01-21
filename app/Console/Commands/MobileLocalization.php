@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class MobileLocalization extends Command
 {
@@ -31,23 +32,21 @@ class MobileLocalization extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle(): void
     {
-        $type = strtolower($this->option('type'));
+        $type = mb_strtolower($this->option('type'));
 
-        switch ($type) {
-            case 'laravel':
-                $this->laravelResources();
-                break;
-            default:
-                $this->flutterResources();
-                break;
-        }
+        match ($type) {
+            'laravel' => $this->laravelResources(),
+            default   => $this->flutterResources(),
+        };
+    }
+
+    protected function getOptions()
+    {
+        return [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
+        ];
     }
 
     private function laravelResources(): void
@@ -55,27 +54,11 @@ class MobileLocalization extends Command
         $resources = $this->getResources();
 
         foreach ($resources as $key => $val) {
-            $transKey = "texts.{$key}";
+            $transKey = 'texts.' . $key;
             if (trans($transKey) == $transKey) {
-                echo "'$key' => '$val',\n";
+                echo "'{$key}' => '{$val}',\n";
             }
         }
-    }
-
-    private function getResources()
-    {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
-        $data = CurlUtils::get($url);
-
-        $start = strpos($data, 'do not remove comment') + 25;
-        $end = strpos($data, '},', $start);
-        $data = substr($data, $start, $end - $start - 5);
-
-        $data = str_replace("\n", '', $data);
-        $data = str_replace('"', "\'", $data);
-        $data = str_replace("'", '"', $data);
-
-        return json_decode('{' . rtrim($data, ',') . '}');
     }
 
     private function flutterResources(): void
@@ -91,21 +74,35 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
-                if (substr($text, 0, 6) == 'texts.') {
-                    $text = $resources->$key;
+                $text = trim(addslashes(trans('texts.' . $key, [], $language->locale)));
+                if (mb_substr($text, 0, 6) === 'texts.') {
+                    $text = $resources->{$key};
                 }
-                echo "'$key': '$text',\n";
+
+                $text = str_replace(['<b>', '</b>'], '', $text);
+                $text = str_replace(['<i>', '</i>'], '', $text);
+                $text = str_replace(['<strong>', '</strong>'], '', $text);
+
+                echo "'{$key}': '{$text}',\n";
             }
 
             echo "},\n";
         }
     }
 
-    protected function getOptions()
+    private function getResources(): mixed
     {
-        return [
-            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
-        ];
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $data = CurlUtils::get($url);
+
+        $start = mb_strpos($data, 'do not remove comment') + 25;
+        $end = mb_strpos($data, '},', $start);
+        $data = mb_substr($data, $start, $end - $start - 5);
+
+        $data = str_replace("\n", '', $data);
+        $data = str_replace('"', "\'", $data);
+        $data = str_replace("'", '"', $data);
+
+        return json_decode('{' . rtrim($data, ',') . '}');
     }
 }

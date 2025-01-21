@@ -2,25 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Expense;
-
 class CreateRecurringExpenseRequest extends RecurringExpenseRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return $this->user()->can('create', Expense::class);
+        return $this->user()->can('create', ENTITY_RECURRING_EXPENSE);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array{amount: string}
-     */
     public function rules(): array
     {
         return [

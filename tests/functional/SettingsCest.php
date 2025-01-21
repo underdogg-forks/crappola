@@ -17,10 +17,10 @@ class SettingsCest
     /*
     public function companyDetails(FunctionalTester $I)
     {
-        $I->wantTo('update the companyPlan details');
+        $I->wantTo('update the company details');
         $I->amOnPage('/settings/company_details');
 
-        $name = $this->faker->companyPlan;
+        $name = $this->faker->company;
 
         $I->fillField(['name' => 'name'], $name);
         $I->fillField(['name' => 'work_email'], $this->faker->safeEmail);
@@ -33,7 +33,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('corporations', array('name' => $name));
+        $I->seeRecord('accounts', array('name' => $name));
     }
     */
 
@@ -59,13 +59,13 @@ class SettingsCest
         $I->wantTo('update the localization');
         $I->amOnPage('/settings/localization');
 
-        $name = $this->faker->companyPlan;
+        $name = $this->faker->company;
 
         $I->fillField(['name' => 'name'], $name);
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('corporations', array('name' => $name));
+        $I->seeRecord('accounts', array('name' => $name));
     }
     */
 
@@ -124,7 +124,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('corporations', array('invoice_terms' => $terms));
+        $I->seeRecord('accounts', array('invoice_terms' => $terms));
     }
     */
 
@@ -139,7 +139,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('corporations', ['custom_client_label1' => $label]);
+        $I->seeRecord('accounts', ['custom_client_label1' => $label]);
 
         //$I->amOnPage('/clients/create');
         //$I->see($label);
@@ -156,7 +156,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('corporations', ['email_template_invoice' => $string]);
+        $I->seeRecord('accounts', ['email_template_invoice' => $string]);
     }
 
     public function runReport(FunctionalTester $I): void

@@ -9,6 +9,8 @@ class DbServerSeeder extends Seeder
 {
     public function run(): void
     {
+        Eloquent::unguard();
+
         $servers = [
             ['name' => 'db-ninja-1'],
             ['name' => 'db-ninja-2'],

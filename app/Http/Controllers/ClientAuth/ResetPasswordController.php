@@ -52,7 +52,7 @@ class ResetPasswordController extends Controller
 
     protected function broker()
     {
-        return Password::broker('clients');
+        return \Illuminate\Support\Facades\Password::broker('clients');
     }
 
     protected function guard()

@@ -2,19 +2,21 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Company;
+use App\Models\Account;
 use Illuminate\Support\Facades\Auth;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
-    protected $company;
+    protected ?Account $account;
 
     protected $serializer;
 
-    public function __construct(company $company = null, $serializer = null)
+    public function __construct(?Account $account = null, $serializer = null)
     {
-        $this->company = $company;
+        $this->account = $account;
         $this->serializer = $serializer;
     }
 
@@ -23,7 +25,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->defaultIncludes;
     }
 
-    protected function includeCollection($data, $transformer, $entityType)
+    protected function includeCollection($data, $transformer, $entityType): Collection
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -32,7 +34,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->collection($data, $transformer, $entityType);
     }
 
-    protected function includeItem($data, $transformer, $entityType)
+    protected function includeItem($data, $transformer, $entityType): Item
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
@@ -45,15 +47,17 @@ class EntityTransformer extends TransformerAbstract
     {
         if (method_exists($date, 'getTimestamp')) {
             return $date->getTimestamp();
-        } elseif (is_string($date)) {
+        }
+
+        if (is_string($date)) {
             return strtotime($date);
         }
     }
 
-    protected function getDefaults($entity)
+    protected function getDefaults($entity): array
     {
         $data = [
-            'account_key' => $this->company->account_key,
+            'account_key' => $this->account->account_key,
             'is_owner'    => (bool) (Auth::check() && Auth::user()->owns($entity)),
         ];
 

@@ -8,13 +8,15 @@ class SubdomainWasRemoved extends Event
 {
     use SerializesModels;
 
-    public $company;
+    public $account;
 
     /**
      * Create a new event instance.
+     *
+     * @param $account
      */
-    public function __construct($company)
+    public function __construct($account)
     {
-        $this->company = $company;
+        $this->account = $account;
     }
 }

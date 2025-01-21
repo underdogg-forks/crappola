@@ -11,11 +11,13 @@ use League\Fractal\Resource\Item;
 class InvoiceTransformerBAK extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
-        if (! $this->getClientId($data->organization)) {
+        if ( ! $this->getClientId($data->organization)) {
             return false;
         }
 
@@ -23,23 +25,21 @@ class InvoiceTransformerBAK extends BaseTransformer
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'client_id'        => $this->getClientId($data->organization),
-                'invoice_number'   => $this->getInvoiceNumber($data->invoice_number),
-                'paid'             => (float) $data->paid,
-                'po_number'        => $this->getString($data, 'po_number'),
-                'terms'            => $this->getString($data, 'terms'),
-                'invoice_date_sql' => $data->create_date,
-                'invoice_items'    => [
-                    [
-                        'product_key' => '',
-                        'notes'       => $this->getString($data, 'notes'),
-                        'cost'        => (float) $data->amount,
-                        'qty'         => 1,
-                    ],
+        return new Item($data, fn ($data): array => [
+            'client_id'        => $this->getClientId($data->organization),
+            'invoice_number'   => $this->getInvoiceNumber($data->invoice_number),
+            'paid'             => (float) $data->paid,
+            'po_number'        => $this->getString($data, 'po_number'),
+            'terms'            => $this->getString($data, 'terms'),
+            'invoice_date_sql' => $data->create_date,
+            'invoice_items'    => [
+                [
+                    'product_key' => '',
+                    'notes'       => $this->getString($data, 'notes'),
+                    'cost'        => (float) $data->amount,
+                    'qty'         => 1,
                 ],
-            ];
-        });
+            ],
+        ]);
     }
 }

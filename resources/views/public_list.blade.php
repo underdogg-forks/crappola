@@ -43,29 +43,15 @@
 		</div>
 		-->
 
-        @if(($entityType == ENTITY_INVOICE || $entityType == ENTITY_RECURRING_QUOTE) && $client->hasRecurringInvoices())
+        @if($entityType == ENTITY_INVOICE && $client->hasRecurringInvoices())
             <div class="pull-right" style="margin-top:5px">
                 {!! Button::primary(trans("texts.recurring_invoices"))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
             </div>
         @endif
 
-        @if($entityType == ENTITY_TICKET)
-            {!! Button::primary(trans('texts.new_ticket'))
-            ->asLinkTo(URL::to('/client/tickets/create'))
-            ->withAttributes(['class' => 'pull-right'])
-            ->appendIcon(Icon::create('plus-sign')) !!}
-        @endif
-
-
-        @if(($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) && $client->hasRecurringQuotes())
-            <div class="pull-right" style="margin-top:5px">
-                {!! Button::primary(trans("texts.recurring_quotes"))->asLinkTo(URL::to('/client/invoices/recurring_quotes')) !!}
-            </div>
-        @endif
-
         <h3>{{ $title }}</h3>
 
-		{!! DataTable::query()
+		{!! Datatable::table()
 	    	->addColumn($columns)
 	    	->setUrl(route('api.client.' . $entityType . 's'))
 	    	->setOptions('sPaginationType', 'bootstrap')

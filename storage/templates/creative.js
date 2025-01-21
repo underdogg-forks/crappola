@@ -6,13 +6,13 @@
 			"stack": "$clientDetails"
 		},
 		{
-			"stack": "$companyDetails"
+			"stack": "$accountDetails"
 		},
 		{
-			"stack": "$companyAddress"
+			"stack": "$accountAddress"
 		},
 		{
-			"image": "$companyLogo",
+			"image": "$accountLogo",
 			"fit": [120, 80],
 			"alignment": "right"
 		}
@@ -221,7 +221,7 @@
 	"pageMargins": [40, 40, 40, 40],
 	"background": [
 		{
-			"image": "$companyBackground",
+			"image": "$accountBackground",
 			"alignment": "center"
 		}
 	]

@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\AccountToken;
 use Illuminate\Support\Facades\DB;
 
 class TokenRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\AccountToken';
+        return AccountToken::class;
     }
 
     public function find($userId)

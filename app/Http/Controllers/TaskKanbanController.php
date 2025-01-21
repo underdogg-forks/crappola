@@ -32,7 +32,7 @@ class TaskKanbanController extends BaseController
         $clients = Client::scope()->with(['contacts'])->get();
 
         // check initial statuses exist
-        if (! $statuses->count()) {
+        if ( ! $statuses->count()) {
             $statuses = collect([]);
             $firstStatus = false;
             $defaults = [
@@ -41,22 +41,25 @@ class TaskKanbanController extends BaseController
                 'in_progress',
                 'done',
             ];
-            for ($i = 0; $i < count($defaults); $i++) {
+            $counter = count($defaults);
+            for ($i = 0; $i < $counter; $i++) {
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
                 $status->save();
                 $statuses[] = $status;
-                if (! $firstStatus) {
+                if ( ! $firstStatus) {
                     $firstStatus = $status;
                 }
             }
+
             $i = 0;
             foreach ($tasks as $task) {
                 $task->task_status_id = $firstStatus->id;
                 $task->task_status_sort_order = $i++;
                 $task->save();
             }
+
             // otherwise, check that the orders are correct
         } else {
             for ($i = 0; $i < $statuses->count(); $i++) {
@@ -70,16 +73,19 @@ class TaskKanbanController extends BaseController
             $firstStatus = $statuses[0];
             $counts = [];
             foreach ($tasks as $task) {
-                if (! $task->task_status || $task->task_status->trashed()) {
+                if ( ! $task->task_status || $task->task_status->trashed()) {
                     $task->task_status_id = $firstStatus->id;
                     $task->setRelation('task_status', $firstStatus);
                 }
-                if (! isset($counts[$task->task_status_id])) {
+
+                if ( ! isset($counts[$task->task_status_id])) {
                     $counts[$task->task_status_id] = 0;
                 }
+
                 if ($task->task_status_sort_order != $counts[$task->task_status_id]) {
                     $task->task_status_sort_order = $counts[$task->task_status_id];
                 }
+
                 $counts[$task->task_status_id]++;
                 if ($task->isDirty()) {
                     $task->save();
@@ -116,6 +122,8 @@ class TaskKanbanController extends BaseController
     }
 
     /**
+     * @param $publicId
+     *
      * @return RedirectResponse
      */
     public function updateStatus($publicId)
@@ -171,6 +179,8 @@ class TaskKanbanController extends BaseController
     }
 
     /**
+     * @param $publicId
+     *
      * @return RedirectResponse
      */
     public function updateTask($publicId)

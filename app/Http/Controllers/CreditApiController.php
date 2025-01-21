@@ -7,13 +7,13 @@ use App\Http\Requests\CreditRequest;
 use App\Http\Requests\UpdateCreditRequest;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Illuminate\Support\Facades\Response;
+use Response;
 
 class CreditApiController extends BaseAPIController
 {
-    protected CreditRepository $creditRepo;
+    public $entityType = ENTITY_CREDIT;
 
-    protected $entityType = ENTITY_CREDIT;
+    protected CreditRepository $creditRepo;
 
     public function __construct(CreditRepository $creditRepo)
     {

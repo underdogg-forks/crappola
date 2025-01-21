@@ -7,14 +7,13 @@ namespace App\Models\Traits;
  */
 trait ChargesFees
 {
-    public function calcGatewayFee($gatewayTypeId = false, $includeTax = false, $gatewayFeeItem = 0): bool|float
+    public function calcGatewayFee($gatewayTypeId = false, $includeTax = false): false|float
     {
-        $company = $this->company;
-        $settings = $company->getGatewaySettings($gatewayTypeId);
+        $account = $this->account;
+        $settings = $account->getGatewaySettings($gatewayTypeId);
         $fee = 0;
-        $fee_cap = $settings->fee_cap;
 
-        if (! $company->gateway_fee_enabled) {
+        if ( ! $account->gateway_fee_enabled) {
             return false;
         }
 
@@ -24,15 +23,7 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             $amount = $this->partial > 0 ? $this->partial : $this->balance;
-
-            //If gateway fee has already been selected exclude the fee on the amount.
-            $amount = $gatewayFeeItem > 0 ? $amount - $gatewayFeeItem : $amount + abs($gatewayFeeItem);
-
-            if ($settings->adjust_fee_percent) {
-                $fee += ($amount + $fee) / (1 - $settings->fee_percent / 100) - ($amount + $fee);
-            } else {
-                $fee += $amount * $settings->fee_percent / 100;
-            }
+            $fee += $amount * $settings->fee_percent / 100;
         }
 
         // calculate final amount with tax
@@ -48,18 +39,14 @@ trait ChargesFees
             }
         }
 
-        if ($fee_cap != 0) {
-            $fee = min($fee, $fee_cap);
-        }
-
         return round($fee, 2);
     }
 
     public function getGatewayFee()
     {
-        $company = $this->company;
+        $account = $this->account;
 
-        if (! $company->gateway_fee_enabled) {
+        if ( ! $account->gateway_fee_enabled) {
             return 0;
         }
 
@@ -70,7 +57,7 @@ trait ChargesFees
 
     public function getGatewayFeeItem()
     {
-        if (! $this->relationLoaded('invoice_items')) {
+        if ( ! $this->relationLoaded('invoice_items')) {
             $this->load('invoice_items');
         }
 

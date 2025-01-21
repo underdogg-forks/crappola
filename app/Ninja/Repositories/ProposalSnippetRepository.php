@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalSnippet';
+        return ProposalSnippet::class;
     }
 
     public function all()
@@ -22,7 +22,7 @@ class ProposalSnippetRepository extends BaseRepository
     {
         $query = DB::table('proposal_snippets')
             ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
-            ->where('proposal_snippets.company_id', '=', Auth::user()->company_id)
+            ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_snippets.name',
                 'proposal_snippets.public_id',
@@ -58,9 +58,9 @@ class ProposalSnippetRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
 
-        if (! $proposal) {
+        if ( ! $proposal) {
             $proposal = ProposalSnippet::createNew();
         }
 

@@ -1,9 +1,7 @@
 <?php
 
 return [
-
     'phantomjs' => [
-
         /*
         |--------------------------------------------------------------------------
         | PhantomJS Secret
@@ -38,7 +36,5 @@ return [
         */
 
         'cloud_key' => env('PHANTOMJS_CLOUD_KEY'),
-
     ],
-
 ];

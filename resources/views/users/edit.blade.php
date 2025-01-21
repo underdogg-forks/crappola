@@ -1,8 +1,8 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('content')
     @parent
-    @include('companies.nav', ['selected' => ACCOUNT_USER_MANAGEMENT])
+    @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT])
 
     {!! Former::open($url)->autocomplete('off')->method($method)->addClass('warn-on-exit user-form')->rules(array(
         'first_name' => 'required',
@@ -77,11 +77,10 @@
                     @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
 
                         <?php
-                        if ($user) {
-                            $permissions = json_decode($user->permissions, 1);
-                        } else {
+                        if($user)
+                            $permissions = json_decode($user->permissions,1);
+                        else
                             $permissions = [];
-                        }
                         ?>
 
                         <tr>

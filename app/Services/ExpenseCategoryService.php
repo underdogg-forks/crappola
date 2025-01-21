@@ -11,20 +11,15 @@ use Illuminate\Http\JsonResponse;
  */
 class ExpenseCategoryService extends BaseService
 {
-    /**
-     * @var ExpenseCategoryRepository
-     */
-    protected $categoryRepo;
+    protected ExpenseCategoryRepository $categoryRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ExpenseCategoryRepository $creditRepo
+     * @param DatatableService          $datatableService
      */
     public function __construct(ExpenseCategoryRepository $categoryRepo, DatatableService $datatableService)
     {
@@ -33,6 +28,8 @@ class ExpenseCategoryService extends BaseService
     }
 
     /**
+     * @param $data
+     *
      * @return mixed|null
      */
     public function save($data)
@@ -42,7 +39,9 @@ class ExpenseCategoryService extends BaseService
 
     /**
      * @param $clientPublicId
+     * @param $search
      *
+     * @return JsonResponse
      */
     public function getDatatable($search)
     {
@@ -57,7 +56,7 @@ class ExpenseCategoryService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): ExpenseCategoryRepository
     {
         return $this->categoryRepo;
     }

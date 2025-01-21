@@ -2,8 +2,6 @@
 
 namespace App\Jobs;
 
-use App;
-use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use App\Services\ImportService;
@@ -11,7 +9,9 @@ use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class SendInvoiceEmail.
@@ -63,7 +63,7 @@ class ImportData extends Job implements ShouldQueue
 
         if (App::runningInConsole()) {
             Auth::onceUsingId($this->user->id);
-            $this->user->company->loadLocalizationSettings();
+            $this->user->account->loadLocalizationSettings();
         }
 
         try {

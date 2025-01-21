@@ -4,12 +4,12 @@ namespace App\Ninja\PaymentDrivers;
 
 class PaymillPaymentDriver extends BasePaymentDriver
 {
-    public function tokenize()
+    public function tokenize(): bool
     {
         return true;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -17,7 +17,7 @@ class PaymillPaymentDriver extends BasePaymentDriver
             return $data;
         }
 
-        if (! empty($this->input['sourceToken'])) {
+        if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Client;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use Illuminate\Http\JsonResponse;
@@ -11,20 +12,15 @@ use Illuminate\Http\JsonResponse;
  */
 class ProposalSnippetService extends BaseService
 {
-    /**
-     * @var ProposalSnippetRepository
-     */
-    protected $proposalSnippetRepo;
+    protected ProposalSnippetRepository $proposalSnippetRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ProposalSnippetRepository $creditRepo
+     * @param DatatableService          $datatableService
      */
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, DatatableService $datatableService)
     {
@@ -33,6 +29,7 @@ class ProposalSnippetService extends BaseService
     }
 
     /**
+     * @param       $data
      * @param mixed $proposalSnippet
      *
      * @return mixed|null
@@ -44,8 +41,10 @@ class ProposalSnippetService extends BaseService
 
     /**
      * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -60,7 +59,7 @@ class ProposalSnippetService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo()
+    protected function getRepo(): ProposalSnippetRepository
     {
         return $this->proposalSnippetRepo;
     }

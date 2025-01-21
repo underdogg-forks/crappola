@@ -1,10 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
-class AddSupportForInvoiceDesigns extends Migration
-{
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up(): void
     {
         Schema::create('invoice_designs', function ($table): void {
@@ -21,22 +24,27 @@ class AddSupportForInvoiceDesigns extends Migration
             $table->unsignedInteger('invoice_design_id')->default(1);
         });
 
-        Schema::table('companies', function ($table): void {
+        Schema::table('accounts', function ($table): void {
             $table->unsignedInteger('invoice_design_id')->default(1);
         });
 
         DB::table('invoices')->update(['invoice_design_id' => 1]);
-        DB::table('companies')->update(['invoice_design_id' => 1]);
+        DB::table('accounts')->update(['invoice_design_id' => 1]);
 
         Schema::table('invoices', function ($table): void {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });
 
-        Schema::table('companies', function ($table): void {
+        Schema::table('accounts', function ($table): void {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down(): void
     {
         Schema::table('invoices', function ($table): void {
@@ -44,11 +52,11 @@ class AddSupportForInvoiceDesigns extends Migration
             $table->dropColumn('invoice_design_id');
         });
 
-        Schema::table('companies', function ($table): void {
+        Schema::table('accounts', function ($table): void {
             $table->dropForeign('accounts_invoice_design_id_foreign');
             $table->dropColumn('invoice_design_id');
         });
 
         Schema::dropIfExists('invoice_designs');
     }
-}
+};
