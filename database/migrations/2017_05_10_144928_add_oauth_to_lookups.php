@@ -2,21 +2,20 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddOauthToLookups extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('lookup_users', function ($table) {
+        Schema::table('lookup_users', function ($table): void {
             $table->string('oauth_user_key')->nullable()->unique();
             $table->string('referral_code')->nullable()->unique();
         });
 
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->string('referral_code')->nullable();
         });
 
@@ -26,7 +25,7 @@ class AddOauthToLookups extends Migration
             set companies.referral_code = users.referral_code
             where users.id is not null');
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             if (Schema::hasColumn('accounts', 'referral_user_id')) {
                 $table->dropColumn('referral_user_id');
             }
@@ -38,15 +37,15 @@ class AddOauthToLookups extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('lookup_users', function ($table) {
+        Schema::table('lookup_users', function ($table): void {
             $table->dropColumn('oauth_user_key');
             $table->dropColumn('referral_code');
         });
 
-        Schema::table('companies', function ($table) {
+        Schema::table('companies', function ($table): void {
             $table->dropColumn('referral_code');
         });
     }
-}
+};

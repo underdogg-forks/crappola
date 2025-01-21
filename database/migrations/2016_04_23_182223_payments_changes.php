@@ -3,18 +3,17 @@
 use App\Models\PaymentStatus;
 use Illuminate\Database\Migrations\Migration;
 
-class PaymentsChanges extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::dropIfExists('payment_statuses');
 
-        Schema::create('payment_statuses', function ($table) {
+        Schema::create('payment_statuses', function ($table): void {
             $table->increments('id');
             $table->string('name');
         });
@@ -42,7 +41,7 @@ class PaymentsChanges extends Migration
 
         Schema::dropIfExists('payment_methods');
 
-        Schema::create('payment_methods', function ($table) {
+        Schema::create('payment_methods', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -64,7 +63,7 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('public_id')->index();
         });
 
-        Schema::table('payment_methods', function ($table) {
+        Schema::table('payment_methods', function ($table): void {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
@@ -75,7 +74,7 @@ class PaymentsChanges extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('payments', function ($table) {
+        Schema::table('payments', function ($table): void {
             $table->decimal('refunded', 13, 2);
             $table->unsignedInteger('payment_status_id')->default(PAYMENT_STATUS_COMPLETED);
 
@@ -87,12 +86,12 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('payment_method_id')->nullable();
         });
 
-        Schema::table('payments', function ($table) {
+        Schema::table('payments', function ($table): void {
             $table->foreign('payment_status_id')->references('id')->on('payment_statuses');
             $table->foreign('payment_method_id')->references('id')->on('payment_methods');
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->boolean('client_enable_auto_bill')->default(false);
         });
 
@@ -105,11 +104,11 @@ class PaymentsChanges extends Migration
             ->where('is_recurring', '=', 1)
             ->update(['auto_bill' => AUTO_BILL_OFF]);
 
-        Schema::table('account_gateway_tokens', function ($table) {
+        Schema::table('account_gateway_tokens', function ($table): void {
             $table->unsignedInteger('default_payment_method_id')->nullable();
         });
 
-        Schema::table('account_gateway_tokens', function ($table) {
+        Schema::table('account_gateway_tokens', function ($table): void {
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
         });
     }
@@ -119,9 +118,9 @@ class PaymentsChanges extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('payments', function ($table) {
+        Schema::table('payments', function ($table): void {
             $table->dropColumn('refunded');
             $table->dropForeign('payments_payment_status_id_foreign');
             $table->dropColumn('payment_status_id');
@@ -141,9 +140,9 @@ class PaymentsChanges extends Migration
             ->update(['auto_bill' => 0]);
 
         \DB::table('invoices')
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->where('auto_bill', '=', AUTO_BILL_ALWAYS);
-                $query->orwhere(function ($query) {
+                $query->orwhere(function ($query): void {
                     $query->where('auto_bill', '!=', 0);
                     $query->where('client_enable_auto_bill', '=', 1);
                 });
@@ -154,17 +153,17 @@ class PaymentsChanges extends Migration
             ->where('auto_bill', '!=', 1)
             ->update(['auto_bill' => 0]);
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->dropColumn('client_enable_auto_bill');
         });
 
         Schema::dropIfExists('payment_statuses');
 
-        Schema::table('account_gateway_tokens', function ($table) {
+        Schema::table('account_gateway_tokens', function ($table): void {
             $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
             $table->dropColumn('default_payment_method_id');
         });
 
         Schema::dropIfExists('payment_methods');
     }
-}
+};

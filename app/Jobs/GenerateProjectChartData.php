@@ -5,12 +5,11 @@ namespace App\Jobs;
 use DateInterval;
 use DatePeriod;
 use stdClass;
-use App\Jobs\Job;
-use App\Models\Task;
-use App\Models\Project;
 
 class GenerateProjectChartData extends Job
 {
+    public $project;
+
     public function __construct($project)
     {
         $this->project = $project;
@@ -21,7 +20,7 @@ class GenerateProjectChartData extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): stdClass
     {
         $project = $this->project;
         $account = $project->account;
@@ -34,7 +33,7 @@ class GenerateProjectChartData extends Job
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if (! count($parts)) {
+            if (count($parts) === 0) {
                 continue;
             }
 
@@ -48,7 +47,7 @@ class GenerateProjectChartData extends Job
                 $date->setTimestamp($part[0]);
                 $sqlDate = $date->format('Y-m-d');
 
-                if (! isset($taskMap[$sqlDate])) {
+                if ( ! isset($taskMap[$sqlDate])) {
                     $taskMap[$sqlDate] = 0;
                 }
 
@@ -83,11 +82,11 @@ class GenerateProjectChartData extends Job
 
         $dataset = new stdClass();
         $dataset->data = $records;
-        $dataset->label = trans("texts.tasks");
+        $dataset->label = trans('texts.tasks');
         $dataset->lineTension = 0;
         $dataset->borderWidth = 4;
-        $dataset->borderColor = "rgba({$color}, 1)";
-        $dataset->backgroundColor = "rgba({$color}, 0.1)";
+        $dataset->borderColor = sprintf('rgba(%s, 1)', $color);
+        $dataset->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
 
         $data = new stdClass();
         $data->labels = $labels;

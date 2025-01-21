@@ -4,16 +4,24 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddJsonPermissions extends Migration
-{
+return new class () extends Migration {
+    /**
+     * @var array
+     */
+    public static $all_permissions = [
+        'create_all' => 0b0001,
+        'view_all'   => 0b0010,
+        'edit_all'   => 0b0100,
+    ];
+
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->longtext('permissionsV2');
         });
         $users = User::where('permissions', '!=', 0)->get();
@@ -22,11 +30,11 @@ class AddJsonPermissions extends Migration
             $user->save();
         }
 
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('permissions');
         });
 
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->renameColumn('permissionsV2', 'permissions');
         });
     }
@@ -36,9 +44,9 @@ class AddJsonPermissions extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('permissionsV2');
         });
     }
@@ -94,9 +102,9 @@ class AddJsonPermissions extends Migration
      *
      * @param mixed $value
      *
-     * @return mixed
+     * @return mixed[]
      */
-    protected function getPermissions($value)
+    protected function getPermissions($value): array
     {
         $permissions = [];
         foreach (static::$all_permissions as $permission => $bitmask) {
@@ -107,13 +115,4 @@ class AddJsonPermissions extends Migration
 
         return $permissions;
     }
-
-    /**
-     * @var array
-     */
-    public static $all_permissions = [
-        'create_all' => 0b0001,
-        'view_all'   => 0b0010,
-        'edit_all'   => 0b0100,
-    ];
-}
+};

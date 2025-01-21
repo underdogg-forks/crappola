@@ -3,22 +3,22 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ClientReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
-            'client' => [],
-            'amount' => [],
-            'paid' => [],
-            'balance' => [],
-            'id_number' => ['columnSelector-false'],
-            'vat_number' => ['columnSelector-false'],
-            'public_notes' => ['columnSelector-false'],
+            'client'        => [],
+            'amount'        => [],
+            'paid'          => [],
+            'balance'       => [],
+            'id_number'     => ['columnSelector-false'],
+            'vat_number'    => ['columnSelector-false'],
+            'public_notes'  => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
-            'user' => ['columnSelector-false'],
+            'user'          => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
@@ -27,6 +27,7 @@ class ClientReport extends AbstractReport
         if ($account->customLabel('client1')) {
             $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('client2')) {
             $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
@@ -34,22 +35,22 @@ class ClientReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with(['contacts', 'user'])
-                        ->with(['invoices' => function ($query) {
-                            $query->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->withArchived();
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with(['contacts', 'user'])
+            ->with(['invoices' => function ($query): void {
+                $query->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('is_recurring', '=', false)
+                    ->withArchived();
+            }]);
 
         foreach ($clients->get() as $client) {
             $amount = 0;
@@ -59,11 +60,7 @@ class ClientReport extends AbstractReport
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
 
-                if ($subgroup == 'country') {
-                    $dimension = $client->present()->country;
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'country' ? $client->present()->country : $this->getDimension($client);
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
 
@@ -82,6 +79,7 @@ class ClientReport extends AbstractReport
             if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
+
             if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }

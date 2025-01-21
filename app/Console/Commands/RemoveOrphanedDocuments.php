@@ -16,14 +16,15 @@ class RemoveOrphanedDocuments extends Command
      * @var string
      */
     protected $name = 'ninja:remove-orphaned-documents';
+
     /**
      * @var string
      */
     protected $description = 'Removes old documents not associated with an expense or invoice';
 
-    public function handle()
+    public function handle(): void
     {
-        $this->info(date('r').' Running RemoveOrphanedDocuments...');
+        $this->info(date('r') . ' Running RemoveOrphanedDocuments...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -39,20 +40,13 @@ class RemoveOrphanedDocuments extends Command
         }
 
         $this->info('Done');
-        return 0;
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

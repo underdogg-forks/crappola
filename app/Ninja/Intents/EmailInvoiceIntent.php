@@ -3,20 +3,21 @@
 namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
-use Auth;
+use App\Ninja\Mailers\ContactMailer;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $invoice = $this->stateInvoice();
 
-        if (! Auth::user()->can('edit', $invoice)) {
+        if ( ! Auth::user()->can('edit', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
-        $contactMailer = app('App\Ninja\Mailers\ContactMailer');
+        $contactMailer = app(ContactMailer::class);
         $contactMailer->sendInvoice($invoice);
 
         $message = trans('texts.bot_emailed_' . $invoice->getEntityType());

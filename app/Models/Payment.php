@@ -7,17 +7,120 @@ use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
-use Event;
+use App\Ninja\Presenters\PaymentPresenter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Laracasts\Presenter\PresentableTrait;
+use stdClass;
 
 /**
  * Class Payment.
+ *
+ * @property int                        $id
+ * @property int                        $invoice_id
+ * @property int                        $account_id
+ * @property int                        $client_id
+ * @property int|null                   $contact_id
+ * @property int|null                   $invitation_id
+ * @property int|null                   $user_id
+ * @property int|null                   $account_gateway_id
+ * @property int|null                   $payment_type_id
+ * @property Carbon|null                $created_at
+ * @property Carbon|null                $updated_at
+ * @property Carbon|null                $deleted_at
+ * @property int                        $is_deleted
+ * @property string                     $amount
+ * @property string|null                $payment_date
+ * @property string|null                $transaction_reference
+ * @property string|null                $payer_id
+ * @property int                        $public_id
+ * @property string                     $refunded
+ * @property int                        $payment_status_id
+ * @property int|null                   $routing_number
+ * @property null|string                $last4
+ * @property string|null                $expiration
+ * @property string|null                $gateway_error
+ * @property string|null                $email
+ * @property int|null                   $payment_method_id
+ * @property null                       $bank_name
+ * @property string|null                $ip
+ * @property string|null                $credit_ids
+ * @property string|null                $private_notes
+ * @property string                     $exchange_rate
+ * @property int                        $exchange_currency_id
+ * @property Account                    $account
+ * @property AccountGateway|null        $account_gateway
+ * @property Client                     $client
+ * @property Contact|null               $contact
+ * @property mixed|null|stdClass|string $bank_data
+ * @property Invitation|null            $invitation
+ * @property Invoice                    $invoice
+ * @property PaymentMethod|null         $payment_method
+ * @property PaymentStatus              $payment_status
+ * @property PaymentType|null           $payment_type
+ * @property User|null                  $user
+ *
+ * @method static Builder|Payment dateRange($startDate, $endDate)
+ * @method static Builder|Payment excludeFailed()
+ * @method static Builder|Payment newModelQuery()
+ * @method static Builder|Payment newQuery()
+ * @method static Builder|Payment onlyTrashed()
+ * @method static Builder|Payment query()
+ * @method static Builder|Payment scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Payment whereAccountGatewayId($value)
+ * @method static Builder|Payment whereAccountId($value)
+ * @method static Builder|Payment whereAmount($value)
+ * @method static Builder|Payment whereBankName($value)
+ * @method static Builder|Payment whereClientId($value)
+ * @method static Builder|Payment whereContactId($value)
+ * @method static Builder|Payment whereCreatedAt($value)
+ * @method static Builder|Payment whereCreditIds($value)
+ * @method static Builder|Payment whereDeletedAt($value)
+ * @method static Builder|Payment whereEmail($value)
+ * @method static Builder|Payment whereExchangeCurrencyId($value)
+ * @method static Builder|Payment whereExchangeRate($value)
+ * @method static Builder|Payment whereExpiration($value)
+ * @method static Builder|Payment whereGatewayError($value)
+ * @method static Builder|Payment whereId($value)
+ * @method static Builder|Payment whereInvitationId($value)
+ * @method static Builder|Payment whereInvoiceId($value)
+ * @method static Builder|Payment whereIp($value)
+ * @method static Builder|Payment whereIsDeleted($value)
+ * @method static Builder|Payment whereLast4($value)
+ * @method static Builder|Payment wherePayerId($value)
+ * @method static Builder|Payment wherePaymentDate($value)
+ * @method static Builder|Payment wherePaymentMethodId($value)
+ * @method static Builder|Payment wherePaymentStatusId($value)
+ * @method static Builder|Payment wherePaymentTypeId($value)
+ * @method static Builder|Payment wherePrivateNotes($value)
+ * @method static Builder|Payment wherePublicId($value)
+ * @method static Builder|Payment whereRefunded($value)
+ * @method static Builder|Payment whereRoutingNumber($value)
+ * @method static Builder|Payment whereTransactionReference($value)
+ * @method static Builder|Payment whereUpdatedAt($value)
+ * @method static Builder|Payment whereUserId($value)
+ * @method static Builder|Payment withActiveOrSelected($id = false)
+ * @method static Builder|Payment withArchived()
+ * @method static Builder|Payment withTrashed()
+ * @method static Builder|Payment withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Payment extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
+
+    public static $statusClasses = [
+        PAYMENT_STATUS_PENDING            => 'info',
+        PAYMENT_STATUS_COMPLETED          => 'success',
+        PAYMENT_STATUS_FAILED             => 'danger',
+        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
+        PAYMENT_STATUS_VOIDED             => 'default',
+        PAYMENT_STATUS_REFUNDED           => 'default',
+    ];
 
     /**
      * @var array
@@ -29,110 +132,82 @@ class Payment extends EntityModel
         'exchange_currency_id',
     ];
 
-    public static $statusClasses = [
-        PAYMENT_STATUS_PENDING => 'info',
-        PAYMENT_STATUS_COMPLETED => 'success',
-        PAYMENT_STATUS_FAILED => 'danger',
-        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
-        PAYMENT_STATUS_VOIDED => 'default',
-        PAYMENT_STATUS_REFUNDED => 'default',
-    ];
-
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\PaymentPresenter';
+    protected $presenter = PaymentPresenter::class;
 
-    /**
-     * @return mixed
-     */
+    protected $casts = ['deleted_at' => 'datetime'];
+
+    public static function calcStatusLabel($statusId, $statusName, $amount)
+    {
+        if ($statusId == PAYMENT_STATUS_PARTIALLY_REFUNDED) {
+            return trans('texts.status_partially_refunded_amount', [
+                'amount' => $amount,
+            ]);
+        }
+
+        return trans('texts.status_' . mb_strtolower($statusName));
+    }
+
+    public static function calcStatusClass($statusId)
+    {
+        return static::$statusClasses[$statusId];
+    }
+
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function invitation()
     {
-        return $this->belongsTo('App\Models\Invitation');
+        return $this->belongsTo(Invitation::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(Account::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact')->withTrashed();
+        return $this->belongsTo(Contact::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account_gateway()
     {
-        return $this->belongsTo('App\Models\AccountGateway')->withTrashed();
+        return $this->belongsTo(AccountGateway::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_type()
     {
-        return $this->belongsTo('App\Models\PaymentType');
+        return $this->belongsTo(PaymentType::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_method()
     {
-        return $this->belongsTo('App\Models\PaymentMethod');
+        return $this->belongsTo(PaymentMethod::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function payment_status()
     {
-        return $this->belongsTo('App\Models\PaymentStatus');
+        return $this->belongsTo(PaymentStatus::class);
     }
 
-    /**
-     * @return string
-     */
-    public function getRoute()
+    public function getRoute(): string
     {
-        return "/payments/{$this->public_id}/edit";
+        return sprintf('/payments/%s/edit', $this->public_id);
     }
 
     /*
@@ -149,75 +224,53 @@ class Payment extends EntityModel
         return $query;
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('payment_date', [$startDate, $endDate]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getName()
+    public function getName(): string
     {
-        return trim("payment {$this->transaction_reference}");
+        return trim('payment ' . $this->transaction_reference);
     }
 
-    /**
-     * @return bool
-     */
-    public function isPending()
+    public function isPending(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_PENDING;
     }
 
-    /**
-     * @return bool
-     */
-    public function isFailed()
+    public function isFailed(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_FAILED;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPartiallyRefunded()
+    public function isPartiallyRefunded(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
     }
 
-    /**
-     * @return bool
-     */
-    public function isRefunded()
+    public function isRefunded(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
     }
 
-    /**
-     * @return bool
-     */
-    public function isVoided()
+    public function isVoided(): bool
     {
         return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
     }
 
     public function isFailedOrVoided()
     {
-        return $this->isFailed() || $this->isVoided();
+        if ($this->isFailed()) {
+            return true;
+        }
+
+        return $this->isVoided();
     }
 
     /**
@@ -225,13 +278,13 @@ class Payment extends EntityModel
      *
      * @return bool
      */
-    public function recordRefund($amount = null)
+    public function recordRefund($amount = null): bool
     {
         if ($this->isRefunded() || $this->isVoided()) {
             return false;
         }
 
-        if (! $amount) {
+        if ( ! $amount) {
             $amount = $this->amount;
         }
 
@@ -249,10 +302,7 @@ class Payment extends EntityModel
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    public function markVoided()
+    public function markVoided(): bool
     {
         if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
             return false;
@@ -267,7 +317,7 @@ class Payment extends EntityModel
         return true;
     }
 
-    public function markComplete()
+    public function markComplete(): void
     {
         $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
         $this->save();
@@ -277,7 +327,7 @@ class Payment extends EntityModel
     /**
      * @param string $failureMessage
      */
-    public function markFailed($failureMessage = '')
+    public function markFailed($failureMessage = ''): void
     {
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
         $this->gateway_error = $failureMessage;
@@ -285,42 +335,33 @@ class Payment extends EntityModel
         Event::dispatch(new PaymentFailed($this));
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_PAYMENT;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCompletedAmount()
+    public function getCompletedAmount(): int|float
     {
         return $this->amount - $this->refunded;
     }
 
-    public function canBeRefunded()
+    public function canBeRefunded(): bool
     {
         return $this->getCompletedAmount() > 0 && ($this->isCompleted() || $this->isPartiallyRefunded());
     }
 
-    /**
-     * @return bool
-     */
-    public function isExchanged()
+    public function isExchanged(): bool
     {
         return $this->exchange_currency_id || $this->exchange_rate != 1;
     }
 
     /**
-     * @return mixed|null|\stdClass|string
+     * @return mixed|null|stdClass|string
      */
     public function getBankDataAttribute()
     {
-        if (! $this->routing_number) {
-            return null;
+        if ( ! $this->routing_number) {
+            return;
         }
 
         return PaymentMethod::lookupBankData($this->routing_number);
@@ -336,6 +377,7 @@ class Payment extends EntityModel
         if ($bank_name) {
             return $bank_name;
         }
+
         $bankData = $this->bank_data;
 
         return $bankData ? $bankData->name : null;
@@ -346,33 +388,17 @@ class Payment extends EntityModel
      *
      * @return null|string
      */
-    public function getLast4Attribute($value)
+    public function getLast4Attribute($value): ?string
     {
-        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+        return $value ? mb_str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 
-    public static function calcStatusLabel($statusId, $statusName, $amount)
-    {
-        if ($statusId == PAYMENT_STATUS_PARTIALLY_REFUNDED) {
-            return trans('texts.status_partially_refunded_amount', [
-                'amount' => $amount,
-            ]);
-        } else {
-            return trans('texts.status_' . strtolower($statusName));
-        }
-    }
-
-    public static function calcStatusClass($statusId)
-    {
-        return static::$statusClasses[$statusId];
-    }
-
-    public function statusClass()
+    public function statusClass(): string
     {
         return static::calcStatusClass($this->payment_status_id);
     }
 
-    public function statusLabel()
+    public function statusLabel(): string
     {
         $amount = $this->account->formatMoney($this->refunded, $this->client);
 
@@ -382,17 +408,15 @@ class Payment extends EntityModel
     public function invoiceJsonBackup()
     {
         $activity = Activity::wherePaymentId($this->id)
-                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-                        ->get(['json_backup'])
-                        ->first();
+            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+            ->first(['json_backup']);
 
         return $activity->json_backup;
     }
 }
 
-Payment::creating(function ($payment) {
-});
+Payment::creating(function ($payment): void {});
 
-Payment::created(function ($payment) {
+Payment::created(function ($payment): void {
     event(new PaymentWasCreated($payment));
 });

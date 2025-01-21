@@ -2,16 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class EnableForcingJspdf extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->boolean('force_pdfjs')->default(false);
         });
     }
@@ -21,10 +20,10 @@ class EnableForcingJspdf extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('force_pdfjs');
         });
     }
-}
+};

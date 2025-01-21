@@ -11,7 +11,7 @@ use Modules\$STUDLY_NAME$\Http\Requests\Update$STUDLY_NAME$Request;
 class $STUDLY_NAME$ApiController extends BaseAPIController
 {
     protected $$STUDLY_NAME$Repo;
-    protected $entityType = '$LOWER_NAME$';
+    public $entityType = '$LOWER_NAME$';
 
     public function __construct($STUDLY_NAME$Repository $$LOWER_NAME$Repo)
     {

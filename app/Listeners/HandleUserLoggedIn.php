@@ -7,20 +7,17 @@ use App\Events\UserSignedUp;
 use App\Libraries\HistoryUtils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
-use Utils;
-use Auth;
 use Carbon;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Utils;
 
 /**
  * Class HandleUserLoggedIn.
  */
 class HandleUserLoggedIn
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * Create the event handler.
@@ -39,12 +36,12 @@ class HandleUserLoggedIn
      *
      * @return void
      */
-    public function handle(UserLoggedIn $event)
+    public function handle(UserLoggedIn $event): void
     {
         $user = auth()->user();
         $account = $user->account;
 
-        if (! Utils::isNinja() && empty($account->last_login)) {
+        if ( ! Utils::isNinja() && empty($account->last_login)) {
             event(new UserSignedUp());
         }
 
@@ -63,9 +60,9 @@ class HandleUserLoggedIn
         $account->loadLocalizationSettings();
         session([SESSION_DB_SERVER => config('database.default')]);
 
-        if (strstr($_SERVER['HTTP_USER_AGENT'], 'iPhone') || strstr($_SERVER['HTTP_USER_AGENT'], 'iPad')) {
+        if (mb_strstr($_SERVER['HTTP_USER_AGENT'], 'iPhone') || mb_strstr($_SERVER['HTTP_USER_AGENT'], 'iPad')) {
             Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_IOS_APP_URL, trans('texts.iphone_app'))]));
-        } elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'Android')) {
+        } elseif (mb_strstr($_SERVER['HTTP_USER_AGENT'], 'Android')) {
             Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_ANDROID_APP_URL, trans('texts.android_app'))]));
         }
 
@@ -77,24 +74,26 @@ class HandleUserLoggedIn
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             // check custom gateway id is correct
             $gateway = Gateway::find(GATEWAY_CUSTOM1);
-            if (! $gateway || $gateway->name !== 'Custom') {
+            if ( ! $gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
 
             // make sure APP_KEY and APP_CIPHER are in the .env file
             $appKey = env('APP_KEY');
             $appCipher = env('APP_CIPHER');
-            if (! $appKey || ! $appCipher) {
-                $fp = fopen(base_path().'/.env', 'a');
-                if (! $appKey) {
+            if ( ! $appKey || ! $appCipher) {
+                $fp = fopen(base_path() . '/.env', 'a');
+                if ( ! $appKey) {
                     fwrite($fp, "\nAPP_KEY=" . config('app.key'));
                 }
-                if (! $appCipher) {
+
+                if ( ! $appCipher) {
                     fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
                 }
+
                 fclose($fp);
             }
 

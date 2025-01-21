@@ -1,12 +1,15 @@
-<?php namespace App\Ninja\OAuth\Providers;
+<?php
+
+namespace App\Ninja\OAuth\Providers;
+
+use Google_Client;
 
 class Google implements ProviderInterface
 {
-
     public function getTokenResponse($token)
     {
+        $client = new Google_Client();
 
-        $client = new \Google_Client();
         return $client->verifyIdToken($token);
     }
 
@@ -15,7 +18,7 @@ class Google implements ProviderInterface
         return $payload['email'];
     }
 
-    public function harvestSubField($payload)
+    public function harvestSubField(array $payload)
     {
         return $payload['sub']; // user ID
     }

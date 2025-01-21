@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AccountGatewayToken;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\EntityModel;
@@ -11,33 +12,29 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Vendor;
-use App\Models\AccountGatewayToken;
 use App\Ninja\Import\BaseTransformer;
 use App\Ninja\Repositories\ClientRepository;
-use App\Ninja\Repositories\CustomerRepository;
 use App\Ninja\Repositories\ContactRepository;
+use App\Ninja\Repositories\CustomerRepository;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProductRepository;
-use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\TaxRateRepository;
+use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use Auth;
-use Cache;
+use Carbon;
 use Excel;
 use Exception;
-use File;
-use League\Fractal\Manager;
-use parsecsv;
-use Session;
-use stdClass;
-use Utils;
-use Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use League\Csv\Reader;
 use League\Csv\Statement;
-
+use League\Fractal\Manager;
+use stdClass;
+use Utils;
 
 /**
  * Class ImportService.
@@ -45,44 +42,34 @@ use League\Csv\Statement;
 class ImportService
 {
     /**
-     * @var
+     * @var Manager
      */
-    protected $transformer;
+    public $fractal;
 
     /**
-     * @var InvoiceRepository
+     * @var PaymentRepository
      */
-    protected $invoiceRepo;
+    public $paymentRepo;
 
     /**
-     * @var ClientRepository
+     * @var ExpenseRepository
      */
-    protected $clientRepo;
+    public $expenseRepo;
 
     /**
-     * @var CustomerRepository
+     * @var VendorRepository
      */
-    protected $customerRepo;
+    public $vendorRepo;
 
     /**
-     * @var ContactRepository
+     * @var ExpenseCategoryRepository
      */
-    protected $contactRepo;
+    public $expenseCategoryRepo;
 
     /**
-     * @var ProductRepository
+     * @var TaxRateRepository
      */
-    protected $productRepo;
-
-    /**
-     * @var array
-     */
-    protected $processedRows = [];
-
-    /**
-     * @var array
-     */
-    private $maps = [];
+    public $taxRateRepository;
 
     /**
      * @var array
@@ -124,15 +111,37 @@ class ImportService
     ];
 
     /**
+     * @var
+     */
+    protected $transformer;
+
+    protected InvoiceRepository $invoiceRepo;
+
+    protected ClientRepository $clientRepo;
+
+    protected CustomerRepository $customerRepo;
+
+    protected ContactRepository $contactRepo;
+
+    protected ProductRepository $productRepo;
+
+    /**
+     * @var array
+     */
+    protected $processedRows = [];
+
+    private array $maps = [];
+
+    /**
      * ImportService constructor.
      *
-     * @param Manager           $manager
-     * @param ClientRepository  $clientRepo
+     * @param Manager            $manager
+     * @param ClientRepository   $clientRepo
      * @param CustomerRepository $customerRepo
-     * @param InvoiceRepository $invoiceRepo
-     * @param PaymentRepository $paymentRepo
-     * @param ContactRepository $contactRepo
-     * @param ProductRepository $productRepo
+     * @param InvoiceRepository  $invoiceRepo
+     * @param PaymentRepository  $paymentRepo
+     * @param ContactRepository  $contactRepo
+     * @param ProductRepository  $productRepo
      */
     public function __construct(
         Manager $manager,
@@ -163,6 +172,31 @@ class ImportService
     }
 
     /**
+     * @param $source
+     * @param $entityType
+     *
+     * @return string
+     */
+    public static function getTransformerClassName(string $source, $entityType): string
+    {
+        return 'App\\Ninja\\Import\\' . $source . '\\' . ucwords($entityType) . 'Transformer';
+    }
+
+    /**
+     * @param $source
+     * @param $entityType
+     * @param $maps
+     *
+     * @return mixed
+     */
+    public static function getTransformer($source, $entityType, $maps)
+    {
+        $className = self::getTransformerClassName($source, $entityType);
+
+        return new $className($maps);
+    }
+
+    /**
      * @param $file
      *
      * @throws Exception
@@ -176,6 +210,7 @@ class ImportService
         $file = file_get_contents($fileName);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
+
         $transformer = new BaseTransformer($this->maps);
 
         $this->checkClientCount(count($json['clients']));
@@ -184,19 +219,19 @@ class ImportService
             // remove blank id values
             $settings = [];
             foreach ($json as $field => $value) {
-                if (strstr($field, '_id') && ! $value) {
+                if (mb_strstr($field, '_id') && ! $value) {
                     // continue;
                 } else {
                     $settings[$field] = $value;
                 }
             }
 
-            $account = Auth::user()->account;
+            $account = \Illuminate\Support\Facades\Auth::user()->account;
             $account->fill($settings);
             $account->save();
 
             $emailSettings = $account->account_email_settings;
-            $emailSettings->fill(isset($settings['account_email_settings']) ? $settings['account_email_settings'] : $settings);
+            $emailSettings->fill($settings['account_email_settings'] ?? $settings);
             $emailSettings->save();
         }
 
@@ -275,7 +310,7 @@ class ImportService
      *
      * @return mixed
      */
-    public function removeIdFields($array)
+    public function removeIdFields(array $array): array
     {
         foreach ($array as $key => $val) {
             if (is_array($val)) {
@@ -294,7 +329,7 @@ class ImportService
      *
      * @return array
      */
-    public function importFiles($source, $files)
+    public function importFiles($source, $files): array
     {
         $results = [];
         $imported_files = null;
@@ -308,13 +343,174 @@ class ImportService
     }
 
     /**
+     * @param array $files
+     *
+     * @throws Exception
+     *
+     * @return array
+     */
+    public function mapCSV(array $files): array
+    {
+        $data = [];
+
+        foreach ($files as $entityType => $filename) {
+            $class = 'App\\Models\\' . ucwords($entityType);
+            $columns = $class::getImportColumns();
+            $map = $class::getImportMap();
+
+            // Lookup field translations
+            foreach ($columns as $key => $value) {
+                unset($columns[$key]);
+                $label = $value;
+                // disambiguate some of the labels
+                if ($entityType == ENTITY_INVOICE) {
+                    if ($label == 'name') {
+                        $label = 'client_name';
+                    } elseif ($label == 'notes') {
+                        $label = 'product_notes';
+                    } elseif ($label == 'terms') {
+                        $label = 'invoice_terms';
+                    }
+                }
+
+                $columns[$value] = trans('texts.' . $label);
+            }
+
+            array_unshift($columns, ' ');
+
+            $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
+
+            if ($entityType === ENTITY_CLIENT && count($data[$entityType]['data']) + Client::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+                throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $entityType
+     * @param $filename
+     * @param $columns
+     * @param $map
+     *
+     * @return array
+     */
+    public function mapFile($entityType, $filename, $columns, $map)
+    {
+        $data = $this->getCsvData($filename);
+        $headers = false;
+        $hasHeaders = false;
+        $mapped = [];
+
+        if ($data !== []) {
+            $headers = $data[0];
+            foreach ($headers as $title) {
+                if (mb_strpos(mb_strtolower($title), 'name') > 0) {
+                    $hasHeaders = true;
+                    break;
+                }
+            }
+
+            $counter = count($headers);
+
+            for ($i = 0; $i < $counter; $i++) {
+                $title = mb_strtolower($headers[$i]);
+                $mapped[$i] = '';
+
+                foreach ($map as $search => $column) {
+                    if ($this->checkForMatch($title, $search)) {
+                        $hasHeaders = true;
+                        $mapped[$i] = $column;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $data = [
+            'entityType' => $entityType,
+            'data'       => $data,
+            'headers'    => $headers,
+            'hasHeaders' => $hasHeaders,
+            'columns'    => $columns,
+            'mapped'     => $mapped,
+            'warning'    => false,
+        ];
+
+        // check that dates are valid
+        if (count($data['data']) > 1) {
+            $row = $data['data'][1];
+            foreach ($mapped as $index => $field) {
+                if ( ! mb_strstr($field, 'date')) {
+                    continue;
+                }
+
+                try {
+                    $date = new Carbon($row[$index]);
+                } catch (Exception) {
+                    $data['warning'] = 'invalid_date';
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array $maps
+     * @param       $headers
+     *
+     * @return array
+     */
+    public function importCSV(array $maps, array $headers, $timestamp): array
+    {
+        $results = [];
+
+        foreach ($maps as $entityType => $map) {
+            $results[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType], $timestamp);
+        }
+
+        return $results;
+    }
+
+    public function presentResults($results, $includeSettings = false): string
+    {
+        $message = '';
+        $skipped = [];
+
+        if ($includeSettings) {
+            $message = trans('texts.imported_settings') . '<br/>';
+        }
+
+        foreach ($results as $entityType => $entityResults) {
+            if (($count = count($entityResults[RESULT_SUCCESS])) !== 0) {
+                $message .= trans(sprintf('texts.created_%ss', $entityType), ['count' => $count]) . '<br/>';
+            }
+
+            if (count($entityResults[RESULT_FAILURE]) > 0) {
+                $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
+            }
+        }
+
+        if ($skipped !== []) {
+            $message .= '<p/>' . trans('texts.failed_to_import') . '<br/>';
+            foreach ($skipped as $skip) {
+                $message .= json_encode($skip) . '<br/>';
+            }
+        }
+
+        return $message;
+    }
+
+    /**
      * @param $source
      * @param $entityType
      * @param $file
      *
      * @return array
      */
-    private function execute($source, $entityType, $fileName)
+    private function execute($source, $entityType, $fileName): array
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -325,10 +521,10 @@ class ImportService
         $row_list = [];
         $this->checkForFile($fileName);
 
-        Excel::load($fileName, function ($reader) use ($source, $entityType, &$row_list, &$results) {
+        Excel::load($fileName, function ($reader) use ($source, $entityType, &$row_list, &$results): void {
             $this->checkData($entityType, count($reader->all()));
 
-            $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
+            $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results): void {
                 if ($this->isRowEmpty($row)) {
                     return;
                 }
@@ -368,12 +564,12 @@ class ImportService
      *
      * @return bool|mixed
      */
-    private function transformRow($source, $entityType, $row)
+    private function transformRow($source, $entityType, $row): bool|int|string|null
     {
-        $transformer = $this->getTransformer($source, $entityType, $this->maps);
+        $transformer = static::getTransformer($source, $entityType, $this->maps);
         $resource = $transformer->transform($row);
 
-        if (! $resource) {
+        if ( ! $resource) {
             return false;
         }
 
@@ -381,20 +577,19 @@ class ImportService
 
         // Create expesnse category
         if ($entityType == ENTITY_EXPENSE) {
-            if (! empty($row->expense_category)) {
+            if ( ! empty($row->expense_category)) {
                 $categoryId = $transformer->getExpenseCategoryId($row->expense_category);
-                if (! $categoryId) {
+                if ( ! $categoryId) {
                     $category = $this->expenseCategoryRepo->save(['name' => $row->expense_category]);
                     $this->addExpenseCategoryToMaps($category);
                     $data['expense_category_id'] = $category->id;
                 }
             }
-            if (! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
-                if (! $transformer->getVendorId($vendorName)) {
-                    $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
-                    $this->addVendorToMaps($vendor);
-                    $data['vendor_id'] = $vendor->id;
-                }
+
+            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor)) && ! $transformer->getVendorId($vendorName)) {
+                $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
+                $this->addVendorToMaps($vendor);
+                $data['vendor_id'] = $vendor->id;
             }
         }
 
@@ -424,9 +619,7 @@ class ImportService
             $this->processedRows[] = $data;
         }
 
-        end($this->processedRows);
-
-        return key($this->processedRows);
+        return array_key_last($this->processedRows);
     }
 
     /**
@@ -445,13 +638,13 @@ class ImportService
             $data['is_public'] = true;
         }
 
-        $entity = $this->{"{$entityType}Repo"}->save($data);
+        $entity = $this->{$entityType . 'Repo'}->save($data);
 
         // update the entity maps
         if ($entityType != ENTITY_CUSTOMER) {
             $mapFunction = 'add' . ucwords($entity->getEntityType()) . 'ToMaps';
             if (method_exists($this, $mapFunction)) {
-                $this->$mapFunction($entity);
+                $this->{$mapFunction}($entity);
             }
         }
 
@@ -469,7 +662,7 @@ class ImportService
      *
      * @throws Exception
      */
-    private function checkData($entityType, $count)
+    private function checkData($entityType, int $count): void
     {
         if (Utils::isNinja() && $count > MAX_IMPORT_ROWS) {
             throw new Exception(trans('texts.limit_import_rows', ['count' => MAX_IMPORT_ROWS]));
@@ -485,37 +678,12 @@ class ImportService
      *
      * @throws Exception
      */
-    private function checkClientCount($count)
+    private function checkClientCount(int $count): void
     {
         $totalClients = $count + Client::scope()->withTrashed()->count();
-        if ($totalClients > Auth::user()->getMaxNumClients()) {
-            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+        if ($totalClients > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
+            throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
         }
-    }
-
-    /**
-     * @param $source
-     * @param $entityType
-     *
-     * @return string
-     */
-    public static function getTransformerClassName($source, $entityType)
-    {
-        return 'App\\Ninja\\Import\\'.$source.'\\'.ucwords($entityType).'Transformer';
-    }
-
-    /**
-     * @param $source
-     * @param $entityType
-     * @param $maps
-     *
-     * @return mixed
-     */
-    public static function getTransformer($source, $entityType, $maps)
-    {
-        $className = self::getTransformerClassName($source, $entityType);
-
-        return new $className($maps);
     }
 
     /**
@@ -524,9 +692,9 @@ class ImportService
      * @param $clientId
      * @param $invoiceId
      */
-    private function createPayment($source, $row, $clientId, $invoiceId, $invoicePublicId)
+    private function createPayment($source, $row, $clientId, $invoiceId, $invoicePublicId): void
     {
-        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
+        $paymentTransformer = static::getTransformer($source, ENTITY_PAYMENT, $this->maps);
 
         $row->client_id = $clientId;
         $row->invoice_id = $invoiceId;
@@ -541,123 +709,11 @@ class ImportService
         }
     }
 
-    /**
-     * @param array $files
-     *
-     * @throws Exception
-     *
-     * @return array
-     */
-    public function mapCSV(array $files)
-    {
-        $data = [];
-
-        foreach ($files as $entityType => $filename) {
-            $class = 'App\\Models\\' . ucwords($entityType);
-            $columns = $class::getImportColumns();
-            $map = $class::getImportMap();
-
-            // Lookup field translations
-            foreach ($columns as $key => $value) {
-                unset($columns[$key]);
-                $label = $value;
-                // disambiguate some of the labels
-                if ($entityType == ENTITY_INVOICE) {
-                    if ($label == 'name') {
-                        $label = 'client_name';
-                    } elseif ($label == 'notes') {
-                        $label = 'product_notes';
-                    } elseif ($label == 'terms') {
-                        $label = 'invoice_terms';
-                    }
-                }
-                $columns[$value] = trans("texts.{$label}");
-            }
-            array_unshift($columns, ' ');
-
-            $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
-
-            if ($entityType === ENTITY_CLIENT) {
-                if (count($data[$entityType]['data']) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
-                    throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
-                }
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param $entityType
-     * @param $filename
-     * @param $columns
-     * @param $map
-     *
-     * @return array
-     */
-    public function mapFile($entityType, $filename, $columns, $map)
-    {
-        $data = $this->getCsvData($filename);
-        $headers = false;
-        $hasHeaders = false;
-        $mapped = [];
-
-        if (count($data) > 0) {
-            $headers = $data[0];
-            foreach ($headers as $title) {
-                if (strpos(strtolower($title), 'name') > 0) {
-                    $hasHeaders = true;
-                    break;
-                }
-            }
-
-            for ($i = 0; $i < count($headers); $i++) {
-                $title = strtolower($headers[$i]);
-                $mapped[$i] = '';
-
-                foreach ($map as $search => $column) {
-                    if ($this->checkForMatch($title, $search)) {
-                        $hasHeaders = true;
-                        $mapped[$i] = $column;
-                        break;
-                    }
-                }
-            }
-        }
-
-        $data = [
-            'entityType' => $entityType,
-            'data' => $data,
-            'headers' => $headers,
-            'hasHeaders' => $hasHeaders,
-            'columns' => $columns,
-            'mapped' => $mapped,
-            'warning' => false,
-        ];
-
-        // check that dates are valid
-        if (count($data['data']) > 1) {
-            $row = $data['data'][1];
-            foreach ($mapped as $index => $field) {
-                if (! strstr($field, 'date')) {
-                    continue;
-                }
-                try {
-                    $date = new Carbon($row[$index]);
-                } catch(Exception $e) {
-                    $data['warning'] = 'invalid_date';
-                }
-            }
-        }
-
-        return $data;
-    }
-
-    private function getCsvData($fileName)
+    private function getCsvData($fileName): array
     {
         $this->checkForFile($fileName);
 
-        if (! ini_get('auto_detect_line_endings')) {
+        if ( ! ini_get('auto_detect_line_endings')) {
             ini_set('auto_detect_line_endings', '1');
         }
 
@@ -666,13 +722,13 @@ class ImportService
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
-        if (count($data) > 0) {
+        if ($data !== []) {
             $headers = $data[0];
 
             // Remove Invoice Ninja headers
             if (count($headers) && count($data) > 4) {
                 $firstCell = $headers[0];
-                if (strstr($firstCell, APP_NAME)) {
+                if (mb_strstr($firstCell, APP_NAME)) {
                     array_shift($data); // Invoice Ninja...
                     array_shift($data); // <blank line>
                     array_shift($data); // Enitty Type Header
@@ -689,14 +745,14 @@ class ImportService
      *
      * @return bool
      */
-    private function checkForMatch($column, $pattern)
+    private function checkForMatch($column, $pattern): bool
     {
-        if (strpos($column, 'sec') === 0) {
+        if (str_starts_with($column, 'sec')) {
             return false;
         }
 
-        if (strpos($pattern, '^')) {
-            list($include, $exclude) = explode('^', $pattern);
+        if (mb_strpos($pattern, '^')) {
+            [$include, $exclude] = explode('^', $pattern);
             $includes = explode('|', $include);
             $excludes = explode('|', $exclude);
         } else {
@@ -705,15 +761,16 @@ class ImportService
         }
 
         foreach ($includes as $string) {
-            if (strpos($column, $string) !== false) {
+            if (str_contains($column, $string)) {
                 $excluded = false;
                 foreach ($excludes as $exclude) {
-                    if (strpos($column, $exclude) !== false) {
+                    if (str_contains($column, $exclude)) {
                         $excluded = true;
                         break;
                     }
                 }
-                if (! $excluded) {
+
+                if ( ! $excluded) {
                     return true;
                 }
             }
@@ -723,30 +780,13 @@ class ImportService
     }
 
     /**
-     * @param array $maps
-     * @param $headers
-     *
-     * @return array
-     */
-    public function importCSV(array $maps, $headers, $timestamp)
-    {
-        $results = [];
-
-        foreach ($maps as $entityType => $map) {
-            $results[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType], $timestamp);
-        }
-
-        return $results;
-    }
-
-    /**
      * @param $entityType
      * @param $map
      * @param $hasHeaders
      *
      * @return array
      */
-    private function executeCSV($entityType, $map, $hasHeaders, $timestamp)
+    private function executeCSV(int|string $entityType, $map, $hasHeaders, $timestamp): array
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -755,7 +795,7 @@ class ImportService
         $source = IMPORT_CSV;
 
         $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
-        $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, $timestamp, $entityType);
+        $fileName = sprintf('%s/%s_%s_%s.csv', $path, \Illuminate\Support\Facades\Auth::user()->account_id, $timestamp, $entityType);
         $data = $this->getCsvData($fileName);
         $this->checkData($entityType, count($data));
         $this->initMaps();
@@ -772,6 +812,7 @@ class ImportService
             if ($this->isRowEmpty($row)) {
                 continue;
             }
+
             $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
@@ -807,27 +848,27 @@ class ImportService
      *
      * @return stdClass
      */
-    private function convertToObject($entityType, $data, $map)
+    private function convertToObject(int|string $entityType, $data, $map): stdClass
     {
         $obj = new stdClass();
         $class = 'App\\Models\\' . ucwords($entityType);
         $columns = $class::getImportColumns();
 
         foreach ($columns as $column) {
-            $obj->$column = false;
+            $obj->{$column} = false;
         }
 
         foreach ($map as $index => $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
 
-            if (isset($obj->$field) && $obj->$field) {
+            if (isset($obj->{$field}) && $obj->{$field}) {
                 continue;
             }
 
             if (isset($data[$index])) {
-                $obj->$field = $data[$index];
+                $obj->{$field} = $data[$index];
             }
         }
 
@@ -837,7 +878,7 @@ class ImportService
     /**
      * @param $entity
      */
-    private function addSuccess($entity)
+    private function addSuccess($entity): void
     {
         $this->results[$entity->getEntityType()][RESULT_SUCCESS][] = $entity;
     }
@@ -846,12 +887,12 @@ class ImportService
      * @param $entityType
      * @param $data
      */
-    private function addFailure($entityType, $data)
+    private function addFailure(string $entityType, $data): void
     {
         $this->results[$entityType][RESULT_FAILURE][] = $data;
     }
 
-    private function init()
+    private function init(): void
     {
         EntityModel::$notifySubscriptions = false;
 
@@ -863,26 +904,26 @@ class ImportService
         }
     }
 
-    private function initMaps()
+    private function initMaps(): void
     {
         $this->init();
 
         $this->maps = [
-            'client' => [],
-            'contact' => [],
-            'customer' => [],
-            'invoice' => [],
-            'invoice_client' => [],
-            'product' => [],
-            'countries' => [],
-            'countries2' => [],
-            'currencies' => [],
-            'client_ids' => [],
-            'invoice_ids' => [],
-            'vendors' => [],
+            'client'             => [],
+            'contact'            => [],
+            'customer'           => [],
+            'invoice'            => [],
+            'invoice_client'     => [],
+            'product'            => [],
+            'countries'          => [],
+            'countries2'         => [],
+            'currencies'         => [],
+            'client_ids'         => [],
+            'invoice_ids'        => [],
+            'vendors'            => [],
             'expense_categories' => [],
-            'tax_rates' => [],
-            'tax_names' => [],
+            'tax_rates'          => [],
+            'tax_names'          => [],
         ];
 
         $clients = $this->clientRepo->all();
@@ -912,13 +953,13 @@ class ImportService
 
         $countries = Cache::get('countries');
         foreach ($countries as $country) {
-            $this->maps['countries'][strtolower($country->name)] = $country->id;
-            $this->maps['countries2'][strtolower($country->iso_3166_2)] = $country->id;
+            $this->maps['countries'][mb_strtolower($country->name)] = $country->id;
+            $this->maps['countries2'][mb_strtolower($country->iso_3166_2)] = $country->id;
         }
 
         $currencies = Cache::get('currencies');
         foreach ($currencies as $currency) {
-            $this->maps['currencies'][strtolower($currency->code)] = $currency->id;
+            $this->maps['currencies'][mb_strtolower($currency->code)] = $currency->id;
         }
 
         $vendors = $this->vendorRepo->all();
@@ -933,7 +974,7 @@ class ImportService
 
         $taxRates = $this->taxRateRepository->all();
         foreach ($taxRates as $taxRate) {
-            $name = trim(strtolower($taxRate->name));
+            $name = trim(mb_strtolower($taxRate->name));
             $this->maps['tax_rates'][$name] = $taxRate->rate;
             $this->maps['tax_names'][$name] = $taxRate->name;
         }
@@ -942,9 +983,9 @@ class ImportService
     /**
      * @param Invoice $invoice
      */
-    private function addInvoiceToMaps(Invoice $invoice)
+    private function addInvoiceToMaps(Invoice $invoice): void
     {
-        if ($number = strtolower(trim($invoice->invoice_number))) {
+        if (($number = mb_strtolower(trim($invoice->invoice_number))) !== '' && ($number = mb_strtolower(trim($invoice->invoice_number))) !== '0') {
             $this->maps['invoices'][$number] = $invoice;
             $this->maps['invoice'][$number] = $invoice->id;
             $this->maps['invoice_client'][$number] = $invoice->client_id;
@@ -955,28 +996,28 @@ class ImportService
     /**
      * @param Client $client
      */
-    private function addClientToMaps(Client $client)
+    private function addClientToMaps(Client $client): void
     {
-        if ($name = strtolower(trim($client->name))) {
+        if (($name = mb_strtolower(trim($client->name))) !== '' && ($name = mb_strtolower(trim($client->name))) !== '0') {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
+
         if ($client->contacts->count()) {
             $contact = $client->contacts[0];
-            if ($email = strtolower(trim($contact->email))) {
+            if (($email = mb_strtolower(trim($contact->email))) !== '' && ($email = mb_strtolower(trim($contact->email))) !== '0') {
                 $this->maps['client'][$email] = $client->id;
             }
-            if ($name = strtolower(trim($contact->getFullName()))) {
+
+            if (($name = mb_strtolower(trim($contact->getFullName()))) !== '' && ($name = mb_strtolower(trim($contact->getFullName()))) !== '0') {
                 $this->maps['client'][$name] = $client->id;
             }
+
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
     }
 
-    /**
-     * @param Customer $customer
-     */
-    private function addCustomerToMaps(AccountGatewayToken $customer)
+    private function addCustomerToMaps(AccountGatewayToken $customer): void
     {
         $this->maps['customer'][$customer->token] = $customer;
         $this->maps['customer'][$customer->contact->email] = $customer;
@@ -985,9 +1026,9 @@ class ImportService
     /**
      * @param Product $product
      */
-    private function addContactToMaps(Contact $contact)
+    private function addContactToMaps(Contact $contact): void
     {
-        if ($key = strtolower(trim($contact->email))) {
+        if (($key = mb_strtolower(trim($contact->email))) !== '' && ($key = mb_strtolower(trim($contact->email))) !== '0') {
             $this->maps['contact'][$key] = $contact;
         }
     }
@@ -995,26 +1036,26 @@ class ImportService
     /**
      * @param Product $product
      */
-    private function addProductToMaps(Product $product)
+    private function addProductToMaps(Product $product): void
     {
-        if ($key = strtolower(trim($product->product_key))) {
+        if (($key = mb_strtolower(trim($product->product_key))) !== '' && ($key = mb_strtolower(trim($product->product_key))) !== '0') {
             $this->maps['product'][$key] = $product;
         }
     }
 
-    private function addExpenseToMaps(Expense $expense)
+    private function addExpenseToMaps(Expense $expense): void
     {
         // do nothing
     }
 
-    private function addVendorToMaps(Vendor $vendor)
+    private function addVendorToMaps(Vendor $vendor): void
     {
-        $this->maps['vendor'][strtolower($vendor->name)] = $vendor->id;
+        $this->maps['vendor'][mb_strtolower($vendor->name)] = $vendor->id;
     }
 
-    private function addExpenseCategoryToMaps(ExpenseCategory $category)
+    private function addExpenseCategoryToMaps(ExpenseCategory $category): void
     {
-        if ($name = strtolower($category->name)) {
+        if (($name = mb_strtolower($category->name)) !== '' && ($name = mb_strtolower($category->name)) !== '0') {
             $this->maps['expense_category'][$name] = $category->id;
         }
     }
@@ -1024,7 +1065,7 @@ class ImportService
         $isEmpty = true;
 
         foreach ($row as $key => $val) {
-            if (trim($val)) {
+            if (trim($val) !== '' && trim($val) !== '0') {
                 $isEmpty = false;
             }
         }
@@ -1032,43 +1073,16 @@ class ImportService
         return $isEmpty;
     }
 
-    public function presentResults($results, $includeSettings = false)
-    {
-        $message = '';
-        $skipped = [];
-
-        if ($includeSettings) {
-            $message = trans('texts.imported_settings') . '<br/>';
-        }
-
-        foreach ($results as $entityType => $entityResults) {
-            if ($count = count($entityResults[RESULT_SUCCESS])) {
-                $message .= trans("texts.created_{$entityType}s", ['count' => $count]) . '<br/>';
-            }
-            if (count($entityResults[RESULT_FAILURE])) {
-                $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
-            }
-        }
-
-        if (count($skipped)) {
-            $message .= '<p/>' . trans('texts.failed_to_import') . '<br/>';
-            foreach ($skipped as $skip) {
-                $message .= json_encode($skip) . '<br/>';
-            }
-        }
-
-        return $message;
-    }
-
-    private function checkForFile($fileName)
+    private function checkForFile(string $fileName): bool
     {
         $counter = 0;
 
-        while (! file_exists($fileName)) {
+        while ( ! file_exists($fileName)) {
             $counter++;
             if ($counter > 60) {
                 throw new Exception('File not found: ' . $fileName);
             }
+
             sleep(2);
         }
 

@@ -2,6 +2,4 @@
 
 namespace App\Policies;
 
-class ProposalCategoryPolicy extends EntityPolicy
-{
-}
+class ProposalCategoryPolicy extends EntityPolicy {}

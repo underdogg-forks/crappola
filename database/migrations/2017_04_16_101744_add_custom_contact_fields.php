@@ -2,48 +2,47 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomContactFields extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('custom_contact_label1')->nullable();
             $table->string('custom_contact_label2')->nullable();
         });
 
-        Schema::table('contacts', function ($table) {
+        Schema::table('contacts', function ($table): void {
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
         });
 
         // This may fail if the foreign key doesn't exist
         try {
-            Schema::table('payment_methods', function ($table) {
+            Schema::table('payment_methods', function ($table): void {
                 $table->unsignedInteger('account_gateway_token_id')->nullable()->change();
                 $table->dropForeign('payment_methods_account_gateway_token_id_foreign');
             });
 
-            Schema::table('payment_methods', function ($table) {
+            Schema::table('payment_methods', function ($table): void {
                 $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
             });
 
-            Schema::table('payments', function ($table) {
+            Schema::table('payments', function ($table): void {
                 $table->dropForeign('payments_payment_method_id_foreign');
             });
 
-            Schema::table('payments', function ($table) {
+            Schema::table('payments', function ($table): void {
                 $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
             });
         } catch (Exception $e) {
             // do nothing
         }
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function ($table): void {
             $table->unsignedInteger('payment_type_id')->nullable();
             $table->date('payment_date')->nullable();
             $table->string('transaction_reference')->nullable();
@@ -59,19 +58,19 @@ class AddCustomContactFields extends Migration
             DB::statement('delete from frequencies where id = 9');
         }
 
-        Schema::create('db_servers', function ($table) {
+        Schema::create('db_servers', function ($table): void {
             $table->increments('id');
             $table->string('name');
         });
 
-        Schema::create('lookup_companies', function ($table) {
+        Schema::create('lookup_companies', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('db_server_id');
 
             $table->foreign('db_server_id')->references('id')->on('db_servers');
         });
 
-        Schema::create('lookup_accounts', function ($table) {
+        Schema::create('lookup_accounts', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_company_id')->index();
             $table->string('account_key');
@@ -79,7 +78,7 @@ class AddCustomContactFields extends Migration
             $table->foreign('lookup_company_id')->references('id')->on('lookup_companies')->onDelete('cascade');
         });
 
-        Schema::create('lookup_users', function ($table) {
+        Schema::create('lookup_users', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('email');
@@ -87,7 +86,7 @@ class AddCustomContactFields extends Migration
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
 
-        Schema::create('lookup_contacts', function ($table) {
+        Schema::create('lookup_contacts', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('contact_key');
@@ -95,7 +94,7 @@ class AddCustomContactFields extends Migration
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
 
-        Schema::create('lookup_invitations', function ($table) {
+        Schema::create('lookup_invitations', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('invitation_key');
@@ -104,7 +103,7 @@ class AddCustomContactFields extends Migration
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
 
-        Schema::create('lookup_tokens', function ($table) {
+        Schema::create('lookup_tokens', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('token');
@@ -118,19 +117,19 @@ class AddCustomContactFields extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('custom_contact_label1');
             $table->dropColumn('custom_contact_label2');
         });
 
-        Schema::table('contacts', function ($table) {
+        Schema::table('contacts', function ($table): void {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function ($table): void {
             $table->dropColumn('payment_type_id');
             $table->dropColumn('payment_date');
             $table->dropColumn('transaction_reference');
@@ -145,4 +144,4 @@ class AddCustomContactFields extends Migration
         Schema::dropIfExists('lookup_invitations');
         Schema::dropIfExists('lookup_tokens');
     }
-}
+};

@@ -4,14 +4,14 @@ namespace App\Ninja\PaymentDrivers;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         return [
             GATEWAY_TYPE_PAYPAL,
         ];
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails();
 
@@ -36,15 +36,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
         if ($this->account()->iframe_url) {
             return 'javascript:window.open("' . $url . '", "_blank")';
-        } else {
-            return $url;
         }
+
+        return $url;
     }
 
-    protected function updateClientFromOffsite($transRef, $paymentRef)
+    protected function updateClientFromOffsite($transRef, $paymentRef): void
     {
         $response = $this->gateway()->fetchCheckout([
-            'token' => $transRef
+            'token' => $transRef,
         ])->send();
 
         $data = $response->getData();
@@ -60,9 +60,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
-        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
-            return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));
-        })->first()) {
+        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === mb_strtolower(trim($data['SHIPTOCOUNTRYCODE'])))->first()) {
             $client->shipping_country_id = $country->id;
         } else {
             $client->shipping_country_id = null;

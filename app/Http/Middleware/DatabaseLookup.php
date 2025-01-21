@@ -2,22 +2,22 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
-use Closure;
 use App\Models\LookupAccount;
+use App\Models\LookupAccountToken;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupProposalInvitation;
-use App\Models\LookupAccountToken;
 use App\Models\LookupUser;
-use Auth;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class DatabaseLookup
 {
     public function handle(Request $request, Closure $next, $guard = 'user')
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return $next($request);
         }
 
@@ -27,10 +27,10 @@ class DatabaseLookup
             } elseif (session(SESSION_DB_SERVER)) {
                 if (Auth::viaRemember()) {
                     Auth::logout();
-                } else {
-                    // do nothing
                 }
-            } elseif (! Auth::check() && $email = $request->email) {
+
+                // do nothing
+            } elseif ( ! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
                 Auth::logout();
@@ -51,7 +51,7 @@ class DatabaseLookup
             } elseif ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }
@@ -62,7 +62,7 @@ class DatabaseLookup
             if ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }

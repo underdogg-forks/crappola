@@ -4,22 +4,12 @@ namespace App\Http\Requests;
 
 class CreateProposalCategoryRequest extends ProposalCategoryRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->can('create', ENTITY_PROPOSAL_CATEGORY);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => sprintf('required|unique:proposal_categories,name,,id,account_id,%s', $this->user()->account_id),

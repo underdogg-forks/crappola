@@ -6,7 +6,7 @@ use App\Models\Invoice;
 
 class QuoteRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_QUOTE;
+    public $entityType = ENTITY_QUOTE;
 
     public function entity()
     {
@@ -15,11 +15,11 @@ class QuoteRequest extends EntityRequest
         // support loading an invoice by its invoice number
         if ($this->invoice_number && ! $invoice) {
             $invoice = Invoice::scope()
-                        ->whereInvoiceNumber($this->invoice_number)
-                        ->withTrashed()
-                        ->first();
+                ->whereInvoiceNumber($this->invoice_number)
+                ->withTrashed()
+                ->first();
 
-            if (! $invoice) {
+            if ( ! $invoice) {
                 abort(404);
             }
         }

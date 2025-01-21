@@ -2,14 +2,19 @@
 
 namespace App\Jobs;
 
-use App;
-use Str;
-use Utils;
 use Carbon;
-use App\Jobs\Job;
+use Illuminate\Support\Str;
 
 class RunReport extends Job
 {
+    public $user;
+
+    public $reportType;
+
+    public $config;
+
+    public $isExport;
+
     public function __construct($user, $reportType, $config, $isExport = false)
     {
         $this->user = $user;
@@ -23,20 +28,20 @@ class RunReport extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): false|object
     {
-        if (! $this->user->hasPermission('view_reports')) {
+        if ( ! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
         $reportType = $this->reportType;
         $config = $this->config;
-        $config['subgroup'] = ! empty($config['subgroup']) ? $config['subgroup'] : false; // don't yet support charts in export
+        $config['subgroup'] = empty($config['subgroup']) ? false : $config['subgroup']; // don't yet support charts in export
 
         $isExport = $this->isExport;
         $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
 
-        if (! empty($config['range'])) {
+        if ( ! empty($config['range'])) {
             switch ($config['range']) {
                 case 'this_month':
                     $startDate = Carbon::now()->firstOfMonth()->toDateString();
@@ -55,7 +60,7 @@ class RunReport extends Job
                     $endDate = Carbon::now()->subYear()->lastOfYear()->toDateString();
                     break;
             }
-        } elseif (! empty($config['start_date_offset'])) {
+        } elseif ( ! empty($config['start_date_offset'])) {
             $startDate = Carbon::now()->subDays($config['start_date_offset'])->toDateString();
             $endDate = Carbon::now()->subDays($config['end_date_offset'])->toDateString();
         } else {
@@ -68,8 +73,8 @@ class RunReport extends Job
 
         $params = [
             'startDate' => $startDate,
-            'endDate' => $endDate,
-            'report' => $report,
+            'endDate'   => $endDate,
+            'report'    => $report,
         ];
 
         $report->exportParams = array_merge($params, $report->results());

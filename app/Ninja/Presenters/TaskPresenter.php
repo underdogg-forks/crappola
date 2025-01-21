@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use stdClass;
 use Utils;
 
 /**
@@ -9,25 +10,19 @@ use Utils;
  */
 class TaskPresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->entity->user->getDisplayName();
     }
 
-    public function description()
+    public function description(): string
     {
-        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+        return mb_substr($this->entity->description, 0, 40) . (mb_strlen($this->entity->description) > 40 ? '...' : '');
     }
 
     public function project()
@@ -36,12 +31,11 @@ class TaskPresenter extends EntityPresenter
     }
 
     /**
-     * @param $account
      * @param mixed $showProject
      *
      * @return mixed
      */
-    public function invoiceDescription($account, $showProject)
+    public function invoiceDescription($account, $showProject): string
     {
         $str = '';
 
@@ -49,7 +43,7 @@ class TaskPresenter extends EntityPresenter
             $str .= "## {$project}\n\n";
         }
 
-        if ($description = trim($this->entity->description)) {
+        if (($description = trim($this->entity->description)) !== '' && ($description = trim($this->entity->description)) !== '0') {
             $str .= $description . "\n\n";
         }
 
@@ -58,22 +52,18 @@ class TaskPresenter extends EntityPresenter
 
         foreach ($parts as $part) {
             $start = $part[0];
-            if (count($part) == 1 || ! $part[1]) {
-                $end = time();
-            } else {
-                $end = $part[1];
-            }
+            $end = count($part) == 1 || ! $part[1] ? time() : $part[1];
 
-            $start = $account->formatDateTime('@' . intval($start));
-            $end = $account->formatTime('@' . intval($end));
+            $start = $account->formatDateTime('@' . (int) $start);
+            $end = $account->formatTime('@' . (int) $end);
 
-            $times[] = "### {$start} - {$end}";
+            $times[] = sprintf('### %s - %s', $start, $end);
         }
 
         return $str . implode("\n", $times);
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
         $data = parent::calendarEvent();
         $task = $this->entity;
@@ -84,19 +74,23 @@ class TaskPresenter extends EntityPresenter
         if ($project = $this->project()) {
             $data->title .= ' | ' . $project;
         }
-        if ($description = $this->description()) {
+
+        if (($description = $this->description()) !== '' && ($description = $this->description()) !== '0') {
             $data->title .= ' | ' . $description;
         }
+
         $data->allDay = false;
 
         if ($subColors && $task->project_id) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($task->project->public_id);
+            $data->borderColor = Utils::brewerColor($task->project->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#a87821';
+            $data->borderColor = '#a87821';
+            $data->backgroundColor = '#a87821';
         }
 
         $parts = json_decode($task->time_log) ?: [];
-        if (count($parts)) {
+        if (count($parts) > 0) {
             $first = $parts[0];
             $start = $first[0];
             $date->setTimestamp($start);

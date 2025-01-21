@@ -4,13 +4,19 @@ namespace App\Libraries\Skype;
 
 class CarouselCard
 {
-    public function __construct()
-    {
-        $this->contentType = 'application/vnd.microsoft.card.carousel';
-        $this->attachments = [];
-    }
+    /**
+     * @var string
+     */
+    public $contentType = 'application/vnd.microsoft.card.carousel';
 
-    public function addAttachment($attachment)
+    /**
+     * @var never[]|mixed[]
+     */
+    public $attachments = [];
+
+    public function __construct() {}
+
+    public function addAttachment($attachment): void
     {
         $this->attachments[] = $attachment;
     }

@@ -3,21 +3,20 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddRemember2faToken extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->string('remember_2fa_token', 100)->nullable();
         });
 
         Schema::dropIfExists('task_statuses');
-        Schema::create('task_statuses', function ($table) {
+        Schema::create('task_statuses', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -34,42 +33,42 @@ class AddRemember2faToken extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->unsignedInteger('task_status_id')->index()->nullable();
             $table->smallInteger('task_status_sort_order')->default(0);
         });
 
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->foreign('task_status_id')->references('id')->on('task_statuses')->onDelete('cascade');
         });
 
-        Schema::table('currencies', function ($table) {
+        Schema::table('currencies', function ($table): void {
             $table->decimal('exchange_rate', 13, 4)->nullable();
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('convert_products')->default(false);
             $table->boolean('enable_reminder4')->default(false);
             $table->boolean('signature_on_pdf')->default(false);
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->float('discount');
         });
 
-        Schema::table('projects', function ($table) {
+        Schema::table('projects', function ($table): void {
             $table->date('due_date')->nullable();
             $table->text('private_notes')->nullable();
             $table->float('budgeted_hours');
         });
 
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->string('email_subject_reminder4')->nullable();
             $table->text('email_template_reminder4')->nullable();
             $table->unsignedInteger('frequency_id_reminder4')->nullable();
         });
 
-        Schema::table('frequencies', function ($table) {
+        Schema::table('frequencies', function ($table): void {
             $table->string('date_interval')->nullable();
         });
 
@@ -95,8 +94,8 @@ class AddRemember2faToken extends Migration
             and invoices.is_recurring = 0
             and invoices.invoice_type_id = 2');
 
-        if (! Utils::isNinja()) {
-            Schema::table('activities', function ($table) {
+        if ( ! Utils::isNinja()) {
+            Schema::table('activities', function ($table): void {
                 $table->index('user_id');
             });
         }
@@ -107,51 +106,51 @@ class AddRemember2faToken extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('remember_2fa_token');
         });
 
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->dropForeign('tasks_task_status_id_foreign');
         });
 
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->dropColumn('task_status_id');
             $table->dropColumn('task_status_sort_order');
         });
 
         Schema::dropIfExists('task_statuses');
 
-        Schema::table('currencies', function ($table) {
+        Schema::table('currencies', function ($table): void {
             $table->dropColumn('exchange_rate');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('convert_products');
             $table->dropColumn('enable_reminder4');
             $table->dropColumn('signature_on_pdf');
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->dropColumn('discount');
         });
 
-        Schema::table('projects', function ($table) {
+        Schema::table('projects', function ($table): void {
             $table->dropColumn('due_date');
             $table->dropColumn('private_notes');
             $table->dropColumn('budgeted_hours');
         });
 
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->dropColumn('email_subject_reminder4');
             $table->dropColumn('email_template_reminder4');
             $table->dropColumn('frequency_id_reminder4');
         });
 
-        Schema::table('frequencies', function ($table) {
+        Schema::table('frequencies', function ($table): void {
             $table->dropColumn('date_interval');
         });
     }
-}
+};

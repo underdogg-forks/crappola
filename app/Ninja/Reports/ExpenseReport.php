@@ -2,29 +2,28 @@
 
 namespace App\Ninja\Reports;
 
-use Barracuda\ArchiveStream\Archive;
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Auth;
+use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 use Utils;
 
 class ExpenseReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
-            'vendor' => [],
-            'client' => [],
-            'date' => [],
-            'category' => [],
-            'amount' => [],
-            'public_notes' => ['columnSelector-false'],
-            'private_notes' => ['columnSelector-false'],
-            'user' => ['columnSelector-false'],
-            'payment_date' => ['columnSelector-false'],
-            'payment_type' => ['columnSelector-false'],
+            'vendor'            => [],
+            'client'            => [],
+            'date'              => [],
+            'category'          => [],
+            'amount'            => [],
+            'public_notes'      => ['columnSelector-false'],
+            'private_notes'     => ['columnSelector-false'],
+            'user'              => ['columnSelector-false'],
+            'payment_date'      => ['columnSelector-false'],
+            'payment_type'      => ['columnSelector-false'],
             'payment_reference' => ['columnSelector-false'],
-
         ];
 
         $user = auth()->user();
@@ -33,6 +32,7 @@ class ExpenseReport extends AbstractReport
         if ($account->customLabel('expense1')) {
             $columns[$account->present()->customLabel('expense1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('expense2')) {
             $columns[$account->present()->customLabel('expense2')] = ['columnSelector-false', 'custom'];
         }
@@ -48,7 +48,7 @@ class ExpenseReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
         $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
@@ -61,26 +61,27 @@ class ExpenseReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->withArchived()
-                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
+            ->orderBy('expense_date', 'desc')
+            ->withArchived()
+            ->with('client.contacts', 'vendor', 'expense_category', 'user')
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
-                    $expenseId = str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
+                    $expenseId = mb_str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
                     $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
                     $name = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }
             }
+
             $zip->finish();
             exit;
         }
@@ -105,6 +106,7 @@ class ExpenseReport extends AbstractReport
             if ($account->customLabel('expense1')) {
                 $row[] = $expense->custom_value1;
             }
+
             if ($account->customLabel('expense2')) {
                 $row[] = $expense->custom_value2;
             }

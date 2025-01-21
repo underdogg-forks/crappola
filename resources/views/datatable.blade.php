@@ -1,4 +1,4 @@
-<table class="table table-striped data-table {{ $class = Str::random(8) }}">
+<table class="table table-striped data-table {{ $class = str_random(8) }}">
     <colgroup>
         @for ($i = 0; $i < count($columns); $i++)
         <col class="con{{ $i }}" />

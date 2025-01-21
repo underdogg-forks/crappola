@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
-use App\Ninja\Repositories\PaymentTermRepository;
 use App\Ninja\Datatables\PaymentTermDatatable;
-use URL;
+use App\Ninja\Repositories\PaymentTermRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\URL;
 
 class PaymentTermService extends BaseService
 {
-    protected $paymentTermRepo;
-    protected $datatableService;
+    protected PaymentTermRepository $paymentTermRepo;
+
+    protected DatatableService $datatableService;
 
     /**
      * PaymentTermService constructor.
@@ -24,17 +26,9 @@ class PaymentTermService extends BaseService
     }
 
     /**
-     * @return PaymentTermRepository
-     */
-    protected function getRepo()
-    {
-        return $this->paymentTermRepo;
-    }
-
-    /**
      * @param int $accountId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($accountId = 0)
     {
@@ -45,33 +39,35 @@ class PaymentTermService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    public function columns($entityType, $hideClient)
+    public function columns($entityType, $hideClient): array
     {
         return [
             [
                 'name',
-                function ($model) {
-                    return link_to("payment_terms/{$model->public_id}/edit", $model->name)->toHtml();
-                },
+                fn ($model) => link_to(sprintf('payment_terms/%s/edit', $model->public_id), $model->name)->toHtml(),
             ],
             [
                 'days',
-                function ($model) {
-                    return $model->num_days;
-                },
+                fn ($model) => $model->num_days,
             ],
         ];
     }
 
-    public function actions($entityType)
+    public function actions($entityType): array
     {
         return [
             [
                 uctrans('texts.edit_payment_terms'),
-                function ($model) {
-                    return URL::to("payment_terms/{$model->public_id}/edit");
-                },
+                fn ($model) => URL::to(sprintf('payment_terms/%s/edit', $model->public_id)),
             ],
         ];
+    }
+
+    /**
+     * @return PaymentTermRepository
+     */
+    protected function getRepo(): PaymentTermRepository
+    {
+        return $this->paymentTermRepo;
     }
 }

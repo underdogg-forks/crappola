@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductRequest;
 use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\ProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Ninja\Repositories\ProductRepository;
@@ -16,12 +16,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @var string
      */
-    protected $entityType = ENTITY_PRODUCT;
+    public $entityType = ENTITY_PRODUCT;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected ProductRepository $productRepo;
 
     /**
      * ProductApiController constructor.
@@ -41,11 +38,14 @@ class ProductApiController extends BaseAPIController
      *   summary="List products",
      *   operationId="listProducts",
      *   tags={"product"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of products",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Product"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -55,8 +55,8 @@ class ProductApiController extends BaseAPIController
     public function index()
     {
         $products = Product::scope()
-                        ->withTrashed()
-                        ->orderBy('updated_at', 'desc');
+            ->withTrashed()
+            ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($products);
     }
@@ -67,17 +67,21 @@ class ProductApiController extends BaseAPIController
      *   summary="Retrieve a product",
      *   operationId="getProduct",
      *   tags={"product"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single product",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -95,16 +99,21 @@ class ProductApiController extends BaseAPIController
      *   summary="Create a product",
      *   operationId="createProduct",
      *   tags={"product"},
+     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="body",
+     *
      *     @SWG\Schema(ref="#/definitions/Product")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="New product",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -124,6 +133,7 @@ class ProductApiController extends BaseAPIController
      *   summary="Update a product",
      *   operationId="updateProduct",
      *   tags={"product"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",
@@ -133,13 +143,17 @@ class ProductApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="product",
+     *
      *     @SWG\Schema(ref="#/definitions/Product")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated product",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -167,29 +181,33 @@ class ProductApiController extends BaseAPIController
      *   summary="Delete a product",
      *   operationId="deleteProduct",
      *   tags={"product"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted product",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
      * )
      */
-     public function destroy(UpdateProductRequest $request)
-     {
-         $product = $request->entity();
+    public function destroy(UpdateProductRequest $request)
+    {
+        $product = $request->entity();
 
-         $this->productRepo->delete($product);
+        $this->productRepo->delete($product);
 
-         return $this->itemResponse($product);
-     }
+        return $this->itemResponse($product);
+    }
 }

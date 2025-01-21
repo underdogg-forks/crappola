@@ -3,16 +3,15 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddSourceCurrencyToExpenses extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('expenses', function (Blueprint $table) {
+        Schema::table('expenses', function (Blueprint $table): void {
             $table->dropColumn('foreign_amount');
 
             if (Schema::hasColumn('expenses', 'currency_id')) {
@@ -23,7 +22,7 @@ class AddSourceCurrencyToExpenses extends Migration
             $table->unsignedInteger('expense_currency_id')->nullable()->index();
         });
 
-        Schema::table('expenses', function (Blueprint $table) {
+        Schema::table('expenses', function (Blueprint $table): void {
             // set account value so we're able to create foreign constraint
             DB::statement('update expenses e
                             left join accounts a on a.id = e.account_id
@@ -39,9 +38,8 @@ class AddSourceCurrencyToExpenses extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('expenses', function ($table) {
-        });
+        Schema::table('expenses', function ($table): void {});
     }
-}
+};

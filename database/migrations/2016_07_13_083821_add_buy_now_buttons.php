@@ -2,25 +2,24 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddBuyNowButtons extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('enable_buy_now_buttons')->default(false);
             $table->dropColumn('invoice_design');
         });
 
-        Schema::table('datetime_formats', function ($table) {
+        Schema::table('datetime_formats', function ($table): void {
             $table->dropColumn('label');
         });
 
-        Schema::table('date_formats', function ($table) {
+        Schema::table('date_formats', function ($table): void {
             $table->dropColumn('label');
         });
     }
@@ -30,19 +29,19 @@ class AddBuyNowButtons extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('enable_buy_now_buttons');
             $table->text('invoice_design')->nullable();
         });
 
-        Schema::table('datetime_formats', function ($table) {
+        Schema::table('datetime_formats', function ($table): void {
             $table->string('label');
         });
 
-        Schema::table('date_formats', function ($table) {
+        Schema::table('date_formats', function ($table): void {
             $table->string('label');
         });
     }
-}
+};
