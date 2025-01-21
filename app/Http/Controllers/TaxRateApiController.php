@@ -10,17 +10,15 @@ use App\Ninja\Repositories\TaxRateRepository;
 
 class TaxRateApiController extends BaseAPIController
 {
-    /**
-     * @var string
-     */
-    public $entityType = ENTITY_TAX_RATE;
-
     protected TaxRateRepository $taxRateRepo;
 
     /**
+     * @var string
+     */
+    protected $entityType = ENTITY_TAX_RATE;
+
+    /**
      * TaxRateApiController constructor.
-     *
-     * @param TaxRateRepository $taxRateRepo
      */
     public function __construct(TaxRateRepository $taxRateRepo)
     {
@@ -203,7 +201,7 @@ class TaxRateApiController extends BaseAPIController
     {
         $entity = $request->entity();
 
-        $this->taxRateRepo->delete($entity);
+        $entity->delete();
 
         return $this->itemResponse($entity);
     }

@@ -13,7 +13,7 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
         parent::createPayment($ref, $paymentMethod);
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
         $data['solutionId'] = $this->accountGateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036';

@@ -10,17 +10,16 @@ use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ProposalSnippetController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_SNIPPET;
-
     protected ProposalSnippetRepository $proposalSnippetRepo;
 
     protected ProposalSnippetService $proposalSnippetService;
+
+    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, ProposalSnippetService $proposalSnippetService)
     {
@@ -44,7 +43,7 @@ class ProposalSnippetController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
+        $search = $request->get('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalSnippetService->getDatatable($search, $userId);
@@ -53,7 +52,7 @@ class ProposalSnippetController extends BaseController
     public function create(ProposalSnippetRequest $request)
     {
         $data = [
-            'account'          => auth()->user()->account,
+            'company'          => auth()->user()->company,
             'snippet'          => null,
             'method'           => 'POST',
             'url'              => 'proposals/snippets',
@@ -66,71 +65,9 @@ class ProposalSnippetController extends BaseController
         return View::make('proposals/snippets/edit', $data);
     }
 
-    public function show($publicId)
-    {
-        Session::reflash();
-
-        return redirect(sprintf('proposals/snippets/%s/edit', $publicId));
-    }
-
-    public function edit(ProposalSnippetRequest $request)
-    {
-        $proposalSnippet = $request->entity();
-
-        $data = [
-            'account'          => auth()->user()->account,
-            'snippet'          => $proposalSnippet,
-            'entity'           => $proposalSnippet,
-            'method'           => 'PUT',
-            'url'              => 'proposals/snippets/' . $proposalSnippet->public_id,
-            'title'            => trans('texts.edit_proposal_snippet'),
-            'categories'       => ProposalCategory::scope()->withActiveOrSelected($proposalSnippet->proposal_category_id)->orderBy('name')->get(),
-            'categoryPublicId' => $proposalSnippet->proposal_category ? $proposalSnippet->proposal_category->public_id : null,
-            'icons'            => $this->getIcons(),
-        ];
-
-        return View::make('proposals/snippets.edit', $data);
-    }
-
-    public function store(CreateProposalSnippetRequest $request)
-    {
-        $proposalSnippet = $this->proposalSnippetService->save($request->input());
-
-        Session::flash('message', trans('texts.created_proposal_snippet'));
-
-        return redirect()->to($proposalSnippet->getRoute());
-    }
-
-    public function update(UpdateProposalSnippetRequest $request)
-    {
-        $proposalSnippet = $this->proposalSnippetService->save($request->input(), $request->entity());
-
-        Session::flash('message', trans('texts.updated_proposal_snippet'));
-
-        $action = Request::input('action');
-        if (in_array($action, ['archive', 'delete', 'restore'])) {
-            return self::bulk();
-        }
-
-        return redirect()->to($proposalSnippet->getRoute());
-    }
-
-    public function bulk()
-    {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
-
-        $count = $this->proposalSnippetService->bulk($ids, $action);
-
-        if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_snippet' : $action . 'd_proposal_snippets';
-            $message = trans('texts.' . $field, ['count' => $count]);
-            Session::flash('message', $message);
-        }
-
-        return redirect()->to('/proposals/snippets');
-    }
-
+    /**
+     * @return array<string, string>
+     */
     private function getIcons(): array
     {
         $data = [];
@@ -729,5 +666,70 @@ class ProposalSnippetController extends BaseController
         ksort($data);
 
         return $data;
+    }
+
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("proposals/snippets/$publicId/edit");
+    }
+
+    public function edit(ProposalSnippetRequest $request)
+    {
+        $proposalSnippet = $request->entity();
+
+        $data = [
+            'company'          => auth()->user()->company,
+            'snippet'          => $proposalSnippet,
+            'entity'           => $proposalSnippet,
+            'method'           => 'PUT',
+            'url'              => 'proposals/snippets/' . $proposalSnippet->public_id,
+            'title'            => trans('texts.edit_proposal_snippet'),
+            'categories'       => ProposalCategory::scope()->withActiveOrSelected($proposalSnippet->proposal_category_id)->orderBy('name')->get(),
+            'categoryPublicId' => $proposalSnippet->proposal_category ? $proposalSnippet->proposal_category->public_id : null,
+            'icons'            => $this->getIcons(),
+        ];
+
+        return View::make('proposals/snippets.edit', $data);
+    }
+
+    public function store(CreateProposalSnippetRequest $request)
+    {
+        $proposalSnippet = $this->proposalSnippetService->save($request->input());
+
+        Session::flash('message', trans('texts.created_proposal_snippet'));
+
+        return redirect()->to($proposalSnippet->getRoute());
+    }
+
+    public function update(UpdateProposalSnippetRequest $request)
+    {
+        $proposalSnippet = $this->proposalSnippetService->save($request->input(), $request->entity());
+
+        Session::flash('message', trans('texts.updated_proposal_snippet'));
+
+        $action = $request->get('action');
+        if (in_array($action, ['archive', 'delete', 'restore'])) {
+            return self::bulk();
+        }
+
+        return redirect()->to($proposalSnippet->getRoute());
+    }
+
+    public function bulk()
+    {
+        $action = $request->get('action');
+        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
+
+        $count = $this->proposalSnippetService->bulk($ids, $action);
+
+        if ($count > 0) {
+            $field = $count == 1 ? "{$action}d_proposal_snippet" : "{$action}d_proposal_snippets";
+            $message = trans("texts.$field", ['count' => $count]);
+            Session::flash('message', $message);
+        }
+
+        return redirect()->to('/proposals/snippets');
     }
 }

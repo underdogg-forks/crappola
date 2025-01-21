@@ -7,18 +7,15 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\PaymentTermRepository;
-use Illuminate\Support\Facades\Request;
 
 class PaymentTermApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_PAYMENT_TERM;
-
     protected PaymentTermRepository $paymentTermRepo;
+
+    protected $entityType = ENTITY_PAYMENT_TERM;
 
     /**
      * PaymentTermApiController constructor.
-     *
-     * @param PaymentTermRepository $paymentTermRepo
      */
     public function __construct(PaymentTermRepository $paymentTermRepo)
     {
@@ -50,7 +47,7 @@ class PaymentTermApiController extends BaseAPIController
     public function index()
     {
         $paymentTerms = PaymentTerm::scope()
-            ->orWhere('account_id', 0)
+            ->orWhere('company_id', 0)
             ->orderBy('num_days', 'asc');
 
         return $this->listResponse($paymentTerms);
@@ -119,7 +116,7 @@ class PaymentTermApiController extends BaseAPIController
     {
         $paymentTerm = PaymentTerm::createNew();
 
-        $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
+        $paymentTerm->num_days = Utils::parseInt($request->get('num_days'));
         $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 
@@ -156,8 +153,10 @@ class PaymentTermApiController extends BaseAPIController
     public function destroy($numDays)
     {
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
-
-        if ( ! $paymentTerm || $paymentTerm->account_id == 0) {
+        if (! $paymentTerm) {
+            return $this->errorResponse(['message' => 'Cannot delete a default or non existent Payment Term'], 400);
+        }
+        if ($paymentTerm->company_id == 0) {
             return $this->errorResponse(['message' => 'Cannot delete a default or non existent Payment Term'], 400);
         }
 

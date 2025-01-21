@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Table specific configuration options.
@@ -9,6 +10,7 @@ return [
     */
 
     'table' => [
+
         /*
         |--------------------------------------------------------------------------
         | Table class
@@ -47,9 +49,11 @@ return [
         */
 
         'options' => [
+
             'sPaginationType' => 'full_numbers',
 
             'bProcessing' => false,
+
         ],
 
         /*
@@ -101,17 +105,6 @@ return [
         */
 
         'script_view' => 'chumper.datatable::javascript',
-
-        /*
-          |--------------------------------------------------------------------------
-          | Option view
-          |--------------------------------------------------------------------------
-          |
-          | Template used to render the options recursive
-          |
-        */
-
-        'options_view' => config('chumper.datatable::options'),
     ],
 
     /*
@@ -122,6 +115,7 @@ return [
     */
 
     'engine' => [
+
         /*
         |--------------------------------------------------------------------------
         | Search for exact words
@@ -133,5 +127,17 @@ return [
         */
 
         'exactWordSearch' => false,
+
+    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Allow overrides Datatable core classes
+    |--------------------------------------------------------------------------
+    |
+    */
+    'classmap' => [
+        'CollectionEngine' => 'Chumper\Datatable\Engines\CollectionEngine',
+        'QueryEngine'      => 'Chumper\Datatable\Engines\QueryEngine',
+        'Table'            => 'Chumper\Datatable\Table',
     ],
 ];

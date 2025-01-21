@@ -32,7 +32,11 @@ class $CLASS$ extends Command
         parent::__construct();
     }
 
-
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle()
     {
         //
@@ -50,7 +54,11 @@ class $CLASS$ extends Command
         ];
     }
 
-
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
     protected function getOptions()
     {
         return [

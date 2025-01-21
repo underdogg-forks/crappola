@@ -19,8 +19,6 @@ class PaymentFailed extends Event
 
     /**
      * Create a new event instance.
-     *
-     * @param Payment $payment
      */
     public function __construct(Payment $payment)
     {

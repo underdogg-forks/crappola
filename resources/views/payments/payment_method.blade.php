@@ -18,12 +18,13 @@
                                 @if (request()->capture)
                                     <h3>{{ trans('texts.update_payment_details') }}</h3>
                                 @else
-                                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE) }}</em></span></h3>
+                                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $company->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE) }}</em></span>
+                                    </h3>
                                 @endif
                             @elseif ($paymentTitle)
                                 <h2>{{ $paymentTitle }}
                                     @if(isset($paymentSubtitle))
-                                    <br/><small>{{ $paymentSubtitle }}</small>
+                                        <br/><small>{{ $paymentSubtitle }}</small>
                                     @endif
                                 </h2>
                             @endif
@@ -49,12 +50,12 @@
 
             </div>
 
-            </div>
         </div>
+    </div>
 
 
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
 
     </div>
 
@@ -62,9 +63,9 @@
 
     <script type="text/javascript">
 
-        $(function() {
-            $('select').change(function() {
-                $(this).css({color:'#444444'});
+        $(function () {
+            $('select').change(function () {
+                $(this).css({color: '#444444'});
             });
 
             $('#country_id, #shipping_country_id').combobox();
@@ -73,6 +74,5 @@
         });
 
     </script>
-
 
 @stop

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Account;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Ninja\Notifications\PushFactory;
 
@@ -11,37 +11,52 @@ use App\Ninja\Notifications\PushFactory;
  */
 class PushService
 {
-    protected PushFactory $pushFactory;
-
     /**
-     * @param PushFactory $pushFactory
+     * @var PushFactory
      */
+    protected $pushFactory;
+
     public function __construct(PushFactory $pushFactory)
     {
         $this->pushFactory = $pushFactory;
     }
 
-    /**
-     * @param Invoice $invoice
-     * @param         $type
-     */
     public function sendNotification(Invoice $invoice, $type): void
     {
         //check user has registered for push notifications
-        if ( ! $this->checkDeviceExists($invoice->account)) {
+        if (! $this->checkDeviceExists($invoice->company)) {
             return;
         }
 
         //Harvest an array of devices that are registered for this notification type
-        $devices = json_decode($invoice->account->devices, true);
+        $devices = json_decode($invoice->company->devices, true);
 
         foreach ($devices as $device) {
-            if (($device['notify_' . $type] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
+            if (($device["notify_{$type}"] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, IOS_DEVICE);
-            } elseif (($device['notify_' . $type] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
+            } elseif (($device["notify_{$type}"] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, ANDROID_DEVICE);
             }
         }
+    }
+
+    /**
+     * checkDeviceExists function.
+     *
+     * Returns a boolean if this company has devices registered for PUSH notifications
+     *
+     *
+     * @return bool
+     */
+    private function checkDeviceExists(company $company)
+    {
+        $devices = json_decode($company->devices, true);
+
+        if (count((array) $devices) >= 1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -49,10 +64,7 @@ class PushService
      *
      * method to dispatch iOS notifications
      *
-     * @param Invoice $invoice
-     * @param         $token
-     * @param         $type
-     * @param mixed   $device
+     * @param mixed $device
      */
     private function pushMessage(Invoice $invoice, $token, $type, $device): void
     {
@@ -60,32 +72,14 @@ class PushService
     }
 
     /**
-     * checkDeviceExists function.
-     *
-     * Returns a boolean if this account has devices registered for PUSH notifications
-     *
-     * @param Account $account
-     *
-     * @return bool
-     */
-    private function checkDeviceExists(Account $account): bool
-    {
-        $devices = json_decode($account->devices, true);
-
-        return (bool) (count((array) $devices) >= 1);
-    }
-
-    /**
      * messageType function.
      *
      * method which formats an appropriate message depending on message type
      *
-     * @param Invoice $invoice
-     * @param         $type
      *
      * @return string
      */
-    private function messageType(Invoice $invoice, $type): string
+    private function messageType(Invoice $invoice, $type)
     {
         switch ($type) {
             case 'sent':
@@ -107,8 +101,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function entitySentMessage(Invoice $invoice)
@@ -121,8 +113,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function invoicePaidMessage(Invoice $invoice)
@@ -131,8 +121,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function quoteApprovedMessage(Invoice $invoice)
@@ -141,8 +129,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function entityViewedMessage(Invoice $invoice)

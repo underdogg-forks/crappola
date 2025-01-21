@@ -29,7 +29,7 @@
 
         @media (min-width: 992px) {
             #main-row,
-            #account-row {
+            #company-row {
                 display: flex;
                 align-items: center;
             }
@@ -49,8 +49,8 @@
 
         #main-row,
         #main-row a,
-        #account-row,
-        #account-row a {
+        #company-row,
+        #company-row a {
             color: #838181;
         }
 
@@ -187,23 +187,23 @@
             max-height: 75px;
         }
 
-        #account-row > div {
+        #company-row > div {
             padding: 20px 50px 20px 110px;
         }
 
-        #account-row .invoices-from {
+        #company-row .invoices-from {
             padding-left: 0;
         }
 
-        #account-row .phone-web-details {
+        #company-row .phone-web-details {
             padding-right: 0;
         }
 
-        #account-row .phone-web-details .inner {
+        #company-row .phone-web-details .inner {
             text-align: right;
         }
 
-        #account-row > div:before {
+        #company-row > div:before {
             content: '';
             border-left: 1px solid #dbd9d9;
             position: absolute;
@@ -212,61 +212,75 @@
             margin-left: -80px;
         }
 
-        #account-row .logo {
+        #company-row .logo {
             padding-left: 70px;
         }
 
-        #account-row .invoices-from:before {
+        #company-row .invoices-from:before {
             content: none;
         }
 
         @media (max-width: 1199px) {
-            #account-row .logo,
-            #account-row > div {
+            #company-row .logo,
+            #company-row > div {
                 padding-left: 40px;
                 padding-right: 5px;
             }
 
-            #account-row > div:before {
+            #company-row > div:before {
                 margin-left: -25px;
             }
         }
 
         @media (max-width: 991px) {
-            #account-row,
-            #account-row .phone-web-details .inner {
+            #company-row,
+            #company-row .phone-web-details .inner {
                 text-align: center;
             }
 
-            #account-row > div {
+            #company-row > div {
                 padding: 15px 30px !important;
             }
 
-            #account-row > div:before {
+            #company-row > div:before {
                 content: none;
             }
         }
 
 
         table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-            background-color: {{ $color }} !important;
+            background-color: {{ $color }}  !important;
         }
 
-        .pagination>.active>a,
-        .pagination>.active>span,
-        .pagination>.active>a:hover,
-        .pagination>.active>span:hover,
-        .pagination>.active>a:focus,
-        .pagination>.active>span:focus {
+        .pagination > .active > a,
+        .pagination > .active > span,
+        .pagination > .active > a:hover,
+        .pagination > .active > span:hover,
+        .pagination > .active > a:focus,
+        .pagination > .active > span:focus {
             background-color: {{ $color }};
             border-color: {{ $color }};
         }
 
-        table.table thead .sorting:after { content: '' !important }
-        table.table thead .sorting_asc:after { content: '' !important }
-        table.table thead .sorting_desc:after { content: '' !important }
-        table.table thead .sorting_asc_disabled:after { content: '' !important }
-        table.table thead .sorting_desc_disabled:after { content: '' !important }
+        table.table thead .sorting:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_asc:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_desc:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_asc_disabled:after {
+            content: '' !important
+        }
+
+        table.table thead .sorting_desc_disabled:after {
+            content: '' !important
+        }
 
     </style>
 
@@ -311,34 +325,34 @@
             </div>
             <div class="col-md-3 amount-col" id="total-invoiced-col">
                 <div class="inner">
-                    <i><img src="{{asset('images/icon-total-invoiced.svg')}}"></i>
+                    <i><img src="{{asset('/images/icon-total-invoiced.svg')}}"></i>
                     <div class="amount-label">
                         {{ trans('texts.total_invoiced') }}
                     </div>
                     <div class="amount">
-                        {{ Utils::formatMoney($client->paid_to_date + $client->balance, $client->currency_id ?: $account->currency_id) }}
+                        {{ Utils::formatMoney($client->paid_to_date + $client->balance, $client->currency_id ?: $company->currency_id) }}
                     </div>
                 </div>
             </div>
             <div class="col-md-3 amount-col" id="paidtodate-col">
                 <div class="inner">
-                    <i><img src="{{asset('images/icon-paidtodate.svg')}}"></i>
+                    <i><img src="{{asset('/images/icon-paidtodate.svg')}}"></i>
                     <div class="amount-label">
                         {{ trans('texts.paid_to_date') }}
                     </div>
                     <div class="amount">
-                        {{ Utils::formatMoney($client->paid_to_date, $client->currency_id ?: $account->currency_id) }}
+                        &nbsp;paid-to-date
                     </div>
                 </div>
             </div>
             <div class="col-md-3 amount-col" id="balance-col">
                 <div class="inner">
-                    <i><img src="{{asset('images/icon-balance.svg')}}"></i>
+                    <i><img src="{{asset('/images/icon-balance.svg')}}"></i>
                     <div class="amount-label">
                         {{ trans('texts.open_balance') }}
                     </div>
                     <div class="amount">
-                        {{ Utils::formatMoney($client->balance, $client->currency_id ?: $account->currency_id) }}
+                        {{ Utils::formatMoney($client->balance, $client->currency_id ?: $company->currency_id) }}
                     </div>
                 </div>
             </div>
@@ -346,7 +360,7 @@
 
         <div class="row">
             <div class="col-xs-12">
-                @if (!empty($account->getTokenGatewayId()))
+                @if (!empty($company->getTokenGatewayId()))
                     <div class="pull-left">
                         @include('payments.paymentmethods_list')
                     </div>
@@ -354,7 +368,7 @@
                 <div class="pull-right">
                     {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details'))->withAttributes(['id' => 'editDetailsButton']) !!}
                     @if ($client->hasRecurringInvoices())
-                         &nbsp; {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+                        &nbsp; {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
                     @endif
                     &nbsp; {!! Button::primary(strtoupper(trans("texts.view_statement")))->asLinkTo(URL::to('/client/statement')) !!}
                 </div>
@@ -363,42 +377,43 @@
 
         <br/>
 
-        <div class="row" id="account-row">
+        <div class="row" id="company-row">
             <div class="col-md-2 invoices-from">
                 {{trans('texts.invoice_from')}}
             </div>
             <div class="col-md-4 logo">
-                @if ($account->hasLogo())
-                    {!! HTML::image($account->getLogoURL()) !!}
+                @if ($company->hasLogo())
+                    {!! HTML::image($company->getLogoURL()) !!}
                 @else
-                    <h2>{{ $account->name}}</h2>
+                    <h2>{{ $company->name}}</h2>
                 @endif
             </div>
             <div class="col-md-3 address-details">
-                @if ($account->address1)
-                    {{ $account->address1 }}<br/>
+                @if ($company->address1)
+                    {{ $company->address1 }}<br/>
                 @endif
-                @if ($account->address2)
-                    {{ $account->address2 }}<br/>
+                @if ($company->address2)
+                    {{ $company->address2 }}<br/>
                 @endif
-                @if ($account->getCityState())
-                    {{ $account->getCityState() }}<br/>
+                @if ($company->getCityState())
+                    {{ $company->getCityState() }}<br/>
                 @endif
-                @if ($account->country)
-                    {{ $account->country->getName() }}
+                @if ($company->country)
+                    {{ $company->country->getName() }}
                 @endif
             </div>
             <div class="col-md-3 phone-web-details">
                 <div class="inner">
-                    @if ($account->work_phone)
-                        {{ $account->work_phone }}<br/>
+                    @if ($company->work_phone)
+                        {{ $company->work_phone }}<br/>
                     @endif
-                    @if ($account->website)
-                        <a href="{{ Utils::addHttp($account->website) }}" target="_blank">{{ $account->website }}</a>
+                    @if ($company->website)
+                        <a href="{{ Utils::addHttp($company->website) }}"
+                           target="_blank">{{ $company->website }}</a>
                         <br/>
                     @endif
-                    @if ($account->work_email)
-                        {!! HTML::mailto($account->work_email, $account->work_email) !!}<br/>
+                    @if ($company->work_email)
+                        {!! HTML::mailto($company->work_email, $company->work_email) !!}<br/>
                     @endif
                 </div>
             </div>

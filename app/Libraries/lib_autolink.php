@@ -28,38 +28,37 @@ function autolink($text, $limit = 30, $tagfill = '', $auto_title = true)
 {
     $text = autolink_do($text, '![a-z][a-z-]+://!i', $limit, $tagfill, $auto_title);
     $text = autolink_do($text, '!(mailto|skype):!i', $limit, $tagfill, $auto_title);
-    $text = autolink_do($text, '!www\\.!i', $limit, $tagfill, $auto_title, 'http://');
 
-    return $text;
+    return autolink_do($text, '!www\\.!i', $limit, $tagfill, $auto_title, 'http://');
 }
 
 //###################################################################
 
-function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix = null): string
+function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix = null)
 {
-    $text_l = mb_strtolower($text);
+    $text_l = strtolower($text);
     $cursor = 0;
     $loop = 1;
     $buffer = '';
 
-    while (($cursor < mb_strlen($text)) && $loop) {
+    while (($cursor < strlen($text)) && $loop) {
         $ok = 1;
         $matched = preg_match($sub, $text_l, $m, PREG_OFFSET_CAPTURE, $cursor);
 
-        if ( ! $matched) {
+        if (! $matched) {
             $loop = 0;
             $ok = 0;
         } else {
             $pos = $m[0][1];
-            $sub_len = mb_strlen($m[0][0]);
+            $sub_len = strlen($m[0][0]);
 
-            $pre_hit = mb_substr($text, $cursor, $pos - $cursor);
-            $hit = mb_substr($text, $pos, $sub_len);
-            $pre = mb_substr($text, 0, $pos);
-            $post = mb_substr($text, $pos + $sub_len);
+            $pre_hit = substr($text, $cursor, $pos - $cursor);
+            $hit = substr($text, $pos, $sub_len);
+            $pre = substr($text, 0, $pos);
+            $post = substr($text, $pos + $sub_len);
 
             $fail_text = $pre_hit . $hit;
-            $fail_len = mb_strlen($fail_text);
+            $fail_len = strlen($fail_text);
 
             //
             // substring found - first check to see if we're inside a link tag already...
@@ -81,13 +80,15 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
         // to see if there was whitespace before this match
         //
 
-        if ($ok !== 0 && $pre) {
-            if ( ! preg_match('![\s\(\[\{>]$!s', $pre)) {
-                //echo "fail 2 at $cursor ($pre)<br />\n";
+        if ($ok) {
+            if ($pre) {
+                if (! preg_match('![\s\(\[\{>]$!s', $pre)) {
+                    //echo "fail 2 at $cursor ($pre)<br />\n";
 
-                $ok = 0;
-                $cursor += $fail_len;
-                $buffer .= $fail_text;
+                    $ok = 0;
+                    $cursor += $fail_len;
+                    $buffer .= $fail_text;
+                }
             }
         }
 
@@ -95,11 +96,11 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
         // we want to autolink here - find the extent of the url
         //
 
-        if ($ok !== 0) {
+        if ($ok) {
             if (preg_match('/^([a-z0-9\-\.\/\-_%~!?=,:;&+*#@\(\)\$]+)/i', $post, $matches)) {
                 $url = $hit . $matches[1];
 
-                $cursor += mb_strlen($url) + mb_strlen($pre_hit);
+                $cursor += strlen($url) + strlen($pre_hit);
                 $buffer .= $pre_hit;
 
                 $url = html_entity_decode($url);
@@ -109,15 +110,14 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 //
 
                 while (preg_match('|[.,!;:?]$|', $url)) {
-                    $url = mb_substr($url, 0, mb_strlen($url) - 1);
+                    $url = substr($url, 0, strlen($url) - 1);
                     $cursor--;
                 }
-
                 foreach (['()', '[]', '{}'] as $pair) {
-                    $o = mb_substr($pair, 0, 1);
-                    $c = mb_substr($pair, 1, 1);
-                    if (preg_match(sprintf('!^(\%s|^)[^\%s]+\%s$!', $c, $o, $c), $url)) {
-                        $url = mb_substr($url, 0, mb_strlen($url) - 1);
+                    $o = substr($pair, 0, 1);
+                    $c = substr($pair, 1, 1);
+                    if (preg_match("!^(\\$c|^)[^\\$o]+\\$c$!", $url)) {
+                        $url = substr($url, 0, strlen($url) - 1);
                         $cursor--;
                     }
                 }
@@ -133,8 +133,10 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                     $link_url = $force_prefix . $link_url;
                 }
 
-                if ($GLOBALS['autolink_options']['strip_protocols'] && preg_match('!^(http|https)://!i', $display_url, $m)) {
-                    $display_url = mb_substr($display_url, mb_strlen($m[1]) + 3);
+                if ($GLOBALS['autolink_options']['strip_protocols']) {
+                    if (preg_match('!^(http|https)://!i', $display_url, $m)) {
+                        $display_url = substr($display_url, strlen($m[1]) + 3);
+                    }
                 }
 
                 $display_url = autolink_label($display_url, $limit);
@@ -147,7 +149,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 if ($display_url != $link_url && ! preg_match('@title=@msi', $currentTagfill) && $auto_title) {
                     $display_quoted = preg_quote($display_url, '!');
 
-                    if ( ! preg_match(sprintf('!^(http|https)://%s$!i', $display_quoted), $link_url)) {
+                    if (! preg_match("!^(http|https)://{$display_quoted}$!i", $link_url)) {
                         $currentTagfill .= ' title="' . $link_url . '"';
                     }
                 }
@@ -155,7 +157,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 $link_url_enc = htmlspecialchars($link_url);
                 $display_url_enc = htmlspecialchars($display_url);
 
-                $buffer .= sprintf('<a href="%s"%s>%s</a>', $link_url_enc, $currentTagfill, $display_url_enc);
+                $buffer .= "<a href=\"{$link_url_enc}\"$currentTagfill>{$display_url_enc}</a>";
             } else {
                 //echo "fail 3 at $cursor<br />\n";
 
@@ -170,7 +172,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
     // add everything from the cursor to the end onto the buffer.
     //
 
-    $buffer .= mb_substr($text, $cursor);
+    $buffer .= substr($text, $cursor);
 
     return $buffer;
 }
@@ -179,12 +181,12 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
 
 function autolink_label($text, $limit)
 {
-    if ( ! $limit) {
+    if (! $limit) {
         return $text;
     }
 
-    if (mb_strlen($text) > $limit) {
-        return mb_substr($text, 0, $limit - 3) . '...';
+    if (strlen($text) > $limit) {
+        return substr($text, 0, $limit - 3) . '...';
     }
 
     return $text;
@@ -192,35 +194,35 @@ function autolink_label($text, $limit)
 
 //###################################################################
 
-function autolink_email($text, $tagfill = ''): string
+function autolink_email($text, $tagfill = '')
 {
     $atom = '[^()<>@,;:\\\\".\\[\\]\\x00-\\x20\\x7f]+'; // from RFC822
 
     //die($atom);
 
-    $text_l = mb_strtolower($text);
+    $text_l = strtolower($text);
     $cursor = 0;
     $loop = 1;
     $buffer = '';
 
-    while (($cursor < mb_strlen($text)) && $loop) {
+    while (($cursor < strlen($text)) && $loop) {
         //
         // find an '@' symbol
         //
 
         $ok = 1;
-        $pos = mb_strpos($text_l, '@', $cursor);
+        $pos = strpos($text_l, '@', $cursor);
 
         if ($pos === false) {
             $loop = 0;
             $ok = 0;
         } else {
-            $pre = mb_substr($text, $cursor, $pos - $cursor);
-            $hit = mb_substr($text, $pos, 1);
-            $post = mb_substr($text, $pos + 1);
+            $pre = substr($text, $cursor, $pos - $cursor);
+            $hit = substr($text, $pos, 1);
+            $post = substr($text, $pos + 1);
 
             $fail_text = $pre . $hit;
-            $fail_len = mb_strlen($fail_text);
+            $fail_len = strlen($fail_text);
 
             //die("$pre::$hit::$post::$fail_text");
 
@@ -243,15 +245,15 @@ function autolink_email($text, $tagfill = ''): string
         // check backwards
         //
 
-        if ($ok !== 0) {
-            if (preg_match(sprintf('!(%s(\.%s)*)$!', $atom, $atom), $pre, $matches)) {
+        if ($ok) {
+            if (preg_match("!($atom(\.$atom)*)\$!", $pre, $matches)) {
                 // move matched part of address into $hit
 
-                $len = mb_strlen($matches[1]);
-                $plen = mb_strlen($pre);
+                $len = strlen($matches[1]);
+                $plen = strlen($pre);
 
-                $hit = mb_substr($pre, $plen - $len) . $hit;
-                $pre = mb_substr($pre, 0, $plen - $len);
+                $hit = substr($pre, $plen - $len) . $hit;
+                $pre = substr($pre, 0, $plen - $len);
             } else {
                 //echo "fail 2 at $cursor ($pre)<br />\n";
 
@@ -265,14 +267,14 @@ function autolink_email($text, $tagfill = ''): string
         // check forwards
         //
 
-        if ($ok !== 0) {
-            if (preg_match(sprintf('!^(%s(\.%s)*)!', $atom, $atom), $post, $matches)) {
+        if ($ok) {
+            if (preg_match("!^($atom(\.$atom)*)!", $post, $matches)) {
                 // move matched part of address into $hit
 
-                $len = mb_strlen($matches[1]);
+                $len = strlen($matches[1]);
 
-                $hit .= mb_substr($post, 0, $len);
-                $post = mb_substr($post, $len);
+                $hit .= substr($post, 0, $len);
+                $post = substr($post, $len);
             } else {
                 //echo "fail 3 at $cursor ($post)<br />\n";
 
@@ -286,10 +288,10 @@ function autolink_email($text, $tagfill = ''): string
         // commit
         //
 
-        if ($ok !== 0) {
-            $cursor += mb_strlen($pre) + mb_strlen($hit);
+        if ($ok) {
+            $cursor += strlen($pre) + strlen($hit);
             $buffer .= $pre;
-            $buffer .= sprintf('<a href="mailto:%s"%s>%s</a>', $hit, $tagfill, $hit);
+            $buffer .= "<a href=\"mailto:$hit\"$tagfill>$hit</a>";
         }
     }
 
@@ -297,7 +299,7 @@ function autolink_email($text, $tagfill = ''): string
     // add everything from the cursor to the end onto the buffer.
     //
 
-    $buffer .= mb_substr($text, $cursor);
+    $buffer .= substr($text, $cursor);
 
     return $buffer;
 }

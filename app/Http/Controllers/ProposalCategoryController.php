@@ -11,17 +11,16 @@ use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ProposalCategoryController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_CATEGORY;
-
     protected ProposalCategoryRepository $proposalCategoryRepo;
 
     protected ProposalCategoryService $proposalCategoryService;
+
+    protected $entityType = ENTITY_PROPOSAL_CATEGORY;
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {
@@ -45,7 +44,7 @@ class ProposalCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Request::input('sSearch');
+        $search = $request->get('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalCategoryService->getDatatable($search, $userId);
@@ -54,7 +53,7 @@ class ProposalCategoryController extends BaseController
     public function create(ProposalCategoryRequest $request)
     {
         $data = [
-            'account'       => auth()->user()->account,
+            'company'       => auth()->user()->company,
             'category'      => null,
             'method'        => 'POST',
             'url'           => 'proposals/categories',
@@ -71,7 +70,7 @@ class ProposalCategoryController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/categories/%s/edit', $publicId));
+        return redirect("proposals/categories/$publicId/edit");
     }
 
     public function edit(ProposalCategoryRequest $request)
@@ -79,7 +78,7 @@ class ProposalCategoryController extends BaseController
         $proposalCategory = $request->entity();
 
         $data = [
-            'account'  => auth()->user()->account,
+            'company'  => auth()->user()->company,
             'category' => $proposalCategory,
             'method'   => 'PUT',
             'url'      => 'proposals/categories/' . $proposalCategory->public_id,
@@ -104,7 +103,7 @@ class ProposalCategoryController extends BaseController
 
         Session::flash('message', trans('texts.updated_proposal_category'));
 
-        $action = Request::input('action');
+        $action = $request->get('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -114,14 +113,14 @@ class ProposalCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $action = $request->get('action');
+        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_category' : $action . 'd_proposal_categories';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal_category" : "{$action}d_proposal_categories";
+            $message = trans("texts.$field", ['count' => $count]);
             Session::flash('message', $message);
         }
 

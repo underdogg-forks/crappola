@@ -2,77 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
- * Class Account.
- *
- * @property int         $id
- * @property int         $account_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property string|null $reply_to_email
- * @property string|null $bcc_email
- * @property string      $email_subject_invoice
- * @property string      $email_subject_quote
- * @property string      $email_subject_payment
- * @property string      $email_template_invoice
- * @property string      $email_template_quote
- * @property string      $email_template_payment
- * @property string      $email_subject_reminder1
- * @property string      $email_subject_reminder2
- * @property string      $email_subject_reminder3
- * @property string      $email_template_reminder1
- * @property string      $email_template_reminder2
- * @property string      $email_template_reminder3
- * @property string|null $late_fee1_amount
- * @property string|null $late_fee1_percent
- * @property string|null $late_fee2_amount
- * @property string|null $late_fee2_percent
- * @property string|null $late_fee3_amount
- * @property string|null $late_fee3_percent
- * @property string|null $email_subject_reminder4
- * @property string|null $email_template_reminder4
- * @property int|null    $frequency_id_reminder4
- * @property string|null $email_subject_proposal
- * @property string|null $email_template_proposal
- *
- * @method static Builder|AccountEmailSettings newModelQuery()
- * @method static Builder|AccountEmailSettings newQuery()
- * @method static Builder|AccountEmailSettings query()
- * @method static Builder|AccountEmailSettings whereAccountId($value)
- * @method static Builder|AccountEmailSettings whereBccEmail($value)
- * @method static Builder|AccountEmailSettings whereCreatedAt($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectInvoice($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectPayment($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectProposal($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectQuote($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectReminder1($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectReminder2($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectReminder3($value)
- * @method static Builder|AccountEmailSettings whereEmailSubjectReminder4($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateInvoice($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplatePayment($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateProposal($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateQuote($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateReminder1($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateReminder2($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateReminder3($value)
- * @method static Builder|AccountEmailSettings whereEmailTemplateReminder4($value)
- * @method static Builder|AccountEmailSettings whereFrequencyIdReminder4($value)
- * @method static Builder|AccountEmailSettings whereId($value)
- * @method static Builder|AccountEmailSettings whereLateFee1Amount($value)
- * @method static Builder|AccountEmailSettings whereLateFee1Percent($value)
- * @method static Builder|AccountEmailSettings whereLateFee2Amount($value)
- * @method static Builder|AccountEmailSettings whereLateFee2Percent($value)
- * @method static Builder|AccountEmailSettings whereLateFee3Amount($value)
- * @method static Builder|AccountEmailSettings whereLateFee3Percent($value)
- * @method static Builder|AccountEmailSettings whereReplyToEmail($value)
- * @method static Builder|AccountEmailSettings whereUpdatedAt($value)
- *
- * @mixin \Eloquent
+ * Class company.
  */
 class AccountEmailSettings extends Model
 {
@@ -86,6 +19,10 @@ class AccountEmailSettings extends Model
         TEMPLATE_REMINDER2,
         TEMPLATE_REMINDER3,
         TEMPLATE_REMINDER4,
+        /*TEMPLATE_QUOTE_REMINDER1,
+        TEMPLATE_QUOTE_REMINDER2,
+        TEMPLATE_QUOTE_REMINDER3,
+        TEMPLATE_QUOTE_REMINDER4,*/
     ];
 
     /**
@@ -112,5 +49,46 @@ class AccountEmailSettings extends Model
         'late_fee2_percent',
         'late_fee3_amount',
         'late_fee3_percent',
+        'enable_reminder1',
+        'enable_reminder2',
+        'enable_reminder3',
+        'enable_reminder4',
+        'num_days_reminder1',
+        'num_days_reminder2',
+        'num_days_reminder3',
+        'direction_reminder1',
+        'direction_reminder2',
+        'direction_reminder3',
+        'field_reminder1',
+        'field_reminder2',
+        'field_reminder3',
+        'email_subject_quote_reminder1',
+        'email_subject_quote_reminder2',
+        'email_subject_quote_reminder3',
+        'email_template_quote_reminder1',
+        'email_template_quote_reminder2',
+        'email_template_quote_reminder3',
+        'late_fee_quote1_amount',
+        'late_fee_quote1_percent',
+        'late_fee_quote2_amount',
+        'late_fee_quote2_percent',
+        'late_fee_quote3_amount',
+        'late_fee_quote3_percent',
+        'enable_quote_reminder1',
+        'enable_quote_reminder2',
+        'enable_quote_reminder3',
+        'enable_quote_reminder4',
+        'num_days_quote_reminder1',
+        'num_days_quote_reminder2',
+        'num_days_quote_reminder3',
+        'direction_quote_reminder1',
+        'direction_quote_reminder2',
+        'direction_quote_reminder3',
+        'field_quote_reminder1',
+        'field_quote_reminder2',
+        'field_quote_reminder3',
+        'email_design_id',
+        'enable_email_markup',
+        'email_footer',
     ];
 }

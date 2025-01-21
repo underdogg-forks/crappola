@@ -2,7 +2,7 @@
 
 namespace $NAMESPACE$;
 
-use DB;
+use Illuminate\Support\Facades\DB;
 use Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$;
 use App\Ninja\Repositories\BaseRepository;
 //use App\Events\$STUDLY_NAME$WasCreated;
@@ -25,7 +25,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('$LOWER_NAME$')
-                    ->where('$LOWER_NAME$.account_id', '=', \Auth::user()->account_id)
+                    ->where('$LOWER_NAME$.company_id', '=', \Auth::user()->company_id)
                     ->select(
                         $DATABASE_FIELDS$
                         '$LOWER_NAME$.public_id',

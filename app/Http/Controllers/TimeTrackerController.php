@@ -12,9 +12,9 @@ class TimeTrackerController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $account = $user->account;
+        $company = $user->company;
 
-        if ( ! $account->hasFeature(FEATURE_TASKS)) {
+        if (! $company->hasFeature(FEATURE_TASKS)) {
             return trans('texts.tasks_not_enabled');
         }
 
@@ -24,7 +24,7 @@ class TimeTrackerController extends Controller
             'clients'  => Client::scope()->with('contacts')->orderBy('name')->get(),
             'projects' => Project::scope()->with('client.contacts')->orderBy('name')->get(),
             'statuses' => TaskStatus::scope()->orderBy('sort_order')->get(),
-            'account'  => $account,
+            'company'  => $company,
         ];
 
         return view('tasks.time_tracker', $data);

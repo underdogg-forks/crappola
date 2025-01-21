@@ -8,15 +8,15 @@ use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use App\Ninja\Repositories\ContactRepository;
 use App\Services\ContactService;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 class ContactApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_CONTACT;
-
     protected ContactRepository $contactRepo;
 
     protected ContactService $contactService;
+
+    protected $entityType = ENTITY_CONTACT;
 
     public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {

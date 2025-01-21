@@ -13,7 +13,6 @@ class CybersourcePaymentDriver extends BasePaymentDriver
         if ($input['decision'] == 'ACCEPT') {
             return $this->createPayment($input['bill_trans_ref_no']);
         }
-
         throw new Exception($input['message'] . ': ' . $input['invalid_fields']);
     }
 }

@@ -5,7 +5,6 @@ $(function() {
     validateSignUp();
 
     $('#signUpModal').on('shown.bs.modal', function () {
-        trackEvent('/account', '/view_sign_up');
         // change the type after page load to prevent errors in Chrome console
         $('#new_password').attr('type', 'password');
         $(['first_name','last_name','email','password']).each(function(i, field) {
@@ -20,7 +19,7 @@ $(function() {
     @if (Auth::check() && !Utils::isNinja() && ! Auth::user()->registered)
     $('#closeSignUpButton').hide();
     showSignUp();
-    @elseif(Session::get('sign_up') || \Request::input('sign_up'))
+    @elseif(Session::get('sign_up') || request()->get('sign_up'))
     showSignUp();
     @endif
 
@@ -33,7 +32,6 @@ $(function() {
     @endif
 
 });
-
 
 function showSignUp() {
     if (location.href.indexOf('/dashboard') == -1) {
@@ -155,12 +153,12 @@ function handleSignedUp() {
         localStorage.setItem('guest_key', '');
     }
     fbq('track', 'CompleteRegistration');
-    trackEvent('/account', '/signed_up');
+    trackEvent('/company', '/signed_up');
 }
 
 </script>
 
-@if (\Request::is('dashboard'))
+@if (\request()->is('dashboard'))
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -168,6 +166,7 @@ function handleSignedUp() {
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">{{ Auth::user()->registered ? trans('texts.add_company') : trans('texts.sign_up') }}</h4>
       </div>
+
       <div class="container" style="width: 100%; padding-bottom: 0px !important">
       <div class="panel panel-default">
       <div class="panel-body">
@@ -206,20 +205,13 @@ function handleSignedUp() {
             </div>
             <br/>&nbsp;<br/>
             @if (Utils::isOAuthEnabled() && ! Auth::user()->registered)
-                <div class="col-md-6">
+                <div class="col-md-5">
                     @foreach (App\Services\AuthService::$providers as $provider)
-                    <a href="{{ URL::to('auth/' . $provider) }}" class=""
+                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block"
                         style="padding-top:10px;padding-bottom:10px;margin-top:10px;margin-bottom:10px"
                         id="{{ strtolower($provider) }}LoginButton">
-                            @if($provider == SOCIAL_GITHUB)
-                                <img style="height: 6rem;" src="{{ asset('images/btn_github_signin.png') }}">
-                            @elseif($provider == SOCIAL_GOOGLE)
-                                <img style="height: 6rem;" src="{{ asset('images/btn_google_signin_dark_normal_web@2x.png') }}">
-                            @elseif($provider == SOCIAL_LINKEDIN)
-                                <img style="height: 6rem;" src="{{ asset('images/btn_linkedin_signin.png') }}">
-                            @elseif($provider === SOCIAL_FACEBOOK)
-                                <img style="height: 6rem;" src="{{ asset('images/btn_facebook_signin.png') }}">
-                            @endif
+                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                        {{ $provider }}
                     </a>
                     @endforeach
                 </div>
@@ -228,7 +220,7 @@ function handleSignedUp() {
                     {{ trans('texts.or') }}
                     <div style="border-right:thin solid #CCCCCC;height:90px;width:8px;margin-top:10px;"></div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-6">
             @else
                 <div class="col-md-12">
             @endif

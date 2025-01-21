@@ -2,13 +2,25 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proposal;
+
 class CreateProposalRequest extends ProposalRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROPOSAL);
+        return $this->user()->can('create', Proposal::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{invoice_id: string}
+     */
     public function rules(): array
     {
         return [

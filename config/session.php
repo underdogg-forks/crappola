@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Default Session Driver
@@ -147,5 +148,6 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', null),
+    'secure' => env('SESSION_SECURE', false),
+
 ];

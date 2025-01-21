@@ -11,19 +11,22 @@ use Illuminate\Http\Request;
 class DuplicateSubmissionCheck
 {
     /**
-     * @param Request $request
-     * @param Closure $next
-     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->is('api/v1/*')
-            || $request->is('save_sidebar_state')
-            || $request->is('documents')) {
+        if ($request->is('api/v1/*')) {
             return $next($request);
         }
-
+        if ($request->is('save_sidebar_state')) {
+            return $next($request);
+        }
+        if ($request->is('tickets/search')) {
+            return $next($request);
+        }
+        if ($request->is('documents')) {
+            return $next($request);
+        }
         $path = $request->path();
 
         if (in_array($request->method(), ['POST', 'PUT', 'DELETE'])) {

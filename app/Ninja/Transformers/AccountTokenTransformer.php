@@ -11,15 +11,18 @@ use League\Fractal\TransformerAbstract;
 class AccountTokenTransformer extends TransformerAbstract
 {
     /**
-     * @param AccountToken $account_token
-     *
+     * @SWG\Property(property="name", type="string", example="Name")
+     * @SWG\Property(property="token", type="string", example="Token")
+     */
+
+    /**
      * @return array
      */
-    public function transform(AccountToken $account_token): array
+    public function transform(AccountToken $company_token)
     {
         return [
-            'name'  => $account_token->name,
-            'token' => $account_token->token,
+            'name'  => $company_token->name,
+            'token' => $company_token->token,
         ];
     }
 }
