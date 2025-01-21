@@ -9,11 +9,7 @@ class PaymentStatusSeeder extends Seeder
 {
     public function run(): void
     {
-        Eloquent::unguard();
-
         $this->createPaymentStatuses();
-
-        Eloquent::reguard();
     }
 
     private function createPaymentStatuses(): void

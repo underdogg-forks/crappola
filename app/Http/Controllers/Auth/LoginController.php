@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Auth;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
+use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Repositories\AccountRepository;
 use Cache;
+use Cookie;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Lang;
+use Lang;
 use Illuminate\Support\Str;
-use Utils;
 
 class LoginController extends Controller
 {
@@ -61,7 +60,7 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        if ( ! Utils::isNinja() && ! User::count()) {
+        if (! Utils::isNinja() && ! User::count()) {
             return redirect()->to('/setup');
         }
 
@@ -70,17 +69,15 @@ class LoginController extends Controller
             $requestURL = request()->url();
             $loginURL = SITE_URL . '/login';
             $subdomain = Utils::getSubdomain(request()->url());
-            if ($requestURL != $loginURL && ! mb_strstr($subdomain, 'webapp-')) {
+            if ($requestURL != $loginURL && ! strstr($subdomain, 'webapp-')) {
                 return redirect()->to($loginURL);
             }
         }
 
-        return self::showLoginForm();
+        return self::showLoginForm($request);
     }
 
     /**
-     * @param Request $request
-     *
      * @return Response
      */
     public function postLoginWrapper(Request $request)
@@ -99,25 +96,24 @@ class LoginController extends Controller
         if (auth()->check()) {
             /*
             $users = false;
-            // we're linking a new account
+            // we're linking a new company
             if ($request->link_accounts && $userId && Auth::user()->id != $userId) {
                 $users = $this->accountRepo->associateAccounts($userId, Auth::user()->id);
                 Session::flash('message', trans('texts.associated_accounts'));
-                // check if other accounts are linked
+                // check if other companies are linked
             } else {
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
             */
         } else {
-            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), Arr::get($_SERVER, 'HTTP_USER_AGENT'));
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), request()->getClientIp(), array_get($_SERVER, 'HTTP_USER_AGENT'));
             if (config('app.log') == 'single') {
                 file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             } else {
                 Utils::logError('[failed login] ' . $stacktrace);
             }
-
             if ($user) {
-                $user->failed_logins += 1;
+                $user->failed_logins = $user->failed_logins + 1;
                 $user->save();
             }
         }
@@ -149,7 +145,7 @@ class LoginController extends Controller
         $key = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
-        \Illuminate\Support\Facades\Cache::add($key, true, 4 * 60);
+        Cache::add($key, true, 4);
 
         //login and redirect user
         auth()->loginUsingId($userId);
@@ -157,11 +153,10 @@ class LoginController extends Controller
 
         if ($trust = request()->trust) {
             $user = auth()->user();
-            if ( ! $user->remember_2fa_token) {
+            if (! $user->remember_2fa_token) {
                 $user->remember_2fa_token = Str::random(60);
                 $user->save();
             }
-
             $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
             cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
         }
@@ -176,14 +171,13 @@ class LoginController extends Controller
     {
         if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
             if (request()->force_logout) {
-                $account = auth()->user()->account;
-                app(AccountRepository::class)->unlinkAccount($account);
+                $company = auth()->user()->company;
+                app(AccountRepository::class)->unlinkAccount($company);
 
-                if ( ! $account->hasMultipleAccounts()) {
-                    $account->company->forceDelete();
+                if (! $company->hasMultipleAccounts()) {
+                    $company->companyPlan->forceDelete();
                 }
-
-                $account->forceDelete();
+                $company->forceDelete();
             } else {
                 return redirect('/');
             }
@@ -192,9 +186,13 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ($reason !== '' && $reason !== '0' && Lang::has(sprintf('texts.%s_logout', $reason))) {
-            session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
+        if (empty($reason)) {
+            return $response;
         }
+        if (! Lang::has("texts.{$reason}_logout")) {
+            return $response;
+        }
+        session()->flash('warning', trans("texts.{$reason}_logout"));
 
         return $response;
     }
@@ -202,7 +200,6 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param Request $request
      *
      * @return RedirectResponse
      */
@@ -218,8 +215,6 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param Request         $request
-     * @param Authenticatable $user
      *
      * @return Response
      */
@@ -237,7 +232,7 @@ class LoginController extends Controller
                 auth()->logout();
                 session()->put('2fa:user:id', $user->id);
 
-                return redirect('/validate_two_factor/' . $user->account->account_key);
+                return redirect('/validate_two_factor/' . $user->company->account_key);
             }
         }
 

@@ -4,26 +4,25 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class TaxRatePolicy.
+ */
 class TaxRatePolicy extends EntityPolicy
 {
     /**
-     * @param User $user
-     * @param      $item
-     *
      * @return bool
      */
-    public static function edit(User $user, $item)
+    public function edit(User $user, $item)
     {
         return $user->hasPermission('admin');
     }
 
     /**
-     * @param User  $user
      * @param mixed $item
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function create(User $user)
     {
         return $user->hasPermission('admin');
     }

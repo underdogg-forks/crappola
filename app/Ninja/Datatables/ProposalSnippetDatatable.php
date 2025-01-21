@@ -3,7 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class ProposalSnippetDatatable extends EntityDatatable
 {
@@ -11,16 +11,16 @@ class ProposalSnippetDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
                 'name',
-                function ($model): string {
+                function ($model) {
                     $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
 
                     if (Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model])) {
-                        return $icon . link_to(sprintf('proposals/snippets/%s/edit', $model->public_id), $model->name)->toHtml();
+                        return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
                     }
 
                     return $icon . $model->name;
@@ -30,7 +30,7 @@ class ProposalSnippetDatatable extends EntityDatatable
                 'category',
                 function ($model) {
                     if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
-                        return link_to(sprintf('proposals/categories/%s/edit', $model->category_public_id), $model->category ?: ' ')->toHtml();
+                        return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category ?: ' ')->toHtml();
                     }
 
                     return $model->category;
@@ -38,22 +38,32 @@ class ProposalSnippetDatatable extends EntityDatatable
             ],
             [
                 'content',
-                fn ($model) => $this->showWithTooltip(strip_tags($model->content)),
+                function ($model) {
+                    return $this->showWithTooltip(strip_tags($model->content));
+                },
             ],
             [
                 'private_notes',
-                fn ($model) => $this->showWithTooltip($model->private_notes),
+                function ($model) {
+                    return $this->showWithTooltip($model->private_notes);
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 trans('texts.edit_proposal_snippet'),
-                fn ($model) => URL::to(sprintf('proposals/snippets/%s/edit', $model->public_id)),
-                fn ($model) => Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]),
+                function ($model) {
+                    return URL::to("proposals/snippets/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    $model->entityType = ENTITY_PROPOSAL;
+
+                    return Auth::user()->can('viewModel', $model);
+                },
             ],
         ];
     }

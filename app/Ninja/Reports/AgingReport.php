@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AgingReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'client'         => [],
             'invoice_number' => [],
             'invoice_date'   => [],
-            'due_date'       => [],
+            'due_at'         => [],
+            'last_sent'      => [],
             'age'            => [],
             'amount'         => [],
             'balance'        => [],
@@ -22,7 +23,7 @@ class AgingReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        $company = Auth::user()->company;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -45,10 +46,11 @@ class AgingReport extends AbstractReport
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                    $this->isExport ? ($invoice->partial_due_date ?: $invoice->due_date) : ($invoice->present()->partial_due_date ?: $invoice->present()->due_date),
+                    $this->isExport ? ($invoice->partial_due_date ?: $invoice->due_at) : ($invoice->present()->partial_due_date ?: $invoice->present()->due_date),
+                    $invoice->present()->days_since_last_email,
                     $invoice->present()->age,
-                    $account->formatMoney($invoice->amount, $client),
-                    $account->formatMoney($invoice->balance, $client),
+                    $company->formatMoney($invoice->amount, $client),
+                    $company->formatMoney($invoice->balance, $client),
                 ];
 
                 $this->addToTotals($client->currency_id, $invoice->present()->ageGroup, $invoice->balance);
@@ -57,7 +59,11 @@ class AgingReport extends AbstractReport
                 //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
 
-                $dimension = $subgroup == 'age' ? trans('texts.' . $invoice->present()->ageGroup) : $this->getDimension($client);
+                if ($subgroup == 'age') {
+                    $dimension = trans('texts.' . $invoice->present()->ageGroup);
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->balance);
             }
         }

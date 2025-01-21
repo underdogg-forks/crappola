@@ -11,26 +11,26 @@ use League\Fractal\Resource\Item;
 class ClientTransformer extends BaseTransformer
 {
     /**
-     * @param $data
-     *
      * @return bool|Item
      */
-    public function transform($data): false|Item
+    public function transform($data)
     {
-        if ($this->hasClient($data->company)) {
+        if ($this->hasClient($data->companyPlan)) {
             return false;
         }
 
-        return new Item($data, fn ($data): array => [
-            'name'       => $this->getString($data, 'company'),
-            'work_phone' => $this->getString($data, 'phone'),
-            'contacts'   => [
-                [
-                    'first_name' => $this->getFirstName($data->name),
-                    'last_name'  => $this->getLastName($data->name),
-                    'email'      => $this->getString($data, 'email'),
+        return new Item($data, function ($data) {
+            return [
+                'name'       => $this->getString($data, 'companyPlan'),
+                'work_phone' => $this->getString($data, 'phone'),
+                'contacts'   => [
+                    [
+                        'first_name' => $this->getFirstName($data->name),
+                        'last_name'  => $this->getLastName($data->name),
+                        'email'      => $this->getString($data, 'email'),
+                    ],
                 ],
-            ],
-        ]);
+            ];
+        });
     }
 }

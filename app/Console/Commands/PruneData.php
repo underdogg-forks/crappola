@@ -20,7 +20,7 @@ class PruneData extends Command
     /**
      * @var string
      */
-    protected $description = 'Delete inactive accounts';
+    protected $description = 'Delete inactive companies';
 
     public function handle(): void
     {
@@ -30,15 +30,15 @@ class PruneData extends Command
             config(['database.default' => $database]);
         }
 
-        // delete accounts who never registered, didn't create any invoices,
-        // hansn't logged in within the past 6 months and isn't linked to another account
+        // delete companies who never registered, didn't create any invoices,
+        // hansn't logged in within the past 6 months and isn't linked to another company
         $sql = 'select c.id
                 from companies c
-                left join accounts a on a.company_id = c.id
-                left join clients cl on cl.account_id = a.id
-                left join tasks t on t.account_id = a.id
-                left join expenses e on e.account_id = a.id
-                left join users u on u.account_id = a.id and u.registered = 1
+                left join companies a on a.company_id = c.id
+                left join clients cl on cl.company_id = a.id
+                left join tasks t on t.company_id = a.id
+                left join expenses e on e.company_id = a.id
+                left join users u on u.company_id = a.id and u.registered = 1
                 where c.created_at < DATE_SUB(now(), INTERVAL 6 MONTH)
                 and c.trial_started is null
                 and c.plan is null
@@ -51,25 +51,31 @@ class PruneData extends Command
         $results = DB::select($sql);
 
         foreach ($results as $result) {
-            $this->info('Deleting company: ' . $result->id);
+            $this->info("Deleting companyPlan: {$result->id}");
             try {
                 DB::table('companies')
                     ->where('id', '=', $result->id)
                     ->delete();
-            } catch (QueryException) {
+            } catch (QueryException $e) {
                 // most likely because a user_account record exists which doesn't cascade delete
-                $this->info('Unable to delete companyId: ' . $result->id);
+                $this->info("Unable to delete companyId: {$result->id}");
             }
         }
 
         $this->info('Done');
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
         return [

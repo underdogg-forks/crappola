@@ -2,57 +2,72 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Models\Account;
+use App\Libraries\Utils;
+use App\Models\Company;
 use App\Models\TaxRate;
 use Carbon;
 use Domain;
 use Laracasts\Presenter\Presenter;
 use stdClass;
-use Utils;
 
 /**
  * Class AccountPresenter.
  */
 class AccountPresenter extends Presenter
 {
+    /**
+     * @return mixed
+     */
     public function name()
     {
         return $this->entity->name ?: trans('texts.untitled_account');
     }
 
-    public function address(): string
+    /**
+     * @return string
+     */
+    public function address()
     {
-        $account = $this->entity;
+        $company = $this->entity;
 
-        $str = $account->address1 ?: '';
+        $str = $company->address1 ?: '';
 
-        if ($account->address2 && $str) {
+        if ($company->address2 && $str) {
             $str .= ', ';
         }
 
-        $str .= $account->address2;
+        $str .= $company->address2;
 
-        if ($account->getCityState() && $str) {
+        if ($company->getCityState() && $str) {
             $str .= ' - ';
         }
 
-        return $str . $account->getCityState();
+        return $str . $company->getCityState();
     }
 
-    public function website(): string
+    /**
+     * @return string
+     */
+    public function website()
     {
         return Utils::addHttp($this->entity->website);
     }
 
-    public function taskRate(): string
+    /**
+     * @return string
+     */
+    public function taskRate()
     {
-        if ((float) ($this->entity->task_rate) !== 0.0) {
+        if (floatval($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 
         return '';
     }
 
+    /**
+     * @return mixed
+     */
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();
@@ -61,13 +76,13 @@ class AccountPresenter extends Presenter
         return $currency->code;
     }
 
-    public function clientPortalLink($subdomain = false): array|string
+    public function clientPortalLink($subdomain = false)
     {
-        $account = $this->entity;
-        $url = Domain::getLinkFromId($account->domain_id);
+        $company = $this->entity;
+        $url = Domain::getLinkFromId($company->domain_id);
 
-        if ($subdomain && $account->subdomain) {
-            return Utils::replaceSubdomain($url, $account->subdomain);
+        if ($subdomain && $company->subdomain) {
+            $url = Utils::replaceSubdomain($url, $company->subdomain);
         }
 
         return $url;
@@ -83,15 +98,13 @@ class AccountPresenter extends Presenter
         return $this->entity->size ? $this->entity->size->name : '';
     }
 
-    public function paymentTerms(): string
+    public function paymentTerms()
     {
         $terms = $this->entity->payment_terms;
 
         if ($terms == 0) {
             return '';
-        }
-
-        if ($terms == -1) {
+        } elseif ($terms == -1) {
             $terms = 0;
         }
 
@@ -109,44 +122,63 @@ class AccountPresenter extends Presenter
         return $date ? Utils::fromSqlDate($date) : ' ';
     }
 
-    public function rBits(): array
+    public function rBits()
     {
-        $account = $this->entity;
-        $user = $account->users()->first();
+        $company = $this->entity;
+        $user = $company->users()->first();
         $data = [];
 
-        $data[] = $this->createRBit('business_name', 'user', ['business_name' => $account->name]);
-        $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $account->present()->industry]);
+        $data[] = $this->createRBit('business_name', 'user', ['business_name' => $company->name]);
+        $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $company->present()->industry]);
         $data[] = $this->createRBit('comment', 'partner_database', ['comment_text' => 'Logo image not present']);
-        $data[] = $this->createRBit('business_description', 'user', ['business_description' => $account->present()->size]);
+        $data[] = $this->createRBit('business_description', 'user', ['business_description' => $company->present()->size]);
 
         $data[] = $this->createRBit('person', 'user', ['name' => $user->getFullName()]);
         $data[] = $this->createRBit('email', 'user', ['email' => $user->email]);
         $data[] = $this->createRBit('phone', 'user', ['phone' => $user->phone]);
-        $data[] = $this->createRBit('website_uri', 'user', ['uri' => $account->website]);
+        $data[] = $this->createRBit('website_uri', 'user', ['uri' => $company->website]);
         $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
 
         return $data;
     }
 
-    public function dateRangeOptions(): string
+    private function createRBit($type, $source, $properties)
+    {
+        $data = new stdClass();
+        $data->receive_time = time();
+        $data->type = $type;
+        $data->source = $source;
+        $data->properties = new stdClass();
+
+        foreach ($properties as $key => $val) {
+            $data->properties->$key = $val;
+        }
+
+        return $data;
+    }
+
+    public function dateRangeOptions()
     {
         $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
         $month = $yearStart->month - 1;
         $year = $yearStart->year;
         $lastYear = $year - 1;
 
-        return '{
+        $str = '{
             "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
             "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
             "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
             "' . trans('texts.last_month') . '": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+            "' . trans('texts.current_quarter') . '": [moment().quarter(chartQuarter).startOf("quarter"), moment().quarter(chartQuarter).endOf("quarter")],
+            "' . trans('texts.last_quarter') . '": [moment().subtract(1, "quarter").startOf("quarter"), moment().subtract(1, "quarter").endOf("quarter")],
             "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
             "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
         }';
+
+        return $str;
     }
 
-    public function taxRateOptions(): array
+    public function taxRateOptions()
     {
         $rates = TaxRate::scope()->orderBy('name')->get();
         $options = [];
@@ -156,21 +188,17 @@ class AccountPresenter extends Presenter
             if ($rate->is_inclusive) {
                 $name .= ' - ' . trans('texts.inclusive');
             }
-
             $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = e($name);
         }
 
         return $options;
     }
 
-    /**
-     * @return array<mixed, array<'name'|'value', 'custom_client2'|'custom_contact1'|'custom_contact2'|'custom_invoice1'|'custom_invoice2'|'custom_product1'|'custom_product2'>>
-     */
-    public function customTextFields(): array
+    public function customTextFields()
     {
         $fields = [
             'client1'       => 'custom_client1',
-            'client2'       => 'custom_client2',
+            'client1'       => 'custom_client2',
             'contact1'      => 'custom_contact1',
             'contact2'      => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',
@@ -192,14 +220,19 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function customDesigns(): array
+    public function customLabel($field)
     {
-        $account = $this->entity;
+        return Utils::getCustomLabel($this->entity->customLabel($field));
+    }
+
+    public function customDesigns()
+    {
+        $company = $this->entity;
         $data = [];
 
         for ($i = 1; $i <= 3; $i++) {
             $label = trans('texts.custom_design' . $i);
-            if ( ! $account->{'custom_design' . $i}) {
+            if (! $company->{'custom_design' . $i}) {
                 $label .= ' - ' . trans('texts.empty');
             }
 
@@ -212,14 +245,14 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function clientLoginUrl(): string
+    public function clientLoginUrl()
     {
-        $account = $this->entity;
+        $company = $this->entity;
 
         if (Utils::isNinjaProd()) {
             $url = 'https://';
-            $url .= $account->subdomain ?: 'app';
-            $url .= '.' . Domain::getDomainFromId($account->domain_id);
+            $url .= $company->subdomain ?: 'app';
+            $url .= '.' . Domain::getDomainFromId($company->domain_id);
         } else {
             $url = trim(SITE_URL, '/');
         }
@@ -227,33 +260,15 @@ class AccountPresenter extends Presenter
         $url .= '/client/login';
 
         if (Utils::isNinja()) {
-            if ( ! $account->subdomain) {
-                $url .= '?account_key=' . $account->account_key;
+            if (! $company->subdomain) {
+                $url .= '?account_key=' . $company->account_key;
             }
-        } elseif (Account::count() > 1) {
-            $url .= '?account_key=' . $account->account_key;
+        } else {
+            if (Company::count() > 1) {
+                $url .= '?account_key=' . $company->account_key;
+            }
         }
 
         return $url;
-    }
-
-    public function customLabel($field)
-    {
-        return Utils::getCustomLabel($this->entity->customLabel($field));
-    }
-
-    private function createRBit(string $type, string $source, array $properties): stdClass
-    {
-        $data = new stdClass();
-        $data->receive_time = time();
-        $data->type = $type;
-        $data->source = $source;
-        $data->properties = new stdClass();
-
-        foreach ($properties as $key => $val) {
-            $data->properties->{$key} = $val;
-        }
-
-        return $data;
     }
 }

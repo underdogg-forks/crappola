@@ -3,54 +3,12 @@
 namespace App\Models;
 
 // vendor
-use Illuminate\Database\Eloquent\Builder;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * Class VendorContact.
- *
- * @property int         $id
- * @property int         $account_id
- * @property int         $user_id
- * @property int         $vendor_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int         $is_primary
- * @property string|null $first_name
- * @property string|null $last_name
- * @property string|null $email
- * @property string|null $phone
- * @property int|null    $public_id
- * @property Account     $account
- * @property User        $user
- * @property Vendor      $vendor
- *
- * @method static Builder|VendorContact newModelQuery()
- * @method static Builder|VendorContact newQuery()
- * @method static Builder|VendorContact onlyTrashed()
- * @method static Builder|VendorContact query()
- * @method static Builder|VendorContact scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|VendorContact whereAccountId($value)
- * @method static Builder|VendorContact whereCreatedAt($value)
- * @method static Builder|VendorContact whereDeletedAt($value)
- * @method static Builder|VendorContact whereEmail($value)
- * @method static Builder|VendorContact whereFirstName($value)
- * @method static Builder|VendorContact whereId($value)
- * @method static Builder|VendorContact whereIsPrimary($value)
- * @method static Builder|VendorContact whereLastName($value)
- * @method static Builder|VendorContact wherePhone($value)
- * @method static Builder|VendorContact wherePublicId($value)
- * @method static Builder|VendorContact whereUpdatedAt($value)
- * @method static Builder|VendorContact whereUserId($value)
- * @method static Builder|VendorContact whereVendorId($value)
- * @method static Builder|VendorContact withActiveOrSelected($id = false)
- * @method static Builder|VendorContact withArchived()
- * @method static Builder|VendorContact withTrashed()
- * @method static Builder|VendorContact withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class VendorContact extends EntityModel
 {
@@ -77,6 +35,11 @@ class VendorContact extends EntityModel
     public static $fieldPhone = 'phone';
 
     /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
      * @var string
      */
     protected $table = 'vendor_contacts';
@@ -92,24 +55,34 @@ class VendorContact extends EntityModel
         'send_invoice',
     ];
 
-    protected $casts = ['deleted_at' => 'datetime'];
-
-    public function account()
+    /**
+     * @return BelongsTo
+     */
+    public function company()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function vendor()
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    public function getPersonType(): string
+    /**
+     * @return mixed
+     */
+    public function getPersonType()
     {
         return PERSON_VENDOR_CONTACT;
     }
@@ -127,7 +100,7 @@ class VendorContact extends EntityModel
      */
     public function getDisplayName()
     {
-        if ($this->getFullName() !== '' && $this->getFullName() !== '0') {
+        if ($this->getFullName()) {
             return $this->getFullName();
         }
 
@@ -136,7 +109,10 @@ class VendorContact extends EntityModel
 
     public function getFullName(): string
     {
-        if ($this->first_name || $this->last_name) {
+        if ($this->first_name) {
+            return $this->first_name . ' ' . $this->last_name;
+        }
+        if ($this->last_name) {
             return $this->first_name . ' ' . $this->last_name;
         }
 

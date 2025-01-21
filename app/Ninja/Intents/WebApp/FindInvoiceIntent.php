@@ -6,7 +6,7 @@ use App\Ninja\Intents\InvoiceIntent;
 
 class FindInvoiceIntent extends InvoiceIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $invoice = $this->requestInvoice();
 

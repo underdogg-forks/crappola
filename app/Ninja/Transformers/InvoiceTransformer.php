@@ -2,27 +2,10 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\Invoice;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
 
-/**
- * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
- */
 class InvoiceTransformer extends EntityTransformer
 {
-    public $client;
-
-    /**
-     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
-     * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
-     * @SWG\Property(property="client_id", type="integer", example=1)
-     * @SWG\Property(property="invoice_number", type="string", example="0001")
-     * @SWG\Property(property="private_notes", type="string", example="Notes...")
-     * @SWG\Property(property="public_notes", type="string", example="Notes...")
-     */
     protected array $defaultIncludes = [
         'invoice_items',
     ];
@@ -34,51 +17,51 @@ class InvoiceTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct(?Account $account = null, $serializer = null, $client = null)
+    public function __construct($company = null, $serializer = null, $client = null)
     {
-        parent::__construct($account, $serializer);
+        parent::__construct($company, $serializer);
 
         $this->client = $client;
     }
 
-    public function includeInvoiceItems(Invoice $invoice): Collection
+    public function includeInvoiceItems(Invoice $invoice)
     {
-        $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
+        $transformer = new InvoiceItemTransformer($this->company, $this->serializer);
 
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
 
-    public function includeInvitations(Invoice $invoice): Collection
+    public function includeInvitations(Invoice $invoice)
     {
-        $transformer = new InvitationTransformer($this->account, $this->serializer);
+        $transformer = new InvitationTransformer($this->company, $this->serializer);
 
         return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
-    public function includePayments(Invoice $invoice): Collection
+    public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
+        $transformer = new PaymentTransformer($this->company, $this->serializer, $invoice);
 
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
-    public function includeClient(Invoice $invoice): Item
+    public function includeClient(Invoice $invoice)
     {
-        $transformer = new ClientTransformer($this->account, $this->serializer);
+        $transformer = new ClientTransformer($this->company, $this->serializer);
 
         return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
     }
 
-    public function includeExpenses(Invoice $invoice): Collection
+    public function includeExpenses(Invoice $invoice)
     {
-        $transformer = new ExpenseTransformer($this->account, $this->serializer);
+        $transformer = new ExpenseTransformer($this->company, $this->serializer);
 
         return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
     }
 
-    public function includeDocuments(Invoice $invoice): Collection
+    public function includeDocuments(Invoice $invoice)
     {
-        $transformer = new DocumentTransformer($this->account, $this->serializer);
+        $transformer = new DocumentTransformer($this->company, $this->serializer);
 
         $invoice->documents->each(function ($document) use ($invoice): void {
             $document->setRelation('invoice', $invoice);
@@ -87,21 +70,21 @@ class InvoiceTransformer extends EntityTransformer
         return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
     }
 
-    public function transform(Invoice $invoice): array
+    public function transform(Invoice $invoice)
     {
         return array_merge($this->getDefaults($invoice), [
-            'id'                   => $invoice->public_id,
+            'id'                   => (int) $invoice->public_id,
             'amount'               => (float) $invoice->amount,
             'balance'              => (float) $invoice->balance,
-            'client_id'            => ($this->client ? $this->client->public_id : $invoice->client->public_id),
-            'invoice_status_id'    => ($invoice->invoice_status_id ?: 1),
+            'client_id'            => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
+            'invoice_status_id'    => (int) ($invoice->invoice_status_id ?: 1),
             'updated_at'           => $this->getTimestamp($invoice->updated_at),
             'archived_at'          => $this->getTimestamp($invoice->deleted_at),
             'invoice_number'       => $invoice->is_recurring ? '' : $invoice->invoice_number,
             'discount'             => (float) $invoice->discount,
             'po_number'            => $invoice->po_number,
             'invoice_date'         => $invoice->invoice_date ?: '',
-            'due_date'             => $invoice->due_date ?: '',
+            'due_at'               => $invoice->due_at ?: '',
             'terms'                => $invoice->terms,
             'public_notes'         => $invoice->public_notes ?: '',
             'private_notes'        => $invoice->private_notes ?: '',
@@ -112,10 +95,10 @@ class InvoiceTransformer extends EntityTransformer
             'start_date'           => $invoice->start_date ?: '',
             'end_date'             => $invoice->end_date ?: '',
             'last_sent_date'       => $invoice->last_sent_date ?: '',
-            'recurring_invoice_id' => ($invoice->recurring_invoice_id ?: 0),
-            'tax_name1'            => $invoice->tax_name1 ?: '',
+            'recurring_invoice_id' => (int) ($invoice->recurring_invoice_id ?: 0),
+            'tax_name1'            => $invoice->tax_name1 ? $invoice->tax_name1 : '',
             'tax_rate1'            => (float) $invoice->tax_rate1,
-            'tax_name2'            => $invoice->tax_name2 ?: '',
+            'tax_name2'            => $invoice->tax_name2 ? $invoice->tax_name2 : '',
             'tax_rate2'            => (float) $invoice->tax_rate2,
             'is_amount_discount'   => (bool) ($invoice->is_amount_discount ?: false),
             'invoice_footer'       => $invoice->invoice_footer ?: '',
@@ -124,10 +107,6 @@ class InvoiceTransformer extends EntityTransformer
             'has_tasks'            => (bool) $invoice->has_tasks,
             'auto_bill'            => (bool) $invoice->auto_bill,
             'auto_bill_id'         => (int) $invoice->auto_bill,
-            'custom_value1'        => (float) $invoice->custom_value1,
-            'custom_value2'        => (float) $invoice->custom_value2,
-            'custom_taxes1'        => (bool) $invoice->custom_taxes1,
-            'custom_taxes2'        => (bool) $invoice->custom_taxes2,
             'has_expenses'         => (bool) $invoice->has_expenses,
             'quote_invoice_id'     => (int) ($invoice->quote_invoice_id ?: 0),
             'custom_text_value1'   => $invoice->custom_text_value1 ?: '',

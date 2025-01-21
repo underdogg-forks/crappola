@@ -89,7 +89,7 @@ class APICest
         $this->createEntity('credit', $data);
         $this->listEntities('credits');
 
-        $this->listEntities('accounts');
+        $this->listEntities('corporations');
         $this->listEntities('dashboard');
     }
 
@@ -129,7 +129,7 @@ class APICest
             CURLOPT_POSTFIELDS     => $data,
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
-                'Content-Length: ' . mb_strlen($data),
+                'Content-Length: ' . strlen($data),
                 'X-Ninja-Token: ' . $this->token,
             ],
         ];

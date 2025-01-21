@@ -14,8 +14,6 @@ class RecurringInvoiceController extends BaseController
 
     /**
      * RecurringInvoiceController constructor.
-     *
-     * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo)
     {
@@ -24,6 +22,9 @@ class RecurringInvoiceController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
     }
 
+    /**
+     * @return mixed
+     */
     public function index()
     {
         $data = [

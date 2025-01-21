@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return ExpenseCategory::class;
+        return 'App\Models\ExpenseCategory';
     }
 
     public function all()
@@ -21,7 +21,7 @@ class ExpenseCategoryRepository extends BaseRepository
     public function find($filter = null)
     {
         $query = DB::table('expense_categories')
-            ->where('expense_categories.account_id', '=', Auth::user()->account_id)
+            ->where('expense_categories.company_id', '=', Auth::user()->company_id)
             ->select(
                 'expense_categories.name as category',
                 'expense_categories.public_id',
@@ -43,9 +43,9 @@ class ExpenseCategoryRepository extends BaseRepository
 
     public function save($input, $category = false)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if ( ! $category) {
+        if (! $category) {
             $category = ExpenseCategory::createNew();
         }
 

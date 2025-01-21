@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     // Auth container binding
 
     'enabled' => true,
@@ -43,4 +44,5 @@ return [
     'error_messages' => [
         'wrong_otp' => "The 'One Time Password' typed was wrong.",
     ],
+
 ];

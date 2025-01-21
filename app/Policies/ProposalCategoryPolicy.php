@@ -2,4 +2,18 @@
 
 namespace App\Policies;
 
-class ProposalCategoryPolicy extends EntityPolicy {}
+use App\Models\User;
+
+/**
+ * Class ProposalCategoryPolicy.
+ */
+class ProposalCategoryPolicy extends EntityPolicy
+{
+    /**
+     * @return mixed
+     */
+    public function create(User $user)
+    {
+        return $user->is_admin;
+    }
+}

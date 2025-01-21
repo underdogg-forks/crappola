@@ -9,13 +9,9 @@ use App\Models\User;
 
 class UserMailer extends Mailer
 {
-    /**
-     * @param User      $user
-     * @param User|null $invitor
-     */
-    public function sendConfirmation(User $user, ?User $invitor = null): void
+    public function sendConfirmation(User $user, User $invitor = null): void
     {
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -24,10 +20,10 @@ class UserMailer extends Mailer
 
         $data = [
             'user'              => $user,
-            'invitationMessage' => $invitor instanceof User ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : '',
+            'invitationMessage' => $invitor ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : '',
         ];
 
-        if ($invitor instanceof User) {
+        if ($invitor) {
             $fromEmail = $invitor->email;
             $fromName = $invitor->getDisplayName();
         } else {
@@ -39,7 +35,6 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User      $user
      * @param User|null $invitor
      */
     public function sendEmailChanged(User $user): void
@@ -47,7 +42,7 @@ class UserMailer extends Mailer
         $oldEmail = $user->getOriginal('email');
         $newEmail = $user->email;
 
-        if ( ! $oldEmail || ! $newEmail) {
+        if (! $oldEmail || ! $newEmail) {
             return;
         }
 
@@ -63,46 +58,40 @@ class UserMailer extends Mailer
         $this->sendTo($oldEmail, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    /**
-     * @param User         $user
-     * @param Invoice      $invoice
-     * @param              $notificationType
-     * @param Payment|null $payment
-     */
     public function sendNotification(
         User $user,
         Invoice $invoice,
         $notificationType,
-        ?Payment $payment,
+        Payment $payment = null,
         $notes = false
     ): void {
-        if ( ! $user->shouldNotify($invoice)) {
+        if (! $user->shouldNotify($invoice)) {
             return;
         }
 
         $entityType = $invoice->getEntityType();
-        $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . ('_' . $notificationType);
-        $account = $user->account;
+        $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . "_{$notificationType}";
+        $company = $user->company;
         $client = $invoice->client;
         $link = $invoice->present()->multiAccountLink;
 
         $data = [
             'entityType'    => $entityType,
             'clientName'    => $client->getDisplayName(),
-            'accountName'   => $account->getDisplayName(),
+            'accountName'   => $company->getDisplayName(),
             'userName'      => $user->getDisplayName(),
-            'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
+            'invoiceAmount' => $company->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
             'invoiceLink'   => $link,
-            'account'       => $account,
+            'company'       => $company,
         ];
 
-        if ($payment instanceof Payment) {
+        if ($payment) {
             $data['payment'] = $payment;
-            $data['paymentAmount'] = $account->formatMoney($payment->amount, $client);
+            $data['paymentAmount'] = $company->formatMoney($payment->amount, $client);
         }
 
-        $subject = trans(sprintf('texts.notification_%s_%s_subject', $entityType, $notificationType), [
+        $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", [
             'invoice' => $invoice->invoice_number,
             'client'  => $client->getDisplayName(),
         ]);
@@ -114,21 +103,18 @@ class UserMailer extends Mailer
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    /**
-     * @param Invitation $invitation
-     */
     public function sendEmailBounced(Invitation $invitation): void
     {
         $user = $invitation->user;
-        $account = $user->account;
+        $company = $user->company;
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 
-        $subject = trans(sprintf('texts.notification_%s_bounced_subject', $entityType), ['invoice' => $invoice->invoice_number]);
+        $subject = trans("texts.notification_{$entityType}_bounced_subject", ['invoice' => $invoice->invoice_number]);
         $view = 'email_bounced';
         $data = [
             'userName'      => $user->getDisplayName(),
@@ -146,7 +132,7 @@ class UserMailer extends Mailer
      */
     public function sendMessage($user, $subject, $message, $data = false): void
     {
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -166,7 +152,7 @@ class UserMailer extends Mailer
 
     public function sendSecurityCode($user, $code): void
     {
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -182,7 +168,7 @@ class UserMailer extends Mailer
 
     public function sendPasswordReset($user, $token): void
     {
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -200,7 +186,7 @@ class UserMailer extends Mailer
         $user = $scheduledReport->user;
         $config = json_decode($scheduledReport->config);
 
-        if ( ! $user->email) {
+        if (! $user->email) {
             return;
         }
 

@@ -12,13 +12,14 @@ class AuthController extends Controller
 {
     protected AuthService $authService;
 
-    protected AccountRepository $accountRepo;
+    /**
+     * @var AccountRepository
+     */
+    protected $companyRepo;
 
     /**
      * Create a new authentication controller instance.
      *
-     * @param AccountRepository $repo
-     * @param AuthService       $authService
      *
      * @internal param \Illuminate\Contracts\Auth\Guard $auth
      * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
@@ -30,9 +31,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @param         $provider
-     * @param Request $request
-     *
      * @return RedirectResponse
      */
     public function oauthLogin($provider, Request $request)

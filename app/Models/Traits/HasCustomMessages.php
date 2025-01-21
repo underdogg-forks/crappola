@@ -14,20 +14,16 @@ trait HasCustomMessages
     {
         $fields = [];
 
-        if ( ! is_array($data)) {
+        if (! is_array($data)) {
             $data = json_decode($data);
         }
 
-        foreach ($data as $key => $value) {
-            if ($value) {
-                $fields[$key] = $value;
-            }
-        }
+        $fields = array_filter($data, fn ($value) => $value);
 
         $this->attributes['custom_messages'] = count($fields) ? json_encode($fields) : null;
     }
 
-    public function getCustomMessagesAttribute($value): mixed
+    public function getCustomMessagesAttribute($value)
     {
         return json_decode($value ?: '{}');
     }
@@ -36,12 +32,12 @@ trait HasCustomMessages
     {
         $messages = $this->custom_messages;
 
-        if ( ! empty($messages->{$type})) {
-            return $messages->{$type};
+        if (! empty($messages->$type)) {
+            return $messages->$type;
         }
 
-        if ($this->account) {
-            return $this->account->customMessage($type);
+        if ($this->company) {
+            return $this->company->customMessage($type);
         }
 
         return '';

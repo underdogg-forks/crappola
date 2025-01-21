@@ -7,9 +7,12 @@ namespace App\Models;
  */
 trait OwnedByClientTrait
 {
+    /**
+     * @return bool
+     */
     public function isClientTrashed()
     {
-        if ( ! $this->client) {
+        if (! $this->client) {
             return false;
         }
 

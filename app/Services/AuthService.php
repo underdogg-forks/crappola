@@ -3,14 +3,13 @@
 namespace App\Services;
 
 use App\Events\UserLoggedIn;
+use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Socialite;
-use Utils;
 
 /**
  * Class AuthService.
@@ -27,33 +26,24 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    private readonly AccountRepository $accountRepo;
+    /**
+     * @var AccountRepository
+     */
+    private $companyRepo;
 
     /**
      * AuthService constructor.
-     *
-     * @param AccountRepository $repo
      */
     public function __construct(AccountRepository $repo)
     {
         $this->accountRepo = $repo;
     }
 
-    public static function getProviders(): void {}
-
-    /**
-     * @param $provider
-     *
-     * @return mixed
-     */
-    public static function getProviderId($provider): int|string|false
+    public static function getProviders(): void
     {
-        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers), true);
     }
 
     /**
-     * @param $providerId
-     *
      * @return mixed|string
      */
     public static function getProviderName($providerId)
@@ -62,14 +52,11 @@ class AuthService
     }
 
     /**
-     * @param $provider
-     * @param $hasCode
-     *
      * @return RedirectResponse
      */
     public function execute($provider, $hasCode)
     {
-        if ( ! $hasCode) {
+        if (! $hasCode) {
             return $this->getAuthorization($provider);
         }
 
@@ -86,7 +73,7 @@ class AuthService
             $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
-                if ( ! $isRegistered) {
+                if (! $isRegistered) {
                     Session::flash('warning', trans('texts.success_message'));
                     Session::flash('onReady', 'handleSignedUp();');
                 } else {
@@ -103,9 +90,8 @@ class AuthService
                 if ($user->google_2fa_secret) {
                     session(['2fa:user:id' => $user->id]);
 
-                    return redirect('/validate_two_factor/' . $user->account->account_key);
+                    return redirect('/validate_two_factor/' . $user->company->account_key);
                 }
-
                 Auth::login($user);
                 event(new UserLoggedIn());
             } else {
@@ -115,18 +101,24 @@ class AuthService
             }
         }
 
-        $redirectTo = Request::input('redirect_to') ? SITE_URL . '/' . ltrim(Request::input('redirect_to'), '/') : 'dashboard';
+        $redirectTo = $request->get('redirect_to') ? SITE_URL . '/' . ltrim($request->get('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }
 
     /**
-     * @param $provider
-     *
      * @return mixed
      */
     private function getAuthorization($provider)
     {
         return Socialite::driver($provider)->redirect();
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getProviderId($provider)
+    {
+        return array_search(strtolower($provider), array_map('strtolower', self::$providers));
     }
 }

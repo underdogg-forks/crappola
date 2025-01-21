@@ -3,22 +3,32 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 
 class CreatePaymentRequest extends PaymentRequest
 {
-    public function authorize(): bool
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PAYMENT);
+        return $this->user()->can('create', Payment::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array{client: string, invoice: string, amount: string, payment_date: string, payment_type_id?: string}
+     */
     public function rules(): array
     {
         $input = $this->input();
-        $this->invoice = Invoice::scope($input['invoice'])
+        $this->invoice = $invoice = Invoice::scope($input['invoice'])
             ->withArchived()
             ->invoices()
             ->firstOrFail();
-        $invoice = $this->invoice;
 
         $this->merge([
             'invoice_id' => $invoice->id,
@@ -32,7 +42,7 @@ class CreatePaymentRequest extends PaymentRequest
             'payment_date' => 'required',
         ];
 
-        if ( ! empty($input['payment_type_id']) && $input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
+        if (! empty($input['payment_type_id']) && $input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:' . $input['client'] . ',' . $input['amount'];
         }
 
