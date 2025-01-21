@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\TaskStatus;
 
 /**
@@ -10,12 +10,12 @@ use App\Models\TaskStatus;
  */
 class TaskStatusTransformer extends EntityTransformer
 {
-    public function __construct(company $company)
+    public function __construct(Account $account)
     {
-        parent::__construct($company);
+        parent::__construct($account);
     }
 
-    public function transform(TaskStatus $taskStatus)
+    public function transform(TaskStatus $taskStatus): array
     {
         return array_merge($this->getDefaults($taskStatus), [
             'id'         => (int) $taskStatus->public_id,

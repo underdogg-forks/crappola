@@ -19,6 +19,8 @@ class InvoiceWasCreated extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param Invoice $invoice
      */
     public function __construct(Invoice $invoice)
     {

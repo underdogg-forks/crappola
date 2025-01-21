@@ -11,11 +11,13 @@ use League\Fractal\Resource\Item;
 class InvoiceTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
-        if (! $this->getClientId($data->client)) {
+        if ( ! $this->getClientId($data->client)) {
             return false;
         }
 
@@ -23,25 +25,23 @@ class InvoiceTransformer extends BaseTransformer
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'client_id'        => $this->getClientId($data->client),
-                'invoice_number'   => $this->getInvoiceNumber($data->document_no),
-                'paid'             => (float) $data->paid_to_date,
-                'po_number'        => $this->getString($data, 'purchase_order'),
-                'terms'            => $this->getString($data, 'terms'),
-                'public_notes'     => $this->getString($data, 'notes'),
-                'invoice_date_sql' => $this->getDate($data, 'date'),
-                'due_date_sql'     => $this->getDate($data, 'due_at'),
-                'invoice_items'    => [
-                    [
-                        'product_key' => '',
-                        'notes'       => $this->getString($data, 'description'),
-                        'cost'        => (float) $data->total,
-                        'qty'         => 1,
-                    ],
+        return new Item($data, fn ($data): array => [
+            'client_id'        => $this->getClientId($data->client),
+            'invoice_number'   => $this->getInvoiceNumber($data->document_no),
+            'paid'             => (float) $data->paid_to_date,
+            'po_number'        => $this->getString($data, 'purchase_order'),
+            'terms'            => $this->getString($data, 'terms'),
+            'public_notes'     => $this->getString($data, 'notes'),
+            'invoice_date_sql' => $this->getDate($data, 'date'),
+            'due_date_sql'     => $this->getDate($data, 'due_date'),
+            'invoice_items'    => [
+                [
+                    'product_key' => '',
+                    'notes'       => $this->getString($data, 'description'),
+                    'cost'        => (float) $data->total,
+                    'qty'         => 1,
                 ],
-            ];
-        });
+            ],
+        ]);
     }
 }

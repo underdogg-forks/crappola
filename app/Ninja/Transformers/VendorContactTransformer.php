@@ -7,17 +7,7 @@ use App\Models\VendorContact;
 // vendor
 class VendorContactTransformer extends EntityTransformer
 {
-    /**
-     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="first_name", type="string", example="Luke")
-     * @SWG\Property(property="last_name", type="string", example="Smith")
-     * @SWG\Property(property="email", type="string", example="john.doe@companyPlan.com")
-     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
-     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
-     * @SWG\Property(property="is_primary", type="boolean", example=false)
-     * @SWG\Property(property="phone", type="string", example="(212) 555-1212")
-     */
-    public function transform(VendorContact $contact)
+    public function transform(VendorContact $contact): array
     {
         return array_merge($this->getDefaults($contact), [
             'id'          => (int) $contact->public_id,

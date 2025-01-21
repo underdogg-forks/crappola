@@ -17,7 +17,7 @@ class CalendarController extends BaseController
     {
         $data = [
             'title'   => trans('texts.calendar'),
-            'company' => auth()->user()->company,
+            'account' => auth()->user()->account,
         ];
 
         return view('calendar', $data);
@@ -25,8 +25,8 @@ class CalendarController extends BaseController
 
     public function loadEvents()
     {
-        if (auth()->user()->company->hasFeature(FEATURE_REPORTS)) {
-            $events = dispatch_now(new GenerateCalendarEvents());
+        if (auth()->user()->account->hasFeature(FEATURE_REPORTS)) {
+            $events = dispatch_sync(new GenerateCalendarEvents());
         } else {
             $events = [];
         }

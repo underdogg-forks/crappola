@@ -62,13 +62,6 @@ class InvoiceCest
         $I->see('199.01');
     }
 
-    private function updateDesign($I, $designId): void
-    {
-        $I->selectOption('#invoice_design_id', $designId);
-        $I->click('#saveButton');
-        $I->wait(2);
-    }
-
     /*
     public function editInvoice(AcceptanceTester $I)
     {
@@ -146,6 +139,13 @@ class InvoiceCest
         $I->wait(3);
 
         $I->see($invoiceNumber);
+    }
+
+    private function updateDesign($I, $designId): void
+    {
+        $I->selectOption('#invoice_design_id', $designId);
+        $I->click('#saveButton');
+        $I->wait(2);
     }
 
     /*

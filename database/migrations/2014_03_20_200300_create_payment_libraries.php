@@ -1,18 +1,23 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentLibraries extends Migration
-{
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up(): void
     {
-        Schema::create('payment_libraries', function ($table): void {
-            $table->increments('id');
-            $table->string('name');
-            $table->boolean('visible')->default(true);
-            $table->timestamps();
+        Schema::dropIfExists('payment_libraries');
+
+        Schema::create('payment_libraries', function ($t): void {
+            $t->increments('id');
+            $t->timestamps();
+
+            $t->string('name');
+            $t->boolean('visible')->default(true);
         });
 
         Schema::table('gateways', function ($table): void {
@@ -26,6 +31,11 @@ class CreatePaymentLibraries extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down(): void
     {
         if (Schema::hasColumn('gateways', 'payment_library_id')) {
@@ -37,4 +47,4 @@ class CreatePaymentLibraries extends Migration
 
         Schema::dropIfExists('payment_libraries');
     }
-}
+};

@@ -8,16 +8,17 @@ use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ExpenseCategoryController extends BaseController
 {
+    public $entityType = ENTITY_EXPENSE_CATEGORY;
+
     protected ExpenseCategoryRepository $categoryRepo;
 
     protected ExpenseCategoryService $categoryService;
-
-    protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
     {
@@ -41,7 +42,7 @@ class ExpenseCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->categoryService->getDatatable($request->get('sSearch'));
+        return $this->categoryService->getDatatable(Request::input('sSearch'));
     }
 
     public function create(ExpenseCategoryRequest $request)
@@ -90,13 +91,13 @@ class ExpenseCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = $request->get('action');
-        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
-            $message = trans("texts.$field", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_expense_category' : $action . 'd_expense_categories';
+            $message = trans('texts.' . $field, ['count' => $count]);
             Session::flash('message', $message);
         }
 

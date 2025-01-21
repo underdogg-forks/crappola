@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ActivityDatatable extends EntityDatatable
 {
@@ -48,15 +48,14 @@ class ActivityDatatable extends EntityDatatable
                         'credit'         => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
                         'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
                         'adjustment'     => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
-                        'task'           => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30) . '...') : null,
-                        'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30) . '...') : null,
-                        'ticket'         => $model->ticket_public_id ? link_to('/tickets/' . $model->ticket_public_id, '') : null,
+                        'task'           => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, mb_substr($model->task_description, 0, 30) . '...') : null,
+                        'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, mb_substr($model->expense_public_notes, 0, 30) . '...') : null,
                     ];
 
-                    $str = trans("texts.activity_{$model->activity_type_id}", $data);
+                    $str = trans('texts.activity_' . $model->activity_type_id, $data);
 
                     if ($model->notes) {
-                        $str .= ' - ' . trans("texts.notes_{$model->notes}");
+                        $str .= ' - ' . trans('texts.notes_' . $model->notes);
                     }
 
                     return $str;
@@ -64,15 +63,11 @@ class ActivityDatatable extends EntityDatatable
             ],
             [
                 'balance',
-                function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-                },
+                fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
             ],
             [
                 'adjustment',
-                function ($model) {
-                    return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
-                },
+                fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '',
             ],
         ];
     }

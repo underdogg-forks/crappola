@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use App;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Monolog\Logger;
 
@@ -19,7 +19,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    protected Invoice $invoice;
+    /**
+     * @var Invoice
+     */
+    public $invoice;
 
     /**
      * @var bool
@@ -49,9 +52,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param string $pdf
-     * @param bool   $reminder
-     * @param mixed  $pdfString
+     * @param Invoice $invoice
+     * @param string  $pdf
+     * @param bool    $reminder
+     * @param mixed   $pdfString
      */
     public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false, $proposal = false)
     {
@@ -65,6 +69,8 @@ class SendInvoiceEmail extends Job implements ShouldQueue
 
     /**
      * Execute the job.
+     *
+     * @param ContactMailer $mailer
      */
     public function handle(ContactMailer $mailer): void
     {
@@ -74,13 +80,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         }
 
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template, $this->proposal);
-        if (! App::runningInConsole()) {
-            return;
+
+        if (App::runningInConsole() && $this->userId) {
+            Auth::logout();
         }
-        if (! $this->userId) {
-            return;
-        }
-        Auth::logout();
     }
 
     /*
@@ -90,11 +93,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param Logger $logger
      */
     /*
-   public function failed(ContactMailer $mailer, Logger $logger)
-   {
+    public function failed(ContactMailer $mailer, Logger $logger)
+    {
        $this->jobName = $this->job->getName();
 
        parent::failed($mailer, $logger);
-   }
-   */
+    }
+    */
 }

@@ -19,6 +19,8 @@ class RedirectIfAuthenticated
 
     /**
      * Create a new filter instance.
+     *
+     * @param Guard $auth
      */
     public function __construct(Guard $auth)
     {
@@ -28,6 +30,8 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */
@@ -41,6 +45,7 @@ class RedirectIfAuthenticated
                     if (session('contact_key')) {
                         return redirect('/client/dashboard');
                     }
+
                     break;
                 default:
                     return redirect('/dashboard');

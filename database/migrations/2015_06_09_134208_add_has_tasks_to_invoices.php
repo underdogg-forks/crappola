@@ -1,15 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
-class AddHasTasksToInvoices extends Migration
-{
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up(): void
     {
         Schema::table('invoices', function ($table): void {
-            $table->boolean('has_tasks')->after('invoice_footer')->default(false);
+            $table->boolean('has_tasks')->default(false);
         });
 
         $invoices = DB::table('invoices')
@@ -24,10 +26,15 @@ class AddHasTasksToInvoices extends Migration
         }
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down(): void
     {
         Schema::table('invoices', function ($table): void {
             $table->dropColumn('has_tasks');
         });
     }
-}
+};

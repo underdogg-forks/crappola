@@ -7,15 +7,15 @@ use App\Events\ClientWasUpdated;
 use App\Jobs\PurgeClientData;
 use App\Models\Client;
 use App\Models\Contact;
-use Cache;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ClientRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Client';
+        return Client::class;
     }
 
     public function all()
@@ -30,15 +30,15 @@ class ClientRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('clients')
-            ->join('companies', 'companies.id', '=', 'clients.company_id')
+            ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.company_id', '=', Auth::user()->company_id)
+            ->where('clients.account_id', '=', Auth::user()->account_id)
             ->where('contacts.is_primary', '=', true)
             ->where('contacts.deleted_at', '=', null)
-            //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
+                    //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
                 'clients.public_id',
                 'clients.name',
@@ -57,14 +57,6 @@ class ClientRepository extends BaseRepository
                 'clients.id_number'
             );
 
-        if (Auth::user()->company->customFieldsOption('client1_filter')) {
-            $query->addSelect('clients.custom_value1');
-        }
-
-        if (Auth::user()->company->customFieldsOption('client2_filter')) {
-            $query->addSelect('clients.custom_value2');
-        }
-
         $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
@@ -75,14 +67,6 @@ class ClientRepository extends BaseRepository
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.email', 'like', '%' . $filter . '%');
             });
-
-            if (Auth::user()->company->customFieldsOption('client1_filter')) {
-                $query->orWhere('clients.custom_value1', 'like', '%' . $filter . '%');
-            }
-
-            if (Auth::user()->company->customFieldsOption('client2_filter')) {
-                $query->orWhere('clients.custom_value2', 'like', '%' . $filter . '%');
-            }
         }
 
         if ($userId) {
@@ -94,7 +78,7 @@ class ClientRepository extends BaseRepository
 
     public function purge($client): void
     {
-        dispatch(new PurgeClientData($client));
+        dispatch_sync(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)
@@ -103,15 +87,15 @@ class ClientRepository extends BaseRepository
 
         if ($client) {
             // do nothing
-        } elseif (! $publicId || intval($publicId) < 0) {
+        } elseif ( ! $publicId || (int) $publicId < 0) {
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
         }
 
         // auto-set the client id number
-        if (Auth::check() && Auth::user()->company->client_number_counter && ! $client->id_number && empty($data['id_number'])) {
-            $data['id_number'] = Auth::user()->company->getNextNumber();
+        if (Auth::check() && Auth::user()->account->client_number_counter && ! $client->id_number && empty($data['id_number'])) {
+            $data['id_number'] = Auth::user()->account->getNextNumber();
         }
 
         if ($client->is_deleted) {
@@ -120,10 +104,8 @@ class ClientRepository extends BaseRepository
 
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
-            $currencyCode = strtolower($data['currency_code']);
-            $currency = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
-                return strtolower($item->code) == $currencyCode;
-            })->first();
+            $currencyCode = mb_strtolower($data['currency_code']);
+            $currency = Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
             if ($currency) {
                 $data['currency_id'] = $currency->id;
             }
@@ -131,10 +113,8 @@ class ClientRepository extends BaseRepository
 
         // convert country code to id
         if (isset($data['country_code'])) {
-            $countryCode = strtolower($data['country_code']);
-            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
-                return strtolower($item->iso_3166_2) == $countryCode || strtolower($item->iso_3166_3) == $countryCode;
-            })->first();
+            $countryCode = mb_strtolower($data['country_code']);
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['country_id'] = $country->id;
             }
@@ -142,10 +122,8 @@ class ClientRepository extends BaseRepository
 
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
-            $countryCode = strtolower($data['shipping_country_code']);
-            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
-                return strtolower($item->iso_3166_2) == $countryCode || strtolower($item->iso_3166_3) == $countryCode;
-            })->first();
+            $countryCode = mb_strtolower($data['shipping_country_code']);
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['shipping_country_id'] = $country->id;
             }
@@ -153,13 +131,10 @@ class ClientRepository extends BaseRepository
 
         // set default payment terms
         if (auth()->check() && ! isset($data['payment_terms'])) {
-            $data['payment_terms'] = auth()->user()->company->payment_terms;
+            $data['payment_terms'] = auth()->user()->account->payment_terms;
         }
 
         $client->fill($data);
-
-        $client->company_id = 1;
-
         $client->save();
 
         /*
@@ -169,12 +144,12 @@ class ClientRepository extends BaseRepository
         */
 
         $first = true;
-        $contacts = isset($data['contact']) ? [$data['contact']] : (isset($data['contacts']) ? $data['contacts'] : [[]]);
+        $contacts = isset($data['contact']) ? [$data['contact']] : ($data['contacts'] ?? [[]]);
         $contactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($contacts, function ($left, $right) {
-            if (isset($right['is_primary']) && isset($left['is_primary'])) {
+        usort($contacts, function ($left, $right): int|float {
+            if (isset($right['is_primary'], $left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }
 
@@ -187,15 +162,15 @@ class ClientRepository extends BaseRepository
             $first = false;
         }
 
-        if (! $client->wasRecentlyCreated) {
+        if ( ! $client->wasRecentlyCreated) {
             foreach ($client->contacts as $contact) {
-                if (! in_array($contact->public_id, $contactIds)) {
+                if ( ! in_array($contact->public_id, $contactIds)) {
                     $contact->delete();
                 }
             }
         }
 
-        if (! $publicId || intval($publicId) < 0) {
+        if ( ! $publicId || (int) $publicId < 0) {
             event(new ClientWasCreated($client));
         } else {
             event(new ClientWasUpdated($client));
@@ -217,7 +192,7 @@ class ClientRepository extends BaseRepository
         foreach ($clients as $client) {
             $map[$client->id] = $client;
 
-            if (! $client->name) {
+            if ( ! $client->name) {
                 continue;
             }
 
@@ -232,7 +207,11 @@ class ClientRepository extends BaseRepository
         $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
-            if (! $contact->getFullName() || ! isset($map[$contact->client_id])) {
+            if ( ! $contact->getFullName()) {
+                continue;
+            }
+
+            if ( ! isset($map[$contact->client_id])) {
                 continue;
             }
 

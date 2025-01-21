@@ -23,7 +23,9 @@ class QuoteInvitationWasApproved extends Event
     /**
      * Create a new event instance.
      *
-     * @param Invoice $invoice
+     * @param            $quote
+     * @param Invoice    $invoice
+     * @param Invitation $invitation
      */
     public function __construct(Invoice $quote, Invitation $invitation)
     {

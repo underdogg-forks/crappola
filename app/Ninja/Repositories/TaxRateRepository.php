@@ -2,16 +2,16 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\TaxRate;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class TaxRateRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\TaxRate';
+        return TaxRate::class;
     }
 
     public function all()
@@ -19,10 +19,10 @@ class TaxRateRepository extends BaseRepository
         return TaxRate::scope()->get();
     }
 
-    public function find($companyId)
+    public function find($accountId)
     {
         return DB::table('tax_rates')
-            ->where('tax_rates.company_id', '=', $companyId)
+            ->where('tax_rates.account_id', '=', $accountId)
             ->where('tax_rates.deleted_at', '=', null)
             ->select(
                 'tax_rates.public_id',

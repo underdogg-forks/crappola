@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'type'   => [],
@@ -22,7 +22,7 @@ class ProfitAndLossReport extends AbstractReport
 
     public function run(): void
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
@@ -36,14 +36,19 @@ class ProfitAndLossReport extends AbstractReport
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
             $invoice = $payment->invoice;
-            if ($client->is_deleted || $invoice->is_deleted) {
+            if ($client->is_deleted) {
                 continue;
             }
+
+            if ($invoice->is_deleted) {
+                continue;
+            }
+
             $this->data[] = [
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
                 '',
-                $company->formatMoney($payment->getCompletedAmount(), $client),
+                $account->formatMoney($payment->getCompletedAmount(), $client),
                 $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $payment->present()->method,
             ];
@@ -52,11 +57,7 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($client->currency_id, 'expenses', 0, $payment->present()->month);
             $this->addToTotals($client->currency_id, 'profit', $payment->getCompletedAmount(), $payment->present()->month);
 
-            if ($subgroup == 'type') {
-                $dimension = trans('texts.payment');
-            } else {
-                $dimension = $this->getDimension($payment);
-            }
+            $dimension = $subgroup == 'type' ? trans('texts.payment') : $this->getDimension($payment);
             $this->addChartData($dimension, $payment->payment_date, $payment->getCompletedAmount());
         }
 
@@ -79,15 +80,11 @@ class ProfitAndLossReport extends AbstractReport
                 $expense->present()->category,
             ];
 
-            $this->addToTotals($expense->invoice_currency_id, 'revenue', 0, $expense->present()->month);
-            $this->addToTotals($expense->invoice_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
-            $this->addToTotals($expense->invoice_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'revenue', 0, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
 
-            if ($subgroup == 'type') {
-                $dimension = trans('texts.expense');
-            } else {
-                $dimension = $this->getDimension($expense);
-            }
+            $dimension = $subgroup == 'type' ? trans('texts.expense') : $this->getDimension($expense);
             $this->addChartData($dimension, $expense->expense_date, $expense->amountWithTax());
         }
 

@@ -6,21 +6,11 @@ class CreateTaxRateRequest extends TaxRateRequest
 {
     // Expenses
 
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return $this->user()->hasPermission('admin');
+        return $this->user()->can('create', ENTITY_TAX_RATE);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array{name: string, rate: string}
-     */
     public function rules(): array
     {
         return [

@@ -9,7 +9,7 @@ use App\Ninja\Repositories\VendorRepository;
 
 class ExpenseRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_EXPENSE;
+    public $entityType = ENTITY_EXPENSE;
 
     public function entity()
     {

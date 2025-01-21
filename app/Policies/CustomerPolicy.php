@@ -2,6 +2,4 @@
 
 namespace App\Policies;
 
-class CustomerPolicy extends EntityPolicy
-{
-}
+class CustomerPolicy extends EntityPolicy {}

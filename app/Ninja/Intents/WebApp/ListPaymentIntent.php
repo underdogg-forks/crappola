@@ -6,15 +6,11 @@ use App\Ninja\Intents\BaseIntent;
 
 class ListPaymentIntent extends BaseIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $this->loadStates(ENTITY_PAYMENT);
 
-        if ($client = $this->requestClient()) {
-            $url = $client->present()->url . '#payments';
-        } else {
-            $url = '/payments';
-        }
+        $url = ($client = $this->requestClient()) ? $client->present()->url . '#payments' : '/payments';
 
         return redirect($url);
     }

@@ -2,38 +2,32 @@
 
 namespace App\Ninja\Datatables;
 
-use URL;
+use Illuminate\Support\Facades\URL;
 
 class SubscriptionDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_SUBSCRIPTION;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'event',
-                function ($model) {
-                    return trans('texts.subscription_event_' . $model->event);
-                },
+                fn ($model) => trans('texts.subscription_event_' . $model->event),
             ],
             [
                 'target',
-                function ($model) {
-                    return $this->showWithTooltip($model->target, 40);
-                },
+                fn ($model) => $this->showWithTooltip($model->target, 40),
             ],
         ];
     }
 
-    public function actions()
+    public function actions(): array
     {
         return [
             [
                 uctrans('texts.edit_subscription'),
-                function ($model) {
-                    return URL::to("subscriptions/{$model->public_id}/edit");
-                },
+                fn ($model) => URL::to(sprintf('subscriptions/%s/edit', $model->public_id)),
             ],
         ];
     }

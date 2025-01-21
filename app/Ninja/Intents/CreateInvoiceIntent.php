@@ -3,16 +3,17 @@
 namespace App\Ninja\Intents;
 
 use App\Models\EntityModel;
+use App\Services\InvoiceService;
 use Exception;
 
 class CreateInvoiceIntent extends InvoiceIntent
 {
-    public function process()
+    public function process(): string|bool
     {
         $client = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();
 
-        if (! $client) {
+        if ( ! $client) {
             throw new Exception(trans('texts.client_not_found'));
         }
 
@@ -29,12 +30,10 @@ class CreateInvoiceIntent extends InvoiceIntent
             throw new Exception($valid);
         }
 
-        $invoiceService = app('App\Services\InvoiceService');
+        $invoiceService = app(InvoiceService::class);
         $invoice = $invoiceService->save($data);
 
-        $invoiceItemIds = array_map(function ($item) {
-            return $item['public_id'];
-        }, $invoice->invoice_items->toArray());
+        $invoiceItemIds = array_map(fn ($item) => $item['public_id'], $invoice->invoice_items->toArray());
 
         $this->setStateEntityType(ENTITY_INVOICE);
         $this->setStateEntities(ENTITY_CLIENT, $client->public_id);

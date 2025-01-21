@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
+use App\Models\Invoice;
 use App\Models\Payment;
 
 /**
@@ -9,6 +11,8 @@ use App\Models\Payment;
  */
 class PaymentTransformer extends EntityTransformer
 {
+    public $invoice;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
@@ -17,11 +21,9 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="payment_type_id", type="integer", example=1)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
-     * @SWG\Property(property="invoice_number", type="string", example="Invoice Number")
-     * @SWG\Property(property="private_notes", type="string", example="Notes")
-     * @SWG\Property(property="exchange_rate", type="number", format="float", example=10)
-     * @SWG\Property(property="exchange_currency_id", type="integer", example=1)
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
      */
     protected array $defaultIncludes = [];
 
@@ -30,28 +32,28 @@ class PaymentTransformer extends EntityTransformer
         'invoice',
     ];
 
-    public function __construct($company = null, $serializer = null, $invoice = null)
+    public function __construct(?Account $account = null, $serializer = null, $invoice = null)
     {
-        parent::__construct($company, $serializer);
+        parent::__construct($account, $serializer);
 
         $this->invoice = $invoice;
     }
 
     public function includeInvoice(Payment $payment)
     {
-        $transformer = new InvoiceTransformer($this->company, $this->serializer);
+        $transformer = new InvoiceTransformer($this->account, $this->serializer);
 
         return $this->includeItem($payment->invoice, $transformer, 'invoice');
     }
 
     public function includeClient(Payment $payment)
     {
-        $transformer = new ClientTransformer($this->company, $this->serializer);
+        $transformer = new ClientTransformer($this->account, $this->serializer);
 
         return $this->includeItem($payment->client, $transformer, 'client');
     }
 
-    public function transform(Payment $payment)
+    public function transform(Payment $payment): array
     {
         return array_merge($this->getDefaults($payment), [
             'id'                    => (int) $payment->public_id,

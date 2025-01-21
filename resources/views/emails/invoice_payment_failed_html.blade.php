@@ -1,7 +1,7 @@
 @extends('emails.master_user')
 
 @section('markup')
-    @if ($company->emailMarkupEnabled())
+    @if ($account->emailMarkupEnabled())
         @include('emails.partials.user_view_action')
     @endif
 @stop

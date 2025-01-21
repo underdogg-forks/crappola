@@ -14,7 +14,5 @@ class UserLoggedIn extends Event
     /**
      * UserLoggedIn constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 }

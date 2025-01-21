@@ -11,22 +11,22 @@ use League\Fractal\Resource\Item;
 class ContactTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
-        if (! $this->hasClient($data->client)) {
+        if ( ! $this->hasClient($data->client)) {
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'client_id'  => $this->getClientId($data->client),
-                'first_name' => $this->getString($data, 'first_name'),
-                'last_name'  => $this->getString($data, 'last_name'),
-                'email'      => $this->getString($data, 'email'),
-                'phone'      => $this->getString($data, 'office_phone') ?: $this->getString($data, 'mobile_phone'),
-            ];
-        });
+        return new Item($data, fn ($data): array => [
+            'client_id'  => $this->getClientId($data->client),
+            'first_name' => $this->getString($data, 'first_name'),
+            'last_name'  => $this->getString($data, 'last_name'),
+            'email'      => $this->getString($data, 'email'),
+            'phone'      => $this->getString($data, 'office_phone') ?: $this->getString($data, 'mobile_phone'),
+        ]);
     }
 }

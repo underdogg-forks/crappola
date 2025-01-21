@@ -2,34 +2,35 @@
 
 namespace App\Listeners;
 
-use App;
 use App\Events\PaymentWasCreated;
-use App\Libraries\Utils;
+use Illuminate\Support\Facades\App;
+use Utils;
 
 /**
  * Class AnalyticsListener.
  */
 class AnalyticsListener
 {
+    /**
+     * @param PaymentWasCreated $event
+     */
     public function trackRevenue(PaymentWasCreated $event): void
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $company = $payment->company;
+        $account = $payment->account;
 
         $analyticsId = false;
 
-        if ($company->isNinjaAccount() || $company->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
+        if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
             $analyticsId = env('ANALYTICS_KEY');
+        } elseif (Utils::isNinja()) {
+            $analyticsId = $account->analytics_key;
         } else {
-            if (Utils::isNinja()) {
-                $analyticsId = $company->analytics_key;
-            } else {
-                $analyticsId = $company->analytics_key ?: env('ANALYTICS_KEY');
-            }
+            $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
         }
 
-        if (! $analyticsId) {
+        if ( ! $analyticsId) {
             return;
         }
 
@@ -38,19 +39,22 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($company->isNinjaAccount() && App::runningInConsole()) {
+        if ($account->isNinjaAccount() && App::runningInConsole()) {
             $item .= ' [R]';
         }
 
-        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu={$currencyCode}&ti={$invoice->invoice_number}";
+        $base = sprintf('v=1&tid=%s&cid=%s&cu=%s&ti=%s', $analyticsId, $client->public_id, $currencyCode, $invoice->invoice_number);
 
-        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
+        $url = $base . ('&t=transaction&ta=ninja&tr=' . $amount);
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
+        $url = $base . sprintf('&t=item&in=%s&ip=%s&iq=1', $item, $amount);
         $this->sendAnalytics($url);
     }
 
+    /**
+     * @param $data
+     */
     private function sendAnalytics(string $data): void
     {
         $data = utf8_encode($data);

@@ -8,7 +8,7 @@ use App\Ninja\Repositories\ProjectRepository;
 
 class TaskRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_TASK;
+    public $entityType = ENTITY_TASK;
 
     public function sanitize()
     {

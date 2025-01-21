@@ -16,12 +16,17 @@ class CreditListener
 
     /**
      * CreditListener constructor.
+     *
+     * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)
     {
         $this->creditRepo = $creditRepo;
     }
 
+    /**
+     * @param PaymentWasDeleted $event
+     */
     public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
@@ -34,7 +39,8 @@ class CreditListener
         $credit = Credit::createNew();
         $credit->client_id = $payment->client_id;
         $credit->credit_date = Carbon::now()->toDateTimeString();
-        $credit->balance = $credit->amount = $payment->getCompletedAmount();
+        $credit->balance = $payment->getCompletedAmount();
+        $credit->amount = $credit->balance;
         $credit->private_notes = trans('texts.refunded_credit_payment');
         $credit->save();
     }
