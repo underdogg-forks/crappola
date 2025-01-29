@@ -3,30 +3,30 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Activity;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class ActivityReport extends AbstractReport
 {
     public function getColumns()
     {
         return [
-            'date'     => [],
-            'client'   => [],
-            'user'     => [],
+            'date' => [],
+            'client' => [],
+            'user' => [],
             'activity' => [],
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
-        $startDate = $this->startDate;
+        $startDate = $this->startDate;;
         $endDate = $this->endDate;
         $subgroup = $this->options['subgroup'];
 
         $activities = Activity::scope()
-            ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'company')
+            ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
             ->whereRaw("DATE(created_at) >= \"{$startDate}\" and DATE(created_at) <= \"$endDate\"")
             ->orderBy('id', 'desc');
 

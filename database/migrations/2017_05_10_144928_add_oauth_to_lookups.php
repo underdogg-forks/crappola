@@ -1,21 +1,23 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddOauthToLookups extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('lookup_users', function ($table): void {
+        Schema::table('lookup_users', function ($table) {
             $table->string('oauth_user_key')->nullable()->unique();
             $table->string('referral_code')->nullable()->unique();
         });
 
-        Schema::table('companies', function ($table): void {
+        Schema::table('companies', function ($table) {
             $table->string('referral_code')->nullable();
         });
 
@@ -25,7 +27,7 @@ return new class () extends Migration {
             set companies.referral_code = users.referral_code
             where users.id is not null');
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             if (Schema::hasColumn('accounts', 'referral_user_id')) {
                 $table->dropColumn('referral_user_id');
             }
@@ -37,15 +39,15 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('lookup_users', function ($table): void {
+        Schema::table('lookup_users', function ($table) {
             $table->dropColumn('oauth_user_key');
             $table->dropColumn('referral_code');
         });
 
-        Schema::table('companies', function ($table): void {
+        Schema::table('companies', function ($table) {
             $table->dropColumn('referral_code');
         });
     }
-};
+}

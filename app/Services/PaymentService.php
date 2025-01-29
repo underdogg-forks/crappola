@@ -2,37 +2,49 @@
 
 namespace App\Services;
 
-use App;
-use App\Libraries\Utils;
+use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
-use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\PaymentRepository;
-use DateTime;
+use Auth;
+use App;
 use Exception;
-use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class PaymentService extends BaseService
 {
     /**
      * PaymentService constructor.
+     *
+     * @param PaymentRepository $paymentRepo
+     * @param AccountRepository $accountRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
-        AccountRepository $companyRepo,
+        AccountRepository $accountRepo,
         DatatableService $datatableService
     ) {
         $this->datatableService = $datatableService;
         $this->paymentRepo = $paymentRepo;
-        $this->accountRepo = $companyRepo;
+        $this->accountRepo = $accountRepo;
     }
 
     /**
+     * @return PaymentRepository
+     */
+    protected function getRepo()
+    {
+        return $this->paymentRepo;
+    }
+
+    /**
+     * @param Invoice $invoice
+     *
      * @return bool
      */
     public function autoBillInvoice(Invoice $invoice)
@@ -41,13 +53,13 @@ class PaymentService extends BaseService
             return false;
         }
 
-        /** @var Client $client */
+        /** @var \App\Models\Client $client */
         $client = $invoice->client;
 
-        /** @var company $company */
-        $company = $client->company;
+        /** @var \App\Models\Account $account */
+        $account = $client->account;
 
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = $invoice->invitations->first();
 
         if (! $invitation) {
@@ -61,9 +73,9 @@ class PaymentService extends BaseService
             $amount = min($credits, $balance);
             $data = [
                 'payment_type_id' => PAYMENT_TYPE_CREDIT,
-                'invoice_id'      => $invoice->id,
-                'client_id'       => $client->id,
-                'amount'          => $amount,
+                'invoice_id' => $invoice->id,
+                'client_id' => $client->id,
+                'amount' => $amount,
             ];
             $payment = $this->paymentRepo->save($data);
             if ($amount == $balance) {
@@ -71,7 +83,7 @@ class PaymentService extends BaseService
             }
         }
 
-        $paymentDriver = $company->paymentDriver($invitation, GATEWAY_TYPE_TOKEN);
+        $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_TOKEN);
 
         if (! $paymentDriver) {
             return false;
@@ -90,7 +102,7 @@ class PaymentService extends BaseService
         }
 
         if ($paymentMethod->requiresDelayedAutoBill()) {
-            $invoiceDate = DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
+            $invoiceDate = \DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
             $minDueDate = clone $invoiceDate;
             $minDueDate->modify('+10 days');
 
@@ -111,7 +123,7 @@ class PaymentService extends BaseService
             if ($firstUpdate) {
                 $backup = json_decode($firstUpdate->json_backup);
 
-                if ($backup->balance != $invoice->balance || $backup->due_date != $invoice->due_at) {
+                if ($backup->balance != $invoice->balance || $backup->due_date != $invoice->due_date) {
                     // It's changed since we sent the email can't bill now
                     return false;
                 }
@@ -133,7 +145,7 @@ class PaymentService extends BaseService
             if (App::runningInConsole()) {
                 $mailer = app('App\Ninja\Mailers\UserMailer');
                 $mailer->sendMessage($invoice->user, $subject, $message, [
-                    'invoice' => $invoice,
+                    'invoice' => $invoice
                 ]);
             }
 
@@ -156,6 +168,7 @@ class PaymentService extends BaseService
 
         return $this->paymentRepo->save($input, $payment);
     }
+
 
     public function getDatatable($clientPublicId, $search)
     {
@@ -180,14 +193,14 @@ class PaymentService extends BaseService
             $successful = 0;
 
             foreach ($payments as $payment) {
-                if (Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
+                if (Auth::user()->can('edit', $payment) && !$payment->is_deleted) {
                     $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
                     $sendEmail = ! empty($params['refund_email']) ? boolval($params['refund_email']) : false;
                     $paymentDriver = false;
                     $refunded = false;
 
-                    if ($companyGateway = $payment->account_gateway) {
-                        $paymentDriver = $companyGateway->paymentDriver();
+                    if ($accountGateway = $payment->account_gateway) {
+                        $paymentDriver = $accountGateway->paymentDriver();
                     }
 
                     if ($paymentDriver && $paymentDriver->canRefundPayments) {
@@ -209,16 +222,8 @@ class PaymentService extends BaseService
             }
 
             return $successful;
+        } else {
+            return parent::bulk($ids, $action);
         }
-
-        return parent::bulk($ids, $action);
-    }
-
-    /**
-     * @return PaymentRepository
-     */
-    protected function getRepo()
-    {
-        return $this->paymentRepo;
     }
 }

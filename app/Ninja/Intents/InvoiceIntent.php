@@ -4,14 +4,14 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
+use Auth;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
     protected $fieldMap = [
         'deposit' => 'partial',
-        'due'     => 'due_at',
+        'due' => 'due_date',
     ];
 
     public function __construct($state, $data)
@@ -89,7 +89,7 @@ class InvoiceIntent extends BaseIntent
                         $item['tax_rate1'] = $taxRate->rate;
                     }
                     */
-
+                    
                     $invoiceItems[] = $item;
                 }
             }
@@ -108,7 +108,7 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses($entityType): void
+    protected function loadStatuses($entityType)
     {
         $statusIds = [];
         $statuses = $this->getFields('Filter');
@@ -120,7 +120,7 @@ class InvoiceIntent extends BaseIntent
         }
 
         if (count($statusIds) || $this->hasField('Filter', 'all')) {
-            session(['entity_status_filter:' . $entityType => implode(',', $statusIds)]);
+            session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
         }
     }
 }

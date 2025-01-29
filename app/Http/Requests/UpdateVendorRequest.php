@@ -6,22 +6,20 @@ class UpdateVendorRequest extends VendorRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
-        if (! $this->entity()) {
-            return false;
-        }
-
-        return (bool) $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{name: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => 'required',

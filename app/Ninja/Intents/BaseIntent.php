@@ -5,15 +5,12 @@ namespace App\Ninja\Intents;
 use App\Libraries\Skype\SkypeResponse;
 use App\Models\Client;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use stdClass;
 
 class BaseIntent
 {
     protected $state;
-
     protected $parameters;
-
     protected $fieldMap = [];
 
     public function __construct($state, $data)
@@ -45,28 +42,6 @@ class BaseIntent
         }
 
         //var_dump($state);
-    }
-
-    protected function hasField($field, $value = false)
-    {
-        $fieldValue = $this->getField($field);
-
-        if ($value) {
-            return $fieldValue && $fieldValue == $value;
-        }
-
-        return $fieldValue ? true : false;
-    }
-
-    protected function getField($field)
-    {
-        foreach ($this->data->entities as $entity) {
-            if ($entity->type === $field) {
-                return $entity->entity;
-            }
-        }
-
-        return false;
     }
 
     public static function createIntent($platform, $state, $data)
@@ -108,12 +83,58 @@ class BaseIntent
         return new $className($state, $data);
     }
 
-    public function process(): void
+    protected function getField($field)
+    {
+        foreach ($this->data->entities as $entity) {
+            if ($entity->type === $field) {
+                return $entity->entity;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getFields($field)
+    {
+        $data = [];
+
+        foreach ($this->data->entities as $entity) {
+            if ($entity->type === $field) {
+                $data[] = $entity->entity;
+            }
+        }
+
+        return $data;
+    }
+
+    protected function loadStates($entityType)
+    {
+        $states = array_filter($this->getFields('Filter'), function($state) {
+            return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
+        });
+
+        if (count($states) || $this->hasField('Filter', 'all')) {
+            session(['entity_state_filter:' . $entityType => join(',', $states)]);
+        }
+    }
+
+    protected function hasField($field, $value = false)
+    {
+        $fieldValue = $this->getField($field);
+
+        if ($value) {
+            return $fieldValue && $fieldValue == $value;
+        } else {
+            return $fieldValue ? true : false;
+        }
+    }
+
+    public function process()
     {
         throw new Exception(trans('texts.intent_not_supported'));
     }
 
-    public function setStateEntities($entityType, $entities): void
+    public function setStateEntities($entityType, $entities)
     {
         if (! is_array($entities)) {
             $entities = [$entities];
@@ -125,7 +146,7 @@ class BaseIntent
         $state->current->$entityType = $entities;
     }
 
-    public function setStateEntityType($entityType): void
+    public function setStateEntityType($entityType)
     {
         $state = $this->state;
 
@@ -164,30 +185,6 @@ class BaseIntent
         return $this->state;
     }
 
-    protected function loadStates($entityType): void
-    {
-        $states = array_filter($this->getFields('Filter'), function ($state) {
-            return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
-        });
-
-        if (count($states) || $this->hasField('Filter', 'all')) {
-            session(['entity_state_filter:' . $entityType => implode(',', $states)]);
-        }
-    }
-
-    protected function getFields($field)
-    {
-        $data = [];
-
-        foreach ($this->data->entities as $entity) {
-            if ($entity->type === $field) {
-                $data[] = $entity->entity;
-            }
-        }
-
-        return $data;
-    }
-
     protected function requestClient()
     {
         $clientRepo = app('App\Ninja\Repositories\ClientRepository');
@@ -219,22 +216,6 @@ class BaseIntent
         }
 
         return false;
-    }
-
-    protected function requestFieldsAsString($fields)
-    {
-        $str = '';
-
-        foreach ($this->requestFields() as $field => $value) {
-            if (in_array($field, $fields)) {
-                $str .= $field . '=' . urlencode($value) . '&';
-            }
-        }
-
-        $str = rtrim($str, '?');
-        $str = rtrim($str, '&');
-
-        return $str;
     }
 
     protected function requestFields()
@@ -279,6 +260,22 @@ class BaseIntent
         return $data;
     }
 
+    protected function requestFieldsAsString($fields)
+    {
+        $str = '';
+
+        foreach ($this->requestFields() as $field => $value) {
+            if (in_array($field, $fields)) {
+                $str .= $field . '=' . urlencode($value) . '&';
+            }
+        }
+
+        $str = rtrim($str, '?');
+        $str = rtrim($str, '&');
+
+        return $str;
+    }
+
     protected function processField($field)
     {
         $field = str_replace(' ', '_', $field);
@@ -314,7 +311,7 @@ class BaseIntent
         if (is_string($content)) {
             $response->setText($content);
         } else {
-            if ($content instanceof Collection) {
+            if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
                 // do nothing
             } elseif (! is_array($content)) {
                 $content = [$content];

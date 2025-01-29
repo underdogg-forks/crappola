@@ -13,8 +13,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class SendPaymentEmail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue;
-    use SerializesModels;
+    use InteractsWithQueue, SerializesModels;
 
     /**
      * @var Payment
@@ -28,7 +27,7 @@ class SendPaymentEmail extends Job implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
+
      * @param Payment $payment
      */
     public function __construct($payment)
@@ -42,7 +41,7 @@ class SendPaymentEmail extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ContactMailer $contactMailer): void
+    public function handle(ContactMailer $contactMailer)
     {
         $contactMailer->sendPaymentConfirmation($this->payment);
     }

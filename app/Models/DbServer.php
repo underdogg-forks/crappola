@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class ExpenseCategory.
  */
-class DbServer extends Model
+class DbServer extends Eloquent
 {
     /**
      * @var bool
@@ -20,4 +20,5 @@ class DbServer extends Model
     protected $fillable = [
         'name',
     ];
+
 }

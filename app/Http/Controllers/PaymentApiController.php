@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreatePaymentAPIRequest;
 use App\Http\Requests\PaymentRequest;
+use App\Http\Requests\CreatePaymentAPIRequest;
 use App\Http\Requests\UpdatePaymentRequest;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Illuminate\Support\Facades\Response;
+use Response;
 
 class PaymentApiController extends BaseAPIController
 {
-    protected PaymentRepository $paymentRepo;
-
-    protected PaymentService $paymentService;
+    protected $paymentRepo;
+    protected $paymentService;
 
     protected $entityType = ENTITY_PAYMENT;
 
@@ -34,14 +34,11 @@ class PaymentApiController extends BaseAPIController
      *   summary="List payments",
      *   operationId="listPayments",
      *   tags={"payment"},
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of payments",
-     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Payment"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -51,9 +48,9 @@ class PaymentApiController extends BaseAPIController
     public function index()
     {
         $payments = Payment::scope()
-            ->withTrashed()
-            ->with(['invoice'])
-            ->orderBy('updated_at', 'desc');
+                        ->withTrashed()
+                        ->with(['invoice'])
+                        ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($payments);
     }
@@ -64,21 +61,17 @@ class PaymentApiController extends BaseAPIController
      *   summary="Retrieve a payment",
      *   operationId="getPayment",
      *   tags={"payment"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="payment_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single payment",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -96,21 +89,16 @@ class PaymentApiController extends BaseAPIController
      *   summary="Create a payment",
      *   operationId="createPayment",
      *   tags={"payment"},
-     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="payment",
-     *
      *     @SWG\Schema(ref="#/definitions/Payment")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="New payment",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -124,7 +112,7 @@ class PaymentApiController extends BaseAPIController
 
         $payment = $this->paymentService->save($request->input(), null, $request->invoice);
 
-        if ($request->get('email_receipt')) {
+        if (\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
@@ -137,7 +125,6 @@ class PaymentApiController extends BaseAPIController
      *   summary="Update a payment",
      *   operationId="updatePayment",
      *   tags={"payment"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="payment_id",
@@ -147,17 +134,13 @@ class PaymentApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="payment",
-     *
      *     @SWG\Schema(ref="#/definitions/Payment")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated payment",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -176,7 +159,7 @@ class PaymentApiController extends BaseAPIController
         $data['public_id'] = $publicId;
         $payment = $this->paymentRepo->save($data, $request->entity());
 
-        if ($request->get('email_receipt')) {
+        if (\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
@@ -189,21 +172,17 @@ class PaymentApiController extends BaseAPIController
      *   summary="Delete a payment",
      *   operationId="deletePayment",
      *   tags={"payment"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="payment_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted payment",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

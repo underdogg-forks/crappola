@@ -11,6 +11,8 @@ use League\Fractal\Resource\Item;
 class InvoiceTransformerBAK extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
@@ -25,18 +27,18 @@ class InvoiceTransformerBAK extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'client_id'        => $this->getClientId($data->organization),
-                'invoice_number'   => $this->getInvoiceNumber($data->invoice_number),
-                'paid'             => (float) $data->paid,
-                'po_number'        => $this->getString($data, 'po_number'),
-                'terms'            => $this->getString($data, 'terms'),
+                'client_id' => $this->getClientId($data->organization),
+                'invoice_number' => $this->getInvoiceNumber($data->invoice_number),
+                'paid' => (float) $data->paid,
+                'po_number' => $this->getString($data, 'po_number'),
+                'terms' => $this->getString($data, 'terms'),
                 'invoice_date_sql' => $data->create_date,
-                'invoice_items'    => [
+                'invoice_items' => [
                     [
                         'product_key' => '',
-                        'notes'       => $this->getString($data, 'notes'),
-                        'cost'        => (float) $data->amount,
-                        'qty'         => 1,
+                        'notes' => $this->getString($data, 'notes'),
+                        'cost' => (float) $data->amount,
+                        'qty' => 1,
                     ],
                 ],
             ];

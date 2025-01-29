@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
+use Utils;
 
 /**
  * Class TaskPresenter.
@@ -25,12 +25,23 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->user->getDisplayName();
     }
 
+    public function description()
+    {
+        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+    }
+
+    public function project()
+    {
+        return $this->entity->project ? $this->entity->project->name : '';
+    }
+
     /**
+     * @param $account
      * @param mixed $showProject
      *
      * @return mixed
      */
-    public function invoiceDescription($company, $showProject)
+    public function invoiceDescription($account, $showProject)
     {
         $str = '';
 
@@ -53,8 +64,8 @@ class TaskPresenter extends EntityPresenter
                 $end = $part[1];
             }
 
-            $start = $company->formatDateTime('@' . intval($start));
-            $end = $company->formatTime('@' . intval($end));
+            $start = $account->formatDateTime('@' . intval($start));
+            $end = $account->formatTime('@' . intval($end));
 
             $times[] = "### {$start} - {$end}";
         }
@@ -62,17 +73,12 @@ class TaskPresenter extends EntityPresenter
         return $str . implode("\n", $times);
     }
 
-    public function project()
-    {
-        return $this->entity->project ? $this->entity->project->name : '';
-    }
-
     public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $task = $this->entity;
-        $company = $task->company;
-        $date = $company->getDateTime();
+        $account = $task->account;
+        $date = $account->getDateTime();
 
         $data->title = trans('texts.task');
         if ($project = $this->project()) {
@@ -103,10 +109,5 @@ class TaskPresenter extends EntityPresenter
         }
 
         return $data;
-    }
-
-    public function description()
-    {
-        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
     }
 }

@@ -3,35 +3,35 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class CreditReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client'  => [],
-            'amount'  => [],
+            'client' => [],
+            'amount' => [],
             'balance' => [],
-            'user'    => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with(['contacts', 'user', 'credits' => function ($query): void {
-                $query->where('credit_date', '>=', $this->startDate)
-                    ->where('credit_date', '<=', $this->endDate)
-                    ->withArchived();
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with(['contacts', 'user', 'credits' => function ($query) {
+                            $query->where('credit_date', '>=', $this->startDate)
+                                  ->where('credit_date', '<=', $this->endDate)
+                                  ->withArchived();
+                        }]);
 
         foreach ($clients->get() as $client) {
             $amount = 0;
@@ -51,8 +51,8 @@ class CreditReport extends AbstractReport
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $company->formatMoney($amount, $client),
-                $company->formatMoney($balance, $client),
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($balance, $client),
                 $client->user->getDisplayName(),
             ];
 

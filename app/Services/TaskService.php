@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
 use App\Ninja\Datatables\ProjectTaskDatatable;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\TaskRepository;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 /**
  * Class TaskService.
@@ -15,11 +14,13 @@ use Illuminate\Support\Facades\Auth;
 class TaskService extends BaseService
 {
     protected $datatableService;
-
     protected $taskRepo;
 
     /**
      * TaskService constructor.
+     *
+     * @param TaskRepository   $taskRepo
+     * @param DatatableService $datatableService
      */
     public function __construct(TaskRepository $taskRepo, DatatableService $datatableService)
     {
@@ -27,6 +28,20 @@ class TaskService extends BaseService
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return TaskRepository
+     */
+    protected function getRepo()
+    {
+        return $this->taskRepo;
+    }
+
+    /**
+     * @param $clientPublicId
+     * @param $search
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId, $projectPublicId, $search)
     {
         if ($projectPublicId) {
@@ -42,13 +57,5 @@ class TaskService extends BaseService
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return TaskRepository
-     */
-    protected function getRepo()
-    {
-        return $this->taskRepo;
     }
 }

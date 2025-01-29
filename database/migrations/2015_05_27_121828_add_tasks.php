@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddTasks extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('tasks', function ($table): void {
+        Schema::create('tasks', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -28,7 +29,7 @@ return new class () extends Migration {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
+            
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });
@@ -45,8 +46,8 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::drop('tasks');
     }
-};
+}

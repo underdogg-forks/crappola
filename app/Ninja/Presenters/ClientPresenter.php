@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ClientPresenter extends EntityPresenter
 {
@@ -19,9 +19,9 @@ class ClientPresenter extends EntityPresenter
     public function balance()
     {
         $client = $this->entity;
-        $company = $client->company;
+        $account = $client->account;
 
-        return $company->formatMoney($client->balance, $client);
+        return $account->formatMoney($client->balance, $client);
     }
 
     public function websiteLink()
@@ -41,16 +41,9 @@ class ClientPresenter extends EntityPresenter
     public function paid_to_date()
     {
         $client = $this->entity;
-        $company = $client->company;
+        $account = $client->account;
 
-        return $company->formatMoney($client->paid_to_date, $client);
-    }
-
-    public function usuallyPaysIn()
-    {
-        $avgDays = $this->entity->getUsuallyPaysIn();
-
-        return Utils::roundSignificant($avgDays) . ' ' . trans('texts.usually_pays_in_days');
+        return $account->formatMoney($client->paid_to_date, $client);
     }
 
     public function paymentTerms()
@@ -105,9 +98,22 @@ class ClientPresenter extends EntityPresenter
 
         if ($city || $state || $postalCode) {
             return Utils::cityStateZip($city, $state, $postalCode, $swap);
+        } else {
+            return false;
         }
+    }
 
-        return false;
+
+    /**
+     * @return string
+     */
+    public function taskRate()
+    {
+      if (floatval($this->entity->task_rate)) {
+          return Utils::roundSignificant($this->entity->task_rate);
+      } else {
+          return '';
+      }
     }
 
     /**
@@ -115,22 +121,11 @@ class ClientPresenter extends EntityPresenter
      */
     public function defaultTaskRate()
     {
-        if ($rate = $this->taskRate()) {
-            return $rate;
-        }
-
-        return $this->entity->company->present()->taskRate;
+      if ($rate = $this->taskRate()) {
+          return $rate;
+      } else {
+          return $this->entity->account->present()->taskRate;
+      }
     }
 
-    /**
-     * @return string
-     */
-    public function taskRate()
-    {
-        if (floatval($this->entity->task_rate)) {
-            return Utils::roundSignificant($this->entity->task_rate);
-        }
-
-        return '';
-    }
 }

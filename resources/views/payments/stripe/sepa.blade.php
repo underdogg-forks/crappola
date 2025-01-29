@@ -5,10 +5,10 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script type="text/javascript">
-        $(function () {
-            $('.payment-form').submit(function (event) {
+        $(function() {
+            $('.payment-form').submit(function(event) {
                 // https://stripe.com/docs/sources/sepa-debit
-                var stripe = Stripe('{{ $companyGateway->getPublishableKey() }}');
+                var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
                 stripe.createSource({
                     type: 'sepa_debit',
                     sepa_debit: {
@@ -16,12 +16,12 @@
                     },
                     currency: 'eur',
                     owner: {
-                        name: '{{ $company->getPrimaryUser()->getFullName() }}',
+                        name: '{{ $account->getPrimaryUser()->getFullName() }}',
                     },
-                }).then(function (result) {
+                }).then(function(result) {
                     console.log('create source: result');
                     console.log(result);
-                }).failure(function (result) {
+                }).failure(function(result) {
                     console.log('create source: error');
                     console.log(result);
                 });
@@ -50,7 +50,7 @@
     {!! Former::text('iban') !!}
 
     {!! Former::checkbox('authorize_sepa')
-            ->text(trans('texts.sepa_authorization', ['companyPlan'=>$company->getDisplayName(), 'email' => $company->work_email]))
+            ->text(trans('texts.sepa_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
             ->label(' ')
             ->value(1) !!}
 
@@ -68,5 +68,7 @@
     </div>
 
     {!! Former::close() !!}
+
+
 
 @stop

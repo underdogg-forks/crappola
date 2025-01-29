@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
+use Request;
+use Utils;
 
 class BaseController extends Controller
 {
-    use AuthorizesRequests;
-    use DispatchesJobs;
+    use DispatchesJobs, AuthorizesRequests;
 
     protected $entityType;
 
     /**
      * Setup the layout used by the controller.
+     *
+     * @return void
      */
-    protected function setupLayout(): void
+    protected function setupLayout()
     {
         if (! is_null($this->layout)) {
             $this->layout = View::make($this->layout);
@@ -45,12 +46,12 @@ class BaseController extends Controller
         // when viewing individual entity
         } elseif (count($ids)) {
             return redirect("{$entityTypes}/" . $ids[0] . '/edit');
+        } else {
+            return redirect("{$entityTypes}");
         }
-
-        return redirect("{$entityTypes}");
     }
 
-    protected function downloadResponse($filename, $contents, $type = 'application/pdf'): void
+    protected function downloadResponse($filename, $contents, $type = 'application/pdf')
     {
         header('Content-Type: ' . $type);
         header('Content-Length: ' . strlen($contents));
@@ -66,4 +67,5 @@ class BaseController extends Controller
 
         exit;
     }
+
 }

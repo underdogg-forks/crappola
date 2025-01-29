@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupAccountToken;
 
 /**
  * Class AccountToken.
@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AccountToken extends EntityModel
 {
     use SoftDeletes;
-
     /**
      * @var array
      */
@@ -26,11 +25,11 @@ class AccountToken extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -38,20 +37,22 @@ class AccountToken extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 }
 
-AccountToken::creating(function ($token): void {
-    LookupAccountToken::createNew($token->company->account_key, [
+AccountToken::creating(function ($token)
+{
+    LookupAccountToken::createNew($token->account->account_key, [
         'token' => $token->token,
     ]);
 });
 
-AccountToken::deleted(function ($token): void {
+AccountToken::deleted(function ($token)
+{
     if ($token->forceDeleting) {
         LookupAccountToken::deleteWhere([
-            'token' => $token->token,
+            'token' => $token->token
         ]);
     }
 });

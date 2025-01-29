@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Invoice;
+use App\Models\Client;
 
 class CreateInvoiceAPIRequest extends InvoiceRequest
 {
@@ -13,26 +13,28 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Invoice::class);
+        return $this->user()->can('create', ENTITY_INVOICE);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{email: string, client_id: string, invoice_items: string, invoice_number: string, discount: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
-        return [
-            'email'          => 'required_without:client_id',
-            'client_id'      => 'required_without:email',
-            'invoice_items'  => 'valid_invoice_items',
-            'invoice_number' => 'unique:invoices,invoice_number,,id,company_id,' . $this->user()->company_id,
-            'discount'       => 'positive',
+        $rules = [
+            'email' => 'required_without:client_id',
+            'client_id' => 'required_without:email',
+            'invoice_items' => 'valid_invoice_items',
+            'invoice_number' => 'unique:invoices,invoice_number,,id,account_id,' . $this->user()->account_id,
+            'discount' => 'positive',
             //'invoice_date' => 'date',
-            //'due_at' => 'date',
+            //'due_date' => 'date',
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
+
+        return $rules;
     }
 }

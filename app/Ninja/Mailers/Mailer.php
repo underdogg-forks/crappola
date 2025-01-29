@@ -2,16 +2,13 @@
 
 namespace App\Ninja\Mailers;
 
-use App;
-use App\Libraries\Utils;
+use App\Models\Invoice;
 use Exception;
-use Illuminate\Mail\TransportManager;
-use Illuminate\Support\Facades\Mail;
-use Log;
-use Postmark\Models\PostmarkAttachment;
-use Postmark\Models\PostmarkException;
+use Mail;
+use Utils;
 use Postmark\PostmarkClient;
-use Swift_Mailer;
+use Postmark\Models\PostmarkException;
+use Postmark\Models\PostmarkAttachment;
 
 /**
  * Class Mailer.
@@ -19,6 +16,11 @@ use Swift_Mailer;
 class Mailer
 {
     /**
+     * @param $toEmail
+     * @param $fromEmail
+     * @param $fromName
+     * @param $subject
+     * @param $view
      * @param array $data
      *
      * @return bool|string
@@ -31,8 +33,8 @@ class Mailer
         }
 
         $views = [
-            'emails.' . $view . '_html',
-            'emails.' . $view . '_text',
+            'emails.'.$view.'_html',
+            'emails.'.$view.'_text',
         ];
 
         $toEmail = strtolower($toEmail);
@@ -40,7 +42,7 @@ class Mailer
         $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: $fromEmail");
+            \Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: $fromEmail");
         }
 
         // Optionally send for alternate domain
@@ -48,11 +50,77 @@ class Mailer
             $fromEmail = $data['fromEmail'];
         }
 
-        if (strlen(config('services.postmark')) >= 1) {
+        if (config('services.postmark')) {
             return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        } else {
+            return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        }
+    }
+
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    {
+        if (Utils::isSelfHost()) {
+            if (isset($data['account'])) {
+                $account = $data['account'];
+                if (env($account->id . '_MAIL_FROM_ADDRESS')) {
+                    $fields = [
+                        'driver',
+                        'host',
+                        'port',
+                        'from.address',
+                        'from.name',
+                        'encryption',
+                        'username',
+                        'password',
+                    ];
+                    foreach ($fields as $field) {
+                        $envKey = strtoupper(str_replace('.', '_', $field));
+                        if ($value = env($account->id . '_MAIL_' . $envKey)) {
+                            config(['mail.' . $field => $value]);
+                        }
+                    }
+
+                    $fromEmail = config('mail.from.address');
+                    $app = \App::getInstance();
+                    $app->singleton('swift.transport', function ($app) {
+                        return new \Illuminate\Mail\TransportManager($app);
+                    });
+                    $mailer = new \Swift_Mailer($app['swift.transport']->driver());
+                    Mail::setSwiftMailer($mailer);
+                }
+            }
         }
 
-        return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        try {
+            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data) {
+                $message->to($toEmail)
+                        ->from($fromEmail, $fromName)
+                        ->replyTo($replyEmail, $fromName)
+                        ->subject($subject);
+
+                // Optionally BCC the email
+                if (! empty($data['bccEmail'])) {
+                    $message->bcc($data['bccEmail']);
+                }
+
+                // Handle invoice attachments
+                if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
+                    $message->attachData($data['pdfString'], $data['pdfFileName']);
+                }
+                if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
+                    $message->attachData($data['ublString'], $data['ublFileName']);
+                }
+                if (! empty($data['documents'])) {
+                    foreach ($data['documents'] as $document) {
+                        $message->attachData($document['data'], $document['name']);
+                    }
+                }
+            });
+
+            return $this->handleSuccess($data);
+        } catch (Exception $exception) {
+            return $this->handleFailure($data, $exception->getMessage());
+        }
     }
 
     private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
@@ -61,11 +129,11 @@ class Mailer
         $textBody = view($views[1], $data)->render();
         $attachments = [];
 
-        if (isset($data['company'])) {
-            $company = $data['company'];
-            $logoName = $company->getLogoName();
-            if (strpos($htmlBody, 'cid:' . $logoName) !== false && $company->hasLogo()) {
-                $attachments[] = PostmarkAttachment::fromFile($company->getLogoPath(), $logoName, null, 'cid:' . $logoName);
+        if (isset($data['account'])) {
+            $account = $data['account'];
+            $logoName = $account->getLogoName();
+            if (strpos($htmlBody, 'cid:' . $logoName) !== false && $account->hasLogo()) {
+                $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
             }
         }
 
@@ -92,12 +160,12 @@ class Mailer
         try {
             $client = new PostmarkClient(config('services.postmark'));
             $message = [
-                'To'          => $toEmail,
-                'From'        => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
-                'ReplyTo'     => $replyEmail,
-                'Subject'     => $subject,
-                'TextBody'    => $textBody,
-                'HtmlBody'    => $htmlBody,
+                'To' => $toEmail,
+                'From' => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
+                'ReplyTo' => $replyEmail,
+                'Subject' => $subject,
+                'TextBody' => $textBody,
+                'HtmlBody' => $htmlBody,
                 'Attachments' => $attachments,
             ];
 
@@ -112,9 +180,9 @@ class Mailer
             $response = $client->sendEmailBatch([$message]);
             if ($messageId = $response[0]->messageid) {
                 return $this->handleSuccess($data, $messageId);
+            } else {
+                return $this->handleFailure($data, $response[0]->message);
             }
-
-            return $this->handleFailure($data, $response[0]->message);
         } catch (PostmarkException $exception) {
             return $this->handleFailure($data, $exception->getMessage());
         } catch (Exception $exception) {
@@ -125,6 +193,7 @@ class Mailer
 
     /**
      * @param $response
+     * @param $data
      *
      * @return bool
      */
@@ -137,7 +206,7 @@ class Mailer
 
             if (! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
-            } elseif ($invoice) {
+            } else {
                 $invoice->markInvitationSent($invitation, $messageId, true, $notes);
             }
         }
@@ -161,71 +230,5 @@ class Mailer
         }
 
         return $emailError;
-    }
-
-    public function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
-    {
-        if (Utils::isSelfHost()) {
-            if (isset($data['company'])) {
-                $company = $data['company'];
-                if (env($company->id . '_MAIL_FROM_ADDRESS')) {
-                    $fields = [
-                        'driver',
-                        'host',
-                        'port',
-                        'from.address',
-                        'from.name',
-                        'encryption',
-                        'username',
-                        'password',
-                    ];
-                    foreach ($fields as $field) {
-                        $envKey = strtoupper(str_replace('.', '_', $field));
-                        if ($value = env($company->id . '_MAIL_' . $envKey)) {
-                            config(['mail.' . $field => $value]);
-                        }
-                    }
-
-                    $fromEmail = config('mail.from.address');
-                    $app = App::getInstance();
-                    $app->singleton('swift.transport', function ($app) {
-                        return new TransportManager($app);
-                    });
-                    $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                    Mail::setSwiftMailer($mailer);
-                }
-            }
-        }
-
-        try {
-            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
-                $message->to($toEmail)
-                    ->from($fromEmail, $fromName)
-                    ->replyTo($replyEmail, $fromName)
-                    ->subject($subject);
-
-                // Optionally BCC the email
-                if (! empty($data['bccEmail'])) {
-                    $message->bcc($data['bccEmail']);
-                }
-
-                // Handle invoice attachments
-                if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
-                    $message->attachData($data['pdfString'], $data['pdfFileName']);
-                }
-                if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
-                    $message->attachData($data['ublString'], $data['ublFileName']);
-                }
-                if (! empty($data['documents'])) {
-                    foreach ($data['documents'] as $document) {
-                        $message->attachData($document['data'], $document['name']);
-                    }
-                }
-            });
-
-            return $this->handleSuccess($data);
-        } catch (Exception $exception) {
-            return $this->handleFailure($data, $exception->getMessage());
-        }
     }
 }

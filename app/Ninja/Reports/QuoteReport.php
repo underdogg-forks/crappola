@@ -3,23 +3,23 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use App\Models\TaxRate;
+use Auth;
 use Barracuda\ArchiveStream\Archive;
-use Illuminate\Support\Facades\Auth;
+use App\Models\TaxRate;
 
 class QuoteReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client'           => [],
-            'quote_number'     => [],
-            'quote_date'       => [],
-            'amount'           => [],
-            'status'           => [],
-            'private_notes'    => ['columnSelector-false'],
-            'user'             => ['columnSelector-false'],
-            'billing_address'  => ['columnSelector-false'],
+            'client' => [],
+            'quote_number' => [],
+            'quote_date' => [],
+            'amount' => [],
+            'status' => [],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+            'billing_address' => ['columnSelector-false'],
             'shipping_address' => ['columnSelector-false'],
         ];
 
@@ -27,42 +27,42 @@ class QuoteReport extends AbstractReport
             $columns['tax'] = ['columnSelector-false'];
         }
 
-        $company = auth()->user()->company;
+        $account = auth()->user()->account;
 
-        if ($company->customLabel('invoice_text1')) {
-            $columns[$company->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text1')) {
+            $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('invoice_text2')) {
-            $columns[$company->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text2')) {
+            $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $hasTaxRates = TaxRate::scope()->count();
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with('contacts', 'user')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
-                $query->quotes()
-                    ->withArchived()
-                    ->statusIds($statusIds)
-                    ->where('invoice_date', '>=', $this->startDate)
-                    ->where('invoice_date', '<=', $this->endDate)
-                    ->with(['invoice_items', 'invoice_status']);
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with('contacts', 'user')
+                        ->with(['invoices' => function ($query) use ($statusIds) {
+                            $query->quotes()
+                                  ->withArchived()
+                                  ->statusIds($statusIds)
+                                  ->where('invoice_date', '>=', $this->startDate)
+                                  ->where('invoice_date', '<=', $this->endDate)
+                                  ->with(['invoice_items', 'invoice_status']);
+                        }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
             if (! extension_loaded('GMP')) {
-                exit(trans('texts.gmp_required'));
+                die(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
@@ -85,7 +85,7 @@ class QuoteReport extends AbstractReport
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                    $company->formatMoney($invoice->amount, $client),
+                    $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
                     $invoice->private_notes,
                     $invoice->user->getDisplayName(),
@@ -94,13 +94,13 @@ class QuoteReport extends AbstractReport
                 ];
 
                 if ($hasTaxRates) {
-                    $row[] = $company->formatMoney($invoice->getTaxTotal(), $client);
+                    $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
                 }
 
-                if ($company->customLabel('invoice_text1')) {
+                if ($account->customLabel('invoice_text1')) {
                     $row[] = $invoice->custom_text_value1;
                 }
-                if ($company->customLabel('invoice_text2')) {
+                if ($account->customLabel('invoice_text2')) {
                     $row[] = $invoice->custom_text_value2;
                 }
 

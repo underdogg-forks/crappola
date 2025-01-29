@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Eloquent;
+
 /**
  * Class ExpenseCategory.
  */
@@ -17,11 +19,12 @@ class LookupCompany extends LookupModel
 
     public function dbServer()
     {
-        return $this->belongsTo(DbServer::class);
+        return $this->belongsTo('App\Models\DbServer');
     }
 
     public function getDbServer()
     {
         return $this->dbServer->name;
     }
+
 }

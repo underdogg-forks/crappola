@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Font.
  */
-class Font extends Model
+class Font extends Eloquent
 {
     /**
      * @var bool

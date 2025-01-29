@@ -11,6 +11,7 @@ class ArraySerializer extends FractalArraySerializer
 {
     /**
      * @param string $resourceKey
+     * @param array  $data
      *
      * @return array
      */
@@ -21,6 +22,7 @@ class ArraySerializer extends FractalArraySerializer
 
     /**
      * @param string $resourceKey
+     * @param array  $data
      *
      * @return array
      */

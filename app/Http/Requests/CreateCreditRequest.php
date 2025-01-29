@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Credit;
-
 class CreateCreditRequest extends CreditRequest
 {
     /**
@@ -13,19 +11,19 @@ class CreateCreditRequest extends CreditRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Credit::class);
+        return $this->user()->can('create', ENTITY_CREDIT);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{client_id: string, amount: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'client_id' => 'required',
-            'amount'    => 'required|positive',
+            'amount' => 'required|positive',
         ];
     }
 }

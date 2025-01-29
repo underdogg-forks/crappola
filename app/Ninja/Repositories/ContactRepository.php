@@ -9,8 +9,8 @@ class ContactRepository extends BaseRepository
     public function all()
     {
         return Contact::scope()
-            ->withTrashed()
-            ->get();
+                ->withTrashed()
+                ->get();
     }
 
     public function save($data, $contact = false)

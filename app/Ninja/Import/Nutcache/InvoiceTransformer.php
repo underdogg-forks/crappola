@@ -11,6 +11,8 @@ use League\Fractal\Resource\Item;
 class InvoiceTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
@@ -25,20 +27,20 @@ class InvoiceTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'client_id'        => $this->getClientId($data->client),
-                'invoice_number'   => $this->getInvoiceNumber($data->document_no),
-                'paid'             => (float) $data->paid_to_date,
-                'po_number'        => $this->getString($data, 'purchase_order'),
-                'terms'            => $this->getString($data, 'terms'),
-                'public_notes'     => $this->getString($data, 'notes'),
+                'client_id' => $this->getClientId($data->client),
+                'invoice_number' => $this->getInvoiceNumber($data->document_no),
+                'paid' => (float) $data->paid_to_date,
+                'po_number' => $this->getString($data, 'purchase_order'),
+                'terms' => $this->getString($data, 'terms'),
+                'public_notes' => $this->getString($data, 'notes'),
                 'invoice_date_sql' => $this->getDate($data, 'date'),
-                'due_date_sql'     => $this->getDate($data, 'due_at'),
-                'invoice_items'    => [
+                'due_date_sql' => $this->getDate($data, 'due_date'),
+                'invoice_items' => [
                     [
                         'product_key' => '',
-                        'notes'       => $this->getString($data, 'description'),
-                        'cost'        => (float) $data->total,
-                        'qty'         => 1,
+                        'notes' => $this->getString($data, 'description'),
+                        'cost' => (float) $data->total,
+                        'qty' => 1,
                     ],
                 ],
             ];

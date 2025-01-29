@@ -3,53 +3,53 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class ClientReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client'        => [],
-            'amount'        => [],
-            'paid'          => [],
-            'balance'       => [],
-            'id_number'     => ['columnSelector-false'],
-            'vat_number'    => ['columnSelector-false'],
-            'public_notes'  => ['columnSelector-false'],
+            'client' => [],
+            'amount' => [],
+            'paid' => [],
+            'balance' => [],
+            'id_number' => ['columnSelector-false'],
+            'vat_number' => ['columnSelector-false'],
+            'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
-            'user'          => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
-        $company = $user->company;
+        $account = $user->account;
 
-        if ($company->customLabel('client1')) {
-            $columns[$company->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client1')) {
+            $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('client2')) {
-            $columns[$company->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client2')) {
+            $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with(['contacts', 'user'])
-            ->with(['invoices' => function ($query): void {
-                $query->where('invoice_date', '>=', $this->startDate)
-                    ->where('invoice_date', '<=', $this->endDate)
-                    ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                    ->where('is_recurring', '=', false)
-                    ->withArchived();
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with(['contacts', 'user'])
+                        ->with(['invoices' => function ($query) {
+                            $query->where('invoice_date', '>=', $this->startDate)
+                                  ->where('invoice_date', '<=', $this->endDate)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                                  ->where('is_recurring', '=', false)
+                                  ->withArchived();
+                        }]);
 
         foreach ($clients->get() as $client) {
             $amount = 0;
@@ -69,9 +69,9 @@ class ClientReport extends AbstractReport
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $company->formatMoney($amount, $client),
-                $company->formatMoney($paid, $client),
-                $company->formatMoney($amount - $paid, $client),
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($paid, $client),
+                $account->formatMoney($amount - $paid, $client),
                 $client->id_number,
                 $client->vat_number,
                 $client->public_notes,
@@ -79,10 +79,10 @@ class ClientReport extends AbstractReport
                 $client->user->getDisplayName(),
             ];
 
-            if ($company->customLabel('client1')) {
+            if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
-            if ($company->customLabel('client2')) {
+            if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }
 

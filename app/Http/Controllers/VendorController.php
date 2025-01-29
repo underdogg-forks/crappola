@@ -5,24 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
-use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
+use Auth;
+use Cache;
+use Redirect;
+use Session;
 use URL;
+use Utils;
+use View;
 
 class VendorController extends BaseController
 {
-    protected VendorService $vendorService;
-
-    protected VendorRepository $vendorRepo;
-
+    protected $vendorService;
+    protected $vendorRepo;
     protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
@@ -42,14 +41,14 @@ class VendorController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => 'vendor',
-            'datatable'  => new VendorDatatable(),
-            'title'      => trans('texts.vendors'),
+            'datatable' => new VendorDatatable(),
+            'title' => trans('texts.vendors'),
         ]);
     }
 
     public function getDatatable()
     {
-        return $this->vendorService->getDatatable($request->get('sSearch'));
+        return $this->vendorService->getDatatable(\Request::input('sSearch'));
     }
 
     /**
@@ -82,13 +81,13 @@ class VendorController extends BaseController
         ];
 
         $data = [
-            'actionLinks'          => $actionLinks,
-            'showBreadcrumbs'      => false,
-            'vendor'               => $vendor,
-            'title'                => trans('texts.view_vendor'),
+            'actionLinks' => $actionLinks,
+            'showBreadcrumbs' => false,
+            'vendor' => $vendor,
+            'title' => trans('texts.view_vendor'),
             'hasRecurringInvoices' => false,
-            'hasQuotes'            => false,
-            'hasTasks'             => false,
+            'hasQuotes' => false,
+            'hasTasks' => false,
         ];
 
         return View::make('vendors.show', $data);
@@ -102,30 +101,19 @@ class VendorController extends BaseController
     public function create(VendorRequest $request)
     {
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumVendors() . ' vendors']);
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors().' vendors']);
         }
 
         $data = [
             'vendor' => null,
             'method' => 'POST',
-            'url'    => 'vendors',
-            'title'  => trans('texts.new_vendor'),
+            'url' => 'vendors',
+            'title' => trans('texts.new_vendor'),
         ];
 
         $data = array_merge($data, self::getViewModel());
 
         return View::make('vendors.edit', $data);
-    }
-
-    /**
-     * @return array{data: mixed, company: mixed}
-     */
-    private static function getViewModel(): array
-    {
-        return [
-            'data'    => Input::old('data'),
-            'company' => Auth::user()->company,
-        ];
     }
 
     /**
@@ -142,19 +130,27 @@ class VendorController extends BaseController
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',
-            'url'    => 'vendors/' . $vendor->public_id,
-            'title'  => trans('texts.edit_vendor'),
+            'url' => 'vendors/'.$vendor->public_id,
+            'title' => trans('texts.edit_vendor'),
         ];
 
         $data = array_merge($data, self::getViewModel());
 
-        if (Auth::user()->company->isNinjaAccount()) {
-            if ($company = Company::whereId($client->public_id)->first()) {
-                $data['planDetails'] = $company->getPlanDetails(false, false);
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($client->public_id)->first()) {
+                $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 
         return View::make('vendors.edit', $data);
+    }
+
+    private static function getViewModel()
+    {
+        return [
+            'data' => \Request::old('data'),
+            'account' => Auth::user()->account,
+        ];
     }
 
     /**
@@ -175,11 +171,11 @@ class VendorController extends BaseController
 
     public function bulk()
     {
-        $action = $request->get('action');
-        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
-        $message = Utils::pluralize($action . 'd_vendor', $count);
+        $message = Utils::pluralize($action.'d_vendor', $count);
         Session::flash('message', $message);
 
         return $this->returnBulk($this->entityType, $action, $ids);

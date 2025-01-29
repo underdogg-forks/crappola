@@ -6,8 +6,10 @@ class SaveEmailSettings extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->is_admin && $this->user()->isPro();
     }
@@ -15,12 +17,12 @@ class SaveEmailSettings extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{bcc_email: string, reply_to_email: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'bcc_email'      => 'email',
+            'bcc_email' => 'email',
             'reply_to_email' => 'email',
         ];
     }

@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Invitation;
-use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Models\ProposalInvitation;
+use App\Models\Invoice;
 use App\Models\ProposalTemplate;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\ProposalInvitation;
+use Auth;
+use DB;
+use Utils;
 
 class ProposalRepository extends BaseRepository
 {
@@ -25,43 +25,43 @@ class ProposalRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposals')
-            ->where('proposals.company_id', '=', Auth::user()->company_id)
-            ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
-            ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
-            ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->leftJoin('proposal_templates', 'proposal_templates.id', '=', 'proposals.proposal_template_id')
-            ->where('clients.deleted_at', '=', null)
-            ->where('contacts.deleted_at', '=', null)
-            ->where('contacts.is_primary', '=', true)
-            ->select(
-                'proposals.public_id',
-                'proposals.user_id',
-                'proposals.deleted_at',
-                'proposals.created_at',
-                'proposals.is_deleted',
-                'proposals.private_notes',
-                'proposals.html as content',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
-                'clients.user_id as client_user_id',
-                'clients.public_id as client_public_id',
-                'invoices.invoice_number as quote',
-                'invoices.invoice_number as invoice_number',
-                'invoices.public_id as invoice_public_id',
-                'invoices.user_id as invoice_user_id',
-                'proposal_templates.name as template',
-                'proposal_templates.public_id as template_public_id',
-                'proposal_templates.user_id as template_user_id'
-            );
+                ->where('proposals.account_id', '=', Auth::user()->account_id)
+                ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
+                ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
+                ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
+                ->leftJoin('proposal_templates', 'proposal_templates.id', '=', 'proposals.proposal_template_id')
+                ->where('clients.deleted_at', '=', null)
+                ->where('contacts.deleted_at', '=', null)
+                ->where('contacts.is_primary', '=', true)
+                ->select(
+                    'proposals.public_id',
+                    'proposals.user_id',
+                    'proposals.deleted_at',
+                    'proposals.created_at',
+                    'proposals.is_deleted',
+                    'proposals.private_notes',
+                    'proposals.html as content',
+                    DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client"),
+                    'clients.user_id as client_user_id',
+                    'clients.public_id as client_public_id',
+                    'invoices.invoice_number as quote',
+                    'invoices.invoice_number as invoice_number',
+                    'invoices.public_id as invoice_public_id',
+                    'invoices.user_id as invoice_user_id',
+                    'proposal_templates.name as template',
+                    'proposal_templates.public_id as template_public_id',
+                    'proposal_templates.user_id as template_user_id'
+                );
 
         $this->applyFilters($query, ENTITY_PROPOSAL);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
-                $query->where('clients.name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.email', 'like', '%' . $filter . '%')
-                    ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%');
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%')
+                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%');
             });
         }
 
@@ -122,15 +122,17 @@ class ProposalRepository extends BaseRepository
     }
 
     /**
+     * @param $invitationKey
+     *
      * @return Invitation|bool
      */
     public function findInvitationByKey($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        [$invitationKey] = explode('&', $invitationKey);
+        list($invitationKey) = explode('&', $invitationKey);
         $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = ProposalInvitation::where('invitation_key', '=', $invitationKey)->first();
         if (! $invitation) {
             return false;

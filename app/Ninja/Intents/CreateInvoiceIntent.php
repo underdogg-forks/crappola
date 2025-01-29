@@ -17,7 +17,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         }
 
         $data = array_merge($this->requestFields(), [
-            'client_id'     => $client->id,
+            'client_id' => $client->id,
             'invoice_items' => $invoiceItems,
         ]);
 

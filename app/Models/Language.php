@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Language.
  */
-class Language extends Model
+class Language extends Eloquent
 {
     /**
      * @var bool

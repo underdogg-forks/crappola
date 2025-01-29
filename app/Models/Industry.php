@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Industry.
  */
-class Industry extends Model
+class Industry extends Eloquent
 {
     /**
      * @var bool

@@ -6,19 +6,20 @@ class InvoiceDesignCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function _after(AcceptanceTester $I): void
+    public function _after(AcceptanceTester $I)
     {
+
     }
 
     // tests
-    public function updateInvoiceDesign(AcceptanceTester $I): void
+    public function updateInvoiceDesign(AcceptanceTester $I)
     {
         $I->wantTo('Design my invoice');
 
@@ -46,10 +47,10 @@ class InvoiceDesignCest
         $I->uncheckOption('#hide_quantity');
         $I->checkOption('#hide_paid_to_date');
         */
-
+        
         $I->click('Save');
         $I->wait(3);
 
-        $I->seeInDatabase('corporations', ['font_size' => 10]);
+        $I->seeInDatabase('accounts', ['font_size' => 10]);
     }
 }

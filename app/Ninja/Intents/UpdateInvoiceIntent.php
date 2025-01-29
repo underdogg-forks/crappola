@@ -3,6 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Models\EntityModel;
+use App\Models\Invoice;
 use Exception;
 
 class UpdateInvoiceIntent extends InvoiceIntent
@@ -13,7 +14,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
         $invoiceItems = $this->requestInvoiceItems();
 
         $data = array_merge($this->requestFields(), [
-            'public_id'     => $invoice->public_id,
+            'public_id' => $invoice->public_id,
             'invoice_items' => array_merge($invoice->invoice_items->toArray(), $invoiceItems),
         ]);
 

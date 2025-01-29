@@ -3,44 +3,63 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
-use App\Libraries\Utils;
+use App\Models\Activity;
 use Carbon;
-use Bootstrapper\Facades\DropdownButton;
-use Illuminate\Support\Facades\Auth;
+use DropdownButton;
 use stdClass;
+use Utils;
+use Auth;
 
 class InvoicePresenter extends EntityPresenter
 {
+    public function client()
+    {
+        return $this->entity->client ? $this->entity->client->getDisplayName() : '';
+    }
+
+    public function user()
+    {
+        return $this->entity->user->getDisplayName();
+    }
+
+    public function amount()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->amount, $invoice->client);
+    }
+
     public function balance()
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        return $company->formatMoney($invoice->balance, $invoice->client);
+        return $account->formatMoney($invoice->balance, $invoice->client);
     }
 
     public function paid()
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        return $company->formatMoney($invoice->amount - $invoice->balance, $invoice->client);
+        return $account->formatMoney($invoice->amount - $invoice->balance, $invoice->client);
     }
 
     public function partial()
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        return $company->formatMoney($invoice->partial, $invoice->client);
+        return $account->formatMoney($invoice->partial, $invoice->client);
     }
 
     public function requestedAmount()
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        return $company->formatMoney($invoice->getRequestedAmount(), $invoice->client);
+        return $account->formatMoney($invoice->getRequestedAmount(), $invoice->client);
     }
 
     public function balanceDueLabel()
@@ -49,32 +68,15 @@ class InvoicePresenter extends EntityPresenter
             return 'partial_due';
         } elseif ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
             return 'total';
+        } else {
+            return 'balance_due';
         }
-
-        return 'balance_due';
-    }
-
-    public function ageGroup()
-    {
-        $age = $this->age();
-
-        if ($age > 120) {
-            return 'age_group_120';
-        } elseif ($age > 90) {
-            return 'age_group_90';
-        } elseif ($age > 60) {
-            return 'age_group_60';
-        } elseif ($age > 30) {
-            return 'age_group_30';
-        }
-
-        return 'age_group_0';
     }
 
     public function age()
     {
         $invoice = $this->entity;
-        $dueDate = $invoice->partial_due_date ?: $invoice->due_at;
+        $dueDate = $invoice->partial_due_date ?: $invoice->due_date;
 
         if (! $dueDate || $dueDate == '0000-00-00') {
             return 0;
@@ -89,13 +91,30 @@ class InvoicePresenter extends EntityPresenter
         return $date->diffInDays();
     }
 
+    public function ageGroup()
+    {
+        $age = $this->age();
+
+        if ($age > 120) {
+            return 'age_group_120';
+        } elseif ($age > 90) {
+            return 'age_group_90';
+        } elseif ($age > 60) {
+            return 'age_group_60';
+        } elseif ($age > 30) {
+            return 'age_group_30';
+        } else {
+            return 'age_group_0';
+        }
+    }
+
     public function dueDateLabel()
     {
         if ($this->entity->isType(INVOICE_TYPE_STANDARD)) {
-            return trans('texts.due_at');
+            return trans('texts.due_date');
+        } else {
+            return trans('texts.valid_until');
         }
-
-        return trans('texts.valid_until');
     }
 
     public function discount()
@@ -103,21 +122,22 @@ class InvoicePresenter extends EntityPresenter
         $invoice = $this->entity;
 
         if ($invoice->is_amount_discount) {
-            return $invoice->company->formatMoney($invoice->discount);
+            return $invoice->account->formatMoney($invoice->discount);
+        } else {
+            return $invoice->discount . '%';
         }
-
-        return $invoice->discount . '%';
     }
 
+    // https://schema.org/PaymentStatusType
     public function paymentStatus()
     {
         if (! $this->entity->balance) {
             return 'PaymentComplete';
         } elseif ($this->entity->isOverdue()) {
             return 'PaymentPastDue';
+        } else {
+            return 'PaymentDue';
         }
-
-        return 'PaymentDue';
     }
 
     public function status()
@@ -128,11 +148,12 @@ class InvoicePresenter extends EntityPresenter
             return trans('texts.archived');
         } elseif ($this->entity->is_recurring) {
             return trans('texts.active');
-        }
-        $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
-        $status = strtolower($status);
+        } else {
+            $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
+            $status = strtolower($status);
 
-        return trans("texts.status_{$status}");
+            return trans("texts.status_{$status}");
+        }
     }
 
     public function invoice_date()
@@ -140,7 +161,10 @@ class InvoicePresenter extends EntityPresenter
         return Utils::fromSqlDate($this->entity->invoice_date);
     }
 
-    // https://schema.org/PaymentStatusType
+    public function due_date()
+    {
+        return Utils::fromSqlDate($this->entity->due_date);
+    }
 
     public function partial_due_date()
     {
@@ -152,7 +176,7 @@ class InvoicePresenter extends EntityPresenter
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
         $frequency = strtolower($frequency);
 
-        return trans('texts.freq_' . $frequency);
+        return trans('texts.freq_'.$frequency);
     }
 
     public function email()
@@ -181,15 +205,10 @@ class InvoicePresenter extends EntityPresenter
 
         $data = [
             'payment_method' => $paymentMethodString,
-            'due_at'         => $this->due_date(),
+            'due_date' => $this->due_date(),
         ];
 
         return trans('texts.auto_bill_notification', $data);
-    }
-
-    public function due_date()
-    {
-        return Utils::fromSqlDate($this->entity->due_date);
     }
 
     public function skypeBot()
@@ -223,11 +242,11 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $actions = [
-            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans('texts.clone_invoice')],
+            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
         ];
 
-        if (Auth::user()->can('createEntity', ENTITY_QUOTE)) {
-            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans('texts.clone_quote')];
+        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
         }
 
         $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
@@ -264,7 +283,7 @@ class InvoicePresenter extends EntityPresenter
             foreach ($invoice->payments as $payment) {
                 $label = trans('texts.view_payment');
                 if ($invoice->payments->count() > 1) {
-                    $label .= ' - ' . $invoice->company->formatMoney($payment->amount, $invoice->client);
+                    $label .= ' - ' . $invoice->account->formatMoney($payment->amount, $invoice->client);
                 }
                 $actions[] = ['url' => $payment->present()->url, 'label' => $label];
             }
@@ -284,41 +303,36 @@ class InvoicePresenter extends EntityPresenter
         return $actions;
     }
 
-    public function user()
-    {
-        return $this->entity->user->getDisplayName();
-    }
-
     public function gatewayFee($gatewayTypeId = false)
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        if (! $company->gateway_fee_enabled) {
+        if (! $account->gateway_fee_enabled) {
             return '';
         }
 
-        $settings = $company->getGatewaySettings($gatewayTypeId);
+        $settings = $account->getGatewaySettings($gatewayTypeId);
 
         if (! $settings || ! $settings->areFeesEnabled()) {
             return '';
         }
 
-        if ($gatewayFeeItem = $invoice->getGatewayFeeItem()) {
-            $fee = $invoice->calcGatewayFee($gatewayTypeId, true, $gatewayFeeItem->cost);
+        if ($invoice->getGatewayFeeItem()) {
+            $label = ' + ' . trans('texts.fee');
         } else {
             $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
+            $fee = $account->formatMoney($fee, $invoice->client);
+
+            if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+                $label = trans('texts.discount');
+            } else {
+                $label = trans('texts.fee');
+            }
+
+            $label = ' - ' . $fee . ' ' . $label;
         }
 
-        $fee = $company->formatMoney($fee, $invoice->client);
-
-        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
-            $label = trans('texts.discount');
-        } else {
-            $label = trans('texts.fee');
-        }
-
-        $label = ' - ' . $fee . ' ' . $label;
         $label .= '&nbsp;&nbsp; <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.fee_help') . '"></i>';
 
         return $label;
@@ -327,10 +341,10 @@ class InvoicePresenter extends EntityPresenter
     public function multiAccountLink()
     {
         $invoice = $this->entity;
-        $company = $invoice->company;
+        $account = $invoice->account;
 
-        if ($company->hasMultipleAccounts()) {
-            $link = url(sprintf('/company/%s?redirect_to=%s', $company->account_key, $invoice->present()->path));
+        if ($account->hasMultipleAccounts()) {
+            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
         } else {
             $link = $invoice->present()->url;
         }
@@ -345,7 +359,7 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
-        $data->start = $invoice->due_at ?: $invoice->invoice_date;
+        $data->start = $invoice->due_date ?: $invoice->invoice_date;
 
         if ($subColors) {
             $data->borderColor = $data->backgroundColor = $invoice->present()->statusColor();
@@ -354,30 +368,5 @@ class InvoicePresenter extends EntityPresenter
         }
 
         return $data;
-    }
-
-    public function amount()
-    {
-        $invoice = $this->entity;
-        $company = $invoice->company;
-
-        return $company->formatMoney($invoice->amount, $invoice->client);
-    }
-
-    public function client()
-    {
-        return $this->entity->client ? $this->entity->client->getDisplayName() : '';
-    }
-
-    public function days_since_last_email()
-    {
-        $invoice = $this->entity;
-        $lastSentDate = $invoice->last_sent_date;
-
-        if (! $lastSentDate) {
-            return 0;
-        }
-
-        return Carbon::parse($lastSentDate)->diffInDays();
     }
 }

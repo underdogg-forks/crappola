@@ -4,20 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Libraries\CurlUtils;
 use App\Libraries\Skype\SkypeResponse;
-use App\Libraries\Utils;
 use App\Models\SecurityCode;
 use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
+use Auth;
 use Cache;
+use DB;
 use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Utils;
 
 class BotController extends Controller
 {
-    protected UserMailer $userMailer;
+    protected $userMailer;
 
     public function __construct(UserMailer $userMailer)
     {
@@ -28,7 +27,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = Input::all();
+        $input     = \Request::all();
         $botUserId = $input['from']['id'];
 
         if (! $token = $this->authenticate($input)) {
@@ -59,7 +58,7 @@ class BotController extends Controller
                     } else {
                         $response = SkypeResponse::message(trans('texts.email_not_found', ['email' => $text]));
                     }
-                    // user sent the scurity code
+                // user sent the scurity code
                 } elseif ($state === BOT_STATE_GET_CODE) {
                     if ($this->validateCode($text, $botUserId)) {
                         $response = SkypeResponse::message(trans('texts.bot_welcome') . trans('texts.bot_help_message'));
@@ -67,19 +66,19 @@ class BotController extends Controller
                     } else {
                         $response = SkypeResponse::message(trans('texts.invalid_code'));
                     }
-                    // regular chat message
+                // regular chat message
                 } else {
                     if ($text === 'help') {
                         $response = SkypeResponse::message(trans('texts.bot_help_message'));
                     } elseif ($text == 'status') {
                         $response = SkypeResponse::message(trans('texts.intent_not_supported'));
                     } else {
-                        if (! $user = User::whereBotUserId($botUserId)->with('company')->first()) {
+                        if (! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
                             return SkypeResponse::message(trans('texts.not_authorized'));
                         }
 
                         Auth::onceUsingId($user->id);
-                        $user->company->loadLocalizationSettings();
+                        $user->account->loadLocalizationSettings();
 
                         $data = $this->parseMessage($text);
                         $intent = BaseIntent::createIntent($platform, $state, $data);
@@ -97,6 +96,20 @@ class BotController extends Controller
         $this->sendResponse($token, $botUserId, $response);
 
         return RESULT_SUCCESS;
+    }
+
+    public function handleCommand()
+    {
+        $command = request()->command;
+        $data = $this->parseMessage($command);
+
+        try {
+            $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
+            return $intent->process();
+        } catch (Exception $exception) {
+            $message = sprintf('"%s"<br/>%s', $command, $exception->getMessage());
+            return redirect()->back()->withWarning($message);
+        }
     }
 
     private function authenticate($input)
@@ -128,7 +141,137 @@ class BotController extends Controller
         return $response->access_token;
     }
 
-    private function validateToken($token): bool
+    private function loadState($token)
+    {
+        $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
+
+        $headers = [
+            'Authorization: Bearer ' . $token,
+        ];
+
+        $response = CurlUtils::get($url, $headers);
+        $data = json_decode($response);
+
+        return json_decode($data->data);
+    }
+
+    private function parseMessage($message)
+    {
+        $appId = config('ninja.voice_commands.app_id');
+        $subKey = config('ninja.voice_commands.subscription_key');
+        $message = rawurlencode($message);
+
+        $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        //$url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        $data = file_get_contents($url);
+        $data = json_decode($data);
+
+        return $data;
+    }
+
+    private function saveState($token, $data)
+    {
+        $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
+
+        $headers = [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json',
+        ];
+
+        //echo "STATE<pre>" . htmlentities(json_encode($data), JSON_PRETTY_PRINT) . "</pre>";
+
+        $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
+
+        CurlUtils::post($url, $data, $headers);
+    }
+
+    private function sendResponse($token, $to, $message)
+    {
+        $url = sprintf('%s/conversations/%s/activities/', SKYPE_API_URL, $to);
+
+        $headers = [
+            'Authorization: Bearer ' . $token,
+        ];
+
+        //echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
+
+        $response = CurlUtils::post($url, $message, $headers);
+
+        //var_dump($response);
+    }
+
+    private function validateEmail($email, $botUserId)
+    {
+        if (! $email || ! $botUserId) {
+            return false;
+        }
+
+        // delete any expired codes
+        SecurityCode::whereBotUserId($botUserId)
+                    ->where('created_at', '<', DB::raw('now() - INTERVAL 10 MINUTE'))
+                    ->delete();
+
+        if (SecurityCode::whereBotUserId($botUserId)->first()) {
+            return false;
+        }
+
+        $user = User::whereEmail($email)
+                    ->whereNull('bot_user_id')
+                    ->first();
+
+        if (! $user) {
+            return false;
+        }
+
+        $code = new SecurityCode();
+        $code->user_id = $user->id;
+        $code->account_id = $user->account_id;
+        $code->code = mt_rand(100000, 999999);
+        $code->bot_user_id = $botUserId;
+        $code->save();
+
+        $this->userMailer->sendSecurityCode($user, $code->code);
+
+        return $code->code;
+    }
+
+    private function validateCode($input, $botUserId)
+    {
+        if (! $input || ! $botUserId) {
+            return false;
+        }
+
+        $code = SecurityCode::whereBotUserId($botUserId)
+                    ->where('created_at', '>', DB::raw('now() - INTERVAL 10 MINUTE'))
+                    ->where('attempts', '<', 5)
+                    ->first();
+
+        if (! $code) {
+            return false;
+        }
+
+        if (! hash_equals($code->code, $input)) {
+            $code->attempts += 1;
+            $code->save();
+
+            return false;
+        }
+
+        $user = User::find($code->user_id);
+        $user->bot_user_id = $code->bot_user_id;
+        $user->save();
+
+        return true;
+    }
+
+    private function removeBot($botUserId)
+    {
+        $user = User::whereBotUserId($botUserId)->first();
+        $user->bot_user_id = null;
+        $user->save();
+    }
+
+    private function validateToken($token)
     {
         if (! $token) {
             return false;
@@ -155,8 +298,10 @@ class BotController extends Controller
         $keylist = file_get_contents('https://api.aps.skype.com/v1/keys');
         $keylist_arr = json_decode($keylist, true);
         foreach ($keylist_arr['keys'] as $key => $value) {
+
             // 4 select one key (which matches)
             if ($value['kid'] == $headers_arr['kid']) {
+
                 // 5 get public key from key info
                 $cert_txt = '-----BEGIN CERTIFICATE-----' . "\n" . chunk_split($value['x5c'][0], 64) . '-----END CERTIFICATE-----';
                 $cert_obj = openssl_x509_read($cert_txt);
@@ -173,7 +318,7 @@ class BotController extends Controller
         return $token_valid == 1;
     }
 
-    private function base64_url_decode(string $arg): string
+    private function base64_url_decode($arg)
     {
         $res = $arg;
         $res = str_replace('-', '+', $res);
@@ -190,156 +335,8 @@ class BotController extends Controller
             default:
                 break;
         }
+        $res = base64_decode($res);
 
-        return base64_decode($res);
-    }
-
-    private function removeBot($botUserId): void
-    {
-        $user = User::whereBotUserId($botUserId)->first();
-        $user->bot_user_id = null;
-        $user->save();
-    }
-
-    private function saveState($token, $data): void
-    {
-        $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
-
-        $headers = [
-            'Authorization: Bearer ' . $token,
-            'Content-Type: application/json',
-        ];
-
-        //echo "STATE<pre>" . htmlentities(json_encode($data), JSON_PRETTY_PRINT) . "</pre>";
-
-        $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
-
-        CurlUtils::post($url, $data, $headers);
-    }
-
-    private function loadState($token)
-    {
-        $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
-
-        $headers = [
-            'Authorization: Bearer ' . $token,
-        ];
-
-        $response = CurlUtils::get($url, $headers);
-        $data = json_decode($response);
-
-        return json_decode($data->data);
-    }
-
-    private function validateEmail(string $email, $botUserId)
-    {
-        if (! $email) {
-            return false;
-        }
-        if (! $botUserId) {
-            return false;
-        }
-        // delete any expired codes
-        SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '<', DB::raw('now() - INTERVAL 10 MINUTE'))
-            ->delete();
-
-        if (SecurityCode::whereBotUserId($botUserId)->first()) {
-            return false;
-        }
-
-        $user = User::whereEmail($email)
-            ->whereNull('bot_user_id')
-            ->first();
-
-        if (! $user) {
-            return false;
-        }
-
-        $code = new SecurityCode();
-        $code->user_id = $user->id;
-        $code->company_id = $user->company_id;
-        $code->code = mt_rand(100000, 999999);
-        $code->bot_user_id = $botUserId;
-        $code->save();
-
-        $this->userMailer->sendSecurityCode($user, $code->code);
-
-        return $code->code;
-    }
-
-    private function validateCode(string $input, $botUserId): bool
-    {
-        if (! $input) {
-            return false;
-        }
-        if (! $botUserId) {
-            return false;
-        }
-        $code = SecurityCode::whereBotUserId($botUserId)
-            ->where('created_at', '>', DB::raw('now() - INTERVAL 10 MINUTE'))
-            ->where('attempts', '<', 5)
-            ->first();
-
-        if (! $code) {
-            return false;
-        }
-
-        if (! hash_equals($code->code, $input)) {
-            $code->attempts += 1;
-            $code->save();
-
-            return false;
-        }
-
-        $user = User::find($code->user_id);
-        $user->bot_user_id = $code->bot_user_id;
-        $user->save();
-
-        return true;
-    }
-
-    private function parseMessage($message)
-    {
-        $appId = config('ninja.voice_commands.app_id');
-        $subKey = config('ninja.voice_commands.subscription_key');
-        $message = rawurlencode($message);
-
-        $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
-        //$url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
-        $data = file_get_contents($url);
-
-        return json_decode($data);
-    }
-
-    private function sendResponse($token, $to, $message): void
-    {
-        $url = sprintf('%s/conversations/%s/activities/', SKYPE_API_URL, $to);
-
-        $headers = [
-            'Authorization: Bearer ' . $token,
-        ];
-
-        //echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
-
-        $response = CurlUtils::post($url, $message, $headers);
-
-        //var_dump($response);
-    }
-
-    public function handleCommand()
-    {
-        $command = request()->command;
-        $data = $this->parseMessage($command);
-
-        try {
-            $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
-
-            return $intent->process();
-        } catch (Exception $exception) {
-            $message = sprintf('"%s"<br/>%s', $command, $exception->getMessage());
-
-            return redirect()->back()->withWarning($message);
-        }
+        return $res;
     }
 }

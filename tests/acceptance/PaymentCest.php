@@ -7,14 +7,14 @@ class PaymentCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function create(AcceptanceTester $I): void
+    public function create(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->text(10);
@@ -47,7 +47,7 @@ class PaymentCest
         $I->see($clientEmail);
 
         $I->amOnPage('/payments/create');
-        $I->selectDropdown($I, $clientEmail, '.client-select .dropdown-toggle');
+        $I->selectDropdown($I,  $clientEmail, '.client-select .dropdown-toggle');
         $I->selectDropdownRow($I, 1, '.invoice-select .combobox-container');
         $I->fillField(['name' => 'amount'], $amount);
         $I->selectDropdown($I, 'Cash', '.payment-type-select .dropdown-toggle');
@@ -61,7 +61,7 @@ class PaymentCest
         $I->seeInDatabase('payments', ['amount' => number_format($amount, 2)]);
     }
 
-    public function editPayment(AcceptanceTester $I): void
+    public function editPayment(AcceptanceTester $I)
     {
         $ref = $this->faker->text(12);
 
@@ -75,7 +75,7 @@ class PaymentCest
         $I->seeInDatabase('payments', ['transaction_reference' => $ref]);
     }
 
-    public function listPayments(AcceptanceTester $I): void
+    public function listPayments(AcceptanceTester $I)
     {
         $I->wantTo('list payments');
         $I->amOnPage('/payments');

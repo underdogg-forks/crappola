@@ -2,14 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
-use Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
+use Carbon;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -27,17 +26,27 @@ class ChargeRenewalInvoices extends Command
      */
     protected $description = 'Charge renewal invoices';
 
-    protected Mailer $mailer;
+    /**
+     * @var Mailer
+     */
+    protected $mailer;
 
     /**
      * @var AccountRepository
      */
-    protected $companyRepo;
+    protected $accountRepo;
 
-    protected PaymentService $paymentService;
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
 
     /**
      * ChargeRenewalInvoices constructor.
+     *
+     * @param Mailer            $mailer
+     * @param AccountRepository $repo
+     * @param PaymentService    $paymentService
      */
     public function __construct(Mailer $mailer, AccountRepository $repo, PaymentService $paymentService)
     {
@@ -48,43 +57,40 @@ class ChargeRenewalInvoices extends Command
         $this->paymentService = $paymentService;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        $this->info(date('r') . ' ChargeRenewalInvoices...');
+        $this->info(date('r').' ChargeRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
-        $invoices = Invoice::whereCompanyPlanId($ninjaAccount->id)
-            ->whereDueDate(date('Y-m-d'))
-            ->where('balance', '>', 0)
-            ->with('client')
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::whereAccountId($ninjaAccount->id)
+                        ->whereDueDate(date('Y-m-d'))
+                        ->where('balance', '>', 0)
+                        ->with('client')
+                        ->orderBy('id')
+                        ->get();
 
         $this->info($invoices->count() . ' invoices found');
 
         foreach ($invoices as $invoice) {
-            // check if company has switched to free since the invoice was created
-            $company = Company::find($invoice->client->public_id);
 
-            if (! $company) {
+            // check if account has switched to free since the invoice was created
+            $account = Account::find($invoice->client->public_id);
+
+            if (! $account) {
                 continue;
             }
 
-            $companyPlan = $company->companyPlan;
-            if (! $companyPlan->plan) {
-                continue;
-            }
-            if ($companyPlan->plan == PLAN_FREE) {
+            $company = $account->company;
+            if (! $company->plan || $company->plan == PLAN_FREE) {
                 continue;
             }
 
-            if (Carbon::parse($companyPlan->plan_expires)->isFuture()) {
+            if (Carbon::parse($company->plan_expires)->isFuture()) {
                 $this->info('Skipping invoice ' . $invoice->invoice_number . ' [plan not expired]');
-
                 continue;
             }
 
@@ -98,10 +104,10 @@ class ChargeRenewalInvoices extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            Mail::raw('EOM', function ($message) use ($errorEmail): void {
+            \Mail::raw('EOM', function ($message) use ($errorEmail) {
                 $message->to($errorEmail)
-                    ->from(CONTACT_EMAIL)
-                    ->subject('ChargeRenewalInvoices: Finished successfully');
+                        ->from(CONTACT_EMAIL)
+                        ->subject('ChargeRenewalInvoices: Finished successfully');
             });
         }
     }

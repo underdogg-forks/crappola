@@ -2,19 +2,27 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
 use Cache;
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
+use Utils;
 
 /**
  * Class GatewayType.
  */
-class GatewayType extends Model
+class GatewayType extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
     public static function getAliasFromId($id)
     {
@@ -24,13 +32,5 @@ class GatewayType extends Model
     public static function getIdFromAlias($alias)
     {
         return Cache::get('gatewayTypes')->where('alias', $alias)->first()->id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 }

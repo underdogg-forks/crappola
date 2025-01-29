@@ -11,19 +11,23 @@ class CreateCustomerRequest extends CustomerRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create');
+        return $this->user()->can('create', ENTITY_CUSTOMER);
     }
 
     /**
      * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
-        return [
-            'token'                           => 'required',
-            'client_id'                       => 'required',
-            'contact_id'                      => 'required',
+        $rules = [
+            'token' => 'required',
+            'client_id' => 'required',
+            'contact_id' => 'required',
             'payment_method.source_reference' => 'required',
         ];
+
+        return $rules;
     }
 }

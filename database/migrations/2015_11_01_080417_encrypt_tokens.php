@@ -2,16 +2,17 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class EncryptTokens extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         $gateways = DB::table('account_gateways')
-            ->get(['id', 'config']);
+                        ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)
@@ -24,14 +25,14 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         $gateways = DB::table('account_gateways')
-            ->get(['id', 'config']);
+                        ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)
                 ->update(['config' => Crypt::decrypt($gateway->config)]);
         }
     }
-};
+}

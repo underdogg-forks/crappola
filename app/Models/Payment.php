@@ -7,12 +7,9 @@ use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
-use App\Ninja\Presenters\PaymentPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Event;
 use Laracasts\Presenter\PresentableTrait;
-use stdClass;
 
 /**
  * Class Payment.
@@ -21,15 +18,6 @@ class Payment extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
-
-    public static $statusClasses = [
-        PAYMENT_STATUS_PENDING            => 'info',
-        PAYMENT_STATUS_COMPLETED          => 'success',
-        PAYMENT_STATUS_FAILED             => 'danger',
-        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
-        PAYMENT_STATUS_VOIDED             => 'default',
-        PAYMENT_STATUS_REFUNDED           => 'default',
-    ];
 
     /**
      * @var array
@@ -41,30 +29,38 @@ class Payment extends EntityModel
         'exchange_currency_id',
     ];
 
+    public static $statusClasses = [
+        PAYMENT_STATUS_PENDING => 'info',
+        PAYMENT_STATUS_COMPLETED => 'success',
+        PAYMENT_STATUS_FAILED => 'danger',
+        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
+        PAYMENT_STATUS_VOIDED => 'default',
+        PAYMENT_STATUS_REFUNDED => 'default',
+    ];
+
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
-
     /**
      * @var string
      */
-    protected $presenter = PaymentPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\PaymentPresenter';
 
     /**
      * @return mixed
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invitation()
     {
-        return $this->belongsTo(Invitation::class);
+        return $this->belongsTo('App\Models\Invitation');
     }
 
     /**
@@ -72,7 +68,7 @@ class Payment extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     /**
@@ -80,52 +76,55 @@ class Payment extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function contact()
     {
-        return $this->belongsTo(Contact::class)->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account_gateway()
     {
-        return $this->belongsTo(AccountGateway::class)->withTrashed();
+        return $this->belongsTo('App\Models\AccountGateway')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function payment_type()
     {
-        return $this->belongsTo(PaymentType::class);
+        return $this->belongsTo('App\Models\PaymentType');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function payment_method()
     {
-        return $this->belongsTo(PaymentMethod::class);
+        return $this->belongsTo('App\Models\PaymentMethod');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function payment_status()
     {
-        return $this->belongsTo(PaymentStatus::class);
+        return $this->belongsTo('App\Models\PaymentStatus');
     }
 
     /**
@@ -151,6 +150,8 @@ class Payment extends EntityModel
     }
 
     /**
+     * @param $query
+     *
      * @return mixed
      */
     public function scopeDateRange($query, $startDate, $endDate)
@@ -161,43 +162,75 @@ class Payment extends EntityModel
     /**
      * @return mixed
      */
-    public function getName(): string
+    public function getName()
     {
         return trim("payment {$this->transaction_reference}");
     }
 
-    public function isPending(): bool
+    /**
+     * @return bool
+     */
+    public function isPending()
     {
         return $this->payment_status_id == PAYMENT_STATUS_PENDING;
     }
 
-    public function isFailedOrVoided(): bool
-    {
-        if ($this->isFailed()) {
-            return true;
-        }
-
-        return $this->isVoided();
-    }
-
-    public function isFailed(): bool
+    /**
+     * @return bool
+     */
+    public function isFailed()
     {
         return $this->payment_status_id == PAYMENT_STATUS_FAILED;
     }
 
-    public function isVoided(): bool
+    /**
+     * @return bool
+     */
+    public function isCompleted()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPartiallyRefunded()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRefunded()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVoided()
     {
         return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
     }
 
-    public function recordRefund($amount = null): bool
+    public function isFailedOrVoided()
     {
-        if ($this->isRefunded()) {
+        return $this->isFailed() || $this->isVoided();
+    }
+
+    /**
+     * @param null $amount
+     *
+     * @return bool
+     */
+    public function recordRefund($amount = null)
+    {
+        if ($this->isRefunded() || $this->isVoided()) {
             return false;
         }
-        if ($this->isVoided()) {
-            return false;
-        }
+
         if (! $amount) {
             $amount = $this->amount;
         }
@@ -216,22 +249,15 @@ class Payment extends EntityModel
         return true;
     }
 
-    public function isRefunded(): bool
+    /**
+     * @return bool
+     */
+    public function markVoided()
     {
-        return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
-    }
+        if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
+            return false;
+        }
 
-    public function markVoided(): bool
-    {
-        if ($this->isVoided()) {
-            return false;
-        }
-        if ($this->isPartiallyRefunded()) {
-            return false;
-        }
-        if ($this->isRefunded()) {
-            return false;
-        }
         Event::dispatch(new PaymentWasVoided($this));
 
         $this->refunded = $this->amount;
@@ -241,12 +267,7 @@ class Payment extends EntityModel
         return true;
     }
 
-    public function isPartiallyRefunded(): bool
-    {
-        return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
-    }
-
-    public function markComplete(): void
+    public function markComplete()
     {
         $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
         $this->save();
@@ -256,7 +277,7 @@ class Payment extends EntityModel
     /**
      * @param string $failureMessage
      */
-    public function markFailed($failureMessage = ''): void
+    public function markFailed($failureMessage = '')
     {
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
         $this->gateway_error = $failureMessage;
@@ -272,18 +293,6 @@ class Payment extends EntityModel
         return ENTITY_PAYMENT;
     }
 
-    public function canBeRefunded(): bool
-    {
-        if ($this->getCompletedAmount() <= 0) {
-            return false;
-        }
-        if ($this->isCompleted()) {
-            return true;
-        }
-
-        return $this->isPartiallyRefunded();
-    }
-
     /**
      * @return mixed
      */
@@ -292,28 +301,36 @@ class Payment extends EntityModel
         return $this->amount - $this->refunded;
     }
 
-    public function isCompleted(): bool
+    public function canBeRefunded()
     {
-        return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
+        return $this->getCompletedAmount() > 0 && ($this->isCompleted() || $this->isPartiallyRefunded());
     }
 
-    public function isExchanged(): bool
+    /**
+     * @return bool
+     */
+    public function isExchanged()
     {
         return $this->exchange_currency_id || $this->exchange_rate != 1;
     }
 
     /**
-     * @return mixed|null|stdClass|string
+     * @return mixed|null|\stdClass|string
      */
     public function getBankDataAttribute()
     {
         if (! $this->routing_number) {
-            return;
+            return null;
         }
 
         return PaymentMethod::lookupBankData($this->routing_number);
     }
 
+    /**
+     * @param $bank_name
+     *
+     * @return null
+     */
     public function getBankNameAttribute($bank_name)
     {
         if ($bank_name) {
@@ -325,28 +342,13 @@ class Payment extends EntityModel
     }
 
     /**
+     * @param $value
+     *
      * @return null|string
      */
     public function getLast4Attribute($value)
     {
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
-    }
-
-    public function statusClass()
-    {
-        return static::calcStatusClass($this->payment_status_id);
-    }
-
-    public static function calcStatusClass($statusId)
-    {
-        return static::$statusClasses[$statusId];
-    }
-
-    public function statusLabel()
-    {
-        $amount = $this->company->formatMoney($this->refunded, $this->client);
-
-        return static::calcStatusLabel($this->payment_status_id, $this->payment_status->name, $amount);
     }
 
     public static function calcStatusLabel($statusId, $statusName, $amount)
@@ -355,25 +357,42 @@ class Payment extends EntityModel
             return trans('texts.status_partially_refunded_amount', [
                 'amount' => $amount,
             ]);
+        } else {
+            return trans('texts.status_' . strtolower($statusName));
         }
+    }
 
-        return trans('texts.status_' . strtolower($statusName));
+    public static function calcStatusClass($statusId)
+    {
+        return static::$statusClasses[$statusId];
+    }
+
+    public function statusClass()
+    {
+        return static::calcStatusClass($this->payment_status_id);
+    }
+
+    public function statusLabel()
+    {
+        $amount = $this->account->formatMoney($this->refunded, $this->client);
+
+        return static::calcStatusLabel($this->payment_status_id, $this->payment_status->name, $amount);
     }
 
     public function invoiceJsonBackup()
     {
         $activity = Activity::wherePaymentId($this->id)
-            ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-            ->get(['json_backup'])
-            ->first();
+                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+                        ->get(['json_backup'])
+                        ->first();
 
         return $activity->json_backup;
     }
 }
 
-Payment::creating(function ($payment): void {
+Payment::creating(function ($payment) {
 });
 
-Payment::created(function ($payment): void {
+Payment::created(function ($payment) {
     event(new PaymentWasCreated($payment));
 });

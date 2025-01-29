@@ -9,14 +9,14 @@ class InvoiceCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function createInvoice(AcceptanceTester $I): void
+    public function createInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
         $itemTaxName = 'TAX_21';
@@ -54,7 +54,7 @@ class InvoiceCest
         $I->see($invoiceNumber);
         $I->see('199.01');
 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i=1; $i<=10; $i++) {
             $this->updateDesign($I, $i);
         }
 
@@ -62,7 +62,7 @@ class InvoiceCest
         $I->see('199.01');
     }
 
-    private function updateDesign($I, $designId): void
+    private function updateDesign($I, $designId)
     {
         $I->selectOption('#invoice_design_id', $designId);
         $I->click('#saveButton');
@@ -105,7 +105,7 @@ class InvoiceCest
     }
     */
 
-    public function createRecurringInvoice(AcceptanceTester $I): void
+    public function createRecurringInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
 
@@ -135,7 +135,8 @@ class InvoiceCest
         $I->see($clientEmail);
     }
 
-    public function cloneInvoice(AcceptanceTester $I): void
+
+    public function cloneInvoice(AcceptanceTester $I)
     {
         $I->wantTo('clone an invoice');
         $I->amOnPage('/invoices/1/clone');
@@ -166,9 +167,11 @@ class InvoiceCest
     }
     */
 
-    private function fillItems(AcceptanceTester $I, $max = 2): void
+
+    private function fillItems(AcceptanceTester $I, $max = 2)
     {
         for ($row = 1; $row <= $max; $row++) {
+
             $product = $this->faker->text(10);
             $description = $this->faker->text(80);
             $cost = $this->faker->randomFloat(2, 0, 100);
@@ -178,13 +181,13 @@ class InvoiceCest
         }
     }
 
-    private function fillItem(AcceptanceTester $I, $row, $product, $description, $cost, $quantity): void
+    private function fillItem(AcceptanceTester $I, $row, $product, $description, $cost, $quantity)
     {
         $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $row);
 
-        $I->fillField($row_selector . 'td:nth-child(2) input.tt-input', $product);
-        $I->fillField($row_selector . 'textarea', $description);
-        $I->fillField($row_selector . 'td:nth-child(4) input', $cost);
-        $I->fillField($row_selector . 'td:nth-child(5) input', $quantity);
+        $I->fillField($row_selector.'td:nth-child(2) input.tt-input', $product);
+        $I->fillField($row_selector.'textarea', $description);
+        $I->fillField($row_selector.'td:nth-child(4) input', $cost);
+        $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
     }
 }

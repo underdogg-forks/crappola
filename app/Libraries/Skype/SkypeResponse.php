@@ -18,12 +18,12 @@ class SkypeResponse
         return json_encode($instance);
     }
 
-    public function setText($text): void
+    public function setText($text)
     {
         $this->text = $text;
     }
 
-    public function addAttachment($attachment): void
+    public function addAttachment($attachment)
     {
         $this->attachments[] = $attachment;
     }

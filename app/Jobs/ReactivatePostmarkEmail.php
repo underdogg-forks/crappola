@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
 use Postmark\PostmarkClient;
 
 class ReactivatePostmarkEmail extends Job

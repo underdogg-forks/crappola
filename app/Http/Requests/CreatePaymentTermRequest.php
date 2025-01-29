@@ -3,32 +3,35 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
-use App\Models\PaymentTerm;
 
 class CreatePaymentTermRequest extends PaymentTermRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
-    {
-        if ($this->user()->can('create', PaymentTerm::class)) {
-            return true;
-        }
 
-        return (bool) $this->user()->can('create', Invoice::class);
+    public function authorize()
+    {
+        return $this->user()->can('create', ENTITY_PAYMENT_TERM);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{num_days: string}
+     * @return array
      */
-    public function rules(): array
+
+    public function rules()
     {
-        return [
-            'num_days' => 'required|numeric|unique:payment_terms,num_days,,id,company_id,' . $this->user()->company_id . ',deleted_at,NULL'
-                . '|unique:payment_terms,num_days,,id,company_id,0,deleted_at,NULL',
+
+        $rules = [
+            'num_days' => 'required|numeric|unique:payment_terms,num_days,,id,account_id,' . $this->user()->account_id . ',deleted_at,NULL'
+                . '|unique:payment_terms,num_days,,id,account_id,0,deleted_at,NULL',
         ];
+
+
+        return $rules;
     }
 }

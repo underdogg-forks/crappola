@@ -2,27 +2,27 @@
 
 namespace App\Jobs;
 
-use App\Libraries\Utils;
-use CleverIt\UBL\Invoice\Address;
-use CleverIt\UBL\Invoice\Contact;
-use CleverIt\UBL\Invoice\Country;
+use Utils;
+use Exception;
+use App\Jobs\Job;
 use CleverIt\UBL\Invoice\Generator;
 use CleverIt\UBL\Invoice\Invoice;
+use CleverIt\UBL\Invoice\Party;
+use CleverIt\UBL\Invoice\Address;
+use CleverIt\UBL\Invoice\Country;
+use CleverIt\UBL\Invoice\Contact;
+use CleverIt\UBL\Invoice\TaxTotal;
+use CleverIt\UBL\Invoice\TaxSubTotal;
+use CleverIt\UBL\Invoice\TaxCategory;
+use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\InvoiceLine;
 use CleverIt\UBL\Invoice\Item;
 use CleverIt\UBL\Invoice\LegalMonetaryTotal;
-use CleverIt\UBL\Invoice\Party;
-use CleverIt\UBL\Invoice\TaxCategory;
-use CleverIt\UBL\Invoice\TaxScheme;
-use CleverIt\UBL\Invoice\TaxSubTotal;
-use CleverIt\UBL\Invoice\TaxTotal;
-use Exception;
 
 class ConvertInvoiceToUbl extends Job
 {
-    public const INVOICE_TYPE_STANDARD = 380;
-
-    public const INVOICE_TYPE_CREDIT = 381;
+    const INVOICE_TYPE_STANDARD = 380;
+    const INVOICE_TYPE_CREDIT = 381;
 
     public function __construct($invoice)
     {
@@ -32,7 +32,7 @@ class ConvertInvoiceToUbl extends Job
     public function handle()
     {
         $invoice = $this->invoice;
-        $company = $invoice->company;
+        $account = $invoice->account;
         $client = $invoice->client;
         $ublInvoice = new Invoice();
 
@@ -41,7 +41,7 @@ class ConvertInvoiceToUbl extends Job
         $ublInvoice->setIssueDate(date_create($invoice->invoice_date));
         $ublInvoice->setInvoiceTypeCode($invoice->amount < 0 ? self::INVOICE_TYPE_CREDIT : self::INVOICE_TYPE_STANDARD);
 
-        $supplierParty = $this->createParty($company, $invoice->user);
+        $supplierParty = $this->createParty($account, $invoice->user);
         $ublInvoice->setAccountingSupplierParty($supplierParty);
 
         $customerParty = $this->createParty($client, $client->contacts[0]);
@@ -84,19 +84,19 @@ class ConvertInvoiceToUbl extends Job
         }
     }
 
-    private function createParty($companyPlan, $user): Party
+    private function createParty($company, $user)
     {
         $party = new Party();
-        $party->setName($companyPlan->name);
+        $party->setName($company->name);
         $address = (new Address())
-            ->setCityName($companyPlan->city)
-            ->setStreetName($companyPlan->address1)
-            ->setBuildingNumber($companyPlan->address2)
-            ->setPostalZone($companyPlan->postal_code);
+            ->setCityName($company->city)
+            ->setStreetName($company->address1)
+            ->setBuildingNumber($company->address2)
+            ->setPostalZone($company->postal_code);
 
-        if ($companyPlan->country_id) {
+        if ($company->country_id) {
             $country = new Country();
-            $country->setIdentificationCode($companyPlan->country->iso_3166_2);
+            $country->setIdentificationCode($company->country->iso_3166_2);
             $address->setCountry($country);
         }
 
@@ -119,7 +119,7 @@ class ConvertInvoiceToUbl extends Job
             ->setItem((new Item())
                 ->setName($item->product_key)
                 ->setDescription($item->description));
-        //->setSellersItemIdentification("1ABCD"));
+                //->setSellersItemIdentification("1ABCD"));
 
         $taxtotal = new TaxTotal();
         $itemTaxAmount1 = $itemTaxAmount2 = 0;
@@ -142,13 +142,13 @@ class ConvertInvoiceToUbl extends Job
         $taxScheme = ((new TaxScheme()))->setId($taxName);
 
         $taxtotal->addTaxSubTotal((new TaxSubTotal())
-            ->setTaxAmount($taxAmount)
-            ->setTaxableAmount($taxable)
-            ->setTaxCategory((new TaxCategory())
-                ->setId($taxName)
-                ->setName($taxName)
-                ->setTaxScheme($taxScheme)
-                ->setPercent($taxRate)));
+                ->setTaxAmount($taxAmount)
+                ->setTaxableAmount($taxable)
+                ->setTaxCategory((new TaxCategory())
+                    ->setId($taxName)
+                    ->setName($taxName)
+                    ->setTaxScheme($taxScheme)
+                    ->setPercent($taxRate)));
 
         return $taxAmount;
     }

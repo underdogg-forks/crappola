@@ -2,29 +2,32 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
 use App\Models\Document;
 use App\Models\LookupAccount;
-use App\Ninja\Mailers\UserMailer;
+use Auth;
+use DB;
 use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Ninja\Mailers\UserMailer;
 
 class PurgeAccountData extends Job
 {
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
         $user = Auth::user();
-        $company = $user->company;
+        $account = $user->account;
 
         if (! $user->is_admin) {
             throw new Exception(trans('texts.forbidden'));
         }
 
         // delete the documents from cloud storage
-        Document::scope()->each(function ($item, $key): void {
+        Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 
@@ -56,14 +59,14 @@ class PurgeAccountData extends Job
         ];
 
         foreach ($tables as $table) {
-            DB::table($table)->where('company_id', '=', $user->company_id)->delete();
+            DB::table($table)->where('account_id', '=', $user->account_id)->delete();
         }
 
-        $company->invoice_number_counter = 1;
-        $company->quote_number_counter = 1;
-        $company->credit_number_counter = $company->credit_number_counter > 0 ? 1 : 0;
-        $company->client_number_counter = $company->client_number_counter > 0 ? 1 : 0;
-        $company->save();
+        $account->invoice_number_counter = 1;
+        $account->quote_number_counter = 1;
+        $account->credit_number_counter = $account->credit_number_counter > 0 ? 1 : 0;
+        $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
+        $account->save();
 
         session([RECENTLY_VIEWED => false]);
 
@@ -71,7 +74,7 @@ class PurgeAccountData extends Job
             $current = config('database.default');
             config(['database.default' => DB_NINJA_LOOKUP]);
 
-            $lookupAccount = LookupAccount::whereAccountKey($company->account_key)->firstOrFail();
+            $lookupAccount = LookupAccount::whereAccountKey($account->account_key)->firstOrFail();
             DB::table('lookup_contacts')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
             DB::table('lookup_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
             DB::table('lookup_proposal_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
@@ -80,7 +83,7 @@ class PurgeAccountData extends Job
         }
 
         $subject = trans('texts.purge_successful');
-        $message = trans('texts.purge_details', ['company' => $user->company->getDisplayName()]);
+        $message = trans('texts.purge_details', ['account' => $user->account->getDisplayName()]);
         $userMailer->sendMessage($user, $subject, $message);
     }
 }

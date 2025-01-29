@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class DatetimeFormat.
  */
-class SecurityCode extends Model
+class SecurityCode extends Eloquent
 {
     /**
      * @var bool

@@ -2,30 +2,32 @@
 
 namespace App\Listeners;
 
-use App;
 use App\Events\PaymentWasCreated;
-use App\Libraries\Utils;
+use Utils;
 
 /**
  * Class AnalyticsListener.
  */
 class AnalyticsListener
 {
-    public function trackRevenue(PaymentWasCreated $event): void
+    /**
+     * @param PaymentWasCreated $event
+     */
+    public function trackRevenue(PaymentWasCreated $event)
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $company = $payment->company;
+        $account = $payment->account;
 
         $analyticsId = false;
 
-        if ($company->isNinjaAccount() || $company->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
+        if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
             $analyticsId = env('ANALYTICS_KEY');
         } else {
             if (Utils::isNinja()) {
-                $analyticsId = $company->analytics_key;
+                $analyticsId = $account->analytics_key;
             } else {
-                $analyticsId = $company->analytics_key ?: env('ANALYTICS_KEY');
+                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
             }
         }
 
@@ -38,7 +40,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($company->isNinjaAccount() && App::runningInConsole()) {
+        if ($account->isNinjaAccount() && \App::runningInConsole()) {
             $item .= ' [R]';
         }
 
@@ -51,16 +53,19 @@ class AnalyticsListener
         $this->sendAnalytics($url);
     }
 
-    private function sendAnalytics(string $data): void
+    /**
+     * @param $data
+     */
+    private function sendAnalytics($data)
     {
         $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [
-            CURLOPT_URL            => GOOGLE_ANALYITCS_URL,
+            CURLOPT_URL => GOOGLE_ANALYITCS_URL,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => 'POST',
-            CURLOPT_POSTFIELDS     => $data,
+            CURLOPT_POST => 'POST',
+            CURLOPT_POSTFIELDS => $data,
         ];
 
         curl_setopt_array($curl, $opts);

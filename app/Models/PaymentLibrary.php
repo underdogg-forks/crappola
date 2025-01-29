@@ -2,29 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Eloquent;
 
 /**
  * Class PaymentLibrary.
  */
-class PaymentLibrary extends Model
+class PaymentLibrary extends Eloquent
 {
+    /**
+     * @var string
+     */
+    protected $table = 'payment_libraries';
     /**
      * @var bool
      */
     public $timestamps = true;
 
     /**
-     * @var string
-     */
-    protected $table = 'payment_libraries';
-
-    /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function gateways()
     {
-        return $this->hasMany(Gateway::class, 'payment_library_id');
+        return $this->hasMany('App\Models\Gateway', 'payment_library_id');
     }
 }

@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
 use App\Models\Subscription;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Response;
+use Auth;
+use Response;
+use Utils;
 
 /**
  * Class IntegrationController.
  */
 class IntegrationController extends BaseAPIController
 {
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function subscribe()
     {
-        $eventId = Utils::lookupEventId(trim($request->get('event')));
+        $eventId = Utils::lookupEventId(trim(\Request::input('event')));
 
         if (! $eventId) {
             return Response::json('Event is invalid', 500);
@@ -22,7 +25,7 @@ class IntegrationController extends BaseAPIController
 
         $subscription = Subscription::createNew();
         $subscription->event_id = $eventId;
-        $subscription->target_url = trim($request->get('target_url'));
+        $subscription->target_url = trim(\Request::input('target_url'));
         $subscription->save();
 
         if (! $subscription->id) {

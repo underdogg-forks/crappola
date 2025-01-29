@@ -1,28 +1,8 @@
 <?php
-
 namespace App\Http;
 
-use App\Http\Middleware\ApiCheck;
-use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\DatabaseLookup;
-use App\Http\Middleware\DuplicateSubmissionCheck;
-use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\InboundTicketCheck;
-use App\Http\Middleware\PermissionsRequired;
-use App\Http\Middleware\QueryLogging;
-use App\Http\Middleware\RedirectIfAuthenticated;
-use App\Http\Middleware\StartupCheck;
-use App\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
-use Illuminate\Auth\Middleware\Authorize;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
-use Illuminate\Foundation\Http\Middleware\TrimStrings;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class Kernel extends HttpKernel
 {
@@ -34,7 +14,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
     ];
 
     /**
@@ -44,20 +24,20 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
             //\Illuminate\Routing\Middleware\SubstituteBindings::class,
-            TrimStrings::class,
-            DuplicateSubmissionCheck::class,
-            QueryLogging::class,
-            StartupCheck::class,
+            \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
+            \App\Http\Middleware\DuplicateSubmissionCheck::class,
+            \App\Http\Middleware\QueryLogging::class,
+            \App\Http\Middleware\StartupCheck::class,
         ],
         'api' => [
-            QueryLogging::class,
-            ApiCheck::class,
+            \App\Http\Middleware\QueryLogging::class,
+            \App\Http\Middleware\ApiCheck::class,
         ],
         /*
         'api' => [
@@ -75,14 +55,15 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth'                 => Authenticate::class,
-        'auth.basic'           => AuthenticateWithBasicAuth::class,
-        'bindings'             => SubstituteBindings::class,
-        'can'                  => Authorize::class,
-        'guest'                => RedirectIfAuthenticated::class,
-        'throttle'             => ThrottleRequests::class,
-        'lookup'               => DatabaseLookup::class,
-        'permissions.required' => PermissionsRequired::class,
-        'ticket'               => InboundTicketCheck::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'lookup' => \App\Http\Middleware\DatabaseLookup::class,
+        'permissions.required' => \App\Http\Middleware\PermissionsRequired::class,
+        'migration' => \App\Http\Middleware\EligibleForMigration::class,
+        'migration_channel' => \App\Http\Middleware\MigrationLookup::class,
     ];
 }

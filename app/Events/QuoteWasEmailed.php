@@ -10,7 +10,6 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasEmailed extends Event
 {
     use SerializesModels;
-
     public $quote;
 
     /**
@@ -20,6 +19,8 @@ class QuoteWasEmailed extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param $quote
      */
     public function __construct($quote, $notes)
     {

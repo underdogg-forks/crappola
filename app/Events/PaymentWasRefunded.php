@@ -21,6 +21,9 @@ class PaymentWasRefunded extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param Payment $payment
+     * @param $refundAmount
      */
     public function __construct(Payment $payment, $refundAmount)
     {

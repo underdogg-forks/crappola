@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\Utils;
 use Closure;
+use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Log;
+use Utils;
 
 /**
  * Class QueryLogging.
@@ -16,6 +16,8 @@ class QueryLogging
     /**
      * Handle an incoming request.
      *
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */

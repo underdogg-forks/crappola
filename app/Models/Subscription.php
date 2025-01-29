@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Subscription extends EntityModel
 {
-    use SoftDeletes;
-
     /**
      * @var bool
      */
     public $timestamps = true;
+
+    use SoftDeletes;
 
     /**
      * @var array
@@ -40,10 +40,11 @@ class Subscription extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
+
 }

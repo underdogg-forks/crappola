@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 /**
  * Class ExpenseService.
@@ -27,6 +26,9 @@ class ExpenseService extends BaseService
 
     /**
      * ExpenseService constructor.
+     *
+     * @param ExpenseRepository $expenseRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
@@ -35,6 +37,17 @@ class ExpenseService extends BaseService
     }
 
     /**
+     * @return ExpenseRepository
+     */
+    protected function getRepo()
+    {
+        return $this->expenseRepo;
+    }
+
+    /**
+     * @param $data
+     * @param null $expense
+     *
      * @return mixed|null
      */
     public function save($data, $expense = null)
@@ -50,6 +63,11 @@ class ExpenseService extends BaseService
         return $this->expenseRepo->save($data, $expense);
     }
 
+    /**
+     * @param $search
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search)
     {
         $query = $this->expenseRepo->find($search);
@@ -61,6 +79,11 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable(new ExpenseDatatable(), $query);
     }
 
+    /**
+     * @param $vendorPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatableVendor($vendorPublicId)
     {
         $datatable = new ExpenseDatatable(true, true);
@@ -74,6 +97,11 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
+    /**
+     * @param $clientPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatableClient($clientPublicId)
     {
         $datatable = new ExpenseDatatable(true, true);
@@ -87,11 +115,4 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return ExpenseRepository
-     */
-    protected function getRepo()
-    {
-        return $this->expenseRepo;
-    }
 }

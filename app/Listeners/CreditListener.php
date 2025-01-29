@@ -12,17 +12,25 @@ use Carbon;
  */
 class CreditListener
 {
-    protected CreditRepository $creditRepo;
+    /**
+     * @var CreditRepository
+     */
+    protected $creditRepo;
 
     /**
      * CreditListener constructor.
+     *
+     * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)
     {
         $this->creditRepo = $creditRepo;
     }
 
-    public function deletedPayment(PaymentWasDeleted $event): void
+    /**
+     * @param PaymentWasDeleted $event
+     */
+    public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
 

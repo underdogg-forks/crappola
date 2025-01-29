@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -11,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankSubaccount extends EntityModel
 {
     use SoftDeletes;
-
     /**
      * @var array
      */
@@ -26,10 +24,10 @@ class BankSubaccount extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function bank_account()
     {
-        return $this->belongsTo(BankAccount::class);
+        return $this->belongsTo('App\Models\BankAccount');
     }
 }

@@ -2,8 +2,9 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\AccountGatewayToken;
 use App\Models\PaymentMethod;
+use App\Models\AccountGatewayToken;
+use DB;
 
 class CustomerRepository extends BaseRepository
 {
@@ -14,17 +15,17 @@ class CustomerRepository extends BaseRepository
 
     public function all()
     {
-        return AccountGatewayToken::whereCompanyPlanId(auth()->user()->company_id)
-            ->with(['contact'])
-            ->get();
+        return AccountGatewayToken::whereAccountId(auth()->user()->account_id)
+                    ->with(['contact'])
+                    ->get();
     }
 
     public function save($data)
     {
-        $company = auth()->user()->company;
+        $account = auth()->user()->account;
 
         $customer = new AccountGatewayToken();
-        $customer->company_id = $company->id;
+        $customer->account_id = $account->id;
         $customer->fill($data);
         $customer->save();
 

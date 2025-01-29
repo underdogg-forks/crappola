@@ -2,14 +2,14 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Jobs\PurgeClientData;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
-use App\Jobs\PurgeClientData;
 use App\Models\Client;
 use App\Models\Contact;
+use Auth;
 use Cache;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class ClientRepository extends BaseRepository
 {
@@ -21,68 +21,52 @@ class ClientRepository extends BaseRepository
     public function all()
     {
         return Client::scope()
-            ->with('user', 'contacts', 'country')
-            ->withTrashed()
-            ->where('is_deleted', '=', false)
-            ->get();
+                ->with('user', 'contacts', 'country')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
+                ->get();
     }
 
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('clients')
-            ->join('companies', 'companies.id', '=', 'clients.company_id')
-            ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.company_id', '=', Auth::user()->company_id)
-            ->where('contacts.is_primary', '=', true)
-            ->where('contacts.deleted_at', '=', null)
-            //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
-            ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
-                DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
-                'clients.public_id',
-                'clients.name',
-                'clients.private_notes',
-                'contacts.first_name',
-                'contacts.last_name',
-                'clients.balance',
-                'clients.last_login',
-                'clients.created_at',
-                'clients.created_at as client_created_at',
-                'clients.work_phone',
-                'contacts.email',
-                'clients.deleted_at',
-                'clients.is_deleted',
-                'clients.user_id',
-                'clients.id_number'
-            );
-
-        if (Auth::user()->company->customFieldsOption('client1_filter')) {
-            $query->addSelect('clients.custom_value1');
-        }
-
-        if (Auth::user()->company->customFieldsOption('client2_filter')) {
-            $query->addSelect('clients.custom_value2');
-        }
+                    ->join('accounts', 'accounts.id', '=', 'clients.account_id')
+                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->where('clients.account_id', '=', \Auth::user()->account_id)
+                    ->where('contacts.is_primary', '=', true)
+                    ->where('contacts.deleted_at', '=', null)
+                    //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
+                        'clients.public_id',
+                        'clients.name',
+                        'clients.private_notes',
+                        'contacts.first_name',
+                        'contacts.last_name',
+                        'clients.balance',
+                        'clients.last_login',
+                        'clients.created_at',
+                        'clients.created_at as client_created_at',
+                        'clients.work_phone',
+                        'contacts.email',
+                        'clients.deleted_at',
+                        'clients.is_deleted',
+                        'clients.user_id',
+                        'clients.id_number'
+                    );
 
         $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
-                $query->where('clients.name', 'like', '%' . $filter . '%')
-                    ->orWhere('clients.id_number', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.email', 'like', '%' . $filter . '%');
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
-
-            if (Auth::user()->company->customFieldsOption('client1_filter')) {
-                $query->orWhere('clients.custom_value1', 'like', '%' . $filter . '%');
-            }
-
-            if (Auth::user()->company->customFieldsOption('client2_filter')) {
-                $query->orWhere('clients.custom_value2', 'like', '%' . $filter . '%');
-            }
         }
 
         if ($userId) {
@@ -92,14 +76,14 @@ class ClientRepository extends BaseRepository
         return $query;
     }
 
-    public function purge($client): void
+    public function purge($client)
     {
         dispatch(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)
     {
-        $publicId = $data['public_id'] ?? false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($client) {
             // do nothing
@@ -110,8 +94,8 @@ class ClientRepository extends BaseRepository
         }
 
         // auto-set the client id number
-        if (Auth::check() && Auth::user()->company->client_number_counter && ! $client->id_number && empty($data['id_number'])) {
-            $data['id_number'] = Auth::user()->company->getNextNumber();
+        if (Auth::check() && Auth::user()->account->client_number_counter && !$client->id_number && empty($data['id_number'])) {
+            $data['id_number'] = Auth::user()->account->getNextNumber();
         }
 
         if ($client->is_deleted) {
@@ -153,13 +137,10 @@ class ClientRepository extends BaseRepository
 
         // set default payment terms
         if (auth()->check() && ! isset($data['payment_terms'])) {
-            $data['payment_terms'] = auth()->user()->company->payment_terms;
+            $data['payment_terms'] = auth()->user()->account->payment_terms;
         }
 
         $client->fill($data);
-
-        $client->company_id = 1;
-
         $client->save();
 
         /*
@@ -176,9 +157,9 @@ class ClientRepository extends BaseRepository
         usort($contacts, function ($left, $right) {
             if (isset($right['is_primary']) && isset($left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
             }
-
-            return 0;
         });
 
         foreach ($contacts as $contact) {

@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Ninja\Presenters\EntityPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -12,9 +10,9 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ExpenseCategory extends EntityModel
 {
-    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
+    use PresentableTrait;
 
     /**
      * @var array
@@ -26,7 +24,7 @@ class ExpenseCategory extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = EntityPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
 
     /**
      * @return mixed
@@ -37,11 +35,11 @@ class ExpenseCategory extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expense()
     {
-        return $this->belongsTo(Expense::class);
+        return $this->belongsTo('App\Models\Expense');
     }
 
     /**

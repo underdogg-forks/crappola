@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Query\Builder;
 
 /**
  * Class PaymentTerm.
@@ -30,6 +29,7 @@ class TaskStatus extends EntityModel
         'sort_order',
     ];
 
+
     /**
      * @return mixed
      */
@@ -41,8 +41,9 @@ class TaskStatus extends EntityModel
     /**
      * @return mixed
      */
-    public function tasks(): Builder
+    public function tasks()
     {
-        return $this->hasMany(Task::class)->orderBy('task_status_sort_order');
+        return $this->hasMany('App\Models\Task')->orderBy('task_status_sort_order');
     }
+
 }

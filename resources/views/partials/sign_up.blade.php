@@ -5,6 +5,7 @@ $(function() {
     validateSignUp();
 
     $('#signUpModal').on('shown.bs.modal', function () {
+        trackEvent('/account', '/view_sign_up');
         // change the type after page load to prevent errors in Chrome console
         $('#new_password').attr('type', 'password');
         $(['first_name','last_name','email','password']).each(function(i, field) {
@@ -19,7 +20,7 @@ $(function() {
     @if (Auth::check() && !Utils::isNinja() && ! Auth::user()->registered)
     $('#closeSignUpButton').hide();
     showSignUp();
-    @elseif(Session::get('sign_up') || request()->get('sign_up'))
+    @elseif(Session::get('sign_up') || \Request::input('sign_up'))
     showSignUp();
     @endif
 
@@ -32,6 +33,7 @@ $(function() {
     @endif
 
 });
+
 
 function showSignUp() {
     if (location.href.indexOf('/dashboard') == -1) {
@@ -153,12 +155,12 @@ function handleSignedUp() {
         localStorage.setItem('guest_key', '');
     }
     fbq('track', 'CompleteRegistration');
-    trackEvent('/company', '/signed_up');
+    trackEvent('/account', '/signed_up');
 }
 
 </script>
 
-@if (\request()->is('dashboard'))
+@if (\Request::is('dashboard'))
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -205,13 +207,20 @@ function handleSignedUp() {
             </div>
             <br/>&nbsp;<br/>
             @if (Utils::isOAuthEnabled() && ! Auth::user()->registered)
-                <div class="col-md-5">
+                <div class="col-md-6">
                     @foreach (App\Services\AuthService::$providers as $provider)
-                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block"
+                    <a href="{{ URL::to('auth/' . $provider) }}" class=""
                         style="padding-top:10px;padding-bottom:10px;margin-top:10px;margin-bottom:10px"
                         id="{{ strtolower($provider) }}LoginButton">
-                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
-                        {{ $provider }}
+                            @if($provider == SOCIAL_GITHUB)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_github_signin.png') }}">
+                            @elseif($provider == SOCIAL_GOOGLE)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_google_signin_dark_normal_web@2x.png') }}">
+                            @elseif($provider == SOCIAL_LINKEDIN)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_linkedin_signin.png') }}">
+                            @elseif($provider === SOCIAL_FACEBOOK)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_facebook_signin.png') }}">
+                            @endif
                     </a>
                     @endforeach
                 </div>
@@ -220,7 +229,7 @@ function handleSignedUp() {
                     {{ trans('texts.or') }}
                     <div style="border-right:thin solid #CCCCCC;height:90px;width:8px;margin-top:10px;"></div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5">
             @else
                 <div class="col-md-12">
             @endif

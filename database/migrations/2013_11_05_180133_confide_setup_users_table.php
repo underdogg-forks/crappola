@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class ConfideSetupUsersTable extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::dropIfExists('payment_terms');
         Schema::dropIfExists('themes');
@@ -38,7 +39,7 @@ return new class () extends Migration {
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payment_types');
 
-        Schema::create('countries', function ($table): void {
+        Schema::create('countries', function ($table) {
             $table->increments('id');
             $table->string('capital', 255)->nullable();
             $table->string('citizenship', 255)->nullable();
@@ -55,42 +56,42 @@ return new class () extends Migration {
             $table->boolean('eea')->default(0);
         });
 
-        Schema::create('themes', function ($t): void {
+        Schema::create('themes', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('payment_types', function ($t): void {
+        Schema::create('payment_types', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('payment_terms', function ($t): void {
+        Schema::create('payment_terms', function ($t) {
             $t->increments('id');
             $t->integer('num_days');
             $t->string('name');
         });
 
-        Schema::create('timezones', function ($t): void {
+        Schema::create('timezones', function ($t) {
             $t->increments('id');
             $t->string('name');
             $t->string('location');
         });
 
-        Schema::create('date_formats', function ($t): void {
+        Schema::create('date_formats', function ($t) {
             $t->increments('id');
             $t->string('format');
             $t->string('picker_format');
             $t->string('label');
         });
 
-        Schema::create('datetime_formats', function ($t): void {
+        Schema::create('datetime_formats', function ($t) {
             $t->increments('id');
             $t->string('format');
             $t->string('label');
         });
 
-        Schema::create('currencies', function ($t): void {
+        Schema::create('currencies', function ($t) {
             $t->increments('id');
 
             $t->string('name');
@@ -101,17 +102,17 @@ return new class () extends Migration {
             $t->string('code');
         });
 
-        Schema::create('sizes', function ($t): void {
+        Schema::create('sizes', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('industries', function ($t): void {
+        Schema::create('industries', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('accounts', function ($t): void {
+        Schema::create('accounts', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('timezone_id')->nullable();
             $t->unsignedInteger('date_format_id')->nullable();
@@ -149,7 +150,7 @@ return new class () extends Migration {
             $t->foreign('size_id')->references('id')->on('sizes');
         });
 
-        Schema::create('gateways', function ($t): void {
+        Schema::create('gateways', function ($t) {
             $t->increments('id');
             $t->timestamps();
 
@@ -158,7 +159,7 @@ return new class () extends Migration {
             $t->boolean('visible')->default(true);
         });
 
-        Schema::create('users', function ($t): void {
+        Schema::create('users', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->timestamps();
@@ -185,7 +186,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('account_gateways', function ($t): void {
+        Schema::create('account_gateways', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -203,14 +204,14 @@ return new class () extends Migration {
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('password_reminders', function ($t): void {
+        Schema::create('password_reminders', function ($t) {
             $t->string('email');
             $t->timestamps();
 
             $t->string('token');
         });
 
-        Schema::create('clients', function ($t): void {
+        Schema::create('clients', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -247,7 +248,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('contacts', function ($t): void {
+        Schema::create('contacts', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -265,22 +266,23 @@ return new class () extends Migration {
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            ;
 
             $t->unsignedInteger('public_id')->nullable();
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('invoice_statuses', function ($t): void {
+        Schema::create('invoice_statuses', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('frequencies', function ($t): void {
+        Schema::create('frequencies', function ($t) {
             $t->increments('id');
             $t->string('name');
         });
 
-        Schema::create('invoices', function ($t): void {
+        Schema::create('invoices', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
@@ -321,7 +323,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'invoice_number']);
         });
 
-        Schema::create('invitations', function ($t): void {
+        Schema::create('invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -343,7 +345,7 @@ return new class () extends Migration {
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('tax_rates', function ($t): void {
+        Schema::create('tax_rates', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('user_id');
@@ -355,12 +357,13 @@ return new class () extends Migration {
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            ;
 
             $t->unsignedInteger('public_id');
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('products', function ($t): void {
+        Schema::create('products', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('user_id');
@@ -374,12 +377,13 @@ return new class () extends Migration {
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            ;
 
             $t->unsignedInteger('public_id');
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('invoice_items', function ($t): void {
+        Schema::create('invoice_items', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
@@ -399,12 +403,13 @@ return new class () extends Migration {
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            ;
 
             $t->unsignedInteger('public_id');
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('payments', function ($t): void {
+        Schema::create('payments', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('account_id')->index();
@@ -429,14 +434,14 @@ return new class () extends Migration {
             $t->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $t->foreign('account_gateway_id')->references('id')->on('account_gateways')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
+            ;
             $t->foreign('payment_type_id')->references('id')->on('payment_types');
 
             $t->unsignedInteger('public_id')->index();
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('credits', function ($t): void {
+        Schema::create('credits', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('client_id')->index();
@@ -454,12 +459,13 @@ return new class () extends Migration {
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            ;
 
             $t->unsignedInteger('public_id')->index();
             $t->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('activities', function ($t): void {
+        Schema::create('activities', function ($t) {
             $t->increments('id');
             $t->timestamps();
 
@@ -487,7 +493,7 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('payment_terms');
         Schema::dropIfExists('themes');
@@ -517,4 +523,4 @@ return new class () extends Migration {
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payment_types');
     }
-};
+}

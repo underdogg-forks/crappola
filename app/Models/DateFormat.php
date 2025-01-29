@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class DateFormat.
  */
-class DateFormat extends Model
+class DateFormat extends Eloquent
 {
     /**
      * @var bool
@@ -17,7 +17,7 @@ class DateFormat extends Model
     /**
      * @return bool|string
      */
-    public function __toString(): string
+    public function __toString()
     {
         $date = mktime(0, 0, 0, 12, 31, date('Y'));
 

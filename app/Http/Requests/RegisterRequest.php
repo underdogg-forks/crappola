@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Libraries\Utils;
 use Illuminate\Http\Request as InputRequest;
+use Response;
 
 class RegisterRequest extends Request
 {
@@ -16,7 +18,7 @@ class RegisterRequest extends Request
         $this->req = $req;
     }
 
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
@@ -24,15 +26,17 @@ class RegisterRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{email: string, first_name: string, last_name: string, password: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
-        return [
-            'email'      => 'email|required|unique:users',
+        $rules = [
+            'email' => 'email|required|unique:users',
             'first_name' => 'required',
-            'last_name'  => 'required',
-            'password'   => 'required',
+            'last_name' => 'required',
+            'password' => 'required',
         ];
+
+        return $rules;
     }
 }

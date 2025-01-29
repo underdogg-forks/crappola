@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\CompanyPlan;
+use App\Models\Company;
 use App\Models\DbServer;
 
 class ReferralRepository
@@ -10,8 +10,8 @@ class ReferralRepository
     public function getCounts($referralCode)
     {
         $counts = [
-            'free'       => 0,
-            'pro'        => 0,
+            'free' => 0,
+            'pro' => 0,
             'enterprise' => 0,
         ];
 
@@ -24,11 +24,11 @@ class ReferralRepository
 
         foreach ($databases as $database) {
             config(['database.default' => $database]);
-            $companys = CompanyPlan::whereReferralCode($referralCode)->get();
+            $accounts = Company::whereReferralCode($referralCode)->get();
 
-            foreach ($companys as $company) {
+            foreach ($accounts as $account) {
                 $counts['free']++;
-                $plan = $company->getPlanDetails(false, false);
+                $plan = $account->getPlanDetails(false, false);
 
                 if ($plan) {
                     $counts['pro']++;

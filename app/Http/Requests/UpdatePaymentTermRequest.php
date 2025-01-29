@@ -2,24 +2,28 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Invoice;
+
 class UpdatePaymentTermRequest extends PaymentTermRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
-    {
-        if (! $this->entity()) {
-            return false;
-        }
 
-        return (bool) $this->user()->can('edit', $this->entity());
+    public function authorize()
+    {
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
      * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    public function rules(): array
+
+    public function rules()
     {
         if (! $this->entity()) {
             return [];
@@ -27,9 +31,12 @@ class UpdatePaymentTermRequest extends PaymentTermRequest
 
         $paymentTermId = $this->entity()->id;
 
-        return [
-            'num_days' => 'required|numeric|unique:payment_terms,num_days,' . $paymentTermId . ',id,company_id,' . $this->user()->company_id . ',deleted_at,NULL'
-                . '|unique:payment_terms,num_days,' . $paymentTermId . ',id,company_id,0,deleted_at,NULL',
+        $rules = [
+            'num_days' => 'required|numeric|unique:payment_terms,num_days,' . $paymentTermId . ',id,account_id,' . $this->user()->account_id . ',deleted_at,NULL'
+                . '|unique:payment_terms,num_days,' . $paymentTermId . ',id,account_id,0,deleted_at,NULL',
         ];
+
+
+        return $rules;
     }
 }

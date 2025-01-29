@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use Cache;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Eloquent;
+use Str;
 
 /**
  * Class Frequency.
  */
-class Frequency extends Model
+class Frequency extends Eloquent
 {
     /**
      * @var bool
@@ -24,10 +23,7 @@ class Frequency extends Model
         'name',
     ];
 
-    /**
-     * @return Translator[]|string[]|mixed[][]|null[]
-     */
-    public static function selectOptions(): array
+    public static function selectOptions()
     {
         $data = [];
 

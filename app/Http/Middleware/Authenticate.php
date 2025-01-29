@@ -2,18 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
-use App\Models\TicketInvitation;
+use Auth;
+use Utils;
 use Closure;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
+use Session;
 
 /**
  * Class Authenticate.
@@ -23,35 +19,27 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param string  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure                 $next
+     * @param string                   $guard
      *
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = 'user')
     {
         $authenticated = Auth::guard($guard)->check();
-
-        $invitationKey = false;
-
-        if ($request->invitation_key) {
-            $invitationKey = $request->invitation_key;
-        } elseif ($request->proposal_invitation_key) {
-            $invitationKey = $request->proposal_invitation_key;
-        } elseif ($request->ticket_invitation_key) {
-            $invitationKey = $request->ticket_invitation_key;
-        }
+        $invitationKey = $request->invitation_key ?: $request->proposal_invitation_key;
 
         if ($guard == 'client') {
-            if (! empty($request->invitation_key) || ! empty($request->proposal_invitation_key) || ! empty($request->ticket_invitation_key)) {
+            if (! empty($request->invitation_key) || ! empty($request->proposal_invitation_key)) {
                 $contact_key = session('contact_key');
                 if ($contact_key) {
                     $contact = $this->getContact($contact_key);
-                    $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key), ! empty($request->ticket_invitation_key));
+                    $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key));
 
                     if (! $invitation) {
                         return response()->view('error', [
-                            'error'      => trans('texts.invoice_not_found'),
+                            'error' => trans('texts.invoice_not_found'),
                             'hideHeader' => true,
                         ]);
                     }
@@ -75,23 +63,23 @@ class Authenticate
             $contact = false;
             if ($contact_key) {
                 $contact = $this->getContact($contact_key);
-            } elseif ($invitationKey && $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key), ! empty($request->ticket_invitation_key))) {
+            } elseif ($invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key))) {
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
             }
             if (! $contact) {
-                return Redirect::to('client/session_expired');
+                return \Redirect::to('client/login');
             }
 
-            $company = $contact->company;
+            $account = $contact->account;
 
-            if (Auth::guard('user')->check() && Auth::user('user')->company_id == $company->id) {
+            if (Auth::guard('user')->check() && Auth::user('user')->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }
 
-            // Does this company require portal passwords?
-            if ($company && (! $company->enable_portal_password || ! $company->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))) {
+            // Does this account require portal passwords?
+            if ($account && (! $account->enable_portal_password || ! $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))) {
                 $authenticated = true;
             }
 
@@ -105,78 +93,75 @@ class Authenticate
 
             if ($authenticated) {
                 $request->merge(['contact' => $contact]);
-                $company->loadLocalizationSettings($contact->client);
+                $account->loadLocalizationSettings($contact->client);
             }
         }
 
         if (! $authenticated) {
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
-            }
-            if ($guard == 'client') {
-                $url = '/client/login';
-                if (Utils::isNinjaProd()) {
-                    if ($company && Utils::getSubdomain() == 'app') {
-                        $url .= '?account_key=' . $company->account_key;
+            } else {
+                if ($guard == 'client') {
+                    $url = '/client/login';
+                    if (Utils::isNinjaProd()) {
+                        if ($account && Utils::getSubdomain() == 'app') {
+                            $url .= '?account_key=' . $account->account_key;
+                        }
+                    } else {
+                        if ($account && Account::count() > 1) {
+                            $url .= '?account_key=' . $account->account_key;
+                        }
                     }
                 } else {
-                    if ($company && Company::count() > 1) {
-                        $url .= '?account_key=' . $company->account_key;
-                    }
+                    $url = '/login';
                 }
-            } else {
-                $url = '/login';
+                return redirect()->guest($url);
             }
-
-            return redirect()->guest($url);
         }
 
         return $next($request);
     }
 
     /**
-     * @return Model|null|static
+     * @param $key
+     *
+     * @return \Illuminate\Database\Eloquent\Model|null|static
      */
-    protected function getContact($key)
-    {
-        $contact = Contact::withTrashed()->where('contact_key', '=', $key)->first();
-        if (! $contact) {
-            return;
-        }
-        if ($contact->is_deleted) {
-            return;
-        }
-
-        return $contact;
-    }
-
-    /**
-     * @return Model|null|static
-     */
-    protected function getInvitation($key, $isProposal = false, $isTicket = false)
+    protected function getInvitation($key, $isProposal = false)
     {
         if (! $key) {
             return false;
         }
 
         // check for extra params at end of value (from website feature)
-        [$key] = explode('&', $key);
+        list($key) = explode('&', $key);
         $key = substr($key, 0, RANDOM_KEY_LENGTH);
 
         if ($isProposal) {
             $invitation = ProposalInvitation::withTrashed()->where('invitation_key', '=', $key)->first();
-        } elseif ($isTicket) {
-            $invitation = TicketInvitation::withTrashed()->where('invitation_key', '=', $key)->first();
         } else {
             $invitation = Invitation::withTrashed()->where('invitation_key', '=', $key)->first();
         }
-        if (! $invitation) {
-            return;
-        }
-        if ($invitation->is_deleted) {
-            return;
-        }
 
-        return $invitation;
+        if ($invitation && ! $invitation->is_deleted) {
+            return $invitation;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param $key
+     *
+     * @return \Illuminate\Database\Eloquent\Model|null|static
+     */
+    protected function getContact($key)
+    {
+        $contact = Contact::withTrashed()->where('contact_key', '=', $key)->first();
+        if ($contact && ! $contact->is_deleted) {
+            return $contact;
+        } else {
+            return null;
+        }
     }
 }

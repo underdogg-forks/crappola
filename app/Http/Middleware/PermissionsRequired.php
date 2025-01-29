@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\Controller;
+use Auth;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class PermissionsRequired.
@@ -18,17 +18,11 @@ class PermissionsRequired
     protected static $actions = [];
 
     /**
-     * add a controller's action permission.
-     */
-    public static function addPermission(Controller $controller, array $permissions): void
-    {
-        static::$actions[get_class($controller)] = $permissions;
-    }
-
-    /**
      * Handle an incoming request.
      *
-     * @param string $guard
+     * @param Request $request
+     * @param Closure $next
+     * @param string  $guard
      *
      * @return mixed
      */
@@ -57,5 +51,16 @@ class PermissionsRequired
         }
 
         return $next($request);
+    }
+
+    /**
+     * add a controller's action permission.
+     *
+     * @param Controller $controller
+     * @param array      $permissions
+     */
+    public static function addPermission(Controller $controller, array $permissions)
+    {
+        static::$actions[get_class($controller)] = $permissions;
     }
 }

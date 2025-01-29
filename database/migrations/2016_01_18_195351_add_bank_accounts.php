@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddBankAccounts extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('banks', function ($table): void {
+        Schema::create('banks', function ($table) {
             $table->increments('id');
             $table->string('name');
             $table->string('remote_id');
@@ -18,7 +19,7 @@ return new class () extends Migration {
             $table->text('config');
         });
 
-        Schema::create('bank_accounts', function ($table): void {
+        Schema::create('bank_accounts', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('bank_id');
@@ -42,9 +43,9 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::drop('bank_accounts');
         Schema::drop('banks');
     }
-};
+}

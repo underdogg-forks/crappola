@@ -2,21 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class License.
  */
-class License extends Model
+class License extends Eloquent
 {
-    use SoftDeletes;
-
     /**
      * @var bool
      */
     public $timestamps = true;
-
+    use SoftDeletes;
     /**
      * @var array
      */

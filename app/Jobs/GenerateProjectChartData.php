@@ -5,6 +5,9 @@ namespace App\Jobs;
 use DateInterval;
 use DatePeriod;
 use stdClass;
+use App\Jobs\Job;
+use App\Models\Task;
+use App\Models\Project;
 
 class GenerateProjectChartData extends Job
 {
@@ -18,10 +21,10 @@ class GenerateProjectChartData extends Job
      *
      * @return void
      */
-    public function handle(): stdClass
+    public function handle()
     {
         $project = $this->project;
-        $company = $project->company;
+        $account = $project->account;
         $taskMap = [];
         $startTimestamp = time();
         $endTimestamp = max(time(), strtotime($project->due_date));
@@ -41,7 +44,7 @@ class GenerateProjectChartData extends Job
                 $start = $part[0];
                 $end = (count($part) > 1 && $part[1]) ? $part[1] : time();
 
-                $date = $company->getDateTime();
+                $date = $account->getDateTime();
                 $date->setTimestamp($part[0]);
                 $sqlDate = $date->format('Y-m-d');
 
@@ -58,8 +61,8 @@ class GenerateProjectChartData extends Job
 
         $labels = [];
         $records = [];
-        $startDate = $company->getDateTime()->setTimestamp($startTimestamp);
-        $endDate = $company->getDateTime()->setTimestamp($endTimestamp);
+        $startDate = $account->getDateTime()->setTimestamp($startTimestamp);
+        $endDate = $account->getDateTime()->setTimestamp($endTimestamp);
 
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($startDate, $interval, $endDate);
@@ -80,7 +83,7 @@ class GenerateProjectChartData extends Job
 
         $dataset = new stdClass();
         $dataset->data = $records;
-        $dataset->label = trans('texts.tasks');
+        $dataset->label = trans("texts.tasks");
         $dataset->lineTension = 0;
         $dataset->borderWidth = 4;
         $dataset->borderColor = "rgba({$color}, 1)";

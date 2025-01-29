@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Client;
-
 class CreateContactRequest extends ContactRequest
 {
     /**
@@ -13,21 +11,21 @@ class CreateContactRequest extends ContactRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Client::class);
+        return $this->user()->can('create', ENTITY_CONTACT);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{first_name: string, last_name: string, email: string, client_id: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'first_name' => 'required',
-            'last_name'  => 'required',
-            'email'      => 'required',
-            'client_id'  => 'required',
+            'last_name' => 'required',
+            'email' => 'required',
+            'client_id' => 'required',
         ];
     }
 }

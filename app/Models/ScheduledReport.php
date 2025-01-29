@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Carbon;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Scheduled Report.
+ * Class Scheduled Report
  */
 class ScheduledReport extends EntityModel
 {
@@ -23,11 +22,11 @@ class ScheduledReport extends EntityModel
     ];
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -35,13 +34,13 @@ class ScheduledReport extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    public function updateSendDate(): void
+    public function updateSendDate()
     {
         switch ($this->frequency) {
-            case REPORT_FREQUENCY_DAILY:
+            case REPORT_FREQUENCY_DAILY;
                 $this->send_date = Carbon::now()->addDay()->toDateString();
                 break;
             case REPORT_FREQUENCY_WEEKLY:
@@ -56,10 +55,5 @@ class ScheduledReport extends EntityModel
         }
 
         $this->save();
-    }
-
-    public function getEntityType(): string
-    {
-        return '';
     }
 }

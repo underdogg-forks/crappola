@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use App\Models\Traits\Inviteable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupInvitation;
+use App\Models\Traits\Inviteable;
+use Utils;
 
 /**
  * Class Invitation.
  */
 class Invitation extends EntityModel
 {
-    use Inviteable;
     use SoftDeletes;
+    use Inviteable;
 
     /**
      * @var array
@@ -33,7 +33,7 @@ class Invitation extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**
@@ -41,7 +41,7 @@ class Invitation extends EntityModel
      */
     public function contact()
     {
-        return $this->belongsTo(Contact::class)->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     /**
@@ -49,18 +49,18 @@ class Invitation extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    public function signatureDiv(): bool|string
+    public function signatureDiv()
     {
         if (! $this->signature_base64) {
             return false;
@@ -70,20 +70,22 @@ class Invitation extends EntityModel
     }
 }
 
-Invitation::creating(function ($invitation): void {
-    LookupInvitation::createNew($invitation->company->account_key, [
+Invitation::creating(function ($invitation)
+{
+    LookupInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
 
-Invitation::updating(function ($invitation): void {
+Invitation::updating(function ($invitation) {
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
-        LookupInvitation::updateInvitation($invitation->company->account_key, $invitation);
+        LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
     }
 });
 
-Invitation::deleted(function ($invitation): void {
+Invitation::deleted(function ($invitation)
+{
     if ($invitation->forceDeleting) {
         LookupInvitation::deleteWhere([
             'invitation_key' => $invitation->invitation_key,

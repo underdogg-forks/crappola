@@ -6,8 +6,10 @@ class UpdateAccountRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
@@ -15,13 +17,13 @@ class UpdateAccountRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{name: string, logo: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => 'required',
-            'logo' => 'sometimes|max:' . MAX_LOGO_FILE_SIZE . '|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:'.MAX_LOGO_FILE_SIZE.'|mimes:jpeg,gif,png',
         ];
     }
 }

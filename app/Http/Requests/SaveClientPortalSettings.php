@@ -2,15 +2,17 @@
 
 namespace App\Http\Requests;
 
-use App\Libraries\Utils;
 use HTMLUtils;
+use Utils;
 
 class SaveClientPortalSettings extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->is_admin && $this->user()->isPro();
     }
@@ -18,14 +20,14 @@ class SaveClientPortalSettings extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return never[]|array{subdomain: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = [];
 
         if ($this->custom_link == 'subdomain' && Utils::isNinja()) {
-            $rules['subdomain'] = "unique:companies,subdomain,{$this->user()->company_id},id|valid_subdomain";
+            $rules['subdomain'] = "unique:accounts,subdomain,{$this->user()->account_id},id|valid_subdomain";
         }
 
         return $rules;
@@ -37,10 +39,6 @@ class SaveClientPortalSettings extends Request
 
         if ($this->client_view_css && Utils::isNinja()) {
             $input['client_view_css'] = HTMLUtils::sanitizeCSS($this->client_view_css);
-        }
-
-        if ($this->client_view_js && Utils::isSelfHost()) {
-            $input['client_view_js'] = HTMLUtils::sanitizeJS($this->client_view_js);
         }
 
         if (Utils::isNinja()) {

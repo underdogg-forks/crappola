@@ -11,6 +11,8 @@ use League\Fractal\Resource\Item;
 class ClientTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)

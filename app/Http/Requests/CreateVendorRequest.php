@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Vendor;
-
 class CreateVendorRequest extends VendorRequest
 {
     /**
@@ -13,15 +11,15 @@ class CreateVendorRequest extends VendorRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Vendor::class);
+        return $this->user()->can('create', ENTITY_VENDOR);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{name: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => 'required',

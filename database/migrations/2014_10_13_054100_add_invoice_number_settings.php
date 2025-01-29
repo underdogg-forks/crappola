@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddInvoiceNumberSettings extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('invoice_number_prefix')->nullable();
             $table->integer('invoice_number_counter')->default(1)->nullable();
 
@@ -21,14 +22,14 @@ return new class () extends Migration {
         });
 
         // set initial counter value for accounts with invoices
-        $accounts = DB::table('accounts')->pluck('id');
+    $accounts = DB::table('accounts')->pluck('id');
 
         foreach ($accounts as $accountId) {
             $invoiceNumbers = DB::table('invoices')->where('account_id', $accountId)->pluck('invoice_number');
             $max = 0;
 
             foreach ($invoiceNumbers as $invoiceNumber) {
-                $number = (int) (preg_replace('/[^0-9]/', '', $invoiceNumber));
+                $number = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
                 $max = max($max, $number);
             }
 
@@ -41,9 +42,9 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('invoice_number_prefix');
             $table->dropColumn('invoice_number_counter');
 
@@ -53,4 +54,4 @@ return new class () extends Migration {
             $table->dropColumn('share_counter');
         });
     }
-};
+}

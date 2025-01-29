@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Expense;
-
 class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
     // Expenses
@@ -15,18 +13,18 @@ class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Expense::class);
+        return $this->user()->can('create', ENTITY_EXPENSE_CATEGORY);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{name: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'name' => sprintf('required|unique:expense_categories,name,,id,company_id,%s', $this->user()->company_id),
+            'name' => sprintf('required|unique:expense_categories,name,,id,account_id,%s', $this->user()->account_id),
         ];
     }
 }

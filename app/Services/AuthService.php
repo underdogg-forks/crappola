@@ -3,19 +3,23 @@
 namespace App\Services;
 
 use App\Events\UserLoggedIn;
-use App\Libraries\Utils;
-use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use App\Models\LookupUser;
+use Auth;
+use Session;
 use Socialite;
+use Utils;
 
 /**
  * Class AuthService.
  */
 class AuthService
 {
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepo;
+
     /**
      * @var array
      */
@@ -27,32 +31,24 @@ class AuthService
     ];
 
     /**
-     * @var AccountRepository
-     */
-    private $companyRepo;
-
-    /**
      * AuthService constructor.
+     *
+     * @param AccountRepository $repo
      */
     public function __construct(AccountRepository $repo)
     {
         $this->accountRepo = $repo;
     }
 
-    public static function getProviders(): void
+    public static function getProviders()
     {
     }
 
     /**
-     * @return mixed|string
-     */
-    public static function getProviderName($providerId)
-    {
-        return $providerId ? self::$providers[$providerId] : '';
-    }
-
-    /**
-     * @return RedirectResponse
+     * @param $provider
+     * @param $hasCode
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function execute($provider, $hasCode)
     {
@@ -89,11 +85,11 @@ class AuthService
             if ($user = $this->accountRepo->findUserByOauth($providerId, $oauthUserId)) {
                 if ($user->google_2fa_secret) {
                     session(['2fa:user:id' => $user->id]);
-
-                    return redirect('/validate_two_factor/' . $user->company->account_key);
+                    return redirect('/validate_two_factor/' . $user->account->account_key);
+                } else {
+                    Auth::login($user);
+                    event(new UserLoggedIn());
                 }
-                Auth::login($user);
-                event(new UserLoggedIn());
             } else {
                 Session::flash('error', trans('texts.invalid_credentials'));
 
@@ -101,12 +97,14 @@ class AuthService
             }
         }
 
-        $redirectTo = $request->get('redirect_to') ? SITE_URL . '/' . ltrim($request->get('redirect_to'), '/') : 'dashboard';
+        $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }
 
     /**
+     * @param $provider
+     *
      * @return mixed
      */
     private function getAuthorization($provider)
@@ -115,10 +113,22 @@ class AuthService
     }
 
     /**
+     * @param $provider
+     *
      * @return mixed
      */
     public static function getProviderId($provider)
     {
         return array_search(strtolower($provider), array_map('strtolower', self::$providers));
+    }
+
+    /**
+     * @param $providerId
+     *
+     * @return mixed|string
+     */
+    public static function getProviderName($providerId)
+    {
+        return $providerId ? self::$providers[$providerId] : '';
     }
 }

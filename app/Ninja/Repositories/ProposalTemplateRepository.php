@@ -3,8 +3,9 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalTemplate;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Auth;
+use DB;
+use Utils;
 
 class ProposalTemplateRepository extends BaseRepository
 {
@@ -21,26 +22,26 @@ class ProposalTemplateRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposal_templates')
-            ->where('proposal_templates.company_id', '=', Auth::user()->company_id)
-            ->select(
-                'proposal_templates.name',
-                'proposal_templates.public_id',
-                'proposal_templates.user_id',
-                'proposal_templates.deleted_at',
-                'proposal_templates.is_deleted',
-                'proposal_templates.html as content',
-                'proposal_templates.private_notes'
-            );
+                ->where('proposal_templates.account_id', '=', Auth::user()->account_id)
+                ->select(
+                    'proposal_templates.name',
+                    'proposal_templates.public_id',
+                    'proposal_templates.user_id',
+                    'proposal_templates.deleted_at',
+                    'proposal_templates.is_deleted',
+                    'proposal_templates.html as content',
+                    'proposal_templates.private_notes'
+                );
 
         $this->applyFilters($query, ENTITY_PROPOSAL_TEMPLATE);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
-                $query->where('clients.name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
-                    ->orWhere('contacts.email', 'like', '%' . $filter . '%')
-                    ->orWhere('proposal_templates.name', 'like', '%' . $filter . '%');
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%')
+                      ->orWhere('proposal_templates.name', 'like', '%'.$filter.'%');
             });
         }
 

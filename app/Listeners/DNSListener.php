@@ -14,17 +14,13 @@ class DNSListener
     /**
      * @param DNSListener $event
      */
-    public function addDNSRecord(SubdomainWasUpdated $event): void
+
+    public function addDNSRecord(SubdomainWasUpdated $event)
     {
-        if (env('CLOUDFLARE_DNS_ENABLED')) {
-            Cloudflare::addDNSRecord($event->company);
-        }
     }
 
-    public function removeDNSRecord(SubdomainWasRemoved $event): void
+    public function removeDNSRecord(SubdomainWasRemoved $event)
     {
-        if (env('CLOUDFLARE_DNS_ENABLED')) {
-            Cloudflare::removeDNSRecord($event->company);
-        }
     }
+
 }

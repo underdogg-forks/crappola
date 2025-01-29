@@ -1,26 +1,28 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class FixPaymentContactForeignKey extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         try {
-            Schema::table('payments', function ($table): void {
+            Schema::table('payments', function ($table) {
                 $table->dropForeign('payments_contact_id_foreign');
             });
 
-            Schema::table('payments', function ($table): void {
+            Schema::table('payments', function ($table) {
                 $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             });
 
-            Schema::table('licenses', function ($table): void {
+            Schema::table('licenses', function ($table) {
                 $table->unsignedInteger('affiliate_id')->nullable()->change();
                 $table->string('first_name')->nullable()->change();
                 $table->string('last_name')->nullable()->change();
@@ -39,5 +41,8 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void {}
-};
+    public function down()
+    {
+        //
+    }
+}

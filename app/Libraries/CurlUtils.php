@@ -11,15 +11,20 @@ class CurlUtils
         return self::exec('POST', $url, $data, $headers);
     }
 
+    public static function get($url, $headers = false)
+    {
+        return self::exec('GET', $url, null, $headers);
+    }
+
     public static function exec($method, $url, $data, $headers = false)
     {
         $curl = curl_init();
 
         $opts = [
-            CURLOPT_URL            => $url,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => $method,
-            CURLOPT_HTTPHEADER     => $headers ?: [],
+            CURLOPT_POST => $method,
+            CURLOPT_HTTPHEADER => $headers ?: [],
         ];
 
         if ($data) {
@@ -36,11 +41,6 @@ class CurlUtils
         curl_close($curl);
 
         return $response;
-    }
-
-    public static function get($url, $headers = false)
-    {
-        return self::exec('GET', $url, null, $headers);
     }
 
     public static function phantom($method, $url)
@@ -63,9 +63,9 @@ class CurlUtils
 
         if ($response->getStatus() === 200) {
             return $response->getContent();
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public static function renderPDF($url, $filename)
@@ -76,7 +76,7 @@ class CurlUtils
 
         $client = Client::getInstance();
         $client->isLazy();
-        $client->getEngine()->addOption('--load-images=true');
+        $client->getEngine()->addOption("--load-images=true");
         $client->getEngine()->setPath($path);
 
         $request = $client->getMessageFactory()->createPdfRequest($url, 'GET');
@@ -90,10 +90,9 @@ class CurlUtils
         if ($response->getStatus() === 200) {
             $pdf = file_get_contents($filename);
             unlink($filename);
-
             return $pdf;
+        } else {
+            return false;
         }
-
-        return false;
     }
 }

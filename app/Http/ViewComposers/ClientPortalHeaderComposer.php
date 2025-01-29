@@ -2,8 +2,8 @@
 
 namespace App\Http\ViewComposers;
 
+use DB;
 use App\Models\Contact;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
@@ -16,6 +16,7 @@ class ClientPortalHeaderComposer
     /**
      * Bind data to the view.
      *
+     * @param View $view
      *
      * @return void
      */
@@ -28,31 +29,29 @@ class ClientPortalHeaderComposer
         }
 
         $contact = Contact::where('contact_key', '=', $contactKey)
-            ->with('client')
-            ->first();
-        if (! $contact) {
-            return false;
-        }
-        if ($contact->is_deleted) {
+                        ->with('client')
+                        ->first();
+
+        if (! $contact || $contact->is_deleted) {
             return false;
         }
 
         $client = $contact->client;
-        $company = $contact->company;
+        $account = $contact->account;
 
         $hasDocuments = DB::table('invoices')
-            ->where('invoices.client_id', '=', $client->id)
-            ->whereNull('invoices.deleted_at')
-            ->join('documents', 'documents.invoice_id', '=', 'invoices.id')
-            ->count();
+                            ->where('invoices.client_id', '=', $client->id)
+                            ->whereNull('invoices.deleted_at')
+                            ->join('documents', 'documents.invoice_id', '=', 'invoices.id')
+                            ->count();
 
         $hasPaymentMethods = false;
-        if ($company->getTokenGatewayId() && ! $company->enable_client_portal_dashboard) {
+        if ($account->getTokenGatewayId() && ! $account->enable_client_portal_dashboard) {
             $hasPaymentMethods = DB::table('payment_methods')
-                ->where('contacts.client_id', '=', $client->id)
-                ->whereNull('payment_methods.deleted_at')
-                ->join('contacts', 'contacts.id', '=', 'payment_methods.contact_id')
-                ->count();
+                                    ->where('contacts.client_id', '=', $client->id)
+                                    ->whereNull('payment_methods.deleted_at')
+                                    ->join('contacts', 'contacts.id', '=', 'payment_methods.contact_id')
+                                    ->count();
         }
 
         $view->with('hasQuotes', $client->publicQuotes->count());

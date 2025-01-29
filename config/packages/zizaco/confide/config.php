@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 
     /*
     |--------------------------------------------------------------------------
@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'throttle_limit'       => 9,
+    'throttle_limit' => 9,
     'throttle_time_period' => 2,
 
     /*
@@ -47,10 +47,10 @@ return [
     |
     |
     */
-    'login_form'           => 'users.login',
-    'signup_form'          => 'confide::signup',
-    'forgot_password_form' => 'users.forgot_password',
-    'reset_password_form'  => 'users.reset_password',
+    'login_form' =>             'users.login',
+    'signup_form' =>            'confide::signup',
+    'forgot_password_form' =>   'users.forgot_password',
+    'reset_password_form' =>    'users.reset_password',
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'email_reset_password'       => 'emails.passwordreset_html', // with $user and $token.
+    'email_reset_password' =>       'emails.passwordreset_html', // with $user and $token.
     'email_account_confirmation' => 'emails.confirm_html', // with $user
 
     /*
@@ -88,7 +88,7 @@ return [
     |
     */
     'signup_cache' => 0,
-
+    
     /*
     |--------------------------------------------------------------------------
     | Signup E-mail and confirmation (true or false)
@@ -106,7 +106,7 @@ return [
     | signup_confirm:
     | is to decide of a member needs to be confirmed before he is able to login
     | so when you set this to true, then a member has to be confirmed before
-    | he is able to login, so if you want to use an IPN for confirmation, be
+    | he is able to login, so if you want to use an IPN for confirmation, be 
     | sure that the ipn process also changes the confirmed flag in the member
     | table, otherwise they will not be able to login after the payment.
     |
@@ -114,4 +114,4 @@ return [
     'signup_email'      => false,
     'signup_confirm'    => false,
 
-];
+);

@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 use Omnipay;
-use Symfony\Component\Translation\TranslatorInterface;
+use Utils;
 
 /**
  * Class Gateway.
  */
-class Gateway extends Model
+class Gateway extends Eloquent
 {
+    /**
+     * @var bool
+     */
+    public $timestamps = true;
+
+    protected $fillable = [
+        'provider',
+        'is_offsite',
+        'sort_order',
+    ];
+
     /**
      * @var array
      */
@@ -25,6 +35,8 @@ class Gateway extends Model
         GATEWAY_TYPE_GOCARDLESS,
     ];
 
+    // these will appear in the primary gateway select
+    // the rest are shown when selecting 'more options'
     /**
      * @var array
      */
@@ -43,6 +55,8 @@ class Gateway extends Model
         GATEWAY_CUSTOM3,
     ];
 
+    // allow adding these gateway if another gateway
+    // is already configured
     /**
      * @var array
      */
@@ -55,8 +69,6 @@ class Gateway extends Model
         GATEWAY_CUSTOM3,
     ];
 
-    // these will appear in the primary gateway select
-    // the rest are shown when selecting 'more options'
     /**
      * @var array
      */
@@ -72,8 +84,6 @@ class Gateway extends Model
         'returnUrl',
     ];
 
-    // allow adding these gateway if another gateway
-    // is already configured
     /**
      * @var array
      */
@@ -94,17 +104,26 @@ class Gateway extends Model
     ];
 
     /**
-     * @var bool
+     * @return string
      */
-    public $timestamps = true;
-
-    protected $fillable = [
-        'provider',
-        'is_offsite',
-        'sort_order',
-    ];
+    public function getLogoUrl()
+    {
+        return '/images/gateways/logo_'.$this->provider.'.png';
+    }
 
     /**
+     * @param $gatewayId
+     *
+     * @return bool
+     */
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
+
+    /**
+     * @param $type
+     *
      * @return string
      */
     public static function getPaymentTypeName($type)
@@ -112,43 +131,46 @@ class Gateway extends Model
         return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
 
-    public static function hasStandardGateway($gatewayIds): int
+    /**
+     * @param $gatewayIds
+     *
+     * @return int
+     */
+    public static function hasStandardGateway($gatewayIds)
     {
         $diff = array_diff($gatewayIds, static::$alternate);
 
         return count($diff);
     }
 
-    public function getLogoUrl(): string
-    {
-        return '/images/gateways/logo_' . $this->provider . '.png';
-    }
-
-    public function isGateway($gatewayId): bool
-    {
-        return $this->id == $gatewayId;
-    }
-
-    public function scopePrimary($query, $companyGatewaysIds): void
+    /**
+     * @param $query
+     * @param $accountGatewaysIds
+     */
+    public function scopePrimary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
             ->whereIn('id', static::$preferred)
-            ->whereIn('id', $companyGatewaysIds);
+            ->whereIn('id', $accountGatewaysIds);
 
         if (! Utils::isNinja()) {
             $query->where('id', '!=', GATEWAY_WEPAY);
         }
     }
 
-    public function scopeSecondary($query, $companyGatewaysIds): void
+    /**
+     * @param $query
+     * @param $accountGatewaysIds
+     */
+    public function scopeSecondary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
             ->whereNotIn('id', static::$preferred)
-            ->whereIn('id', $companyGatewaysIds);
+            ->whereIn('id', $accountGatewaysIds);
     }
 
     /**
-     * @return string|TranslatorInterface
+     * @return string|\Symfony\Component\Translation\TranslatorInterface
      */
     public function getHelp()
     {
@@ -167,14 +189,14 @@ class Gateway extends Model
         } elseif ($this->id == GATEWAY_SAGE_PAY_DIRECT || $this->id == GATEWAY_SAGE_PAY_SERVER) {
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         } elseif ($this->id == GATEWAY_STRIPE) {
-            $link = 'https://dashboard.stripe.com/company/apikeys';
+            $link = 'https://dashboard.stripe.com/account/apikeys';
         } elseif ($this->id == GATEWAY_WEPAY) {
             $link = url('/gateways/create?wepay=true');
         }
 
-        $key = 'texts.gateway_help_' . $this->id;
+        $key = 'texts.gateway_help_'.$this->id;
         $str = trans($key, [
-            'link'          => "<a href='$link' >Click here</a>",
+            'link' => "<a href='$link' >Click here</a>",
             'complete_link' => url('/complete'),
         ]);
 
@@ -191,12 +213,12 @@ class Gateway extends Model
                 'name' => '',
                 'text' => '',
             ];
+        } else {
+            return Omnipay::create($this->provider)->getDefaultParameters();
         }
-
-        return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
-    public function isCustom(): bool
+    public function isCustom()
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }

@@ -2,7 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use App\Libraries\Utils;
+use Utils;
 
 class SkrillPaymentDriver extends BasePaymentDriver
 {

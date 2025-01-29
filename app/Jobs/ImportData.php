@@ -2,26 +2,29 @@
 
 namespace App\Jobs;
 
-use App;
-use App\Libraries\Utils;
-use App\Models\User;
-use App\Ninja\Mailers\UserMailer;
-use App\Services\ImportService;
-use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Auth;
+use Monolog\Logger;
+use App\Services\ImportService;
+use App\Ninja\Mailers\UserMailer;
+use App\Models\User;
+use Auth;
+use App;
+use Utils;
+use Exception;
 
 /**
  * Class SendInvoiceEmail.
  */
 class ImportData extends Job implements ShouldQueue
 {
-    use InteractsWithQueue;
-    use SerializesModels;
+    use InteractsWithQueue, SerializesModels;
 
-    protected User $user;
+    /**
+     * @var User
+     */
+    protected $user;
 
     /**
      * @var string
@@ -41,8 +44,8 @@ class ImportData extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param mixed $files
-     * @param mixed $settings
+     * @param mixed   $files
+     * @param mixed   $settings
      */
     public function __construct(User $user, $type, $settings)
     {
@@ -57,13 +60,13 @@ class ImportData extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ImportService $importService, UserMailer $userMailer): void
+    public function handle(ImportService $importService, UserMailer $userMailer)
     {
         $includeSettings = false;
 
         if (App::runningInConsole()) {
             Auth::onceUsingId($this->user->id);
-            $this->user->company->loadLocalizationSettings();
+            $this->user->account->loadLocalizationSettings();
         }
 
         try {

@@ -8,18 +8,20 @@ class ComposerServiceProvider extends ServiceProvider
 {
     /**
      * Register bindings in the container.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         view()->composer(
             [
-                'companies.details',
+                'accounts.details',
                 'clients.edit',
                 'vendors.edit',
                 'payments.edit',
                 'invoices.edit',
                 'expenses.edit',
-                'companies.localization',
+                'accounts.localization',
                 'payments.credit_card',
                 'invited.details',
             ],
@@ -27,18 +29,18 @@ class ComposerServiceProvider extends ServiceProvider
         );
 
         view()->composer(
-            [
-                'header',
-                'tasks.edit',
-            ],
-            'App\Http\ViewComposers\AppLanguageComposer'
+             [
+                 'header',
+                 'tasks.edit',
+             ],
+             'App\Http\ViewComposers\AppLanguageComposer'
         );
 
         view()->composer(
-            [
-                'public.header',
-            ],
-            'App\Http\ViewComposers\ClientPortalHeaderComposer'
+             [
+                 'public.header',
+             ],
+             'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
 
         view()->composer(
@@ -47,14 +49,16 @@ class ComposerServiceProvider extends ServiceProvider
                 'proposals.templates.edit',
                 'proposals.snippets.edit',
             ],
-            'App\Http\ViewComposers\ProposalComposer'
+             'App\Http\ViewComposers\ProposalComposer'
         );
     }
 
     /**
      * Register the service provider.
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
     }
 }

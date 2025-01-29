@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 /**
  * Class VendorService.
@@ -27,6 +26,10 @@ class VendorService extends BaseService
 
     /**
      * VendorService constructor.
+     *
+     * @param VendorRepository $vendorRepo
+     * @param DatatableService $datatableService
+     * @param NinjaRepository  $ninjaRepo
      */
     public function __construct(
         VendorRepository $vendorRepo,
@@ -39,6 +42,17 @@ class VendorService extends BaseService
     }
 
     /**
+     * @return VendorRepository
+     */
+    protected function getRepo()
+    {
+        return $this->vendorRepo;
+    }
+
+    /**
+     * @param array       $data
+     * @param Vendor|null $vendor
+     *
      * @return mixed|null
      */
     public function save(array $data, Vendor $vendor = null)
@@ -46,6 +60,11 @@ class VendorService extends BaseService
         return $this->vendorRepo->save($data, $vendor);
     }
 
+    /**
+     * @param $search
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search)
     {
         $datatable = new VendorDatatable();
@@ -56,13 +75,5 @@ class VendorService extends BaseService
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return VendorRepository
-     */
-    protected function getRepo()
-    {
-        return $this->vendorRepo;
     }
 }

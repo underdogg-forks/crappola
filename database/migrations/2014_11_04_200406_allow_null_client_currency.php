@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AllowNullClientCurrency extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             //DB::statement('ALTER TABLE `clients` MODIFY `currency_id` INTEGER UNSIGNED NULL;');
         });
     }
@@ -20,5 +21,7 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void {}
-};
+    public function down()
+    {
+    }
+}

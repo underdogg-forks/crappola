@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -13,10 +12,11 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
-            //'App\Listeners\SubscriptionListener@createdClient',
+            'App\Listeners\SubscriptionListener@createdClient',
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
@@ -239,21 +239,18 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [
-            'App\Listeners\InvoiceListener@jobFailed',
+            'App\Listeners\InvoiceListener@jobFailed'
         ],
 
         //DNS Add A record to Cloudflare
         'App\Events\SubdomainWasUpdated' => [
-            'App\Listeners\DNSListener@addDNSRecord',
+            'App\Listeners\DNSListener@addDNSRecord'
         ],
 
         //DNS Remove A record from Cloudflare
         'App\Events\SubdomainWasRemoved' => [
-            'App\Listeners\DNSListener@removeDNSRecord',
-        ],
-        'App\Events\TicketUserViewed' => [
-            'App\Listeners\ActivityListener@userViewedTicket',
-        ],
+            'App\Listeners\DNSListener@removeDNSRecord'
+        ]
 
         /*
         // Update events
@@ -266,9 +263,11 @@ class EventServiceProvider extends ServiceProvider
     /**
      * Register any other events for your application.
      *
-     * @param Dispatcher $events
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         parent::boot();
 

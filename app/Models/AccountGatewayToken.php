@@ -2,28 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class AccountGatewayToken.
  */
-class AccountGatewayToken extends Model
+class AccountGatewayToken extends Eloquent
 {
     use SoftDeletes;
-
-    /**
-     * @var bool
-     */
-    public $timestamps = true;
-
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+    /**
+     * @var bool
+     */
+    public $timestamps = true;
 
     /**
      * @var array
@@ -41,35 +36,35 @@ class AccountGatewayToken extends Model
     ];
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function payment_methods()
     {
-        return $this->hasMany(PaymentMethod::class);
+        return $this->hasMany('App\Models\PaymentMethod');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account_gateway()
     {
-        return $this->belongsTo(AccountGateway::class);
+        return $this->belongsTo('App\Models\AccountGateway');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function contact()
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo('App\Models\Contact');
     }
 
     /**
-     * @return HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function default_payment_method()
     {
-        return $this->hasOne(PaymentMethod::class, 'id', 'default_payment_method_id');
+        return $this->hasOne('App\Models\PaymentMethod', 'id', 'default_payment_method_id');
     }
 
     /**
@@ -93,12 +88,16 @@ class AccountGatewayToken extends Model
     }
 
     /**
+     * @param $query
+     * @param $clientId
+     * @param $accountGatewayId
+     *
      * @return mixed
      */
-    public function scopeClientAndGateway($query, $clientId, $companyGatewayId)
+    public function scopeClientAndGateway($query, $clientId, $accountGatewayId)
     {
         $query->where('client_id', '=', $clientId)
-            ->where('account_gateway_id', '=', $companyGatewayId);
+            ->where('account_gateway_id', '=', $accountGatewayId);
 
         return $query;
     }
@@ -116,22 +115,19 @@ class AccountGatewayToken extends Model
      */
     public function gatewayLink()
     {
-        $companyGateway = $this->account_gateway;
-        if ($companyGateway->gateway_id == GATEWAY_STRIPE) {
+        $accountGateway = $this->account_gateway;
+
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             return "https://dashboard.stripe.com/customers/{$this->token}";
-        }
-
-        if ($companyGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $merchantId = $companyGateway->getConfigField('merchantId');
-            $testMode = $companyGateway->getConfigField('testMode');
-
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            $merchantId = $accountGateway->getConfigField('merchantId');
+            $testMode = $accountGateway->getConfigField('testMode');
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
-        } elseif ($companyGateway->gateway_id == GATEWAY_GOCARDLESS) {
-            $testMode = $companyGateway->getConfigField('testMode');
-
+        } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+            $testMode = $accountGateway->getConfigField('testMode');
             return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
+        } else {
+            return false;
         }
-
-        return false;
     }
 }

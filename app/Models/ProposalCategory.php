@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -11,8 +10,8 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalCategory extends EntityModel
 {
-    use PresentableTrait;
     use SoftDeletes;
+    use PresentableTrait;
 
     /**
      * @var array
@@ -48,11 +47,11 @@ class ProposalCategory extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function getDisplayName()

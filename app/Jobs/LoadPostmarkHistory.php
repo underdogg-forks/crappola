@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
 use Postmark\PostmarkClient;
 use stdClass;
 
@@ -18,12 +19,12 @@ class LoadPostmarkHistory extends Job
      *
      * @return void
      */
-    public function handle(): stdClass
+    public function handle()
     {
         $str = '';
 
         if (config('services.postmark')) {
-            $this->company = auth()->user()->company;
+            $this->account = auth()->user()->account;
             $this->postmark = new PostmarkClient(config('services.postmark'));
 
             $str .= $this->loadBounceEvents();
@@ -34,27 +35,24 @@ class LoadPostmarkHistory extends Job
             $str = trans('texts.no_messages_found');
         }
 
-        $response = new stdClass();
+        $response = new stdClass;
         $response->str = $str;
         $response->bounce_id = $this->bounceId;
 
         return $response;
     }
 
-    private function loadBounceEvents()
-    {
+    private function loadBounceEvents() {
         $str = '';
-        $response = $this->postmark->getBounces(5, 0, null, null, $this->email, $this->company->account_key);
+        $response = $this->postmark->getBounces(5, 0, null, null, $this->email, $this->account->account_key);
 
         foreach ($response['bounces'] as $bounce) {
-            if (! $bounce['inactive']) {
+            if (! $bounce['inactive'] || ! $bounce['canactivate']) {
                 continue;
             }
-            if (! $bounce['canactivate']) {
-                continue;
-            }
+
             $str .= sprintf('<b>%s</b><br/>', $bounce['subject']);
-            $str .= sprintf('<span class="text-danger">%s</span> | %s<br/>', $bounce['type'], $this->company->getDateTime($bounce['bouncedat'], true));
+            $str .= sprintf('<span class="text-danger">%s</span> | %s<br/>', $bounce['type'], $this->account->getDateTime($bounce['bouncedat'], true));
             $str .= sprintf('<span class="text-muted">%s %s</span><p/>', $bounce['description'], $bounce['details']);
 
             $this->bounceId = $bounce['id'];
@@ -63,17 +61,16 @@ class LoadPostmarkHistory extends Job
         return $str;
     }
 
-    private function loadEmailEvents()
-    {
+    private function loadEmailEvents() {
         $str = '';
-        $response = $this->postmark->getOutboundMessages(5, 0, $this->email, null, $this->company->account_key);
+        $response = $this->postmark->getOutboundMessages(5, 0, $this->email, null, $this->account->account_key);
 
         foreach ($response['messages'] as $message) {
             $details = $this->postmark->getOutboundMessageDetails($message['MessageID']);
             $str .= sprintf('<b>%s</b><br/>', $details['subject']);
 
             $event = $details['messageevents'][0];
-            $str .= sprintf('%s | %s<br/>', $event['Type'], $this->company->getDateTime($event['ReceivedAt'], true));
+            $str .= sprintf('%s | %s<br/>', $event['Type'], $this->account->getDateTime($event['ReceivedAt'], true));
             if ($message = $event['Details']['DeliveryMessage']) {
                 $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
             }
@@ -84,7 +81,7 @@ class LoadPostmarkHistory extends Job
             /*
             if (count($details['messageevents'])) {
                 $event = $details['messageevents'][0];
-                $str .= sprintf('%s | %s<br/>', $event['Type'], $this->company->getDateTime($event['ReceivedAt'], true));
+                $str .= sprintf('%s | %s<br/>', $event['Type'], $this->account->getDateTime($event['ReceivedAt'], true));
                 if ($message = $event['Details']['DeliveryMessage']) {
                     $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
                 }

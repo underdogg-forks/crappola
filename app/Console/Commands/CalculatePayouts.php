@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CurlUtils;
-use App\Models\CompanyPlan;
+use Illuminate\Console\Command;
 use App\Models\DbServer;
 use App\Models\User;
-use Illuminate\Console\Command;
+use App\Models\Company;
+use App\Libraries\CurlUtils;
 
 class CalculatePayouts extends Command
 {
@@ -24,6 +24,7 @@ class CalculatePayouts extends Command
      */
     protected $description = 'Calculate payouts';
 
+
     /**
      * Create a new command instance.
      *
@@ -39,9 +40,8 @@ class CalculatePayouts extends Command
      *
      * @return mixed
      */
-    public function handle(): void
+    public function handle()
     {
-        $this->info('Running CalculatePayouts...');
         $type = strtolower($this->option('type'));
 
         switch ($type) {
@@ -54,13 +54,12 @@ class CalculatePayouts extends Command
         }
     }
 
-    private function referralPayouts(): void
+    private function referralPayouts()
     {
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
 
         foreach ($servers as $server) {
-            $this->info('Processing users: ' . $server->name);
             config(['database.default' => $server->name]);
 
             $users = User::where('referral_code', '!=', '')
@@ -71,37 +70,44 @@ class CalculatePayouts extends Command
         }
 
         foreach ($servers as $server) {
-            $this->info('Processing companies: ' . $server->name);
             config(['database.default' => $server->name]);
 
-            $companies = CompanyPlan::where('referral_code', '!=', '')
+            $companies = Company::where('referral_code', '!=', '')
                 ->with('payment.client.payments')
                 ->whereNotNull('payment_id')
                 ->get();
 
-            foreach ($companies as $companyPlan) {
-                $user = $userMap[$companyPlan->referral_code];
-                $payment = $companyPlan->payment;
+            $this->info('User,Client,Date,Amount,Reference');
+
+            foreach ($companies as $company) {
+                if (!isset($userMap[$company->referral_code])) {
+                    continue;
+                }
+
+                $user = $userMap[$company->referral_code];
+                $payment = $company->payment;
 
                 if ($payment) {
                     $client = $payment->client;
 
-                    $this->info("User: $user");
-                    $this->info('Client: ' . $client->getDisplayName());
-
                     foreach ($client->payments as $payment) {
                         $amount = $payment->getCompletedAmount();
-                        $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
+                        $this->info('"' . $user . '",' .
+                            '"' . $client->getDisplayName() . '",' .
+                            $payment->payment_date . ',' .
+                            $amount . ',' .
+                            $payment->transaction_reference
+                        );
                     }
                 }
             }
         }
     }
 
-    private function resellerPayouts(): void
+    private function resellerPayouts()
     {
         $response = CurlUtils::post($this->option('url') . '/reseller_stats', [
-            'password' => $this->option('password'),
+            'password' => $this->option('password')
         ]);
 
         $this->info('Response:');
@@ -116,4 +122,5 @@ class CalculatePayouts extends Command
             ['password', null, InputOption::VALUE_OPTIONAL, 'Password', null],
         ];
     }
+
 }

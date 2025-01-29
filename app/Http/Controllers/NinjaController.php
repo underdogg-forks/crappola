@@ -2,40 +2,88 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\CurlUtils;
-use App\Libraries\Utils;
 use App\Models\Affiliate;
 use App\Models\Country;
 use App\Models\License;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\AccountRepository;
+use App\Libraries\CurlUtils;
+use Auth;
 use Cache;
 use CreditCard;
-use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
 use Omnipay;
+use Session;
 use URL;
-use Illuminate\Support\Facades\Validator;
+use Utils;
+use Validator;
+use View;
+use Request;
 
 class NinjaController extends BaseController
 {
     /**
      * @var AccountRepository
      */
-    protected $companyRepo;
+    protected $accountRepo;
 
-    protected ContactMailer $contactMailer;
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
 
     /**
      * NinjaController constructor.
+     *
+     * @param AccountRepository $accountRepo
+     * @param ContactMailer     $contactMailer
      */
-    public function __construct(AccountRepository $companyRepo, ContactMailer $contactMailer)
+    public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
-        $this->accountRepo = $companyRepo;
+        $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
+    }
+
+    /**
+     * @param array     $input
+     * @param Affiliate $affiliate
+     *
+     * @return array
+     */
+    private function getLicensePaymentDetails(array $input, Affiliate $affiliate)
+    {
+        $country = Country::find($input['country_id']);
+
+        $data = [
+            'firstName' => $input['first_name'],
+            'lastName' => $input['last_name'],
+            'email' => $input['email'],
+            'number' => $input['card_number'],
+            'expiryMonth' => $input['expiration_month'],
+            'expiryYear' => $input['expiration_year'],
+            'cvv' => $input['cvv'],
+            'billingAddress1' => $input['address1'],
+            'billingAddress2' => $input['address2'],
+            'billingCity' => $input['city'],
+            'billingState' => $input['state'],
+            'billingPostcode' => $input['postal_code'],
+            'billingCountry' => $country->iso_3166_2,
+            'shippingAddress1' => $input['address1'],
+            'shippingAddress2' => $input['address2'],
+            'shippingCity' => $input['city'],
+            'shippingState' => $input['state'],
+            'shippingPostcode' => $input['postal_code'],
+            'shippingCountry' => $country->iso_3166_2,
+        ];
+
+        $card = new CreditCard($data);
+
+        return [
+            'amount' => $affiliate->price,
+            'card' => $card,
+            'currency' => 'USD',
+            'returnUrl' => URL::to('license_complete'),
+            'cancelUrl' => URL::to('/'),
+        ];
     }
 
     /**
@@ -43,18 +91,18 @@ class NinjaController extends BaseController
      */
     public function show_license_payment()
     {
-        if (request()->has('return_url')) {
-            session(['return_url' => $request->get('return_url')]);
+        if (\Request::has('return_url')) {
+            session(['return_url' => \Request::input('return_url')]);
         }
 
-        if (request()->has('affiliate_key')) {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', $request->get('affiliate_key'))->first()) {
+        if (\Request::has('affiliate_key')) {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', \Request::input('affiliate_key'))->first()) {
                 session(['affiliate_id' => $affiliate->id]);
             }
         }
 
-        if (request()->has('product_id')) {
-            session(['product_id' => $request->get('product_id')]);
+        if (\Request::has('product_id')) {
+            session(['product_id' => \Request::input('product_id')]);
         } elseif (! Session::has('product_id')) {
             session(['product_id' => PRODUCT_ONE_CLICK_INSTALL]);
         }
@@ -63,35 +111,35 @@ class NinjaController extends BaseController
             return Utils::fatalError();
         }
 
-        if (Utils::isNinjaDev() && request()->has('test_mode')) {
-            session(['test_mode' => $request->get('test_mode')]);
+        if (Utils::isNinjaDev() && \Request::has('test_mode')) {
+            session(['test_mode' => \Request::input('test_mode')]);
         }
 
-        $company = $this->accountRepo->getNinjaAccount();
-        $company->load('account_gateways.gateway');
-        $companyGateway = $company->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
-        $gateway = $companyGateway->gateway;
-        $acceptedCreditCardTypes = $companyGateway->getCreditcardTypes();
+        $account = $this->accountRepo->getNinjaAccount();
+        $account->load('account_gateways.gateway');
+        $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
+        $gateway = $accountGateway->gateway;
+        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
         $affiliate = Affiliate::find(Session::get('affiliate_id'));
 
         $data = [
-            'showBreadcrumbs'         => false,
-            'hideHeader'              => true,
-            'url'                     => 'license',
-            'amount'                  => $affiliate->price,
-            'client'                  => false,
-            'contact'                 => false,
-            'gateway'                 => $gateway,
-            'company'                 => $company,
-            'accountGateway'          => $companyGateway,
+            'showBreadcrumbs' => false,
+            'hideHeader' => true,
+            'url' => 'license',
+            'amount' => $affiliate->price,
+            'client' => false,
+            'contact' => false,
+            'gateway' => $gateway,
+            'account' => $account,
+            'accountGateway' => $accountGateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            'countries'               => Cache::get('countries'),
-            'currencyId'              => 1,
-            'currencyCode'            => 'USD',
-            'paymentTitle'            => $affiliate->payment_title,
-            'paymentSubtitle'         => $affiliate->payment_subtitle,
-            'showAddress'             => true,
+            'countries' => Cache::get('countries'),
+            'currencyId' => 1,
+            'currencyCode' => 'USD',
+            'paymentTitle' => $affiliate->payment_title,
+            'paymentSubtitle' => $affiliate->payment_subtitle,
+            'showAddress' => true,
         ];
 
         return View::make('payments.stripe.credit_card', $data);
@@ -105,21 +153,21 @@ class NinjaController extends BaseController
         $testMode = Session::get('test_mode') === 'true';
 
         $rules = [
-            'first_name'       => 'required',
-            'last_name'        => 'required',
-            'email'            => 'required',
-            'card_number'      => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required',
+            'card_number' => 'required',
             'expiration_month' => 'required',
-            'expiration_year'  => 'required',
-            'cvv'              => 'required',
-            'address1'         => 'required',
-            'city'             => 'required',
-            'state'            => 'required',
-            'postal_code'      => 'required',
-            'country_id'       => 'required',
+            'expiration_year' => 'required',
+            'cvv' => 'required',
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'postal_code' => 'required',
+            'country_id' => 'required',
         ];
 
-        $validator = Validator::make(Input::all(), $rules);
+        $validator = Validator::make(Request::all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->to('license')
@@ -127,9 +175,9 @@ class NinjaController extends BaseController
                 ->withInput();
         }
 
-        $company = $this->accountRepo->getNinjaAccount();
-        $company->load('account_gateways.gateway');
-        $companyGateway = $company->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
+        $account = $this->accountRepo->getNinjaAccount();
+        $account->load('account_gateways.gateway');
+        $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
 
         try {
             $affiliate = Affiliate::find(Session::get('affiliate_id'));
@@ -137,16 +185,16 @@ class NinjaController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
+                $details = self::getLicensePaymentDetails(Request::all(), $affiliate);
 
-                $gateway = Omnipay::create($companyGateway->gateway->provider);
-                $gateway->initialize((array) $companyGateway->getConfig());
+                $gateway = Omnipay::create($accountGateway->gateway->provider);
+                $gateway->initialize((array) $accountGateway->getConfig());
                 $response = $gateway->purchase($details)->send();
 
                 $ref = $response->getTransactionReference();
 
                 if (! $response->isSuccessful() || ! $ref) {
-                    $this->error('License', $response->getMessage(), $companyGateway);
+                    $this->error('License', $response->getMessage(), $accountGateway);
 
                     return redirect()->to('license')->withInput();
                 }
@@ -155,9 +203,9 @@ class NinjaController extends BaseController
             $licenseKey = Utils::generateLicense();
 
             $license = new License();
-            $license->first_name = $request->get('first_name');
-            $license->last_name = $request->get('last_name');
-            $license->email = $request->get('email');
+            $license->first_name = \Request::input('first_name');
+            $license->last_name = \Request::input('last_name');
+            $license->email = \Request::input('email');
             $license->transaction_reference = $ref;
             $license->license_key = $licenseKey;
             $license->affiliate_id = Session::get('affiliate_id');
@@ -165,78 +213,27 @@ class NinjaController extends BaseController
             $license->save();
 
             $data = [
-                'message'    => $affiliate->payment_subtitle,
-                'license'    => $licenseKey,
+                'message' => $affiliate->payment_subtitle,
+                'license' => $licenseKey,
                 'hideHeader' => true,
-                'productId'  => $license->product_id,
-                'price'      => $affiliate->price,
+                'productId' => $license->product_id,
+                'price' => $affiliate->price,
             ];
 
             $name = "{$license->first_name} {$license->last_name}";
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
 
             if (Session::has('return_url')) {
-                $data['redirectTo'] = Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . Session::get('product_id');
+                $data['redirectTo'] = Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id');
                 $data['message'] = 'Redirecting to ' . Session::get('return_url');
             }
 
             return View::make('public.license', $data);
-        } catch (Exception $e) {
-            $this->error('License-Uncaught', false, $companyGateway, $e);
+        } catch (\Exception $e) {
+            $this->error('License-Uncaught', false, $accountGateway, $e);
 
             return redirect()->to('license')->withInput();
         }
-    }
-
-    /**
-     * @return array{amount: mixed, card: \CreditCard, currency: string, returnUrl: mixed, cancelUrl: mixed}
-     */
-    private function getLicensePaymentDetails(array $input, Affiliate $affiliate): array
-    {
-        $country = Country::find($input['country_id']);
-
-        $data = [
-            'firstName'        => $input['first_name'],
-            'lastName'         => $input['last_name'],
-            'email'            => $input['email'],
-            'number'           => $input['card_number'],
-            'expiryMonth'      => $input['expiration_month'],
-            'expiryYear'       => $input['expiration_year'],
-            'cvv'              => $input['cvv'],
-            'billingAddress1'  => $input['address1'],
-            'billingAddress2'  => $input['address2'],
-            'billingCity'      => $input['city'],
-            'billingState'     => $input['state'],
-            'billingPostcode'  => $input['postal_code'],
-            'billingCountry'   => $country->iso_3166_2,
-            'shippingAddress1' => $input['address1'],
-            'shippingAddress2' => $input['address2'],
-            'shippingCity'     => $input['city'],
-            'shippingState'    => $input['state'],
-            'shippingPostcode' => $input['postal_code'],
-            'shippingCountry'  => $country->iso_3166_2,
-        ];
-
-        $card = new CreditCard($data);
-
-        return [
-            'amount'    => $affiliate->price,
-            'card'      => $card,
-            'currency'  => 'USD',
-            'returnUrl' => URL::to('license_complete'),
-            'cancelUrl' => URL::to('/'),
-        ];
-    }
-
-    private function error(string $type, $error, $companyGateway = false, $exception = false): void
-    {
-        $message = '';
-        if ($companyGateway && $companyGateway->gateway) {
-            $message = $companyGateway->gateway->name . ': ';
-        }
-        $message .= $error ?: trans('texts.payment_error');
-        Session::flash('error', $message);
-        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 
     /**
@@ -244,25 +241,23 @@ class NinjaController extends BaseController
      */
     public function claim_license()
     {
-        $licenseKey = $request->get('license_key');
-        $productId = $request->get('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        $licenseKey = \Request::input('license_key');
+        $productId = \Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         // add in dashes
         if (strlen($licenseKey) == 20) {
-            $licenseKey = sprintf(
-                '%s-%s-%s-%s-%s',
+            $licenseKey = sprintf('%s-%s-%s-%s-%s',
                 substr($licenseKey, 0, 4),
                 substr($licenseKey, 4, 4),
                 substr($licenseKey, 8, 4),
                 substr($licenseKey, 12, 4),
-                substr($licenseKey, 16, 4)
-            );
+                substr($licenseKey, 16, 4));
         }
 
         $license = License::where('license_key', '=', $licenseKey)
-            ->where('is_claimed', '<', 10)
-            ->where('product_id', '=', $productId)
-            ->first();
+                    ->where('is_claimed', '<', 10)
+                    ->where('product_id', '=', $productId)
+                    ->first();
 
         if ($license) {
             if ($license->transaction_reference != 'TEST_MODE') {
@@ -272,21 +267,32 @@ class NinjaController extends BaseController
 
             if ($productId == PRODUCT_INVOICE_DESIGNS) {
                 return file_get_contents(storage_path() . '/invoice_designs.txt');
+            } else {
+                return $license->created_at->format('Y-m-d');
             }
-
-            return $license->created_at->format('Y-m-d');
+        } else {
+            return RESULT_FAILURE;
         }
+    }
 
-        return RESULT_FAILURE;
+    private function error($type, $error, $accountGateway = false, $exception = false)
+    {
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error ?: trans('texts.payment_error');
+        Session::flash('error', $message);
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 
     public function hideWhiteLabelMessage()
     {
         $user = Auth::user();
-        $companyPlan = $user->company->companyPlan;
+        $company = $user->account->company;
 
-        $companyPlan->plan = null;
-        $companyPlan->save();
+        $company->plan = null;
+        $company->save();
 
         return RESULT_SUCCESS;
     }
@@ -298,32 +304,32 @@ class NinjaController extends BaseController
         }
 
         $user = Auth::user();
-        $company = $user->company;
+        $account = $user->account;
         $url = NINJA_APP_URL . '/buy_now';
         $contactKey = $user->primaryAccount()->account_key;
 
         $data = [
             'account_key' => NINJA_LICENSE_ACCOUNT_KEY,
             'contact_key' => $contactKey,
-            'product_id'  => PRODUCT_WHITE_LABEL,
-            'first_name'  => $user->first_name,
-            'last_name'   => $user->last_name,
-            'email'       => $user->email,
-            'name'        => $company->name,
-            'address1'    => $company->address1,
-            'address2'    => $company->address2,
-            'city'        => $company->city,
-            'state'       => $company->state,
-            'postal_code' => $company->postal_code,
-            'country_id'  => $company->country_id,
-            'vat_number'  => $company->vat_number,
+            'product_id' => PRODUCT_WHITE_LABEL,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'name' => $account->name,
+            'address1' => $account->address1,
+            'address2' => $account->address2,
+            'city' => $account->city,
+            'state' => $account->state,
+            'postal_code' => $account->postal_code,
+            'country_id' => $account->country_id,
+            'vat_number' => $account->vat_number,
             'return_link' => true,
         ];
 
         if ($url = CurlUtils::post($url, $data)) {
             return redirect($url);
+        } else {
+            return redirect()->back()->withError(trans('texts.error_refresh_page'));
         }
-
-        return redirect()->back()->withError(trans('texts.error_refresh_page'));
     }
 }

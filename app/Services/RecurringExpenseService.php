@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
+use Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class RecurringExpenseService.
@@ -28,6 +27,7 @@ class RecurringExpenseService extends BaseService
      * CreditService constructor.
      *
      * @param RecurringExpenseRepository $creditRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, DatatableService $datatableService)
     {
@@ -36,6 +36,15 @@ class RecurringExpenseService extends BaseService
     }
 
     /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->recurringExpenseRepo;
+    }
+
+    /**
+     * @param $data
      * @param mixed $recurringExpense
      *
      * @return mixed|null
@@ -54,9 +63,11 @@ class RecurringExpenseService extends BaseService
     }
 
     /**
-     * @param       $clientPublicId
+     * @param $clientPublicId
+     * @param $search
      * @param mixed $userId
      *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -67,13 +78,5 @@ class RecurringExpenseService extends BaseService
         }
 
         return $this->datatableService->createDatatable(new RecurringExpenseDatatable(), $query);
-    }
-
-    /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->recurringExpenseRepo;
     }
 }

@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\DeleteVendorRequest;
-use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
-use App\Libraries\Utils;
+use App\Http\Requests\CreateVendorRequest;
+use App\Http\Requests\UpdateVendorRequest;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use Illuminate\Support\Facades\Response;
+use Response;
+use Utils;
 
 class VendorApiController extends BaseAPIController
 {
-    protected VendorRepository $vendorRepo;
+    protected $vendorRepo;
 
     protected $entityType = ENTITY_VENDOR;
 
@@ -37,14 +37,11 @@ class VendorApiController extends BaseAPIController
      *   summary="List vendors",
      *   operationId="listVendors",
      *   tags={"vendor"},
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of vendors",
-     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -54,8 +51,8 @@ class VendorApiController extends BaseAPIController
     public function index()
     {
         $vendors = Vendor::scope()
-            ->withTrashed()
-            ->orderBy('updated_at', 'desc');
+                    ->withTrashed()
+                    ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($vendors);
     }
@@ -66,21 +63,17 @@ class VendorApiController extends BaseAPIController
      *   summary="Retrieve a vendor",
      *   operationId="getVendor",
      *   tags={"client"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="vendor_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single vendor",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -98,21 +91,16 @@ class VendorApiController extends BaseAPIController
      *   summary="Create a vendor",
      *   operationId="createVendor",
      *   tags={"vendor"},
-     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="vendor",
-     *
      *     @SWG\Schema(ref="#/definitions/Vendor")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="New vendor",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -124,8 +112,8 @@ class VendorApiController extends BaseAPIController
         $vendor = $this->vendorRepo->save($request->input());
 
         $vendor = Vendor::scope($vendor->public_id)
-            ->with('country', 'vendor_contacts', 'industry', 'size', 'currency')
-            ->first();
+                    ->with('country', 'vendor_contacts', 'industry', 'size', 'currency')
+                    ->first();
 
         return $this->itemResponse($vendor);
     }
@@ -136,7 +124,6 @@ class VendorApiController extends BaseAPIController
      *   summary="Update a vendor",
      *   operationId="updateVendor",
      *   tags={"vendor"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="vendor_id",
@@ -146,17 +133,13 @@ class VendorApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="vendor",
-     *
      *     @SWG\Schema(ref="#/definitions/Vendor")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated vendor",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -186,21 +169,17 @@ class VendorApiController extends BaseAPIController
      *   summary="Delete a vendor",
      *   operationId="deleteVendor",
      *   tags={"vendor"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="vendor_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted vendor",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

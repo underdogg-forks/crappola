@@ -3,8 +3,7 @@
 namespace App\Jobs;
 
 use App\Libraries\CurlUtils;
-use App\Libraries\Utils;
-use Exception;
+use Utils;
 
 class ConvertProposalToPdf extends Job
 {
@@ -36,15 +35,13 @@ class ConvertProposalToPdf extends Job
                 $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%26phantomjs_secret={$phantomjsSecret}%22,renderType:%22pdf%22%7D";
                 $pdf = CurlUtils::get($url);
             }
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
-
             return false;
         }
 
         if (! $pdf || strlen($pdf) < 200) {
             Utils::logError("PhantomJS - Invalid response {$phantomjsLink}: {$pdf}");
-
             return false;
         }
 

@@ -4,13 +4,14 @@ use App\Models\Account;
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class EnterprisePlan extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
@@ -19,8 +20,8 @@ return new class () extends Migration {
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if ( ! Schema::hasTable('companies')) {
-            Schema::create('companies', function ($table): void {
+        if (! Schema::hasTable('companies')) {
+            Schema::create('companies', function ($table) {
                 $table->increments('id');
 
                 $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
@@ -41,22 +42,22 @@ return new class () extends Migration {
                 $table->softDeletes();
             });
 
-            Schema::table('companies', function ($table): void {
+            Schema::table('companies', function ($table) {
                 $table->foreign('payment_id')->references('id')->on('payments');
             });
         }
 
-        if ( ! Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table): void {
+        if (! Schema::hasColumn('accounts', 'company_id')) {
+            Schema::table('accounts', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
         }
 
         $single_account_ids = \DB::table('users')
-            ->leftJoin('user_accounts', function ($join): void {
+            ->leftJoin('user_accounts', function ($join) {
                 $join->on('user_accounts.user_id1', '=', 'users.id');
                 $join->orOn('user_accounts.user_id2', '=', 'users.id');
                 $join->orOn('user_accounts.user_id3', '=', 'users.id');
@@ -66,7 +67,7 @@ return new class () extends Migration {
             ->leftJoin('accounts', 'accounts.id', '=', 'users.account_id')
             ->whereNull('user_accounts.id')
             ->whereNull('accounts.company_id')
-            ->where(function ($query): void {
+            ->where(function ($query) {
                 $query->whereNull('users.public_id');
                 $query->orWhere('users.public_id', '=', 0);
             })
@@ -95,8 +96,7 @@ return new class () extends Migration {
             OR (a2.id IS NOT NULL AND a2.company_id IS NULL)
             OR (a3.id IS NOT NULL AND a3.company_id IS NULL)
             OR (a4.id IS NOT NULL AND a4.company_id IS NULL)
-            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)'
-        );
+            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)');
 
         if (count($group_accounts)) {
             foreach ($group_accounts as $group_account) {
@@ -106,77 +106,16 @@ return new class () extends Migration {
         }
 
         if (Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->dropColumn('pro_plan_paid');
                 $table->dropColumn('pro_plan_trial');
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    private function upAccounts($primaryAccount, $otherAccounts = [])
     {
-        $timeout = ini_get('max_execution_time');
-        if ($timeout == 0) {
-            $timeout = 600;
-        }
-        $timeout = max($timeout - 10, $timeout * .9);
-        $startTime = time();
-
-        if ( ! Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table): void {
-                $table->date('pro_plan_paid')->nullable();
-                $table->date('pro_plan_trial')->nullable();
-            });
-        }
-
-        $company_ids = \DB::table('companies')
-            ->leftJoin('accounts', 'accounts.company_id', '=', 'companies.id')
-            ->whereNull('accounts.pro_plan_paid')
-            ->whereNull('accounts.pro_plan_trial')
-            ->where(function ($query): void {
-                $query->whereNotNull('companies.plan_paid');
-                $query->orWhereNotNull('companies.trial_started');
-            })
-            ->pluck('companies.id');
-
-        $company_ids = array_unique($company_ids);
-
-        if (count($company_ids)) {
-            foreach (Company::find($company_ids) as $company) {
-                foreach ($company->accounts as $account) {
-                    $account->pro_plan_paid = $company->plan_paid;
-                    $account->pro_plan_trial = $company->trial_started;
-                    $account->save();
-                }
-                $this->checkTimeout($timeout, $startTime);
-            }
-        }
-
-        if (Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table): void {
-                $table->dropForeign('accounts_company_id_foreign');
-                $table->dropColumn('company_id');
-            });
-        }
-
-        Schema::dropIfExists('companies');
-    }
-
-    protected function checkTimeout($timeout, $startTime): void
-    {
-        if (time() - $startTime >= $timeout) {
-            exit('Migration reached time limit; please run again to continue');
-        }
-    }
-
-    private function upAccounts($primaryAccount, $otherAccounts = []): void
-    {
-        if ( ! $primaryAccount) {
+        if (! $primaryAccount) {
             $primaryAccount = $otherAccounts->first();
         }
 
@@ -196,7 +135,7 @@ return new class () extends Migration {
             $expires = $expires->format('Y-m-d');
 
             // check for self host white label licenses
-            if ( ! Utils::isNinjaProd()) {
+            if (! Utils::isNinjaProd()) {
                 if ($company->plan_paid) {
                     $company->plan = 'white_label';
                     // old ones were unlimited, new ones are yearly
@@ -222,7 +161,7 @@ return new class () extends Migration {
         $primaryAccount->company_id = $company->id;
         $primaryAccount->save();
 
-        if ( ! empty($otherAccounts)) {
+        if (! empty($otherAccounts)) {
             foreach ($otherAccounts as $account) {
                 if ($account && $account->id != $primaryAccount->id) {
                     $account->company_id = $company->id;
@@ -231,4 +170,65 @@ return new class () extends Migration {
             }
         }
     }
-};
+
+    protected function checkTimeout($timeout, $startTime)
+    {
+        if (time() - $startTime >= $timeout) {
+            exit('Migration reached time limit; please run again to continue');
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        $timeout = ini_get('max_execution_time');
+        if ($timeout == 0) {
+            $timeout = 600;
+        }
+        $timeout = max($timeout - 10, $timeout * .9);
+        $startTime = time();
+
+        if (! Schema::hasColumn('accounts', 'pro_plan_paid')) {
+            Schema::table('accounts', function ($table) {
+                $table->date('pro_plan_paid')->nullable();
+                $table->date('pro_plan_trial')->nullable();
+            });
+        }
+
+        $company_ids = \DB::table('companies')
+            ->leftJoin('accounts', 'accounts.company_id', '=', 'companies.id')
+            ->whereNull('accounts.pro_plan_paid')
+            ->whereNull('accounts.pro_plan_trial')
+            ->where(function ($query) {
+                $query->whereNotNull('companies.plan_paid');
+                $query->orWhereNotNull('companies.trial_started');
+            })
+            ->pluck('companies.id');
+
+        $company_ids = array_unique($company_ids);
+
+        if (count($company_ids)) {
+            foreach (Company::find($company_ids) as $company) {
+                foreach ($company->accounts as $account) {
+                    $account->pro_plan_paid = $company->plan_paid;
+                    $account->pro_plan_trial = $company->trial_started;
+                    $account->save();
+                }
+                $this->checkTimeout($timeout, $startTime);
+            }
+        }
+
+        if (Schema::hasColumn('accounts', 'company_id')) {
+            Schema::table('accounts', function ($table) {
+                $table->dropForeign('accounts_company_id_foreign');
+                $table->dropColumn('company_id');
+            });
+        }
+
+        Schema::dropIfExists('companies');
+    }
+}

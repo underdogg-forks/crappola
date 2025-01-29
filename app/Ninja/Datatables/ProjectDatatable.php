@@ -2,17 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use URL;
+use Utils;
 
 class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
-
     public $sortCol = 1;
-
-    public $fieldToSum = 'budgeted_hours';
 
     public function columns()
     {
@@ -20,29 +17,30 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
                         return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
-                    }
+                    else
+                        return $model->project;
 
-                    return $model->project;
+
                 },
             ],
             [
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
                             return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
-                        }
+                        else
+                            return Utils::getClientDisplayName($model);
 
-                        return Utils::getClientDisplayName($model);
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
             ],
             [
-                'due_at',
+                'due_date',
                 function ($model) {
                     return Utils::fromSqlDate($model->due_date);
                 },
@@ -56,22 +54,8 @@ class ProjectDatatable extends EntityDatatable
             [
                 'task_rate',
                 function ($model) {
-                    $taskRate = 0.0000;
-                    $taskRateIcon = '';
-
-                    if ($model->task_rate !== '0.0000') {
-                        $taskRate = $model->task_rate;
-                        $taskRateIcon = '<i class="fa fa-briefcase"></i> ';
-                    } elseif ($model->client_task_rate !== '0.0000') {
-                        $taskRate = $model->client_task_rate;
-                        $taskRateIcon = '<i class="fa fa-user"></i> ';
-                    } elseif ($model->account_task_rate !== '0.0000') {
-                        $taskRate = $model->account_task_rate;
-                        $taskRateIcon = '<i class="fa fa-cog"></i> ';
-                    }
-
-                    return floatval($taskRate) ? $taskRateIcon . Utils::formatMoney($taskRate) : '';
-                },
+                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
+                }
             ],
         ];
     }
@@ -94,7 +78,7 @@ class ProjectDatatable extends EntityDatatable
                     return "javascript:submitForm_project('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];

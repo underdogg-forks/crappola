@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Affiliate.
  */
-class Affiliate extends Model
+class Affiliate extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = true;
-
     /**
      * @var bool
      */

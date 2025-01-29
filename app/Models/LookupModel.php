@@ -2,34 +2,39 @@
 
 namespace App\Models;
 
+use Eloquent;
 use Cache;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ExpenseCategory.
  */
-class LookupModel extends Model
+class LookupModel extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
-    public static function createNew($companyKey, $data): void
+    public function lookupAccount()
     {
-        if (! config('ninja.multi_db_enabled')) {
+        return $this->belongsTo('App\Models\LookupAccount');
+    }
+
+    public static function createNew($accountKey, $data)
+    {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($companyKey)->first();
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)->first();
 
         if ($lookupAccount) {
             $data['lookup_account_id'] = $lookupAccount->id;
         } else {
-            abort(500, 'Lookup company not found for ' . $companyKey);
+            abort(500, 'Lookup account not found for ' . $accountKey);
         }
 
         static::create($data);
@@ -37,9 +42,9 @@ class LookupModel extends Model
         config(['database.default' => $current]);
     }
 
-    public static function deleteWhere($where): void
+    public static function deleteWhere($where)
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -49,11 +54,12 @@ class LookupModel extends Model
         static::where($where)->delete();
 
         config(['database.default' => $current]);
+
     }
 
-    public static function setServerByField($field, $value): void
+    public static function setServerByField($field, $value)
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -64,7 +70,6 @@ class LookupModel extends Model
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
             static::setDbServer($server);
-
             return;
         }
 
@@ -82,27 +87,27 @@ class LookupModel extends Model
                 $providerId = substr($value, 0, 1);
                 $oauthId = substr($value, 2);
                 $isFound = $entity::where('oauth_provider_id', '=', $providerId)
-                    ->where('oauth_user_id', '=', $oauthId)
-                    ->withTrashed()
-                    ->first();
+                                ->where('oauth_user_id', '=', $oauthId)
+                                ->withTrashed()
+                                ->first();
             } else {
                 $isFound = $entity::where($field, '=', $value)
-                    ->withTrashed()
-                    ->first();
+                                ->withTrashed()
+                                ->first();
             }
             if (! $isFound) {
                 abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
-            Cache::put($key, $server, 120);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
     }
 
-    protected static function setDbServer($server): void
+    protected static function setDbServer($server)
     {
-        if (! config('ninja.multi_db_enabled')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -111,11 +116,6 @@ class LookupModel extends Model
 
     public function getDbServer()
     {
-        return $this->lookupAccount->lookupCompanyPlan->dbServer->name;
-    }
-
-    public function lookupAccount()
-    {
-        return $this->belongsTo(LookupAccount::class);
+        return $this->lookupAccount->lookupCompany->dbServer->name;
     }
 }

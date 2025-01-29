@@ -2,6 +2,8 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use Request;
+
 class PaymentExpressPxPostPaymentDriver extends BasePaymentDriver
 {
     protected function paymentDetails($paymentMethod = false)

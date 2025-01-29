@@ -3,8 +3,8 @@
 namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
+use Auth;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {

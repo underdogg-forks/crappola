@@ -9,12 +9,12 @@ class AppLanguageComposer
     /**
      * Bind data to the view.
      *
+     * @param View $view
      *
      * @return void
      */
-    public function compose(View $view): never
+    public function compose(View $view)
     {
-        dd($this->getLanguage());
         $view->with('appLanguage', $this->getLanguage());
     }
 

@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Task;
-
 class CreateTaskRequest extends TaskRequest
 {
     /**
@@ -13,15 +11,15 @@ class CreateTaskRequest extends TaskRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Task::class);
+        return $this->user()->can('create', ENTITY_TASK);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array{time_log: string}
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'time_log' => 'time_log',

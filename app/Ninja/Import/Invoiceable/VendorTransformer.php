@@ -6,13 +6,14 @@ use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 // vendor
-
 /**
  * Class VendorTransformer.
  */
 class VendorTransformer extends BaseTransformer
 {
     /**
+     * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
@@ -23,16 +24,16 @@ class VendorTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'name'          => $data->vendor_name,
-                'work_phone'    => $data->tel,
-                'website'       => $data->website,
-                'address1'      => $data->address,
-                'city'          => $data->city,
-                'state'         => $data->state,
-                'postal_code'   => $data->postcode,
-                'country_id'    => $this->getCountryIdBy2($data->country),
+                'name' => $data->vendor_name,
+                'work_phone' => $data->tel,
+                'website' => $data->website,
+                'address1' => $data->address,
+                'city' => $data->city,
+                'state' => $data->state,
+                'postal_code' => $data->postcode,
+                'country_id' => $this->getCountryIdBy2($data->country),
                 'private_notes' => $data->notes,
-                'contacts'      => [
+                'contacts' => [
                     [
                         'email' => $data->email,
                         'phone' => $data->mobile,

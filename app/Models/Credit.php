@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use App\Events\CreditWasCreated;
-use App\Ninja\Presenters\CreditPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -13,18 +11,17 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Credit extends EntityModel
 {
-    use PresentableTrait;
     use SoftDeletes;
+    use PresentableTrait;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
-
     /**
      * @var string
      */
-    protected $presenter = CreditPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
 
     /**
      * @var array
@@ -35,11 +32,11 @@ class Credit extends EntityModel
     ];
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -47,7 +44,7 @@ class Credit extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
@@ -55,7 +52,7 @@ class Credit extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**
@@ -63,10 +60,13 @@ class Credit extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    public function getName(): string
+    /**
+     * @return string
+     */
+    public function getName()
     {
         return '';
     }
@@ -88,6 +88,8 @@ class Credit extends EntityModel
     }
 
     /**
+     * @param $amount
+     *
      * @return mixed
      */
     public function apply($amount)
@@ -106,9 +108,9 @@ class Credit extends EntityModel
     }
 }
 
-Credit::creating(function ($credit): void {
+Credit::creating(function ($credit) {
 });
 
-Credit::created(function ($credit): void {
+Credit::created(function ($credit) {
     event(new CreditWasCreated($credit));
 });

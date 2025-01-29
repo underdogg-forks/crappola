@@ -4,7 +4,6 @@ namespace App\Models;
 
 // vendor
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -13,32 +12,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class VendorContact extends EntityModel
 {
     use SoftDeletes;
-
-    /**
-     * @var string
-     */
-    public static $fieldFirstName = 'first_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldLastName = 'last_name';
-
-    /**
-     * @var string
-     */
-    public static $fieldEmail = 'email';
-
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'phone';
-
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
-
     /**
      * @var string
      */
@@ -56,11 +33,28 @@ class VendorContact extends EntityModel
     ];
 
     /**
-     * @return BelongsTo
+     * @var string
      */
-    public function company()
+    public static $fieldFirstName = 'first_name';
+    /**
+     * @var string
+     */
+    public static $fieldLastName = 'last_name';
+    /**
+     * @var string
+     */
+    public static $fieldEmail = 'email';
+    /**
+     * @var string
+     */
+    public static $fieldPhone = 'phone';
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -68,7 +62,7 @@ class VendorContact extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
@@ -76,7 +70,7 @@ class VendorContact extends EntityModel
      */
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class)->withTrashed();
+        return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
     /**
@@ -102,20 +96,20 @@ class VendorContact extends EntityModel
     {
         if ($this->getFullName()) {
             return $this->getFullName();
+        } else {
+            return $this->email;
         }
-
-        return $this->email;
     }
 
-    public function getFullName(): string
+    /**
+     * @return string
+     */
+    public function getFullName()
     {
-        if ($this->first_name) {
-            return $this->first_name . ' ' . $this->last_name;
+        if ($this->first_name || $this->last_name) {
+            return $this->first_name.' '.$this->last_name;
+        } else {
+            return '';
         }
-        if ($this->last_name) {
-            return $this->first_name . ' ' . $this->last_name;
-        }
-
-        return '';
     }
 }

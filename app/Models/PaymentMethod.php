@@ -3,11 +3,7 @@
 namespace App\Models;
 
 use Cache;
-use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use stdClass;
 
 /**
  * Class PaymentMethod.
@@ -44,48 +40,49 @@ class PaymentMethod extends EntityModel
         'currency_id',
     ];
 
+
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function contact()
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo('App\Models\Contact');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account_gateway_token()
     {
-        return $this->belongsTo(AccountGatewayToken::class);
+        return $this->belongsTo('App\Models\AccountGatewayToken');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function payment_type()
     {
-        return $this->belongsTo(PaymentType::class);
+        return $this->belongsTo('App\Models\PaymentType');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo('App\Models\Currency');
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function payments()
     {
@@ -93,33 +90,92 @@ class PaymentMethod extends EntityModel
     }
 
     /**
-     * @return mixed|null|stdClass|string
+     * @return mixed|null|\stdClass|string
      */
     public function getBankDataAttribute()
     {
         if (! $this->routing_number) {
-            return;
+            return null;
         }
 
         return static::lookupBankData($this->routing_number);
     }
 
     /**
-     * @return mixed|null|stdClass|string
+     * @param $bank_name
+     *
+     * @return null
+     */
+    public function getBankNameAttribute($bank_name)
+    {
+        if ($bank_name) {
+            return $bank_name;
+        }
+        $bankData = $this->bank_data;
+
+        return $bankData ? $bankData->name : null;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    public function getLast4Attribute($value)
+    {
+        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+    }
+
+    /**
+     * @param $query
+     * @param $clientId
+     *
+     * @return mixed
+     */
+    public function scopeClientId($query, $clientId)
+    {
+        $query->whereHas('contact', function ($query) use ($clientId) {
+            $query->withTrashed()->whereClientId($clientId);
+        });
+    }
+
+    /**
+     * @param $query
+     * @param $isBank
+     */
+    public function scopeIsBankAccount($query, $isBank)
+    {
+        if ($isBank) {
+            $query->where('payment_type_id', '=', PAYMENT_TYPE_ACH);
+        } else {
+            $query->where('payment_type_id', '!=', PAYMENT_TYPE_ACH);
+        }
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
+    public function imageUrl()
+    {
+        return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', strtolower($this->payment_type->name))));
+    }
+
+    /**
+     * @param $routingNumber
+     *
+     * @return mixed|null|\stdClass|string
      */
     public static function lookupBankData($routingNumber)
     {
-        $cached = Cache::get('bankData:' . $routingNumber);
+        $cached = Cache::get('bankData:'.$routingNumber);
 
         if ($cached != null) {
             return $cached == false ? null : $cached;
         }
 
         $dataPath = base_path('app/Ninja/PaymentDrivers/FedACHdir.txt');
-        if (! file_exists($dataPath)) {
-            return 'Invalid data file';
-        }
-        if (! $size = filesize($dataPath)) {
+
+        if (! file_exists($dataPath) || ! $size = filesize($dataPath)) {
             return 'Invalid data file';
         }
 
@@ -148,7 +204,7 @@ class PaymentMethod extends EntityModel
             } elseif ($thisNumber < $routingNumber) {
                 $low = $mid + 1;
             } else {
-                $data = new stdClass();
+                $data = new \stdClass();
                 $data->routing_number = $thisNumber;
 
                 fseek($file, 26, SEEK_CUR);
@@ -157,66 +213,27 @@ class PaymentMethod extends EntityModel
                 $data->address = trim(fread($file, 36));
                 $data->city = trim(fread($file, 20));
                 $data->state = fread($file, 2);
-                $data->zip = fread($file, 5) . '-' . fread($file, 4);
+                $data->zip = fread($file, 5).'-'.fread($file, 4);
                 $data->phone = fread($file, 10);
                 break;
             }
         }
 
         if (! empty($data)) {
-            Cache::put('bankData:' . $routingNumber, $data, 5);
+            Cache::put('bankData:'.$routingNumber, $data, 5 * 60);
 
             return $data;
-        }
-        Cache::put('bankData:' . $routingNumber, false, 5);
-    }
-
-    public function getBankNameAttribute($bank_name)
-    {
-        if ($bank_name) {
-            return $bank_name;
-        }
-        $bankData = $this->bank_data;
-
-        return $bankData ? $bankData->name : null;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getLast4Attribute($value)
-    {
-        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function scopeClientId($query, $clientId): void
-    {
-        $query->whereHas('contact', function ($query) use ($clientId): void {
-            $query->withTrashed()->whereClientId($clientId);
-        });
-    }
-
-    public function scopeIsBankAccount($query, $isBank): void
-    {
-        if ($isBank) {
-            $query->where('payment_type_id', '=', PAYMENT_TYPE_ACH);
         } else {
-            $query->where('payment_type_id', '!=', PAYMENT_TYPE_ACH);
+            Cache::put('bankData:'.$routingNumber, false, 5 * 60);
+
+            return null;
         }
     }
 
     /**
-     * @return UrlGenerator|string
+     * @return bool
      */
-    public function imageUrl()
-    {
-        return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', strtolower($this->payment_type->name))));
-    }
-
-    public function requiresDelayedAutoBill(): bool
+    public function requiresDelayedAutoBill()
     {
         return $this->payment_type_id == PAYMENT_TYPE_ACH;
     }
@@ -228,22 +245,21 @@ class PaymentMethod extends EntityModel
     {
         if ($this->payment_type_id == PAYMENT_TYPE_ACH) {
             return GATEWAY_TYPE_BANK_TRANSFER;
-        }
-        if ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
+        } elseif ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
             return GATEWAY_TYPE_PAYPAL;
+        } else {
+            return GATEWAY_TYPE_TOKEN;
         }
-
-        return GATEWAY_TYPE_TOKEN;
     }
 }
 
-PaymentMethod::deleting(function ($paymentMethod): void {
-    $companyGatewayToken = $paymentMethod->account_gateway_token;
-    if ($companyGatewayToken && $companyGatewayToken->default_payment_method_id == $paymentMethod->id) {
-        $newDefault = $companyGatewayToken->payment_methods->first(function ($paymentMethdod) use ($companyGatewayToken): bool {
-            return $paymentMethdod->id != $companyGatewayToken->default_payment_method_id;
+PaymentMethod::deleting(function ($paymentMethod) {
+    $accountGatewayToken = $paymentMethod->account_gateway_token;
+    if ($accountGatewayToken && $accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
+        $newDefault = $accountGatewayToken->payment_methods->first(function ($paymentMethdod) use ($accountGatewayToken) {
+            return $paymentMethdod->id != $accountGatewayToken->default_payment_method_id;
         });
-        $companyGatewayToken->default_payment_method_id = $newDefault ? $newDefault->id : null;
-        $companyGatewayToken->save();
+        $accountGatewayToken->default_payment_method_id = $newDefault ? $newDefault->id : null;
+        $accountGatewayToken->save();
     }
 });

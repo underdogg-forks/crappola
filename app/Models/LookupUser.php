@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Eloquent;
+use App\Models\User;
+
 /**
  * Class ExpenseCategory.
  */
@@ -19,7 +22,7 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($companyKey, $user): void
+    public static function updateUser($accountKey, $user)
     {
         if (! env('MULTI_DB_ENABLED')) {
             return;
@@ -28,12 +31,12 @@ class LookupUser extends LookupModel
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($companyKey)
-            ->firstOrFail();
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
+                            ->firstOrFail();
 
-        $lookupUser = self::whereLookupAccountId($lookupAccount->id)
-            ->whereUserId($user->id)
-            ->firstOrFail();
+        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)
+                            ->whereUserId($user->id)
+                            ->firstOrFail();
 
         $lookupUser->email = $user->email;
         $lookupUser->confirmation_code = $user->confirmation_code ?: null;
@@ -51,14 +54,14 @@ class LookupUser extends LookupModel
         }
 
         $current = config('database.default');
-        $companyKey = $user ? $user->company->account_key : false;
+        $accountKey = $user ? $user->account->account_key : false;
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupUser = self::where($field, '=', $value)->first();
+        $lookupUser = LookupUser::where($field, '=', $value)->first();
 
         if ($user) {
-            $lookupAccount = LookupAccount::whereAccountKey($companyKey)->firstOrFail();
+            $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
             $isValid = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
         } else {
             $isValid = ! $lookupUser;
@@ -68,4 +71,5 @@ class LookupUser extends LookupModel
 
         return $isValid;
     }
+
 }

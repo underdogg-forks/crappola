@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Expense;
-
 class CreateExpenseRequest extends ExpenseRequest
 {
     // Expenses
@@ -15,13 +13,15 @@ class CreateExpenseRequest extends ExpenseRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Expense::class);
+        return $this->user()->can('create', ENTITY_EXPENSE);
     }
 
     /**
      * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [];
     }

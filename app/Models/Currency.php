@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Eloquent;
+use Str;
 
 /**
  * Class Currency.
  */
-class Currency extends Model
+class Currency extends Eloquent
 {
     /**
      * @var bool
@@ -20,7 +20,7 @@ class Currency extends Model
      */
     protected $casts = [
         'swap_currency_symbol' => 'boolean',
-        'exchange_rate'        => 'double',
+        'exchange_rate' => 'double',
     ];
 
     /**

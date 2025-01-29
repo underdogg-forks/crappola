@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class UserRepository extends BaseRepository
 {
@@ -11,10 +11,10 @@ class UserRepository extends BaseRepository
         return 'App\Models\User';
     }
 
-    public function find($companyId)
+    public function find($accountId)
     {
         $query = DB::table('users')
-            ->where('users.company_id', '=', $companyId);
+                  ->where('users.account_id', '=', $accountId);
 
         $this->applyFilters($query, ENTITY_USER);
 

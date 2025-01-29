@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Size.
  */
-class Size extends Model
+class Size extends Eloquent
 {
     /**
      * @var bool

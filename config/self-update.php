@@ -37,11 +37,11 @@ return [
 
     'repository_types' => [
         'github' => [
-            'type'              => 'github',
+            'type' => 'github',
             'repository_vendor' => env('SELF_UPDATER_REPO_VENDOR', 'invoiceninja'),
-            'repository_name'   => env('SELF_UPDATER_REPO_NAME', 'invoiceninja'),
-            'repository_url'    => '',
-            'download_path'     => env('SELF_UPDATER_DOWNLOAD_PATH', '/tmp'),
+            'repository_name' => env('SELF_UPDATER_REPO_NAME', 'invoiceninja'),
+            'repository_url' => '',
+            'download_path' => env('SELF_UPDATER_DOWNLOAD_PATH', '/tmp'),
         ],
     ],
 
@@ -90,7 +90,7 @@ return [
 
     'mail_to' => [
         'address' => env('SELF_UPDATER_MAILTO_ADDRESS', ''),
-        'name'    => env('SELF_UPDATER_MAILTO_NAME', ''),
+        'name' => env('SELF_UPDATER_MAILTO_NAME', ''),
     ],
 
 ];

@@ -2,64 +2,64 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Client;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 class ProductReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client'         => [],
+            'client' => [],
             'invoice_number' => [],
-            'invoice_date'   => [],
-            'product'        => [],
-            'description'    => [],
-            'qty'            => [],
-            'cost'           => [],
+            'invoice_date' => [],
+            'product' => [],
+            'description' => [],
+            'qty' => [],
+            'cost' => [],
             //'tax_rate1',
             //'tax_rate2',
         ];
 
-        $company = auth()->user()->company;
+        $account = auth()->user()->account;
 
-        if ($company->invoice_item_taxes) {
+        if ($account->invoice_item_taxes) {
             $columns['tax'] = ['columnSelector-false'];
-            if ($company->enable_second_tax_rate) {
+            if ($account->enable_second_tax_rate) {
                 $columns['tax'] = ['columnSelector-false'];
             }
         }
 
-        if ($company->customLabel('product1')) {
-            $columns[$company->present()->customLabel('product1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('product1')) {
+            $columns[$account->present()->customLabel('product1')] = ['columnSelector-false', 'custom'];
         }
 
-        if ($company->customLabel('product2')) {
-            $columns[$company->present()->customLabel('product2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('product2')) {
+            $columns[$account->present()->customLabel('product2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with('contacts', 'user')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
-                $query->invoices()
-                    ->withArchived()
-                    ->statusIds($statusIds)
-                    ->where('invoice_date', '>=', $this->startDate)
-                    ->where('invoice_date', '<=', $this->endDate)
-                    ->with(['invoice_items']);
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with('contacts', 'user')
+                        ->with(['invoices' => function ($query) use ($statusIds) {
+                            $query->invoices()
+                                  ->withArchived()
+                                  ->statusIds($statusIds)
+                                  ->where('invoice_date', '>=', $this->startDate)
+                                  ->where('invoice_date', '<=', $this->endDate)
+                                  ->with(['invoice_items']);
+                        }]);
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
@@ -74,15 +74,15 @@ class ProductReport extends AbstractReport
                         Utils::roundSignificant($item->cost, 2),
                     ];
 
-                    if ($company->invoice_item_taxes) {
+                    if ($account->invoice_item_taxes) {
                         $row[] = Utils::roundSignificant($item->getTaxAmount(), 2);
                     }
 
-                    if ($company->customLabel('product1')) {
+                    if ($account->customLabel('product1')) {
                         $row[] = $item->custom_value1;
                     }
 
-                    if ($company->customLabel('product2')) {
+                    if ($account->customLabel('product2')) {
                         $row[] = $item->custom_value2;
                     }
 
@@ -95,8 +95,11 @@ class ProductReport extends AbstractReport
                     }
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
-                    $this->addToTotals($client->currency_id, 'total', $item->qty * $item->cost);
                 }
+
+                //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
+                //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+                //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
             }
         }
     }

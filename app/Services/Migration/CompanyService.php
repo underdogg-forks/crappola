@@ -3,17 +3,13 @@
 namespace App\Services\Migration;
 
 use App\Models\Account;
-use Exception;
 
 class CompanyService
 {
-    public $errors;
-
     protected $isSuccessful;
-
     protected $companies = [];
 
-    public function start(): static
+    public function start()
     {
         try {
             if (session(SESSION_USER_ACCOUNTS)) {
@@ -22,22 +18,22 @@ class CompanyService
 
                     if ($account) {
                         $this->companies[] = [
-                            'id'          => $account->id,
-                            'name'        => $account->present()->name(),
+                            'id' => $account->id,
+                            'name' => $account->present()->name(),
                             'company_key' => $account->account_key,
                         ];
                     }
                 }
             } else {
                 $this->companies[] = [
-                    'id'          => auth()->user()->account->id,
-                    'name'        => auth()->user()->account->present()->name(),
+                    'id' => auth()->user()->account->id,
+                    'name' => auth()->user()->account->present()->name(),
                     'company_key' => auth()->user()->account->account_key,
                 ];
             }
 
             $this->isSuccessful = true;
-        } catch (Exception) {
+        } catch (\Exception $th) {
             $this->isSuccessful = false;
             $this->errors = [];
         }

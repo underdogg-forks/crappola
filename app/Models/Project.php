@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Ninja\Presenters\ProjectPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -13,9 +10,9 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends EntityModel
 {
-    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
+    use PresentableTrait;
 
     /**
      * @var array
@@ -29,7 +26,7 @@ class Project extends EntityModel
         'name',
         'task_rate',
         'private_notes',
-        'due_at',
+        'due_date',
         'budgeted_hours',
         'custom_value1',
         'custom_value2',
@@ -38,7 +35,7 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = ProjectPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
     /**
      * @return mixed
@@ -57,11 +54,11 @@ class Project extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -69,21 +66,21 @@ class Project extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany('App\Models\Task');
     }
 
     public function scopeDateRange($query, $startDate, $endDate)
     {
-        return $query->where(function ($query) use ($startDate, $endDate): void {
-            $query->whereBetween('due_at', [$startDate, $endDate]);
+        return $query->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('due_date', [$startDate, $endDate]);
         });
     }
 
@@ -93,10 +90,10 @@ class Project extends EntityModel
     }
 }
 
-Project::creating(function ($project): void {
+Project::creating(function ($project) {
     $project->setNullValues();
 });
 
-Project::updating(function ($project): void {
+Project::updating(function ($project) {
     $project->setNullValues();
 });

@@ -1,15 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+class AddCascaseDrops extends Migration
+{
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropForeign('invoices_account_id_foreign');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -17,6 +19,10 @@ return new class () extends Migration {
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void {}
-};
+    public function down()
+    {
+    }
+}

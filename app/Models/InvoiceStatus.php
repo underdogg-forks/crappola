@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Eloquent;
+use Str;
 
 /**
  * Class InvoiceStatus.
  */
-class InvoiceStatus extends Model
+class InvoiceStatus extends Eloquent
 {
     /**
      * @var bool

@@ -2,17 +2,17 @@
 
 namespace App\Providers;
 
-use App\Libraries\Utils;
-use App\Models\Client;
-use Blade;
 use Form;
-use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\ServiceProvider;
+use Request;
+use URL;
+use Utils;
+use Validator;
+use Queue;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
-use Queue;
-use URL;
-use Illuminate\Support\Facades\Validator;
+
 
 /**
  * Class AppServiceProvider.
@@ -21,13 +21,16 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree();
 
         // support selecting job database
-        Queue::before(function (JobProcessing $event): void {
+        Queue::before(function (JobProcessing $event) {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);
             if (count($matches)) {
@@ -46,27 +49,27 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Form::macro('nav_link', function ($url, $text) {
-            //$class = ( request()->is($url) || request()->is($url.'/*') || request()->is($url2.'/*') ) ? ' class="active"' : '';
-            $class = (request()->is($url) || request()->is($url . '/*')) ? ' class="active"' : '';
-            $title = trans("texts.$text") . Utils::getProLabel($text);
+            //$class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
+            $class = (Request::is($url) || Request::is($url.'/*')) ? ' class="active"' : '';
+            $title = trans("texts.$text")  . Utils::getProLabel($text);
 
-            return '<li' . $class . '><a href="' . URL::to($url) . '">' . $title . '</a></li>';
+            return '<li'.$class.'><a href="'.URL::to($url).'">'.$title.'</a></li>';
         });
 
         Form::macro('tab_link', function ($url, $text, $active = false) {
             $class = $active ? ' class="active"' : '';
 
-            return '<li' . $class . '><a href="' . URL::to($url) . '" data-toggle="tab">' . $text . '</a></li>';
+            return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
         });
 
         Form::macro('menu_link', function ($type) {
-            $types = $type . 's';
+            $types = $type.'s';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
-            $class = (request()->is($types) || request()->is('*' . $type . '*')) && ! request()->is('*settings*') ? ' active' : '';
+            $class = (Request::is($types) || Request::is('*'.$type.'*')) && ! Request::is('*settings*') ? ' active' : '';
 
-            return '<li class="dropdown ' . $class . '">
-                    <a href="' . URL::to($types) . '" class="dropdown-toggle">' . trans("texts.$types") . '</a>
+            return '<li class="dropdown '.$class.'">
+                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
                    </li>';
         });
 
@@ -76,25 +79,26 @@ class AppServiceProvider extends ServiceProvider
 
         Form::macro('emailViewButton', function ($link = '#', $entityType = ENTITY_INVOICE) {
             return view('partials.email_button')
-                ->with([
-                    'link'  => $link,
-                    'field' => "view_{$entityType}",
-                    'color' => '#0b4d78',
-                ])
-                ->render();
+                        ->with([
+                            'link' => $link,
+                            'field' => "view_{$entityType}",
+                            'color' => '#0b4d78',
+                        ])
+                        ->render();
         });
 
         Form::macro('emailPaymentButton', function ($link = '#', $label = 'pay_now') {
             return view('partials.email_button')
-                ->with([
-                    'link'  => $link,
-                    'field' => $label,
-                    'color' => '#36c157',
-                ])
-                ->render();
+                        ->with([
+                            'link' => $link,
+                            'field' => $label,
+                            'color' => '#36c157',
+                        ])
+                        ->render();
         });
 
         Form::macro('breadcrumbs', function ($status = false) {
+
             $str = '<ol class="breadcrumb">';
 
             // Get the breadcrumbs by exploding the current path.
@@ -119,37 +123,24 @@ class AppServiceProvider extends ServiceProvider
                 if (! $crumb) {
                     continue;
                 }
-                if ($crumb == 'companyPlan') {
+                if ($crumb == 'company') {
                     return '';
                 }
 
-                /* if(! Utils::isNinjaProd()) {
-                    // check the crumb against  all defined base-routes in enabled modules
-                    // to get the correct module name for translation resolution
-                    $modules = \Module::enabled();
-
-                    foreach($modules as $module) {
-                        if($crumb == $module->get('base-route', '')) {
-                            $crumb = $module->getLowerName();
-                            break;
-                        }
-                    }
-                } */
-
-                /* if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
+                if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
                     $name = mtrans($crumb);
                 } else {
                     $name = trans("texts.$crumb");
-                } */
+                }
 
-                /* if ($i == count($crumbs) - 1) {
+                if ($i == count($crumbs) - 1) {
                     $str .= "<li class='active'>$name</li>";
                 } else {
                     if (count($crumbs) > 2 && $crumbs[1] == 'proposals' && $crumb != 'proposals') {
                         $crumb = 'proposals/' . $crumb;
                     }
-                    $str .= '<li>' . link_to($crumb, $name) . '</li>';
-                } */
+                    $str .= '<li>'.link_to($crumb, $name).'</li>';
+                }
             }
 
             if ($status) {
@@ -165,7 +156,6 @@ class AppServiceProvider extends ServiceProvider
             if ($factor == 0) {
                 $decimals = 0;
             }// There aren't fractional bytes
-
             return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$size[$factor];
         });
 
@@ -177,7 +167,7 @@ class AppServiceProvider extends ServiceProvider
             $publicClientId = $parameters[0];
             $amount = $parameters[1];
 
-            $client = Client::scope($publicClientId)->firstOrFail();
+            $client = \App\Models\Client::scope($publicClientId)->firstOrFail();
             $credit = $client->getTotalCredit();
 
             return $credit >= $amount;
@@ -189,7 +179,7 @@ class AppServiceProvider extends ServiceProvider
             $value = json_decode($value);
             array_multisort($value);
             foreach ($value as $timeLog) {
-                [$startTime, $endTime] = $timeLog;
+                list($startTime, $endTime) = $timeLog;
                 if (! $endTime) {
                     continue;
                 }
@@ -214,7 +204,7 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            return (strstr($value, '{$idNumber}') !== false || strstr($value, '{$clientIdNumber}') != false) && (strstr($value, '{$clientCounter}'));
+            return ((strstr($value, '{$idNumber}') !== false || strstr($value, '{$clientIdNumber}') != false) && (strstr($value, '{$clientCounter}')));
         });
 
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
@@ -231,19 +221,6 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('valid_subdomain', function ($attribute, $value, $parameters) {
             return ! in_array($value, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents', 'download']);
         });
-
-        // add @render Blade directive for view components
-        Blade::directive('render', function ($parameters) {
-            // split the component class name from the parameter array (if any passed)
-            $parts = explode(',', $parameters, 2);
-
-            // check if there are parameters; if not, send empty array
-            if (count($parts) == 1) {
-                $parts[1] = '[]';
-            }
-
-            return "<?php echo app({$parts[0]}, {$parts[1]})->toHtml(); ?>";
-        });
     }
 
     /**
@@ -252,8 +229,10 @@ class AppServiceProvider extends ServiceProvider
      * This service provider is a great spot to register your various container
      * bindings with the application. As you can see, we are registering our
      * "Registrar" implementation here. You can add your own bindings too!
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
         $this->app->bind(
             'Illuminate\Contracts\Auth\Registrar',

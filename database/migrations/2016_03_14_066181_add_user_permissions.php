@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddUserPermissions extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->boolean('is_admin')->default(true);
             $table->unsignedInteger('permissions')->default(0);
         });
@@ -21,11 +22,11 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->dropColumn('is_admin');
             $table->dropColumn('permissions');
         });
     }
-};
+}

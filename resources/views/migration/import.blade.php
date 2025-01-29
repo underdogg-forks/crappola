@@ -1,8 +1,8 @@
-@extends('layouts.header')
+@extends('header')
 
 @section('content')
     @parent
-    @include('companies.nav', ['selected' => ACCOUNT_MANAGEMENT])
+    @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
 
     <div class="panel panel-default">
         <div class="panel-heading">

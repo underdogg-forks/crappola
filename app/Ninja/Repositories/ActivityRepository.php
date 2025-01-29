@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Repositories;
 
-use App;
-use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Auth;
+use DB;
+use Request;
+use Utils;
+use App;
 
 class ActivityRepository
 {
@@ -31,14 +32,12 @@ class ActivityRepository
         $activity->adjustment = $balanceChange;
         $activity->client_id = $client ? $client->id : null;
         $activity->balance = $client ? ($client->balance + $balanceChange) : 0;
-        // $activity->notes = $notes ?: '';
+        $activity->notes = $notes ?: '';
 
         $keyField = $entity->getKeyField();
         $activity->$keyField = $entity->id;
 
-        $activity->ip = request()->getClientIp();
-        $activity->company_id = 1;
-
+        $activity->ip = Request::getClientIp();
         $activity->save();
 
         if ($client) {
@@ -52,12 +51,12 @@ class ActivityRepository
     {
         $activity = new Activity();
 
-        if (Auth::check() && Auth::user()->company_id == $entity->company_id) {
+        if (Auth::check() && Auth::user()->account_id == $entity->account_id) {
             $activity->user_id = Auth::user()->id;
-            $activity->company_id = Auth::user()->company_id;
+            $activity->account_id = Auth::user()->account_id;
         } else {
             $activity->user_id = $entity->user_id;
-            $activity->company_id = $entity->company_id;
+            $activity->account_id = $entity->account_id;
         }
 
         $activity->is_system = App::runningInConsole();
@@ -69,53 +68,51 @@ class ActivityRepository
     public function findByClientId($clientId)
     {
         return DB::table('activities')
-            ->join('companies', 'companies.id', '=', 'activities.company_id')
-            ->join('users', 'users.id', '=', 'activities.user_id')
-            ->join('clients', 'clients.id', '=', 'activities.client_id')
-            ->leftJoin('contacts', 'contacts.id', '=', 'activities.contact_id')
-            ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
-            ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
-            ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
-            ->leftJoin('tasks', 'tasks.id', '=', 'activities.task_id')
-            ->leftJoin('expenses', 'expenses.id', '=', 'activities.expense_id')
-            ->leftJoin('tickets', 'tickets.id', '=', 'activities.ticket_id')
-            ->where('clients.id', '=', $clientId)
-            ->whereNull('contacts.deleted_at')
-            ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
-                'activities.id',
-                'activities.created_at',
-                'activities.contact_id',
-                'activities.activity_type_id',
-                'activities.balance',
-                'activities.adjustment',
-                'activities.notes',
-                'activities.ip',
-                'activities.is_system',
-                'activities.token_id',
-                'users.first_name as user_first_name',
-                'users.last_name as user_last_name',
-                'users.email as user_email',
-                'invoices.invoice_number as invoice',
-                'invoices.public_id as invoice_public_id',
-                'invoices.is_recurring',
-                'clients.name as client_name',
-                'companies.name as company_name',
-                'clients.public_id as client_public_id',
-                'contacts.id as contact',
-                'contacts.first_name as first_name',
-                'contacts.last_name as last_name',
-                'contacts.email as email',
-                'payments.transaction_reference as payment',
-                'payments.amount as payment_amount',
-                'credits.amount as credit',
-                'tasks.description as task_description',
-                'tasks.public_id as task_public_id',
-                'expenses.public_notes as expense_public_notes',
-                'expenses.public_id as expense_public_id',
-                'tickets.public_id as ticket_public_id'
-            )
-            ->orderBy('activities.created_at', 'desc');
+                    ->join('accounts', 'accounts.id', '=', 'activities.account_id')
+                    ->join('users', 'users.id', '=', 'activities.user_id')
+                    ->join('clients', 'clients.id', '=', 'activities.client_id')
+                    ->leftJoin('contacts', 'contacts.id', '=', 'activities.contact_id')
+                    ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
+                    ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
+                    ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
+                    ->leftJoin('tasks', 'tasks.id', '=', 'activities.task_id')
+                    ->leftJoin('expenses', 'expenses.id', '=', 'activities.expense_id')
+                    ->where('clients.id', '=', $clientId)
+                    ->where('contacts.is_primary', '=', 1)
+                    ->whereNull('contacts.deleted_at')
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        'activities.id',
+                        'activities.created_at',
+                        'activities.contact_id',
+                        'activities.activity_type_id',
+                        'activities.balance',
+                        'activities.adjustment',
+                        'activities.notes',
+                        'activities.ip',
+                        'activities.is_system',
+                        'activities.token_id',
+                        'users.first_name as user_first_name',
+                        'users.last_name as user_last_name',
+                        'users.email as user_email',
+                        'invoices.invoice_number as invoice',
+                        'invoices.public_id as invoice_public_id',
+                        'invoices.is_recurring',
+                        'clients.name as client_name',
+                        'accounts.name as account_name',
+                        'clients.public_id as client_public_id',
+                        'contacts.id as contact',
+                        'contacts.first_name as first_name',
+                        'contacts.last_name as last_name',
+                        'contacts.email as email',
+                        'payments.transaction_reference as payment',
+                        'payments.amount as payment_amount',
+                        'credits.amount as credit',
+                        'tasks.description as task_description',
+                        'tasks.public_id as task_public_id',
+                        'expenses.public_notes as expense_public_notes',
+                        'expenses.public_id as expense_public_id'
+                    );
     }
 }

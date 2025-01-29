@@ -4,24 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Validator;
+use Auth;
+use Redirect;
+use Session;
+use URL;
+use Validator;
+use View;
 
 /**
  * Class SubscriptionController.
  */
 class SubscriptionController extends BaseController
 {
-    protected SubscriptionService $subscriptionService;
+    /**
+     * @var SubscriptionService
+     */
+    protected $subscriptionService;
 
     /**
      * SubscriptionController constructor.
+     *
+     * @param SubscriptionService $subscriptionService
      */
     public function __construct(SubscriptionService $subscriptionService)
     {
@@ -31,19 +34,24 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
         return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable()
     {
-        return $this->subscriptionService->getDatatable(Auth::user()->company_id);
+        return $this->subscriptionService->getDatatable(Auth::user()->account_id);
     }
 
     /**
+     * @param $publicId
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit($publicId)
@@ -52,16 +60,18 @@ class SubscriptionController extends BaseController
 
         $data = [
             'subscription' => $subscription,
-            'method'       => 'PUT',
-            'url'          => 'subscriptions/' . $publicId,
-            'title'        => trans('texts.edit_subscription'),
+            'method' => 'PUT',
+            'url' => 'subscriptions/' . $publicId,
+            'title' => trans('texts.edit_subscription'),
         ];
 
-        return View::make('companies.subscription', $data);
+        return View::make('accounts.subscription', $data);
     }
 
     /**
-     * @return RedirectResponse
+     * @param $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
     {
@@ -69,15 +79,53 @@ class SubscriptionController extends BaseController
     }
 
     /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store()
+    {
+        return $this->save();
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function create()
+    {
+        $data = [
+          'subscription' => null,
+          'method' => 'POST',
+          'url' => 'subscriptions',
+          'title' => trans('texts.add_subscription'),
+        ];
+
+        return View::make('accounts.subscription', $data);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function bulk()
+    {
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
+
+        $count = $this->subscriptionService->bulk($ids, $action);
+
+        Session::flash('message', trans('texts.archived_subscription'));
+
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+    }
+
+    /**
      * @param bool $subscriptionPublicId
      *
-     * @return $this|RedirectResponse
+     * @return $this|\Illuminate\Http\RedirectResponse
      */
     public function save($subscriptionPublicId = false)
     {
-        if (Auth::user()->company->hasFeature(FEATURE_API)) {
+        if (Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
-                'event_id'   => 'required',
+                'event_id' => 'required',
                 'target_url' => 'required|url',
             ];
 
@@ -88,7 +136,7 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(\Request::all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
@@ -97,7 +145,11 @@ class SubscriptionController extends BaseController
             $subscription->fill(request()->all());
             $subscription->save();
 
-            $message = $subscriptionPublicId ? trans('texts.updated_subscription') : trans('texts.created_subscription');
+            if ($subscriptionPublicId) {
+                $message = trans('texts.updated_subscription');
+            } else {
+                $message = trans('texts.created_subscription');
+            }
 
             Session::flash('message', $message);
         }
@@ -111,43 +163,5 @@ class SubscriptionController extends BaseController
             return redirect('/settings/api_tokens');
         }
         */
-    }
-
-    /**
-     * @return RedirectResponse
-     */
-    public function store()
-    {
-        return $this->save();
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function create()
-    {
-        $data = [
-            'subscription' => null,
-            'method'       => 'POST',
-            'url'          => 'subscriptions',
-            'title'        => trans('texts.add_subscription'),
-        ];
-
-        return View::make('companies.subscription', $data);
-    }
-
-    /**
-     * @return RedirectResponse
-     */
-    public function bulk()
-    {
-        $action = $request->get('bulk_action');
-        $ids = $request->get('bulk_public_id');
-
-        $count = $this->subscriptionService->bulk($ids, $action);
-
-        Session::flash('message', trans('texts.archived_subscription'));
-
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 }

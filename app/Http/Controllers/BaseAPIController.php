@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
+use Auth;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
+use Request;
+use Response;
+use Utils;
 
 /**
  * @SWG\Swagger(
@@ -20,29 +20,24 @@ use League\Fractal\Serializer\JsonApiSerializer;
  *     host="ninja.test",
  *     basePath="/api/v1",
  *     produces={"application/json"},
- *
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
- *         description="An open-source invoicing and time-tracking app built with Laravel",
+ *         description="A source-available invoicing and time-tracking app built with Laravel",
  *         termsOfService="",
- *
  *         @SWG\Contact(
  *             email="contact@invoiceninja.com"
  *         ),
- *
  *         @SWG\License(
  *             name="Attribution Assurance License",
  *             url="https://raw.githubusercontent.com/invoiceninja/invoiceninja/master/LICENSE"
  *         )
  *     ),
- *
  *     @SWG\ExternalDocumentation(
  *         description="Find out more about Invoice Ninja",
  *         url="https://www.invoiceninja.com"
  *     ),
  *     security={"api_key": {}},
- *
  *     @SWG\SecurityScheme(
  *         securityDefinition="api_key",
  *         type="apiKey",
@@ -53,19 +48,18 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseAPIController extends Controller
 {
-    protected Manager $manager;
-
+    protected $manager;
     protected $serializer;
 
     public function __construct()
     {
         $this->manager = new Manager();
 
-        if ($include = Request::get('include')) {
+        if ($include = \Request::get('include')) {
             $this->manager->parseIncludes($include);
         }
 
-        $this->serializer = Request::get('serializer') ?: API_SERIALIZER_ARRAY;
+        $this->serializer = \Request::get('serializer') ?: API_SERIALIZER_ARRAY;
 
         if ($this->serializer === API_SERIALIZER_JSON) {
             $this->manager->setSerializer(new JsonApiSerializer());
@@ -94,13 +88,44 @@ class BaseAPIController extends Controller
         return $this->itemResponse($entity);
     }
 
-    protected function errorResponse($response, $httpErrorCode = 400)
+    protected function listResponse($query)
     {
-        $error['error'] = $response;
-        $error = json_encode($error, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, \Request::input('serializer'));
 
-        return Response::make($error, $httpErrorCode, $headers);
+        $includes = $transformer->getDefaultIncludes();
+        $includes = $this->getRequestIncludes($includes);
+
+        $query->with($includes);
+
+        if (\Request::input('filter_active')) {
+            $query->whereNull('deleted_at');
+        }
+
+        if (\Request::input('updated_at') > 0) {
+                $updatedAt = intval(\Request::input('updated_at'));
+                $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
+        }
+
+        if (\Request::input('client_id') > 0) {
+                $clientPublicId = \Request::input('client_id');
+                $filter = function ($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+             };
+             $query->whereHas('client', $filter);
+        }
+
+        if (! Utils::hasPermission('view_'.$this->entityType)) {
+            if ($this->entityType == ENTITY_USER) {
+                $query->where('id', '=', Auth::user()->id);
+            } else {
+                $query->where('user_id', '=', Auth::user()->id);
+            }
+        }
+
+        $data = $this->createCollection($query, $transformer, $this->entityType);
+
+        return $this->response($data);
     }
 
     protected function itemResponse($item)
@@ -110,7 +135,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->company, $request->get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, \Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -128,9 +153,31 @@ class BaseAPIController extends Controller
         return $this->manager->createData($resource)->toArray();
     }
 
+    protected function createCollection($query, $transformer, $entityType)
+    {
+        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
+            $entityType = null;
+        }
+
+        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
+            $limit = \Request::input('per_page', DEFAULT_API_PAGE_SIZE);
+            if (Utils::isNinja()) {
+                $limit = min(MAX_API_PAGE_SIZE, $limit);
+            }
+            $paginator = $query->paginate($limit);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $entityType);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        } else {
+            $resource = new Collection($query, $transformer, $entityType);
+        }
+
+        return $this->manager->createData($resource)->toArray();
+    }
+
     protected function response($response)
     {
-        $index = Request::get('index') ?: 'data';
+        $index = \Request::get('index') ?: 'data';
 
         if ($index == 'none') {
             unset($response['meta']);
@@ -152,44 +199,13 @@ class BaseAPIController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    protected function listResponse($query)
+    protected function errorResponse($response, $httpErrorCode = 400)
     {
-        $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->company, $request->get('serializer'));
+        $error['error'] = $response;
+        $error = json_encode($error, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
 
-        $includes = $transformer->getDefaultIncludes();
-        $includes = $this->getRequestIncludes($includes);
-
-        $query->with($includes);
-
-        if ($request->get('filter_active')) {
-            $query->whereNull('deleted_at');
-        }
-
-        if ($request->get('updated_at') > 0) {
-            $updatedAt = intval($request->get('updated_at'));
-            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
-        }
-
-        if ($request->get('client_id') > 0) {
-            $clientPublicId = $request->get('client_id');
-            $filter = function ($query) use ($clientPublicId): void {
-                $query->where('public_id', '=', $clientPublicId);
-            };
-            $query->whereHas('client', $filter);
-        }
-
-        if (! Utils::hasPermission('view_' . $this->entityType)) {
-            if ($this->entityType == ENTITY_USER) {
-                $query->where('id', '=', Auth::user()->id);
-            } else {
-                $query->where('user_id', '=', Auth::user()->id);
-            }
-        }
-
-        $data = $this->createCollection($query, $transformer, $this->entityType);
-
-        return $this->response($data);
+        return Response::make($error, $httpErrorCode, $headers);
     }
 
     protected function getRequestIncludes($data)
@@ -218,28 +234,6 @@ class BaseAPIController extends Controller
         }
 
         return $data;
-    }
-
-    protected function createCollection($query, $transformer, $entityType)
-    {
-        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
-            $entityType = null;
-        }
-
-        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = $request->get('per_page', DEFAULT_API_PAGE_SIZE);
-            if (Utils::isNinja()) {
-                $limit = min(MAX_API_PAGE_SIZE, $limit);
-            }
-            $paginator = $query->paginate($limit);
-            $query = $paginator->getCollection();
-            $resource = new Collection($query, $transformer, $entityType);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $entityType);
-        }
-
-        return $this->manager->createData($resource)->toArray();
     }
 
     protected function fileReponse($name, $data)

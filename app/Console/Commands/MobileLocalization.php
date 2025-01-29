@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
+use App\Models\DbServer;
+use App\Models\User;
+use App\Models\Company;
+use App\Libraries\CurlUtils;
 
 class MobileLocalization extends Command
 {
@@ -21,6 +24,7 @@ class MobileLocalization extends Command
      */
     protected $description = 'Generate mobile localization resources';
 
+
     /**
      * Create a new command instance.
      *
@@ -36,7 +40,7 @@ class MobileLocalization extends Command
      *
      * @return mixed
      */
-    public function handle(): void
+    public function handle()
     {
         $type = strtolower($this->option('type'));
 
@@ -50,7 +54,7 @@ class MobileLocalization extends Command
         }
     }
 
-    private function laravelResources(): void
+    private function laravelResources()
     {
         $resources = $this->getResources();
 
@@ -62,23 +66,7 @@ class MobileLocalization extends Command
         }
     }
 
-    private function getResources()
-    {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
-        $data = CurlUtils::get($url);
-
-        $start = strpos($data, 'do not remove comment') + 25;
-        $end = strpos($data, '},', $start);
-        $data = substr($data, $start, $end - $start - 5);
-
-        $data = str_replace("\n", '', $data);
-        $data = str_replace('"', "\'", $data);
-        $data = str_replace("'", '"', $data);
-
-        return json_decode('{' . rtrim($data, ',') . '}');
-    }
-
-    private function flutterResources(): void
+    private function flutterResources()
     {
         $languages = cache('languages');
         $resources = $this->getResources();
@@ -95,11 +83,32 @@ class MobileLocalization extends Command
                 if (substr($text, 0, 6) == 'texts.') {
                     $text = $resources->$key;
                 }
+
+                $text = str_replace(array('<b>', '</b>'), '', $text);
+                $text = str_replace(array('<i>', '</i>'), '', $text);
+                $text = str_replace(array('<strong>', '</strong>'), '', $text);
+
                 echo "'$key': '$text',\n";
             }
 
             echo "},\n";
         }
+    }
+
+    private function getResources()
+    {
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $data = CurlUtils::get($url);
+
+        $start = strpos($data, 'do not remove comment') + 25;
+        $end = strpos($data, '},', $start);
+        $data = substr($data, $start, $end - $start - 5);
+
+        $data = str_replace("\n", "", $data);
+        $data = str_replace("\"", "\'", $data);
+        $data = str_replace("'", "\"", $data);
+
+        return json_decode('{' . rtrim($data, ',') . '}');
     }
 
     protected function getOptions()
@@ -108,4 +117,5 @@ class MobileLocalization extends Command
             ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
         ];
     }
+
 }

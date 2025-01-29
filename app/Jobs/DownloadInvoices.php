@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\Invoice;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Barracuda\ArchiveStream\Archive;
@@ -13,18 +15,23 @@ use Barracuda\ArchiveStream\Archive;
 //class DownloadInvoices extends Job implements ShouldQueue
 class DownloadInvoices extends Job
 {
-    protected User $user;
+    //use InteractsWithQueue, SerializesModels;
 
     /**
-     * @var Invoice[]
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * @var array
      */
     protected $invoices;
 
     /**
      * Create a new job instance.
      *
-     * @param mixed $files
-     * @param mixed $settings
+     * @param mixed   $files
+     * @param mixed   $settings
      */
     public function __construct(User $user, $invoices)
     {
@@ -35,12 +42,12 @@ class DownloadInvoices extends Job
     /**
      * Execute the job.
      *
-     * @param UserMailer $mailer
+     * @param ContactMailer $mailer
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
         if (! extension_loaded('GMP')) {
-            exit(trans('texts.gmp_required'));
+            die(trans('texts.gmp_required'));
         }
 
         $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));

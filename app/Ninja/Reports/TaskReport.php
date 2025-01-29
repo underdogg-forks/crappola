@@ -2,49 +2,49 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
+use Utils;
+use Auth;
 
 class TaskReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client'      => [],
-            'start_date'  => [],
-            'project'     => [],
+            'client' => [],
+            'start_date' => [],
+            'project' => [],
             'description' => [],
-            'duration'    => [],
-            'amount'      => [],
-            'user'        => ['columnSelector-false'],
+            'duration' => [],
+            'amount' => [],
+            'user' => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
-        $company = $user->company;
+        $account = $user->account;
 
-        if ($company->customLabel('task1')) {
-            $columns[$company->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('task1')) {
+            $columns[$account->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('task2')) {
-            $columns[$company->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('task2')) {
+            $columns[$account->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];
 
         $tasks = Task::scope()
-            ->orderBy('created_at', 'desc')
-            ->with('client.contacts', 'project', 'company', 'user')
-            ->withArchived()
-            ->dateRange($startDate, $endDate);
+                    ->orderBy('created_at', 'desc')
+                    ->with('client.contacts', 'project', 'account', 'user')
+                    ->withArchived()
+                    ->dateRange($startDate, $endDate);
 
         foreach ($tasks->get() as $task) {
             $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));
@@ -52,7 +52,7 @@ class TaskReport extends AbstractReport
             if ($task->client && $task->client->currency_id) {
                 $currencyId = $task->client->currency_id;
             } else {
-                $currencyId = auth()->user()->company->getCurrencyId();
+                $currencyId = auth()->user()->account->getCurrencyId();
             }
 
             $row = [
@@ -65,10 +65,10 @@ class TaskReport extends AbstractReport
                 $task->user->getDisplayName(),
             ];
 
-            if ($company->customLabel('task1')) {
+            if ($account->customLabel('task1')) {
                 $row[] = $task->custom_value1;
             }
-            if ($company->customLabel('task2')) {
+            if ($account->customLabel('task2')) {
                 $row[] = $task->custom_value2;
             }
 

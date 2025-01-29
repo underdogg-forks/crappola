@@ -2,19 +2,20 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddExpenseToActivities extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('activities', function ($table): void {
+        Schema::table('activities', function ($table) {
             $table->unsignedInteger('expense_id')->nullable();
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->date('financial_year_start')->nullable();
             $table->smallInteger('enabled_modules')->default(63);
             $table->smallInteger('enabled_dashboard_sections')->default(7);
@@ -24,7 +25,7 @@ return new class () extends Migration {
             $table->boolean('require_quote_signature')->default(false);
         });
 
-        Schema::table('payments', function ($table): void {
+        Schema::table('payments', function ($table) {
             $table->text('credit_ids')->nullable();
         });
     }
@@ -34,13 +35,13 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('activities', function ($table): void {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('expense_id');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('financial_year_start');
             $table->dropColumn('enabled_modules');
             $table->dropColumn('enabled_dashboard_sections');
@@ -50,8 +51,8 @@ return new class () extends Migration {
             $table->dropColumn('require_quote_signature');
         });
 
-        Schema::table('payments', function ($table): void {
+        Schema::table('payments', function ($table) {
             $table->dropColumn('credit_ids');
         });
     }
-};
+}

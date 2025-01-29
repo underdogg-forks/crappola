@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 
     /*
     |--------------------------------------------------------------------------
@@ -9,7 +9,7 @@ return [
     |
     */
 
-    'table' => [
+    'table' => array(
 
         /*
         |--------------------------------------------------------------------------
@@ -48,13 +48,13 @@ return [
         |
         */
 
-        'options' => [
+        'options' => array(
 
-            'sPaginationType' => 'full_numbers',
+            "sPaginationType" => "full_numbers",
 
-            'bProcessing' => false,
+            "bProcessing" => false
 
-        ],
+        ),
 
         /*
         |--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ return [
         |
         */
 
-        'callbacks' => [],
+        'callbacks' => array(),
 
         /*
         |--------------------------------------------------------------------------
@@ -82,6 +82,7 @@ return [
 
         'noScript' => false,
 
+
         /*
         |--------------------------------------------------------------------------
         | Table view
@@ -94,6 +95,7 @@ return [
 
         'table_view' => 'chumper.datatable::template',
 
+
         /*
         |--------------------------------------------------------------------------
         | Script view
@@ -105,7 +107,20 @@ return [
         */
 
         'script_view' => 'chumper.datatable::javascript',
-    ],
+        
+        /*
+          |--------------------------------------------------------------------------
+          | Option view
+          |--------------------------------------------------------------------------
+          |
+          | Template used to render the options recursive
+          |
+        */
+        
+        'options_view' => config('chumper.datatable::options')
+
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -114,7 +129,7 @@ return [
     |
     */
 
-    'engine' => [
+    'engine' => array(
 
         /*
         |--------------------------------------------------------------------------
@@ -128,16 +143,7 @@ return [
 
         'exactWordSearch' => false,
 
-    ],
-    /*
-    |--------------------------------------------------------------------------
-    | Allow overrides Datatable core classes
-    |--------------------------------------------------------------------------
-    |
-    */
-    'classmap' => [
-        'CollectionEngine' => 'Chumper\Datatable\Engines\CollectionEngine',
-        'QueryEngine'      => 'Chumper\Datatable\Engines\QueryEngine',
-        'Table'            => 'Chumper\Datatable\Table',
-    ],
-];
+    )
+
+
+);

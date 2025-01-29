@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddSvLanguage extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         //DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
         //DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
@@ -21,7 +22,7 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         if ($language = \App\Models\Language::whereLocale('sv')->first()) {
             $language->delete();
@@ -39,4 +40,4 @@ return new class () extends Migration {
             $language->delete();
         }
     }
-};
+}

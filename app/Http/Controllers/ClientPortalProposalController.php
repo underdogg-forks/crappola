@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ConvertProposalToPdf;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Document;
 use App\Models\Invitation;
 use App\Ninja\Repositories\ProposalRepository;
+use App\Jobs\ConvertProposalToPdf;
 
 class ClientPortalProposalController extends BaseController
 {
     private $invoiceRepo;
-
     private $paymentRepo;
-
     private $documentRepo;
-
-    private ProposalRepository $propoosalRepo;
+    private $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {
@@ -29,24 +26,24 @@ class ClientPortalProposalController extends BaseController
             return $this->returnError(trans('texts.proposal_not_found'));
         }
 
-        $company = $invitation->company;
+        $account = $invitation->account;
         $proposal = $invitation->proposal;
         $invoiceInvitation = Invitation::whereContactId($invitation->contact_id)
-            ->whereInvoiceId($proposal->invoice_id)
-            ->firstOrFail();
+                ->whereInvoiceId($proposal->invoice_id)
+                ->firstOrFail();
 
         $data = [
-            'proposal'           => $proposal,
-            'company'            => $company,
-            'invoiceInvitation'  => $invoiceInvitation,
+            'proposal' => $proposal,
+            'account' => $account,
+            'invoiceInvitation' => $invoiceInvitation,
             'proposalInvitation' => $invitation,
         ];
 
         if (request()->phantomjs) {
             return $proposal->present()->htmlDocument;
+        } else {
+            return view('invited.proposal', $data);
         }
-
-        return view('invited.proposal', $data);
     }
 
     public function downloadProposal($invitationKey)
@@ -62,15 +59,15 @@ class ClientPortalProposalController extends BaseController
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    public function getProposalImage($companyKey, $documentKey)
+    public function getProposalImage($accountKey, $documentKey)
     {
-        $company = Company::whereAccountKey($companyKey)
-            ->firstOrFail();
+        $account = Account::whereAccountKey($accountKey)
+                        ->firstOrFail();
 
-        $document = Document::whereCompanyPlanId($company->id)
-            ->whereDocumentKey($documentKey)
-            ->whereIsProposal(true)
-            ->firstOrFail();
+        $document = Document::whereAccountId($account->id)
+                        ->whereDocumentKey($documentKey)
+                        ->whereIsProposal(true)
+                        ->firstOrFail();
 
         return DocumentController::getDownloadResponse($document);
     }

@@ -4,32 +4,29 @@ namespace App\Models;
 
 //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
-use App\Libraries\Utils;
 use App\Models\Traits\HasRecurrence;
-use App\Ninja\Presenters\ExpensePresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
  * Class Expense.
  */
 class RecurringExpense extends EntityModel
 {
-    use HasRecurrence;
-    use PresentableTrait;
     // Expenses
     use SoftDeletes;
+    use PresentableTrait;
+    use HasRecurrence;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
-
     /**
      * @var string
      */
-    protected $presenter = ExpensePresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
     /**
      * @var array
@@ -37,7 +34,7 @@ class RecurringExpense extends EntityModel
     protected $fillable = [
         'client_id',
         'vendor_id',
-        'invoice_currency_id',
+        'expense_currency_id',
         //'invoice_currency_id',
         //'exchange_rate',
         'amount',
@@ -52,24 +49,22 @@ class RecurringExpense extends EntityModel
         //'start_date',
         //'end_date',
         'frequency_id',
-        'custom_value1',
-        'custom_value2',
     ];
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expense_category()
     {
-        return $this->belongsTo(ExpenseCategory::class)->withTrashed();
+        return $this->belongsTo('App\Models\ExpenseCategory')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
@@ -77,7 +72,7 @@ class RecurringExpense extends EntityModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
@@ -85,7 +80,7 @@ class RecurringExpense extends EntityModel
      */
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class)->withTrashed();
+        return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
     /**
@@ -93,15 +88,7 @@ class RecurringExpense extends EntityModel
      */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDisplayName()
-    {
-        return $this->getName();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     /**
@@ -111,9 +98,17 @@ class RecurringExpense extends EntityModel
     {
         if ($this->public_notes) {
             return Utils::truncateString($this->public_notes, 16);
+        } else {
+            return '#' . $this->public_id;
         }
+    }
 
-        return '#' . $this->public_id;
+    /**
+     * @return mixed
+     */
+    public function getDisplayName()
+    {
+        return $this->getName();
     }
 
     /**
@@ -138,22 +133,22 @@ class RecurringExpense extends EntityModel
     }
 }
 
-RecurringExpense::creating(function ($expense): void {
+RecurringExpense::creating(function ($expense) {
     $expense->setNullValues();
 });
 
-RecurringExpense::created(function ($expense): void {
+RecurringExpense::created(function ($expense) {
     //event(new ExpenseWasCreated($expense));
 });
 
-RecurringExpense::updating(function ($expense): void {
+RecurringExpense::updating(function ($expense) {
     $expense->setNullValues();
 });
 
-RecurringExpense::updated(function ($expense): void {
+RecurringExpense::updated(function ($expense) {
     //event(new ExpenseWasUpdated($expense));
 });
 
-RecurringExpense::deleting(function ($expense): void {
+RecurringExpense::deleting(function ($expense) {
     $expense->setNullValues();
 });

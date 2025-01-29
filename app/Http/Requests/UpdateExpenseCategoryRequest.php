@@ -6,20 +6,20 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
-        if (! $this->entity()) {
-            return false;
-        }
-
-        return (bool) $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
      * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         if (! $this->entity()) {
             return [];
@@ -27,7 +27,7 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
 
         return [
             'name' => 'required',
-            'name' => sprintf('required|unique:expense_categories,name,%s,id,company_id,%s', $this->entity()->id, $this->user()->company_id),
+            'name' => sprintf('required|unique:expense_categories,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
         ];
     }
 }

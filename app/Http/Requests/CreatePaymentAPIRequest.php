@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
-use App\Models\Payment;
 
 class CreatePaymentAPIRequest extends PaymentRequest
 {
@@ -14,26 +13,23 @@ class CreatePaymentAPIRequest extends PaymentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Payment::class);
+        return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
     /**
      * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
-        if (! $this->invoice_id) {
+        if (! $this->invoice_id || ! $this->amount) {
             return [
                 'invoice_id' => 'required|numeric|min:1',
-                'amount'     => 'required|numeric',
+                'amount' => 'required|numeric',
             ];
         }
-        if (! $this->amount) {
-            return [
-                'invoice_id' => 'required|numeric|min:1',
-                'amount'     => 'required|numeric',
-            ];
-        }
+
         $this->invoice = $invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
             ->withArchived()
             ->invoices()
@@ -45,7 +41,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
 
         $this->merge([
             'invoice_id' => $invoice->id,
-            'client_id'  => $invoice->client->id,
+            'client_id' => $invoice->client->id,
         ]);
 
         $rules = [

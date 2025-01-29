@@ -1,35 +1,46 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class CreatePaymentLibraries extends Migration
 {
-    public function up(): void
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
     {
-        Schema::create('payment_libraries', function ($table): void {
-            $table->increments('id');
-            $table->string('name');
-            $table->boolean('visible')->default(true);
-            $table->timestamps();
+        Schema::dropIfExists('payment_libraries');
+
+        Schema::create('payment_libraries', function ($t) {
+            $t->increments('id');
+            $t->timestamps();
+
+            $t->string('name');
+            $t->boolean('visible')->default(true);
         });
 
-        Schema::table('gateways', function ($table): void {
+        Schema::table('gateways', function ($table) {
             $table->unsignedInteger('payment_library_id')->default(1);
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
 
-        Schema::table('gateways', function ($table): void {
+        Schema::table('gateways', function ($table) {
             $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
         });
     }
 
-    public function down(): void
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
     {
         if (Schema::hasColumn('gateways', 'payment_library_id')) {
-            Schema::table('gateways', function ($table): void {
+            Schema::table('gateways', function ($table) {
                 $table->dropForeign('gateways_payment_library_id_foreign');
                 $table->dropColumn('payment_library_id');
             });

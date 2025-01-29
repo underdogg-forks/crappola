@@ -2,15 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class AddTaskProjects extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('projects', function ($table): void {
+        Schema::create('projects', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -29,7 +30,7 @@ return new class () extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('tasks', function ($table): void {
+        Schema::table('tasks', function ($table) {
             $table->unsignedInteger('project_id')->nullable()->index();
 
             if (Schema::hasColumn('tasks', 'description')) {
@@ -38,36 +39,36 @@ return new class () extends Migration {
         });
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Schema::table('tasks', function ($table): void {
+        Schema::table('tasks', function ($table) {
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // is_deleted to standardize tables
-        Schema::table('expense_categories', function ($table): void {
+        Schema::table('expense_categories', function ($table) {
             $table->boolean('is_deleted')->default(false);
         });
 
-        Schema::table('products', function ($table): void {
+        Schema::table('products', function ($table) {
             $table->boolean('is_deleted')->default(false);
         });
 
         // add 'delete cascase' to resolve error when deleting an account
         // This may fail if the foreign key doesn't exist
         try {
-            Schema::table('account_gateway_tokens', function ($table): void {
+            Schema::table('account_gateway_tokens', function ($table) {
                 $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
             });
         } catch (Exception $e) {
             // do nothing
         }
 
-        Schema::table('account_gateway_tokens', function ($table): void {
+        Schema::table('account_gateway_tokens', function ($table) {
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
         });
 
-        if ( ! Schema::hasColumn('invoices', 'is_public')) {
-            Schema::table('invoices', function ($table): void {
+        if (! Schema::hasColumn('invoices', 'is_public')) {
+            Schema::table('invoices', function ($table) {
                 $table->boolean('is_public')->default(false);
             });
         }
@@ -80,25 +81,25 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('tasks', function ($table): void {
+        Schema::table('tasks', function ($table) {
             $table->dropForeign('tasks_project_id_foreign');
             $table->dropColumn('project_id');
         });
 
         Schema::dropIfExists('projects');
 
-        Schema::table('expense_categories', function ($table): void {
+        Schema::table('expense_categories', function ($table) {
             $table->dropColumn('is_deleted');
         });
 
-        Schema::table('products', function ($table): void {
+        Schema::table('products', function ($table) {
             $table->dropColumn('is_deleted');
         });
 
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropColumn('is_public');
         });
     }
-};
+}

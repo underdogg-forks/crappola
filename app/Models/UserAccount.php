@@ -2,19 +2,43 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class UserAccount.
  */
-class UserAccount extends Model
+class UserAccount extends Eloquent
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
-    public function setUserId(array|int|float|string|bool|null $userId): void
+    /**
+     * @param $userId
+     *
+     * @return bool
+     */
+    public function hasUserId($userId)
+    {
+        if (! $userId) {
+            return false;
+        }
+
+        for ($i = 1; $i <= 5; $i++) {
+            $field = "user_id{$i}";
+            if ($this->$field && $this->$field == $userId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $userId
+     */
+    public function setUserId($userId)
     {
         if (self::hasUserId($userId)) {
             return;
@@ -29,44 +53,20 @@ class UserAccount extends Model
         }
     }
 
-    public function hasUserId($userId): bool
+    /**
+     * @param $userId
+     */
+    public function removeUserId($userId)
     {
-        if (! $userId) {
-            return false;
+        if (! $userId || ! self::hasUserId($userId)) {
+            return;
         }
 
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if (! $this->$field) {
-                continue;
+            if ($this->$field && $this->$field == $userId) {
+                $this->$field = null;
             }
-            if ($this->$field != $userId) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function removeUserId($userId): void
-    {
-        if (! $userId) {
-            return;
-        }
-        if (! self::hasUserId($userId)) {
-            return;
-        }
-        for ($i = 1; $i <= 5; $i++) {
-            $field = "user_id{$i}";
-            if (! $this->$field) {
-                continue;
-            }
-            if ($this->$field != $userId) {
-                continue;
-            }
-            $this->$field = null;
         }
     }
 }

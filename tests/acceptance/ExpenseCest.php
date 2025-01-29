@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Factory;
+use Codeception\Util\Fixtures;
 
 class ExpenseCest
 {
@@ -9,14 +10,14 @@ class ExpenseCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function createExpense(AcceptanceTester $I): void
+    public function createExpense(AcceptanceTester $I)
     {
         $I->wantTo('Create an expense');
 
@@ -46,9 +47,9 @@ class ExpenseCest
         $vendorId = $I->grabFromDatabase('vendors', 'id', ['name' => $vendorName]);
         $categoryId = $I->grabFromDatabase('expense_categories', 'id', ['name' => $categoryName]);
         $I->seeInDatabase('expenses', [
-            'client_id'           => $clientId,
-            'vendor_id'           => $vendorId,
-            'expense_category_id' => $categoryId,
+            'client_id' => $clientId,
+            'vendor_id' => $vendorId,
+            'expense_category_id' => $categoryId
         ]);
 
         // invoice expense

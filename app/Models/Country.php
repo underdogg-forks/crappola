@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
 /**
  * Class Country.
  */
-class Country extends Model
+class Country extends Eloquent
 {
     /**
      * @var bool
@@ -32,7 +32,7 @@ class Country extends Model
      * @var array
      */
     protected $casts = [
-        'swap_postal_code'     => 'boolean',
+        'swap_postal_code' => 'boolean',
         'swap_currency_symbol' => 'boolean',
     ];
 

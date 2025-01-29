@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
+class CreatePasswordResetsTable extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::rename('password_reminders', 'password_resets');
     }
@@ -18,8 +19,8 @@ return new class () extends Migration {
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::rename('password_resets', 'password_reminders');
     }
-};
+}
