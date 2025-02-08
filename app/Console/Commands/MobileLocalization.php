@@ -52,6 +52,7 @@ class MobileLocalization extends Command
                 $this->flutterResources();
                 break;
         }
+        return 0;
     }
 
     private function laravelResources()
