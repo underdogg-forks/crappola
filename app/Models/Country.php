@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 
 /**
@@ -42,5 +43,10 @@ class Country extends Eloquent
     public function getName()
     {
         return trans('texts.country_' . $this->name);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

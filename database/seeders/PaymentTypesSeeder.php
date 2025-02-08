@@ -7,8 +7,10 @@ use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $paymentTypes = [
             ['name' => 'Apply Credit'],
             ['name' => 'Bank Transfer', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER],

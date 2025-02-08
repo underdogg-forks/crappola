@@ -7,8 +7,10 @@ use Illuminate\Database\Seeder;
 
 class IndustrySeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $industries = [
             ['name' => 'Accounting & Legal'],
             ['name' => 'Advertising'],
@@ -51,5 +53,7 @@ class IndustrySeeder extends Seeder
                 Industry::create($industry);
             }
         }
+
+        Eloquent::reguard();
     }
 }

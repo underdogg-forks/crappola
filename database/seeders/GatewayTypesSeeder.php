@@ -4,12 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\GatewayType;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class GatewayTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
 
         // fix for legacy data
         DB::statement('UPDATE gateway_types SET alias = "custom1" WHERE id = 6');

@@ -4,12 +4,13 @@ namespace Database\Seeders;
 
 use App\Models\PaymentTerm;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class PaymentTermsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $paymentTerms = [
             ['num_days' => -1, 'name' => 'Net 0'],
         ];

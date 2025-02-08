@@ -4,20 +4,18 @@ namespace Database\Seeders;
 
 use App\Models\Country;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Webpatser\Countries\Countries;
-
 class CountriesSeeder extends Seeder
 {
     /**
-     * Run the database seeders.
+     * Run the database seeds.
      *
      * @return void
      */
-    public function run(): void
+    public function run()
     {
-        $countries = (new Countries())->getList();
+        Eloquent::unguard();
+
+        $countries = Countries::getList();
         foreach ($countries as $countryId => $country) {
             if ($record = Country::whereCountryCode($country['country-code'])->first()) {
                 $record->name = $country['name'];
@@ -25,20 +23,20 @@ class CountriesSeeder extends Seeder
                 $record->save();
             } else {
                 DB::table('countries')->insert([
-                    'id'                => $countryId,
-                    'capital'           => ((isset($country['capital'])) ? $country['capital'] : null),
-                    'citizenship'       => ((isset($country['citizenship'])) ? $country['citizenship'] : null),
-                    'country_code'      => $country['country-code'],
-                    'currency'          => ((isset($country['currency'])) ? $country['currency'] : null),
-                    'currency_code'     => ((isset($country['currency_code'])) ? $country['currency_code'] : null),
+                    'id' => $countryId,
+                    'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
+                    'citizenship' => ((isset($country['citizenship'])) ? $country['citizenship'] : null),
+                    'country_code' => $country['country-code'],
+                    'currency' => ((isset($country['currency'])) ? $country['currency'] : null),
+                    'currency_code' => ((isset($country['currency_code'])) ? $country['currency_code'] : null),
                     'currency_sub_unit' => ((isset($country['currency_sub_unit'])) ? $country['currency_sub_unit'] : null),
-                    'full_name'         => ((isset($country['full_name'])) ? $country['full_name'] : null),
-                    'iso_3166_2'        => $country['iso_3166_2'],
-                    'iso_3166_3'        => $country['iso_3166_3'],
-                    'name'              => $country['name'],
-                    'region_code'       => $country['region-code'],
-                    'sub_region_code'   => $country['sub-region-code'],
-                    'eea'               => (bool) $country['eea'],
+                    'full_name' => ((isset($country['full_name'])) ? $country['full_name'] : null),
+                    'iso_3166_2' => $country['iso_3166_2'],
+                    'iso_3166_3' => $country['iso_3166_3'],
+                    'name' => $country['name'],
+                    'region_code' => $country['region-code'],
+                    'sub_region_code' => $country['sub-region-code'],
+                    'eea' => (bool) $country['eea'],
                 ]);
             }
         }
@@ -50,7 +48,7 @@ class CountriesSeeder extends Seeder
                 'swap_postal_code' => true,
             ],
             'AT' => [ // Austria
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'BE' => [
@@ -61,20 +59,20 @@ class CountriesSeeder extends Seeder
             ],
             'CA' => [
                 'thousand_separator' => ',',
-                'decimal_separator'  => '.',
+                'decimal_separator' => '.',
             ],
             'CH' => [
                 'swap_postal_code' => true,
             ],
             'CN' => [ // China
                 'thousand_separator' => ',',
-                'decimal_separator'  => '.',
+                'decimal_separator' => '.',
             ],
             'CZ' => [ // Czech Republic
                 'swap_currency_symbol' => true,
             ],
             'DE' => [ // Germany
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'DK' => [
@@ -82,18 +80,17 @@ class CountriesSeeder extends Seeder
             ],
             'EE' => [ // Estonia
                 'swap_currency_symbol' => true,
-                'thousand_separator'   => ' ',
             ],
             'ES' => [ // Spain
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'FI' => [ // Finland
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'FR' => [ // France
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'GR' => [ // Greece
@@ -110,21 +107,21 @@ class CountriesSeeder extends Seeder
             ],
             'IE' => [ // Ireland
                 'thousand_separator' => ',',
-                'decimal_separator'  => '.',
+                'decimal_separator' => '.',
             ],
             'IL' => [
                 'swap_postal_code' => true,
             ],
             'IS' => [ // Iceland
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'IT' => [ // Italy
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'JP' => [ // Japan
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'LT' => [ // Lithuania
@@ -135,7 +132,7 @@ class CountriesSeeder extends Seeder
             ],
             'MT' => [
                 'thousand_separator' => ',',
-                'decimal_separator'  => '.',
+                'decimal_separator' => '.',
             ],
             'MY' => [
                 'swap_postal_code' => true,
@@ -147,18 +144,18 @@ class CountriesSeeder extends Seeder
                 'swap_postal_code' => true,
             ],
             'PL' => [ // Poland
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'PT' => [ // Portugal
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'RO' => [ // Romania
                 'swap_currency_symbol' => true,
             ],
             'SE' => [ // Sweden
-                'swap_postal_code'     => true,
+                'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
             'SI' => [ // Slovenia
@@ -169,7 +166,7 @@ class CountriesSeeder extends Seeder
             ],
             'US' => [
                 'thousand_separator' => ',',
-                'decimal_separator'  => '.',
+                'decimal_separator' => '.',
             ],
             'SR' => [ // Suriname
                 'swap_currency_symbol' => true,

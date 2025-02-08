@@ -7,8 +7,10 @@ use Illuminate\Database\Seeder;
 
 class FrequencySeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $frequencies = [
             ['name' => 'Weekly', 'date_interval' => '1 week'],
             ['name' => 'Two weeks', 'date_interval' => '2 weeks'],

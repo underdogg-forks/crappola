@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceDesign;
-
 use Illuminate\Database\Seeder;
 
 class InvoiceDesignsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $designs = [
             'Clean',
             'Bold',
@@ -50,7 +51,7 @@ class InvoiceDesignsSeeder extends Seeder
             }
 
             InvoiceDesign::create([
-                'id'   => $id,
+                'id' => $id,
                 'name' => $name,
             ]);
         }

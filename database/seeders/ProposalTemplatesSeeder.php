@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\ProposalTemplate;
-
 use Illuminate\Database\Seeder;
 
 class ProposalTemplatesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         $designs = [
             'Clean',
             'Bold',
@@ -29,11 +30,11 @@ class ProposalTemplatesSeeder extends Seeder
             $htmlFileName = $baseFileName . '.html';
             $cssFileName = $baseFileName . '.css';
             if (file_exists($htmlFileName) && file_exists($cssFileName)) {
-                $template = ProposalTemplate::whereName($design)->whereNull('company_id')->first();
+                $template = ProposalTemplate::whereName($design)->whereNull('account_id')->first();
 
                 if (! $template) {
                     $template = new ProposalTemplate();
-                    //$template->public_id = $i + 1;
+                    $template->public_id = $i + 1;
                     $template->name = $design;
                 }
 

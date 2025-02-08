@@ -8,8 +8,10 @@ use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Eloquent::unguard();
+
         // Date formats
         $formats = [
             ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],
