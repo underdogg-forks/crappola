@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\GatewayType;
+use Illuminate\Database\Seeder;
 
 class GatewayTypesSeeder extends Seeder
 {

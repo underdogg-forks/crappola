@@ -1,7 +1,10 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {

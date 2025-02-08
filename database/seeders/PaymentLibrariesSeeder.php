@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Gateway;
+use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {

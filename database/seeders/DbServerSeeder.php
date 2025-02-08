@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\DbServer;
+use Illuminate\Database\Seeder;
 
 class DbServerSeeder extends Seeder
 {

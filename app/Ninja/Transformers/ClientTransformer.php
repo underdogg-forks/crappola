@@ -48,14 +48,14 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="send_reminders", type="boolean", example=false)
      * @SWG\Property(property="credit_number_counter", type="integer", example=1)
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invoices',
         'credits',
         'activities',

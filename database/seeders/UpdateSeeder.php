@@ -1,8 +1,10 @@
 <?php
 
-use App\Models\Timezone;
+namespace Database\Seeders;
 
-class DatabaseSeeder extends Seeder
+use Illuminate\Database\Seeder;
+
+class UpdateSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,32 +13,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->command->info('Running DatabaseSeeder');
+        $this->command->info('Running UpdateSeeder...');
 
-        if (Timezone::count()) {
-            $this->command->info('Skipping: already run');
-            return;
-        }
-
-        Eloquent::unguard();
-
-        $this->call('ConstantsSeeder');
         $this->call('CountriesSeeder');
         $this->call('PaymentLibrariesSeeder');
         $this->call('FontsSeeder');
         $this->call('GatewayTypesSeeder');
         $this->call('BanksSeeder');
         $this->call('InvoiceStatusSeeder');
-        $this->call('ProposalTemplatesSeeder');
         $this->call('PaymentStatusSeeder');
         $this->call('CurrenciesSeeder');
         $this->call('DateFormatsSeeder');
         $this->call('InvoiceDesignsSeeder');
+        $this->call('ProposalTemplatesSeeder');
         $this->call('PaymentTermsSeeder');
         $this->call('PaymentTypesSeeder');
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
         $this->call('FrequencySeeder');
         $this->call('DbServerSeeder');
+
+        Cache::flush();
     }
 }

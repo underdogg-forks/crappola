@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Bank;
+use Illuminate\Database\Seeder;
 
 class BanksSeeder extends Seeder
 {
