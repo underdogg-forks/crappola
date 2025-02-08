@@ -2,7 +2,10 @@
 
 namespace App\Exceptions;
 
-use Crawler;
+use App\Http\Requests\Request;
+use Exception;
+use Throwable;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -34,8 +37,6 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param Throwable $e
      *
      * @return bool|void
      */
@@ -89,10 +90,6 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
-     *
-     * @param Request $request
-     * @param Throwable $e
-     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Throwable $e)

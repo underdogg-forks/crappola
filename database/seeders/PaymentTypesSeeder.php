@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentType;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder

@@ -3,9 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Webpatser\Countries\Countries;
 
 class CountriesSeeder extends Seeder
 {

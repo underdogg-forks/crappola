@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Frequency;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class FrequencySeeder extends Seeder

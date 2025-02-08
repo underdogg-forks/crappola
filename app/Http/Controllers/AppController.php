@@ -153,13 +153,19 @@ class AppController extends BaseController
 
     public function updateSetup()
     {
+        dd("here?");
+
         if (Utils::isNinjaProd()) {
             return Redirect::to('/');
         }
 
+        dd("here?");
+
         if (! Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
             return Redirect::to('/');
         }
+
+        dd("here?");
 
         if (! $canUpdateEnv = @fopen(base_path().'/.env', 'w')) {
             Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
@@ -284,17 +290,17 @@ class AppController extends BaseController
 
     public function update()
     {
-        if (! Utils::isNinjaProd()) {
-            if ($password = env('UPDATE_SECRET')) {
+        //if (! Utils::isNinjaProd()) {
+            /*if ($password = env('UPDATE_SECRET')) {
                 if (! hash_equals($password, request('secret') ?: '')) {
                     $message = 'Invalid secret: /update?secret=<value>';
                     Utils::logError($message);
                     echo $message;
                     exit;
                 }
-            }
+            }*/
 
-            try {
+            /*try {
                 set_time_limit(60 * 5);
                 $this->checkInnoDB();
 
@@ -332,8 +338,8 @@ class AppController extends BaseController
                 Utils::logError($e);
 
                 return Response::make($e->getMessage(), 500);
-            }
-        }
+            }*/
+        //}
 
         return Redirect::to('/?clear_cache=true');
     }

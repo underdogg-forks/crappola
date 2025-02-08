@@ -134,13 +134,12 @@ return [
         'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
-        'Intervention\Image\ImageServiceProvider',
+        'Intervention\Image\Laravel\ServiceProvider',
         'Webpatser\Countries\CountriesServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Laravel\Socialite\SocialiteServiceProvider',
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
-        Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider::class,
         Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
         Fruitcake\Cors\CorsServiceProvider::class,
@@ -159,7 +158,6 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-
     ],
 
     /*
@@ -174,7 +172,6 @@ return [
     */
 
     'aliases' => [
-
         'App'             => 'Illuminate\Support\Facades\App',
         'Artisan'         => 'Illuminate\Support\Facades\Artisan',
         'Auth'            => 'Illuminate\Support\Facades\Auth',
@@ -239,13 +236,12 @@ return [
         'Former'         => 'Former\Facades\Former',
         'Omnipay'        => 'Omnipay\Omnipay',
         'CreditCard'     => 'Omnipay\Common\CreditCard',
-        'Image'          => 'Intervention\Image\Facades\Image',
+        'Image'          => Intervention\Image\Facades\Image::class,
         'Countries'      => 'Webpatser\Countries\CountriesFacade',
         'Carbon'         => 'Carbon\Carbon',
         'Rocketeer'      => 'Rocketeer\Facades\Rocketeer',
         'Socialite'      => 'Laravel\Socialite\Facades\Socialite',
         'Excel'          => 'Maatwebsite\Excel\Facades\Excel',
-        'Crawler'        => Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect::class,
         'Datatable'      => 'Chumper\Datatable\Facades\DatatableFacade',
         'Updater'        => Codedge\Updater\UpdaterFacade::class,
         'Module'         => Nwidart\Modules\Facades\Module::class,
@@ -256,7 +252,5 @@ return [
         'CurlUtils' => App\Libraries\CurlUtils::class,
         'Domain'    => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-
     ],
-
 ];

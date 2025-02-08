@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
