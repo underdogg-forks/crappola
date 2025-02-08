@@ -129,6 +129,19 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
+        /*
+        $this->tokenResponse = $response->getData();
+
+        // import Stripe tokens created before payment methods table was added
+        if (! $customer->payment_methods->count()) {
+            if ($paymentMethod = $this->createPaymentMethod($customer)) {
+                $customer->default_payment_method_id = $paymentMethod->id;
+                $customer->save();
+                $customer->load('payment_methods');
+            }
+        }
+        */
+
         return true;
     }
 
@@ -215,7 +228,6 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
                 $intent = PaymentIntent::retrieve($data['payment_intent']);
-
                 if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
@@ -257,8 +269,8 @@ class StripePaymentDriver extends BasePaymentDriver
                         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
                     }
                 }
-
                 $intent = PaymentIntent::create($params);
+
             }
 
             if (empty($intent)) {
@@ -269,6 +281,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 throw new PaymentActionRequiredException(['payment_intent' => $intent]);
             } else if ($intent->status == 'succeeded') {
                 $ref     = ! empty($intent->charges->data) ? $intent->charges->data[0]->id : null;
+                
                 $payment = $this->createPayment($ref, $paymentMethod);
 
                 if ($this->invitation->invoice->account->isNinjaAccount()) {
@@ -283,7 +296,6 @@ class StripePaymentDriver extends BasePaymentDriver
                     $this->tokenResponse = $payment_method;
                     parent::createToken();
                 }
-
                 return $payment;
             } else {
                 throw new Exception('Invalid PaymentIntent status: ' . $intent->status);
@@ -643,7 +655,6 @@ class StripePaymentDriver extends BasePaymentDriver
             'charge.refunded',
             'customer.source.updated',
             'customer.source.deleted',
-            'customer.bank_account.deleted',
             'source.chargeable',
         ];
 
@@ -692,14 +703,14 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.refunded') {
                 $payment->recordRefund($source['amount_refunded'] / 100 - $payment->refunded);
             }
-        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (! $paymentMethod) {
                 return false;
             }
 
-            if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+            if ($eventType == 'customer.source.deleted') {
                 $paymentMethod->delete();
             } elseif ($eventType == 'customer.source.updated') {
                 //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();

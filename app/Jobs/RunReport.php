@@ -10,12 +10,11 @@ use App\Jobs\Job;
 
 class RunReport extends Job
 {
-    public function __construct($user, $reportType, $config, $account, $isExport = false)
+    public function __construct($user, $reportType, $config, $isExport = false)
     {
         $this->user = $user;
         $this->reportType = $reportType;
         $this->config = $config;
-        $this->account = $account;
         $this->isExport = $isExport;
     }
 
@@ -47,14 +46,6 @@ class RunReport extends Job
                     $startDate = Carbon::now()->subMonth()->firstOfMonth()->toDateString();
                     $endDate = Carbon::now()->subMonth()->lastOfMonth()->toDateString();
                     break;
-                case 'this_quarter':
-                    $startDate = Carbon::now()->firstOfQuarter()->toDateString();
-                    $endDate = Carbon::now()->lastOfQuarter()->toDateString();
-                    break;
-                case 'last_quarter':
-                    $startDate = Carbon::now()->subMonth(3)->firstOfQuarter()->toDateString();
-                    $endDate = Carbon::now()->subMonth(3)->lastOfQuarter()->toDateString();
-                    break;
                 case 'this_year':
                     $startDate = Carbon::now()->firstOfYear()->toDateString();
                     $endDate = Carbon::now()->lastOfYear()->toDateString();
@@ -72,7 +63,7 @@ class RunReport extends Job
             $endDate = $config['end_date'];
         }
 
-        $report = new $reportClass($startDate, $endDate, $isExport, $this->account, $config);
+        $report = new $reportClass($startDate, $endDate, $isExport, $config);
         $report->run();
 
         $params = [

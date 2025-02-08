@@ -30,6 +30,8 @@
             vertical-align: top;
             white-space: normal;
             cursor: pointer;
+            max-height:70vh;
+            overflow-y: scroll;
         }
 
         .kanban-column-last {
@@ -793,9 +795,11 @@
                         <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelNewStatus">
                             {{ trans('texts.cancel') }}
                         </button>
+                        <!--
                         <button type='button' class='btn btn-success btn-sm' data-bind="click: saveNewStatus">
                             {{ trans('texts.save') }}
                         </button>
+                        -->
                     </div>
                 </div>
             </div>

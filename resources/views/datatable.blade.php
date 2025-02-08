@@ -60,12 +60,7 @@
             },
             "bAutoWidth": false,
             "aoColumnDefs": [
-                @if(isset($values['entityType']) && $values['entityType'] == 'tickets')
-                {
-                    'bSortable': false,
-                    'aTargets': [ 0, 3 , 7, {{ count($columns) - 1 }} ]
-                },
-                @elseif (isset($hasCheckboxes) && $hasCheckboxes)
+                @if (isset($hasCheckboxes) && $hasCheckboxes)
                 // Disable sorting on the first column
                 {
                     'bSortable': false,

@@ -717,6 +717,15 @@ class BasePaymentDriver
             $customer->save();
         }
 
+        // archive the old payment method
+        $paymentMethod = PaymentMethod::clientId($this->client()->id)
+            ->isBankAccount($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER))
+            ->first();
+
+        if ($paymentMethod) {
+            $paymentMethod->delete();
+        }
+
         $paymentMethod = $this->createPaymentMethod($customer);
 
         if ($paymentMethod) {
@@ -774,14 +783,6 @@ class BasePaymentDriver
         if (! $invoice->canBePaid()) {
             return false;
         }
-
-        // check if invoice is quote and if is, them convert it
-        if($invoice->isQuote()) {
-            $invoiceService = app('App\Services\InvoiceService');
-            $invoice = $invoiceService->convertQuote($invoice);
-            $invitation = $invoice->invitationByContactId($invitation->contact_id);
-        }
-
         $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
@@ -793,9 +794,10 @@ class BasePaymentDriver
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = $account->getDateTime()->format('Y-m-d');
-        $payment->ip = Request::ip();
+        $payment->ip = \Request::ip();
 
-        $payment = $this->creatingPayment($payment, $paymentMethod);
+        //Laravel 6 upgrade - uncommented this line as it was causing a failure
+        // $payment = $this->creatingPayment($payment, $paymentMethod);
 
         if ($paymentMethod) {
             $payment->last4 = $paymentMethod->last4;
@@ -882,7 +884,7 @@ class BasePaymentDriver
     protected function createLicense($payment)
     {
         // TODO parse invoice to determine license
-        if ($payment->amount == 20) {
+        if ($payment->amount == WHITE_LABEL_PRICE) {
             $affiliateId = 4;
             $productId = PRODUCT_WHITE_LABEL;
         } else {

@@ -49,8 +49,6 @@ class RecurringExpense extends EntityModel
         //'start_date',
         //'end_date',
         'frequency_id',
-        'custom_value1',
-        'custom_value2',
     ];
 
     /**

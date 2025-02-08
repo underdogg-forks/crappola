@@ -64,6 +64,7 @@ class Account extends Eloquent
         'postal_code',
         'country_id',
         'invoice_terms',
+        'email_footer',
         'industry_id',
         'size_id',
         'invoice_taxes',
@@ -96,6 +97,13 @@ class Account extends Eloquent
         'custom_design3',
         'show_item_taxes',
         'military_time',
+        'enable_reminder1',
+        'enable_reminder2',
+        'enable_reminder3',
+        'enable_reminder4',
+        'num_days_reminder1',
+        'num_days_reminder2',
+        'num_days_reminder3',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -104,13 +112,19 @@ class Account extends Eloquent
         'invoice_number_pattern',
         'quote_number_pattern',
         'quote_terms',
+        'email_design_id',
+        'enable_email_markup',
         'website',
+        'direction_reminder1',
+        'direction_reminder2',
+        'direction_reminder3',
+        'field_reminder1',
+        'field_reminder2',
+        'field_reminder3',
         'header_font_id',
         'body_font_id',
         'auto_convert_quote',
         'auto_archive_quote',
-        'require_approve_quote',
-        'allow_approve_expired_quote',
         'auto_archive_invoice',
         'auto_email_invoice',
         'all_pages_footer',
@@ -127,7 +141,6 @@ class Account extends Eloquent
         'enable_client_portal_dashboard',
         'page_size',
         'live_preview',
-        'realtime_preview',
         'invoice_number_padding',
         'enable_second_tax_rate',
         'auto_bill_on_due_date',
@@ -163,8 +176,6 @@ class Account extends Eloquent
         'custom_value1',
         'custom_value2',
         'custom_messages',
-        'custom_fields_options',
-        'valid_until_days',
     ];
 
     /**
@@ -193,7 +204,6 @@ class Account extends Eloquent
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_BANKS,
         //ACCOUNT_REPORTS,
-        ACCOUNT_TICKETS,
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_API_TOKENS,
         ACCOUNT_USER_MANAGEMENT,
@@ -205,7 +215,6 @@ class Account extends Eloquent
         ENTITY_QUOTE => 4,
         ENTITY_TASK => 8,
         ENTITY_EXPENSE => 16,
-        ENTITY_TICKET => 32,
     ];
 
     public static $dashboardSections = [
@@ -233,11 +242,6 @@ class Account extends Eloquent
         'expense2',
         'vendor1',
         'vendor2',
-    ];
-
-    public static $customFieldsOptions = [
-        'client1_filter',
-        'client2_filter',
     ];
 
     public static $customLabels = [
@@ -337,14 +341,6 @@ class Account extends Eloquent
         //CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL,
         //CUSTOM_MESSAGE_APPROVED_PROPOSAL,
     ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function account_ticket_settings()
-    {
-        return $this->hasOne('App\Models\AccountTicketSettings');
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -631,32 +627,6 @@ class Account extends Eloquent
         return ! empty($labels->$field) ? $labels->$field : '';
     }
 
-    public function customFieldsOption($option) {
-        $options = $this->custom_fields_options;
-
-        return ! empty($options->$option) ? $options->$option : '';
-    }
-
-    public function setCustomFieldsOptionsAttribute($data) {
-        $options = [];
-
-        if(! is_array($data)) {
-            $data = json_decode($data);
-        }
-
-        foreach ($data as $key => $value) {
-            if($value) {
-                $options[$key] = $value;
-            }
-        }
-
-        $this->attributes['custom_fields_options'] = count($options) ? json_encode($options) : null;
-    }
-
-    public function getCustomFieldsOptionsAttribute($value) {
-        return json_decode($value ?: '{}');
-    }
-
     /**
      * @param int $gatewayId
      *
@@ -865,32 +835,6 @@ class Account extends Eloquent
     public function getCurrencyId()
     {
         return $this->currency_id ?: DEFAULT_CURRENCY;
-    }
-
-    /**
-     * @return bool|int
-     */
-    public function getInvoiceExchangeRateCustomFieldIndex()
-    {
-        $locale = App::getLocale();
-        App::setLocale($this->language->locale);
-
-        $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
-
-        // set locale back
-        App::setLocale($locale);
-
-        if(isset($this->custom_fields->invoice_text1) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text1))
-        {
-            return 1;
-        }
-
-        if(isset($this->custom_fields->invoice_text2) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text2))
-        {
-            return 2;
-        }
-
-        return false;
     }
 
     /**
@@ -1145,11 +1089,6 @@ class Account extends Eloquent
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
-        } else if($entityType == ENTITY_RECURRING_QUOTE) {
-            $invoice->invoice_number = microtime(true);
-            $invoice->is_recurring = true;
-            $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
-            $invoice->invoice_design_id = $this->quote_design_id;
         } else {
             if ($entityType == ENTITY_QUOTE) {
                 $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
@@ -1184,7 +1123,13 @@ class Account extends Eloquent
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 
-        $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
+        //php 7.3
+        // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
+        //php 7.4
+        $currencyId = ($client && $client->currency_id) ? $client->currency_id : ($this->currency_id ?: DEFAULT_CURRENCY);
+
+        // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
+
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
         Session::put(SESSION_CURRENCY, $currencyId);
@@ -1242,7 +1187,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->account_email_settings->enable_reminder1 || $this->account_email_settings->enable_reminder2 || $this->account_email_settings->enable_reminder3 || $this->account_email_settings->enable_reminder4;
+        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3 || $this->enable_reminder4;
     }
 
     /**
@@ -1272,8 +1217,6 @@ class Account extends Eloquent
             case FEATURE_TASKS:
             case FEATURE_EXPENSES:
             case FEATURE_QUOTES:
-            case FEATURE_TICKETS:
-
                 return true;
 
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
@@ -1705,7 +1648,7 @@ class Account extends Eloquent
      */
     public function getEmailDesignId()
     {
-        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->account_email_settings->email_design_id : EMAIL_DESIGN_PLAIN;
+        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
     }
 
     /**
@@ -1728,20 +1671,6 @@ class Account extends Eloquent
         }
 
         return $css;
-    }
-
-    /**
-     * @return string
-     */
-    public function clientViewJS()
-    {
-        $js = '';
-
-        if ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
-            $js = $this->client_view_js;
-        }
-
-        return $js;
     }
 
     /**
@@ -1874,7 +1803,6 @@ class Account extends Eloquent
             ENTITY_VENDOR,
             ENTITY_PROJECT,
             ENTITY_PROPOSAL,
-            ENTITY_TICKET,
         ])) {
             return true;
         }
@@ -1920,7 +1848,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->account_email_settings->enable_email_markup;
+        return $this->enable_email_markup;
     }
 
     public function defaultDaysDue($client = false)
@@ -2041,7 +1969,7 @@ Account::updated(function ($account) {
         return;
     }
 
-    Event::fire(new UserSettingsChanged());
+    Event::dispatch(new UserSettingsChanged());
 });
 
 Account::deleted(function ($account)

@@ -5,11 +5,9 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
-use App\Models\Traits\HasAvatar;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
 use App\Models\LookupUser;
@@ -23,7 +21,6 @@ class User extends Authenticatable
     use PresentableTrait;
     use SoftDeletes;
     use Notifiable;
-    use HasAvatar;
 
     /**
      * @var string
@@ -57,8 +54,6 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'signature',
-        'avatar',
     ];
 
     /**
@@ -105,14 +100,6 @@ class User extends Authenticatable
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = $this->attributes['username'] = $value;
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function getDisplayNameAttribute()
-    {
-        return $this->getDisplayName();
     }
 
     /**
@@ -288,9 +275,6 @@ class User extends Authenticatable
         return MAX_NUM_VENDORS;
     }
 
-    /**
-     *
-     */
     public function clearSession()
     {
         $keys = [
@@ -380,6 +364,17 @@ class User extends Authenticatable
         return false;
     }
 
+
+    public function viewModel($model, $entityType)
+    {
+        if($this->hasPermission('view_'.$entityType))
+            return true;
+        elseif($model->user_id == $this->id)
+            return true;
+        else
+            return false;
+    }
+
     /**
      * @param $entity
      *
@@ -390,11 +385,6 @@ class User extends Authenticatable
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
-    public function isAgent($entity)
-    {
-        return $entity->agent_id == $this->id;
-    }
-
     /**
      * @return bool|mixed
      */
@@ -403,18 +393,11 @@ class User extends Authenticatable
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
-    /**
-     * @param $entity
-     * @return bool|mixed
-     */
     public function filterIdByEntity($entity)
     {
         return $this->hasPermission('view_' . $entity) ? false : $this->id;
     }
 
-    /**
-     * @return bool
-     */
     public function caddAddUsers()
     {
         if (! Utils::isNinjaProd()) {
@@ -434,49 +417,28 @@ class User extends Authenticatable
         return $numUsers < $company->num_users;
     }
 
-    /**
-     * @param $entityType
-     * @param bool $entity
-     * @return bool
-     */
     public function canCreateOrEdit($entityType, $entity = false)
     {
-        if($entity)
-            return ($entity && $this->can('edit', $entity)) || ($entity && $this->can('create', $entity));
-        elseif($entityType)
-            return $this->hasPermission('edit_'.$entityType) || $this->hasPermission('create_'.$entityType);
-
+        return ($entity && $this->can('edit', $entity))
+            || (! $entity && $this->can('create', $entityType));
     }
 
-
-    /**
-     * @return mixed
-     */
     public function primaryAccount()
     {
         return $this->account->company->accounts->sortBy('id')->first();
     }
 
-    /**
-     * @param string $token
-     */
     public function sendPasswordResetNotification($token)
     {
         //$this->notify(new ResetPasswordNotification($token));
         app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
     }
 
-    /**
-     * @return mixed
-     */
     public function routeNotificationForSlack()
     {
         return $this->slack_webhook_url;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAcceptedLatestTerms()
     {
         if (! NINJA_TERMS_VERSION) {
@@ -486,10 +448,6 @@ class User extends Authenticatable
         return $this->accepted_terms_version == NINJA_TERMS_VERSION;
     }
 
-    /**
-     * @param $ip
-     * @return $this
-     */
     public function acceptLatestTerms($ip)
     {
         $this->accepted_terms_version = NINJA_TERMS_VERSION;
@@ -499,19 +457,11 @@ class User extends Authenticatable
         return $this;
     }
 
-    /**
-     * @param $entity
-     * @return bool
-     */
     public function ownsEntity($entity)
     {
         return $entity->user_id == $this->id;
     }
 
-    /**
-     * @param $invoice
-     * @return bool
-     */
     public function shouldNotify($invoice)
     {
         if (! $this->email || ! $this->confirmed) {
@@ -529,7 +479,6 @@ class User extends Authenticatable
         return true;
     }
 
-
     public function permissionsMap()
     {
         $data = [];
@@ -545,12 +494,10 @@ class User extends Authenticatable
         return array_combine($keys, $values);
     }
 
-    public function isTicketMaster()
+    public function eligibleForMigration()
     {
-        return $this->id == $this->account->account_ticket_settings->ticket_master_id;
+        return is_null($this->public_id) || $this->public_id == 0;
     }
-
-
 }
 
 User::created(function ($user)

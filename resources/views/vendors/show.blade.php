@@ -163,7 +163,7 @@
 				<tr>
 					<td style="vertical-align: top"><small>{{ trans('texts.balance') }}</small></td>
                     <td style="text-align: right">
-                        @foreach ($vendor->getUnpaidExpenses() as $currency)
+                        @foreach ($vendor->getTotalExpenses() as $currency)
                             <p>{{ Utils::formatMoney($currency->amount, $currency->expense_currency_id) }}</p>
                         @endforeach
                     </td>

@@ -1,6 +1,9 @@
 Install
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Thanks for taking the time to setup Invoice Ninja.
 
 .. Note:: The applications requires PHP 7.1 or 7.2 and MySQL.
@@ -8,15 +11,13 @@ Thanks for taking the time to setup Invoice Ninja.
 Detailed Guides
 ^^^^^^^^^^^^^^^
 
-- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoice-ninja-on-ubuntu-16-04-18-04-lts-with-nginx-mariadb-and-php-7-2-fpm/>`_
+- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-17-04-17-10-with-nginx-mariadb-and-php-support/>`_
 
-- Ubuntu and Apache: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-16-04-18-04-with-apache2-mariadb-and-php-7-2//>`_
+- Ubuntu and Apache: `technerdservices.com <http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/>`_
 
-- Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-debian-9/>`_
+- Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/>`_
 
-- Debian 10 and Nginx: `atlantic.net <https://www.atlantic.net/vps-hosting/how-to-install-invoice-ninja-on-debian-10/>`_
-
-- CentOS and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-centos-7/>`_
+- CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
 - HostGator: `carlosthomas.net <https://carlosthomas.net/blog/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
 

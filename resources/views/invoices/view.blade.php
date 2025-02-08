@@ -160,16 +160,13 @@
             @include($partialView)
         @else
             <div id="paymentButtons" class="pull-right" style="text-align:right">
-            @if ($invoice->isQuote() && $approveRequired)
+            @if ($invoice->isQuote())
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()', 'class' => 'require-authorization'])->large() !!}
 				@elseif ($invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
 					{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
                 @endif
-			@elseif ($invoice->isQuote() && $invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
-				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
-				{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
 			@elseif ( ! $invoice->canBePaid())
 				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
@@ -262,8 +259,8 @@
 			}
 
 			$(function() {
-                @if (Input::has('phantomjs'))
-					@if (Input::has('phantomjs_balances'))
+                @if (Request::has('phantomjs'))
+					@if (Request::has('phantomjs_balances'))
 						document.write(calculateAmounts(invoice).total_amount);
 						document.close();
 						if (window.hasOwnProperty('pjsc_meta')) {
@@ -281,7 +278,7 @@
                     refreshPDF();
                 @endif
 
-				@if ($account->requiresAuthorization($invoice) && ! $invitation->signature_date)
+				@if ($account->requiresAuthorization($invoice))
 					$('.require-authorization a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');

@@ -109,7 +109,9 @@ class SendReminders extends Command
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
-            if ($invoice->isPaid()) {
+            //21-03-2023 adjustment here
+            if ($invoice->isPaid() || !$invoice->account || $invoice->account->is_deleted) {
+            // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
 
@@ -125,10 +127,10 @@ class SendReminders extends Command
     private function chargeLateFees()
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info(date('r ') . $accounts->count() . ' accounts found with fees');
+        $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
-            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -141,14 +143,8 @@ class SendReminders extends Command
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
-                    if ($invoice->isQuote()) {
-                        $amount = $account->account_email_settings->{"late_fee_quote{$number}_amount"};
-                        $percent = $account->account_email_settings->{"late_fee_quote{$number}_percent"};
-                    } else {
-                        $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
-                        $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
-                    }
-
+                    $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
+                    $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
                     $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
                 }
             }
@@ -158,10 +154,10 @@ class SendReminders extends Command
     private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(date('r ') . count($accounts) . ' accounts found with reminders');
+        $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
-            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -190,18 +186,6 @@ class SendReminders extends Command
                 $this->info(date('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
-
-            // endless quote reminders
-            $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account, true);
-            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' endless quotes found');
-
-            foreach ($invoices as $invoice) {
-                if ($invoice->last_sent_date == date('Y-m-d')) {
-                    continue;
-                }
-                $this->info(date('r') . ' Send email: ' . $invoice->id);
-                dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'quote_reminder4'));
-            }
         }
     }
 
@@ -219,7 +203,7 @@ class SendReminders extends Command
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
 
-            if (! $account->hasFeature(FEATURE_REPORTS)) {
+            if (! $account->hasFeature(FEATURE_REPORTS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -229,7 +213,7 @@ class SendReminders extends Command
             // send email as user
             auth()->onceUsingId($user->id);
 
-            $report = dispatch_now(new RunReport($scheduledReport->user, $reportType, $config, $account, true));
+            $report = dispatch_now(new RunReport($scheduledReport->user, $reportType, $config, true));
             $file = dispatch_now(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
@@ -258,24 +242,13 @@ class SendReminders extends Command
         if (config('ninja.exchange_rates_enabled')) {
             $this->info(date('r') . ' Loading latest exchange rates...');
 
-            $url = config('ninja.exchange_rates_url');
-            $apiKey = config('ninja.exchange_rates_api_key');
-            $url = str_replace('{apiKey}', $apiKey, $url);
-
-            $response = CurlUtils::get($url);
+            $response = CurlUtils::get(config('ninja.exchange_rates_url'));
             $data = json_decode($response);
 
-            if ($data && property_exists($data, 'rates') && property_exists($data, 'base')) {
-                $base = config('ninja.exchange_rates_base');
-
-                // should calculate to different base
-                $recalculate = ($data->base != $base);
+            if ($data && property_exists($data, 'rates')) {
+                Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
 
                 foreach ($data->rates as $code => $rate) {
-                    if($recalculate) {
-                        $rate = 1 / $data->rates->{$base} * $rate;
-                    }
-
                     Currency::whereCode($code)->update(['exchange_rate' => $rate]);
                 }
             } else {

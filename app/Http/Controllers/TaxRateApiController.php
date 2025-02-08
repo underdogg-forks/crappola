@@ -185,7 +185,7 @@ class TaxRateApiController extends BaseAPIController
     {
         $entity = $request->entity();
 
-        $entity->delete();
+        $this->taxRateRepo->delete($entity);
 
         return $this->itemResponse($entity);
     }

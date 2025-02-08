@@ -17,10 +17,8 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
-use App\Services\RecurringInvoiceService;
 use Auth;
 use Cache;
-use Input;
 use Redirect;
 use Session;
 use Utils;
@@ -34,7 +32,7 @@ class QuoteController extends BaseController
     protected $invoiceService;
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, RecurringInvoiceService $recurringInvoiceService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
         // parent::__construct();
 
@@ -42,7 +40,6 @@ class QuoteController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->invoiceService = $invoiceService;
-        $this->recurringInvoiceService = $recurringInvoiceService;
     }
 
     public function index()
@@ -62,17 +59,9 @@ class QuoteController extends BaseController
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
-    }
-
-    public function getRecurringDatatable($clientPublicId = null)
-    {
-        $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
-
-        return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_QUOTE, $search);
     }
 
     public function create(QuoteRequest $request, $clientPublicId = 0)
@@ -92,7 +81,7 @@ class QuoteController extends BaseController
         $data = [
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
-            'data' => Input::old('data'),
+            'data' => \Request::old('data'),
             'method' => 'POST',
             'url' => 'invoices',
             'title' => trans('texts.new_quote'),
@@ -125,9 +114,9 @@ class QuoteController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');
+        $action = \Request::input('bulk_action') ?: \Request::input('action');
         ;
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
+        $ids = \Request::input('bulk_public_id') ?: (\Request::input('public_id') ?: \Request::input('ids'));
 
         if ($action == 'convert') {
             $invoice = Invoice::with('invoice_items')->scope($ids)->firstOrFail();
@@ -167,7 +156,7 @@ class QuoteController extends BaseController
 
         if ($invoice->due_date) {
             $carbonDueDate = \Carbon::parse($invoice->due_date);
-            if (! $account->allow_approve_expired_quote && ! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
+            if (! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
                 return redirect("view/{$invitationKey}")->withError(trans('texts.quote_has_expired'));
             }
         }

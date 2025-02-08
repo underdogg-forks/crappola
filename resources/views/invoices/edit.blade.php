@@ -7,11 +7,6 @@
 	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
 
 	<style type="text/css">
-
-		.tt-menu {
-			width: 350px !important;
-		}
-
         select.tax-select {
             width: 50%;
             float: left;
@@ -73,7 +68,7 @@
 	@if ($invoice->id)
 		<ol class="breadcrumb">
 		@if ($invoice->is_recurring)
-            <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'recurring_quotes' : 'recurring_invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'recurring_quotes' : 'recurring_invoices'))) !!}</li>
+			<li>{!! link_to('recurring_invoices', trans('texts.recurring_invoices')) !!}</li>
 		@else
 			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class="active">{{ $invoice->invoice_number }}</li>
@@ -146,7 +141,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					@can('create', ENTITY_CLIENT)
+					@can('create', $invoice->client)
 					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
 					@endcan
                     <span data-bind="visible: $root.invoice().client().public_id() > 0" style="display:none">|
@@ -222,7 +217,7 @@
 					</div>
 				</div>
 			</div>
-			@if (isset($frequencies))
+            @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
 				{!! Former::select('frequency_id')->label('frequency')->options($frequencies)->data_bind("value: frequency_id")
                         ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
@@ -230,9 +225,9 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
 				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
-                {!! Former::select('recurring_due_date')->label($account->getLabel($invoice->getDueDateLabel()))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
+                {!! Former::select('recurring_due_date')->label(trans('texts.due_date'))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
 			</div>
-			@endif
+            @endif
 
             @if ($account->customLabel('invoice_text1'))
 				@include('partials.custom_field', [
@@ -251,7 +246,6 @@
                         ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
-            @if ($entityType == ENTITY_INVOICE)
             <span data-bind="visible: is_recurring()" style="display: none">
                 <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
                 {!! Former::select('auto_bill')
@@ -277,7 +271,6 @@
                     </div>
                 </div>
             </span>
-            @endif
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('no-padding-or-border')->type('number')->min('0')->step('any')->append(
@@ -296,6 +289,7 @@
 				])
             @endif
 
+            @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
                 <div class="col-lg-8 col-sm-8 col-sm-offset-4 smaller" style="padding-top: 10px;">
                 	@if ($invoice->recurring_invoice_id && $invoice->recurring_invoice)
@@ -318,6 +312,7 @@
                     @endif
                 </div>
             </div>
+            @endif
 		</div>
 	</div>
 
@@ -552,10 +547,6 @@
 				@endif
             @else
 				@if (!$invoice->is_deleted)
-					@if ( ! Auth::user()->account->realtime_preview && Auth::user()->account->live_preview)
-						{!! Button::normal('PDF')->withAttributes(['id' => 'refreshPdfButton', 'onclick' => 'refreshPDF(true,true)'])->appendIcon(Icon::create('refresh')) !!}
-					@endif
-
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
@@ -569,7 +560,7 @@
 					@endif
                     @if ($invoice->id)
                         {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
-                    @elseif (Request::is('*/clone'))
+                    @elseif (! $invoice->isQuote() && Request::is('*/clone'))
                         {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
 					@elseif (! empty($tasks))
 						{!! Button::normal(trans('texts.add_product'))->withAttributes(['id' => 'addItemButton', 'onclick' => 'onAddItemClick()'])->appendIcon(Icon::create('plus-sign')) !!}
@@ -583,7 +574,7 @@
 
 	</center>
 
-	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview, 'realtime_preview' => Auth::user()->account->realtime_preview])
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -907,7 +898,7 @@
                 model.invoice().addItem(); // add blank item
             @else
                 // set the default account tax rate
-                @if ($account->invoice_taxes && empty($invoice->tax_name1) && empty($invoice->tax_name2))
+                @if ($account->invoice_taxes)
 					@if (! empty($account->tax_name1))
 						model.invoice().tax_rate1("{{ $account->tax_rate1 }}");
 						model.invoice().tax_name1({!! json_encode($account->tax_name1) !!});
@@ -936,8 +927,7 @@
                     item.notes(task.description);
                     item.qty(task.duration);
 					item.cost(task.cost);
-					item.task_public_id(task.publicId);
-					item.product_key(task.productKey);
+                    item.task_public_id(task.publicId);
                 }
                 model.invoice().has_tasks(true);
 				NINJA.formIsChanged = true;
@@ -1033,16 +1023,16 @@
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
                 setInvoiceNumber(selected);
-                refreshPDF(true, true);
+                refreshPDF(true);
 			} else if (oldId) {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;
-                refreshPDF(true, true);
+                refreshPDF(true);
 			}
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
-		@can('create', ENTITY_CLIENT);
+		@can('create', $invoice->client);
 		if (clients.length === 0) {
 			$('.client_select input.form-control').on('click', function() {
 				model.showClientForm();
@@ -1099,7 +1089,7 @@
 		@if ($invoice->client->id)
 			$input.trigger('change');
 		@else
-			refreshPDF(true, true);
+			refreshPDF(true);
 		@endif
 
 		var client = model.invoice().client();

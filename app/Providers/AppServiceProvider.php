@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Blade;
 use Form;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Request;
 use URL;
@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree();
 
         // support selecting job database
         Queue::before(function (JobProcessing $event) {
@@ -126,19 +127,6 @@ class AppServiceProvider extends ServiceProvider
                     return '';
                 }
 
-                if(! Utils::isNinjaProd()) {
-                    // check the crumb against  all defined base-routes in enabled modules
-                    // to get the correct module name for translation resolution
-                    $modules = \Module::enabled();
-
-                    foreach($modules as $module) {
-                        if($crumb == $module->get('base-route', '')) {
-                            $crumb = $module->getLowerName();
-                            break;
-                        }
-                    }
-                }
-
                 if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
                     $name = mtrans($crumb);
                 } else {
@@ -232,20 +220,6 @@ class AppServiceProvider extends ServiceProvider
 
         Validator::extend('valid_subdomain', function ($attribute, $value, $parameters) {
             return ! in_array($value, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents', 'download']);
-        });
-
-        // add @render Blade directive for view components
-        Blade::directive('render', function($parameters) {
-            // split the component class name from the parameter array (if any passed)
-            $parts = explode(',', $parameters, 2);
-
-            // check if there are parameters; if not, send empty array
-            if(count($parts) == 1) {
-                $parts[1] = '[]';
-            }
-
-            return "<?php echo app({$parts[0]}, {$parts[1]})->toHtml(); ?>";
-
         });
     }
 

@@ -23,9 +23,6 @@
                                             ->raw()
                                     ) !!}
                         @else
-                            {!! Former::populateField('num_days_' . $field, $account->account_email_settings->{'num_days_' . $field}) !!}
-                            {!! Former::populateField('direction_' . $field, $account->account_email_settings->{'direction_' . $field}) !!}
-                            {!! Former::populateField('field_' . $field, $account->account_email_settings->{'field_' . $field}) !!}
                             {!! Former::plaintext('schedule')
                                     ->value(
                                         Former::input('num_days_' . $field)
@@ -46,7 +43,7 @@
                         @endif
                     </div>
                     <div class="col-md-6">
-                        {!! Former::populateField('enable_' . $field, $account->account_email_settings->{'enable_' . $field}) !!}
+
                         {!! Former::checkbox('enable_' . $field)
                                 ->text('enable')
                                 ->label('send_email')

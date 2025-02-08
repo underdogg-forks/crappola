@@ -11,7 +11,6 @@ use App\Models\Invoice;
 class RecurringInvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_RECURRING_INVOICE;
-    public $fieldToSum = 'amount';
 
     public function columns()
     {
@@ -27,7 +26,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                         $label = trans('texts.freq_inactive');
                     }
 
-                    return link_to("{$this->entityType}s/{$model->public_id}/edit", $label)->toHtml();
+                    return link_to("recurring_invoices/{$model->public_id}/edit", $label)->toHtml();
                 },
             ],
             [
@@ -114,7 +113,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
@@ -123,7 +122,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return URL::to("quotes/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_QUOTE);
+                    return Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
 

@@ -15,33 +15,31 @@ return [
 	*/
 
     'postmark' => env('POSTMARK_API_TOKEN', ''),
-	'postmark_ticket' => env('POSTMARK_API_TICKET_TOKEN'),
-	'postmark_ticket_2' => env('POSTMARK_API_TICKET_TOKEN_2'),
 
-	'mailgun' => [
-		'domain' => env('MAILGUN_DOMAIN',''),
-		'secret' => env('MAILGUN_SECRET',''),
-		'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
-	],
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN',''),
+        'secret' => env('MAILGUN_SECRET',''),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+    ],
 
-	'mandrill' => [
-		'secret' => '',
-	],
-	
-	'sparkpost' => [
-                'secret' => env('SPARKPOST_API_KEY'),
-        ],
+    'mandrill' => [
+        'secret' => '',
+    ],
 
-	'ses' => [
-		'key' => '',
-		'secret' => '',
-		'region' => 'us-east-1',
-	],
+    'ses' => [
+        'key' => env('SES_KEY', ''),
+        'secret' => env('SES_SECRET', ''),
+        'region' => env('SES_DEFAULT_REGION', 'us-east-1'),
+    ],
 
-	'stripe' => [
-		'model'  => 'User',
-		'secret' => '',
-	],
+    'sparkpost' => [
+        'secret' => env('SPARKPOST_SECRET'),
+    ],
+
+    'stripe' => [
+        'model'  => 'User',
+        'secret' => '',
+    ],
 
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),

@@ -5,7 +5,6 @@ namespace App\Ninja\Repositories;
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
-use App\Models\AccountTicketSettings;
 use App\Models\AccountToken;
 use App\Models\Client;
 use App\Models\Company;
@@ -19,7 +18,6 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\LookupUser;
 use Auth;
-use Input;
 use Request;
 use Schema;
 use Session;
@@ -38,19 +36,19 @@ class AccountRepository
             }
 
             $company = new Company();
-            $company->utm_source = Input::get('utm_source');
-            $company->utm_medium = Input::get('utm_medium');
-            $company->utm_campaign = Input::get('utm_campaign');
-            $company->utm_term = Input::get('utm_term');
-            $company->utm_content = Input::get('utm_content');
+            $company->utm_source = \Request::input('utm_source');
+            $company->utm_medium = \Request::input('utm_medium');
+            $company->utm_campaign = \Request::input('utm_campaign');
+            $company->utm_term = \Request::input('utm_term');
+            $company->utm_content = \Request::input('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
 
-            if (Input::get('utm_campaign')) {
-                if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
+            if (\Request::input('utm_campaign')) {
+                if (env('PROMO_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
-                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
                     $company->applyFreeYear(2);
                 }
             } else {
@@ -127,11 +125,6 @@ class AccountRepository
         $emailSettings = new AccountEmailSettings();
         $account->account_email_settings()->save($emailSettings);
 
-        $accountTicketSettings = new AccountTicketSettings();
-        $accountTicketSettings->ticket_master_id = $user->id;
-        $accountTicketSettings->ticket_number_start = 1;
-
-        $account->account_ticket_settings()->save($accountTicketSettings);
         return $account;
     }
 
@@ -141,6 +134,11 @@ class AccountRepository
 
         // Apple's IP for their test accounts
         if ($ip == '17.200.11.44') {
+            return;
+        }
+
+        // Checkout.com
+        if ($ip == '80.227.4.234') {
             return;
         }
 
@@ -277,7 +275,6 @@ class AccountRepository
             ENTITY_EXPENSE_CATEGORY,
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
-            ENTITY_RECURRING_QUOTE,
             ENTITY_PAYMENT,
             ENTITY_CREDIT,
             ENTITY_PROJECT,
@@ -463,11 +460,6 @@ class AccountRepository
             $user->notify_sent = true;
             $user->notify_paid = true;
             $account->users()->save($user);
-
-
-            $account_ticket_settings = new AccountTicketSettings();
-            $account_ticket_settings->ticket_master_id = $user->id;
-            $account->account_ticket_settings()->save($account_ticket_settings);
 
             if ($config = env(NINJA_GATEWAY_CONFIG)) {
                 $accountGateway = new AccountGateway();
@@ -759,9 +751,7 @@ class AccountRepository
 
     public function findWithReminders()
     {
-        return Account::whereHas('account_email_settings', function($query) {
-            $query->whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1 OR enable_quote_reminder1 = 1 OR enable_quote_reminder2 = 1 OR enable_quote_reminder3 = 1 OR enable_quote_reminder4 = 1');
-        })->get();
+        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1')->get();
     }
 
     public function findWithFees()
@@ -772,13 +762,7 @@ class AccountRepository
                     ->orWhere('late_fee2_amount', '>', 0)
                     ->orWhere('late_fee2_percent', '>', 0)
                     ->orWhere('late_fee3_amount', '>', 0)
-                    ->orWhere('late_fee3_percent', '>', 0)
-                    ->orWhere('late_fee_quote1_amount', '>', 0)
-                    ->orWhere('late_fee_quote1_percent', '>', 0)
-                    ->orWhere('late_fee_quote2_amount', '>', 0)
-                    ->orWhere('late_fee_quote2_percent', '>', 0)
-                    ->orWhere('late_fee_quote3_amount', '>', 0)
-                    ->orWhere('late_fee_quote3_percent', '>', 0);
+                    ->orWhere('late_fee3_percent', '>', 0);
         })->get();
     }
 

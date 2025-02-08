@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Proposal;
-
 class CreateProposalTemplateRequest extends ProposalTemplateRequest
 {
     /**
@@ -13,7 +11,7 @@ class CreateProposalTemplateRequest extends ProposalTemplateRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Proposal::class);
+        return $this->user()->can('create', ENTITY_PROPOSAL_TEMPLATE);
     }
 
     /**

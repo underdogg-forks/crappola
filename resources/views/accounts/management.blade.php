@@ -172,7 +172,6 @@
 
 		{!! Former::open('settings/account_management') !!}
 		{!! Former::populateField('live_preview', intval($account->live_preview)) !!}
-		{!! Former::populateField('realtime_preview', intval($account->realtime_preview)) !!}
 		{!! Former::populateField('force_pdfjs', intval(Auth::user()->force_pdfjs)) !!}
 
 		<div class="panel panel-default">
@@ -222,11 +221,6 @@
 						->help(trans('texts.live_preview_help') . '<br/>' . trans('texts.recommend_on'))
 						->value(1) !!}
 
-				{!! Former::checkbox('realtime_preview')
-						->text(trans('texts.enable'))
-						->help(trans('texts.realtime_preview_help'))
-						->value(1) !!}
-
 				{!! Former::checkbox('force_pdfjs')
 						->text(trans('texts.enable'))
 						->value(1)
@@ -253,6 +247,11 @@
 					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
 					<div class="col-lg-8 col-sm-8">
 						<div class="help-block">{{ trans('texts.migrate_intro_text')}}</div><br/>
+						<div class="help-block">
+							Watch these YouTube videos to see some of the many new features added:<br/>
+							• <a href="https://www.youtube.com/watch?v=h_IMJLmVmuY&ab_channel=InvoiceNinja" target="_blank">What's new in Invoice Ninja v5</a><br/>
+							• <a href="https://www.youtube.com/watch?v=NgwCxIMry54&ab_channel=InvoiceNinja" target="_blank">More new features in v5</a><br/>
+						</div><br/>
 						@if(Auth::user()->eligibleForMigration())
 							<a class="btn btn-primary btn-lg"
 								href="{{ url('/migration/start') }}">{!! trans('texts.start_migration') !!}</a>
@@ -260,13 +259,59 @@
 							{{ trans('texts.not_allowed') }}
 						@endif
 						<br/>
-						<a href="https://invoiceninja.github.io/docs/migration/" target="_blank">{{ trans('texts.learn_more') }}</a>
+						<a href="https://invoiceninja.github.io/docs/migration/" target="_blank">{{ trans('texts.learn_more') }}</a><br/>
 					</div>
 				</div>
 			</div>
 		</div>
-
 		{!! Former::close() !!}
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Forward customers to V5</h3>
+			</div>
+			<div class="panel-body">
+				<form action="{{ url('/migration/forward') }}" method="post" id="forward-form">
+        		{{ csrf_field() }}
+        		<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						<div class="help-block">
+						</div>
+					</div>
+        		</div>
+				<div class="form-group">                    
+                    <label for="url"  class="control-label col-lg-4 col-sm-4 text-right">{!! trans('texts.url') !!}</label>
+                    <div class="col-lg-8 col-sm-8">
+                    <input type="text" name="url" placeholder="https://subdomain.invoicing.co" class="form form-control" value="{{ $account->account_email_settings->forward_url_for_v5}}" @if(Utils::isNinjaProd())disabled @endif>
+		        	@if($errors->has('url')) 
+		                <div class="col-sm-5">
+		                    @foreach ($errors->get('url') as $message)
+		                        <span class="help-block">
+		                            <span class="glyphicon glyphicon-warning-sign"></span> 
+		                            {{ $message }}
+		                        </span>
+		                    @endforeach
+		                </div>
+		            @endif
+		        	<br/>
+		        		<button form="forward-form" class="btn btn-primary btn-lg">Enable Forwarding</button>
+                	</div>
+				</div>
+				</form>
+				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+					<br>
+					<br>
+					 <span class="help-block">
+					 	<br>
+					 	If you need to rollback to v4, please disable forwarding using this link.
+					 	<a class="button" href="/migration/disable_forward">Disable Forwarding</a>
+					 </span>
+				</div>
+				</div>
+				</div>
+			</div>
+		</div>
 
 		@if (! Auth::user()->account->isNinjaOrLicenseAccount())
 			<div class="panel panel-default">
@@ -406,11 +451,6 @@
         }
     }
 
-    function updateCheckboxes() {
-        var checked = $('#live_preview').is(':checked');
-        $('#realtime_preview').prop('disabled', ! checked);
-    }
-
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
 			var plan = $('#plan').val();
@@ -439,9 +479,6 @@
 		$('#plan_term, #plan, #num_users').change(updatePlanModal);
 	  	updatePlanModal();
         onPlanChange();
-
-        $('#live_preview').change(updateCheckboxes);
-        updateCheckboxes();
 
 		if(window.location.hash) {
 			var hash = window.location.hash;

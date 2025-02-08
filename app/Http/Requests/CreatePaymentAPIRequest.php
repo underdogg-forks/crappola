@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
-use App\Models\Payment;
 
 class CreatePaymentAPIRequest extends PaymentRequest
 {
@@ -14,7 +13,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Payment::class);
+        return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
     /**

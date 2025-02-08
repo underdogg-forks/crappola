@@ -6,9 +6,7 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                @if (env('TRAVIS'))
-                    background-color: #FF0000 !important;
-                @elseif (config('mail.driver') == 'log' && ! config('services.postmark'))
+                @if (config('mail.driver') == 'log' && ! config('services.postmark'))
                     background-color: #50C878 !important;
                 @else
                     background-color: #FD6A02 !important;
@@ -175,8 +173,8 @@
 
     @yield('onReady')
 
-    @if (Input::has('focus'))
-        $('#{{ Input::get('focus') }}').focus();
+    @if (\Request::has('focus'))
+        $('#{{ \Request::input('focus') }}').focus();
     @endif
 
     // Focus the search input if the user clicks forward slash
@@ -394,13 +392,7 @@
             'reports' => false,
             'settings' => false,
         ] as $key => $value)
-              @if(!Auth::user()->account->isModuleEnabled(substr($key, 0, -1)))
-                  {{ '' }}
-              @elseif (in_array($key, ['dashboard', 'settings'])
-                || Auth::user()->can('view', substr($key, 0, -1))
-                || Auth::user()->can('create', substr($key, 0, -1)))
-                  {!! Form::nav_link($key, $value ?: $key) !!}
-              @endif
+            {!! Form::nav_link($key, $value ?: $key) !!}
         @endforeach
       </ul>
     </div><!-- /.navbar-collapse -->
@@ -426,7 +418,6 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'tickets',
             ] as $option)
                 @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
                     {{ '' }}
@@ -437,9 +428,8 @@
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
-                        'option' => $module->get('base-route', $module->getAlias()),
+                        'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
-                        'moduleName' => $module->getLowerName(),
                     ])
                 @endforeach
             @endif
@@ -538,10 +528,6 @@
             </div>
         </div>
     </div>
-
-    @if(Utils::isSelfHost())
-        @stack('component_scripts')
-    @endif
     <!-- /#page-content-wrapper -->
 </div>
 

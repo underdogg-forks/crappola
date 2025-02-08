@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Expense;
-
 class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
     // Expenses
@@ -15,7 +13,7 @@ class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Expense::class);
+        return $this->user()->can('create', ENTITY_EXPENSE_CATEGORY);
     }
 
     /**
