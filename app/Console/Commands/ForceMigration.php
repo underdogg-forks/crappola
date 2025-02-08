@@ -71,7 +71,7 @@ class ForceMigration extends Command
         }
 
         $this->forceMigrate($company);
-
+        return 0;
     }
 
 

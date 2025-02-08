@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\ProposalTemplate;
+use Illuminate\Database\Seeder;
 
 class ProposalTemplatesSeeder extends Seeder
 {

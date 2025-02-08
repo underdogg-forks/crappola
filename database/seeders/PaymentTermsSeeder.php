@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\PaymentTerm;
+use Illuminate\Database\Seeder;
 
 class PaymentTermsSeeder extends Seeder
 {

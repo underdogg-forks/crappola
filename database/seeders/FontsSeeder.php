@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Font;
+use Illuminate\Database\Seeder;
 
 class FontsSeeder extends Seeder
 {

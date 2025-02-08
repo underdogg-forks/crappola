@@ -52,7 +52,7 @@ class SyncAccounts extends Command
         config(['database.default' => DB_NINJA_2]);
 
         $this->updateAccounts();
-
+        return 0;
     }
 
     private function updateAccounts()
