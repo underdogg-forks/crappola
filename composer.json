@@ -43,7 +43,7 @@
         "jaybizzle/laravel-crawler-detect": "*",
         "jlapp/swaggervel": "master-dev",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "^7.0",
+        "laravel/framework": "^8.0",
         "laravel/helpers": "*",
         "laravel/legacy-encrypter": "*",
         "laravel/socialite": "*",
@@ -53,7 +53,6 @@
         "league/flysystem-aws-s3-v3": "*",
         "league/flysystem-rackspace": "*",
         "league/fractal": "*",
-        "lokielse/omnipay-alipay": "*",
         "maatwebsite/excel": "dev-php-fix",
         "mpdf/mpdf": "*",
         "nesbot/carbon": "*",
@@ -71,7 +70,6 @@
         "stripe/stripe-php": "*",
         "superbalist/laravel-google-cloud-storage": "*",
         "symfony/css-selector": "*",
-        "therobfonz/laravel-mandrill-driver": "*",
         "vemcogroup/laravel-sparkpost-driver": "*",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wepay/php-sdk": "*",
@@ -139,7 +137,8 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "codeception/c3": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
         }
     },
     "repositories": [
