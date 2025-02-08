@@ -104,6 +104,7 @@ class ChargeRenewalInvoices extends Command
                     ->subject('ChargeRenewalInvoices: Finished successfully');
             });
         }
+        return 0;
     }
 
     /**

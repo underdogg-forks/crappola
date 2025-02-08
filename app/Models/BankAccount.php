@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use Crypt;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -66,5 +65,10 @@ class BankAccount extends EntityModel
     public function bank_subaccounts()
     {
         return $this->hasMany(BankSubaccount::class);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use App\Events\CreditWasCreated;
-use App\Ninja\Presenters\CreditPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -103,6 +102,11 @@ class Credit extends EntityModel
         $this->save();
 
         return $applied;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

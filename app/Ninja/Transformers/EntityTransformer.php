@@ -50,6 +50,11 @@ class EntityTransformer extends TransformerAbstract
         }
     }
 
+    public function getDefaultIncludes(): array
+    {
+        return $this->defaultIncludes;
+    }
+
     protected function getDefaults($entity)
     {
         $data = [

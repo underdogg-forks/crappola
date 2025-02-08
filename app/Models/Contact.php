@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use App\Ninja\Mailers\ContactMailer;
+use DateTimeInterface;
+use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -230,6 +230,11 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     {
         //$this->notify(new ResetPasswordNotification($token));
         app(ContactMailer::class)->sendPasswordReset($this, $token);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -116,6 +116,7 @@ class UpdateKey extends Command
             }
         }
         $this->info($message);
+        return 0;
     }
 
     /**

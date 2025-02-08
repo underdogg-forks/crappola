@@ -6,6 +6,15 @@ use App\Models\Invoice;
 
 class InvoiceTransformer extends EntityTransformer
 {
+    /**
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="invoice_number", type="string", example="0001")
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="public_notes", type="string", example="Notes...")
+     */
     protected array $defaultIncludes = [
         'invoice_items',
     ];

@@ -46,9 +46,10 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'path'   => storage_path('logs/laravel.log'),
-            'level'  => 'debug',
-            'days'   => 4,
+            'path' => storage_path('logs/laravel.log'),
+            'level' => 'debug',
+            'tap'=>[\App\Logging\CustomizeSingleLogger::class],
+            'days' => 4,
         ],
 
         'slack' => [

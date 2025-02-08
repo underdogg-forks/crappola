@@ -4,7 +4,7 @@ namespace App\Models;
 
 // vendor
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -117,5 +117,10 @@ class VendorContact extends EntityModel
         }
 
         return '';
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
