@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -47,4 +48,8 @@ class Subscription extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

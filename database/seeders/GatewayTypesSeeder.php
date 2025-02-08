@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class GatewayTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 

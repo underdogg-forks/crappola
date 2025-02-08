@@ -55,6 +55,7 @@ class ExportMigrations extends Command
         foreach($users as $user) {
             $this->export($user);
         }
+        return 0;
     }
 
     private function export($user)

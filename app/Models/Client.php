@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon;
+use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -601,6 +602,11 @@ class Client extends EntityModel
                 return $invitation->invitation_key;
             }
         }
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

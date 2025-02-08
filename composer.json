@@ -67,15 +67,189 @@
       "app/Ninja/Repositories",
       "database"
     ],
-    "psr-4": {
-      "App\\": "app/",
-      "Modules\\": "Modules/",
-      "Database\\Factories\\": "database/factories/",
-      "Database\\Seeders\\": "database/seeders/"
+    "license": "Attribution Assurance License",
+    "authors": [
+        {
+            "name": "Hillel Coren",
+            "email": "hillelcoren@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "7.4.33",
+        "ext-gd": "*",
+        "ext-gmp": "*",
+        "ext-json": "*",
+        "ext-zip": "*",
+        "abdala/omnipay-pagseguro": "*",
+        "anahkiasen/former": "*",
+        "asgrim/ofxparser": "*",
+        "bacon/bacon-qr-code": "*",
+        "barracudanetworks/archivestream-php": "*",
+        "barryvdh/laravel-cors": "*",
+        "barryvdh/laravel-debugbar": "*",
+        "barryvdh/laravel-ide-helper": "*",
+        "cardgate/omnipay-cardgate": "*",
+        "cerdic/css-tidy": "*",
+        "chumper/datatable": "dev-laravel-8-beyond",
+        "cleverit/ubl_invoice": "*",
+        "codedge/laravel-selfupdater": "*",
+        "doctrine/dbal": "*",
+        "dompdf/dompdf": "*",
+        "ezyang/htmlpurifier": "*",
+        "fruitcakestudio/omnipay-sisow": "*",
+        "fzaninotto/faker": "*",
+        "google/apiclient": "*",
+        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/psr7": "*",
+        "intervention/image": "*",
+        "jaybizzle/laravel-crawler-detect": "*",
+        "jlapp/swaggervel": "master-dev",
+        "laracasts/presenter": "dev-master",
+        "laravel/framework": "^8.0",
+        "laravel/helpers": "*",
+        "laravel/legacy-encrypter": "*",
+        "laravel/socialite": "^5.17",
+        "laravel/tinker": "*",
+        "laravelcollective/html": "*",
+        "league/csv": "9.1",
+        "league/flysystem-aws-s3-v3": "*",
+        "league/flysystem-rackspace": "*",
+        "league/fractal": "*",
+        "maatwebsite/excel": "dev-php-fix",
+        "mpdf/mpdf": "*",
+        "nesbot/carbon": "*",
+        "nwidart/laravel-modules": "*",
+        "omnipay/braintree": "*",
+        "omnipay/common": "^3.0",
+        "omnipay/mollie": "*",
+        "omnipay/omnipay": "*",
+        "omnipay/payfast": "*",
+        "omnipay/stripe": "*",
+        "patricktalmadge/bootstrapper": "*",
+        "pragmarx/google2fa-laravel": "*",
+        "predis/predis": "*",
+        "simshaun/recurr": "dev-master",
+        "stripe/stripe-php": "*",
+        "superbalist/laravel-google-cloud-storage": "*",
+        "symfony/css-selector": "*",
+        "vemcogroup/laravel-sparkpost-driver": "*",
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "wepay/php-sdk": "*",
+        "wildbit/postmark-php": "*"
     },
-    "files": [
-      "app/Libraries/lib_autolink.php",
-      "app/Libraries/OFX.php"
+    "require-dev": {
+        "symfony/dom-crawler": "*",
+        "codeception/c3": "*",
+        "codeception/codeception": "*",
+        "phpspec/phpspec": "*",
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "classmap": [
+            "app/Console/Commands",
+            "app/Libraries",
+            "app/Http/Controllers",
+            "app/Models",
+            "app/Ninja",
+            "app/Ninja/Repositories",
+            "database"
+        ],
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\": "Modules/"
+        },
+        "files": [
+            "app/Libraries/lib_autolink.php",
+            "app/Libraries/OFX.php"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
+        ]
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
+            "php artisan clear-compiled"
+        ],
+        "post-update-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
+            "php artisan clear-compiled"
+        ],
+        "post-create-project-cmd": [
+            "php -r \"copy('.env.example', '.env');\"",
+            "php artisan key:generate"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ]
+    },
+    "replace": {
+        "alfaproject/omnipay-skrill": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "codeception/c3": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-wepay"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-gocardlessv2"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/underdogg-forks/chumper-datatable"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/php-phantomjs"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/davidbankes/omnipay-firstdata.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-authorizenet"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/omnipay-common"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/underdogg-forks/laravel-push-notification"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/NotificationPusher"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/Laravel-Excel"
+        }
     ]
   },
   "autoload-dev": {

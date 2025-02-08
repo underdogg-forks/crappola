@@ -11,7 +11,7 @@ class UpdateSeeder extends Seeder
      *
      * @return void
      */
-    public function run(): void
+    public function run()
     {
         $this->command->info('Running UpdateSeeder...');
 
