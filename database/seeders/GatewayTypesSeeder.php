@@ -7,12 +7,9 @@ use Illuminate\Database\Seeder;
 
 class GatewayTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
-
-        // fix for legacy data
-        DB::statement('UPDATE gateway_types SET alias = "custom1" WHERE id = 6');
 
         $gateway_types = [
             ['alias' => 'credit_card', 'name' => 'Credit Card'],

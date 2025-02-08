@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 use Omnipay;
 use Utils;
@@ -215,5 +216,10 @@ class Gateway extends Eloquent
     public function isCustom()
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

@@ -40,5 +40,6 @@ class TestOFX extends Command
     public function fire()
     {
         $this->info(date('r').' Running TestOFX...');
+        return 0;
     }
 }

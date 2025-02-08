@@ -83,6 +83,7 @@ class SendReminders extends Command
                         ->subject("SendReminders [{$database}]: Finished successfully");
             });
         }
+        return 0;
     }
 
     private function chargeLateFees()

@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -39,7 +39,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'TargetPay Ideal', 'provider' => 'TargetPay_Ideal'],
             ['name' => 'TargetPay Mr Cash', 'provider' => 'TargetPay_Mrcash'],
             ['name' => 'TwoCheckout', 'provider' => 'TwoCheckout', 'is_offsite' => true],
-            ['name' => 'WorldPay', 'provider' => 'WorldPay', 'is_offsite' => true],
+            ['name' => 'WorldPay', 'provider' => 'WorldPay'],
             ['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
             ['name' => 'Psigate', 'provider' => 'Psigate', 'payment_library_id' => 2],
             ['name' => 'moolah', 'provider' => 'AuthorizeNet_AIM'],
@@ -52,15 +52,15 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 2],
             ['name' => 'Realex', 'provider' => 'Realex_Remote'],
             ['name' => 'Sisow', 'provider' => 'Sisow'],
-            ['name' => 'Skrill', 'provider' => 'Skrill', 'is_offsite' => true, 'payment_library_id' => 2],
+            ['name' => 'Skrill', 'provider' => 'Skrill', 'is_offsite' => true],
             ['name' => 'BitPay', 'provider' => 'BitPay', 'is_offsite' => true, 'sort_order' => 7],
-            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 6, 'payment_library_id' => 2],
+            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 6],
             ['name' => 'AGMS', 'provider' => 'Agms'],
             ['name' => 'Barclays', 'provider' => 'BarclaysEpdq\Essential'],
             ['name' => 'Cardgate', 'provider' => 'Cardgate'],
             ['name' => 'Checkout.com', 'provider' => 'CheckoutCom'],
             ['name' => 'Creditcall', 'provider' => 'Creditcall'],
-            ['name' => 'Cybersource', 'provider' => 'Cybersource', 'payment_library_id' => 2],
+            ['name' => 'Cybersource', 'provider' => 'Cybersource'],
             ['name' => 'ecoPayz', 'provider' => 'Ecopayz'],
             ['name' => 'Fasapay', 'provider' => 'Fasapay'],
             ['name' => 'Komoju', 'provider' => 'Komoju'],
@@ -84,8 +84,8 @@ class PaymentLibrariesSeeder extends Seeder
 
         foreach ($gateways as $gateway) {
             $record = Gateway::whereName($gateway['name'])
-                ->whereProvider($gateway['provider'])
-                ->first();
+                        ->whereProvider($gateway['provider'])
+                        ->first();
             if ($record) {
                 $record->fill($gateway);
                 $record->save();
