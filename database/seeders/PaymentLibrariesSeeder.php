@@ -84,8 +84,8 @@ class PaymentLibrariesSeeder extends Seeder
 
         foreach ($gateways as $gateway) {
             $record = Gateway::whereName($gateway['name'])
-                ->whereProvider($gateway['provider'])
-                ->first();
+                        ->whereProvider($gateway['provider'])
+                        ->first();
             if ($record) {
                 $record->fill($gateway);
                 $record->save();

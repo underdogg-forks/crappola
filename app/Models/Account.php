@@ -12,6 +12,7 @@ use App\Models\Traits\SendsEmails;
 use Cache;
 use Carbon;
 use DateTime;
+use DateTimeInterface;
 use Eloquent;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -1944,6 +1945,11 @@ class Account extends Eloquent
     {
         return true;
         //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

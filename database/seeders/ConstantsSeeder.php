@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Frequency;
 use App\Models\PaymentLibrary;
 use App\Models\PaymentTerm;
 use App\Models\Size;

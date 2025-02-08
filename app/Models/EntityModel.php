@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Str;
 use Auth;
 use Eloquent;
 use Str;
@@ -477,5 +479,10 @@ class EntityModel extends Eloquent
         }
 
         return parent::__call($method, $params);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -375,6 +376,11 @@ class Document extends EntityModel
     public function scopeProposalImages($query)
     {
         return $query->whereIsProposal(1);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

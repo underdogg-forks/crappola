@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Factories;
+
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Country;

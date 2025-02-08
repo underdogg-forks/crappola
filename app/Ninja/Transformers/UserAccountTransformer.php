@@ -50,15 +50,15 @@ class UserAccountTransformer extends EntityTransformer
      * @SWG\Property(property="custom_invoice_taxes2", type="string", example="Value")
      * @SWG\Property(property="custom_fields", type="string", example="Value")
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'user',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
-        'users',
+    protected array $availableIncludes = [
+		'users',
         'tax_rates',
         'expense_categories',
         'account_email_settings',

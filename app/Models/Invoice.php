@@ -11,6 +11,8 @@ use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
 use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
+use DateTime;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -1626,6 +1628,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

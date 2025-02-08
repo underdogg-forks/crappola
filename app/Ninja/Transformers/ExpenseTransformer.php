@@ -34,7 +34,8 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="vendor_id", type="integer", example=1)
      */
-    protected $availableIncludes = [
+
+    protected array $availableIncludes = [
         'documents',
     ];
 

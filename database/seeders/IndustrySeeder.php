@@ -49,7 +49,7 @@ class IndustrySeeder extends Seeder
 
         foreach ($industries as $industry) {
             $record = Industry::whereName($industry['name'])->first();
-            if ( ! $record) {
+            if (! $record) {
                 Industry::create($industry);
             }
         }

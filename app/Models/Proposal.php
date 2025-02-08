@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -125,7 +126,9 @@ class Proposal extends EntityModel
             return CUSTOM_MESSAGE_APPROVED_PROPOSAL;
         }
 
-        return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 
