@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Gateway;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder

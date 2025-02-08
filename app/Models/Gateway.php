@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model;
 use Omnipay;
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class Gateway.
  */
-class Gateway extends Eloquent
+class Gateway extends Model
 {
     /**
      * @var bool
@@ -18,6 +18,7 @@ class Gateway extends Eloquent
     public $timestamps = true;
 
     protected $fillable = [
+        'name',
         'provider',
         'is_offsite',
         'sort_order',
