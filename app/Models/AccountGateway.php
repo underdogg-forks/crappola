@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Utils;
 use HTMLUtils;
 use Crypt;
