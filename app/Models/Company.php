@@ -11,13 +11,8 @@ use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
 use Cache;
 use Carbon;
-use DateTime;
-use DateTimeZone;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use DateTimeInterface;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
@@ -848,7 +843,24 @@ class Company extends Model
             return;
         }
 
-        return $date->format($this->getCustomDateFormat());
+        $this->plan = PLAN_PRO;
+        $this->plan_term = PLAN_TERM_YEARLY;
+        $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
+        $this->plan_started = date_create()->format('Y-m-d');
+        $this->plan_paid = date_create()->format('Y-m-d');
+        $this->plan_expires = date_create()->modify($numYears . ' year')->format('Y-m-d');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+}
+
+Company::deleted(function ($company)
+{
+    if (! env('MULTI_DB_ENABLED')) {
+        return;
     }
 
     public function getDate($date = 'now')

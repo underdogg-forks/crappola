@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree(); //Paginator::useBootstrap();
 
         // support selecting job database
         Queue::before(function (JobProcessing $event): void {

@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
-
 use App\Models\DbServer;
+use Illuminate\Database\Seeder;
 
 class DbServerSeeder extends Seeder
 {

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Libraries\Utils;
@@ -352,6 +352,54 @@ class Task extends EntityModel
         }
 
         return $label;
+    }
+
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            if (floatval($balance)) {
+                return 'default';
+            } else {
+                return 'success';
+            }
+        } elseif ($isRunning) {
+            return 'primary';
+        } else {
+            return 'info';
+        }
+    }
+
+    public function statusClass()
+    {
+        if ($this->invoice) {
+            $balance = $this->invoice->balance;
+            $invoiceNumber = $this->invoice->invoice_number;
+        } else {
+            $balance = 0;
+            $invoiceNumber = false;
+        }
+
+        return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
+    }
+
+    public function statusLabel()
+    {
+        if ($this->invoice) {
+            $balance = $this->invoice->balance;
+            $invoiceNumber = $this->invoice->invoice_number;
+        } else {
+            $balance = 0;
+            $invoiceNumber = false;
+        }
+
+        $taskStatus = $this->task_status ? $this->task_status->name : false;
+
+        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

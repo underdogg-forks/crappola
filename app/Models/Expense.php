@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Libraries\Utils;
@@ -336,6 +336,40 @@ class Expense extends EntityModel
         }
 
         return $label;
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if (floatval($balance) > 0) {
+                return 'default';
+            } else {
+                return 'success';
+            }
+        } elseif ($shouldBeInvoiced) {
+            return 'warning';
+        } else {
+            return 'primary';
+        }
+    }
+
+    public function statusClass()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
+    }
+
+    public function statusLabel()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

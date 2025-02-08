@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -43,5 +44,10 @@ class TaskStatus extends EntityModel
     public function tasks()
     {
         return $this->hasMany('App\Models\Task')->orderBy('task_status_sort_order');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

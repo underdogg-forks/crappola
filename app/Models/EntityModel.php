@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Str;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
@@ -495,5 +497,10 @@ class EntityModel extends Model
         }
 
         return parent::__call($method, $params);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

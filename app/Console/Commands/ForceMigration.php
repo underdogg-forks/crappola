@@ -69,6 +69,7 @@ class ForceMigration extends Command
         }
 
         $this->forceMigrate($company);
+        return 0;
     }
 
     private function getCompany()

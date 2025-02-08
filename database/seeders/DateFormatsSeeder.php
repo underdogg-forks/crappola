@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
-
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {

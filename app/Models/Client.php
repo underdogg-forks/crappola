@@ -4,10 +4,8 @@ namespace App\Models;
 
 use App\Models\Traits\HasCustomMessages;
 use Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use DateTimeInterface;
+use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Libraries\Utils;
@@ -635,36 +633,9 @@ class Client extends EntityModel
         }
     }
 
-    public function getUsuallyPaysIn()
+    protected function serializeDate(DateTimeInterface $date)
     {
-        $paysIn = $this->invoices()
-            ->with('payments')
-            ->where('invoice_status_id', '=', INVOICE_STATUS_PAID)
-            ->orderBy('invoice_date', 'desc')
-            ->take(20)
-            ->get()
-            ->map(function ($item) {
-                $payments = $item->payments()->orderBy('payment_date', 'asc')->get();
-                $invoiceTotal = $item->amount;
-
-                foreach ($payments as $payment) {
-                    if ($payment->amount < $invoiceTotal) {
-                        $invoiceTotal -= $payment->amount;
-                    } elseif ($payment->amount >= $invoiceTotal) {
-                        return Carbon::parse($item->invoice_date)->diffInDays($payment->payment_date);
-                    }
-                }
-            })->avg();
-
-        return $paysIn;
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function payments()
-    {
-        return $this->hasMany('App\Models\Payment');
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

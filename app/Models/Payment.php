@@ -7,8 +7,8 @@ use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use stdClass;
@@ -390,6 +390,11 @@ class Payment extends EntityModel
             ->first();
 
         return $activity->json_backup;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

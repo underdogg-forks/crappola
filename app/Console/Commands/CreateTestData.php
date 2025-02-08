@@ -121,6 +121,7 @@ class CreateTestData extends Command
         //$this->createOtherObjects();
 
         $this->info('Done');
+        return 0;
     }
 
     private function createClients(): void

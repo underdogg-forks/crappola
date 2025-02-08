@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Cache;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -40,16 +42,8 @@ class PaymentTerm extends EntityModel
         return $terms->sortBy('num_days');
     }
 
-    public function getNumDays()
+    protected function serializeDate(DateTimeInterface $date)
     {
-        return $this->num_days == -1 ? 0 : $this->num_days;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PAYMENT_TERM;
+        return $date->format('Y-m-d H:i:s');
     }
 }

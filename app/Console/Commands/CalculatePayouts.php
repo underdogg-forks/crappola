@@ -52,6 +52,7 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
+        return 0;
     }
 
     private function referralPayouts(): void

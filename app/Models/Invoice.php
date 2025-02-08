@@ -13,9 +13,7 @@ use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
 use Cache;
 use DateTime;
-use Exception;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Libraries\Utils;
@@ -1677,6 +1675,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

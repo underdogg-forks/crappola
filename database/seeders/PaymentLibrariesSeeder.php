@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
 use App\Models\Gateway;
+use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {

@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
+use Eloquent;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -212,5 +212,10 @@ class Activity extends Model
                 return ENTITY_TASK;
                 break;
         }
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

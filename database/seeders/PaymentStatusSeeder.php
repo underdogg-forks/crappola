@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
 use App\Models\PaymentStatus;
+use Illuminate\Database\Seeder;
 
 class PaymentStatusSeeder extends Seeder
 {

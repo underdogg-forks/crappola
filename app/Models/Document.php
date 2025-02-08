@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
+use DB;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Rackspace\RackspaceAdapter;
@@ -402,6 +401,11 @@ class Document extends EntityModel
     public function scopeProposalImages($query)
     {
         return $query->whereIsProposal(1);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

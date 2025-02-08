@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountTicketSettings;
 use App\Models\Affiliate;
@@ -16,6 +14,7 @@ use App\Models\Font;
 use App\Models\InvoiceDesign;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class UserTableSeeder extends Seeder
 {

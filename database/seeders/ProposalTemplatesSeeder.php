@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
 use App\Models\ProposalTemplate;
+use Illuminate\Database\Seeder;
 
 class ProposalTemplatesSeeder extends Seeder
 {

@@ -50,11 +50,12 @@ class AccountEmailSettingsTransformer extends EntityTransformer
      * @SWG\Property(property="enable_email_markup", type="boolean", example=false)
      * @SWG\Property(property="email_footer", type="string", example="Footer")
      */
+    protected array $defaultIncludes = [];
 
     /**
      * @var array
      */
-    protected array $defaultIncludes = [];
+    protected array $availableIncludes = [];
 
     /**
      * @var array

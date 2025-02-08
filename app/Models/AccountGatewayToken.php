@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use DateTimeInterface;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -136,5 +134,10 @@ class AccountGatewayToken extends Model
         }
 
         return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

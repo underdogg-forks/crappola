@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
 use App\Models\InvoiceDesign;
+use Illuminate\Database\Seeder;
 
 class InvoiceDesignsSeeder extends Seeder
 {

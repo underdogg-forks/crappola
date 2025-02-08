@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use Cache;
-use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
 
@@ -250,6 +248,11 @@ class PaymentMethod extends EntityModel
         }
 
         return GATEWAY_TYPE_TOKEN;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

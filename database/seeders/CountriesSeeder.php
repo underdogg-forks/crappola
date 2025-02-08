@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use App\Models\Country;
 use Webpatser\Countries\Countries;
 

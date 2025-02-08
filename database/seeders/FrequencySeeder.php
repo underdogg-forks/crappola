@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
-
 use App\Models\Frequency;
+use Illuminate\Database\Seeder;
 
 class FrequencySeeder extends Seeder
 {
