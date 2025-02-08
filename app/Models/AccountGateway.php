@@ -318,4 +318,9 @@ class AccountGateway extends EntityModel
 
         return $text;
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

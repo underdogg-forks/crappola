@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 
 /**
@@ -44,4 +45,8 @@ class LookupProposalInvitation extends LookupModel
         config(['database.default' => $current]);
     }
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

@@ -94,6 +94,7 @@ class ExportMigrations extends Command
             Auth::login($user);
             $this->export($user);
         }
+        return 0;
     }
 
     private function export($user)
