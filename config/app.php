@@ -1,8 +1,20 @@
 <?php
 
 use App\Libraries\Utils;
+use Illuminate\Support\Facades\Facade;
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the name of your application. This value is used when the
+    | framework needs to place the application's name in a notification or
+    | any other location as required by the application or its packages.
+    |
+    */
 
     'name' => env('APP_NAME', 'Invoice Ninja'),
 
@@ -17,8 +29,18 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', 'true'),
+    'debug' => (bool) env('APP_DEBUG', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Environment
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the "environment" your application is currently
+    | running in. This may determine how you prefer to configure various
+    | services the application utilizes. Set this in your ".env" file.
+    |
+    */
     'env' => env('APP_ENV', 'local'),
 
     /*
@@ -33,6 +55,8 @@ return [
     */
 
     'url' => env('APP_URL', ''),
+
+    'asset_url' => env('ASSET_URL'),
 
     /*
     |--------------------------------------------------------------------------
@@ -75,6 +99,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | This locale will be used by the Faker PHP library when generating fake
+    | data for your database seeds. For example, this will be used to get
+    | localized telephone numbers, street address information and more.
+    |
+    */
+
+    'faker_locale' => 'en_US',
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
@@ -87,6 +124,24 @@ return [
     'key' => env('APP_KEY', 'SomeRandomStringSomeRandomString'),
 
     'cipher' => env('APP_CIPHER', 'AES-256-CBC'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance Mode Driver
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options determine the driver used to determine and
+    | manage Laravel's "maintenance mode" status. The "cache" driver will
+    | allow maintenance mode to be controlled across multiple machines.
+    |
+    | Supported drivers: "file", "cache"
+    |
+    */
+
+    'maintenance' => [
+        'driver' => 'file',
+        // 'store'  => 'redis',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -134,7 +189,6 @@ return [
         'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
-        'Intervention\Image\Laravel\ServiceProvider',
         'Webpatser\Countries\CountriesServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Laravel\Socialite\SocialiteServiceProvider',

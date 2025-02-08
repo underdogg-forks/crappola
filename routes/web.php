@@ -150,7 +150,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user','migration_channel:use
 
     Route::get('migration/start', 'Migration\StepsController@start');
     Route::post('migration/type', 'Migration\StepsController@handleType');
-    Route::get('migration/download', 'Migration\StepsController@download'); 
+    Route::get('migration/download', 'Migration\StepsController@download');
     Route::post('migration/download', 'Migration\StepsController@handleDownload');
     Route::get('migration/endpoint', 'Migration\StepsController@endpoint');
     Route::post('migration/endpoint', 'Migration\StepsController@handleEndpoint');

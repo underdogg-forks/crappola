@@ -39,7 +39,7 @@
         "intervention/image-laravel": "*",
         "jlapp/swaggervel": "*",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "^9.0",
+        "laravel/framework": "^9.19",
         "laravel/helpers": "*",
         "laravel/legacy-encrypter": "*",
         "laravel/socialite": "*",
@@ -70,11 +70,13 @@
         "codeception/c3": "*",
         "codeception/codeception": "*",
         "filp/whoops": "*",
-        "fakerphp/faker": "*",
+        "fakerphp/faker": "^1.9.1",
+        "laravel/pint": "^1.0",
+        "mockery/mockery": "^1.4.4",
         "laravel/tinker": "*",
         "nunomaduro/collision": "^6.1",
         "phpspec/phpspec": "*",
-        "phpunit/phpunit": "*",
+        "phpunit/phpunit": "^9.5.10",
         "rector/rector": "0.14.8",
         "spatie/laravel-ignition": "^1.0",
         "symfony/dom-crawler": "*"
@@ -91,8 +93,8 @@
         ],
         "psr-4": {
             "App\\": "app/",
-            "Database\\Factories\\": "database/factories",
-            "Database\\Seeders\\": "database/seeders",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
         },
         "files": [
@@ -101,29 +103,30 @@
         ]
     },
     "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        },
         "classmap": [
             "tests/TestCase.php"
         ]
     },
     "scripts": {
         "post-install-cmd": [
-            "rm bootstrap/cache/compiled.php || true",
             "php artisan view:clear",
             "php artisan clear-compiled"
         ],
         "post-update-cmd": [
-            "rm bootstrap/cache/compiled.php || true",
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "php artisan view:clear",
             "php artisan clear-compiled"
         ],
         "post-create-project-cmd": [
-            "php -r \"copy('.env.example', '.env');\"",
-            "php artisan key:generate"
+            "@php artisan key:generate --ansi"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover"
-        ]
+            "@php artisan package:discover --ansi"
+        ],
     },
     "replace": {
         "alfaproject/omnipay-skrill": "*"

@@ -4,19 +4,18 @@ namespace App\Exceptions;
 
 use App\Http\Requests\Request;
 use Exception;
+use Symfony\Component\DomCrawler\Crawler;
 use Throwable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 use Redirect;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 use Utils;
 
 /**
@@ -25,12 +24,32 @@ use Utils;
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that should not be reported.
+     * A list of exception types with their corresponding custom log levels.
      *
-     * @var array
+     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     */
+    protected $levels = [
+        //
+    ];
+
+    /**
+     * A list of the exception types that are not reported.
+     *
+     * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [TokenMismatchException::class, ModelNotFoundException::class, ValidationException::class, //AuthorizationException::class,
         //HttpException::class,
+    ];
+
+    /**
+     * A list of the inputs that are never flashed to the session on validation exceptions.
+     *
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
     ];
 
     /**
@@ -51,9 +70,9 @@ class Handler extends ExceptionHandler
             return parent::report($e);
         }
 
-        if (Crawler::isCrawler()) {
+        /*if (Crawler::isCrawler()) {
             return false;
-        }
+        }*/
 
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {

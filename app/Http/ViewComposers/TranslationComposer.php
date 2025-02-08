@@ -28,6 +28,8 @@ class TranslationComposer
             return $industry->name;
         }));
 
+        dd(Cache::get('countries'));
+
         $view->with('countries', Cache::get('countries')->each(function ($country) {
             $country->name = trans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
