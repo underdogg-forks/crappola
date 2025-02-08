@@ -26,9 +26,9 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="exchange_rate", type="number", format="float", example=10)
      * @SWG\Property(property="exchange_currency_id", type="integer", example=1)
      */
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
         'invoice',
     ];

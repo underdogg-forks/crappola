@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 

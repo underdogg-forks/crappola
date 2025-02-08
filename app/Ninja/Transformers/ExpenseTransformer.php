@@ -37,7 +37,7 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
     ];
 

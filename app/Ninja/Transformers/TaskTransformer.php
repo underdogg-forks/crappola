@@ -27,7 +27,7 @@ class TaskTransformer extends EntityTransformer
      * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
      * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
         'project',
     ];

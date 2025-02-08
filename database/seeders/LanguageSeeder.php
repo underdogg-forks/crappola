@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -45,8 +45,6 @@ class LanguageSeeder extends Seeder
             ['name' => 'Chinese - Taiwan', 'locale' => 'zh_TW'],
             ['name' => 'English - Australia', 'locale' => 'en_AU'],
             ['name' => 'Serbian', 'locale' => 'sr_RS'],
-            ['name' => 'Bulgarian', 'locale' => 'bg'],
-            ['name' => 'Russian', 'locale' => 'ru_RU'],
         ];
 
         foreach ($languages as $language) {

@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class CurrenciesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -55,7 +55,7 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Aruban Florin', 'code' => 'AWG', 'symbol' => 'Afl. ', 'precision' => '2', 'thousand_separator' => ' ', 'decimal_separator' => '.'],
             ['name' => 'Turkish Lira', 'code' => 'TRY', 'symbol' => 'TL ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'Romanian New Leu', 'code' => 'RON', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Croatian Kuna', 'code' => 'HRK', 'symbol' => 'kn', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ',', 'swap_currency_symbol' => true],
+            ['name' => 'Croatian Kuna', 'code' => 'HRK', 'symbol' => 'kn', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'Saudi Riyal', 'code' => 'SAR', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Japanese Yen', 'code' => 'JPY', 'symbol' => '¥', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Maldivian Rufiyaa', 'code' => 'MVR', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
@@ -97,26 +97,6 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Angolan Kwanza', 'code' => 'AOA', 'symbol' => 'Kz', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'Haitian Gourde', 'code' => 'HTG', 'symbol' => 'G', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Zambian Kwacha', 'code' => 'ZMW', 'symbol' => 'ZK', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Nepalese Rupee', 'code' => 'NPR', 'symbol' => 'Rs. ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'CFP Franc', 'code' => 'XPF', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'], // precision should be zero
-            ['name' => 'Mauritian Rupee', 'code' => 'MUR', 'symbol' => 'Rs', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Cape Verdean Escudo', 'code' => 'CVE', 'symbol' => '', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => '$'],
-            ['name' => 'Kuwaiti Dinar', 'code' => 'KWD', 'symbol' => 'KD', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Algerian Dinar', 'code' => 'DZD', 'symbol' => 'DA', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Macedonian Denar', 'code' => 'MKD', 'symbol' => 'ден', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Fijian Dollar', 'code' => 'FJD', 'symbol' => 'FJ$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Bolivian Boliviano', 'code' => 'BOB', 'symbol' => 'Bs', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Albanian Lek', 'code' => 'ALL', 'symbol' => 'L ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
-            ['name' => 'Serbian Dinar', 'code' => 'RSD', 'symbol' => 'din', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
-            ['name' => 'Lebanese Pound', 'code' => 'LBP', 'symbol' => 'LL ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Armenian Dram', 'code' => 'AMD', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Azerbaijan Manat', 'code' => 'AZN', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Bosnia and Herzegovina Convertible Mark', 'code' => 'BAM', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Belarusian Ruble', 'code' => 'BYN', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Gibraltar Pound', 'code' => 'GIP', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Moldovan Leu', 'code' => 'MDL', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Kazakhstani Tenge', 'code' => 'KZT', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Ethiopian Birr', 'code' => 'ETB', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

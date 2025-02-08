@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -344,6 +345,11 @@ class Vendor extends EntityModel
                 ->whereNull('payment_date')
                 ->groupBy('expense_currency_id')
                 ->get();
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

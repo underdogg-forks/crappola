@@ -303,7 +303,7 @@ class AppController extends BaseController
 
                 Artisan::call('clear-compiled');
                 Artisan::call('cache:clear');
-                Artisan::call('debugbar:clear');
+                //Artisan::call('debugbar:clear');
                 Artisan::call('route:clear');
                 Artisan::call('view:clear');
                 Artisan::call('config:clear');
@@ -343,7 +343,7 @@ class AppController extends BaseController
     {
         $result = DB::select("SELECT engine
                     FROM information_schema.TABLES
-                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
+                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='".config('database.connections.mysql.database')."'");
 
         if (count($result) && $result[0]->engine == 'InnoDB') {
             return;

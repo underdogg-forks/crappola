@@ -52,14 +52,14 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="credit_number_counter", type="integer", example=1)
      * @SWG\Property(property="custom_messages", type="string", example="Value")
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invoices',
         'credits',
         'activities',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -339,6 +340,11 @@ class Task extends EntityModel
         $taskStatus = $this->task_status ? $this->task_status->name : false;
 
         return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

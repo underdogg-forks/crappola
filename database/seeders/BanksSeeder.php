@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class BanksSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -15,7 +15,7 @@ class BanksSeeder extends Seeder
     }
 
     // Source: http://www.ofxhome.com/
-    private function createBanks(): void
+    private function createBanks()
     {
         // http://www.ofxhome.com/api.php?dump=yes
         // http://www.utilities-online.info/xmltojson
@@ -24,15 +24,15 @@ class BanksSeeder extends Seeder
         $banks = json_decode($banks);
 
         foreach ($banks as $bank) {
-            if ( ! DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
-                if ( ! isset($bank->fid) || ! isset($bank->org)) {
+            if (! DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
+                if (! isset($bank->fid) || ! isset($bank->org)) {
                     continue;
                 }
 
                 Bank::create([
                     'remote_id' => $bank->id,
-                    'name'      => $bank->name,
-                    'config'    => json_encode([
+                    'name' => $bank->name,
+                    'config' => json_encode([
                         'fid' => $bank->fid,
                         'org' => $bank->org,
                         'url' => $bank->url,

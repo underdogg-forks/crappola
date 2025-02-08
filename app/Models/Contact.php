@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -211,25 +212,10 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         app('App\Ninja\Mailers\ContactMailer')->sendPasswordReset($this, $token);
     }
 
-    public static function getContactIfLoggedIn()
+    protected function serializeDate(DateTimeInterface $date)
     {
-        if($contact = Contact::where('contact_key', '=',session('contact_key'))->with('account')->first())
-            return $contact;
-        else
-            return false;
+        return $date->format('Y-m-d H:i:s');
     }
-
-    public static function getContactByContactKey($contact_key)
-    {
-        if(strlen($contact_key) == 0)
-            return false;
-
-        if($contact = Contact::where('contact_key', '=', $contact_key)->first())
-            return $contact;
-        else
-            return false;
-    }
-
 }
 
 Contact::creating(function ($contact)

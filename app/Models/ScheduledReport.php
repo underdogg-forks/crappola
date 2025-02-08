@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -57,7 +58,8 @@ class ScheduledReport extends EntityModel
         $this->save();
     }
 
-    public function getEntityType() {
-        return '';
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

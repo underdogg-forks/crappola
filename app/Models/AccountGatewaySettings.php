@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Utils;
 
 /**
@@ -69,5 +70,10 @@ class AccountGatewaySettings extends EntityModel
         }
 
         return join(' + ', $parts);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
