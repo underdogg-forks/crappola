@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -85,11 +86,8 @@ class Product extends EntityModel
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function default_tax_rate()
+    protected function serializeDate(DateTimeInterface $date)
     {
-        return $this->belongsTo('App\Models\TaxRate');
+        return $date->format('Y-m-d H:i:s');
     }
 }

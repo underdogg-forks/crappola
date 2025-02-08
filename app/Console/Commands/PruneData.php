@@ -51,6 +51,7 @@ class PruneData extends Command
         }
         
         $this->info('Done');
+        return 0;
     }
 
     /**

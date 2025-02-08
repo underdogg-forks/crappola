@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon;
+use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -547,6 +548,20 @@ class Client extends EntityModel
     public function defaultDaysDue()
     {
         return $this->payment_terms == -1 ? 0 : $this->payment_terms;
+    }
+
+    public function firstInvitationKey()
+    {
+        if ($invoice = $this->invoices->first()) {
+            if ($invitation = $invoice->invitations->first()) {
+                return $invitation->invitation_key;
+            }
+        }
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

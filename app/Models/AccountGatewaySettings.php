@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Utils;
+
 /**
  * Class AccountGatewaySettings.
  */
@@ -28,5 +31,35 @@ class AccountGatewaySettings extends EntityModel
     public function setCreatedAtAttribute($value)
     {
         // to Disable created_at
+    }
+
+    public function areFeesEnabled()
+    {
+        return floatval($this->fee_amount) || floatval($this->fee_percent);
+    }
+
+    public function hasTaxes()
+    {
+        return floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate2);
+    }
+
+    public function feesToString()
+    {
+        $parts = [];
+
+        if (floatval($this->fee_amount) != 0) {
+            $parts[] = Utils::formatMoney($this->fee_amount);
+        }
+
+        if (floatval($this->fee_percent) != 0) {
+            $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
+        }
+
+        return join(' + ', $parts);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

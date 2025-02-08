@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -53,6 +54,31 @@ class Project extends EntityModel
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task');
+    }
+
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('due_date', [$startDate, $endDate]);
+        });
+    }
+
+    public function getDisplayName()
+    {
+        return $this->name;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

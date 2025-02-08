@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
+use Eloquent;
+use App\Models\User;
 
 /**
  * Class ExpenseCategory.
@@ -92,5 +94,10 @@ class LookupUser extends LookupModel
         config(['database.default' => $current]);
 
         return $isValid;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

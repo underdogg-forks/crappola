@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
+use Eloquent;
 
 /**
  * Class ExpenseCategory.
@@ -99,13 +100,8 @@ class LookupAccount extends LookupModel
         return $isValid;
     }
 
-    public function lookupCompany()
+    protected function serializeDate(DateTimeInterface $date)
     {
-        return $this->belongsTo(LookupCompany::class);
-    }
-
-    public function getDbServer()
-    {
-        return $this->lookupCompany->dbServer->name;
+        return $date->format('Y-m-d H:i:s');
     }
 }

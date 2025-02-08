@@ -85,6 +85,7 @@ class CheckData extends Command
                         ->subject('Check-Data: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
             });
         }
+        return 0;
     }
 
     private function logMessage($str)

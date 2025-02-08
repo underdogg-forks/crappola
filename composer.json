@@ -13,83 +13,74 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "ext-gmp": "*",
+        "php": "7.4.33",
         "ext-gd": "*",
-        "turbo124/laravel-push-notification": "2.*",
-        "omnipay/mollie": "dev-master#22956c1a62a9662afa5f5d119723b413770ac525",
-        "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
-        "omnipay/gocardless": "dev-master",
-        "omnipay/stripe": "dev-master",
-        "doctrine/dbal": "2.5.x",
-        "laravelcollective/bus": "5.2.*",
-        "laravel/framework": "5.2.*",
-        "laravelcollective/html": "5.2.*",
-        "symfony/css-selector": "~3.0",
-        "patricktalmadge/bootstrapper": "5.5.x",
-        "anahkiasen/former": "4.0.*@dev",
-        "chumper/datatable": "dev-develop#04ef2bf",
-        "omnipay/omnipay": "~2.3",
-        "intervention/image": "dev-master",
-        "webpatser/laravel-countries": "dev-master",
-        "lokielse/omnipay-alipay": "~1.4",
-        "digitickets/omnipay-datacash": "~3.0",
-        "mfauveau/omnipay-pacnet": "~2.0",
-        "digitickets/omnipay-realex": "~5.0",
-        "fruitcakestudio/omnipay-sisow": "~2.0",
-        "alfaproject/omnipay-skrill": "dev-master",
-        "omnipay/bitpay": "dev-master",
-        "guzzlehttp/guzzle": "~6.0",
-        "wildbit/laravel-postmark-provider": "3.0",
-        "Dwolla/omnipay-dwolla": "dev-master",
-        "laravel/socialite": "~2.0",
-        "simshaun/recurr": "dev-master",
-        "league/fractal": "0.13.*",
-        "agmscode/omnipay-agms": "~1.0",
-        "digitickets/omnipay-barclays-epdq": "~3.0",
-        "cardgate/omnipay-cardgate": "~2.0",
-        "fotografde/omnipay-checkoutcom": "~2.0",
-        "meebio/omnipay-creditcall": "dev-master",
-        "dioscouri/omnipay-cybersource": "dev-master",
-        "dercoder/omnipay-ecopayz": "~1.0",
-        "andreas22/omnipay-fasapay": "1.*",
-        "delatbabel/omnipay-fatzebra": "dev-master",
-        "vink/omnipay-komoju": "~1.0",
-        "incube8/omnipay-multicards": "dev-master",
-        "descubraomundo/omnipay-pagarme": "dev-master",
-        "dercoder/omnipay-paysafecard": "dev-master",
-        "softcommerce/omnipay-paytrace": "~1.0",
-        "meebio/omnipay-secure-trading": "dev-master",
-        "justinbusschau/omnipay-secpay": "~2.0",
-        "laracasts/presenter": "dev-master",
+        "ext-gmp": "*",
+        "ext-json": "*",
+        "ext-zip": "*",
+        "abdala/omnipay-pagseguro": "*",
+        "anahkiasen/former": "*",
+        "asgrim/ofxparser": "*",
+        "bacon/bacon-qr-code": "*",
+        "barracudanetworks/archivestream-php": "*",
+        "barryvdh/laravel-cors": "*",
+        "barryvdh/laravel-debugbar": "*",
+        "barryvdh/laravel-ide-helper": "*",
+        "cardgate/omnipay-cardgate": "*",
+        "cerdic/css-tidy": "*",
+        "chumper/datatable": "dev-laravel-8-beyond",
+        "cleverit/ubl_invoice": "*",
+        "codedge/laravel-selfupdater": "*",
+        "doctrine/dbal": "*",
+        "dompdf/dompdf": "*",
+        "ezyang/htmlpurifier": "*",
+        "fruitcakestudio/omnipay-sisow": "*",
+        "fzaninotto/faker": "*",
+        "google/apiclient": "*",
+        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/psr7": "*",
+        "intervention/image": "*",
+        "jaybizzle/laravel-crawler-detect": "*",
         "jlapp/swaggervel": "master-dev",
-        "maatwebsite/excel": "~2.0",
-        "ezyang/htmlpurifier": "~v4.7",
-        "cerdic/css-tidy": "~v1.5",
-        "asgrim/ofxparser": "^1.1",
-        "league/flysystem-aws-s3-v3": "~1.0",
-        "league/flysystem-rackspace": "~1.0",
-        "barracudanetworks/archivestream-php": "^1.0",
-        "omnipay/braintree": "~2.0@dev",
-        "gatepay/FedACHdir": "dev-master@dev",
-        "websight/l5-google-cloud-storage": "^1.0",
-        "wepay/php-sdk": "^0.2",
-        "barryvdh/laravel-ide-helper": "~2.2",
-        "barryvdh/laravel-debugbar": "~2.2",
-        "fzaninotto/faker": "^1.5",
-        "jaybizzle/laravel-crawler-detect": "1.*",
-        "codedge/laravel-selfupdater": "5.x-dev",
-        "predis/predis": "^1.1",
-        "nwidart/laravel-modules": "^1.14",
-        "jonnyw/php-phantomjs": "4.*",
-        "collizo4sky/omnipay-wepay": "^1.3"
+        "laracasts/presenter": "dev-master",
+        "laravel/framework": "^8.0",
+        "laravel/helpers": "*",
+        "laravel/legacy-encrypter": "*",
+        "laravel/socialite": "^5.17",
+        "laravel/tinker": "*",
+        "laravelcollective/html": "*",
+        "league/csv": "9.1",
+        "league/flysystem-aws-s3-v3": "*",
+        "league/flysystem-rackspace": "*",
+        "league/fractal": "*",
+        "maatwebsite/excel": "dev-php-fix",
+        "mpdf/mpdf": "*",
+        "nesbot/carbon": "*",
+        "nwidart/laravel-modules": "*",
+        "omnipay/braintree": "*",
+        "omnipay/common": "^3.0",
+        "omnipay/mollie": "*",
+        "omnipay/omnipay": "*",
+        "omnipay/payfast": "*",
+        "omnipay/stripe": "*",
+        "patricktalmadge/bootstrapper": "*",
+        "pragmarx/google2fa-laravel": "*",
+        "predis/predis": "*",
+        "simshaun/recurr": "dev-master",
+        "stripe/stripe-php": "*",
+        "superbalist/laravel-google-cloud-storage": "*",
+        "symfony/css-selector": "*",
+        "vemcogroup/laravel-sparkpost-driver": "*",
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "wepay/php-sdk": "*",
+        "wildbit/postmark-php": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.0",
-        "phpspec/phpspec": "~2.1",
+        "symfony/dom-crawler": "*",
+        "codeception/c3": "*",
         "codeception/codeception": "*",
-        "codeception/c3": "~2.0",
-        "symfony/dom-crawler": "~3.0"
+        "phpspec/phpspec": "*",
+        "phpunit/phpunit": "^9.6"
     },
     "autoload": {
         "classmap": [
@@ -103,6 +94,8 @@
         ],
         "psr-4": {
             "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
         },
         "files": [
@@ -130,24 +123,59 @@
         ]
     },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "codeception/c3": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        }
     },
     "repositories": [
         {
-            "type": "package",
-            "package": {
-                "name": "gatepay/FedACHdir",
-                "version": "dev-master",
-                "dist": {
-                    "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/gatepay/FedACHdir.git",
-                    "type": "git",
-                    "reference": "origin/master"
-                }
-            }
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-wepay"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-gocardlessv2"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/underdogg-forks/chumper-datatable"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/php-phantomjs"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/davidbankes/omnipay-firstdata.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-authorizenet"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/omnipay-common"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/underdogg-forks/laravel-push-notification"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/NotificationPusher"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/Laravel-Excel"
         }
     ]
 }

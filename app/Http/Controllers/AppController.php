@@ -270,7 +270,7 @@ class AppController extends BaseController
                 set_time_limit(60 * 5);
                 Artisan::call('clear-compiled');
                 Artisan::call('cache:clear');
-                Artisan::call('debugbar:clear');
+                //Artisan::call('debugbar:clear');
                 Artisan::call('route:clear');
                 Artisan::call('view:clear');
                 Artisan::call('config:clear');
@@ -300,7 +300,35 @@ class AppController extends BaseController
             }
         }
 
-        return Redirect::to('/');
+        return Redirect::to('/?clear_cache=true');
+    }
+
+    // MySQL changed the default table type from MyISAM to InnoDB
+    // We need to make sure all tables are InnoDB to prevent migration failures
+    public function checkInnoDB()
+    {
+        $result = DB::select("SELECT engine
+                    FROM information_schema.TABLES
+                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='".config('database.connections.mysql.database')."'");
+
+        if(property_exists($result[0], 'engine'))
+            $engine = $result[0]->engine;
+        else
+            $engine = $result[0]->ENGINE;
+
+        if (count($result) && $engine == 'InnoDB') {
+            return;
+        }
+
+        $tables = DB::select('SHOW TABLES');
+        $sql = "SET sql_mode = 'ALLOW_INVALID_DATES';\n";
+
+        foreach($tables as $table) {
+            $fieldName = 'Tables_in_' . env('DB_DATABASE');
+            $sql .= "ALTER TABLE {$table->$fieldName} engine=InnoDB;\n";
+        }
+
+        DB::unprepared($sql);
     }
 
     public function emailBounced()

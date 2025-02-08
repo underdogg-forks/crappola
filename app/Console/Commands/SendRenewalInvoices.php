@@ -108,6 +108,7 @@ class SendRenewalInvoices extends Command
                         ->subject('SendRenewalInvoices: Finished successfully');
             });
         }
+        return 0;
     }
 
     /**

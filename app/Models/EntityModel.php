@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Str;
 use Auth;
 use Eloquent;
 use Utils;
@@ -358,5 +360,64 @@ class EntityModel extends Eloquent
     public function statusLabel()
     {
         return '';
+    }
+
+    public function save(array $options = [])
+    {
+        try {
+            return parent::save($options);
+        } catch (\Illuminate\Database\QueryException $exception) {
+            // check if public_id has been taken
+            if ($exception->getCode() == 23000 && static::$hasPublicId) {
+                $nextId = static::getNextPublicId($this->account_id);
+                if ($nextId != $this->public_id) {
+                    $this->public_id = $nextId;
+                    if (env('MULTI_DB_ENABLED')) {
+                        if ($this->contact_key) {
+                            $this->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                        } elseif ($this->invitation_key) {
+                            $this->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                        }
+                    }
+                    return $this->save($options);
+                }
+            }
+            throw $exception;
+        }
+    }
+
+    public function equalTo($obj)
+    {
+        if (empty($obj->id)) {
+            return false;
+        }
+
+        return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
+    }
+
+    /**
+      * @param $method
+      * @param $params
+      */
+    public function __call($method, $params)
+    {
+        if (count(config('modules.relations'))) {
+            $entityType = $this->getEntityType();
+
+            if ($entityType) {
+                $config = implode('.', ['modules.relations.' . $entityType, $method]);
+                if (config()->has($config)) {
+                    $function = config()->get($config);
+                    return $function($this);
+                }
+            }
+        }
+
+        return parent::__call($method, $params);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

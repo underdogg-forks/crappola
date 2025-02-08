@@ -31,5 +31,6 @@ class ResetData extends Command
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');
+        return 0;
     }
 }

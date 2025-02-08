@@ -21,6 +21,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree(); //Paginator::useBootstrap();
+
+        // support selecting job database
+        Queue::before(function (JobProcessing $event) {
+            $body = $event->job->getRawBody();
+            preg_match('/db-ninja-[\d+]/', $body, $matches);
+            if (count($matches)) {
+                config(['database.default' => $matches[0]]);
+            }
+        });
+
         Form::macro('image_data', function ($image, $contents = false) {
             if (! $contents) {
                 $contents = file_get_contents($image);

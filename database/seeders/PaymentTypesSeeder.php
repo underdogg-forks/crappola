@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -37,14 +37,6 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'Switch', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD],
             ['name' => 'iZettle', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD],
             ['name' => 'Swish', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER],
-            ['name' => 'Venmo'],
-            ['name' => 'Money Order'],
-            ['name' => 'Alipay', 'gateway_type_id' => GATEWAY_TYPE_ALIPAY],
-            ['name' => 'Sofort', 'gateway_type_id' => GATEWAY_TYPE_SOFORT],
-            ['name' => 'SEPA', 'gateway_type_id' => GATEWAY_TYPE_SEPA],
-            ['name' => 'GoCardless', 'gateway_type_id' => GATEWAY_TYPE_GOCARDLESS],
-            ['name' => 'Bitcoin', 'gateway_type_id' => GATEWAY_TYPE_BITCOIN],
-            ['name' => 'Zelle'],
         ];
 
         foreach ($paymentTypes as $paymentType) {

@@ -37,14 +37,14 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="id_number", type="string", example="123456")
      * @SWG\Property(property="language_id", type="integer", example=1)
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invoices',
         'credits',
     ];

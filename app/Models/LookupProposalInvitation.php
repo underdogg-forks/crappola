@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
+use Eloquent;
 
 /**
  * Class ExpenseCategory.
@@ -59,5 +60,10 @@ class LookupProposalInvitation extends LookupModel
         $lookupInvitation->save();
 
         config(['database.default' => $current]);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

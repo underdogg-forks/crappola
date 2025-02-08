@@ -19,11 +19,11 @@ class InvoiceTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_number", type="string", example="0001")
      * @SWG\Property(property="invoice_status_id", type="integer", example=1)
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invoice_items',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invitations',
         'payments',
         'client',

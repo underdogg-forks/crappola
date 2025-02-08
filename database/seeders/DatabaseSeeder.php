@@ -12,15 +12,9 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run(): void
+    public function run()
     {
         $this->command->info('Running DatabaseSeeder');
-
-        if (Timezone::count()) {
-            $this->command->info('Skipping: already run');
-
-            return;
-        }
 
         Eloquent::unguard();
 
@@ -31,7 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call('GatewayTypesSeeder');
         $this->call('BanksSeeder');
         $this->call('InvoiceStatusSeeder');
-        $this->call('ProposalTemplatesSeeder');
         $this->call('PaymentStatusSeeder');
         $this->call('CurrenciesSeeder');
         $this->call('DateFormatsSeeder');
@@ -41,6 +34,5 @@ class DatabaseSeeder extends Seeder
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
         $this->call('FrequencySeeder');
-        $this->call('DbServerSeeder');
     }
 }

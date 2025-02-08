@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class IndustrySeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -44,12 +44,11 @@ class IndustrySeeder extends Seeder
             ['name' => 'Other'],
             ['name' => 'Photography'],
             ['name' => 'Construction'],
-            ['name' => 'Restaurant & Catering'],
         ];
 
         foreach ($industries as $industry) {
             $record = Industry::whereName($industry['name'])->first();
-            if ( ! $record) {
+            if (! $record) {
                 Industry::create($industry);
             }
         }

@@ -78,6 +78,12 @@ class MakeModule extends Command
         Artisan::call('module:dump');
 
         $this->info('Done');
+
+        if (!$migrate && !$plain) {
+            $this->info("==> Migrations were not run because the --migrate flag was not specified.");
+            $this->info("==> Use the following command to run the migrations:\nphp artisan module:migrate $name");
+        }
+        return 0;
     }
 
     protected function getArguments()

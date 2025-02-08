@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Utils;
+use HTMLUtils;
 use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -217,5 +220,37 @@ class AccountGateway extends EntityModel
         $account = $this->account ? $this->account : Account::find($this->account_id);
 
         return \URL::to(env('WEBHOOK_PREFIX', '').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX', ''));
+    }
+
+    public function isTestMode()
+    {
+        if ($this->isGateway(GATEWAY_STRIPE)) {
+            return strpos($this->getPublishableKey(), 'test') !== false;
+        } else {
+            return $this->getConfigField('testMode');
+        }
+    }
+
+    public function getCustomHtml($invitation)
+    {
+        $text = $this->getConfigField('text');
+
+        if ($text == strip_tags($text)) {
+            $text = nl2br($text);
+        }
+
+        if (Utils::isNinja()) {
+            $text = HTMLUtils::sanitizeHTML($text);
+        }
+
+        $templateService = app('App\Services\TemplateService');
+        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
+
+        return $text;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
