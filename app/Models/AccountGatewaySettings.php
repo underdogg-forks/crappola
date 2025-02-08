@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Utils;
 
 /**
@@ -63,5 +64,10 @@ class AccountGatewaySettings extends EntityModel
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
         return join(' + ', $parts);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

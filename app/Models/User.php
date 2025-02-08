@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
+use DateTimeInterface;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -399,6 +400,82 @@ class User extends Authenticatable
     public function primaryAccount()
     {
         return $this->account->company->accounts->sortBy('id')->first();
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        //$this->notify(new ResetPasswordNotification($token));
+        app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
+    }
+
+    public function routeNotificationForSlack()
+    {
+        return $this->slack_webhook_url;
+    }
+
+    public function hasAcceptedLatestTerms()
+    {
+        if (! NINJA_TERMS_VERSION) {
+            return true;
+        }
+
+        return $this->accepted_terms_version == NINJA_TERMS_VERSION;
+    }
+
+    public function acceptLatestTerms($ip)
+    {
+        $this->accepted_terms_version = NINJA_TERMS_VERSION;
+        $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
+        $this->accepted_terms_ip = $ip;
+
+        return $this;
+    }
+
+    public function ownsEntity($entity)
+    {
+        return $entity->user_id == $this->id;
+    }
+
+    public function shouldNotify($invoice)
+    {
+        if (! $this->email || ! $this->confirmed) {
+            return false;
+        }
+
+        if ($this->cannot('view', $invoice)) {
+            return false;
+        }
+
+        if ($this->only_notify_owned && ! $this->ownsEntity($invoice)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function permissionsMap()
+    {
+        $data = [];
+        $permissions = json_decode($this->permissions);
+
+        if (! $permissions) {
+            return $data;
+        }
+
+        $keys = array_values((array) $permissions);
+        $values = array_fill(0, count($keys), true);
+
+        return array_combine($keys, $values);
+    }
+
+    public function eligibleForMigration()
+    {
+        return is_null($this->public_id) || $this->public_id == 0;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

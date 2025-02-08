@@ -11,7 +11,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'users',
         'products',
         'tax_rates',
@@ -23,8 +23,8 @@ class AccountTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
-        'relations',
+    protected array $availableIncludes = [
+        'clients',
         'invoices',
         'payments',
     ];

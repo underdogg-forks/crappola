@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -96,5 +97,10 @@ class AccountGatewayToken extends Eloquent
         } else {
             return false;
         }
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

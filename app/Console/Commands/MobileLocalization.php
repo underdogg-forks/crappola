@@ -36,10 +36,15 @@ class MobileLocalization extends Command
     {
         $type = mb_strtolower($this->option('type'));
 
-        match ($type) {
-            'laravel' => $this->laravelResources(),
-            default   => $this->flutterResources(),
-        };
+        switch ($type) {
+            case 'laravel':
+                $this->laravelResources();
+                break;
+            default:
+                $this->flutterResources();
+                break;
+        }
+        return 0;
     }
 
     protected function getOptions()

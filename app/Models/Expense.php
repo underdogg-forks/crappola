@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -290,6 +291,11 @@ class Expense extends EntityModel
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
         return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

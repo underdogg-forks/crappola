@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Carbon;
+use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -178,6 +179,31 @@ class Company extends Eloquent
             }
         }
         return false;
+    }
+
+    public function applyDiscount($amount)
+    {
+        $this->discount = $amount;
+        $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
+    }
+
+    public function applyFreeYear($numYears = 1)
+    {
+        if ($this->plan_started && $this->plan_started != '0000-00-00') {
+            return;
+        }
+
+        $this->plan = PLAN_PRO;
+        $this->plan_term = PLAN_TERM_YEARLY;
+        $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
+        $this->plan_started = date_create()->format('Y-m-d');
+        $this->plan_paid = date_create()->format('Y-m-d');
+        $this->plan_expires = date_create()->modify($numYears . ' year')->format('Y-m-d');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

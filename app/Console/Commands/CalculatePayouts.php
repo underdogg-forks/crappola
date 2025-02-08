@@ -39,7 +39,21 @@ class CalculatePayouts extends Command
      */
     public function handle()
     {
-        $this->info('Running CalculatePayouts...');
+        $type = strtolower($this->option('type'));
+
+        switch ($type) {
+            case 'referral':
+                $this->referralPayouts();
+                break;
+            case 'reseller':
+                $this->resellerPayouts();
+                break;
+        }
+        return 0;
+    }
+
+    private function referralPayouts()
+    {
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
         foreach ($servers as $server) {

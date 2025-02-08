@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use App\Ninja\Presenters\ProposalTemplatePresenter;
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
@@ -89,6 +88,11 @@ class ProposalTemplate extends EntityModel
     public function getDisplayName()
     {
         return $this->name;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,4 +19,9 @@ class License extends Eloquent
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

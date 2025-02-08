@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -92,5 +93,38 @@ class InvoiceItem extends EntityModel
             $this->invoice_item_type_id = INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
             $this->save();
         }
+    }
+
+    public function hasTaxes()
+    {
+        if ($this->tax_name1 || $this->tax_rate1) {
+            return true;
+        }
+
+        if ($this->tax_name2 || $this->tax_rate2) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public function costWithDiscount()
+    {
+        $cost = $this->cost;
+
+        if ($this->discount != 0) {
+            if ($this->invoice->is_amount_discount) {
+                $cost -= $this->discount / $this->qty;
+            } else {
+                $cost -= $cost * $this->discount / 100;
+            }
+        }
+
+        return $cost;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

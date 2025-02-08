@@ -11,6 +11,7 @@ use App\Libraries\CurlUtils;
 use App\Models\Activity;
 use App\Models\Traits\ChargesFees;
 use DateTime;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -1402,6 +1403,65 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getDueDateLabel()
     {
         return $this->isQuote() ? 'valid_until' : 'due_date';
+    }
+
+    public function onlyHasTasks()
+    {
+        foreach ($this->invoice_items as $item) {
+            if ($item->invoice_item_type_id != INVOICE_ITEM_TYPE_TASK) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function hasTaxes()
+    {
+        if ($this->tax_name1 || $this->tax_rate1) {
+            return true;
+        }
+
+        if ($this->tax_name2 || $this->tax_rate2) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public function isLocked()
+    {
+        if (! config('ninja.lock_sent_invoices')) {
+            return false;
+        }
+
+        return $this->isSent() && ! $this->is_recurring;
+    }
+
+    public function getInvoiceLinkForQuote($contactId)
+    {
+        if (! $this->quote_invoice_id) {
+            return false;
+        }
+
+        $invoice = static::scope($this->quote_invoice_id, $this->account_id)->with('invitations')->first();
+
+        if (! $invoice) {
+            return false;
+        }
+
+        foreach ($invoice->invitations as $invitation) {
+            if ($invitation->contact_id == $contactId) {
+                return $invitation->getLink();
+            }
+        }
+
+        return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

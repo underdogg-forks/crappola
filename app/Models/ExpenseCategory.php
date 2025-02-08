@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -47,5 +48,10 @@ class ExpenseCategory extends EntityModel
     public function getRoute()
     {
         return "/expense_categories/{$this->public_id}/edit";
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

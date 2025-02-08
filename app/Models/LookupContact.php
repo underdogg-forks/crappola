@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 
 /**
@@ -16,4 +17,8 @@ class LookupContact extends LookupModel
         'contact_key',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

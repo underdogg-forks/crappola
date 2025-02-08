@@ -63,7 +63,17 @@ class SendRecurringInvoices extends Command
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
-        // check for counter resets
+
+        $this->resetCounters();
+        $this->createInvoices();
+        $this->createExpenses();
+
+        $this->info(date('r') . ' Done');
+        return 0;
+    }
+
+    private function resetCounters()
+    {
         $accounts = Account::where('reset_counter_frequency_id', '>', 0)
             ->orderBy('id', 'asc')
             ->get();

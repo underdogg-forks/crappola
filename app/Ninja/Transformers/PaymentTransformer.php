@@ -17,9 +17,9 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
      */
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
         'invoice',
     ];
