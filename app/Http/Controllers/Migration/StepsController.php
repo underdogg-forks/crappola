@@ -226,10 +226,52 @@ class StepsController extends BaseController
 
         $file = storage_path("migrations/{$fileName}.zip");
 
-        $zip = new \ZipArchive();
-        $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
-        $zip->close();
+            $fileName = "{$accountKey}-{$date}-invoiceninja";
+
+            $localMigrationData['data'] = [
+                'account' => $this->getAccount(),
+                'company' => $this->getCompany(),
+                'users' => $this->getUsers(),
+                'tax_rates' => $this->getTaxRates(),
+                'payment_terms' => $this->getPaymentTerms(),
+                'clients' => $this->getClients(),
+                'company_gateways' => $this->getCompanyGateways(),
+                'client_gateway_tokens' => $this->getClientGatewayTokens(),
+                'vendors' => $this->getVendors(),
+                'projects' => $this->getProjects(),
+                'products' => $this->getProducts(),
+                'credits' => $this->getCreditsNotes(),
+                'invoices' => $this->getInvoices(),
+                'recurring_expenses' => $this->getRecurringExpenses(),
+                'recurring_invoices' => $this->getRecurringInvoices(),
+                'quotes' => $this->getQuotes(),
+                'payments' => $this->getPayments(),
+                'documents' => $this->getDocuments(),
+                'expense_categories' => $this->getExpenseCategories(),
+                'task_statuses' => $this->getTaskStatuses(),
+                'expenses' => $this->getExpenses(),
+                'tasks' => $this->getTasks(),
+                'ninja_tokens' => $this->getNinjaToken(),
+            ];
+
+            $localMigrationData['force'] = array_key_exists('force', $company);
+
+            Storage::makeDirectory('migrations');
+            $file = Storage::path("migrations/{$fileName}.zip");
+
+            ksort($localMigrationData);
+
+            $zip = new \ZipArchive();
+            $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
+            $zip->close();
+
+            $localMigrationData['file'] = $file;
+
+            $migrationData[] = $localMigrationData;
+        }
+
+        return $migrationData;
 
         // header('Content-Type: application/zip');
         // header('Content-Length: ' . filesize($file));

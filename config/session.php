@@ -148,6 +148,6 @@ return [
 	|
 	*/
 
-	'secure' => env('SESSION_SECURE', false),
+    'secure' => env('SESSION_SECURE_COOKIE', null),
 
 ];
