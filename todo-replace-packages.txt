@@ -1,9 +1,0 @@
-Package asgrim/ofxparser is abandoned, you should avoid using it. No replacement was suggested.
-Package barryvdh/laravel-cors is abandoned, you should avoid using it. No replacement was suggested.
-Package fzaninotto/faker is abandoned, you should avoid using it. No replacement was suggested.
-Package guzzle/guzzle is abandoned, you should avoid using it. Use guzzlehttp/guzzle instead.
-Package jeremeamia/superclosure is abandoned, you should avoid using it. Use opis/closure instead.
-Package laravelcollective/html is abandoned, you should avoid using it. Use spatie/laravel-html instead.
-Package omnipay/omnipay is abandoned, you should avoid using it. Use league/omnipay instead.
-Package superbalist/laravel-google-cloud-storage is abandoned, you should avoid using it. No replacement was suggested.
-Package swiftmailer/swiftmailer is abandoned, you should avoid using it. Use symfony/mailer instead.
