@@ -12,12 +12,8 @@ use App\Models\Traits\SendsEmails;
 use App\Ninja\Presenters\AccountPresenter;
 use Cache;
 use Carbon;
-use DateTime;
-use DateTimeZone;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use DateTimeInterface;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Event;
@@ -1948,5 +1944,10 @@ class Company extends Model
     {
         return true;
         //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

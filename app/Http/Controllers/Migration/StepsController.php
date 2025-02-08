@@ -75,158 +75,30 @@ class StepsController extends BaseController
         $zip->addFromString('migration.json', json_encode($data));
         $zip->close();
 
-        header('Content-Type: application/zip');
-        header('Content-Length: ' . filesize($file));
-        header("Content-Disposition: attachment; filename={$fileName}.zip");
-
-        readfile($file);
-        unlink($file);
-
-        return response()->json($data);
-    }
-
-    /**
-     * Export companyPlan and map to the v2 fields.
-     *
-     * @return array{company_id: mixed, industry_id: mixed, ip: mixed, company_key: mixed, logo: mixed, convert_products: mixed, fill_products: mixed, update_products: mixed, show_product_details: mixed, custom_surcharge_taxes1: mixed, custom_surcharge_taxes2: mixed, enable_invoice_quantity: bool, subdomain: mixed, size_id: mixed, enable_modules: mixed, custom_fields: mixed, created_at: mixed, updated_at: mixed, settings: mixed}
-     */
-    protected function getCompanyPlan(): array
-    {
-        return [
-            'company_id'              => $this->company->id,
-            'industry_id'             => $this->company->industry_id,
-            'ip'                      => $this->company->ip,
-            'company_key'             => $this->company->account_key,
-            'logo'                    => $this->company->logo,
-            'convert_products'        => $this->company->convert_products,
-            'fill_products'           => $this->company->fill_products,
-            'update_products'         => $this->company->update_products,
-            'show_product_details'    => $this->company->show_product_notes,
-            'custom_surcharge_taxes1' => $this->company->custom_invoice_taxes1,
-            'custom_surcharge_taxes2' => $this->company->custom_invoice_taxes2,
-            'enable_invoice_quantity' => ! $this->company->hide_quantity,
-            'subdomain'               => $this->company->subdomain,
-            'size_id'                 => $this->company->size_id,
-            'enable_modules'          => $this->company->enabled_modules,
-            'custom_fields'           => $this->company->custom_fields,
-            //'uses_inclusive_taxes' => $this->company->inclusive_taxes,
-            'created_at' => $this->company->created_at ? $this->company->created_at->toDateString() : null,
-            'updated_at' => $this->company->updated_at ? $this->company->updated_at->toDateString() : null,
-            'settings'   => $this->getCompanyPlanSettings(),
-        ];
-    }
-
-    /**
-     * @return array{timezone_id: mixed, date_format_id: mixed, currency_id: mixed, name: mixed, address1: mixed, address2: mixed, city: mixed, state: mixed, postal_code: mixed, country_id: mixed, invoice_terms: mixed, enabled_item_tax_rates: mixed, invoice_design_id: mixed, phone: mixed, email: mixed, language_id: mixed, custom_value1: mixed, custom_value2: mixed, hide_paid_to_date: mixed, vat_number: mixed, shared_invoice_quote_counter: mixed, id_number: mixed, invoice_footer: mixed, pdf_email_attachment: mixed, font_size: mixed, invoice_labels: mixed, military_time: mixed, invoice_number_pattern: mixed, quote_number_pattern: mixed, quote_terms: mixed, website: mixed, auto_convert_quote: mixed, all_pages_footer: mixed, all_pages_header: mixed, show_currency_code: mixed, enable_client_portal_password: mixed, send_portal_password: mixed, recurring_number_prefix: mixed, enable_client_portal: mixed, invoice_fields: mixed, company_logo: mixed, embed_documents: mixed, document_email_attachment: mixed, enable_client_portal_dashboard: mixed, page_size: mixed, show_accept_invoice_terms: mixed, show_accept_quote_terms: mixed, require_invoice_signature: mixed, require_quote_signature: mixed, client_number_counter: mixed, client_number_pattern: mixed, payment_terms: mixed, reset_counter_frequency_id: mixed, payment_type_id: mixed, reset_counter_date: mixed, tax_name1: mixed, tax_rate1: mixed, tax_name2: mixed, tax_rate2: mixed, quote_design_id: mixed, credit_number_counter: mixed, credit_number_pattern: mixed, default_task_rate: mixed, inclusive_taxes: mixed, signature_on_pdf: mixed, ubl_email_attachment: mixed, auto_archive_invoice: mixed, auto_archive_quote: mixed, auto_email_invoice: mixed}
-     */
-    public function getCompanyPlanSettings(): array
-    {
-        // In v1: custom_invoice_taxes1 & custom_invoice_taxes2, v2: 'invoice_taxes'. What do to with this?
-        // V1: invoice_number_prefix, v2: invoice_number_pattern.. same with quote_number, client_number,
-
-        return [
-            'timezone_id'                    => $this->company->timezone_id,
-            'date_format_id'                 => $this->company->date_format_id,
-            'currency_id'                    => $this->company->currency_id,
-            'name'                           => $this->company->name,
-            'address1'                       => $this->company->address1,
-            'address2'                       => $this->company->address2,
-            'city'                           => $this->company->city,
-            'state'                          => $this->company->state,
-            'postal_code'                    => $this->company->postal_code,
-            'country_id'                     => $this->company->country_id,
-            'invoice_terms'                  => $this->company->invoice_terms,
-            'enabled_item_tax_rates'         => $this->company->invoice_item_taxes,
-            'invoice_design_id'              => $this->company->invoice_design_id,
-            'phone'                          => $this->company->work_phone,
-            'email'                          => $this->company->work_email,
-            'language_id'                    => $this->company->language_id,
-            'custom_value1'                  => $this->company->custom_value1,
-            'custom_value2'                  => $this->company->custom_value2,
-            'hide_paid_to_date'              => $this->company->hide_paid_to_date,
-            'vat_number'                     => $this->company->vat_number,
-            'shared_invoice_quote_counter'   => $this->company->share_counter, // @verify,
-            'id_number'                      => $this->company->id_number,
-            'invoice_footer'                 => $this->company->invoice_footer,
-            'pdf_email_attachment'           => $this->company->pdf_email_attachment,
-            'font_size'                      => $this->company->font_size,
-            'invoice_labels'                 => $this->company->invoice_labels,
-            'military_time'                  => $this->company->military_time,
-            'invoice_number_pattern'         => $this->company->invoice_number_pattern,
-            'quote_number_pattern'           => $this->company->quote_number_pattern,
-            'quote_terms'                    => $this->company->quote_terms,
-            'website'                        => $this->company->website,
-            'auto_convert_quote'             => $this->company->auto_convert_quote,
-            'all_pages_footer'               => $this->company->all_pages_footer,
-            'all_pages_header'               => $this->company->all_pages_header,
-            'show_currency_code'             => $this->company->show_currency_code,
-            'enable_client_portal_password'  => $this->company->enable_portal_password,
-            'send_portal_password'           => $this->company->send_portal_password,
-            'recurring_number_prefix'        => $this->company->recurring_invoice_number_prefix, // @verify
-            'enable_client_portal'           => $this->company->enable_client_portal,
-            'invoice_fields'                 => $this->company->invoice_fields,
-            'company_logo'                   => $this->company->logo,
-            'embed_documents'                => $this->company->invoice_embed_documents,
-            'document_email_attachment'      => $this->company->document_email_attachment,
-            'enable_client_portal_dashboard' => $this->company->enable_client_portal_dashboard,
-            'page_size'                      => $this->company->page_size,
-            'show_accept_invoice_terms'      => $this->company->show_accept_invoice_terms,
-            'show_accept_quote_terms'        => $this->company->show_accept_quote_terms,
-            'require_invoice_signature'      => $this->company->require_invoice_signature,
-            'require_quote_signature'        => $this->company->require_quote_signature,
-            'client_number_counter'          => $this->company->client_number_counter,
-            'client_number_pattern'          => $this->company->client_number_pattern,
-            'payment_terms'                  => $this->company->payment_terms,
-            'reset_counter_frequency_id'     => $this->company->reset_counter_frequency_id,
-            'payment_type_id'                => $this->company->payment_type_id,
-            'reset_counter_date'             => $this->company->reset_counter_date,
-            'tax_name1'                      => $this->company->tax_name1,
-            'tax_rate1'                      => $this->company->tax_rate1,
-            'tax_name2'                      => $this->company->tax_name2,
-            'tax_rate2'                      => $this->company->tax_rate2,
-            'quote_design_id'                => $this->company->quote_design_id,
-            'credit_number_counter'          => $this->company->credit_number_counter,
-            'credit_number_pattern'          => $this->company->credit_number_pattern,
-            'default_task_rate'              => $this->company->task_rate,
-            'inclusive_taxes'                => $this->company->inclusive_taxes,
-            'signature_on_pdf'               => $this->company->signature_on_pdf,
-            'ubl_email_attachment'           => $this->company->ubl_email_attachment,
-            'auto_archive_invoice'           => $this->company->auto_archive_invoice,
-            'auto_archive_quote'             => $this->company->auto_archive_quote,
-            'auto_email_invoice'             => $this->company->auto_email_invoice,
-        ];
-    }
-
-    /**
-     * @return array<int, array{id: mixed, first_name: mixed, last_name: mixed, phone: mixed, email: mixed, confirmation_code: mixed, failed_logins: mixed, referral_code: mixed, oauth_user_id: mixed, oauth_provider_id: mixed, google_2fa_secret: mixed, accepted_terms_version: mixed, password: mixed, remember_token: mixed, created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    public function getUsers(): array
-    {
-        $users = User::where('company_id', $this->company->id)
-            ->withTrashed()
-            ->get();
-
-        $transformed = [];
-
-        foreach ($users as $user) {
-            $transformed[] = [
-                'id'                     => $user->id,
-                'first_name'             => $user->first_name,
-                'last_name'              => $user->last_name,
-                'phone'                  => $user->phone,
-                'email'                  => $user->email,
-                'confirmation_code'      => $user->confirmation_code,
-                'failed_logins'          => $user->failed_logins,
-                'referral_code'          => $user->referral_code,
-                'oauth_user_id'          => $user->oauth_user_id,
-                'oauth_provider_id'      => $user->oauth_provider_id,
-                'google_2fa_secret'      => $user->google_2fa_secret,
-                'accepted_terms_version' => $user->accepted_terms_version,
-                'password'               => $user->password,
-                'remember_token'         => $user->remember_token,
-                'created_at'             => $user->created_at ? $user->created_at->toDateString() : null,
-                'updated_at'             => $user->updated_at ? $user->updated_at->toDateString() : null,
-                'deleted_at'             => $user->deleted_at ? $user->deleted_at->toDateString() : null,
+            $localMigrationData['data'] = [
+                'account' => $this->getAccount(),
+                'company' => $this->getCompany(),
+                'users' => $this->getUsers(),
+                'tax_rates' => $this->getTaxRates(),
+                'payment_terms' => $this->getPaymentTerms(),
+                'clients' => $this->getClients(),
+                'company_gateways' => $this->getCompanyGateways(),
+                'client_gateway_tokens' => $this->getClientGatewayTokens(),
+                'vendors' => $this->getVendors(),
+                'projects' => $this->getProjects(),
+                'products' => $this->getProducts(),
+                'credits' => $this->getCreditsNotes(),
+                'invoices' => $this->getInvoices(),
+                'recurring_expenses' => $this->getRecurringExpenses(),
+                'recurring_invoices' => $this->getRecurringInvoices(),
+                'quotes' => $this->getQuotes(),
+                'payments' => $this->getPayments(),
+                'documents' => $this->getDocuments(),
+                'expense_categories' => $this->getExpenseCategories(),
+                'task_statuses' => $this->getTaskStatuses(),
+                'expenses' => $this->getExpenses(),
+                'tasks' => $this->getTasks(),
+                'ninja_tokens' => $this->getNinjaToken(),
             ];
         }
 

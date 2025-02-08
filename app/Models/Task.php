@@ -4,9 +4,7 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
-use App\Libraries\Utils;
-use App\Ninja\Presenters\TaskPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -326,21 +324,9 @@ class Task extends EntityModel
         return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
     }
 
-    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
+    protected function serializeDate(DateTimeInterface $date)
     {
-        if ($invoiceNumber) {
-            $label = floatval($balance) > 0 ? trans('texts.invoiced') : trans('texts.paid');
-        } elseif ($taskStatus) {
-            $label = $taskStatus;
-        } else {
-            $label = trans('texts.logged');
-        }
-
-        if ($isRunning) {
-            $label .= ' | ' . trans('texts.running');
-        }
-
-        return $label;
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

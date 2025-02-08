@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
+use Utils;
 
 /**
  * Class AccountGatewaySettings.
@@ -70,5 +70,10 @@ class AccountGatewaySettings extends EntityModel
         }
 
         return implode(' + ', $parts);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

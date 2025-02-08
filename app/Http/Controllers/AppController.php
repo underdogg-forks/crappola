@@ -288,7 +288,7 @@ class AppController extends BaseController
     {
         $result = DB::select("SELECT engine
                     FROM information_schema.TABLES
-                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
+                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='".config('database.connections.mysql.database')."'");
 
         if (count($result) && $result[0]->engine == 'InnoDB') {
             return;

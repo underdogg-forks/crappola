@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
+use DateTimeInterface;
+use Str;
+use Auth;
+use Eloquent;
+use Utils;
+use Validator;
 
 /**
  * Class EntityModel.
@@ -483,5 +482,10 @@ class EntityModel extends Model
         }
 
         return parent::__call($method, $params);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

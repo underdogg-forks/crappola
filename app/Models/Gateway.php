@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use Illuminate\Database\Eloquent\Model;
+use DateTimeInterface;
+use Eloquent;
 use Omnipay;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -199,5 +199,10 @@ class Gateway extends Model
     public function isCustom(): bool
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

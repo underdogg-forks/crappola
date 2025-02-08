@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupProposalInvitation;
 use App\Models\Traits\Inviteable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -57,6 +60,11 @@ class ProposalInvitation extends EntityModel
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

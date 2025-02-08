@@ -15,9 +15,7 @@ use App\Models\Traits\HasRecurrence;
 use App\Ninja\Presenters\InvoicePresenter;
 use Cache;
 use DateTime;
-use Exception;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Laracasts\Presenter\PresentableTrait;
@@ -1639,6 +1637,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

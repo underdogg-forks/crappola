@@ -5,10 +5,8 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
-use App\Models\Traits\HasAvatar;
-use App\Ninja\Mailers\UserMailer;
-use App\Ninja\Presenters\UserPresenter;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use DateTimeInterface;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -518,6 +516,11 @@ class User extends Authenticatable
     public function isTicketMaster(): bool
     {
         return $this->id == $this->company->company_ticket_settings->ticket_master_id;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

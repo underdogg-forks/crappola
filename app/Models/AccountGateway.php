@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use App\Services\TemplateService;
+use DateTimeInterface;
+use Utils;
+use HTMLUtils;
 use Crypt;
 use HTMLUtils;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -306,5 +307,10 @@ class AccountGateway extends EntityModel
         $templateService = app(TemplateService::class);
 
         return $templateService->processVariables($text, ['invitation' => $invitation]);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

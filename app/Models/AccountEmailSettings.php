@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use DateTimeInterface;
+use Eloquent;
 
 /**
  * Class company.
@@ -91,4 +92,21 @@ class AccountEmailSettings extends Model
         'enable_email_markup',
         'email_footer',
     ];
+
+    public static $templates = [
+        TEMPLATE_INVOICE,
+        TEMPLATE_QUOTE,
+        TEMPLATE_PROPOSAL,
+        //TEMPLATE_PARTIAL,
+        TEMPLATE_PAYMENT,
+        TEMPLATE_REMINDER1,
+        TEMPLATE_REMINDER2,
+        TEMPLATE_REMINDER3,
+        TEMPLATE_REMINDER4,
+    ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

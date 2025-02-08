@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceDesign;
+use Illuminate\Database\Seeder;
 
 use Illuminate\Database\Seeder;
 

@@ -52,10 +52,15 @@ class AccountEmailSettingsTransformer extends EntityTransformer
      */
     protected array $defaultIncludes = [];
 
+    /**
+     * @var array
+     */
     protected array $availableIncludes = [];
 
     /**
-     * @param company $settings
+     * @param Account $settings
+     *
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      *
      * @return array
      *

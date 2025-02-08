@@ -3,34 +3,35 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Cache;
 
 class UpdateSeeder extends Seeder
 {
     /**
-     * Run the database seeders.
+     * Run the database seeds.
+     *
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
         $this->command->info('Running UpdateSeeder...');
 
-        //$this->call(CountriesSeeder::class);
-        //$this->call(PaymentLibrariesSeeder::class);
-        //$this->call(FontsSeeder::class);
-        //$this->call(GatewayTypesSeeder::class);
-        //$this->call(BanksSeeder::class);
-        $this->call(InvoiceStatusSeeder::class);
-        $this->call(PaymentStatusSeeder::class);
-        $this->call(CurrenciesSeeder::class);
-        $this->call(DateFormatsSeeder::class);
-        $this->call(InvoiceDesignsSeeder::class);
-        $this->call(ProposalTemplatesSeeder::class);
-        $this->call(PaymentTermsSeeder::class);
-        $this->call(PaymentTypesSeeder::class);
-        $this->call(LanguageSeeder::class);
-        $this->call(IndustrySeeder::class);
-        $this->call(FrequencySeeder::class);
-        $this->call(DbServerSeeder::class);
+        $this->call('CountriesSeeder');
+        $this->call('PaymentLibrariesSeeder');
+        $this->call('FontsSeeder');
+        $this->call('GatewayTypesSeeder');
+        $this->call('BanksSeeder');
+        $this->call('InvoiceStatusSeeder');
+        $this->call('PaymentStatusSeeder');
+        $this->call('CurrenciesSeeder');
+        $this->call('DateFormatsSeeder');
+        $this->call('InvoiceDesignsSeeder');
+        $this->call('ProposalTemplatesSeeder');
+        $this->call('PaymentTermsSeeder');
+        $this->call('PaymentTypesSeeder');
+        $this->call('LanguageSeeder');
+        $this->call('IndustrySeeder');
+        $this->call('FrequencySeeder');
+        $this->call('DbServerSeeder');
 
         Cache::flush();
     }
