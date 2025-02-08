@@ -116,8 +116,6 @@ return [
             'presenter' => 'Presenters',
             'api-controller' => 'Http/ApiControllers',
             'transformer' => 'Transformers',
-            'module-settings-view' => 'Resources/views',
-            'module-settings-routes' => 'Http',
         ],
     ],
     /*

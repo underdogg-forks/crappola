@@ -1,17 +1,22 @@
 Update
 ======
 
-.. NOTE:: We recommend backing up your database with mysqldump before updating the app.
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. NOTE:: Note: v5 is now in beta. To upgrade from v4 you need to `install v5 <https://invoiceninja.github.io/docs/self-host-installation/>`_ as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
 
 To update the app you just need to copy over the latest code. Do not be afraid to overwrite the files, the configuration file for connections such as mysql are stored in the .env file. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 
 https://download.invoiceninja.com
 
+.. NOTE:: We recommend backing up your database with mysqldump before updating the app.
+
 If you have trouble updating you can manually load /update to check for errors.
 
-.. TIP:: We recommend using this `shell script <https://github.com/titan-fail/Ninja_Update>`_ to automate the update process, run it as a daily cron to automatically keep your app up to date.
+.. TIP:: We recommend using this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process, run it as a daily cron to automatically keep your app up to date.
 
-If you're moving servers make sure to copy over the .env file and the custom company logo(s) located in the public/logo directory. For attachments make sure you do not forget to copy the storage/documents directory.
+If you're moving servers make sure to copy over the .env file.
 
 You can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
 

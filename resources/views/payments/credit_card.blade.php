@@ -460,7 +460,7 @@
                             line2: $('#address2').val(),
                             city: $('#city').val(),
                             state: $('#state').val(),
-                            postal_code: $('#postal_code').val(),
+                            postal_code: document.getElementById('postal_code')?$('#postal_code').val():null,
                             country: $("#country_id option:selected").attr('data-iso_3166_2')
                         }
                         @endif

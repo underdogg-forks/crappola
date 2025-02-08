@@ -120,8 +120,6 @@ class Invoice extends EntityModel implements BalanceAffecting
             'item_cost',
             'item_tax1',
             'item_tax2',
-            'payment_date',
-            'payment_reference',
         ];
     }
 
@@ -146,8 +144,6 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount|cost' => 'item_cost',
             'product' => 'item_product',
             'tax' => 'item_tax1',
-            'payment date' => 'payment_date',
-            'transaction' => 'payment_reference',
         ];
     }
 
@@ -157,7 +153,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getRoute()
     {
         if ($this->is_recurring) {
-            $entityType = $this->isType(INVOICE_TYPE_STANDARD) ? ENTITY_RECURRING_INVOICE : ENTITY_RECURRING_QUOTE;
+            $entityType = 'recurring_invoice';
         } else {
             $entityType = $this->getEntityType();
         }
@@ -371,14 +367,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function recurring_quote()
-    {
-        return $this->belongsTo('App\Models\Invoice');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function quote()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
@@ -388,14 +376,6 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function recurring_invoices()
-    {
-        return $this->hasMany('App\Models\Invoice', 'recurring_invoice_id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function recurring_quotes()
     {
         return $this->hasMany('App\Models\Invoice', 'recurring_invoice_id');
     }
@@ -444,17 +424,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                      ->where('is_recurring', '=', true);
-    }
-
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
-    public function scopeRecurringQuote($query)
-    {
-        return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
-            ->where('is_recurring', '=', true);
     }
 
     /**
@@ -543,20 +512,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @return Invitation|null
-     */
-    public function invitationByContactId(int $contactId)
-    {
-        foreach ($this->invitations as $invitation) {
-            if ($invitation->contact_id === $contactId) {
-                return $invitation;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * @param $typeId
      *
      * @return bool
@@ -571,7 +526,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isQuote()
     {
-        return $this->isType(INVOICE_TYPE_QUOTE) && ! $this->is_recurring;
+        return $this->isType(INVOICE_TYPE_QUOTE);
     }
 
     /**
@@ -801,15 +756,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        // already paid or deleted
-        if ($this->isPaid() || $this->is_deleted) return false;
-
-        // if quote approve is required, them only standard invoices can be paid
-        if ($this->account->require_approve_quote) {
-            return $this->isStandard();
-        }
-
-        return true;
+        return ! $this->isPaid() && ! $this->is_deleted && $this->isStandard();
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
@@ -874,7 +821,6 @@ class Invoice extends EntityModel implements BalanceAffecting
             $linkPrefix = ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) ? 'quotes/' : 'invoices/';
         else
             $linkPrefix = 'invoices/';
-
         return link_to($linkPrefix . $invoice->public_id, $invoice->invoice_number);
     }
 
@@ -906,7 +852,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function subEntityType()
     {
         if ($this->is_recurring) {
-            return $this->isType(INVOICE_TYPE_STANDARD) ? ENTITY_RECURRING_INVOICE : ENTITY_RECURRING_QUOTE;
+            return ENTITY_RECURRING_INVOICE;
         } else {
             return $this->getEntityType();
         }
@@ -1235,6 +1181,13 @@ class Invoice extends EntityModel implements BalanceAffecting
             } elseif ($this->account->payment_terms != 0) {
                 $days = $this->account->defaultDaysDue();
 
+                return date('Y-m-d', strtotime('+'.$days.' day', $now));
+            } elseif ($this->account->payment_terms != 0) {
+                // No custom due date set for this invoice; use the client's payment terms
+                $days = $this->account->payment_terms;
+                if ($days == -1) {
+                    $days = 0;
+                }
                 return date('Y-m-d', strtotime('+'.$days.' day', $now));
             }
         }
@@ -1570,7 +1523,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             $recurInvoice = $this;
         }
 
-        if (! $recurInvoice || $this->subEntityType() == ENTITY_RECURRING_QUOTE) {
+        if (! $recurInvoice) {
             return false;
         }
 
@@ -1581,7 +1534,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         $statuses = [];
 
-        if ($entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_RECURRING_QUOTE) {
+        if ($entityType == ENTITY_RECURRING_INVOICE) {
             return $statuses;
         }
 
@@ -1619,7 +1572,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function getDueDateLabel()
     {
-        return $this->isType(INVOICE_TYPE_QUOTE) ? 'valid_until' : 'due_date';
+        return $this->isQuote() ? 'valid_until' : 'due_date';
     }
 
     public function onlyHasTasks()

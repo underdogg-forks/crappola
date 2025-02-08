@@ -8,7 +8,6 @@ use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
 use Auth;
-use Input;
 use Utils;
 use View;
 use Carbon;
@@ -58,16 +57,14 @@ class ReportController extends BaseController
             return redirect('/');
         }
 
-        $action = Input::get('action');
-        $format = Input::get('format');
+        $action = \Request::input('action');
+        $format = \Request::input('format');
 
-        $account = Auth::user()->account;
-
-        if (Input::get('report_type')) {
-            $reportType = Input::get('report_type');
-            $dateField = Input::get('date_field');
-            $startDate = date_create(Input::get('start_date'));
-            $endDate = date_create(Input::get('end_date'));
+        if (\Request::input('report_type')) {
+            $reportType = \Request::input('report_type');
+            $dateField = \Request::input('date_field');
+            $startDate = date_create(\Request::input('start_date'));
+            $endDate = date_create(\Request::input('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
@@ -87,7 +84,6 @@ class ReportController extends BaseController
             'product',
             'profit_and_loss',
             'task',
-            'task_details',
             'tax_rate',
             'quote',
         ];
@@ -98,10 +94,10 @@ class ReportController extends BaseController
             'reportTypes' => array_combine($reportTypes, Utils::trans($reportTypes)),
             'reportType' => $reportType,
             'title' => trans('texts.charts_and_reports'),
-            'account' => $account,
+            'account' => Auth::user()->account,
         ];
 
-        if ($account->hasFeature(FEATURE_REPORTS)) {
+        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
             $config = [
                 'date_field' => $dateField,
@@ -114,8 +110,7 @@ class ReportController extends BaseController
                 'start_date' => $params['startDate'],
                 'end_date' => $params['endDate'],
             ];
-
-            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $account, $isExport));
+            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':

@@ -22,9 +22,9 @@ class LookupModel extends Eloquent
 
     public static function createNew($accountKey, $data)
     {
-        if (! config('ninja.multi_db_enabled'))
+        if (! env('MULTI_DB_ENABLED')) {
             return;
-
+        }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -44,9 +44,9 @@ class LookupModel extends Eloquent
 
     public static function deleteWhere($where)
     {
-        if (! config('ninja.multi_db_enabled'))
+        if (! env('MULTI_DB_ENABLED')) {
             return;
-
+        }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -59,9 +59,9 @@ class LookupModel extends Eloquent
 
     public static function setServerByField($field, $value)
     {
-        if (! config('ninja.multi_db_enabled'))
+        if (! env('MULTI_DB_ENABLED')) {
             return;
-
+        }
 
         $className = get_called_class();
         $className = str_replace('Lookup', '', $className);
@@ -99,7 +99,7 @@ class LookupModel extends Eloquent
                 abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
-            Cache::put($key, $server, 120);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
@@ -107,9 +107,9 @@ class LookupModel extends Eloquent
 
     protected static function setDbServer($server)
     {
-        if (! config('ninja.multi_db_enabled'))
+        if (! env('MULTI_DB_ENABLED')) {
             return;
-
+        }
 
         config(['database.default' => $server]);
     }

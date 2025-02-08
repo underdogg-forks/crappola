@@ -219,9 +219,9 @@
 				->help((Utils::isNinjaProd() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
 					'link' => link_to('/settings/client_portal', trans('texts.subdomain_is_set'), ['target' => '_blank'])
 				]) : ($accountGateway && $accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
-					Utils::isNinjaProd() ? trans('texts.apple_pay_domain', [
+					(Utils::isNinjaProd() ? trans('texts.apple_pay_domain', [
 						'domain' => $account->subdomain . '.' . APP_DOMAIN, 'link' => link_to('https://dashboard.stripe.com/account/apple_pay', 'Stripe', ['target' => '_blank']),
-					]) : ''))
+					]) : '')))
                 ->value(1) !!}
 
 			@if (Utils::isRootFolder())
@@ -248,9 +248,24 @@
                     <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
                     <div class="col-lg-8 col-sm-8 help-block">
                         <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
-                        <div class="help-block">{!! trans('texts.stripe_webhook_help', [
-                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
-                    ]) !!}</div>
+                        <div class="help-block">
+							<p>
+								{!! trans('texts.stripe_webhook_help', [
+	                        		'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+	                    		]) !!}
+							</p>
+							<p>
+								{{ trans('texts.supported_events') }}
+								<ul>
+									<li>charge.failed</li>
+									<li>charge.succeeded</li>
+									<li>charge.refunded</li>
+									<li>customer.source.updated</li>
+									<li>customer.source.deleted</li>
+									<li>source.chargeable</li>
+								</ul>
+							</p>
+						</div>
                     </div>
                 </div>
             </div>

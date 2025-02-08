@@ -67,6 +67,17 @@ class ClientPortalController extends BaseController
         $client = $invoice->client;
         $account = $invoice->account;
 
+        /* Forward requests from V4 to V5 if the domain is set */
+        if(strlen($account->account_email_settings->forward_url_for_v5) >1){
+
+            if ($invoice->isType(INVOICE_TYPE_QUOTE)) 
+                $entity = 'quote';
+            else
+                $entity = 'invoice';
+
+            return redirect($account->account_email_settings->forward_url_for_v5."/client/".$entity."/".$invitationKey);
+        }
+
         if (request()->silent) {
             session(['silent:' . $client->id => true]);
             return redirect(request()->url() . (request()->borderless ? '?borderless=true' : ''));
@@ -78,7 +89,7 @@ class ClientPortalController extends BaseController
             ]);
         }
 
-        if (! Input::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
+        if (! Request::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
@@ -129,14 +140,14 @@ class ClientPortalController extends BaseController
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
-            if (in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
+            if (array_key_exists('gatewayTypeId', $paymentTypes[0]) && in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
                 // do nothing
             } elseif (! $account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
             }
         }
 
-        if (! Input::has('phantomjs')) {
+        if (! Request::has('phantomjs')) {
             if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
                 $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
             }
@@ -146,14 +157,18 @@ class ClientPortalController extends BaseController
             }
         }
 
-        $showApprove = ($invoice->isQuote() && $account->require_approve_quote) ? true: false;
+        $showApprove = $invoice->quote_invoice_id ? false : true;
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
         }
 
+        $gatewayTypeIdCast = false;
+
+        if(count($paymentTypes) >= 1 && array_key_exists('gatewayTypeId', $paymentTypes[0]))
+            $gatewayTypeIdCast = $paymentTypes[0]['gatewayTypeId'];
+
         $data += [
             'account' => $account,
-            'approveRequired' => $account->require_approve_quote,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'invoice' => $invoice->hidePrivateFields(),
@@ -162,8 +177,8 @@ class ClientPortalController extends BaseController
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
-            'phantomjs' => Input::has('phantomjs'),
-            'gatewayTypeId' => count($paymentTypes) == 1 ? $paymentTypes[0]['gatewayTypeId'] : false,
+            'phantomjs' => Request::has('phantomjs'),
+            'gatewayTypeId' => count($paymentTypes) == 1 ? $gatewayTypeIdCast : false,
         ];
 
         if ($invoice->canBePaid()) {
@@ -229,7 +244,7 @@ class ClientPortalController extends BaseController
             return RESULT_FAILURE;
         }
 
-        if ($signature = Input::get('signature')) {
+        if ($signature = \Request::input('signature')) {
             $invitation->signature_base64 = $signature;
             $invitation->signature_date = date_create();
             $invitation->save();
@@ -324,7 +339,7 @@ class ClientPortalController extends BaseController
             ->make();
     }
 
-    public function recurringInvoiceIndex($quotes = false)
+    public function recurringInvoiceIndex()
     {
         if (! $contact = $this->getContact()) {
             return $this->returnError();
@@ -344,29 +359,17 @@ class ClientPortalController extends BaseController
             $columns[] = 'auto_bill';
         }
 
-        $title = trans('texts.recurring_invoices');
-        $entityType = ENTITY_RECURRING_INVOICE;
-        if ($quotes) {
-            $title = trans('texts.recurring_quotes');
-            $entityType = ENTITY_RECURRING_QUOTE;
-        }
-
         $data = [
             'color' => $color,
             'account' => $account,
             'client' => $client,
-            'title' => $title,
-            'entityType' => $entityType,
+            'title' => trans('texts.recurring_invoices'),
+            'entityType' => ENTITY_RECURRING_INVOICE,
             'columns' => Utils::trans($columns),
             'sortColumn' => 1,
         ];
 
         return response()->view('public_list', $data);
-    }
-
-    public function recurringQuoteIndex()
-    {
-        return self::recurringInvoiceIndex(true);
     }
 
     public function invoiceIndex()
@@ -402,7 +405,7 @@ class ClientPortalController extends BaseController
             return '';
         }
 
-        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_INVOICE, Input::get('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_INVOICE, \Request::input('sSearch'));
     }
 
     public function recurringInvoiceDatatable()
@@ -412,15 +415,6 @@ class ClientPortalController extends BaseController
         }
 
         return $this->invoiceRepo->getClientRecurringDatatable($contact->id);
-    }
-
-    public function recurringQuoteDatatable()
-    {
-        if (! $contact = $this->getContact()) {
-            return '';
-        }
-
-        return $this->invoiceRepo->getClientRecurringDatatable($contact->id, ENTITY_RECURRING_QUOTE);
     }
 
     public function paymentIndex()
@@ -454,7 +448,7 @@ class ClientPortalController extends BaseController
         if (! $contact = $this->getContact()) {
             return $this->returnError();
         }
-        $payments = $this->paymentRepo->findForContact($contact->id, Input::get('sSearch'));
+        $payments = $this->paymentRepo->findForContact($contact->id, \Request::input('sSearch'));
 
         return Datatable::query($payments)
                 ->addColumn('invoice_number', function ($model) {
@@ -524,7 +518,6 @@ class ClientPortalController extends BaseController
         $data = [
           'color' => $color,
           'account' => $account,
-          'client' => $contact->client,
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date', 'status']),
@@ -540,7 +533,7 @@ class ClientPortalController extends BaseController
             return false;
         }
 
-        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, Input::get('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, \Request::input('sSearch'));
     }
 
     public function creditIndex()
@@ -649,10 +642,10 @@ class ClientPortalController extends BaseController
             return false;
         }
 
-        return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Input::get('sSearch'));
+        return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, \Request::input('sSearch'));
     }
 
-    public function returnError($error = false)
+    private function returnError($error = false)
     {
         if (request()->phantomjs) {
             abort(404);
@@ -665,7 +658,7 @@ class ClientPortalController extends BaseController
         ]);
     }
 
-    public function getContact()
+    private function getContact()
     {
         $contactKey = session('contact_key');
 
@@ -862,9 +855,9 @@ class ClientPortalController extends BaseController
 
     public function verifyPaymentMethod()
     {
-        $publicId = Input::get('source_id');
-        $amount1 = Input::get('verification1');
-        $amount2 = Input::get('verification2');
+        $publicId = \Request::input('source_id');
+        $amount1 = \Request::input('verification1');
+        $amount2 = \Request::input('verification2');
 
         if (! $contact = $this->getContact()) {
             return $this->returnError();
@@ -918,14 +911,14 @@ class ClientPortalController extends BaseController
         $client = $contact->client;
         $account = $client->account;
 
-        $validator = Validator::make(Input::all(), ['source' => 'required']);
+        $validator = Validator::make(Request::all(), ['source' => 'required']);
         if ($validator->fails()) {
             return Redirect::to($client->account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
         }
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
         $paymentMethod = PaymentMethod::clientId($client->id)
-            ->wherePublicId(Input::get('source'))
+            ->wherePublicId(\Request::input('source'))
             ->firstOrFail();
 
         $customer = $paymentDriver->customer($client->id);
@@ -957,14 +950,14 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
 
-        $validator = Validator::make(Input::all(), ['public_id' => 'required']);
+        $validator = Validator::make(Request::all(), ['public_id' => 'required']);
 
         if ($validator->fails()) {
             return Redirect::to('client/invoices/recurring');
         }
 
-        $publicId = Input::get('public_id');
-        $enable = Input::get('enable');
+        $publicId = \Request::input('public_id');
+        $enable = \Request::input('enable');
         $invoice = $client->invoices()->where('public_id', intval($publicId))->first();
 
         if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
@@ -1072,6 +1065,4 @@ class ClientPortalController extends BaseController
         return view('clients.statement', $data);
 
     }
-
-
 }

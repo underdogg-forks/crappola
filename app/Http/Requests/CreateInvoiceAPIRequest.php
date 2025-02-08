@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Client;
-use App\Models\Invoice;
 
 class CreateInvoiceAPIRequest extends InvoiceRequest
 {
@@ -14,7 +13,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Invoice::class);
+        return $this->user()->can('create', ENTITY_INVOICE);
     }
 
     /**

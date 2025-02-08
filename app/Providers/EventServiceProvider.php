@@ -250,10 +250,7 @@ class EventServiceProvider extends ServiceProvider
         //DNS Remove A record from Cloudflare
         'App\Events\SubdomainWasRemoved' => [
             'App\Listeners\DNSListener@removeDNSRecord'
-        ],
-        'App\Events\TicketUserViewed' => [
-            'App\Listeners\ActivityListener@userViewedTicket'
-        ],
+        ]
 
         /*
         // Update events

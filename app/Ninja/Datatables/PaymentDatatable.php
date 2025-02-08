@@ -12,7 +12,6 @@ class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
     public $sortCol = 7;
-    public $fieldToSum = 'amount';
 
     protected static $refundableGateways = [
         GATEWAY_STRIPE,

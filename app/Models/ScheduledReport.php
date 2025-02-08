@@ -56,8 +56,4 @@ class ScheduledReport extends EntityModel
 
         $this->save();
     }
-
-    public function getEntityType() {
-        return '';
-    }
 }

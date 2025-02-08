@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Client;
-
 class CreateClientRequest extends ClientRequest
 {
     /**
@@ -13,7 +11,7 @@ class CreateClientRequest extends ClientRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Client::class);
+        return $this->user()->can('create', ENTITY_CLIENT);
     }
 
     /**

@@ -22,7 +22,6 @@
 
         var statementStartDate = moment("{{ $startDate }}");
 		var statementEndDate = moment("{{ $endDate }}");
-        var chartQuarter = moment().quarter();
         var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
         function getPDFString(cb) {

@@ -42,7 +42,7 @@
     </div>
 
     @foreach(Module::getOrdered() as $module)
-        @if(View::exists($module->getLowerName() . '::products.edit'))
+        @if(View::exists($module->alias . '::products.edit'))
         <div class="row">
             <div class="col-lg-10 col-lg-offset-1">
                 <div class="panel panel-default">
@@ -53,7 +53,7 @@
                         </h3>
                     </div>
                     <div class="panel-body form-padding-right">
-                        @includeIf($module->getLowerName() . '::products.edit')
+                        @includeIf($module->alias . '::products.edit')
                     </div>
                 </div>
             </div>

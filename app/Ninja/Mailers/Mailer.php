@@ -50,14 +50,14 @@ class Mailer
             $fromEmail = $data['fromEmail'];
         }
 
-        if (strlen(config('services.postmark')) >=1) {
+        if (config('services.postmark')) {
             return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
         } else {
             return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
         }
     }
 
-    public function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
         if (Utils::isSelfHost()) {
             if (isset($data['account'])) {
@@ -206,7 +206,7 @@ class Mailer
 
             if (! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
-            } elseif($invoice) {
+            } else {
                 $invoice->markInvitationSent($invitation, $messageId, true, $notes);
             }
         }

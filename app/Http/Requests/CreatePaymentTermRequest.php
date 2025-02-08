@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
-use App\Models\PaymentTerm;
 
 class CreatePaymentTermRequest extends PaymentTermRequest
 {
@@ -15,7 +14,7 @@ class CreatePaymentTermRequest extends PaymentTermRequest
 
     public function authorize()
     {
-        return $this->user()->can('create', PaymentTerm::class) || $this->user()->can('create', Invoice::class);
+        return $this->user()->can('create', ENTITY_PAYMENT_TERM);
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Expense;
-
 class CreateRecurringExpenseRequest extends RecurringExpenseRequest
 {
     /**
@@ -13,7 +11,7 @@ class CreateRecurringExpenseRequest extends RecurringExpenseRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Expense::class);
+        return $this->user()->can('create', ENTITY_RECURRING_EXPENSE);
     }
 
     /**

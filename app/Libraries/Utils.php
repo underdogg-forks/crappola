@@ -10,7 +10,6 @@ use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Input;
 use Log;
 use Request;
 use Schema;
@@ -18,12 +17,9 @@ use Session;
 use stdClass;
 use View;
 use WePay;
-use Nwidart\Modules\Facades\Module;
 
 class Utils
 {
-    protected static $cacheValues = [];
-
     private static $weekdayNames = [
         'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
     ];
@@ -365,14 +361,7 @@ class Utils
                 if (substr($field, 0, 1) == '-') {
                     $data[] = substr($field, 1);
                 } elseif ($module) {
-                    if(strpos($field, '::') >= 1) {
-                        $customField = explode('::', $field);
-                        if(count($customField) == 2) {
-                            $data[] = trans("texts.$customField[0]", [ 'VALUE' => $customField[1]], 'en');
-                        }
-                    } else {
-                        $data[] = mtrans($module, $field);
-                    }
+                    $data[] = mtrans($module, $field);
                 } else {
                     $data[] = trans("texts.$field");
                 }
@@ -447,7 +436,7 @@ class Utils
         ];
 
         if (static::isNinja()) {
-            $data['url'] = Input::get('url', Request::url());
+            $data['url'] = \Request::input('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();
@@ -557,9 +546,6 @@ class Utils
 
     public static function getFromCache($id, $type)
     {
-        if (!empty(static::$cacheValues[$type]) && !empty(static::$cacheValues[$type][$id])) {
-            return static::$cacheValues[$type][$id];
-        }
         $cache = Cache::get($type);
 
         if (! $cache) {
@@ -572,11 +558,7 @@ class Utils
             return $item->id == $id;
         });
 
-        $res = $data->first();
-        if (!empty($res)) {
-            static::$cacheValues[$type][$id] = $res;
-        }
-        return $res;
+        return $data->first();
     }
 
     public static function formatNumber($value, $currencyId = false, $precision = 0)
@@ -664,10 +646,6 @@ class Utils
             return 'proposal_categories';
         } elseif ($type === ENTITY_TASK_STATUS) {
             return 'task_statuses';
-        } elseif ($type === ENTITY_TICKET_STATUS) {
-            return 'ticket_statuses';
-        } elseif ($type === ENTITY_TICKET_CATEGORY) {
-            return 'ticket_categories';
         } else {
             return $type . 's';
         }
@@ -761,10 +739,9 @@ class Utils
         }
 
         $timestamp = $dateTime->getTimestamp();
-        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return self::timestampToString($timestamp, $timezone, $format);
+        return self::timestampToString($timestamp, false, $format);
     }
 
     public static function timestampToString($timestamp, $timezone, $format)
@@ -796,22 +773,6 @@ class Utils
             return $date;
         } else {
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
-        }
-    }
-
-    public static function toSqlDateTime($date, $formatResult = true)
-    {
-        if (! $date) {
-            return;
-        }
-
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-        $dateTime = DateTime::createFromFormat($format, $date);
-
-        if (! $dateTime) {
-            return $date;
-        } else {
-            return $formatResult ? $dateTime->format('Y-m-d H:i:s') : $dateTime;
         }
     }
 
@@ -874,8 +835,7 @@ class Utils
             return '';
         }
 
-        $variables = ['MONTH', 'QUARTER', 'YEAR', 'DATE_MONTH', 'DATE_YEAR'];
-        $yearOverlap = 0;
+        $variables = ['MONTH', 'QUARTER', 'YEAR'];
         for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
             $regExp = '/:'.$variable.'[+-]?[\d]*/';
@@ -897,9 +857,6 @@ class Utils
                     $offset = intval($minArray[1]) * -1;
                 }
 
-                $yearOverlap += self::getDateYearOverlap($variable, $offset);
-                if($variable === 'YEAR') $offset += $yearOverlap;
-
                 $locale = $client && $client->language_id ? $client->language->locale : null;
                 $val = self::getDatePart($variable, $offset, $locale);
                 $str = str_replace($match, $val, $str);
@@ -918,52 +875,7 @@ class Utils
             return self::getQuarter($offset);
         } elseif ($part == 'YEAR') {
             return self::getYear($offset);
-        } elseif ($part == 'DATE_MONTH') {
-            return self::getDateMonth($offset, $locale);
-        } elseif ($part == 'DATE_YEAR') {
-            return self::getDateYear($offset);
         }
-    }
-
-    private static function getDateYearOverlap(string $part, int $offset): int
-    {
-        $offset = intval($offset);
-
-        switch ($part) {
-            case 'MONTH':
-                return self::getMonthYearOverlap($offset);
-            case 'QUARTER':
-                return self::getQuarterYearOverlap($offset);
-        }
-
-        return 0;
-    }
-
-    public static function getDateMonth($offset, $locale)
-    {
-        $timestamp = time();
-        $res = $timestamp + ($offset * 24 * 60 * 60);
-
-        $months = static::$months;
-        $month = intval(date('n', $res)) - 1;
-
-        $month = $month % 12;
-
-        if ($month < 0) {
-            $month += 12;
-        }
-
-        return trans('texts.' . $months[$month], [], $locale);
-    }
-
-    public static function getDateYear($offset)
-    {
-        $timestamp = time();
-        $res = $timestamp + ($offset * 24 * 60 * 60);
-
-        $year = intval(date('Y', $res));
-
-        return $year;
     }
 
     public static function getMonthOptions()
@@ -1005,34 +917,6 @@ class Utils
         }
 
         return 'Q'.$quarter;
-    }
-
-    private static function getMonthYearOverlap(int $offset): int
-    {
-        $month = intval(date('n')) - 1;
-
-        $month += $offset;
-
-        if($month < 0){
-            $month += 1;
-            return (((abs($month) / 12 % 12) + 1) * -1);
-        }
-
-        return ($month / 12 % 12);
-    }
-
-    private static function getQuarterYearOverlap(int $offset): int
-    {
-        $month = intval(date('n')) - 1;
-        $quarter = floor(($month + 3) / 3);
-        $quarter += $offset - 1;
-
-        if($quarter < 0){
-            $quarter += 1;
-            return (((abs($quarter) / 4 % 4) + 1) * -1);
-        }
-
-        return ($quarter / 4 % 4);
     }
 
     private static function getYear($offset)
@@ -1375,7 +1259,6 @@ class Utils
             'invoice_id',
             'credit_id',
             'invitation_id',
-            'ticket_id',
         ];
 
         $fields1 = $entity1->getAttributes();
@@ -1630,66 +1513,4 @@ class Utils
         );
         return strtr($s, $replace);
     }
-
-
-    public static function hasModuleSettings() {
-         $module = Module::toCollection()->first(function($module) {
-            return View::exists($module->getLowerName() . '::settings');
-        });
-
-        return $module ? true : false;
-    }
-
-    public static function getModulesWithSettings() {
-        $modules = Module::toCollection()->filter(function($module) {
-            return View::exists($module->getLowerName() . '::settings');
-        });
-
-        return $modules;
-    }
-
-    /**
-     * @return array of file sizes, using a MAX of the php.ini variables upload_max_filesize and post_max_size
-     * and iterating down by / 2 until a min size of 100kB
-     */
-    public function getMaxFileUploadSizes()
-    {
-        $maxUploadSize = $this->fileUploadMaxSize();
-
-        $selectArray = [];
-
-        while($maxUploadSize > 100) {
-            array_push($selectArray, [$maxUploadSize => $maxUploadSize]);
-            $maxUploadSize = $maxUploadSize / 2;
-        }
-
-        return array_reverse($selectArray);
-    }
-
-    /**
-     * @return  Returns a file size limit in kilobytes based on the PHP upload_max_filesize and post_max_size
-     */
-    public function fileUploadMaxSize() {
-
-       return min($this->parse_size(ini_get('post_max_size')), $this->parse_size(ini_get('upload_max_filesize')));
-
-    }
-
-    /**
-     * @param $size
-     * @return float in kilobytes to match laravel file size validator
-     */
-    private function parse_size($size) {
-        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
-        $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
-        if ($unit) {
-            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
-            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])))/1024;
-        }
-        else {
-            return round($size)/1024;
-        }
-    }
-
-
 }

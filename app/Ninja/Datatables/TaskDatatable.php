@@ -12,7 +12,6 @@ class TaskDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TASK;
     public $sortCol = 3;
-    public $fieldToSum = 'duration';
 
     public function columns()
     {
@@ -84,15 +83,6 @@ class TaskDatatable extends EntityDatatable
                 function ($model) {
                     return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
-            ],
-            [
-               trans('texts.clone_task'),
-               function ($model) {
-                   return URL::to("tasks/{$model->public_id}/clone");
-               },
-               function ($model) {
-                   return Auth::user()->can('create', ENTITY_TASK);
-               },
             ],
             [
                 trans('texts.view_invoice'),

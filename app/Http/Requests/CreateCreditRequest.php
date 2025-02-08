@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Credit;
-
 class CreateCreditRequest extends CreditRequest
 {
     /**
@@ -13,7 +11,7 @@ class CreateCreditRequest extends CreditRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Credit::class);
+        return $this->user()->can('create', ENTITY_CREDIT);
     }
 
     /**

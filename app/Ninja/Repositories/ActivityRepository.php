@@ -77,8 +77,8 @@ class ActivityRepository
                     ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
                     ->leftJoin('tasks', 'tasks.id', '=', 'activities.task_id')
                     ->leftJoin('expenses', 'expenses.id', '=', 'activities.expense_id')
-                    ->leftJoin('tickets', 'tickets.id', '=', 'activities.ticket_id')
                     ->where('clients.id', '=', $clientId)
+                    ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
@@ -112,9 +112,7 @@ class ActivityRepository
                         'tasks.description as task_description',
                         'tasks.public_id as task_public_id',
                         'expenses.public_notes as expense_public_notes',
-                        'expenses.public_id as expense_public_id',
-                        'tickets.public_id as ticket_public_id'
-                    )
-                    ->orderBy('activities.created_at', 'desc');
+                        'expenses.public_id as expense_public_id'
+                    );
     }
 }

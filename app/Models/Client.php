@@ -175,22 +175,6 @@ class Client extends EntityModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function tasks()
-    {
-        return $this->hasMany('App\Models\Task');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function projects()
-    {
-        return $this->hasMany('App\Models\Project');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function contacts()
     {
         return $this->hasMany('App\Models\Contact');
@@ -597,19 +581,11 @@ class Client extends EntityModel
     }
 
     /**
- * @return bool
- */
-    public function hasRecurringInvoices()
-    {
-        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_STANDARD)->count() > 0;
-    }
-
-    /**
      * @return bool
      */
-    public function hasRecurringQuotes()
+    public function hasRecurringInvoices()
     {
-        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_QUOTE)->count() > 0;
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
     }
 
     public function defaultDaysDue()
@@ -624,29 +600,6 @@ class Client extends EntityModel
                 return $invitation->invitation_key;
             }
         }
-    }
-
-    public function getUsuallyPaysIn() {
-        $paysIn = $this->invoices()
-                        ->with('payments')
-                        ->where('invoice_status_id', '=', INVOICE_STATUS_PAID)
-                        ->orderBy('invoice_date', 'desc')
-                        ->take(20)
-                        ->get()
-                        ->map(function ($item) {
-                            $payments = $item->payments()->orderBy('payment_date', 'asc')->get();
-                            $invoiceTotal = $item->amount;
-
-                            foreach($payments as $payment) {
-                                if($payment->amount < $invoiceTotal) {
-                                    $invoiceTotal -= $payment->amount;
-                                } elseif($payment->amount >= $invoiceTotal) {
-                                    return \Carbon::parse($item->invoice_date)->diffInDays($payment->payment_date);
-                                }
-                            }
-                        })->avg();
-
-        return $paysIn;
     }
 }
 

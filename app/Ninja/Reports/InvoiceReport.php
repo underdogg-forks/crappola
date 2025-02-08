@@ -47,6 +47,10 @@ class InvoiceReport extends AbstractReport
 
     public function run()
     {
+        if (!Auth::user()) {
+            return;
+        }
+
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
@@ -56,7 +60,7 @@ class InvoiceReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts', 'user', 'country', 'shipping_country')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
@@ -122,7 +126,7 @@ class InvoiceReport extends AbstractReport
                         $invoice->po_number,
                         $invoice->private_notes,
                         $client->vat_number,
-                        $client->user->getDisplayName(),
+                        $invoice->user->getDisplayName(),
                         trim(str_replace('<br/>', ', ', $client->present()->address()), ', '),
                         trim(str_replace('<br/>', ', ', $client->present()->address(ADDRESS_SHIPPING)), ', '),
                     ];
@@ -146,7 +150,6 @@ class InvoiceReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $this->addToTotals($client->currency_id, 'balance', $invoice->balance);
-                $this->addToTotals($client->currency_id, 'tax', $invoice->getTaxTotal());
 
                 if ($subgroup == 'status') {
                     $dimension = $invoice->statusLabel();

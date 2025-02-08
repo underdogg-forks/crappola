@@ -3,9 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
-use App\Models\Contact;
 use App\Models\EntityModel;
-use Input;
 use Utils;
 
 class EntityRequest extends Request
@@ -34,34 +32,17 @@ class EntityRequest extends Request
             }
         }
         if (! $publicId) {
-            $field = $this->entityType;
-            if (! empty($this->$field)) {
-                $publicId = $this->$field;
-            }
-        }
-        if (! $publicId) {
-            $publicId = Input::get('public_id') ?: Input::get('id');
+            $publicId = \Request::input('public_id') ?: \Request::input('id');
         }
 
         if (! $publicId) {
             return null;
         }
 
-        //Support Client Portal Scopes
-        $accountId = false;
-  
-        if($this->user()->account_id)
-            $accountId = $this->user()->account_id;
-        elseif(Input::get('account_id'))
-            $accountId = Input::get('account_id');
-        elseif($contact = Contact::getContactIfLoggedIn())
-            $accountId = $contact->account->id;
-
         if (method_exists($class, 'trashed')) {
-            $this->entity = $class::scope($publicId, $accountId)->withTrashed()->firstOrFail();
+            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
         } else {
-            $this->entity = $class::scope($publicId, $accountId)->firstOrFail();
-
+            $this->entity = $class::scope($publicId)->firstOrFail();
         }
 
         return $this->entity;
@@ -77,10 +58,11 @@ class EntityRequest extends Request
         if ($this->entity()) {
             if ($this->user()->can('view', $this->entity())) {
                 HistoryUtils::trackViewed($this->entity());
+
                 return true;
             }
         } else {
-            return $this->user()->can('createEntity', $this->entityType);
+            return $this->user()->can('create', $this->entityType);
         }
     }
 

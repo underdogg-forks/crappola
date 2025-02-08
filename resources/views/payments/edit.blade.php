@@ -169,7 +169,7 @@
             $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
         @endif
 
-        @if (Input::old('data'))
+        @if (Request::old('data'))
             // this means we failed so we'll reload the previous state
             window.model = new ViewModel({!! $data !!});
         @else
@@ -263,11 +263,12 @@
 		$('#saveButton').attr('disabled', false);
         canSubmitPayment = true;
 
-		var error = '';
+		var error = '{{ trans('texts.error_refresh_page') }}';
 		if (data) {
-			var error = firstJSONError(data.responseJSON) || data.statusText;
+		    error = firstJSONError(data.responseJSON);
 		}
-		swal({!! json_encode(trans('texts.error_refresh_page')) !!}, error);
+
+		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
 	}
 
     function submitAction(action) {

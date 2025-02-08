@@ -10,7 +10,6 @@ class ClientDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CLIENT;
     public $sortCol = 4;
-    public $fieldToSum = 'balance';
 
     public function columns()
     {
@@ -41,21 +40,6 @@ class ClientDatatable extends EntityDatatable
                 },
                 Auth::user()->account->clientNumbersEnabled()
             ],
-            [
-                'custom_client1::' . Auth::user()->account->customLabel('client1'),
-                function ($model) {
-                    return $model->custom_value1    ;
-                },
-                Auth::user()->account->customFieldsOption('client1_filter')
-            ],
-            [
-                'custom_client2::' . Auth::user()->account->customLabel('client2'),
-                function ($model) {
-                    return $model->custom_value2;
-                },
-                Auth::user()->account->customFieldsOption('client2_filter')
-            ],
-
             [
                 'client_created_at',
                 function ($model) {
@@ -94,7 +78,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]);
+                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE));
                 },
             ],
             [
@@ -103,7 +87,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("tasks/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_TASK);
+                    return Auth::user()->can('create', ENTITY_TASK);
                 },
             ],
             [
@@ -112,7 +96,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("invoices/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
@@ -121,7 +105,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('createEntity', ENTITY_QUOTE);
+                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [
@@ -129,7 +113,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return (Auth::user()->can('createEntity', ENTITY_TASK) || Auth::user()->can('createEntity', ENTITY_INVOICE)) && (Auth::user()->can('createEntity', ENTITY_PAYMENT) || Auth::user()->can('createEntity', ENTITY_CREDIT) || Auth::user()->can('createEntity', ENTITY_EXPENSE));
+                    return (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)) && (Auth::user()->can('create', ENTITY_PAYMENT) || Auth::user()->can('create', ENTITY_CREDIT) || Auth::user()->can('create', ENTITY_EXPENSE));
                 },
             ],
             [
@@ -138,7 +122,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("payments/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_PAYMENT);
+                    return Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
             [
@@ -147,7 +131,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("credits/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_CREDIT);
+                    return Auth::user()->can('create', ENTITY_CREDIT);
                 },
             ],
             [
@@ -156,7 +140,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("expenses/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_EXPENSE);
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
         ];

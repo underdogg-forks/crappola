@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Proposal;
-
 class CreateProposalSnippetRequest extends ProposalSnippetRequest
 {
     /**
@@ -13,7 +11,7 @@ class CreateProposalSnippetRequest extends ProposalSnippetRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', Proposal::class);
+        return $this->user()->can('create', ENTITY_PROPOSAL_SNIPPET);
     }
 
     /**

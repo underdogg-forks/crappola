@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class DocumentPolicy.
@@ -16,7 +15,7 @@ class DocumentPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public function create(User $user)
+    public static function create(User $user, $item)
     {
         return ! empty($user);
     }
@@ -27,7 +26,7 @@ class DocumentPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public function view(User $user, $document, $entityType = null)
+    public static function view(User $user, $document)
     {
         if ($user->hasPermission(['view_expense', 'view_invoice'], true)) {
             return true;
@@ -42,10 +41,6 @@ class DocumentPolicy extends EntityPolicy
         if ($document->invoice) {
             return $user->can('view', $document->invoice);
         }
-        if($document->ticket){
-            return $user->can('view', $document->ticket);
-        }
-
 
         return $user->owns($document);
     }

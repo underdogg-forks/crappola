@@ -25,9 +25,9 @@ use App\Services\RecurringInvoiceService;
 use Auth;
 use Cache;
 use DB;
-use Input;
+use Illuminate\Support\Facades\Session;
 use Redirect;
-use Session;
+use Request;
 use URL;
 use Utils;
 use View;
@@ -68,7 +68,7 @@ class InvoiceController extends BaseController
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
     }
@@ -76,17 +76,9 @@ class InvoiceController extends BaseController
     public function getRecurringDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
 
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
-    }
-
-    public function getRecurringQuotesDatatable($clientPublicId = null)
-    {
-        $accountId = Auth::user()->account_id;
-        $search = Input::get('sSearch');
-
-        return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_QUOTE, $search);
     }
 
     public function edit(InvoiceRequest $request, $publicId, $clone = false)
@@ -109,6 +101,7 @@ class InvoiceController extends BaseController
             $entityType = $clone == INVOICE_TYPE_STANDARD ? ENTITY_INVOICE : ENTITY_QUOTE;
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
+            $invoice->is_recurring = $invoice->is_recurring && $clone == INVOICE_TYPE_STANDARD;
             $invoice->invoice_type_id = $clone;
             $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->due_date = null;
@@ -145,11 +138,7 @@ class InvoiceController extends BaseController
             'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
 
-        $lastSent = null;
-        if($invoice->is_recurring && $invoice->last_sent_date)
-        {
-            $lastSent = ($invoice->subEntityType() == ENTITY_RECURRING_INVOICE) ? $invoice->recurring_invoices->last() : $invoice->recurring_quotes->last();
-        }
+        $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
@@ -210,10 +199,11 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create(InvoiceRequest $request, $clientPublicId = 0, $entityType = ENTITY_INVOICE)
+    public function create(InvoiceRequest $request, $clientPublicId = 0, $isRecurring = false)
     {
         $account = Auth::user()->account;
 
+        $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 
         if ($request->client_id) {
@@ -228,6 +218,9 @@ class InvoiceController extends BaseController
         if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
+
+        if($clientPublicId != 0)
+            $clients->where('public_id', $clientPublicId);
 
         $data = [
             'clients' => $clients->get(),
@@ -244,12 +237,7 @@ class InvoiceController extends BaseController
 
     public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
     {
-        return self::create($request, $clientPublicId, ENTITY_RECURRING_INVOICE);
-    }
-
-    public function createRecurringQuote(InvoiceRequest $request, $clientPublicId = 0)
-    {
-        return self::create($request, $clientPublicId, ENTITY_RECURRING_QUOTE);
+        return self::create($request, $clientPublicId, true);
     }
 
     private static function getViewModel($invoice)
@@ -332,7 +320,7 @@ class InvoiceController extends BaseController
         }
 
         return [
-            'data' => Input::old('data'),
+            'data' => Request::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
@@ -360,8 +348,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = Input::get('action');
-        $entityType = Input::get('entityType');
+        $action = \Request::input('action');
+        $entityType = \Request::input('entityType');
 
         $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
@@ -394,8 +382,8 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
-        $action = Input::get('action');
-        $entityType = Input::get('entityType');
+        $action = \Request::input('action');
+        $entityType = \Request::input('entityType');
 
         $invoice = $this->invoiceService->save($data, $request->entity());
         $entityType = $invoice->getEntityType();
@@ -417,14 +405,14 @@ class InvoiceController extends BaseController
 
     private function emailInvoice($invoice)
     {
-        $reminder = Input::get('reminder');
-        $template = Input::get('template');
-        $pdfUpload = Utils::decodePDF(Input::get('pdfupload'));
+        $reminder = \Request::input('reminder');
+        $template = \Request::input('template');
+        $pdfUpload = Utils::decodePDF(\Request::input('pdfupload'));
         $entityType = $invoice->getEntityType();
 
-        if (filter_var(Input::get('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(\Request::input('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
             $account = Auth::user()->account;
-            $account->setTemplateDefaults(Input::get('template_type'), $template['subject'], $template['body']);
+            $account->setTemplateDefaults(\Request::input('template_type'), $template['subject'], $template['body']);
         }
 
         if (! Auth::user()->confirmed) {
@@ -442,7 +430,7 @@ class InvoiceController extends BaseController
             $response = $this->emailRecurringInvoice($invoice);
         } else {
             $userId = Auth::user()->id;
-            $this->dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
+            dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
             $response = true;
         }
 
@@ -505,8 +493,8 @@ class InvoiceController extends BaseController
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
+        $action = \Request::input('bulk_action') ?: \Request::input('action');
+        $ids = \Request::input('bulk_public_id') ?: (\Request::input('public_id') ?: \Request::input('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
@@ -527,10 +515,6 @@ class InvoiceController extends BaseController
 
         if (strpos(\Request::server('HTTP_REFERER'), 'recurring_invoices')) {
             $entityType = ENTITY_RECURRING_INVOICE;
-        }
-
-        if (strpos(\Request::server('HTTP_REFERER'), 'recurring_quotes')) {
-            $entityType = ENTITY_RECURRING_QUOTE;
         }
 
         return $this->returnBulk($entityType, $action, $ids);

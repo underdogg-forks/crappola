@@ -1,6 +1,9 @@
 Digital Ocean
 ===================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Invoice Ninja has created a Digital Ocean Marketplace image with Invoice Ninja pre-installed.
 
 To use this image, when creating a Droplet, choose **Marketplace** under the **Choose an image section**, and select the **Invoice Ninja on Ubuntu 18.04** image.
@@ -30,7 +33,7 @@ FAQ:
 
 Q: My emails are not being delivered.
 
-A: Most likely you have not configured a mail service and have set up the built in Postfix server. We suggest creating a Mailgun account and entering your credentials under Settings -> System Settings -> Email Settings.
+A: Most likely you have not configured a mail service and have set up the built in Postfix server. We creating a Mailgun account and entering your credentials under Settings -> System Settings -> Email Settings.
 
 Q: Do I need to create a database on the server?
 

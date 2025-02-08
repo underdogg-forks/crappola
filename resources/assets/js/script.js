@@ -59,7 +59,6 @@ function copyObject(orig) {
 function processVariables(str) {
   if (!str) return '';
   var variables = ['MONTH','QUARTER','YEAR'];
-  var yearOverlap = 0;
   for (var i=0; i<variables.length; i++) {
     var variable = variables[i];
         var regexp = new RegExp(':' + variable + '[+-]?[\\d]*', 'g');
@@ -71,14 +70,10 @@ function processVariables(str) {
             var match = matches[j];
             var offset = 0;
             if (match.split('+').length > 1) {
-                offset = parseInt(match.split('+')[1]);
+                offset = match.split('+')[1];
             } else if (match.split('-').length > 1) {
                 offset = parseInt(match.split('-')[1]) * -1;
             }
-
-            yearOverlap += getDateYearOverlap(variable, offset);
-            if(variable === 'YEAR') offset += yearOverlap;
-
             str = str.replace(match, getDatePart(variable, offset));
         }
   }
@@ -98,20 +93,6 @@ function getDatePart(part, offset) {
   } else if (part == 'YEAR') {
     return getYear(offset);
   }
-}
-
-function getDateYearOverlap(part, offset)
-{
-    offset = parseInt(offset);
-
-    switch (part) {
-        case 'MONTH':
-            return getMonthYearOverlap(offset);
-        case 'QUARTER':
-            return getQuarterYearOverlap(offset);
-    }
-
-    return 0;
 }
 
 function getMonth(offset) {
@@ -142,34 +123,6 @@ function getQuarter(offset) {
          quarter = 4;
     }
     return 'Q' + quarter;
-}
-
-function getMonthYearOverlap(offset)
-{
-    var today = new Date();
-    var month = today.getMonth();
-    month = parseInt(month) + offset;
-
-    if(month < 0){
-        month += 1;
-        return Math.ceil(((Math.abs(month) / 12 % 12) + 1) * -1);
-    }
-
-    return Math.floor(month / 12 % 12);
-}
-
-function getQuarterYearOverlap(offset)
-{
-    var today = new Date();
-    var quarter = Math.floor((today.getMonth() + 3) / 3);
-    quarter += offset - 1;
-
-    if(quarter < 0){
-        quarter += 1;
-        return Math.ceil(((Math.abs(quarter) / 4 % 4) + 1) * -1);
-    }
-
-    return Math.floor(quarter / 4 % 4);
 }
 
 // https://gist.github.com/beiyuu/2029907
@@ -1098,23 +1051,13 @@ function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }
 
-// parse 1,000.00 or 1.000,00
-function convertStringToNumber(str) {
-    str = str + '' || '';
-    if (str.indexOf(':') >= 0) {
-        return roundToTwo(moment.duration(str).asHours());
-    } else {
-        return NINJA.parseFloat(str);
-    }
-}
-
 // http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
 // http://codeaid.net/javascript/convert-seconds-to-hours-minutes-and-seconds-%28javascript%29
-function secondsToTime(secs, toString)
+function secondsToTime(secs)
 {
     secs = Math.round(secs);
     var hours = Math.floor(secs / (60 * 60));
@@ -1125,24 +1068,12 @@ function secondsToTime(secs, toString)
     var divisor_for_seconds = divisor_for_minutes % 60;
     var seconds = Math.ceil(divisor_for_seconds);
 
-    if (toString) {
-        var totalSumToString = "";
-        if(hours.toString().length == 1) { totalSumToString += "0" }
-        totalSumToString += hours + ":";
-        if(minutes.toString().length == 1) { totalSumToString += "0" }
-        totalSumToString += minutes + ":";
-        if(seconds.toString().length == 1) { totalSumToString += "0" }
-        totalSumToString += seconds;
-        return totalSumToString;
-    } else {
-        var obj = {
-            "h": hours,
-            "m": minutes,
-            "s": seconds
-        }
-
-        return obj;
-    }
+    var obj = {
+        "h": hours,
+        "m": minutes,
+        "s": seconds
+    };
+    return obj;
 }
 
 function twoDigits(value) {
@@ -1256,17 +1187,12 @@ function escapeRegExp(str) {
 }
 
 function firstJSONError(json) {
+    json = json['errors'];
     for (var key in json) {
         if ( ! json.hasOwnProperty(key)) {
             continue;
         }
-        var item = json[key];
-        for (var subKey in item) {
-            if ( ! item.hasOwnProperty(subKey)) {
-                continue;
-            }
-            return item[subKey];
-        }
+        return json[key] + '';
     }
     return false;
 }

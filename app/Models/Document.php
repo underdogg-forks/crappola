@@ -25,7 +25,6 @@ class Document extends EntityModel
         'invoice_id',
         'expense_id',
         'is_default',
-        'ticket_id',
     ];
 
     /**
@@ -44,7 +43,7 @@ class Document extends EntityModel
         'application/msword',
         'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript', 'image/svg+xml',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     ];
 
@@ -57,9 +56,6 @@ class Document extends EntityModel
         ],
         'ai' => [
             'mime' => 'application/postscript',
-        ],
-        'svg' => [
-            'mime' => 'image/svg+xml',
         ],
         'jpeg' => [
             'mime' => 'image/jpeg',
@@ -137,14 +133,6 @@ class Document extends EntityModel
     public function expense()
     {
         return $this->belongsTo('App\Models\Expense')->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function ticket()
-    {
-        return $this->belongsTo('App\Models\Ticket')->withTrashed();
     }
 
     /**
@@ -288,11 +276,6 @@ class Document extends EntityModel
         return url('documents/'.$this->public_id.'/'.$this->name);
     }
 
-    public function getClientDocUrl()
-    {
-        return url('client/tickets/documents/'.$this->public_id.'/'.$this->name);
-    }
-
     /**
      * @param $invitation
      *
@@ -352,11 +335,6 @@ class Document extends EntityModel
         return $this->preview ? url('documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
     }
 
-    public function getClientPreviewUrl()
-    {
-        return $this->preview ? url('client/tickets/documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
-    }
-
     /**
      * @return array
      */
@@ -366,10 +344,7 @@ class Document extends EntityModel
 
         if (empty($this->visible) || in_array('url', $this->visible)) {
             $array['url'] = $this->getUrl();
-            $array['client_doc_url'] = $this->getClientDocUrl();
-            $array['client_preview_url'] = $this->getClientPreviewUrl();
         }
-
         if (empty($this->visible) || in_array('preview_url', $this->visible)) {
             $array['preview_url'] = $this->getPreviewUrl();
         }

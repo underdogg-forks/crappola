@@ -19,7 +19,6 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Auth;
 use Cache;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -57,7 +56,7 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
         $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
@@ -106,9 +105,6 @@ class ClientController extends BaseController
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/'.$client->public_id)];
         }
-        if ($user->can('create', ENTITY_RECURRING_QUOTE)) {
-            $actionLinks[] = ['label' => trans('texts.new_recurring_quote'), 'url' => URL::to('/recurring_quotes/create/'.$client->public_id)];
-        }
 
         if (! empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
@@ -136,7 +132,6 @@ class ClientController extends BaseController
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
             'hasRecurringInvoices' => $account->isModuleEnabled(ENTITY_RECURRING_INVOICE) && Invoice::scope()->recurring()->withArchived()->whereClientId($client->id)->count() > 0,
-            'hasRecurringQuotes' => $account->isModuleEnabled(ENTITY_RECURRING_INVOICE) && Invoice::scope()->recurringQuote()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasQuotes' => $account->isModuleEnabled(ENTITY_QUOTE) && Invoice::scope()->quotes()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasTasks' => $account->isModuleEnabled(ENTITY_TASK) && Task::scope()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasExpenses' => $account->isModuleEnabled(ENTITY_EXPENSE) && Expense::scope()->withArchived()->whereClientId($client->id)->count() > 0,
@@ -205,7 +200,7 @@ class ClientController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => \Request::old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
             'customLabel1' => Auth::user()->account->customLabel('client1'),
@@ -231,8 +226,8 @@ class ClientController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
