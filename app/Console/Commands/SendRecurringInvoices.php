@@ -71,7 +71,9 @@ class SendRecurringInvoices extends Command
         $this->createInvoices();
         $this->billInvoices();
         $this->createExpenses();
-        $this->info(date('Y-m-d H:i:s') . ' Done');
+
+        $this->info(date('r') . ' Done');
+        return 0;
     }
 
     private function resetCounters()

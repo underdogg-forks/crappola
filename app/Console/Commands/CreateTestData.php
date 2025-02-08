@@ -93,6 +93,7 @@ class CreateTestData extends Command
         $this->createVendors();
         $this->createOtherObjects();
         $this->info('Done');
+        return 0;
     }
 
     private function createClients()

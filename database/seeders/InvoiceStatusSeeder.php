@@ -7,16 +7,14 @@ use Illuminate\Database\Seeder;
 
 class InvoiceStatusSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
-
         $this->createInvoiceStatuses();
-
         Eloquent::reguard();
     }
 
-    private function createInvoiceStatuses(): void
+    private function createInvoiceStatuses()
     {
         $statuses = [
             ['id' => '1', 'name' => 'Draft'],
@@ -26,7 +24,6 @@ class InvoiceStatusSeeder extends Seeder
             ['id' => '5', 'name' => 'Partial'],
             ['id' => '6', 'name' => 'Paid'],
         ];
-
         foreach ($statuses as $status) {
             $record = InvoiceStatus::find($status['id']);
             if ($record) {

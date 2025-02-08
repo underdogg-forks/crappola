@@ -2,17 +2,17 @@
 namespace App\Exceptions;
 
 use Crawler;
-use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Foundation\Validation\ValidationException;
-use Illuminate\Http\Exception\HttpResponseException;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 use Redirect;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 use Utils;
 
 /**
@@ -25,10 +25,7 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
-    protected $dontReport = [
-        TokenMismatchException::class,
-        //ModelNotFoundException::class,
-        //AuthorizationException::class,
+    protected $dontReport = [TokenMismatchException::class, ModelNotFoundException::class, ValidationException::class, //AuthorizationException::class,
         //HttpException::class,
         //ValidationException::class,
     ];
@@ -38,15 +35,25 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param \Exception $e
+     * @param Throwable $e
      *
      * @return bool|void
      */
-    public function report(Exception $e)
+    public function report(Throwable $e)
     {
         if (!$this->shouldReport($e)) {
             return false;
         }
+
+        // if these classes don't exist the install is broken, maybe due to permissions
+        if (!class_exists('Utils') || !class_exists('Crawler')) {
+            return parent::report($e);
+        }
+
+        if (Crawler::isCrawler()) {
+            return false;
+        }
+
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
             if (Crawler::isCrawler()) {
@@ -64,6 +71,7 @@ class Handler extends ExceptionHandler
         } elseif ($e instanceof HttpResponseException) {
             return false;
         }
+
         if (!Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
             $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
@@ -77,25 +85,32 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Exception $e
+     * @param Request $request
+     * @param Throwable $e
      *
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
         if ($e instanceof ModelNotFoundException) {
-            return Redirect::to('/');
+
+            if (isset($value) && strlen($value) > 1) {
+                $headers = \App\Libraries\Utils::getApiHeaders();
+                $response = json_encode(['message' => 'record does not exist'], JSON_PRETTY_PRINT);
+
+                return Response::make($response, 404, $headers);
+            } else
+                return Redirect::to('/');
         }
+
+        if (!class_exists('Utils')) {
+            return parent::render($request, $e);
+        }
+
         if ($e instanceof TokenMismatchException) {
             if (!in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
-                return redirect()
-                    ->back()
-                    ->withInput($request->except('password', '_token'))
-                    ->with([
-                        'warning' => trans('texts.token_expired'),
-                    ]);
+                return redirect()->back()->withInput($request->except('password', '_token'))->with(['warning' => trans('texts.token_expired'),]);
             }
         }
         if ($this->isHttpException($e)) {
@@ -124,18 +139,39 @@ class Handler extends ExceptionHandler
             }
         }
         // In production, except for maintenance mode, we'll show a custom error screen
-        if (Utils::isNinjaProd()
-            && !Utils::isDownForMaintenance()
-            && !($e instanceof HttpResponseException)
-            && !($e instanceof ValidationException)
-        ) {
-            $data = [
-                'error' => get_class($e),
-                'hideHeader' => true,
-            ];
+        if (Utils::isNinjaProd() && !Utils::isDownForMaintenance() && !($e instanceof HttpResponseException) && !($e instanceof ValidationException) && !($e instanceof ValidationException)) {
+            $data = ['error' => get_class($e), 'hideHeader' => true,];
+
             return response()->view('error', $data, 500);
         } else {
             return parent::render($request, $e);
         }
+    }
+
+    /**
+     * Convert an authentication exception into an unauthenticated response.
+     *
+     * @param Request $request
+     * @param AuthenticationException $exception
+     * @return \Illuminate\Http\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        $guard = array_get($exception->guards(), 0);
+
+        switch ($guard) {
+            case 'client':
+                $url = '/client/login';
+                break;
+            default:
+                $url = '/login';
+                break;
+        }
+
+        return redirect()->guest($url);
     }
 }

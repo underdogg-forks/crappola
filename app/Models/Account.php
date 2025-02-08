@@ -11,6 +11,7 @@ use App\Models\Traits\HasLogo;
 use Cache;
 use Carbon;
 use DateTime;
+use DateTimeInterface;
 use Eloquent;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -1577,6 +1578,39 @@ class Account extends Eloquent
     public function isClientPortalPasswordEnabled()
     {
         return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
+    }
+
+    public function getBaseUrl()
+    {
+        if ($this->hasFeature(FEATURE_CUSTOM_URL)) {
+            if ($this->iframe_url) {
+                return $this->iframe_url;
+            }
+
+            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
+                $url = $this->present()->clientPortalLink();
+            } else {
+                $url = url('/');
+            }
+
+            if ($this->subdomain) {
+                $url = Utils::replaceSubdomain($url, $this->subdomain);
+            }
+
+            return $url;
+        } else {
+            return url('/');
+        }
+    }
+
+    public function requiresAddressState() {
+        return true;
+        //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

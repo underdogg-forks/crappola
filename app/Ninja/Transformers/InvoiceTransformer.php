@@ -19,11 +19,11 @@ class InvoiceTransformer extends EntityTransformer
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
      * @SWG\Property(property="public_notes", type="string", example="Notes...")
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invoice_items',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invitations',
         'payments',
         'client',

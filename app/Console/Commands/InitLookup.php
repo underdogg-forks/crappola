@@ -77,6 +77,7 @@ class InitLookup extends Command
                 throw new Exception('Check lookups failed!!');
             }
         }
+        return 0;
     }
 
     private function initCompanies($dbServerId, $offset = 0)

@@ -7,13 +7,11 @@ use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
-
         // https://github.com/caouecs/Laravel-lang
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
-
         $languages = [
             ['name' => 'English', 'locale' => 'en'],
             ['name' => 'Italian', 'locale' => 'it'],
@@ -34,21 +32,13 @@ class LanguageSeeder extends Seeder
             ['name' => 'Croatian', 'locale' => 'hr'],
             ['name' => 'Albanian', 'locale' => 'sq'],
             ['name' => 'Greek', 'locale' => 'el'],
-            ['name' => 'English - United Kingdom', 'locale' => 'en_GB'],
+            ['name' => 'English - United Kingdom', 'locale' => 'en_UK'],
             ['name' => 'Portuguese - Portugal', 'locale' => 'pt_PT'],
             ['name' => 'Slovenian', 'locale' => 'sl'],
             ['name' => 'Finnish', 'locale' => 'fi'],
             ['name' => 'Romanian', 'locale' => 'ro'],
             ['name' => 'Turkish - Turkey', 'locale' => 'tr_TR'],
-            ['name' => 'Thai', 'locale' => 'th'],
-            ['name' => 'Macedonian', 'locale' => 'mk_MK'],
-            ['name' => 'Chinese - Taiwan', 'locale' => 'zh_TW'],
-            ['name' => 'English - Australia', 'locale' => 'en_AU'],
-            ['name' => 'Serbian', 'locale' => 'sr_RS'],
-            ['name' => 'Bulgarian', 'locale' => 'bg'],
-            ['name' => 'Russian', 'locale' => 'ru_RU'],
         ];
-
         foreach ($languages as $language) {
             $record = Language::whereLocale($language['locale'])->first();
             if ($record) {
@@ -58,7 +48,6 @@ class LanguageSeeder extends Seeder
                 Language::create($language);
             }
         }
-
         Eloquent::reguard();
     }
 }

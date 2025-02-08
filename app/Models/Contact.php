@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -158,6 +159,17 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
             }
         }
         return "{$url}/client/dashboard/{$this->contact_key}";
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        //$this->notify(new ResetPasswordNotification($token));
+        app('App\Ninja\Mailers\ContactMailer')->sendPasswordReset($this, $token);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

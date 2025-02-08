@@ -59,6 +59,56 @@ class SendReminders extends Command
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
+
+        $this->billInvoices();
+        $this->chargeLateFees();
+        $this->sendReminderEmails();
+        $this->sendScheduledReports();
+        $this->loadExchangeRates();
+
+        $this->info(date('r') . ' Done');
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject("SendReminders [{$database}]: Finished successfully");
+            });
+        }
+        return 0;
+    }
+
+    private function billInvoices()
+    {
+        $today = new DateTime();
+
+        $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
+            AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
+                [$today->format('Y-m-d')])
+            ->orderBy('invoices.id', 'asc')
+            ->get();
+        $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
+
+        /** @var Invoice $invoice */
+        foreach ($delayedAutoBillInvoices as $invoice) {
+            //21-03-2023 adjustment here
+            if ($invoice->isPaid() || !$invoice->account || $invoice->account->is_deleted) {
+            // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+                continue;
+            }
+
+            if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
+                $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
+                Auth::loginUsingId($invoice->activeUser()->id);
+                $this->paymentService->autoBillInvoice($invoice);
+                Auth::logout();
+            }
+        }
+    }
+
+    private function chargeLateFees()
+    {
         $accounts = $this->accountRepo->findWithFees();
         $this->info(count($accounts) . ' accounts found with fees');
         foreach ($accounts as $account) {

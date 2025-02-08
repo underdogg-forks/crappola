@@ -7,16 +7,14 @@ use Illuminate\Database\Seeder;
 
 class PaymentStatusSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
-
         $this->createPaymentStatuses();
-
         Eloquent::reguard();
     }
 
-    private function createPaymentStatuses(): void
+    private function createPaymentStatuses()
     {
         $statuses = [
             ['id' => '1', 'name' => 'Pending'],
@@ -26,7 +24,6 @@ class PaymentStatusSeeder extends Seeder
             ['id' => '5', 'name' => 'Partially Refunded'],
             ['id' => '6', 'name' => 'Refunded'],
         ];
-
         foreach ($statuses as $status) {
             $record = PaymentStatus::find($status['id']);
             if ($record) {

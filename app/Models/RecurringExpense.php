@@ -3,6 +3,7 @@ namespace App\Models;
     //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
 use App\Models\Traits\HasRecurrence;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -128,6 +129,11 @@ class RecurringExpense extends EntityModel
     public function amountWithTax()
     {
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

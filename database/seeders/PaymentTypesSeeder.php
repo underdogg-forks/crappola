@@ -7,10 +7,9 @@ use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
-
         $paymentTypes = [
             ['name' => 'Apply Credit'],
             ['name' => 'Bank Transfer', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER],
@@ -40,20 +39,12 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'Venmo'],
             ['name' => 'Money Order'],
             ['name' => 'Alipay', 'gateway_type_id' => GATEWAY_TYPE_ALIPAY],
-            ['name' => 'Sofort', 'gateway_type_id' => GATEWAY_TYPE_SOFORT],
-            ['name' => 'SEPA', 'gateway_type_id' => GATEWAY_TYPE_SEPA],
-            ['name' => 'GoCardless', 'gateway_type_id' => GATEWAY_TYPE_GOCARDLESS],
-            ['name' => 'Bitcoin', 'gateway_type_id' => GATEWAY_TYPE_BITCOIN],
-            ['name' => 'Zelle'],
         ];
-
         foreach ($paymentTypes as $paymentType) {
             $record = PaymentType::where('name', '=', $paymentType['name'])->first();
-
             if ($record) {
                 $record->name = $paymentType['name'];
-                $record->gateway_type_id = ! empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
-
+                $record->gateway_type_id = !empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
                 $record->save();
             } else {
                 PaymentType::create($paymentType);

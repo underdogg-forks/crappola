@@ -66,6 +66,8 @@ class UpdateKey extends Command
         } else {
             $this->info(date('Y-m-d h:i:s') . ' Successfully update data, make sure to set the new app key: ' . $key);
         }
+        $this->info($message);
+        return 0;
     }
 
     /**

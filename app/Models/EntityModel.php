@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DateTimeInterface;
 use Str;
 use Auth;
 use Eloquent;
@@ -377,5 +378,40 @@ class EntityModel extends Eloquent
             }
             throw $exception;
         }
+    }
+
+    public function equalTo($obj)
+    {
+        if (empty($obj->id)) {
+            return false;
+        }
+
+        return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
+    }
+
+    /**
+      * @param $method
+      * @param $params
+      */
+    public function __call($method, $params)
+    {
+        if (count(config('modules.relations'))) {
+            $entityType = $this->getEntityType();
+
+            if ($entityType) {
+                $config = implode('.', ['modules.relations.' . $entityType, $method]);
+                if (config()->has($config)) {
+                    $function = config()->get($config);
+                    return $function($this);
+                }
+            }
+        }
+
+        return parent::__call($method, $params);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

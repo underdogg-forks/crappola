@@ -11,10 +11,9 @@ class UpdateSeeder extends Seeder
      *
      * @return void
      */
-    public function run(): void
+    public function run()
     {
         $this->command->info('Running UpdateSeeder...');
-
         $this->call('CountriesSeeder');
         $this->call('PaymentLibrariesSeeder');
         $this->call('FontsSeeder');
@@ -25,14 +24,12 @@ class UpdateSeeder extends Seeder
         $this->call('CurrenciesSeeder');
         $this->call('DateFormatsSeeder');
         $this->call('InvoiceDesignsSeeder');
-        $this->call('ProposalTemplatesSeeder');
         $this->call('PaymentTermsSeeder');
         $this->call('PaymentTypesSeeder');
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
         $this->call('FrequencySeeder');
         $this->call('DbServerSeeder');
-
         Cache::flush();
     }
 }

@@ -68,8 +68,7 @@ class MakeModule extends Command
         } else {
             Artisan::call('module:migrate', ['module' => $name]);
         }
-        Artisan::call('module:dump');
-        $this->info('Done');
+        return 0;
     }
 
     protected function getArguments()

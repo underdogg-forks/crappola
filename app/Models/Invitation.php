@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-use Carbon;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Utils;
 use App\Models\LookupInvitation;
@@ -149,6 +149,11 @@ class Invitation extends EntityModel
             return false;
         }
         return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, trans('texts.signed'), Utils::fromSqlDateTime($this->signature_date));
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

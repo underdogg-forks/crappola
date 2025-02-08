@@ -22,7 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // support selecting job database 
+        Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree(); //Paginator::useBootstrap();
+
+        // support selecting job database
         Queue::before(function (JobProcessing $event) {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);
