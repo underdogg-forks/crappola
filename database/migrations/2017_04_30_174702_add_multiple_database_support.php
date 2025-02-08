@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddMultipleDatabaseSupport extends Migration
@@ -47,6 +48,7 @@ class AddMultipleDatabaseSupport extends Migration
         });
 
         Schema::rename('lookup_tokens', 'lookup_account_tokens');
+
     }
 
     /**

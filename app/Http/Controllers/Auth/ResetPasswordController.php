@@ -42,7 +42,7 @@ class ResetPasswordController extends Controller
         $this->middleware('guest');
     }
 
-    protected function sendResetResponse($response)
+    protected function sendResetResponse(Request $request, $response)
     {
         $user = auth()->user();
 
@@ -52,7 +52,7 @@ class ResetPasswordController extends Controller
             return redirect('/validate_two_factor/' . $user->account->account_key);
         } else {
             Event::dispatch(new UserLoggedIn());
-            return $this->traitSendResetResponse($response);
+            return $this->traitSendResetResponse($request, $response);
         }
     }
 

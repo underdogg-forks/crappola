@@ -22,7 +22,7 @@ class AddInvoiceNumberSettings extends Migration
         });
 
         // set initial counter value for accounts with invoices
-        $accounts = DB::table('accounts')->pluck('id');
+    $accounts = DB::table('accounts')->pluck('id');
 
         foreach ($accounts as $accountId) {
             $invoiceNumbers = DB::table('invoices')->where('account_id', $accountId)->pluck('invoice_number');

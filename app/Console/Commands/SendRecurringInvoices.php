@@ -71,7 +71,9 @@ class SendRecurringInvoices extends Command
             ->get();
 
         foreach ($accounts as $account) {
-            $account->checkCounterReset();
+
+            if(!$account->account_email_settings->is_disabled)
+                $account->checkCounterReset();
         }
     }
 
@@ -82,8 +84,8 @@ class SendRecurringInvoices extends Command
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
-            ->get();
-        $this->info(date('r ') . $invoices->count() . ' recurring invoice(s) found');
+            ->cursor();
+        $this->info(date('r ') . ' Recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
@@ -95,6 +97,11 @@ class SendRecurringInvoices extends Command
             $this->info(date('r') . ' Processing Invoice: '. $recurInvoice->id);
 
             $account = $recurInvoice->account;
+
+            if($account->account_email_settings->is_disabled){
+                continue;
+            }
+
             $account->loadLocalizationSettings($recurInvoice->client);
             Auth::loginUsingId($recurInvoice->activeUser()->id);
 
@@ -128,7 +135,7 @@ class SendRecurringInvoices extends Command
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
 
-            if (! $shouldSendToday) {
+            if (! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 

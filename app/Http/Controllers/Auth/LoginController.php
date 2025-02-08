@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Events\UserLoggedIn;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ValidateTwoFactorRequest;
-use App\Models\User;
-use Cache;
-use Cookie;
-use Event;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Utils;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Event;
+use Cache;
 use Lang;
 use Str;
-use Utils;
+use Cookie;
+use App\Events\UserLoggedIn;
+use App\Http\Requests\ValidateTwoFactorRequest;
 
 class LoginController extends Controller
 {
@@ -86,7 +86,6 @@ class LoginController extends Controller
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             session()->flash('error', trans('texts.invalid_credentials'));
-
             return redirect()->to('login');
         }
 
@@ -123,8 +122,7 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param \Illuminate\Http\Request $request
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendFailedLoginResponse(Request $request)
@@ -139,9 +137,8 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param \Illuminate\Http\Request                   $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
      * @return \Illuminate\Http\Response
      */
     private function authenticated(Request $request, Authenticatable $user)
@@ -157,7 +154,6 @@ class LoginController extends Controller
             } else {
                 auth()->logout();
                 session()->put('2fa:user:id', $user->id);
-
                 return redirect('/validate_two_factor/' . $user->account->account_key);
             }
         }
@@ -168,6 +164,7 @@ class LoginController extends Controller
     }
 
     /**
+     *
      * @return \Illuminate\Http\Response
      */
     public function getValidateToken()
@@ -180,8 +177,8 @@ class LoginController extends Controller
     }
 
     /**
-     * @param App\Http\Requests\ValidateSecretRequest $request
      *
+     * @param  App\Http\Requests\ValidateSecretRequest $request
      * @return \Illuminate\Http\Response
      */
     public function postValidateToken(ValidateTwoFactorRequest $request)
@@ -191,7 +188,7 @@ class LoginController extends Controller
         $key = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
-        Cache::add($key, true, 4);
+        Cache::add($key, true, 4 * 60);
 
         //login and redirect user
         auth()->loginUsingId($userId);

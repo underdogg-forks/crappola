@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddCustomContactFields extends Migration
@@ -43,7 +44,7 @@ class AddCustomContactFields extends Migration
             // do nothing
         }
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function($table) {
             $table->unsignedInteger('payment_type_id')->nullable();
             $table->date('payment_date')->nullable();
             $table->string('transaction_reference')->nullable();
@@ -111,6 +112,7 @@ class AddCustomContactFields extends Migration
 
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
+
     }
 
     /**
@@ -130,7 +132,7 @@ class AddCustomContactFields extends Migration
             $table->dropColumn('custom_value2');
         });
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function($table) {
             $table->dropColumn('payment_type_id');
             $table->dropColumn('payment_date');
             $table->dropColumn('transaction_reference');

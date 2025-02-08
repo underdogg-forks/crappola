@@ -9,14 +9,14 @@ class TaskCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function createTimerTask(AcceptanceTester $I): void
+    public function createTimerTask(AcceptanceTester $I)
     {
         $clientName = $this->faker->name;
         $clientEmail = $this->faker->safeEmail;
@@ -46,7 +46,7 @@ class TaskCest
 
         $I->seeInDatabase('tasks', [
             'description' => $description,
-            'client_id'   => $clientId,
+            'client_id' => $clientId,
         ]);
         $I->seeInDatabase('projects', ['name' => $project]);
 
@@ -60,7 +60,7 @@ class TaskCest
         $I->see('Successfully created invoice');
     }
 
-    public function createManualTask(AcceptanceTester $I): void
+    public function createManualTask(AcceptanceTester $I)
     {
         $description = $this->faker->text(100);
 
@@ -76,7 +76,8 @@ class TaskCest
         $I->seeInDatabase('tasks', ['description' => $description]);
     }
 
-    public function editTask(AcceptanceTester $I): void
+
+    public function editTask(AcceptanceTester $I)
     {
         $description = $this->faker->text(100);
 
@@ -91,7 +92,7 @@ class TaskCest
         $I->seeInDatabase('tasks', ['description' => $description]);
     }
 
-    public function listTasks(AcceptanceTester $I): void
+    public function listTasks(AcceptanceTester $I)
     {
         $I->wantTo('list tasks');
         $I->amOnPage('/tasks');

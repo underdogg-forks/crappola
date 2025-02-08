@@ -2,17 +2,18 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ExpenseCategory;
-use App\Models\Project;
-use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\ProjectRepository;
-use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Ninja\Repositories\TaskRepository;
+use App\Ninja\Repositories\ProjectRepository;
+use App\Models\Client;
+use App\Models\TaxRate;
+use App\Models\Project;
+use App\Models\ExpenseCategory;
 use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
@@ -45,7 +46,7 @@ class CreateTestData extends Command
      * @param PaymentRepository $paymentRepo
      * @param VendorRepository  $vendorRepo
      * @param ExpenseRepository $expenseRepo
-     * @param TaskRepository    $taskRepo
+     * @param TaskRepository $taskRepo
      * @param AccountRepository $accountRepo
      */
     public function __construct(
@@ -56,8 +57,8 @@ class CreateTestData extends Command
         ExpenseRepository $expenseRepo,
         TaskRepository $taskRepo,
         ProjectRepository $projectRepo,
-        AccountRepository $accountRepo
-    ) {
+        AccountRepository $accountRepo)
+    {
         parent::__construct();
 
         $this->faker = Factory::create();
@@ -79,11 +80,10 @@ class CreateTestData extends Command
     {
         if (Utils::isNinjaProd()) {
             $this->info('Unable to run in production');
-
             return false;
         }
 
-        $this->info(date('r') . ' Running CreateTestData...');
+        $this->info(date('r').' Running CreateTestData...');
         $this->count = $this->argument('count');
 
         if ($database = $this->option('database')) {
@@ -115,17 +115,17 @@ class CreateTestData extends Command
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
-                'name'        => $this->faker->name,
-                'address1'    => $this->faker->streetAddress,
-                'address2'    => $this->faker->secondaryAddress,
-                'city'        => $this->faker->city,
-                'state'       => $this->faker->state,
+                'name' => $this->faker->name,
+                'address1' => $this->faker->streetAddress,
+                'address2' => $this->faker->secondaryAddress,
+                'city' => $this->faker->city,
+                'state' => $this->faker->state,
                 'postal_code' => $this->faker->postcode,
-                'contacts'    => [[
+                'contacts' => [[
                     'first_name' => $this->faker->firstName,
-                    'last_name'  => $this->faker->lastName,
-                    'email'      => $this->faker->safeEmail,
-                    'phone'      => $this->faker->phoneNumber,
+                    'last_name' => $this->faker->lastName,
+                    'email' => $this->faker->safeEmail,
+                    'phone' => $this->faker->phoneNumber,
                 ]],
             ];
 
@@ -134,7 +134,7 @@ class CreateTestData extends Command
 
             $this->createInvoices($client);
             $this->createInvoices($client, true);
-            // $this->createTasks($client);
+           // $this->createTasks($client);
         }
     }
 
@@ -145,16 +145,16 @@ class CreateTestData extends Command
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
-                'is_public'        => true,
-                'is_quote'         => $isQuote,
-                'client_id'        => $client->id,
+                'is_public' => true,
+                'is_quote' => $isQuote,
+                'client_id' => $client->id,
                 'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
-                'due_date_sql'     => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
-                'invoice_items'    => [[
+                'due_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'invoice_items' => [[
                     'product_key' => $this->faker->word,
-                    'qty'         => $this->faker->randomDigit + 1,
-                    'cost'        => $this->faker->randomFloat(2, 1, 10),
-                    'notes'       => $this->faker->text($this->faker->numberBetween(50, 300)),
+                    'qty' => $this->faker->randomDigit + 1,
+                    'cost' => $this->faker->randomFloat(2, 1, 10),
+                    'notes' => $this->faker->text($this->faker->numberBetween(50, 300)),
                 ]],
             ];
 
@@ -174,9 +174,9 @@ class CreateTestData extends Command
     private function createPayment($client, $invoice)
     {
         $data = [
-            'invoice_id'       => $invoice->id,
-            'client_id'        => $client->id,
-            'amount'           => $this->faker->randomFloat(2, 0, $invoice->amount),
+            'invoice_id' => $invoice->id,
+            'client_id' => $client->id,
+            'amount' => $this->faker->randomFloat(2, 0, $invoice->amount),
             'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
         ];
 
@@ -189,7 +189,7 @@ class CreateTestData extends Command
     {
         $data = [
             'client_id' => $client->id,
-            'name'      => $this->faker->sentence(3),
+            'name' => $this->faker->sentence(3),
         ];
         $project = $this->projectRepo->save($data);
 
@@ -198,31 +198,33 @@ class CreateTestData extends Command
             $endTime = $startTime + (60 * 60 * 2);
             $timeLog = "[[{$startTime},{$endTime}]]";
             $data = [
-                'client_id'   => $client->id,
-                'project_id'  => $project->id,
+                'client_id' => $client->id,
+                'project_id' => $project->id,
                 'description' => $this->faker->text($this->faker->numberBetween(50, 300)),
-                'time_log'    => $timeLog,
+                'time_log' => $timeLog,
             ];
 
             $this->taskRepo->save(false, $data);
         }
     }
 
+
+
     private function createVendors()
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
-                'name'            => $this->faker->name,
-                'address1'        => $this->faker->streetAddress,
-                'address2'        => $this->faker->secondaryAddress,
-                'city'            => $this->faker->city,
-                'state'           => $this->faker->state,
-                'postal_code'     => $this->faker->postcode,
+                'name' => $this->faker->name,
+                'address1' => $this->faker->streetAddress,
+                'address2' => $this->faker->secondaryAddress,
+                'city' => $this->faker->city,
+                'state' => $this->faker->state,
+                'postal_code' => $this->faker->postcode,
                 'vendor_contacts' => [[
                     'first_name' => $this->faker->firstName,
-                    'last_name'  => $this->faker->lastName,
-                    'email'      => $this->faker->safeEmail,
-                    'phone'      => $this->faker->phoneNumber,
+                    'last_name' => $this->faker->lastName,
+                    'email' => $this->faker->safeEmail,
+                    'phone' => $this->faker->phoneNumber,
                 ]],
             ];
 
@@ -240,8 +242,8 @@ class CreateTestData extends Command
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
-                'vendor_id'    => $vendor->id,
-                'amount'       => $this->faker->randomFloat(2, 1, 10),
+                'vendor_id' => $vendor->id,
+                'amount' => $this->faker->randomFloat(2, 1, 10),
                 'expense_date' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'public_notes' => '',
             ];

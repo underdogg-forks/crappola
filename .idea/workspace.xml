@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ef0d1806-d0c3-44f5-bde4-f8753ef3f3e4" name="Changes" comment="">
+      <change beforePath="/data/Projects/invninjl6/storage/templates/bold.js" beforeDir="false" afterPath="/data/Projects/invninjl6/storage/templates/bold.js" afterDir="false" />
+      <change beforePath="/data/Projects/invninjl6/storage/templates/business.js" beforeDir="false" afterPath="/data/Projects/invninjl6/storage/templates/business.js" afterDir="false" />
+      <change beforePath="/data/Projects/invninjl6/storage/templates/clean.js" beforeDir="false" afterPath="/data/Projects/invninjl6/storage/templates/clean.js" afterDir="false" />
+      <change beforePath="/data/Projects/invninjl6/storage/templates/creative.js" beforeDir="false" afterPath="/data/Projects/invninjl6/storage/templates/creative.js" afterDir="false" />
+      <change beforePath="/data/Projects/invninjl6/storage/templates/hipster.js" beforeDir="false" afterPath="/data/Projects/invninjl6/storage/templates/hipster.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/templates/bold.js" beforeDir="false" afterPath="$PROJECT_DIR$/storage/templates/bold.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/templates/business.js" beforeDir="false" afterPath="$PROJECT_DIR$/storage/templates/business.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/templates/clean.js" beforeDir="false" afterPath="$PROJECT_DIR$/storage/templates/clean.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/templates/creative.js" beforeDir="false" afterPath="$PROJECT_DIR$/storage/templates/creative.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/templates/hipster.js" beforeDir="false" afterPath="$PROJECT_DIR$/storage/templates/hipster.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" notifyAboutMissingVendor="false" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2sIGXdAuCgYbkTRfN0Au6hSOGuP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Notification.DisplayName-DoNotAsk-Composer&quot;: &quot;Composer&quot;,
+    &quot;Notification.DisplayName-DoNotAsk-Material Theme Notifications&quot;: &quot;Material theme UI notifications&quot;,
+    &quot;Notification.DoNotAsk-Composer&quot;: &quot;true&quot;,
+    &quot;Notification.DoNotAsk-Material Theme Notifications&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;disable.download.node.interpreter.editor.notification&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/wysiwyg/projects/invninjl6&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b81319f9767f-JavaScript-PS-251.14649.45" />
+        <option value="bundled-php-predefined-a98d8de5180a-0f211e4baf26-com.jetbrains.php.sharedIndexes-PS-251.14649.45" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ef0d1806-d0c3-44f5-bde4-f8753ef3f3e4" name="Changes" comment="" />
+      <created>1738135716404</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1738135716404</updated>
+      <workItem from="1738135717889" duration="1738000" />
+      <workItem from="1738137461929" duration="153000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

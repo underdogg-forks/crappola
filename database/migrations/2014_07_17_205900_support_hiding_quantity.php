@@ -48,7 +48,7 @@ class SupportHidingQuantity extends Migration
             $table->dropColumn('custom_invoice_taxes1');
             $table->dropColumn('custom_invoice_taxes2');
         });
-
+        
         Schema::table('invoices', function ($table) {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');

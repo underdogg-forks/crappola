@@ -1,13 +1,13 @@
 <?php
 
+use \FunctionalTester;
 use Faker\Factory;
-use FunctionalTester;
 
 class SettingsCest
 {
     private $faker;
 
-    public function _before(FunctionalTester $I): void
+    public function _before(FunctionalTester $I)
     {
         $I->checkIfLogin($I);
 
@@ -37,7 +37,7 @@ class SettingsCest
     }
     */
 
-    public function userDetails(FunctionalTester $I): void
+    public function userDetails(FunctionalTester $I)
     {
         $I->wantTo('update the user details');
         $I->amOnPage('/settings/user_details');
@@ -50,7 +50,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('users', ['first_name' => $firstName]);
+        $I->seeRecord('users', array('first_name' => $firstName));
     }
 
     /*
@@ -69,7 +69,8 @@ class SettingsCest
     }
     */
 
-    public function productSettings(FunctionalTester $I): void
+
+    public function productSettings(FunctionalTester $I)
     {
         $I->wantTo('update the product settings');
         $I->amOnPage('/settings/products');
@@ -79,7 +80,7 @@ class SettingsCest
         $I->seeResponseCodeIs(200);
     }
 
-    public function createProduct(FunctionalTester $I): void
+    public function createProduct(FunctionalTester $I)
     {
         $I->wantTo('create a product');
         $I->amOnPage('/products/create');
@@ -92,10 +93,10 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('products', ['product_key' => $productKey]);
+        $I->seeRecord('products', array('product_key' => $productKey));
     }
 
-    public function updateProduct(FunctionalTester $I): void
+    public function updateProduct(FunctionalTester $I)
     {
         return;
 
@@ -108,7 +109,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('products', ['product_key' => $productKey]);
+        $I->seeRecord('products', array('product_key' => $productKey));
     }
 
     /*
@@ -128,7 +129,7 @@ class SettingsCest
     }
     */
 
-    public function updateInvoiceSettings(FunctionalTester $I): void
+    public function updateInvoiceSettings(FunctionalTester $I)
     {
         $I->wantTo('update invoice settings');
         $I->amOnPage('/settings/invoice_settings');
@@ -139,13 +140,13 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('accounts', ['custom_client_label1' => $label]);
+        $I->seeRecord('accounts', array('custom_client_label1' => $label));
 
         //$I->amOnPage('/clients/create');
         //$I->see($label);
     }
 
-    public function updateEmailTemplates(FunctionalTester $I): void
+    public function updateEmailTemplates(FunctionalTester $I)
     {
         $I->wantTo('update email templates');
         $I->amOnPage('/settings/templates_and_reminders');
@@ -156,10 +157,10 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('accounts', ['email_template_invoice' => $string]);
+        $I->seeRecord('accounts', array('email_template_invoice' => $string));
     }
 
-    public function runReport(FunctionalTester $I): void
+    public function runReport(FunctionalTester $I)
     {
         $I->wantTo('run the report');
         $I->amOnPage('/settings/reports');
@@ -168,7 +169,7 @@ class SettingsCest
         $I->seeResponseCodeIs(200);
     }
 
-    public function createUser(FunctionalTester $I): void
+    public function createUser(FunctionalTester $I)
     {
         $I->wantTo('create a user');
         $I->amOnPage('/users/create');
@@ -181,10 +182,10 @@ class SettingsCest
         $I->click('Send invitation');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('users', ['email' => $email]);
+        $I->seeRecord('users', array('email' => $email));
     }
 
-    public function createToken(FunctionalTester $I): void
+    public function createToken(FunctionalTester $I)
     {
         $I->wantTo('create a token');
         $I->amOnPage('/tokens/create');
@@ -195,7 +196,7 @@ class SettingsCest
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
-        $I->seeRecord('account_tokens', ['name' => $name]);
+        $I->seeRecord('account_tokens', array('name' => $name));
     }
 
     /*
@@ -229,4 +230,6 @@ class SettingsCest
         // $I->seeRecord('account_gateways', array('config' => '{"apiKey":"ASHHOWAH"}'));
     }
     */
+
+
 }

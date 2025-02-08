@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class IncreasePrecision extends Migration
@@ -24,6 +25,7 @@ class IncreasePrecision extends Migration
         Schema::table('clients', function ($table) {
             $table->integer('credit_number_counter')->default(1)->nullable();
         });
+
     }
 
     /**

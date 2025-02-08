@@ -18,7 +18,7 @@
     {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
     {{ Former::populateField('enable_two_factor', $user->google_2fa_secret ? 1 : 0) }}
 
-    @if (Input::has('affiliate'))
+    @if (Request::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
     @endif
 
@@ -79,11 +79,6 @@
                                     $referralCounts['pro'] . ' ' . trans('texts.pro') .
                                     '<a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
                                 ->value(NINJA_APP_URL . '/invoice_now?rc=' . $user->referral_code) !!}
-                    @else
-                        {!! Former::checkbox('referral_code')
-                                ->help(trans('texts.referral_code_help'))
-                                ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')
-                                ->value(1)  !!}
                     @endif
                 @endif
 

@@ -123,7 +123,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user','migration_channel:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
@@ -159,6 +159,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('migration/companies', 'Migration\StepsController@companies');
     Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
     Route::get('migration/completed', 'Migration\StepsController@completed');
+    Route::post('migration/forward', 'Migration\StepsController@forwardUrl');
+    Route::get('migration/disable_forward', 'Migration\StepsController@disableForwarding');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 

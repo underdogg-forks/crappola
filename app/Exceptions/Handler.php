@@ -16,10 +16,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 use Utils;
 
+/**
+ * Class Handler.
+ */
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that are not reported.
+     * A list of the exception types that should not be reported.
      *
      * @var array
      */
@@ -30,7 +33,7 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param \Exception $exception
+     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
      * @param Throwable $e
      *

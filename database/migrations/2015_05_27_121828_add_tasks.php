@@ -29,7 +29,7 @@ class AddTasks extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
+            
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });

@@ -13,7 +13,7 @@ class MultiCompanySupport extends Migration
     {
         Schema::create('user_accounts', function ($table) {
             $table->increments('id');
-
+            
             $table->unsignedInteger('user_id1')->nullable();
             $table->unsignedInteger('user_id2')->nullable();
             $table->unsignedInteger('user_id3')->nullable();

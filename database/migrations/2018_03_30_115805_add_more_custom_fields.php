@@ -1,8 +1,9 @@
 <?php
 
-use App\Models\Account;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use App\Models\Account;
 
 class AddMoreCustomFields extends Migration
 {
@@ -33,18 +34,18 @@ class AddMoreCustomFields extends Migration
             ->get();
 
         $fields = [
-            'account1'      => 'custom_label1',
-            'account2'      => 'custom_label2',
-            'client1'       => 'custom_client_label1',
-            'client2'       => 'custom_client_label2',
-            'contact1'      => 'custom_contact_label1',
-            'contact2'      => 'custom_contact_label2',
-            'invoice1'      => 'custom_invoice_label1',
-            'invoice2'      => 'custom_invoice_label2',
+            'account1' => 'custom_label1',
+            'account2' => 'custom_label2',
+            'client1' => 'custom_client_label1',
+            'client2' => 'custom_client_label2',
+            'contact1' => 'custom_contact_label1',
+            'contact2' => 'custom_contact_label2',
+            'invoice1' => 'custom_invoice_label1',
+            'invoice2' => 'custom_invoice_label2',
             'invoice_text1' => 'custom_invoice_text_label1',
             'invoice_text2' => 'custom_invoice_text_label2',
-            'product1'      => 'custom_invoice_item_label1',
-            'product2'      => 'custom_invoice_item_label2',
+            'product1' => 'custom_invoice_item_label1',
+            'product2' => 'custom_invoice_item_label2',
         ];
 
         foreach ($accounts as $account) {

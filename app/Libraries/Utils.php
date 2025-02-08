@@ -10,7 +10,6 @@ use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Input;
 use Log;
 use Request;
 use Schema;
@@ -437,7 +436,7 @@ class Utils
         ];
 
         if (static::isNinja()) {
-            $data['url'] = Input::get('url', Request::url());
+            $data['url'] = \Request::input('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();
@@ -989,6 +988,38 @@ class Utils
             return EVENT_CREATE_PAYMENT;
         } elseif ($eventName == 'create_vendor') {
             return EVENT_CREATE_VENDOR;
+        } elseif ($eventName == 'update_quote') {
+            return EVENT_UPDATE_QUOTE;
+        } elseif ($eventName == 'delete_quote') {
+            return EVENT_DELETE_QUOTE;
+        } elseif ($eventName == 'update_invoice') {
+            return EVENT_UPDATE_INVOICE;
+        } elseif ($eventName == 'delete_invoice') {
+            return EVENT_DELETE_INVOICE;
+        } elseif ($eventName == 'update_client') {
+            return EVENT_UPDATE_CLIENT;
+        } elseif ($eventName == 'delete_client') {
+            return EVENT_DELETE_CLIENT;
+        } elseif ($eventName == 'delete_payment') {
+            return EVENT_DELETE_PAYMENT;
+        } elseif ($eventName == 'update_vendor') {
+            return EVENT_UPDATE_VENDOR;
+        } elseif ($eventName == 'delete_vendor') {
+            return EVENT_DELETE_VENDOR;
+        } elseif ($eventName == 'create_expense') {
+            return EVENT_CREATE_EXPENSE;
+        } elseif ($eventName == 'update_expense') {
+            return EVENT_UPDATE_EXPENSE;
+        } elseif ($eventName == 'delete_expense') {
+            return EVENT_DELETE_EXPENSE;
+        } elseif ($eventName == 'create_task') {
+            return EVENT_CREATE_TASK;
+        } elseif ($eventName == 'update_task') {
+            return EVENT_UPDATE_TASK;
+        } elseif ($eventName == 'delete_task') {
+            return EVENT_DELETE_TASK;
+        } elseif ($eventName == 'approve_quote') {
+            return EVENT_APPROVE_QUOTE;
         } else {
             return false;
         }

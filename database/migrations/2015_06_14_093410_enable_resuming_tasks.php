@@ -26,7 +26,8 @@ class EnableResumingTasks extends Migration
         foreach ($tasks as $task) {
             $data = [
                 'is_running' => true,
-                'duration'   => 0,
+                'duration' => 0,
+                
             ];
 
             DB::table('tasks')

@@ -4,10 +4,13 @@ namespace App\Console\Commands;
 
 use App\Libraries\Utils;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 class SyncAccounts extends Command
 {
+
     /**
      * The name and signature of the console command.
      *
@@ -21,7 +24,6 @@ class SyncAccounts extends Command
      * @var string
      */
     protected $description = 'Sync accounts to v5 - (Hosted function only)';
-
     /**
      * Create a new command instance.
      *
@@ -32,11 +34,16 @@ class SyncAccounts extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
-        if ( ! Utils::isNinjaProd()) {
+
+        if(!Utils::isNinjaProd())
             return;
-        }
 
         config(['database.default' => DB_NINJA_1]);
 
@@ -48,25 +55,27 @@ class SyncAccounts extends Command
         return 0;
     }
 
-    private function updateAccounts(): void
+    private function updateAccounts()
     {
         $data = [];
 
         $a = Company::whereIn('plan', ['pro', 'enterprise'])
-            ->with('accounts')
-            ->cursor()->each(function ($company) use ($data): void {
-                $accounts = $company->accounts->pluck('account_key');
+                            ->with('accounts')
+                            ->cursor()->each(function ($company) use ($data){
 
-                $data[] = [
-                    'plan'         => $company->plan,
-                    'plan_term'    => $company->plan_term,
-                    'plan_started' => $company->plan_started,
-                    'plan_paid'    => $company->plan_paid,
-                    'plan_expires' => $company->plan_expires,
-                    'num_users'    => $company->num_users,
-                    'accounts'     => $accounts,
-                ];
-            });
+                                $accounts = $company->accounts->pluck('account_key');
+
+                                $data[] = [
+                                    'plan' => $company->plan,
+                                    'plan_term' => $company->plan_term,
+                                    'plan_started' => $company->plan_started,
+                                    'plan_paid' => $company->plan_paid,
+                                    'plan_expires' => $company->plan_expires,
+                                    'num_users' => $company->num_users,
+                                    'accounts' => $accounts
+                                ];
+
+                            });
 
         //post DATA
     }
