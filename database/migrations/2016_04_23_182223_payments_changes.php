@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\PaymentStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 
 class PaymentsChanges extends Migration
@@ -28,7 +29,7 @@ class PaymentsChanges extends Migration
             ['id' => '6', 'name' => 'Refunded'],
         ];
 
-        Eloquent::unguard();
+        Model::unguard();
         foreach ($statuses as $status) {
             $record = PaymentStatus::find($status['id']);
             if ($record) {
@@ -38,7 +39,7 @@ class PaymentsChanges extends Migration
                 PaymentStatus::create($status);
             }
         }
-        Eloquent::reguard();
+        Model::reguard();
 
         Schema::dropIfExists('payment_methods');
 

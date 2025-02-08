@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Timezone;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -21,7 +22,7 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->call('ConstantsSeeder');
         $this->call('CountriesSeeder');

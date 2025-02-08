@@ -3,13 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Font;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class FontsSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createFonts();
     }

@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentType;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $paymentTypes = [
             ['name' => 'Apply Credit'],

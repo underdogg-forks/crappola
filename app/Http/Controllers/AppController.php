@@ -43,9 +43,9 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        if (file_exists(base_path() . '/.env')) {
+        /*if (file_exists(base_path() . '/.env')) {
             exit('Error: app is already configured, backup then delete the .env file to re-run the setup');
-        }
+        }*/
 
         return View::make('setup');
     }
@@ -85,7 +85,7 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $_ENV['APP_ENV'] = 'production';
+        $_ENV['APP_ENV'] = 'local';
         $_ENV['APP_DEBUG'] = $app['debug'];
         $_ENV['APP_LOCALE'] = 'en';
         $_ENV['APP_URL'] = $app['url'];
@@ -128,8 +128,9 @@ class AppController extends BaseController
 
         if (! Utils::isDatabaseSetup()) {
             // == DB Migrate & Seed == //
-            $sqlFile = base_path() . '/database/setup.sql';
-            DB::unprepared(file_get_contents($sqlFile));
+            /*$sqlFile = base_path() . '/database/setup.sql';
+            DB::unprepared(file_get_contents($sqlFile));*/
+            Artisan::call('migrate', ['--force' => true]);
         }
 
         Cache::flush();

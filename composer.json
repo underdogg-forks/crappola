@@ -48,6 +48,7 @@
         "laravel/legacy-encrypter": "*",
         "laravel/socialite": "^5.17",
         "laravel/tinker": "*",
+        "laravel/ui": "^3.4",
         "laravelcollective/html": "*",
         "league/csv": "9.1",
         "league/flysystem-aws-s3-v3": "*",

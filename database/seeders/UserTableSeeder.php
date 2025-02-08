@@ -14,6 +14,7 @@ use App\Models\Font;
 use App\Models\InvoiceDesign;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class UserTableSeeder extends Seeder
@@ -22,7 +23,7 @@ class UserTableSeeder extends Seeder
     {
         $this->command->info('Running UserTableSeeder');
 
-        Eloquent::unguard();
+        Model::unguard();
 
         $faker = Faker\Factory::create();
         $company = Company::create();

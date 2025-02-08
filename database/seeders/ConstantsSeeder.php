@@ -8,6 +8,7 @@ use App\Models\PaymentTerm;
 use App\Models\Size;
 use App\Models\Theme;
 use App\Models\Timezone;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class ConstantsSeeder extends Seeder

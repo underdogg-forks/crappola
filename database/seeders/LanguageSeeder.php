@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         // https://github.com/caouecs/Laravel-lang
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
@@ -59,6 +60,6 @@ class LanguageSeeder extends Seeder
             }
         }
 
-        Eloquent::reguard();
+        Model::reguard();
     }
 }
