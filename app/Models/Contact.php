@@ -1,7 +1,8 @@
 <?php namespace App\Models;
 
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
+use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -135,5 +136,10 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getLinkAttribute()
     {
         return \URL::to('client/dashboard/' . $this->contact_key);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

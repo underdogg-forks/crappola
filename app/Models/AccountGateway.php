@@ -1,5 +1,10 @@
 <?php namespace App\Models;
 
+namespace App\Models;
+
+use DateTimeInterface;
+use Utils;
+use HTMLUtils;
 use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -212,5 +217,10 @@ class AccountGateway extends EntityModel
 
         return \URL::to(env('WEBHOOK_PREFIX',
                 '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

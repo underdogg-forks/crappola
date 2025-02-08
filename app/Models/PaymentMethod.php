@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Cache;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -228,6 +229,11 @@ class PaymentMethod extends EntityModel
         } else {
             return GATEWAY_TYPE_TOKEN;
         }
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

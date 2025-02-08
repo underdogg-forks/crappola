@@ -2,6 +2,7 @@
 
 use Utils;
 use DateTime;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Events\QuoteWasCreated;
@@ -1229,6 +1230,182 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $taxes[$key]['amount'] += $amount;
         $taxes[$key]['paid'] += $paid;
+    }
+
+    /**
+     * @return int
+     */
+    public function countDocuments($expenses = false)
+    {
+        $count = $this->documents->count();
+
+        foreach ($this->expenses as $expense) {
+            if ($expense->invoice_documents) {
+                $count += $expense->documents->count();
+            }
+        }
+
+        if ($expenses) {
+            foreach ($expenses as $expense) {
+                if ($expense->invoice_documents) {
+                    $count += $expense->documents->count();
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasDocuments()
+    {
+        if ($this->documents->count()) {
+            return true;
+        }
+
+        if ($this->account->defaultDocuments->count()) {
+            return true;
+        }
+
+        return $this->hasExpenseDocuments();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpenseDocuments()
+    {
+        foreach ($this->expenses as $expense) {
+            if ($expense->invoice_documents && $expense->documents->count()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAutoBillEnabled()
+    {
+        if (! $this->is_recurring) {
+            $recurInvoice = $this->recurring_invoice;
+        } else {
+            $recurInvoice = $this;
+        }
+
+        if (! $recurInvoice) {
+            return false;
+        }
+
+        return $recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill);
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+
+        if ($entityType == ENTITY_RECURRING_INVOICE) {
+            return $statuses;
+        }
+
+        foreach (\Cache::get('invoiceStatus') as $status) {
+            if ($entityType == ENTITY_QUOTE) {
+                if (in_array($status->id, [INVOICE_STATUS_PAID, INVOICE_STATUS_PARTIAL])) {
+                    continue;
+                }
+            } elseif ($entityType == ENTITY_INVOICE) {
+                if (in_array($status->id, [INVOICE_STATUS_APPROVED])) {
+                    continue;
+                }
+            }
+
+            $statuses[$status->id] = trans('texts.status_' . strtolower($status->name));
+        }
+
+        if ($entityType == ENTITY_INVOICE) {
+            $statuses[INVOICE_STATUS_UNPAID] = trans('texts.unpaid');
+            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.past_due');
+        }
+
+        return $statuses;
+    }
+
+    public function emailHistory()
+    {
+        return Activity::scope()
+                ->with(['contact'])
+                ->whereInvoiceId($this->id)
+                ->whereIn('activity_type_id', [ACTIVITY_TYPE_EMAIL_INVOICE, ACTIVITY_TYPE_EMAIL_QUOTE])
+                ->orderBy('id', 'desc')
+                ->get();
+    }
+
+    public function getDueDateLabel()
+    {
+        return $this->isQuote() ? 'valid_until' : 'due_date';
+    }
+
+    public function onlyHasTasks()
+    {
+        foreach ($this->invoice_items as $item) {
+            if ($item->invoice_item_type_id != INVOICE_ITEM_TYPE_TASK) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function hasTaxes()
+    {
+        if ($this->tax_name1 || $this->tax_rate1) {
+            return true;
+        }
+
+        if ($this->tax_name2 || $this->tax_rate2) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public function isLocked()
+    {
+        if (! config('ninja.lock_sent_invoices')) {
+            return false;
+        }
+
+        return $this->isSent() && ! $this->is_recurring;
+    }
+
+    public function getInvoiceLinkForQuote($contactId)
+    {
+        if (! $this->quote_invoice_id) {
+            return false;
+        }
+
+        $invoice = static::scope($this->quote_invoice_id, $this->account_id)->with('invitations')->first();
+
+        if (! $invoice) {
+            return false;
+        }
+
+        foreach ($invoice->invitations as $invitation) {
+            if ($invitation->contact_id == $contactId) {
+                return $invitation->getLink();
+            }
+        }
+
+        return false;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -1,5 +1,13 @@
 <?php namespace App\Models;
 
+namespace App\Models;
+
+use Carbon;
+use DateTimeInterface;
+use DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use App\Models\Traits\HasCustomMessages;
 use Utils;
 use DB;
 use Carbon;
@@ -485,6 +493,11 @@ class Client extends EntityModel
     public function hasAutoBillConfigurableInvoices()
     {
         return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

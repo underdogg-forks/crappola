@@ -127,6 +127,7 @@ class MakeModule extends Command
             $this->info('==> Use the following command to run the migrations:
 php artisan module:migrate ' . $name);
         }
+        return 0;
     }
 
     protected function getArguments(): array

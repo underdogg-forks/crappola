@@ -52,7 +52,36 @@ class SendRecurringInvoices extends Command
         $this->paymentService = $paymentService;
     }
 
-    public function fire()
+    public function handle()
+    {
+        $this->info(date('r') . ' Running SendRecurringInvoices...');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
+        $this->resetCounters();
+        $this->createInvoices();
+        $this->createExpenses();
+
+        $this->info(date('r') . ' Done');
+        return 0;
+    }
+
+    private function resetCounters()
+    {
+        $accounts = Account::where('reset_counter_frequency_id', '>', 0)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        foreach ($accounts as $account) {
+
+            if(!$account->account_email_settings->is_disabled)
+                $account->checkCounterReset();
+        }
+    }
+
+    private function createInvoices()
     {
         $this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
         $today = new DateTime();

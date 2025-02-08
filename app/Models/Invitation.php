@@ -1,5 +1,11 @@
 <?php namespace App\Models;
 
+namespace App\Models;
+
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupInvitation;
+use App\Models\Traits\Inviteable;
 use Utils;
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -133,5 +139,10 @@ class Invitation extends EntityModel
 
         $invoice->markViewed();
         $client->markLoggedIn();
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

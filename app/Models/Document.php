@@ -1,5 +1,9 @@
 <?php namespace App\Models;
 
+namespace App\Models;
+
+use DateTimeInterface;
+use DB;
 use Illuminate\Support\Facades\Storage;
 use DB;
 
@@ -348,6 +352,16 @@ class Document extends EntityModel
         $document->height = $this->height;
 
         return $document;
+    }
+
+    public function scopeProposalImages($query)
+    {
+        return $query->whereIsProposal(1);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

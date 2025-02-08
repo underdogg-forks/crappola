@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 //use Omnipay;
 use Utils;
@@ -173,5 +174,10 @@ class Gateway extends Eloquent
     {
         //return Omnipay::create($this->provider)->getDefaultParameters();
         return array();
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

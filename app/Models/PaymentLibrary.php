@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use DateTimeInterface;
 use Eloquent;
 
 /**
@@ -22,5 +23,10 @@ class PaymentLibrary extends Eloquent
     public function gateways()
     {
         return $this->hasMany('App\Models\Gateway', 'payment_library_id');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

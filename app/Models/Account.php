@@ -8,7 +8,18 @@ use Event;
 use Cache;
 use App;
 use App\Events\UserSettingsChanged;
-use Illuminate\Support\Facades\Storage;
+use App\Models\LookupAccount;
+use App\Models\Traits\GeneratesNumbers;
+use App\Models\Traits\PresentsInvoice;
+use App\Models\Traits\SendsEmails;
+use App\Models\Traits\HasLogo;
+use App\Models\Traits\HasCustomMessages;
+use Cache;
+use Carbon;
+use DateTime;
+use DateTimeInterface;
+use Eloquent;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -1885,6 +1896,11 @@ class Account extends Eloquent
         ];
 
         return str_replace($search, $replace, $pattern);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

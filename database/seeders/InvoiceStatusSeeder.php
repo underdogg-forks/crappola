@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class InvoiceStatusSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Eloquent::unguard();
 
@@ -16,7 +16,7 @@ class InvoiceStatusSeeder extends Seeder
         Eloquent::reguard();
     }
 
-    private function createInvoiceStatuses(): void
+    private function createInvoiceStatuses()
     {
         $statuses = [
             ['id' => '1', 'name' => 'Draft'],
@@ -38,3 +38,4 @@ class InvoiceStatusSeeder extends Seeder
         }
     }
 }
+

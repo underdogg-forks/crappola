@@ -47,6 +47,7 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
+        return 0;
     }
 
     protected function getOptions(): array

@@ -1,5 +1,14 @@
 <?php namespace App\Models;
 
+namespace App\Models;
+
+use App\Events\VendorWasCreated;
+use App\Events\VendorWasDeleted;
+use App\Events\VendorWasUpdated;
+use DateTimeInterface;
+use DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 use Utils;
 use DB;
 use App\Events\VendorWasCreated;
@@ -325,6 +334,11 @@ class Vendor extends EntityModel
             ->where('vendor_id', '=', $this->id)
             ->whereNull('deleted_at')
             ->sum('amount');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

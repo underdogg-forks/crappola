@@ -74,6 +74,7 @@ class CreateTestData extends Command
         $this->createVendors();
 
         $this->info('Done');
+        return 0;
     }
 
     /**

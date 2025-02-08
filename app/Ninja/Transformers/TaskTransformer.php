@@ -14,7 +14,7 @@ class TaskTransformer extends EntityTransformer
      * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
     ];
 

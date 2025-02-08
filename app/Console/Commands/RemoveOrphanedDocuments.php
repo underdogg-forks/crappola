@@ -33,6 +33,7 @@ class RemoveOrphanedDocuments extends Command
         }
 
         $this->info('Done');
+        return 0;
     }
 
     /**

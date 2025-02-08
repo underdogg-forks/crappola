@@ -4,7 +4,10 @@ use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
-use App\Events\ExpenseWasDeleted;
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
  * Class Expense
@@ -180,6 +183,87 @@ class Expense extends EntityModel
         }
 
         return $query;
+    }
+
+    public function amountWithTax()
+    {
+        return $this->amount + $this->taxAmount();
+    }
+
+    public function taxAmount()
+    {
+        return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
+        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
+        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
+        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
+
+
+        return $statuses;
+    }
+
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
+    {
+        if ($invoiceId) {
+            if (floatval($balance) > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'billed';
+            }
+        } elseif ($shouldBeInvoiced) {
+            $label = 'pending';
+        } else {
+            $label = 'logged';
+        }
+
+        $label = trans("texts.{$label}");
+
+        if ($paymentDate) {
+            $label = trans('texts.paid') . ' | ' . $label;
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if (floatval($balance) > 0) {
+                return 'default';
+            } else {
+                return 'success';
+            }
+        } elseif ($shouldBeInvoiced) {
+            return 'warning';
+        } else {
+            return 'primary';
+        }
+    }
+
+    public function statusClass()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
+    }
+
+    public function statusLabel()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -62,6 +62,7 @@ class CreateLuisData extends Command
         $intents = array_merge($intents, $this->getNavigateToIntents($entityType));
 
         $this->info(json_encode($intents));
+        return 0;
     }
 
     protected function getArguments()

@@ -5,13 +5,9 @@ use Event;
 use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use App\Libraries\Utils;
+use DateTimeInterface;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -447,6 +443,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         return $permissions;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Ninja\Presenters\ProjectPresenter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
@@ -123,6 +121,11 @@ class Project extends EntityModel
     public function getDisplayName()
     {
         return $this->name;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

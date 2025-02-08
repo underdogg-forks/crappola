@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use DateTimeInterface;
+use Eloquent;
 
 /**
  * Class Account.
@@ -113,4 +112,21 @@ class AccountEmailSettings extends Model
         'late_fee3_amount',
         'late_fee3_percent',
     ];
+
+    public static $templates = [
+        TEMPLATE_INVOICE,
+        TEMPLATE_QUOTE,
+        TEMPLATE_PROPOSAL,
+        //TEMPLATE_PARTIAL,
+        TEMPLATE_PAYMENT,
+        TEMPLATE_REMINDER1,
+        TEMPLATE_REMINDER2,
+        TEMPLATE_REMINDER3,
+        TEMPLATE_REMINDER4,
+    ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
