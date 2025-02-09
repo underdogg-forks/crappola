@@ -68,6 +68,7 @@
                     @endif
 
                     @if ($expense && $expense->invoice_id)
+                        {{-- Former, Plaintext for a link? --}}
                         {!! Former::plaintext()
                                 ->label('client')
                                 ->value($expense->client->present()->link)  !!}
