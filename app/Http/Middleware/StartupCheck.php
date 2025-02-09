@@ -63,7 +63,10 @@ class StartupCheck
 
     private function isDatabaseReady(): bool
     {
-        return Utils::isNinja() || Utils::isDatabaseSetup();
+        if (Utils::isNinja()) {
+            return true;
+        }
+        return (bool) Utils::isDatabaseSetup();
     }
 
     private function validateUserAgent(Request $request): void
@@ -277,7 +280,10 @@ HTML;
 
     private function shouldCacheTable(string $name): bool
     {
-        return request()->has('clear_cache') || ! Cache::has($name);
+        if (request()->has('clear_cache')) {
+            return true;
+        }
+        return ! Cache::has($name);
     }
 
     private function cacheTableData(string $name, string $class): void
