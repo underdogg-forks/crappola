@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGatewayTypes extends Migration
 {
@@ -21,10 +22,10 @@ class CreateGatewayTypes extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('gateway_type_id')->nullable();
 
-            $table->timestamp('updated_at')->nullable();
-
             $table->unsignedInteger('min_limit')->nullable();
             $table->unsignedInteger('max_limit')->nullable();
+
+            $table->timestamp('updated_at')->nullable();
         });
 
         Schema::table('account_gateway_settings', function ($table) {

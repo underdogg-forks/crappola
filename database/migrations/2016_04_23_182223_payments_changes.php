@@ -2,6 +2,7 @@
 
 use App\Models\PaymentStatus;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class PaymentsChanges extends Migration
 {

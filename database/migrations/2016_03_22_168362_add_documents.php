@@ -23,9 +23,9 @@ class AddDocuments extends Migration
             $t->increments('id');
             $t->unsignedInteger('public_id')->nullable();
             $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
             $t->unsignedInteger('invoice_id')->nullable();
             $t->unsignedInteger('expense_id')->nullable();
+            $t->unsignedInteger('user_id');
             $t->string('path');
             $t->string('preview');
             $t->string('name');

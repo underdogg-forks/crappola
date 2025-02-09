@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateVendorsTable extends Migration
@@ -13,6 +14,8 @@ class CreateVendorsTable extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('currency_id')->nullable();
+            $table->integer('public_id')->default(0);
+
             $table->string('name')->nullable();
             $table->string('address1');
             $table->string('address2');
@@ -23,10 +26,10 @@ class CreateVendorsTable extends Migration
             $table->string('work_phone');
             $table->text('private_notes');
             $table->string('website');
-            $table->tinyInteger('is_deleted')->default(0);
-            $table->integer('public_id')->default(0);
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
+
+            $table->boolean('is_deleted')->default(0);
 
             $table->timestamps();
             $table->softDeletes();
@@ -40,8 +43,9 @@ class CreateVendorsTable extends Migration
         Schema::create('vendor_contacts', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('vendor_id')->index();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('public_id')->nullable();
 
             $table->boolean('is_primary')->default(0);
             $table->string('first_name')->nullable();
@@ -56,7 +60,6 @@ class CreateVendorsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
-            $table->unsignedInteger('public_id')->nullable();
             $table->unique(['account_id', 'public_id']);
         });
 

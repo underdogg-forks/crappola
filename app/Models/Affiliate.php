@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-/**
- * Class Affiliate.
- */
 class Affiliate extends Eloquent
 {
     public $timestamps = true;

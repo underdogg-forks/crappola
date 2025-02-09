@@ -10,8 +10,8 @@ class AddBankSubaccounts extends Migration
         Schema::create('bank_subaccounts', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('bank_account_id');
+            $table->unsignedInteger('user_id');
             $table->unsignedInteger('public_id')->index();
 
             $table->string('account_name');
