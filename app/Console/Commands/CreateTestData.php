@@ -238,10 +238,10 @@ class CreateTestData extends Command
         $this->info('Payment: ' . $payment->amount);
     }
 
-    private function createTasks($client): void
+    private function createTasks($project): void
     {
         $data = [
-            'client_id' => $client->id,
+            'client_id' => $project->client->id,
             'name'      => $this->faker->sentence(3),
         ];
         $project = $this->projectRepo->save($data);
@@ -251,7 +251,7 @@ class CreateTestData extends Command
             $endTime = $startTime + (60 * 60 * 2);
             $timeLog = sprintf('[[%s,%s]]', $startTime, $endTime);
             $data = [
-                'client_id'   => $client->id,
+                'client_id'   => $project->client->id,
                 'project_id'  => $project->id,
                 'description' => $this->faker->text($this->faker->numberBetween(50, 300)),
                 'time_log'    => $timeLog,
@@ -312,8 +312,11 @@ class CreateTestData extends Command
         $this->createCategory('Category 1', 1);
         $this->createCategory('Category 1', 2);
 
-        $this->createProject('Project 1', 1);
-        $this->createProject('Project 2', 2);
+        $project1 = $this->createProject('Project 1', 1);
+        $project2 = $this->createProject('Project 2', 2);
+
+        $this->createTasks($project1);
+        $this->createTasks($project2);
     }
 
     private function createTaxRate(string $name, int $rate, int $publicId): void
@@ -337,7 +340,7 @@ class CreateTestData extends Command
         $category->save();
     }
 
-    private function createProject(string $name, int $publicId): void
+    private function createProject(string $name, int $publicId): Project
     {
         $project = new Project();
         $project->name = $name;
@@ -346,5 +349,7 @@ class CreateTestData extends Command
         $project->user_id = 1;
         $project->public_id = $publicId;
         $project->save();
+
+        return $project;
     }
 }
