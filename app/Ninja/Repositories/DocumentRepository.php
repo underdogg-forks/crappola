@@ -4,7 +4,7 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Document;
-use Datatable;
+use Chumper\Datatable\Facades\DatatableFacade as Datatable;
 use Form;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;

@@ -7,7 +7,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Datatable;
+use Chumper\Datatable\Facades\DatatableFacade as Datatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

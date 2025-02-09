@@ -20,7 +20,7 @@ use App\Models\Product;
 use App\Models\Task;
 use App\Ninja\Mailers\ContactMailer;
 use App\Services\PaymentService;
-use Datatable;
+use Chumper\Datatable\Facades\DatatableFacade as Datatable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -362,7 +362,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     *
      * @return Invoice|mixed
      */
     public function save(array $data, ?Invoice $invoice = null)
@@ -811,7 +810,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     *
      * @return mixed
      */
     public function cloneInvoice(Invoice $invoice, $quoteId = null)
