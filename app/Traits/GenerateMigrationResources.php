@@ -28,6 +28,7 @@ use App\Models\Vendor;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use stdClass;
 
 trait GenerateMigrationResources

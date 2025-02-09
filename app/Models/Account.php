@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App;
 use App\Events\UserSettingsChanged;
 use App\Libraries\Utils;
 use App\Models\Traits\GeneratesNumbers;
@@ -10,19 +9,371 @@ use App\Models\Traits\HasCustomMessages;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
-use Cache;
+use App\Ninja\Presenters\AccountPresenter;
 use Carbon;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use Eloquent;
 use Event;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
 
 /**
  * Class Account.
+ *
+ * @property int                                     $id
+ * @property int|null                                $timezone_id
+ * @property int|null                                $date_format_id
+ * @property int|null                                $datetime_format_id
+ * @property int|null                                $currency_id
+ * @property \Illuminate\Support\Carbon|null         $created_at
+ * @property \Illuminate\Support\Carbon|null         $updated_at
+ * @property \Illuminate\Support\Carbon|null         $deleted_at
+ * @property string|null                             $name
+ * @property string                                  $ip
+ * @property string                                  $account_key
+ * @property string|null                             $last_login
+ * @property string|null                             $address1
+ * @property string|null                             $address2
+ * @property string|null                             $city
+ * @property string|null                             $state
+ * @property string|null                             $postal_code
+ * @property int|null                                $country_id
+ * @property string|null                             $invoice_terms
+ * @property string|null                             $email_footer
+ * @property int|null                                $industry_id
+ * @property int|null                                $size_id
+ * @property int                                     $invoice_taxes
+ * @property int                                     $invoice_item_taxes
+ * @property int                                     $invoice_design_id
+ * @property string|null                             $work_phone
+ * @property string|null                             $work_email
+ * @property int                                     $language_id
+ * @property string|null                             $custom_value1
+ * @property string|null                             $custom_value2
+ * @property int                                     $fill_products
+ * @property int                                     $update_products
+ * @property string|null                             $primary_color
+ * @property string|null                             $secondary_color
+ * @property int                                     $hide_quantity
+ * @property int                                     $hide_paid_to_date
+ * @property int|null                                $custom_invoice_taxes1
+ * @property int|null                                $custom_invoice_taxes2
+ * @property string|null                             $vat_number
+ * @property string|null                             $invoice_number_prefix
+ * @property int|null                                $invoice_number_counter
+ * @property string|null                             $quote_number_prefix
+ * @property int|null                                $quote_number_counter
+ * @property int                                     $share_counter
+ * @property string|null                             $id_number
+ * @property int                                     $token_billing_type_id
+ * @property string|null                             $invoice_footer
+ * @property int                                     $pdf_email_attachment
+ * @property string|null                             $subdomain
+ * @property int                                     $font_size
+ * @property string|null                             $invoice_labels
+ * @property string|null                             $custom_design1
+ * @property int                                     $show_item_taxes
+ * @property string|null                             $iframe_url
+ * @property int                                     $military_time
+ * @property int                                     $enable_reminder1
+ * @property int                                     $enable_reminder2
+ * @property int                                     $enable_reminder3
+ * @property int                                     $num_days_reminder1
+ * @property int                                     $num_days_reminder2
+ * @property int                                     $num_days_reminder3
+ * @property int                                     $recurring_hour
+ * @property string|null                             $invoice_number_pattern
+ * @property string|null                             $quote_number_pattern
+ * @property string|null                             $quote_terms
+ * @property int                                     $email_design_id
+ * @property int                                     $enable_email_markup
+ * @property string|null                             $website
+ * @property int                                     $direction_reminder1
+ * @property int                                     $direction_reminder2
+ * @property int                                     $direction_reminder3
+ * @property int                                     $field_reminder1
+ * @property int                                     $field_reminder2
+ * @property int                                     $field_reminder3
+ * @property string|null                             $client_view_css
+ * @property int                                     $header_font_id
+ * @property int                                     $body_font_id
+ * @property int                                     $auto_convert_quote
+ * @property int                                     $all_pages_footer
+ * @property int                                     $all_pages_header
+ * @property int                                     $show_currency_code
+ * @property int                                     $enable_portal_password
+ * @property int                                     $send_portal_password
+ * @property string                                  $recurring_invoice_number_prefix
+ * @property int                                     $enable_client_portal
+ * @property string|null                             $invoice_fields
+ * @property string|null                             $devices
+ * @property string|null                             $logo
+ * @property int                                     $logo_width
+ * @property int                                     $logo_height
+ * @property int                                     $logo_size
+ * @property int                                     $invoice_embed_documents
+ * @property int                                     $document_email_attachment
+ * @property int                                     $enable_client_portal_dashboard
+ * @property int|null                                $company_id
+ * @property string                                  $page_size
+ * @property int                                     $live_preview
+ * @property int                                     $invoice_number_padding
+ * @property int                                     $enable_second_tax_rate
+ * @property int                                     $auto_bill_on_due_date
+ * @property int                                     $start_of_week
+ * @property int                                     $enable_buy_now_buttons
+ * @property int                                     $include_item_taxes_inline
+ * @property string|null                             $financial_year_start
+ * @property int                                     $enabled_modules
+ * @property int                                     $enabled_dashboard_sections
+ * @property int                                     $show_accept_invoice_terms
+ * @property int                                     $show_accept_quote_terms
+ * @property int                                     $require_invoice_signature
+ * @property int                                     $require_quote_signature
+ * @property string|null                             $client_number_prefix
+ * @property int|null                                $client_number_counter
+ * @property string|null                             $client_number_pattern
+ * @property int|null                                $domain_id
+ * @property int|null                                $payment_terms
+ * @property int|null                                $reset_counter_frequency_id
+ * @property int|null                                $payment_type_id
+ * @property int                                     $gateway_fee_enabled
+ * @property string|null                             $reset_counter_date
+ * @property string|null                             $tax_name1
+ * @property string                                  $tax_rate1
+ * @property string|null                             $tax_name2
+ * @property string                                  $tax_rate2
+ * @property int                                     $quote_design_id
+ * @property string|null                             $custom_design2
+ * @property string|null                             $custom_design3
+ * @property string|null                             $analytics_key
+ * @property int|null                                $credit_number_counter
+ * @property string|null                             $credit_number_prefix
+ * @property string|null                             $credit_number_pattern
+ * @property string                                  $task_rate
+ * @property int                                     $inclusive_taxes
+ * @property int                                     $convert_products
+ * @property int                                     $enable_reminder4
+ * @property int                                     $signature_on_pdf
+ * @property int                                     $ubl_email_attachment
+ * @property int|null                                $auto_archive_invoice
+ * @property int|null                                $auto_archive_quote
+ * @property int|null                                $auto_email_invoice
+ * @property int|null                                $send_item_details
+ * @property mixed|null                              $custom_fields
+ * @property int|null                                $background_image_id
+ * @property mixed|null                              $custom_messages
+ * @property int                                     $is_custom_domain
+ * @property int                                     $show_product_notes
+ * @property AccountEmailSettings|null               $account_email_settings
+ * @property Collection<int, AccountGatewaySettings> $account_gateway_settings
+ * @property int|null                                $account_gateway_settings_count
+ * @property Collection<int, AccountGateway>         $account_gateways
+ * @property int|null                                $account_gateways_count
+ * @property Collection<int, AccountToken>           $account_tokens
+ * @property int|null                                $account_tokens_count
+ * @property Document|null                           $background_image
+ * @property Collection<int, BankAccount>            $bank_accounts
+ * @property int|null                                $bank_accounts_count
+ * @property Collection<int, Client>                 $clients
+ * @property int|null                                $clients_count
+ * @property Company|null                            $company
+ * @property Collection<int, Contact>                $contacts
+ * @property int|null                                $contacts_count
+ * @property Country|null                            $country
+ * @property Currency|null                           $currency
+ * @property Collection<int, PaymentTerm>            $custom_payment_terms
+ * @property int|null                                $custom_payment_terms_count
+ * @property DateFormat|null                         $date_format
+ * @property DatetimeFormat|null                     $datetime_format
+ * @property Collection<int, Document>               $defaultDocuments
+ * @property int|null                                $default_documents_count
+ * @property Collection<int, ExpenseCategory>        $expense_categories
+ * @property int|null                                $expense_categories_count
+ * @property Collection<int, Expense>                $expenses
+ * @property int|null                                $expenses_count
+ * @property Industry|null                           $industry
+ * @property Collection<int, Invoice>                $invoices
+ * @property int|null                                $invoices_count
+ * @property Language                                $language
+ * @property PaymentType|null                        $payment_type
+ * @property Collection<int, Payment>                $payments
+ * @property int|null                                $payments_count
+ * @property Collection<int, Product>                $products
+ * @property int|null                                $products_count
+ * @property Collection<int, Project>                $projects
+ * @property int|null                                $projects_count
+ * @property Size|null                               $size
+ * @property Collection<int, TaskStatus>             $task_statuses
+ * @property int|null                                $task_statuses_count
+ * @property Collection<int, TaxRate>                $tax_rates
+ * @property int|null                                $tax_rates_count
+ * @property Timezone|null                           $timezone
+ * @property Collection<int, User>                   $users
+ * @property int|null                                $users_count
+ *
+ * @method static Builder|Account newModelQuery()
+ * @method static Builder|Account newQuery()
+ * @method static Builder|Account onlyTrashed()
+ * @method static Builder|Account query()
+ * @method static Builder|Account whereAccountKey($value)
+ * @method static Builder|Account whereAddress1($value)
+ * @method static Builder|Account whereAddress2($value)
+ * @method static Builder|Account whereAllPagesFooter($value)
+ * @method static Builder|Account whereAllPagesHeader($value)
+ * @method static Builder|Account whereAnalyticsKey($value)
+ * @method static Builder|Account whereAutoArchiveInvoice($value)
+ * @method static Builder|Account whereAutoArchiveQuote($value)
+ * @method static Builder|Account whereAutoBillOnDueDate($value)
+ * @method static Builder|Account whereAutoConvertQuote($value)
+ * @method static Builder|Account whereAutoEmailInvoice($value)
+ * @method static Builder|Account whereBackgroundImageId($value)
+ * @method static Builder|Account whereBodyFontId($value)
+ * @method static Builder|Account whereCity($value)
+ * @method static Builder|Account whereClientNumberCounter($value)
+ * @method static Builder|Account whereClientNumberPattern($value)
+ * @method static Builder|Account whereClientNumberPrefix($value)
+ * @method static Builder|Account whereClientViewCss($value)
+ * @method static Builder|Account whereCompanyId($value)
+ * @method static Builder|Account whereConvertProducts($value)
+ * @method static Builder|Account whereCountryId($value)
+ * @method static Builder|Account whereCreatedAt($value)
+ * @method static Builder|Account whereCreditNumberCounter($value)
+ * @method static Builder|Account whereCreditNumberPattern($value)
+ * @method static Builder|Account whereCreditNumberPrefix($value)
+ * @method static Builder|Account whereCurrencyId($value)
+ * @method static Builder|Account whereCustomDesign1($value)
+ * @method static Builder|Account whereCustomDesign2($value)
+ * @method static Builder|Account whereCustomDesign3($value)
+ * @method static Builder|Account whereCustomFields($value)
+ * @method static Builder|Account whereCustomInvoiceTaxes1($value)
+ * @method static Builder|Account whereCustomInvoiceTaxes2($value)
+ * @method static Builder|Account whereCustomMessages($value)
+ * @method static Builder|Account whereCustomValue1($value)
+ * @method static Builder|Account whereCustomValue2($value)
+ * @method static Builder|Account whereDateFormatId($value)
+ * @method static Builder|Account whereDatetimeFormatId($value)
+ * @method static Builder|Account whereDeletedAt($value)
+ * @method static Builder|Account whereDevices($value)
+ * @method static Builder|Account whereDirectionReminder1($value)
+ * @method static Builder|Account whereDirectionReminder2($value)
+ * @method static Builder|Account whereDirectionReminder3($value)
+ * @method static Builder|Account whereDocumentEmailAttachment($value)
+ * @method static Builder|Account whereDomainId($value)
+ * @method static Builder|Account whereEmailDesignId($value)
+ * @method static Builder|Account whereEmailFooter($value)
+ * @method static Builder|Account whereEnableBuyNowButtons($value)
+ * @method static Builder|Account whereEnableClientPortal($value)
+ * @method static Builder|Account whereEnableClientPortalDashboard($value)
+ * @method static Builder|Account whereEnableEmailMarkup($value)
+ * @method static Builder|Account whereEnablePortalPassword($value)
+ * @method static Builder|Account whereEnableReminder1($value)
+ * @method static Builder|Account whereEnableReminder2($value)
+ * @method static Builder|Account whereEnableReminder3($value)
+ * @method static Builder|Account whereEnableReminder4($value)
+ * @method static Builder|Account whereEnableSecondTaxRate($value)
+ * @method static Builder|Account whereEnabledDashboardSections($value)
+ * @method static Builder|Account whereEnabledModules($value)
+ * @method static Builder|Account whereFieldReminder1($value)
+ * @method static Builder|Account whereFieldReminder2($value)
+ * @method static Builder|Account whereFieldReminder3($value)
+ * @method static Builder|Account whereFillProducts($value)
+ * @method static Builder|Account whereFinancialYearStart($value)
+ * @method static Builder|Account whereFontSize($value)
+ * @method static Builder|Account whereGatewayFeeEnabled($value)
+ * @method static Builder|Account whereHeaderFontId($value)
+ * @method static Builder|Account whereHidePaidToDate($value)
+ * @method static Builder|Account whereHideQuantity($value)
+ * @method static Builder|Account whereId($value)
+ * @method static Builder|Account whereIdNumber($value)
+ * @method static Builder|Account whereIframeUrl($value)
+ * @method static Builder|Account whereIncludeItemTaxesInline($value)
+ * @method static Builder|Account whereInclusiveTaxes($value)
+ * @method static Builder|Account whereIndustryId($value)
+ * @method static Builder|Account whereInvoiceDesignId($value)
+ * @method static Builder|Account whereInvoiceEmbedDocuments($value)
+ * @method static Builder|Account whereInvoiceFields($value)
+ * @method static Builder|Account whereInvoiceFooter($value)
+ * @method static Builder|Account whereInvoiceItemTaxes($value)
+ * @method static Builder|Account whereInvoiceLabels($value)
+ * @method static Builder|Account whereInvoiceNumberCounter($value)
+ * @method static Builder|Account whereInvoiceNumberPadding($value)
+ * @method static Builder|Account whereInvoiceNumberPattern($value)
+ * @method static Builder|Account whereInvoiceNumberPrefix($value)
+ * @method static Builder|Account whereInvoiceTaxes($value)
+ * @method static Builder|Account whereInvoiceTerms($value)
+ * @method static Builder|Account whereIp($value)
+ * @method static Builder|Account whereIsCustomDomain($value)
+ * @method static Builder|Account whereLanguageId($value)
+ * @method static Builder|Account whereLastLogin($value)
+ * @method static Builder|Account whereLivePreview($value)
+ * @method static Builder|Account whereLogo($value)
+ * @method static Builder|Account whereLogoHeight($value)
+ * @method static Builder|Account whereLogoSize($value)
+ * @method static Builder|Account whereLogoWidth($value)
+ * @method static Builder|Account whereMilitaryTime($value)
+ * @method static Builder|Account whereName($value)
+ * @method static Builder|Account whereNumDaysReminder1($value)
+ * @method static Builder|Account whereNumDaysReminder2($value)
+ * @method static Builder|Account whereNumDaysReminder3($value)
+ * @method static Builder|Account wherePageSize($value)
+ * @method static Builder|Account wherePaymentTerms($value)
+ * @method static Builder|Account wherePaymentTypeId($value)
+ * @method static Builder|Account wherePdfEmailAttachment($value)
+ * @method static Builder|Account wherePostalCode($value)
+ * @method static Builder|Account wherePrimaryColor($value)
+ * @method static Builder|Account whereQuoteDesignId($value)
+ * @method static Builder|Account whereQuoteNumberCounter($value)
+ * @method static Builder|Account whereQuoteNumberPattern($value)
+ * @method static Builder|Account whereQuoteNumberPrefix($value)
+ * @method static Builder|Account whereQuoteTerms($value)
+ * @method static Builder|Account whereRecurringHour($value)
+ * @method static Builder|Account whereRecurringInvoiceNumberPrefix($value)
+ * @method static Builder|Account whereRequireInvoiceSignature($value)
+ * @method static Builder|Account whereRequireQuoteSignature($value)
+ * @method static Builder|Account whereResetCounterDate($value)
+ * @method static Builder|Account whereResetCounterFrequencyId($value)
+ * @method static Builder|Account whereSecondaryColor($value)
+ * @method static Builder|Account whereSendItemDetails($value)
+ * @method static Builder|Account whereSendPortalPassword($value)
+ * @method static Builder|Account whereShareCounter($value)
+ * @method static Builder|Account whereShowAcceptInvoiceTerms($value)
+ * @method static Builder|Account whereShowAcceptQuoteTerms($value)
+ * @method static Builder|Account whereShowCurrencyCode($value)
+ * @method static Builder|Account whereShowItemTaxes($value)
+ * @method static Builder|Account whereShowProductNotes($value)
+ * @method static Builder|Account whereSignatureOnPdf($value)
+ * @method static Builder|Account whereSizeId($value)
+ * @method static Builder|Account whereStartOfWeek($value)
+ * @method static Builder|Account whereState($value)
+ * @method static Builder|Account whereSubdomain($value)
+ * @method static Builder|Account whereTaskRate($value)
+ * @method static Builder|Account whereTaxName1($value)
+ * @method static Builder|Account whereTaxName2($value)
+ * @method static Builder|Account whereTaxRate1($value)
+ * @method static Builder|Account whereTaxRate2($value)
+ * @method static Builder|Account whereTimezoneId($value)
+ * @method static Builder|Account whereTokenBillingTypeId($value)
+ * @method static Builder|Account whereUblEmailAttachment($value)
+ * @method static Builder|Account whereUpdateProducts($value)
+ * @method static Builder|Account whereUpdatedAt($value)
+ * @method static Builder|Account whereVatNumber($value)
+ * @method static Builder|Account whereWebsite($value)
+ * @method static Builder|Account whereWorkEmail($value)
+ * @method static Builder|Account whereWorkPhone($value)
+ * @method static Builder|Account withTrashed()
+ * @method static Builder|Account withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Account extends Eloquent
 {

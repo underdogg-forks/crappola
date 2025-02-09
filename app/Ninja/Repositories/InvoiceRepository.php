@@ -11,17 +11,22 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Document;
+use App\Models\EntityModel;
 use App\Models\Expense;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
+use App\Ninja\Mailers\ContactMailer;
 use App\Services\PaymentService;
 use Datatable;
-use DB;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Utils;
 
 class InvoiceRepository extends BaseRepository
 {
