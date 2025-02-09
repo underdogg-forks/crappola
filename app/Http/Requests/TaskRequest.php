@@ -21,7 +21,7 @@ class TaskRequest extends EntityRequest
                 'name' => trim($this->client_name),
             ];
             if (Client::validate($client) === true) {
-                $client = app('App\Ninja\Repositories\ClientRepository')->save($client);
+                $client = app(\App\Ninja\Repositories\ClientRepository::class)->save($client);
                 $input['client_id'] = $this->client_id = $client->public_id;
             }
         }

@@ -82,7 +82,7 @@ class Proposal extends EntityModel
     /**
      * @var string
      */
-    //protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
+    //protected $presenter = \App\Ninja\Presenters\ProjectPresenter::class;
 
     public function getEntityType(): string
     {

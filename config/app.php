@@ -140,12 +140,12 @@ return [
         Laravel\Tinker\TinkerServiceProvider::class,
 
         // Application Service Providers...
-        'App\Providers\AuthServiceProvider',
-        'App\Providers\AppServiceProvider',
-        'App\Providers\ComposerServiceProvider',
-        'App\Providers\ConfigServiceProvider',
-        'App\Providers\EventServiceProvider',
-        'App\Providers\RouteServiceProvider',
+        \App\Providers\AuthServiceProvider::class,
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\ComposerServiceProvider::class,
+        \App\Providers\ConfigServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+        \App\Providers\RouteServiceProvider::class,
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
     ],

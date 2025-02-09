@@ -370,7 +370,7 @@ class EntityModel extends Model
         }
     }
 
-    // converts "App\Models\Client" to "client_id"
+    // converts \App\Models\Client::class to "client_id"
 
     public function getKeyField(): string
     {
