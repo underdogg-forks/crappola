@@ -11,21 +11,21 @@ use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalCategoryController extends BaseController
 {
-    protected $proposalCategoryRepo;
+    public $entityType = ENTITY_PROPOSAL_CATEGORY;
 
-    protected $proposalCategoryService;
+    protected ProposalCategoryRepository $proposalCategoryRepo;
 
-    protected $entityType = ENTITY_PROPOSAL_CATEGORY;
+    protected ProposalCategoryService $proposalCategoryService;
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {
-        $this->proposalCategoryRepo    = $proposalCategoryRepo;
+        $this->proposalCategoryRepo = $proposalCategoryRepo;
         $this->proposalCategoryService = $proposalCategoryService;
     }
 
@@ -71,7 +71,7 @@ class ProposalCategoryController extends BaseController
     {
         Session::reflash();
 
-        return redirect("proposals/categories/{$publicId}/edit");
+        return redirect(sprintf('proposals/categories/%s/edit', $publicId));
     }
 
     public function edit(ProposalCategoryRequest $request)
@@ -115,13 +115,13 @@ class ProposalCategoryController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field   = $count == 1 ? "{$action}d_proposal_category" : "{$action}d_proposal_categories";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_proposal_category' : $action . 'd_proposal_categories';
+            $message = trans('texts.' . $field, ['count' => $count]);
             Session::flash('message', $message);
         }
 

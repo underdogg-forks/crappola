@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddClientPassword extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -41,4 +40,4 @@ class AddClientPassword extends Migration
             $table->dropColumn('remember_token');
         });
     }
-}
+};

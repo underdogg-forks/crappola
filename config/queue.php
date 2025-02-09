@@ -3,12 +3,15 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Default Queue Connection Name
+    | Default Queue Driver
     |--------------------------------------------------------------------------
     |
-    | Laravel's queue API supports an assortment of back-ends via a single
+    | The Laravel queue API supports a variety of back-ends via an unified
     | API, giving you convenient access to each back-end using the same
-    | syntax for every one. Here you may define a default connection.
+    | syntax for each one. Here you may set the default queue driver.
+    |
+    | Supported: "null", "sync", "database", "beanstalkd",
+    |            "sqs", "iron", "redis"
     |
     */
 
@@ -39,12 +42,10 @@ return [
         ],
 
         'beanstalkd' => [
-            'driver'       => 'beanstalkd',
-            'host'         => 'localhost',
-            'queue'        => 'default',
-            'ttr'          => 60,
-            'block_for'    => 0,
-            'after_commit' => false,
+            'driver' => 'beanstalkd',
+            'host'   => 'localhost',
+            'queue'  => 'default',
+            'ttr'    => 60,
         ],
 
         'sqs' => [
@@ -65,12 +66,9 @@ return [
         ],
 
         'redis' => [
-            'driver'       => 'redis',
-            'queue'        => env('REDIS_QUEUE', 'default'),
-            'expire'       => 60,
-            'retry_after'  => 90,
-            'block_for'    => null,
-            'after_commit' => false,
+            'driver' => 'redis',
+            'queue'  => 'default',
+            'expire' => 60,
         ],
     ],
 

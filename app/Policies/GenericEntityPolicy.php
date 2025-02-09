@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Libraries\Utils;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Str;
 use Module;
+use Utils;
 
 /**
  * Class GenericEntityPolicy.
@@ -22,7 +22,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function editByOwner(User $user, $entityType, $ownerUserId)
+    public static function editByOwner(User $user, $entityType, $ownerUserId): mixed
     {
         $className = static::className($entityType);
         if (method_exists($className, 'editByOwner')) {
@@ -56,7 +56,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function create(User $user, $entityType)
+    public static function create(User $user, string $entityType): bool
     {
         /*
         $className = static::className($entityType);
@@ -75,7 +75,7 @@ class GenericEntityPolicy
      *
      * @return bool|mixed
      */
-    public static function view(User $user, $entityType)
+    public static function view(User $user, string $entityType): bool
     {
         /*
         $className = static::className($entityType);
@@ -101,8 +101,11 @@ class GenericEntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
+        if ($user->hasPermission('edit_' . $entityType)) {
+            return true;
+        }
 
-        return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
+        return $user->owns($item);
     }
 
     /**
@@ -118,16 +121,14 @@ class GenericEntityPolicy
         return $user->account->isModuleEnabled($entityType);
     }
 
-    private static function className($entityType)
+    private static function className($entityType): string
     {
-        if ( ! Utils::isNinjaProd()) {
-            if ($module = Module::find($entityType)) {
-                return "Modules\\{$module->getName()}\\Policies\\{$module->getName()}Policy";
-            }
+        if ( ! Utils::isNinjaProd() && ($module = Module::find($entityType))) {
+            return sprintf('Modules\%s\Policies\%sPolicy', $module->getName(), $module->getName());
         }
 
         $studly = Str::studly($entityType);
 
-        return "App\\Policies\\{$studly}Policy";
+        return sprintf('App\Policies\%sPolicy', $studly);
     }
 }

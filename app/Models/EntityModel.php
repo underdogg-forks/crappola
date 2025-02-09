@@ -2,18 +2,29 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Module;
-use Str;
-use Validator;
+use Utils;
 
 /**
  * Class EntityModel.
+ *
+ * @method static Builder|EntityModel newModelQuery()
+ * @method static Builder|EntityModel newQuery()
+ * @method static Builder|EntityModel query()
+ * @method static Builder|EntityModel scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|EntityModel withActiveOrSelected($id = false)
+ * @method static Builder|EntityModel withArchived()
+ *
+ * @mixin \Eloquent
  */
-class EntityModel extends Eloquent
+class EntityModel extends Model
 {
     /**
      * @var bool
@@ -50,7 +61,7 @@ class EntityModel extends Eloquent
      */
     public function __call($method, $params)
     {
-        if (count(config('modules.relations'))) {
+        if (count(config('modules.relations')) > 0) {
             $entityType = $this->getEntityType();
 
             if ($entityType) {
@@ -71,22 +82,22 @@ class EntityModel extends Eloquent
      *
      * @return mixed
      */
-    public static function createNew($context = null)
+    public static function createNew($context = null): static
     {
-        $className = get_called_class();
-        $entity    = new $className();
+        $className = static::class;
+        $entity = new $className();
 
         if ($context) {
-            $user    = $context instanceof User ? $context : $context->user;
+            $user = $context instanceof User ? $context : $context->user;
             $account = $context->account;
         } elseif (Auth::check()) {
-            $user    = Auth::user();
+            $user = Auth::user();
             $account = Auth::user()->account;
         } else {
             Utils::fatalError();
         }
 
-        $entity->user_id    = $user->id;
+        $entity->user_id = $user->id;
         $entity->account_id = $account->id;
 
         // store references to the original user/account to prevent needing to reload them
@@ -111,7 +122,7 @@ class EntityModel extends Eloquent
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
 
         if (method_exists($className, 'trashed')) {
             return $className::scope($publicId)->withTrashed()->value('id');
@@ -125,12 +136,10 @@ class EntityModel extends Eloquent
      *
      * @return string
      */
-    public static function getClassName($entityType)
+    public static function getClassName($entityType): string
     {
-        if ( ! Utils::isNinjaProd()) {
-            if ($module = Module::find($entityType)) {
-                return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
-            }
+        if ( ! Utils::isNinjaProd() && ($module = Module::find($entityType))) {
+            return sprintf('Modules\%s\Models\%s', $module->getName(), $module->getName());
         }
 
         if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
@@ -145,12 +154,14 @@ class EntityModel extends Eloquent
      *
      * @return string
      */
-    public static function getTransformerName($entityType)
+    public static function getTransformerName($entityType): string
     {
-        if ( ! Utils::isNinjaProd()) {
-            if ($module = Module::find($entityType)) {
-                return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
-            }
+        if (Utils::isNinjaProd()) {
+            return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
+        }
+
+        if ($module = Module::find($entityType)) {
+            return sprintf('Modules\%s\Transformers\%sTransformer', $module->getName(), $module->getName());
         }
 
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
@@ -167,22 +178,20 @@ class EntityModel extends Eloquent
     public static function validate($data, $entityType = false, $entity = false)
     {
         if ( ! $entityType) {
-            $className   = get_called_class();
+            $className = static::class;
             $entityBlank = new $className();
-            $entityType  = $entityBlank->getEntityType();
+            $entityType = $entityBlank->getEntityType();
         }
 
         // Use the API request if it exists
-        $action       = $entity ? 'update' : 'create';
+        $action = $entity ? 'update' : 'create';
         $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
         if ( ! class_exists($requestClass)) {
             $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
         $request = new $requestClass();
-        $request->setUserResolver(function () {
-            return Auth::user();
-        });
+        $request->setUserResolver(fn () => Auth::user());
         $request->setEntity($entity);
         $request->replace($data);
 
@@ -221,7 +230,7 @@ class EntityModel extends Eloquent
             'projects'           => 'briefcase',
         ];
 
-        return array_get($icons, $entityType);
+        return Arr::get($icons, $entityType);
     }
 
     public static function getFormUrl($entityType)
@@ -233,18 +242,18 @@ class EntityModel extends Eloquent
         return Utils::pluralizeEntityType($entityType);
     }
 
-    public static function getStates($entityType = false)
+    public static function getStates($entityType = false): array
     {
         $data = [];
 
         foreach (static::$statuses as $status) {
-            $data[$status] = trans("texts.{$status}");
+            $data[$status] = trans('texts.' . $status);
         }
 
         return $data;
     }
 
-    public static function getStatuses($entityType = false)
+    public static function getStatuses($entityType = false): array
     {
         return [];
     }
@@ -263,15 +272,12 @@ class EntityModel extends Eloquent
         return $class::getStatuses($entityType);
     }
 
-    /**
-     * @return string
-     */
-    public function getActivityKey()
+    public function getActivityKey(): string
     {
         return '[' . $this->getEntityType() . ':' . $this->public_id . ':' . $this->getDisplayName() . ']';
     }
 
-    public function entityKey()
+    public function entityKey(): string
     {
         return $this->public_id . ':' . $this->getEntityType();
     }
@@ -281,7 +287,7 @@ class EntityModel extends Eloquent
         return $this->getEntityType();
     }
 
-    public function isEntityType($type)
+    public function isEntityType($type): bool
     {
         return $this->getEntityType() === $type;
     }
@@ -348,27 +354,16 @@ class EntityModel extends Eloquent
             });
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeWithArchived($query)
     {
         return $query->withTrashed()->where('is_deleted', '=', false);
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         return $this->getName();
@@ -385,14 +380,11 @@ class EntityModel extends Eloquent
 
     // converts "App\Models\Client" to "client_id"
 
-    /**
-     * @return string
-     */
-    public function getKeyField()
+    public function getKeyField(): string
     {
         $class = get_class($this);
         $parts = explode('\\', $class);
-        $name  = $parts[count($parts) - 1];
+        $name = $parts[count($parts) - 1];
 
         return mb_strtolower($name) . '_id';
     }
@@ -407,7 +399,7 @@ class EntityModel extends Eloquent
     }
 
     // isDirty return true if the field's new value is the same as the old one
-    public function isChanged()
+    public function isChanged(): bool
     {
         foreach ($this->fillable as $field) {
             if ($this->{$field} != $this->getOriginal($field)) {
@@ -418,12 +410,12 @@ class EntityModel extends Eloquent
         return false;
     }
 
-    public function statusClass()
+    public function statusClass(): string
     {
         return '';
     }
 
-    public function statusLabel()
+    public function statusLabel(): string
     {
         return '';
     }
@@ -432,24 +424,25 @@ class EntityModel extends Eloquent
     {
         try {
             return parent::save($options);
-        } catch (\Illuminate\Database\QueryException $exception) {
+        } catch (QueryException $queryException) {
             // check if public_id has been taken
-            if ($exception->getCode() == 23000 && static::$hasPublicId) {
+            if ($queryException->getCode() == 23000 && static::$hasPublicId) {
                 $nextId = static::getNextPublicId($this->account_id);
                 if ($nextId != $this->public_id) {
                     $this->public_id = $nextId;
                     if (env('MULTI_DB_ENABLED')) {
                         if ($this->contact_key) {
-                            $this->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->contact_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                         } elseif ($this->invitation_key) {
-                            $this->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                            $this->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
                         }
                     }
 
                     return $this->save($options);
                 }
             }
-            throw $exception;
+
+            throw $queryException;
         }
     }
 
@@ -462,14 +455,9 @@ class EntityModel extends Eloquent
         return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
+    private static function getNextPublicId($accountId): int|float
     {
-        return $date->format('Y-m-d H:i:s');
-    }
-
-    private static function getNextPublicId($accountId)
-    {
-        $className = get_called_class();
+        $className = static::class;
 
         if (method_exists($className, 'trashed')) {
             $lastEntity = $className::whereAccountId($accountId)->withTrashed();

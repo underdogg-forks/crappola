@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Repositories;
 
-use DB;
+use App\Models\Subscription;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Subscription';
+        return Subscription::class;
     }
 
     public function find($accountId)

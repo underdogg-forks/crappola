@@ -3,7 +3,7 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\Contact;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
@@ -36,7 +36,7 @@ class ClientPortalHeaderComposer
             return false;
         }
 
-        $client  = $contact->client;
+        $client = $contact->client;
         $account = $contact->account;
 
         $hasDocuments = DB::table('invoices')

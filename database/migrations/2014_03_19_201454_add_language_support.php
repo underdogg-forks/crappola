@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddLanguageSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -51,4 +50,4 @@ class AddLanguageSupport extends Migration
 
         Schema::drop('languages');
     }
-}
+};

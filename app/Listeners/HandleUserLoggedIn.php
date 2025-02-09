@@ -5,22 +5,19 @@ namespace App\Listeners;
 use App\Events\UserLoggedIn;
 use App\Events\UserSignedUp;
 use App\Libraries\HistoryUtils;
-use App\Libraries\Utils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
-use Session;
+use Illuminate\Support\Facades\Session;
+use Utils;
 
 /**
  * Class HandleUserLoggedIn.
  */
 class HandleUserLoggedIn
 {
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * Create the event handler.
@@ -41,7 +38,7 @@ class HandleUserLoggedIn
      */
     public function handle(UserLoggedIn $event): void
     {
-        $user    = auth()->user();
+        $user = auth()->user();
         $account = $user->account;
 
         if ( ! Utils::isNinja() && empty($account->last_login)) {
@@ -85,16 +82,18 @@ class HandleUserLoggedIn
             }
 
             // make sure APP_KEY and APP_CIPHER are in the .env file
-            $appKey    = env('APP_KEY');
+            $appKey = env('APP_KEY');
             $appCipher = env('APP_CIPHER');
             if ( ! $appKey || ! $appCipher) {
                 $fp = fopen(base_path() . '/.env', 'a');
                 if ( ! $appKey) {
                     fwrite($fp, "\nAPP_KEY=" . config('app.key'));
                 }
+
                 if ( ! $appCipher) {
                     fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
                 }
+
                 fclose($fp);
             }
 

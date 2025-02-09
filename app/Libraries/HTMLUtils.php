@@ -35,7 +35,7 @@ class HTMLUtils
         $css = $purifier->context->get('StyleBlocks');
 
         // Get the first style block
-        return count($css) ? $css[0] : '';
+        return count($css) > 0 ? $css[0] : '';
     }
 
     public static function sanitizeHTML($html)
@@ -53,7 +53,7 @@ class HTMLUtils
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();
-        $current  = request()->url();
+        $current = request()->url();
 
         if ($previous == $current) {
             return url($fallback);
@@ -62,7 +62,7 @@ class HTMLUtils
         return $previous;
     }
 
-    public static function getEnvForAccount($field, $default = '')
+    public static function getEnvForAccount(string $field, $default = '')
     {
         $key = '';
 

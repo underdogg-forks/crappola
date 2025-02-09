@@ -3,8 +3,7 @@
 use App\Models\Activity;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsSystemToActivities extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -42,4 +41,4 @@ class AddIsSystemToActivities extends Migration
             $table->text('message')->nullable();
         });
     }
-}
+};

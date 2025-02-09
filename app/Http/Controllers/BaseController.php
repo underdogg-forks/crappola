@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 class BaseController extends Controller
 {
     use AuthorizesRequests;
     use DispatchesJobs;
+
+    public $layout;
 
     protected $entityType;
 
@@ -26,36 +32,39 @@ class BaseController extends Controller
         }
     }
 
-    protected function returnBulk($entityType, $action, $ids)
+    protected function returnBulk($entityType, $action, $ids): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
     {
         if ( ! is_array($ids)) {
             $ids = [$ids];
         }
 
         $isDatatable = filter_var(request()->datatable, FILTER_VALIDATE_BOOLEAN);
-        $referer     = Request::server('HTTP_REFERER');
+        $referer = Request::server('HTTP_REFERER');
         $entityTypes = Utils::pluralizeEntityType($entityType);
 
         // when restoring redirect to entity
         if ($action == 'restore' && count($ids) == 1) {
-            return redirect("{$entityTypes}/" . $ids[0]);
+            return redirect($entityTypes . '/' . $ids[0]);
             // when viewing from a datatable list
         }
+
         if (mb_strpos($referer, '/clients/') || mb_strpos($referer, '/projects/')) {
             return redirect($referer);
         }
+
         if ($isDatatable || ($action == 'archive' || $action == 'delete')) {
-            return redirect("{$entityTypes}");
+            return redirect($entityTypes);
             // when viewing individual entity
         }
-        if (count($ids)) {
-            return redirect("{$entityTypes}/" . $ids[0] . '/edit');
+
+        if ($ids !== []) {
+            return redirect($entityTypes . '/' . $ids[0] . '/edit');
         }
 
-        return redirect("{$entityTypes}");
+        return redirect($entityTypes);
     }
 
-    protected function downloadResponse($filename, $contents, $type = 'application/pdf'): void
+    protected function downloadResponse(string $filename, $contents, string $type = 'application/pdf'): void
     {
         header('Content-Type: ' . $type);
         header('Content-Length: ' . mb_strlen($contents));

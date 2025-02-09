@@ -3,10 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Models\ProposalCategory;
+use App\Ninja\Repositories\ProposalCategoryRepository;
 
 class ProposalSnippetRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
+    public $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function sanitize()
     {
@@ -18,7 +19,7 @@ class ProposalSnippetRequest extends EntityRequest
                 'name' => trim($this->proposal_category_name),
             ];
             if (ProposalCategory::validate($data) === true) {
-                $category                      = app('App\Ninja\Repositories\ProposalCategoryRepository')->save($data);
+                $category = app(ProposalCategoryRepository::class)->save($data);
                 $input['proposal_category_id'] = $category->id;
             } else {
                 $input['proposal_category_id'] = null;

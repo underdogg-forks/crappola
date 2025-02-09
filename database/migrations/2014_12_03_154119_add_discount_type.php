@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDiscountType extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddDiscountType extends Migration
             $table->dropColumn('is_amount_discount');
         });
     }
-}
+};

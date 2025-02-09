@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Credit;
@@ -15,6 +16,7 @@ use App\Models\VendorContact;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use Excel;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use League\Fractal\Manager;
@@ -28,16 +30,16 @@ class ExportController extends BaseController
     /**
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function doExport(Request $request)
     {
         $format = $request->input('format');
-        $date   = date('Y-m-d');
+        $date = date('Y-m-d');
 
         // set the filename based on the entity types selected
         if ($request->include == 'all') {
-            $fileName = "{$date}-invoiceninja";
+            $fileName = $date . '-invoiceninja';
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
@@ -51,6 +53,7 @@ class ExportController extends BaseController
         if ($format === 'JSON') {
             return $this->returnJSON($request, $fileName);
         }
+
         if ($format === 'CSV') {
             return $this->returnCSV($request, $fileName);
         }
@@ -62,13 +65,13 @@ class ExportController extends BaseController
      * @param $request
      * @param $fileName
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    private function returnJSON($request, $fileName)
+    private function returnJSON(Request $request, string $fileName)
     {
         $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        header(sprintf('Content-Disposition:attachment;filename=%s.json', $fileName));
 
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
@@ -86,7 +89,7 @@ class ExportController extends BaseController
         }]);
 
         $resource = new Item($account, new AccountTransformer());
-        $data     = $manager->parseIncludes('clients.invoices.payments')
+        $data = $manager->parseIncludes('clients.invoices.payments')
             ->createData($resource)
             ->toArray();
 
@@ -99,7 +102,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnCSV($request, $fileName)
+    private function returnCSV(Request $request, string $fileName)
     {
         $data = $this->getData($request);
 
@@ -116,7 +119,7 @@ class ExportController extends BaseController
      *
      * @return mixed
      */
-    private function returnXLS($request, $fileName)
+    private function returnXLS(Request $request, string $fileName): mixed
     {
         $user = Auth::user();
         $data = $this->getData($request);
@@ -132,21 +135,32 @@ class ExportController extends BaseController
                 ->setManager('')
                 ->setCompany($user->account->getDisplayName());
 
-            foreach ($data as $key => $val) {
-                if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
+            foreach (array_keys($data) as $key) {
+                if ($key === 'account') {
                     continue;
                 }
+
+                if ($key === 'title') {
+                    continue;
+                }
+
+                if ($key === 'multiUser') {
+                    continue;
+                }
+
                 if ($key === 'recurringInvoices') {
                     $key = 'recurring_invoices';
                 }
-                $label = trans("texts.{$key}");
+
+                $label = trans('texts.' . $key);
                 $excel->sheet($label, function ($sheet) use ($key, $data): void {
                     if ($key === 'quotes') {
-                        $key                = 'invoices';
+                        $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
-                        $data['invoices']   = $data['quotes'];
+                        $data['invoices'] = $data['quotes'];
                     }
-                    $sheet->loadView("export.{$key}", $data);
+
+                    $sheet->loadView('export.' . $key, $data);
                 });
             }
         })->download('xls');
@@ -157,7 +171,7 @@ class ExportController extends BaseController
      *
      * @return array
      */
-    private function getData($request)
+    private function getData($request): array
     {
         $account = Auth::user()->account;
 

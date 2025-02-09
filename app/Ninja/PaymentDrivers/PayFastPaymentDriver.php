@@ -2,7 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Request;
+use Illuminate\Support\Facades\Request;
 
 class PayFastPaymentDriver extends BasePaymentDriver
 {
@@ -15,9 +15,9 @@ class PayFastPaymentDriver extends BasePaymentDriver
         ]);
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
-        $data              = parent::paymentDetails();
+        $data = parent::paymentDetails();
         $data['notifyUrl'] = $this->invitation->getLink('complete', true);
 
         return $data;

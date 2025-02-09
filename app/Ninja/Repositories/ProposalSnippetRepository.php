@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
-use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalSnippet';
+        return ProposalSnippet::class;
     }
 
     public function all()

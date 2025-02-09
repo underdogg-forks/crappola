@@ -9,7 +9,7 @@ class GatewayTypesSeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         // fix for legacy data
         DB::statement('UPDATE gateway_types SET alias = "custom1" WHERE id = 6');

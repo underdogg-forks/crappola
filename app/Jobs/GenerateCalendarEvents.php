@@ -15,7 +15,7 @@ class GenerateCalendarEvents extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): array
     {
         $events = [];
         $filter = request()->filter ?: [];
@@ -33,7 +33,7 @@ class GenerateCalendarEvents extends Job
             if ( ! count($filter) || in_array($type, $filter)) {
                 $source->where(function ($query) {
                     $start = date_create(request()->start);
-                    $end   = date_create(request()->end);
+                    $end = date_create(request()->end);
 
                     return $query->dateRange($start, $end);
                 });
@@ -44,7 +44,7 @@ class GenerateCalendarEvents extends Job
                     }
 
                     $subColors = count($filter) == 1;
-                    $events[]  = $entity->present()->calendarEvent($subColors);
+                    $events[] = $entity->present()->calendarEvent($subColors);
                 }
             }
         }

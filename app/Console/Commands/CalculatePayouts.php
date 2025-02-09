@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\DbServer;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class CalculatePayouts extends Command
 {
@@ -34,12 +35,7 @@ class CalculatePayouts extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));
 
@@ -51,11 +47,9 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
-
-        return 0;
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
@@ -94,7 +88,7 @@ class CalculatePayouts extends Command
                     continue;
                 }
 
-                $user    = $userMap[$company->referral_code];
+                $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
 
                 if ($payment) {

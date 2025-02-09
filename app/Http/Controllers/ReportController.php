@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Jobs\ExportReportResults;
 use App\Jobs\LoadPostmarkStats;
 use App\Jobs\RunReport;
-use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\ScheduledReport;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Validator;
-use View;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 /**
  * Class ReportController.
@@ -24,7 +24,7 @@ class ReportController extends BaseController
      */
     public function d3()
     {
-        $message  = '';
+        $message = '';
         $fileName = storage_path() . '/dataviz_sample.txt';
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
@@ -62,14 +62,14 @@ class ReportController extends BaseController
 
         if (Request::input('report_type')) {
             $reportType = Request::input('report_type');
-            $dateField  = Request::input('date_field');
-            $startDate  = date_create(Request::input('start_date'));
-            $endDate    = date_create(Request::input('end_date'));
+            $dateField = Request::input('date_field');
+            $startDate = date_create(Request::input('start_date'));
+            $endDate = date_create(Request::input('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
-            $dateField  = FILTER_INVOICE_DATE;
-            $startDate  = Utils::today(false)->modify('-1 month');
-            $endDate    = Utils::today(false);
+            $dateField = FILTER_INVOICE_DATE;
+            $startDate = Utils::today(false)->modify('-1 month');
+            $endDate = Utils::today(false);
         }
 
         $reportTypes = [
@@ -99,7 +99,7 @@ class ReportController extends BaseController
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
-            $config   = [
+            $config = [
                 'date_field'      => $dateField,
                 'status_ids'      => request()->status_ids,
                 'group'           => request()->group,
@@ -110,11 +110,11 @@ class ReportController extends BaseController
                 'start_date'      => $params['startDate'],
                 'end_date'        => $params['endDate'],
             ];
-            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $isExport));
+            $report = dispatch_sync(new RunReport(auth()->user(), $reportType, $config, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':
-                    return dispatch_now(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
+                    return dispatch_sync(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
                     break;
                 case 'schedule':
                     self::schedule($params, $config);
@@ -128,10 +128,10 @@ class ReportController extends BaseController
                     break;
             }
         } else {
-            $params['columns']      = [];
-            $params['displayData']  = [];
+            $params['columns'] = [];
+            $params['displayData'] = [];
             $params['reportTotals'] = [];
-            $params['report']       = false;
+            $params['report'] = false;
         }
 
         $params['scheduledReports'] = ScheduledReport::scope()->whereUserId(auth()->user()->id)->get();
@@ -150,12 +150,12 @@ class ReportController extends BaseController
 
     public function loadEmailReport($startDate, $endDate)
     {
-        $data = dispatch_now(new LoadPostmarkStats($startDate, $endDate));
+        $data = dispatch_sync(new LoadPostmarkStats($startDate, $endDate));
 
         return response()->json($data);
     }
 
-    private function schedule($params, $options): void
+    private function schedule(array $params, array $options): void
     {
         $validator = Validator::make(request()->all(), [
             'frequency' => 'required|in:daily,weekly,biweekly,monthly',
@@ -165,18 +165,18 @@ class ReportController extends BaseController
         if ($validator->fails()) {
             session()->now('message', trans('texts.scheduled_report_error'));
         } else {
-            $options['report_type']       = $params['reportType'];
-            $options['range']             = request('range');
+            $options['report_type'] = $params['reportType'];
+            $options['range'] = request('range');
             $options['start_date_offset'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
-            $options['end_date_offset']   = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
+            $options['end_date_offset'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
 
             unset($options['start_date'], $options['end_date'], $options['group'], $options['subgroup']);
 
-            $schedule            = ScheduledReport::createNew();
-            $schedule->config    = json_encode($options);
+            $schedule = ScheduledReport::createNew();
+            $schedule->config = json_encode($options);
             $schedule->frequency = request('frequency');
             $schedule->send_date = Utils::toSqlDate(request('send_date'));
-            $schedule->ip        = request()->getClientIp();
+            $schedule->ip = request()->getClientIp();
             $schedule->save();
 
             session()->flash('message', trans('texts.created_scheduled_report'));

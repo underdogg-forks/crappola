@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use Carbon;
 use DateInterval;
@@ -10,6 +9,7 @@ use DatePeriod;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
+use Utils;
 
 class AbstractReport
 {
@@ -30,19 +30,19 @@ class AbstractReport
     public function __construct($startDate, $endDate, $isExport, $options = false)
     {
         $this->startDate = $startDate;
-        $this->endDate   = $endDate;
-        $this->isExport  = $isExport;
-        $this->options   = $options;
+        $this->endDate = $endDate;
+        $this->isExport = $isExport;
+        $this->options = $options;
     }
 
     public function run(): void {}
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [];
     }
 
-    public function results()
+    public function results(): array
     {
         return [
             'columns'      => $this->getColumns(),
@@ -51,7 +51,10 @@ class AbstractReport
         ];
     }
 
-    public function tableHeaderArray()
+    /**
+     * @return array<mixed, array<'class'|'key'|'label', mixed>>
+     */
+    public function tableHeaderArray(): array
     {
         $columns_labeled = [];
 
@@ -70,15 +73,11 @@ class AbstractReport
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';
-            } elseif (in_array($field, ['age'])) {
+            } elseif ($field == 'age') {
                 $class[] = 'group-number-30';
             }
 
-            if ( ! in_array('custom', $class)) {
-                $label = trans("texts.{$field}");
-            } else {
-                $label = $field;
-            }
+            $label = in_array('custom', $class) ? $field : trans('texts.' . $field);
             $class = count($class) ? implode(' ', $class) : 'group-false';
 
             $columns_labeled[] = [
@@ -91,10 +90,10 @@ class AbstractReport
         return $columns_labeled;
     }
 
-    public function tableHeader()
+    public function tableHeader(): string
     {
         $columns_labeled = $this->tableHeaderArray();
-        $str             = '';
+        $str = '';
 
         foreach ($columns_labeled as $field => $attr) {
             $str .= sprintf('<th class="%s" data-priorityx="3">%s</th>', $attr['class'], $attr['label']);
@@ -104,41 +103,42 @@ class AbstractReport
     }
 
     // convert the date format to one supported by tablesorter
-    public function convertDateFormat()
+    public function convertDateFormat(): string
     {
         $account = Auth::user()->account;
-        $format  = $account->getMomentDateFormat();
-        $format  = mb_strtolower($format);
-        $format  = str_replace('do', '', $format);
+        $format = $account->getMomentDateFormat();
+        $format = mb_strtolower($format);
+        $format = str_replace('do', '', $format);
 
         $orignalFormat = $format;
-        $format        = preg_replace('/[^mdy]/', '', $format);
+        $format = preg_replace('/[^mdy]/', '', $format);
 
-        $lastLetter  = false;
+        $lastLetter = false;
         $reportParts = [];
-        $phpParts    = [];
+        $phpParts = [];
 
         foreach (mb_str_split($format) as $letter) {
-            if ($lastLetter && $letter == $lastLetter) {
+            if ($lastLetter && $letter === $lastLetter) {
                 continue;
             }
+
             $lastLetter = $letter;
-            if ($letter == 'm') {
+            if ($letter === 'm') {
                 $reportParts[] = 'mm';
-                $phpParts[]    = 'm';
-            } elseif ($letter == 'd') {
+                $phpParts[] = 'm';
+            } elseif ($letter === 'd') {
                 $reportParts[] = 'dd';
-                $phpParts[]    = 'd';
-            } elseif ($letter == 'y') {
+                $phpParts[] = 'd';
+            } elseif ($letter === 'y') {
                 $reportParts[] = 'yyyy';
-                $phpParts[]    = 'Y';
+                $phpParts[] = 'Y';
             }
         }
 
-        return join('', $reportParts);
+        return implode('', $reportParts);
     }
 
-    public function chartGroupBy()
+    public function chartGroupBy(): string
     {
         $groupBy = empty($this->options['group']) ? 'day' : $this->options['group'];
 
@@ -149,55 +149,56 @@ class AbstractReport
         return mb_strtoupper($groupBy);
     }
 
-    public function getLineChartData()
+    public function getLineChartData(): stdClass
     {
         $startDate = date_create($this->startDate);
-        $endDate   = date_create($this->endDate);
-        $groupBy   = $this->chartGroupBy();
+        $endDate = date_create($this->endDate);
+        $groupBy = $this->chartGroupBy();
 
         $datasets = [];
-        $labels   = [];
+        $labels = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            $interval          = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
+            $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
             $intervalStartDate = Carbon::instance($startDate);
-            $intervalEndDate   = Carbon::instance($endDate);
+            $intervalEndDate = Carbon::instance($endDate);
 
             // round dates to match grouping
             $intervalStartDate->hour(0)->minute(0)->second(0);
             $intervalEndDate->hour(24)->minute(0)->second(0);
-            if ($groupBy == 'MONTHYEAR' || $groupBy == 'YEAR') {
+            if ($groupBy === 'MONTHYEAR' || $groupBy === 'YEAR') {
                 $intervalStartDate->day(1);
                 $intervalEndDate->addMonth(1)->day(1);
             }
-            if ($groupBy == 'YEAR') {
+
+            if ($groupBy === 'YEAR') {
                 $intervalStartDate->month(1);
                 $intervalEndDate->month(12);
             }
 
-            $period  = new DatePeriod($intervalStartDate, $interval, $intervalEndDate);
+            $period = new DatePeriod($intervalStartDate, $interval, $intervalEndDate);
             $records = [];
 
             foreach ($period as $date) {
-                $labels[]  = $date->format('m/d/Y');
-                $date      = $this->formatDate($date);
+                $labels[] = $date->format('m/d/Y');
+                $date = $this->formatDate($date);
                 $records[] = $data[$date] ?? 0;
             }
 
-            $record     = new stdClass();
+            $record = new stdClass();
             $datasets[] = $record;
-            $color      = Utils::brewerColorRGB(count($datasets));
+            $color = Utils::brewerColorRGB(count($datasets));
 
-            $record->data            = $records;
-            $record->label           = $dimension;
-            $record->lineTension     = 0;
-            $record->borderWidth     = 3;
-            $record->borderColor     = "rgba({$color}, 1)";
+            $record->data = $records;
+            $record->label = $dimension;
+            $record->lineTension = 0;
+            $record->borderWidth = 3;
+            $record->borderColor = sprintf('rgba(%s, 1)', $color);
             $record->backgroundColor = 'rgba(255,255,255,0)';
         }
 
-        $data           = new stdClass();
-        $data->labels   = $labels;
+        $data = new stdClass();
+        $data->labels = $labels;
         $data->datasets = $datasets;
 
         return $data;
@@ -213,15 +214,15 @@ class AbstractReport
         return $this->options['subgroup'];
     }
 
-    public function getPieChartData()
+    public function getPieChartData(): false|stdClass
     {
         if ( ! $this->isPieChartEnabled()) {
             return false;
         }
 
         $datasets = [];
-        $labels   = [];
-        $totals   = [];
+        $labels = [];
+        $totals = [];
 
         foreach ($this->chartData as $dimension => $data) {
             foreach ($data as $date => $value) {
@@ -233,22 +234,22 @@ class AbstractReport
             }
         }
 
-        $response         = new stdClass();
+        $response = new stdClass();
         $response->labels = [];
 
-        $datasets                  = new stdClass();
-        $datasets->data            = [];
+        $datasets = new stdClass();
+        $datasets->data = [];
         $datasets->backgroundColor = [];
 
         foreach ($totals as $dimension => $value) {
-            $response->labels[]    = $dimension;
-            $datasets->data[]      = $value;
+            $response->labels[] = $dimension;
+            $datasets->data[] = $value;
             $datasets->lineTension = 0;
             $datasets->borderWidth = 3;
 
-            $color                       = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
-            $datasets->borderColor[]     = "rgba({$color}, 1)";
-            $datasets->backgroundColor[] = "rgba({$color}, 0.1)";
+            $color = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
+            $datasets->borderColor[] = sprintf('rgba(%s, 1)', $color);
+            $datasets->backgroundColor[] = sprintf('rgba(%s, 0.1)', $color);
         }
 
         $response->datasets = [$datasets];
@@ -278,10 +279,12 @@ class AbstractReport
         if ($subgroup == 'user') {
             return $entity->user->getDisplayName();
         }
+
         if ($subgroup == 'client') {
             if ($entity instanceof Client) {
                 return $entity->getDisplayName();
             }
+
             if ($entity->client) {
                 return $entity->client->getDisplayName();
             }
@@ -305,14 +308,14 @@ class AbstractReport
         $this->chartData[$dimension][$date] += $amount;
     }
 
-    protected function formatDate($date)
+    protected function formatDate($date): string
     {
         if ( ! $date instanceof DateTime) {
             $date = new DateTime($date);
         }
 
-        $groupBy    = $this->chartGroupBy();
-        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
+        $groupBy = $this->chartGroupBy();
+        $dateFormat = $groupBy === 'DAY' ? 'z' : ($groupBy === 'MONTH' ? 'm' : '');
 
         return $date->format('Y' . $dateFormat);
     }

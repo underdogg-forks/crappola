@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInclusiveTaxes extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -79,4 +78,4 @@ class AddInclusiveTaxes extends Migration
             $table->dropColumn('format_moment');
         });
     }
-}
+};

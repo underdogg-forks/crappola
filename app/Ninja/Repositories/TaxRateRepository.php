@@ -2,16 +2,16 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\TaxRate;
-use DB;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class TaxRateRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\TaxRate';
+        return TaxRate::class;
     }
 
     public function all()

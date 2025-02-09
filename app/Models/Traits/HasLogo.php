@@ -10,17 +10,11 @@ use Illuminate\Support\Facades\Storage;
  */
 trait HasLogo
 {
-    /**
-     * @return bool
-     */
-    public function hasLogo()
+    public function hasLogo(): bool
     {
         return ! empty($this->logo);
     }
 
-    /**
-     * @return mixed
-     */
     public function getLogoDisk()
     {
         return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
@@ -55,10 +49,10 @@ trait HasLogo
             return;
         }
 
-        $disk    = $this->getLogoDisk();
+        $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+        if ($adapter instanceof Local) {
             // Stored locally
             $logoUrl = url('/logo/' . $this->logo);
 
@@ -78,10 +72,10 @@ trait HasLogo
             return;
         }
 
-        $disk    = $this->getLogoDisk();
+        $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+        if ($adapter instanceof Local) {
             return $adapter->applyPathPrefix($this->logo);
         }
 
@@ -136,20 +130,17 @@ trait HasLogo
         return $this->logo;
     }
 
-    /**
-     * @return bool
-     */
-    public function isLogoTooLarge()
+    public function isLogoTooLarge(): bool
     {
         return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
     public function clearLogo(): void
     {
-        $this->logo        = '';
-        $this->logo_width  = 0;
+        $this->logo = '';
+        $this->logo_width = 0;
         $this->logo_height = 0;
-        $this->logo_size   = 0;
+        $this->logo_size = 0;
     }
 
     protected function calculateLogoDetails(): void
@@ -163,13 +154,14 @@ trait HasLogo
         }
 
         if ( ! empty($this->logo)) {
-            $image             = imagecreatefromstring($disk->get($this->logo));
-            $this->logo_width  = imagesx($image);
+            $image = imagecreatefromstring($disk->get($this->logo));
+            $this->logo_width = imagesx($image);
             $this->logo_height = imagesy($image);
-            $this->logo_size   = $disk->size($this->logo);
+            $this->logo_size = $disk->size($this->logo);
         } else {
             $this->logo = null;
         }
+
         $this->save();
     }
 }

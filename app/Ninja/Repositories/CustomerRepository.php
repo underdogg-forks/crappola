@@ -7,9 +7,9 @@ use App\Models\PaymentMethod;
 
 class CustomerRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\AccountGatewayToken';
+        return AccountGatewayToken::class;
     }
 
     public function all()
@@ -19,16 +19,16 @@ class CustomerRepository extends BaseRepository
             ->get();
     }
 
-    public function save($data)
+    public function save(array $data): AccountGatewayToken
     {
         $account = auth()->user()->account;
 
-        $customer             = new AccountGatewayToken();
+        $customer = new AccountGatewayToken();
         $customer->account_id = $account->id;
         $customer->fill($data);
         $customer->save();
 
-        $paymentMethod                           = PaymentMethod::createNew();
+        $paymentMethod = PaymentMethod::createNew();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->fill($data['payment_method']);
         $paymentMethod->save();

@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
-use Redirect;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Utils;
 
 class SelfUpdateController extends BaseController
 {
-    /**
-     * @var UpdaterManager
-     */
-    protected $updater;
+    protected UpdaterManager $updater;
 
     /**
      * SelfUpdateController constructor.
@@ -35,7 +33,7 @@ class SelfUpdateController extends BaseController
     public function index()
     {
         $versionInstalled = $this->updater->source()->getVersionInstalled('v');
-        $updateAvailable  = $this->updater->source()->isNewVersionAvailable($versionInstalled);
+        $updateAvailable = $this->updater->source()->isNewVersionAvailable($versionInstalled);
 
         return view(
             'vendor.self-update.self-update',
@@ -50,7 +48,7 @@ class SelfUpdateController extends BaseController
     /**
      * Run the actual update.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update()
     {

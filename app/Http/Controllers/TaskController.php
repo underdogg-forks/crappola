@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\TaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
@@ -15,12 +14,15 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\TaskService;
 use DropdownButton;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Redirect;
-use Request;
-use Session;
-use URL;
-use View;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 /**
  * Class TaskController.
@@ -28,24 +30,15 @@ use View;
 class TaskController extends BaseController
 {
     /**
-     * @var TaskRepository
-     */
-    protected $taskRepo;
-
-    /**
-     * @var TaskService
-     */
-    protected $taskService;
-
-    /**
      * @var
      */
-    protected $entityType = ENTITY_TASK;
+    public $entityType = ENTITY_TASK;
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected TaskRepository $taskRepo;
+
+    protected TaskService $taskService;
+
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * TaskController constructor.
@@ -61,7 +54,7 @@ class TaskController extends BaseController
     ) {
         // parent::__construct();
 
-        $this->taskRepo    = $taskRepo;
+        $this->taskRepo = $taskRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->taskService = $taskService;
     }
@@ -81,7 +74,7 @@ class TaskController extends BaseController
     /**
      * @param null $clientPublicId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null, $projectPublicId = null)
     {
@@ -93,7 +86,7 @@ class TaskController extends BaseController
      *
      * @param CreateTaskRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateTaskRequest $request)
     {
@@ -103,13 +96,13 @@ class TaskController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function show($publicId)
     {
         Session::reflash();
 
-        return Redirect::to("tasks/{$publicId}/edit");
+        return Redirect::to(sprintf('tasks/%s/edit', $publicId));
     }
 
     /**
@@ -125,8 +118,8 @@ class TaskController extends BaseController
 
         $data = [
             'task'            => null,
-            'clientPublicId'  => Request::old('client') ? Request::old('client') : ($request->client_id ?: 0),
-            'projectPublicId' => Request::old('project_id') ? Request::old('project_id') : ($request->project_id ?: 0),
+            'clientPublicId'  => Request::old('client') ?: ($request->client_id ?: 0),
+            'projectPublicId' => Request::old('project_id') ?: ($request->project_id ?: 0),
             'method'          => 'POST',
             'url'             => 'tasks',
             'title'           => trans('texts.new_task'),
@@ -134,7 +127,7 @@ class TaskController extends BaseController
             'datetimeFormat'  => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return View::make('tasks.edit', $data);
     }
@@ -157,7 +150,7 @@ class TaskController extends BaseController
 
         $actions = [];
         if ($task->invoice) {
-            $actions[] = ['url' => URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => URL::to(sprintf('invoices/%s/edit', $task->invoice->public_id)), 'label' => trans('texts.view_invoice')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
@@ -190,7 +183,7 @@ class TaskController extends BaseController
             'datetimeFormat'  => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel($task));
+        $data = array_merge($data, $this->getViewModel($task));
 
         return View::make('tasks.edit', $data);
     }
@@ -200,7 +193,7 @@ class TaskController extends BaseController
      *
      * @param UpdateTaskRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdateTaskRequest $request)
     {
@@ -210,12 +203,12 @@ class TaskController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
-        $action  = Request::input('action');
-        $ids     = Request::input('public_id') ?: (Request::input('id') ?: Request::input('ids'));
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ?: (Request::input('id') ?: Request::input('ids'));
         $referer = Request::server('HTTP_REFERER');
 
         if (in_array($action, ['resume', 'stop'])) {
@@ -224,8 +217,9 @@ class TaskController extends BaseController
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
+
         if (str_starts_with($action, 'update_status')) {
-            list($action, $statusPublicId) = explode(':', $action);
+            [$action, $statusPublicId] = explode(':', $action);
             Task::scope($ids)->update([
                 'task_status_id'         => TaskStatus::getPrivateId($statusPublicId),
                 'task_status_sort_order' => 9999,
@@ -234,10 +228,11 @@ class TaskController extends BaseController
 
             return $this->returnBulk($this->entityType, $action, $ids);
         }
+
         if ($action == 'invoice' || $action == 'add_to_invoice') {
-            $tasks          = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id')->orderBy('id')->get();
+            $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id')->orderBy('id')->get();
             $clientPublicId = false;
-            $data           = [];
+            $data = [];
 
             $lastProjectId = false;
             foreach ($tasks as $task) {
@@ -256,13 +251,14 @@ class TaskController extends BaseController
                 if ($task->is_running) {
                     return redirect($referer)->withError(trans('texts.task_error_running'));
                 }
+
                 if ($task->invoice_id) {
                     return redirect($referer)->withError(trans('texts.task_error_invoiced'));
                 }
 
-                $account     = Auth::user()->account;
+                $account = Auth::user()->account;
                 $showProject = $lastProjectId != $task->project_id;
-                $data[]      = [
+                $data[] = [
                     'publicId'    => $task->public_id,
                     'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration'    => $task->getHours(),
@@ -272,23 +268,26 @@ class TaskController extends BaseController
             }
 
             if ($action == 'invoice') {
-                return Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
+                return Redirect::to('invoices/create/' . $clientPublicId)->with('tasks', $data);
             }
+
             $invoiceId = Request::input('invoice_id');
 
-            return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
+            return Redirect::to(sprintf('invoices/%s/edit', $invoiceId))->with('tasks', $data);
         }
+
         $count = $this->taskService->bulk($ids, $action);
         if (request()->wantsJson()) {
             return response()->json($count);
         }
+
         $message = Utils::pluralize($action . 'd_task', $count);
         Session::flash('message', $message);
 
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel($task = false)
+    private function getViewModel($task = false): array
     {
         return [
             'clients'  => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
@@ -300,9 +299,9 @@ class TaskController extends BaseController
     /**
      * @param null $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    private function save($request, $publicId = null)
+    private function save(CreateTaskRequest|UpdateTaskRequest $request, $publicId = null)
     {
         $action = Request::input('action');
 
@@ -321,13 +320,14 @@ class TaskController extends BaseController
 
             return $task->load(['client.contacts', 'project'])->toJson();
         }
+
         if ($publicId) {
             Session::flash('message', trans('texts.updated_task'));
         } else {
             Session::flash('message', trans('texts.created_task'));
         }
 
-        return Redirect::to("tasks/{$task->public_id}/edit");
+        return Redirect::to(sprintf('tasks/%s/edit', $task->public_id));
     }
 
     private function checkTimezone(): void

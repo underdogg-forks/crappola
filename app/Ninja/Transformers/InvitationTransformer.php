@@ -6,7 +6,7 @@ use App\Models\Invitation;
 
 class InvitationTransformer extends EntityTransformer
 {
-    public function transform(Invitation $invitation)
+    public function transform(Invitation $invitation): array
     {
         $invitation->setRelation('account', $this->account);
 

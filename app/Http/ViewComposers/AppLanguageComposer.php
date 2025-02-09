@@ -29,7 +29,7 @@ class AppLanguageComposer
 
         if (preg_match('/_/', $code)) {
             $codes = explode('_', $code);
-            $code  = $codes[0];
+            $code = $codes[0];
         }
 
         return $code;

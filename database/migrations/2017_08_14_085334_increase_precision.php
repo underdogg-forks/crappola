@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class IncreasePrecision extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,4 +36,4 @@ class IncreasePrecision extends Migration
             $table->dropColumn('credit_number_counter');
         });
     }
-}
+};

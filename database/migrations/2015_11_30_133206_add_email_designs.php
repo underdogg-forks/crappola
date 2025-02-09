@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddEmailDesigns extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,4 +30,4 @@ class AddEmailDesigns extends Migration
             $table->dropColumn('website');
         });
     }
-}
+};

@@ -7,14 +7,14 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
-use Request;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 class ClientApiController extends BaseAPIController
 {
-    protected $clientRepo;
+    public $entityType = ENTITY_CLIENT;
 
-    protected $entityType = ENTITY_CLIENT;
+    protected ClientRepository $clientRepo;
 
     public function __construct(ClientRepository $clientRepo)
     {
@@ -173,9 +173,9 @@ class ClientApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $client            = $this->clientRepo->save($data, $request->entity());
+        $client = $this->clientRepo->save($data, $request->entity());
 
         $client->load(['contacts']);
 

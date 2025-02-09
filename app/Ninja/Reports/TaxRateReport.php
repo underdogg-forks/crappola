@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class TaxRateReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'client'         => [],
@@ -23,7 +23,7 @@ class TaxRateReport extends AbstractReport
 
     public function run(): void
     {
-        $account  = Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -63,6 +63,7 @@ class TaxRateReport extends AbstractReport
                     if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
+
                     if (isset($taxTotals[$currencyId][$key])) {
                         $taxTotals[$currencyId][$key]['amount'] += $tax['amount'];
                         $taxTotals[$currencyId][$key]['paid'] += $tax['paid'];

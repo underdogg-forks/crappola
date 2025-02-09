@@ -18,7 +18,7 @@ class BaseService
      *
      * @return int
      */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
         if ( ! $ids) {
             return 0;

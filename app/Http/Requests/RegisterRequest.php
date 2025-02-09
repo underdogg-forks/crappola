@@ -6,27 +6,17 @@ use Illuminate\Http\Request as InputRequest;
 
 class RegisterRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function __construct(InputRequest $req)
     {
         $this->req = $req;
     }
 
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'email'      => 'email|required|unique:users',

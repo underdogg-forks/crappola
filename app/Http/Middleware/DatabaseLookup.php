@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\Utils;
 use App\Models\LookupAccount;
 use App\Models\LookupAccountToken;
 use App\Models\LookupContact;
@@ -12,6 +11,7 @@ use App\Models\LookupUser;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class DatabaseLookup
 {
@@ -28,6 +28,7 @@ class DatabaseLookup
                 if (Auth::viaRemember()) {
                     Auth::logout();
                 }
+
                 // do nothing
             } elseif ( ! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
@@ -50,7 +51,7 @@ class DatabaseLookup
             } elseif ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }
@@ -61,7 +62,7 @@ class DatabaseLookup
             if ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
             } else {
-                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {
                     LookupAccount::setServerByField('subdomain', $subdomain);
                 }

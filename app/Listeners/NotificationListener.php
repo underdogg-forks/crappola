@@ -21,20 +21,11 @@ use App\Services\PushService;
  */
 class NotificationListener
 {
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+    protected UserMailer $userMailer;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+    protected ContactMailer $contactMailer;
 
-    /**
-     * @var PushService
-     */
-    protected $pushService;
+    protected PushService $pushService;
 
     /**
      * NotificationListener constructor.
@@ -45,9 +36,9 @@ class NotificationListener
      */
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
     {
-        $this->userMailer    = $userMailer;
+        $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
-        $this->pushService   = $pushService;
+        $this->pushService = $pushService;
     }
 
     /**
@@ -73,7 +64,7 @@ class NotificationListener
      */
     public function viewedInvoice(InvoiceInvitationWasViewed $event): void
     {
-        if ( ! (float) ($event->invoice->balance)) {
+        if ((float) ($event->invoice->balance) === 0.0) {
             return;
         }
 
@@ -124,10 +115,10 @@ class NotificationListener
      * @param      $type
      * @param null $payment
      */
-    private function sendNotifications(Invoice $invoice, $type, $payment = null, $notes = false): void
+    private function sendNotifications(Invoice $invoice, string $type, $payment = null, $notes = false): void
     {
         foreach ($invoice->account->users as $user) {
-            if ($user->{"notify_{$type}"}) {
+            if ($user->{'notify_' . $type}) {
                 dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
             }
 

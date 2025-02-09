@@ -4,8 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddJsonPermissions extends Migration
-{
+return new class () extends Migration {
     /**
      * @var array
      */
@@ -26,7 +25,7 @@ class AddJsonPermissions extends Migration
             $table->longtext('permissionsV2');
         });
         $users = User::where('permissions', '!=', 0)->get();
-        foreach($users as $user) {
+        foreach ($users as $user) {
             $user->permissionsV2 = self::returnFormattedPermissions($user->permissions);
             $user->save();
         }
@@ -59,8 +58,8 @@ class AddJsonPermissions extends Migration
      */
     public function returnFormattedPermissions($userPermission)
     {
-        $viewPermissionEntities   = [];
-        $editPermissionEntities   = [];
+        $viewPermissionEntities = [];
+        $editPermissionEntities = [];
         $createPermissionEntities = [];
 
         $permissionEntities = [
@@ -79,19 +78,19 @@ class AddJsonPermissions extends Migration
             'recurring_invoice',
             'reports',
         ];
-        foreach($permissionEntities as $entity) {
+        foreach ($permissionEntities as $entity) {
             array_push($viewPermissionEntities, 'view_' . $entity);
             array_push($editPermissionEntities, 'edit_' . $entity);
             array_push($createPermissionEntities, 'create_' . $entity);
         }
         $returnPermissions = [];
-        if(array_key_exists('create_all', self::getPermissions($userPermission))) {
+        if (array_key_exists('create_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $createPermissionEntities);
         }
-        if(array_key_exists('edit_all', self::getPermissions($userPermission))) {
+        if (array_key_exists('edit_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $editPermissionEntities);
         }
-        if(array_key_exists('view_all', self::getPermissions($userPermission))) {
+        if (array_key_exists('view_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $viewPermissionEntities);
         }
 
@@ -103,9 +102,9 @@ class AddJsonPermissions extends Migration
      *
      * @param mixed $value
      *
-     * @return mixed
+     * @return mixed[]
      */
-    protected function getPermissions($value)
+    protected function getPermissions($value): array
     {
         $permissions = [];
         foreach (static::$all_permissions as $permission => $bitmask) {
@@ -116,4 +115,4 @@ class AddJsonPermissions extends Migration
 
         return $permissions;
     }
-}
+};

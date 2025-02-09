@@ -7,33 +7,55 @@ use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Jobs\SendInvoiceEmail;
 use App\Jobs\SendPaymentEmail;
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Request;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
 use Response;
-use Validator;
+use Utils;
 
 class InvoiceApiController extends BaseAPIController
 {
-    protected $invoiceRepo;
+    /**
+     * @var ClientRepository
+     */
+    public $clientRepo;
 
-    protected $entityType = ENTITY_INVOICE;
+    /**
+     * @var PaymentRepository
+     */
+    public $paymentRepo;
+
+    /**
+     * @var InvoiceService
+     */
+    public $invoiceService;
+
+    /**
+     * @var PaymentService
+     */
+    public $paymentService;
+
+    public $entityType = ENTITY_INVOICE;
+
+    protected InvoiceRepository $invoiceRepo;
 
     public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, PaymentService $paymentService)
     {
         parent::__construct();
 
-        $this->invoiceRepo    = $invoiceRepo;
-        $this->clientRepo     = $clientRepo;
-        $this->paymentRepo    = $paymentRepo;
+        $this->invoiceRepo = $invoiceRepo;
+        $this->clientRepo = $clientRepo;
+        $this->paymentRepo = $paymentRepo;
         $this->invoiceService = $invoiceService;
         $this->paymentService = $paymentService;
     }
@@ -145,11 +167,11 @@ class InvoiceApiController extends BaseAPIController
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
-        $data  = Request::all();
+        $data = Request::all();
         $error = null;
 
         if (isset($data['email'])) {
-            $email  = $data['email'];
+            $email = $data['email'];
             $client = Client::scope()->whereHas('contacts', function ($query) use ($email): void {
                 $query->where('email', '=', $email);
             })->first();
@@ -179,6 +201,7 @@ class InvoiceApiController extends BaseAPIController
                         $clientData[$field] = $data[$field];
                     }
                 }
+
                 foreach ([
                     'first_name',
                     'last_name',
@@ -199,13 +222,13 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        $data              = self::prepareData($data, $client);
+        $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
 
         // in these cases the invoice needs to be set as public
-        $isAutoBill     = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
+        $isAutoBill = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
         $isEmailInvoice = isset($data['email_invoice']) && filter_var($data['email_invoice'], FILTER_VALIDATE_BOOLEAN);
-        $isPaid         = isset($data['paid']) && (float) ($data['paid']);
+        $isPaid = isset($data['paid']) && (float) ($data['paid']);
 
         if ($isAutoBill || $isPaid || $isEmailInvoice) {
             $data['is_public'] = true;
@@ -233,6 +256,7 @@ class InvoiceApiController extends BaseAPIController
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
+
                 $reminder = $data['email_type'] ?? false;
                 $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
             }
@@ -263,16 +287,16 @@ class InvoiceApiController extends BaseAPIController
         if (config('queue.default') !== 'sync') {
             $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder, $template));
         } else {
-            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder, $template);
+            $result = app(ContactMailer::class)->sendInvoice($invoice, $reminder, $template);
             if ($result !== true) {
                 return $this->errorResponse($result, 500);
             }
         }
 
-        $headers  = Utils::getApiHeaders();
+        $headers = Utils::getApiHeaders();
         $response = json_encode(['message' => RESULT_SUCCESS], JSON_PRETTY_PRINT);
 
-        return Response::make($response, 200, $headers);
+        return \Illuminate\Support\Facades\Response::make($response, 200, $headers);
     }
 
     /**
@@ -312,16 +336,17 @@ class InvoiceApiController extends BaseAPIController
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
-            $quote   = $request->entity();
+            $quote = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
 
             return $this->itemResponse($invoice);
         }
+
         if ($request->action) {
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
         $this->invoiceService->save($data, $request->entity());
 
@@ -381,6 +406,7 @@ class InvoiceApiController extends BaseAPIController
         if ($pdfString) {
             return $this->fileReponse($invoice->getFileName(), $pdfString);
         }
+
         abort(404);
     }
 
@@ -415,6 +441,7 @@ class InvoiceApiController extends BaseAPIController
         if ( ! isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
         }
+
         if ( ! isset($data['due_date'])) {
             $fields['due_date_sql'] = false;
         }
@@ -437,15 +464,17 @@ class InvoiceApiController extends BaseAPIController
         } else {
             foreach ($data['invoice_items'] as $index => $item) {
                 // check for multiple products
-                if ($productKey = array_get($item, 'product_key')) {
+                if ($productKey = Arr::get($item, 'product_key')) {
                     $parts = explode(',', $productKey);
                     if (count($parts) > 1 && Product::findProductByKey($parts[0])) {
                         foreach ($parts as $index => $productKey) {
                             $data['invoice_items'][$index] = self::prepareItem(['product_key' => $productKey]);
                         }
+
                         break;
                     }
                 }
+
                 $data['invoice_items'][$index] = self::prepareItem($item);
             }
         }

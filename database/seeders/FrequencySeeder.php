@@ -9,7 +9,7 @@ class FrequencySeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         $frequencies = [
             ['name' => 'Weekly', 'date_interval' => '1 week'],

@@ -2,19 +2,34 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class PaymentType.
+ *
+ * @property int              $id
+ * @property string           $name
+ * @property int|null         $gateway_type_id
+ * @property GatewayType|null $gatewayType
+ *
+ * @method static Builder|PaymentType newModelQuery()
+ * @method static Builder|PaymentType newQuery()
+ * @method static Builder|PaymentType query()
+ * @method static Builder|PaymentType whereGatewayTypeId($value)
+ * @method static Builder|PaymentType whereId($value)
+ * @method static Builder|PaymentType whereName($value)
+ *
+ * @mixin \Eloquent
  */
-class PaymentType extends Eloquent
+class PaymentType extends Model
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
-    public static function parseCardType($cardName)
+    public static function parseCardType($cardName): int
     {
         $cardTypes = [
             'visa'            => PAYMENT_TYPE_VISA,
@@ -40,18 +55,15 @@ class PaymentType extends Eloquent
             $cardName = $matches[1];
         }
 
-        if ( ! empty($cardTypes[$cardName])) {
+        if (isset($cardTypes[$cardName]) && $cardTypes[$cardName] !== 0) {
             return $cardTypes[$cardName];
         }
 
         return PAYMENT_TYPE_CREDIT_CARD_OTHER;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function gatewayType()
     {
-        return $this->belongsTo('App\Models\GatewayType');
+        return $this->belongsTo(GatewayType::class);
     }
 }

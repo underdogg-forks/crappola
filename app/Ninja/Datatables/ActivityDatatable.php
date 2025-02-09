@@ -2,19 +2,19 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ActivityDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACTIVITY;
 
-    public function columns()
+    public function columns(): array
     {
         return [
             [
                 'activities.id',
                 function ($model) {
-                    $str           = Utils::timestampToDateTimeString(strtotime($model->created_at));
+                    $str = Utils::timestampToDateTimeString(strtotime($model->created_at));
                     $activityTypes = [
                         ACTIVITY_TYPE_VIEW_INVOICE,
                         ACTIVITY_TYPE_VIEW_QUOTE,
@@ -52,10 +52,10 @@ class ActivityDatatable extends EntityDatatable
                         'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, mb_substr($model->expense_public_notes, 0, 30) . '...') : null,
                     ];
 
-                    $str = trans("texts.activity_{$model->activity_type_id}", $data);
+                    $str = trans('texts.activity_' . $model->activity_type_id, $data);
 
                     if ($model->notes) {
-                        $str .= ' - ' . trans("texts.notes_{$model->notes}");
+                        $str .= ' - ' . trans('texts.notes_' . $model->notes);
                     }
 
                     return $str;
@@ -63,15 +63,11 @@ class ActivityDatatable extends EntityDatatable
             ],
             [
                 'balance',
-                function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-                },
+                fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
             ],
             [
                 'adjustment',
-                function ($model) {
-                    return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
-                },
+                fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '',
             ],
         ];
     }

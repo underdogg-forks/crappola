@@ -2,16 +2,16 @@
 
 namespace App\Ninja\Mailers;
 
-use App;
-use App\Libraries\Utils;
 use App\Models\Invoice;
 use Exception;
-use Log;
-use Mail;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Postmark\Models\PostmarkAttachment;
 use Postmark\Models\PostmarkException;
 use Postmark\PostmarkClient;
 use Swift_Mailer;
+use Utils;
 
 /**
  * Class Mailer.
@@ -28,7 +28,7 @@ class Mailer
      *
      * @return bool|string
      */
-    public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
+    public function sendTo($toEmail, $fromEmail, $fromName, $subject, string $view, array $data = [])
     {
         // don't send emails to dummy addresses
         if (mb_stristr($toEmail, '@example.com')) {
@@ -40,12 +40,12 @@ class Mailer
             'emails.' . $view . '_text',
         ];
 
-        $toEmail    = mb_strtolower($toEmail);
+        $toEmail = mb_strtolower($toEmail);
         $replyEmail = $fromEmail;
-        $fromEmail  = CONTACT_EMAIL;
+        $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
+            Log::info(sprintf('Sending email - To: %s | Reply: %s | From: %s', $toEmail, $replyEmail, $fromEmail));
         }
 
         // Optionally send for alternate domain
@@ -60,37 +60,33 @@ class Mailer
         return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
     }
 
-    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
     {
-        if (Utils::isSelfHost()) {
-            if (isset($data['account'])) {
-                $account = $data['account'];
-                if (env($account->id . '_MAIL_FROM_ADDRESS')) {
-                    $fields = [
-                        'driver',
-                        'host',
-                        'port',
-                        'from.address',
-                        'from.name',
-                        'encryption',
-                        'username',
-                        'password',
-                    ];
-                    foreach ($fields as $field) {
-                        $envKey = mb_strtoupper(str_replace('.', '_', $field));
-                        if ($value = env($account->id . '_MAIL_' . $envKey)) {
-                            config(['mail.' . $field => $value]);
-                        }
+        if (Utils::isSelfHost() && isset($data['account'])) {
+            $account = $data['account'];
+            if (env($account->id . '_MAIL_FROM_ADDRESS')) {
+                $fields = [
+                    'driver',
+                    'host',
+                    'port',
+                    'from.address',
+                    'from.name',
+                    'encryption',
+                    'username',
+                    'password',
+                ];
+                foreach ($fields as $field) {
+                    $envKey = mb_strtoupper(str_replace('.', '_', $field));
+                    if ($value = env($account->id . '_MAIL_' . $envKey)) {
+                        config(['mail.' . $field => $value]);
                     }
-
-                    $fromEmail = config('mail.from.address');
-                    $app       = App::getInstance();
-                    $app->singleton('swift.transport', function ($app) {
-                        return new \Illuminate\Mail\TransportManager($app);
-                    });
-                    $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                    Mail::setSwiftMailer($mailer);
                 }
+
+                $fromEmail = config('mail.from.address');
+                $app = App::getInstance();
+                $app->singleton('swift.transport', fn ($app): TransportManager => new TransportManager($app));
+                $mailer = new Swift_Mailer($app['swift.transport']->driver());
+                Mail::setSwiftMailer($mailer);
             }
         }
 
@@ -110,9 +106,11 @@ class Mailer
                 if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
+
                 if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
                     $message->attachData($data['ublString'], $data['ublFileName']);
                 }
+
                 if ( ! empty($data['documents'])) {
                     foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
@@ -126,14 +124,14 @@ class Mailer
         }
     }
 
-    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
     {
-        $htmlBody    = view($views[0], $data)->render();
-        $textBody    = view($views[1], $data)->render();
+        $htmlBody = view($views[0], $data)->render();
+        $textBody = view($views[1], $data)->render();
         $attachments = [];
 
         if (isset($data['account'])) {
-            $account  = $data['account'];
+            $account = $data['account'];
             $logoName = $account->getLogoName();
             if (str_contains($htmlBody, 'cid:' . $logoName) && $account->hasLogo()) {
                 $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
@@ -151,9 +149,11 @@ class Mailer
         if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['pdfString'], $data['pdfFileName']);
         }
+
         if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['ublString'], $data['ublFileName']);
         }
+
         if ( ! empty($data['documents'])) {
             foreach ($data['documents'] as $document) {
                 $attachments[] = PostmarkAttachment::fromRawData($document['data'], $document['name']);
@@ -161,7 +161,7 @@ class Mailer
         }
 
         try {
-            $client  = new PostmarkClient(config('services.postmark'));
+            $client = new PostmarkClient(config('services.postmark'));
             $message = [
                 'To'          => $toEmail,
                 'From'        => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
@@ -200,12 +200,12 @@ class Mailer
      *
      * @return bool
      */
-    private function handleSuccess($data, $messageId = false)
+    private function handleSuccess($data, $messageId = false): bool
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
-            $invoice    = $invitation->invoice;
-            $notes      = $data['notes'] ?? false;
+            $invoice = $invitation->invoice;
+            $notes = $data['notes'] ?? false;
 
             if ( ! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
@@ -225,7 +225,7 @@ class Mailer
     private function handleFailure($data, $emailError)
     {
         if (isset($data['invitation'])) {
-            $invitation              = $data['invitation'];
+            $invitation = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
         } elseif ( ! Utils::isNinjaProd()) {

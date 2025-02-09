@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPartialAmountToInvoices extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -43,4 +42,4 @@ class AddPartialAmountToInvoices extends Migration
             $table->dropColumn('subdomain');
         });
     }
-}
+};

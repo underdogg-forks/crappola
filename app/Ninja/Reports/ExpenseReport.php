@@ -2,15 +2,15 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class ExpenseReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'vendor'            => [],
@@ -26,12 +26,13 @@ class ExpenseReport extends AbstractReport
             'payment_reference' => ['columnSelector-false'],
         ];
 
-        $user    = auth()->user();
+        $user = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('expense1')) {
             $columns[$account->present()->customLabel('expense1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('expense2')) {
             $columns[$account->present()->customLabel('expense2')] = ['columnSelector-false', 'custom'];
         }
@@ -49,11 +50,11 @@ class ExpenseReport extends AbstractReport
 
     public function run(): void
     {
-        $account      = Auth::user()->account;
+        $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
-        $subgroup     = $this->options['subgroup'];
-        $with         = ['client.contacts', 'vendor'];
-        $hasTaxRates  = TaxRate::scope()->count();
+        $subgroup = $this->options['subgroup'];
+        $with = ['client.contacts', 'vendor'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         if ($exportFormat == 'zip') {
             $with[] = ['documents'];
@@ -74,12 +75,13 @@ class ExpenseReport extends AbstractReport
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
-                    $expenseId = str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
-                    $name      = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
-                    $name      = str_replace(' ', '_', $name);
+                    $expenseId = mb_str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
+                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                    $name = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }
             }
+
             $zip->finish();
             exit;
         }
@@ -104,6 +106,7 @@ class ExpenseReport extends AbstractReport
             if ($account->customLabel('expense1')) {
                 $row[] = $expense->custom_value1;
             }
+
             if ($account->customLabel('expense2')) {
                 $row[] = $expense->custom_value2;
             }

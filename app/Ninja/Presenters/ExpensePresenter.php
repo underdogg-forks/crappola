@@ -2,18 +2,16 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
 use Carbon;
 use DateTime;
+use stdClass;
+use Utils;
 
 /**
  * Class ExpensePresenter.
  */
 class ExpensePresenter extends EntityPresenter
 {
-    /**
-     * @return string
-     */
     public function vendor()
     {
         return $this->entity->vendor ? $this->entity->vendor->getDisplayName() : '';
@@ -69,9 +67,9 @@ class ExpensePresenter extends EntityPresenter
         return Utils::getFromCache($this->payment_type_id, 'paymentTypes')->name;
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
-        $data    = parent::calendarEvent();
+        $data = parent::calendarEvent();
         $expense = $this->entity;
 
         $data->title = trans('texts.expense') . ' ' . $this->amount() . ' | ' . $this->category();
@@ -80,6 +78,7 @@ class ExpensePresenter extends EntityPresenter
         if ($category = $this->category()) {
             $data->title .= ' | ' . $category;
         }
+
         if ($this->public_notes) {
             $data->title .= ' | ' . $this->public_notes;
         }
@@ -87,9 +86,11 @@ class ExpensePresenter extends EntityPresenter
         $data->start = $expense->expense_date;
 
         if ($subColors && $expense->expense_category_id) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->borderColor = Utils::brewerColor($expense->expense_category->public_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#d95d02';
+            $data->borderColor = '#d95d02';
+            $data->backgroundColor = '#d95d02';
         }
 
         return $data;

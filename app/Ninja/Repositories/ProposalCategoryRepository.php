@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalCategory;
-use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProposalCategoryRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\ProposalCategory';
+        return ProposalCategory::class;
     }
 
     public function all()

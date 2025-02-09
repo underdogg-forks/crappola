@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class EnableResumingTasks extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -49,4 +48,4 @@ class EnableResumingTasks extends Migration
             $table->dropColumn('time_log');
         });
     }
-}
+};

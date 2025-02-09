@@ -2,23 +2,71 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use App\Ninja\Presenters\ProjectPresenter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int                   $id
+ * @property int                   $user_id
+ * @property int                   $account_id
+ * @property int|null              $client_id
+ * @property Carbon|null           $created_at
+ * @property Carbon|null           $updated_at
+ * @property Carbon|null           $deleted_at
+ * @property string|null           $name
+ * @property int                   $is_deleted
+ * @property int                   $public_id
+ * @property string                $task_rate
+ * @property string|null           $due_date
+ * @property string|null           $private_notes
+ * @property float                 $budgeted_hours
+ * @property string|null           $custom_value1
+ * @property string|null           $custom_value2
+ * @property Account               $account
+ * @property Client|null           $client
+ * @property Collection<int, Task> $tasks
+ * @property int|null              $tasks_count
+ *
+ * @method static Builder|Project dateRange($startDate, $endDate)
+ * @method static Builder|Project newModelQuery()
+ * @method static Builder|Project newQuery()
+ * @method static Builder|Project onlyTrashed()
+ * @method static Builder|Project query()
+ * @method static Builder|Project scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Project whereAccountId($value)
+ * @method static Builder|Project whereBudgetedHours($value)
+ * @method static Builder|Project whereClientId($value)
+ * @method static Builder|Project whereCreatedAt($value)
+ * @method static Builder|Project whereCustomValue1($value)
+ * @method static Builder|Project whereCustomValue2($value)
+ * @method static Builder|Project whereDeletedAt($value)
+ * @method static Builder|Project whereDueDate($value)
+ * @method static Builder|Project whereId($value)
+ * @method static Builder|Project whereIsDeleted($value)
+ * @method static Builder|Project whereName($value)
+ * @method static Builder|Project wherePrivateNotes($value)
+ * @method static Builder|Project wherePublicId($value)
+ * @method static Builder|Project whereTaskRate($value)
+ * @method static Builder|Project whereUpdatedAt($value)
+ * @method static Builder|Project whereUserId($value)
+ * @method static Builder|Project withActiveOrSelected($id = false)
+ * @method static Builder|Project withArchived()
+ * @method static Builder|Project withTrashed()
+ * @method static Builder|Project withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class Project extends EntityModel
 {
     use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * @var array
@@ -36,46 +84,33 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
+    protected $presenter = ProjectPresenter::class;
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
+    protected $casts = ['deleted_at' => 'datetime'];
+
+    public function getEntityType(): string
     {
         return ENTITY_PROJECT;
     }
 
-    /**
-     * @return string
-     */
-    public function getRoute()
+    public function getRoute(): string
     {
-        return "/projects/{$this->public_id}";
+        return '/projects/' . $this->public_id;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function tasks()
     {
-        return $this->hasMany('App\Models\Task');
+        return $this->hasMany(Task::class);
     }
 
     public function scopeDateRange($query, $startDate, $endDate)
@@ -88,11 +123,6 @@ class Project extends EntityModel
     public function getDisplayName()
     {
         return $this->name;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
 

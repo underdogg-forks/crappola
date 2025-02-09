@@ -9,7 +9,7 @@ class PaymentTermsSeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         $paymentTerms = [
             ['num_days' => -1, 'name' => 'Net 0'],

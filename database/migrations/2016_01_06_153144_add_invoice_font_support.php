@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceFontSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -67,4 +66,4 @@ class AddInvoiceFontSupport extends Migration
 
         Schema::dropIfExists('fonts');
     }
-}
+};

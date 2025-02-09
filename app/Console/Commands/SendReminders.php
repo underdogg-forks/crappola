@@ -6,7 +6,6 @@ use App\Jobs\ExportReportResults;
 use App\Jobs\RunReport;
 use App\Jobs\SendInvoiceEmail;
 use App\Libraries\CurlUtils;
-use App\Libraries\Utils;
 use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\ScheduledReport;
@@ -15,18 +14,24 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\PaymentService;
 use DateTime;
-use DB;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
-use Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
+use Utils;
 
 /**
  * Class SendReminders.
  */
 class SendReminders extends Command
 {
+    /**
+     * @var UserMailer
+     */
+    public $userMailer;
+
     /**
      * @var string
      */
@@ -37,20 +42,14 @@ class SendReminders extends Command
      */
     protected $description = 'Send reminder emails';
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * @var accountRepository
      */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected PaymentService $paymentService;
 
     /**
      * SendReminders constructor.
@@ -64,12 +63,12 @@ class SendReminders extends Command
         parent::__construct();
 
         $this->paymentService = $paymentService;
-        $this->invoiceRepo    = $invoiceRepo;
-        $this->accountRepo    = $accountRepo;
-        $this->userMailer     = $userMailer;
+        $this->invoiceRepo = $invoiceRepo;
+        $this->accountRepo = $accountRepo;
+        $this->userMailer = $userMailer;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running SendReminders...');
 
@@ -89,11 +88,9 @@ class SendReminders extends Command
             Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
-                    ->subject("SendReminders [{$database}]: Finished successfully");
+                    ->subject(sprintf('SendReminders [%s]: Finished successfully', $database));
             });
         }
-
-        return 0;
     }
 
     protected function getArguments()
@@ -125,7 +122,17 @@ class SendReminders extends Command
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
             //21-03-2023 adjustment here
-            if ($invoice->isPaid() || ! $invoice->account || $invoice->account->is_deleted) {
+            if ($invoice->isPaid()) {
+                // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+                continue;
+            }
+
+            if ( ! $invoice->account) {
+                // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+                continue;
+            }
+
+            if ($invoice->account->is_deleted) {
                 // if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
@@ -145,7 +152,11 @@ class SendReminders extends Command
         $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+                continue;
+            }
+
+            if ($account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -158,8 +169,8 @@ class SendReminders extends Command
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
-                    $amount  = $account->account_email_settings->{"late_fee{$number}_amount"};
-                    $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
+                    $amount = $account->account_email_settings->{sprintf('late_fee%s_amount', $number)};
+                    $percent = $account->account_email_settings->{sprintf('late_fee%s_percent', $number)};
                     $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
                 }
             }
@@ -172,7 +183,11 @@ class SendReminders extends Command
         $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+                continue;
+            }
+
+            if ($account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -185,6 +200,7 @@ class SendReminders extends Command
                     if ($invoice->last_sent_date == date('Y-m-d')) {
                         continue;
                     }
+
                     $this->info(date('r') . ' Send email: ' . $invoice->id);
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, $reminder));
                 }
@@ -198,6 +214,7 @@ class SendReminders extends Command
                 if ($invoice->last_sent_date == date('Y-m-d')) {
                     continue;
                 }
+
                 $this->info(date('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
@@ -214,22 +231,25 @@ class SendReminders extends Command
         foreach ($scheduledReports as $scheduledReport) {
             $this->info(date('r') . ' Processing report: ' . $scheduledReport->id);
 
-            $user    = $scheduledReport->user;
+            $user = $scheduledReport->user;
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
-
-            if ( ! $account->hasFeature(FEATURE_REPORTS) || $account->account_email_settings->is_disabled) {
+            if ( ! $account->hasFeature(FEATURE_REPORTS)) {
                 continue;
             }
 
-            $config     = (array) json_decode($scheduledReport->config);
+            if ($account->account_email_settings->is_disabled) {
+                continue;
+            }
+
+            $config = (array) json_decode($scheduledReport->config);
             $reportType = $config['report_type'];
 
             // send email as user
             auth()->onceUsingId($user->id);
 
-            $report = dispatch_now(new RunReport($scheduledReport->user, $reportType, $config, true));
-            $file   = dispatch_now(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
+            $report = dispatch_sync(new RunReport($scheduledReport->user, $reportType, $config, true));
+            $file = dispatch_sync(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
                 try {
@@ -258,7 +278,7 @@ class SendReminders extends Command
             $this->info(date('r') . ' Loading latest exchange rates...');
 
             $response = CurlUtils::get(config('ninja.exchange_rates_url'));
-            $data     = json_decode($response);
+            $data = json_decode($response);
 
             if ($data && property_exists($data, 'rates')) {
                 Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);

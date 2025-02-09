@@ -2,18 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Vendor;
-use Auth;
-use DB;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 // vendor
 class VendorRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Vendor';
+        return Vendor::class;
     }
 
     public function all()
@@ -98,7 +98,7 @@ class VendorRepository extends BaseRepository
         $vendorcontactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($vendorcontacts, function ($left, $right) {
+        usort($vendorcontacts, function ($left, $right): int|float {
             if (isset($right['is_primary'], $left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }
@@ -107,9 +107,9 @@ class VendorRepository extends BaseRepository
         });
 
         foreach ($vendorcontacts as $vendorcontact) {
-            $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);
+            $vendorcontact = $vendor->addVendorContact($vendorcontact, $first);
             $vendorcontactIds[] = $vendorcontact->public_id;
-            $first              = false;
+            $first = false;
         }
 
         if ( ! $vendor->wasRecentlyCreated) {

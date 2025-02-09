@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddRemember2faToken extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -154,4 +153,4 @@ class AddRemember2faToken extends Migration
             $table->dropColumn('date_interval');
         });
     }
-}
+};

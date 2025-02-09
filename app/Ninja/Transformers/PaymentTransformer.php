@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Payment;
 
@@ -10,6 +11,8 @@ use App\Models\Payment;
  */
 class PaymentTransformer extends EntityTransformer
 {
+    public $invoice;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
@@ -29,7 +32,7 @@ class PaymentTransformer extends EntityTransformer
         'invoice',
     ];
 
-    public function __construct($account = null, $serializer = null, $invoice = null)
+    public function __construct(?Account $account = null, $serializer = null, $invoice = null)
     {
         parent::__construct($account, $serializer);
 
@@ -50,7 +53,7 @@ class PaymentTransformer extends EntityTransformer
         return $this->includeItem($payment->client, $transformer, 'client');
     }
 
-    public function transform(Payment $payment)
+    public function transform(Payment $payment): array
     {
         return array_merge($this->getDefaults($payment), [
             'id'                    => (int) $payment->public_id,

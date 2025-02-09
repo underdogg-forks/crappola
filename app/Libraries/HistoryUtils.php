@@ -4,7 +4,7 @@ namespace App\Libraries;
 
 use App\Models\Activity;
 use App\Models\EntityModel;
-use Session;
+use Illuminate\Support\Facades\Session;
 use stdClass;
 
 class HistoryUtils
@@ -57,6 +57,7 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
 
                 if ($entity->project) {
@@ -69,12 +70,14 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
                 if ( ! $entity) {
                     continue;
                 }
+
                 $entity->setRelation('client', $activity->client);
             }
 
@@ -84,11 +87,12 @@ class HistoryUtils
 
     public static function deleteHistory(EntityModel $entity): void
     {
-        $history        = Session::get(RECENTLY_VIEWED) ?: [];
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
-        $remove         = [];
+        $remove = [];
+        $counter = count($accountHistory);
 
-        for ($i = 0; $i < count($accountHistory); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $item = $accountHistory[$i];
             if ($entity->equalTo($item)) {
                 $remove[] = $i;
@@ -106,7 +110,7 @@ class HistoryUtils
 
     public static function trackViewed(EntityModel $entity): void
     {
-        $entityType   = $entity->getEntityType();
+        $entityType = $entity->getEntityType();
         $trackedTypes = [
             ENTITY_CLIENT,
             ENTITY_INVOICE,
@@ -126,20 +130,22 @@ class HistoryUtils
             return;
         }
 
-        $object         = static::convertToObject($entity);
-        $history        = Session::get(RECENTLY_VIEWED) ?: [];
+        $object = static::convertToObject($entity);
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
-        $data           = [];
+        $data = [];
+        // Add to the list and make sure to only show each item once
+        $counter = count($accountHistory);
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i < count($accountHistory); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
                 continue;
             }
 
-            array_push($data, $item);
+            $data[] = $item;
 
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
@@ -159,11 +165,11 @@ class HistoryUtils
         Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function renderHtml($accountId)
+    public static function renderHtml($accountId): string
     {
         $lastClientId = false;
-        $clientMap    = [];
-        $str          = '';
+        $clientMap = [];
+        $str = '';
 
         $history = Session::get(RECENTLY_VIEWED, []);
         $history = $history[$accountId] ?? [];
@@ -182,16 +188,16 @@ class HistoryUtils
                     $name = e($item->client_name);
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
-                    $button     = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
+                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
                                     <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
                                 </a>';
                 } else {
-                    $link   = '#';
-                    $name   = trans('texts.unassigned');
+                    $link = '#';
+                    $name = trans('texts.unassigned');
                     $button = '';
                 }
 
-                $padding = $str ? 16 : 0;
+                $padding = $str !== '' && $str !== '0' ? 16 : 0;
                 $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }
@@ -207,27 +213,27 @@ class HistoryUtils
         return $str;
     }
 
-    private static function convertToObject($entity)
+    private static function convertToObject(EntityModel $entity): stdClass
     {
-        $object             = new stdClass();
-        $object->id         = $entity->id;
-        $object->accountId  = $entity->account_id;
-        $object->url        = $entity->present()->url;
+        $object = new stdClass();
+        $object->id = $entity->id;
+        $object->accountId = $entity->account_id;
+        $object->url = $entity->present()->url;
         $object->entityType = $entity->subEntityType();
-        $object->name       = $entity->present()->titledName;
-        $object->timestamp  = time();
+        $object->name = $entity->present()->titledName;
+        $object->timestamp = time();
 
         if ($entity->isEntityType(ENTITY_CLIENT)) {
-            $object->client_id   = $entity->public_id;
+            $object->client_id = $entity->public_id;
             $object->client_name = $entity->getDisplayName();
         } elseif (method_exists($entity, 'client') && $entity->client) {
-            $object->client_id   = $entity->client->public_id;
+            $object->client_id = $entity->client->public_id;
             $object->client_name = $entity->client->getDisplayName();
         } elseif (method_exists($entity, 'invoice') && $entity->invoice) {
-            $object->client_id   = $entity->invoice->client->public_id;
+            $object->client_id = $entity->invoice->client->public_id;
             $object->client_name = $entity->invoice->client->getDisplayName();
         } else {
-            $object->client_id   = 0;
+            $object->client_id = 0;
             $object->client_name = 0;
         }
 

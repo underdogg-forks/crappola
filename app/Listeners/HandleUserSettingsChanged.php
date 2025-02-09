@@ -6,13 +6,23 @@ use App\Events\UserSettingsChanged;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Support\Facades\Auth;
-use Session;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Class HandleUserSettingsChanged.
  */
 class HandleUserSettingsChanged
 {
+    /**
+     * @var AccountRepository
+     */
+    public $accountRepo;
+
+    /**
+     * @var UserMailer
+     */
+    public $userMailer;
+
     /**
      * Create the event handler.
      *
@@ -22,7 +32,7 @@ class HandleUserSettingsChanged
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
         $this->accountRepo = $accountRepo;
-        $this->userMailer  = $userMailer;
+        $this->userMailer = $userMailer;
     }
 
     /**

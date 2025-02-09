@@ -13,26 +13,26 @@ use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
-use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
-use View;
+use Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProposalController extends BaseController
 {
-    protected $proposalRepo;
+    public $entityType = ENTITY_PROPOSAL;
 
-    protected $proposalService;
+    protected ProposalRepository $proposalRepo;
 
-    protected $contactMailer;
+    protected ProposalService $proposalService;
 
-    protected $entityType = ENTITY_PROPOSAL;
+    protected ContactMailer $contactMailer;
 
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {
-        $this->proposalRepo    = $proposalRepo;
+        $this->proposalRepo = $proposalRepo;
         $this->proposalService = $proposalService;
-        $this->contactMailer   = $contactMailer;
+        $this->contactMailer = $contactMailer;
     }
 
     /**
@@ -53,7 +53,7 @@ class ProposalController extends BaseController
     {
         $search = Request::input('sSearch');
         //$userId = Auth::user()->filterId();
-        $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
+        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
         return $this->proposalService->getDatatable($search, $userId);
     }
@@ -77,7 +77,7 @@ class ProposalController extends BaseController
     {
         Session::reflash();
 
-        return redirect("proposals/{$publicId}/edit");
+        return redirect(sprintf('proposals/%s/edit', $publicId));
     }
 
     public function edit(ProposalRequest $request)
@@ -101,7 +101,7 @@ class ProposalController extends BaseController
     public function store(CreateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input());
-        $action   = Request::input('action');
+        $action = Request::input('action');
 
         if ($action == 'email') {
             $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
@@ -116,7 +116,7 @@ class ProposalController extends BaseController
     public function update(UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input(), $request->entity());
-        $action   = Request::input('action');
+        $action = Request::input('action');
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -135,13 +135,13 @@ class ProposalController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action') ?: Request::input('action');
-        $ids    = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
+        $ids = Request::input('bulk_public_id') ?: (Request::input('public_id') ?: Request::input('ids'));
 
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field   = $count == 1 ? "{$action}d_proposal" : "{$action}d_proposals";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_proposal' : $action . 'd_proposals';
+            $message = trans('texts.' . $field, ['count' => $count]);
             Session::flash('message', $message);
         }
 
@@ -152,14 +152,14 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    private function getViewmodel($proposal = false)
+    private function getViewmodel($proposal = false): array
     {
-        $account   = auth()->user()->account;
+        $account = auth()->user()->account;
         $templates = ProposalTemplate::whereAccountId($account->id)->withActiveOrSelected($proposal ? $proposal->proposal_template_id : false)->orderBy('name')->get();
 
         if ( ! $templates->count()) {

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Auth;
 
 class ListProductsIntent extends ProductIntent
 {
-    public function process()
+    public function process(): string|bool
     {
-        $account  = Auth::user()->account;
+        $account = Auth::user()->account;
         $products = Product::scope()
             ->orderBy('product_key')
             ->limit(5)

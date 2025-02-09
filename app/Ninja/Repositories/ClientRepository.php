@@ -7,15 +7,15 @@ use App\Events\ClientWasUpdated;
 use App\Jobs\PurgeClientData;
 use App\Models\Client;
 use App\Models\Contact;
-use Cache;
-use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ClientRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Client';
+        return Client::class;
     }
 
     public function all()
@@ -32,7 +32,7 @@ class ClientRepository extends BaseRepository
         $query = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.account_id', '=', \Auth::user()->account_id)
+            ->where('clients.account_id', '=', Auth::user()->account_id)
             ->where('contacts.is_primary', '=', true)
             ->where('contacts.deleted_at', '=', null)
                     //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
@@ -78,7 +78,7 @@ class ClientRepository extends BaseRepository
 
     public function purge($client): void
     {
-        dispatch(new PurgeClientData($client));
+        dispatch_sync(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)
@@ -105,9 +105,7 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = mb_strtolower($data['currency_code']);
-            $currency     = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
-                return mb_strtolower($item->code) == $currencyCode;
-            })->first();
+            $currency = Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
             if ($currency) {
                 $data['currency_id'] = $currency->id;
             }
@@ -116,9 +114,7 @@ class ClientRepository extends BaseRepository
         // convert country code to id
         if (isset($data['country_code'])) {
             $countryCode = mb_strtolower($data['country_code']);
-            $country     = Cache::get('countries')->filter(function ($item) use ($countryCode) {
-                return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
-            })->first();
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['country_id'] = $country->id;
             }
@@ -127,9 +123,7 @@ class ClientRepository extends BaseRepository
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
             $countryCode = mb_strtolower($data['shipping_country_code']);
-            $country     = Cache::get('countries')->filter(function ($item) use ($countryCode) {
-                return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
-            })->first();
+            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
             if ($country) {
                 $data['shipping_country_id'] = $country->id;
             }
@@ -149,12 +143,12 @@ class ClientRepository extends BaseRepository
         }
         */
 
-        $first      = true;
-        $contacts   = isset($data['contact']) ? [$data['contact']] : ($data['contacts'] ?? [[]]);
+        $first = true;
+        $contacts = isset($data['contact']) ? [$data['contact']] : ($data['contacts'] ?? [[]]);
         $contactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($contacts, function ($left, $right) {
+        usort($contacts, function ($left, $right): int|float {
             if (isset($right['is_primary'], $left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }
@@ -163,9 +157,9 @@ class ClientRepository extends BaseRepository
         });
 
         foreach ($contacts as $contact) {
-            $contact      = $client->addContact($contact, $first);
+            $contact = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;
-            $first        = false;
+            $first = false;
         }
 
         if ( ! $client->wasRecentlyCreated) {
@@ -189,8 +183,8 @@ class ClientRepository extends BaseRepository
     {
         $clientNameMeta = metaphone($clientName);
 
-        $map      = [];
-        $max      = SIMILAR_MIN_THRESHOLD;
+        $map = [];
+        $max = SIMILAR_MIN_THRESHOLD;
         $clientId = 0;
 
         $clients = Client::scope()->get(['id', 'name', 'public_id']);
@@ -206,14 +200,18 @@ class ClientRepository extends BaseRepository
 
             if ($percent > $max) {
                 $clientId = $client->id;
-                $max      = $percent;
+                $max = $percent;
             }
         }
 
         $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
-            if ( ! $contact->getFullName() || ! isset($map[$contact->client_id])) {
+            if ( ! $contact->getFullName()) {
+                continue;
+            }
+
+            if ( ! isset($map[$contact->client_id])) {
                 continue;
             }
 
@@ -221,7 +219,7 @@ class ClientRepository extends BaseRepository
 
             if ($percent > $max) {
                 $clientId = $contact->client_id;
-                $max      = $percent;
+                $max = $percent;
             }
         }
 

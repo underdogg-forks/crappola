@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddAccountDomain extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -61,4 +60,4 @@ class AddAccountDomain extends Migration
 
         DB::statement('ALTER TABLE invoices MODIFY COLUMN last_sent_date TIMESTAMP');
     }
-}
+};

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class EnableForcingJspdf extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class EnableForcingJspdf extends Migration
             $table->dropColumn('force_pdfjs');
         });
     }
-}
+};

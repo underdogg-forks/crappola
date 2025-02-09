@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\Utils;
 use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
+use Utils;
 
 /**
  * Class SendRenewalInvoices.
@@ -28,12 +28,9 @@ class SendRenewalInvoices extends Command
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
     /**
      * SendRenewalInvoices constructor.
@@ -45,11 +42,11 @@ class SendRenewalInvoices extends Command
     {
         parent::__construct();
 
-        $this->mailer      = $mailer;
+        $this->mailer = $mailer;
         $this->accountRepo = $repo;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running SendRenewalInvoices...');
 
@@ -68,22 +65,33 @@ class SendRenewalInvoices extends Command
                 continue;
             }
 
-            $account           = $company->accounts->sortBy('id')->first();
-            $plan              = [];
-            $plan['plan']      = $company->plan;
-            $plan['term']      = $company->plan_term;
+            $account = $company->accounts->sortBy('id')->first();
+            $plan = [];
+            $plan['plan'] = $company->plan;
+            $plan['term'] = $company->plan_term;
             $plan['num_users'] = $company->num_users;
-            $plan['price']     = min($company->plan_price, Utils::getPlanPrice($plan));
-
-            if ($plan['plan'] == PLAN_FREE || ! $plan['plan'] || ! $plan['term'] || ! $plan['price']) {
+            $plan['price'] = min($company->plan_price, Utils::getPlanPrice($plan));
+            if ($plan['plan'] == PLAN_FREE) {
                 continue;
             }
 
-            $client     = $this->accountRepo->getNinjaClient($account);
-            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0, false);
+            if ( ! $plan['plan']) {
+                continue;
+            }
+
+            if ( ! $plan['term']) {
+                continue;
+            }
+
+            if ( ! $plan['price']) {
+                continue;
+            }
+
+            $client = $this->accountRepo->getNinjaClient($account);
+            $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0);
 
             // set the due date to 10 days from now
-            $invoice           = $invitation->invoice;
+            $invoice = $invitation->invoice;
             $invoice->due_date = date('Y-m-d', strtotime('+ 10 days'));
             $invoice->save();
 
@@ -92,9 +100,9 @@ class SendRenewalInvoices extends Command
 
             if ($term == PLAN_TERM_YEARLY) {
                 $this->mailer->sendInvoice($invoice);
-                $this->info("Sent {$term}ly {$plan} invoice to {$client->getDisplayName()}");
+                $this->info(sprintf('Sent %sly %s invoice to %s', $term, $plan, $client->getDisplayName()));
             } else {
-                $this->info("Created {$term}ly {$plan} invoice for {$client->getDisplayName()}");
+                $this->info(sprintf('Created %sly %s invoice for %s', $term, $plan, $client->getDisplayName()));
             }
         }
 
@@ -104,11 +112,9 @@ class SendRenewalInvoices extends Command
             Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
                     ->from(CONTACT_EMAIL)
-                    ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
+                    ->subject(sprintf('SendRenewalInvoices [%s]: Finished successfully', $database));
             });
         }
-
-        return 0;
     }
 
     protected function getArguments()

@@ -2,16 +2,22 @@
 
 namespace App\Jobs\Client;
 
-use App\Libraries\Utils;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
+use Utils;
 
 class GenerateStatementData
 {
+    public $client;
+
+    public $options;
+
+    public $contact;
+
     public function __construct($client, $options, $contact = false)
     {
-        $this->client  = $client;
+        $this->client = $client;
         $this->options = $options;
         $this->contact = $contact;
     }
@@ -29,15 +35,15 @@ class GenerateStatementData
         $account = $client->account;
         $account->load(['date_format', 'datetime_format']);
 
-        $invoice               = new Invoice();
+        $invoice = new Invoice();
         $invoice->invoice_date = Utils::today();
-        $invoice->account      = $account;
-        $invoice->client       = $client;
+        $invoice->account = $account;
+        $invoice->client = $client;
 
         $invoice->invoice_items = $this->getInvoices();
 
         if ($this->options['show_payments']) {
-            $payments               = $this->getPayments($invoice->invoice_items);
+            $payments = $this->getPayments($invoice->invoice_items);
             $invoice->invoice_items = $invoice->invoice_items->merge($payments);
         }
 
@@ -75,25 +81,25 @@ class GenerateStatementData
         }
 
         $invoices = $invoices->get();
-        $data     = collect();
+        $data = collect();
 
         for ($i = 0; $i < $invoices->count(); $i++) {
-            $invoice                    = $invoices[$i];
-            $item                       = new InvoiceItem();
-            $item->id                   = $invoice->id;
-            $item->product_key          = $invoice->invoice_number;
-            $item->custom_value1        = $invoice->invoice_date;
-            $item->custom_value2        = $invoice->due_date;
-            $item->notes                = $invoice->amount;
-            $item->cost                 = $invoice->balance;
-            $item->qty                  = 1;
+            $invoice = $invoices[$i];
+            $item = new InvoiceItem();
+            $item->id = $invoice->id;
+            $item->product_key = $invoice->invoice_number;
+            $item->custom_value1 = $invoice->invoice_date;
+            $item->custom_value2 = $invoice->due_date;
+            $item->notes = $invoice->amount;
+            $item->cost = $invoice->balance;
+            $item->qty = 1;
             $item->invoice_item_type_id = 1;
             $data->push($item);
         }
 
         if ($this->options['show_aging']) {
             $aging = $this->getAging($invoices);
-            $data  = $data->merge($aging);
+            $data = $data->merge($aging);
         }
 
         return $data;
@@ -113,17 +119,17 @@ class GenerateStatementData
         }
 
         $payments = $payments->get();
-        $data     = collect();
+        $data = collect();
 
         for ($i = 0; $i < $payments->count(); $i++) {
-            $payment                    = $payments[$i];
-            $item                       = new InvoiceItem();
-            $item->product_key          = $payment->invoice->invoice_number;
-            $item->custom_value1        = $payment->payment_date;
-            $item->custom_value2        = $payment->present()->payment_type;
-            $item->cost                 = $payment->getCompletedAmount();
+            $payment = $payments[$i];
+            $item = new InvoiceItem();
+            $item->product_key = $payment->invoice->invoice_number;
+            $item->custom_value1 = $payment->payment_date;
+            $item->custom_value2 = $payment->present()->payment_type;
+            $item->cost = $payment->getCompletedAmount();
             $item->invoice_item_type_id = 3;
-            $item->notes                = $payment->transaction_reference ?: ' ';
+            $item->notes = $payment->transaction_reference ?: ' ';
             $data->push($item);
         }
 
@@ -132,7 +138,7 @@ class GenerateStatementData
 
     private function getAging($invoices)
     {
-        $data      = collect();
+        $data = collect();
         $ageGroups = [
             'age_group_0'   => 0,
             'age_group_30'  => 0,
@@ -146,12 +152,12 @@ class GenerateStatementData
             $ageGroups[$age] += $invoice->getRequestedAmount();
         }
 
-        $item                       = new InvoiceItem();
-        $item->product_key          = $ageGroups['age_group_0'];
-        $item->notes                = $ageGroups['age_group_30'];
-        $item->custom_value1        = $ageGroups['age_group_60'];
-        $item->custom_value2        = $ageGroups['age_group_90'];
-        $item->cost                 = $ageGroups['age_group_120'];
+        $item = new InvoiceItem();
+        $item->product_key = $ageGroups['age_group_0'];
+        $item->notes = $ageGroups['age_group_30'];
+        $item->custom_value1 = $ageGroups['age_group_60'];
+        $item->custom_value2 = $ageGroups['age_group_90'];
+        $item->cost = $ageGroups['age_group_120'];
         $item->invoice_item_type_id = 4;
         $data->push($item);
 

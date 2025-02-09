@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceNumberSettings extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -26,11 +25,11 @@ class AddInvoiceNumberSettings extends Migration
 
         foreach ($accounts as $accountId) {
             $invoiceNumbers = DB::table('invoices')->where('account_id', $accountId)->pluck('invoice_number');
-            $max            = 0;
+            $max = 0;
 
             foreach ($invoiceNumbers as $invoiceNumber) {
                 $number = (int) (preg_replace('/[^0-9]/', '', $invoiceNumber));
-                $max    = max($max, $number);
+                $max = max($max, $number);
             }
 
             DB::table('accounts')->where('id', $accountId)->update(['invoice_number_counter' => ++$max]);
@@ -54,4 +53,4 @@ class AddInvoiceNumberSettings extends Migration
             $table->dropColumn('share_counter');
         });
     }
-}
+};

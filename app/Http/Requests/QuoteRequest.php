@@ -6,7 +6,7 @@ use App\Models\Invoice;
 
 class QuoteRequest extends EntityRequest
 {
-    protected $entityType = ENTITY_QUOTE;
+    public $entityType = ENTITY_QUOTE;
 
     public function entity()
     {

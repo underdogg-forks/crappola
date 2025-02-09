@@ -2,18 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
-use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class ExpenseRepository extends BaseRepository
 {
-    protected $documentRepo;
+    protected DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -21,9 +21,9 @@ class ExpenseRepository extends BaseRepository
     }
 
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Expense';
+        return Expense::class;
     }
 
     public function all()
@@ -55,8 +55,8 @@ class ExpenseRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $accountid = \Auth::user()->account_id;
-        $query     = DB::table('expenses')
+        $accountid = Auth::user()->account_id;
+        $query = DB::table('expenses')
             ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -123,22 +123,27 @@ class ExpenseRepository extends BaseRepository
                     $query->orWhere('expenses.invoice_id', '=', 0)
                         ->orWhereNull('expenses.invoice_id');
                 }
+
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
                     if ( ! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
+
                 if (in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0)
                         ->where('expenses.invoice_id', '>', 0);
                 }
+
                 if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
                     $query->orWhereNotNull('expenses.payment_date');
                 }
+
                 if (in_array(EXPENSE_STATUS_UNPAID, $statuses)) {
                     $query->orWhereNull('expenses.payment_date');
                 }
+
                 if (in_array(EXPENSE_STATUS_PENDING, $statuses)) {
                     $query->orWhere('expenses.should_be_invoiced', '=', 1)
                         ->whereNull('expenses.invoice_id');
@@ -183,18 +188,20 @@ class ExpenseRepository extends BaseRepository
         if (isset($input['expense_date'])) {
             $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         }
+
         if (isset($input['payment_date'])) {
             $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
 
         if ( ! $expense->expense_currency_id) {
-            $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
-        }
-        if ( ! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = \Auth::user()->account->getCurrencyId();
+            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
         }
 
-        $rate                   = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
+        if ( ! $expense->invoice_currency_id) {
+            $expense->invoice_currency_id = Auth::user()->account->getCurrencyId();
+        }
+
+        $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
         if (isset($input['amount'])) {
             $expense->amount = round(Utils::parseFloat($input['amount']), 2);
@@ -203,7 +210,7 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = ! empty($input['document_ids']) ? array_map('intval', $input['document_ids']) : [];
+        $document_ids = empty($input['document_ids']) ? [] : array_map('intval', $input['document_ids']);
 
         foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form

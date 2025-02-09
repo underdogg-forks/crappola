@@ -4,22 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use Request;
-use Session;
-use Validator;
-use View;
 
 /**
  * Class SubscriptionController.
  */
 class SubscriptionController extends BaseController
 {
-    /**
-     * @var SubscriptionService
-     */
-    protected $subscriptionService;
+    protected SubscriptionService $subscriptionService;
 
     /**
      * SubscriptionController constructor.
@@ -34,15 +33,15 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable()
     {
@@ -54,7 +53,7 @@ class SubscriptionController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $subscription = Subscription::scope($publicId)->firstOrFail();
 
@@ -71,7 +70,7 @@ class SubscriptionController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update($publicId)
     {
@@ -79,7 +78,7 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store()
     {
@@ -102,24 +101,24 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids    = Request::input('bulk_public_id');
+        $ids = Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_subscription'));
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
      * @param bool $subscriptionPublicId
      *
-     * @return $this|\Illuminate\Http\RedirectResponse
+     * @return $this|RedirectResponse
      */
     public function save($subscriptionPublicId = false)
     {
@@ -132,24 +131,20 @@ class SubscriptionController extends BaseController
             if ($subscriptionPublicId) {
                 $subscription = Subscription::scope($subscriptionPublicId)->firstOrFail();
             } else {
-                $subscription         = Subscription::createNew();
+                $subscription = Subscription::createNew();
                 $subscriptionPublicId = $subscription->public_id;
             }
 
             $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
+                return \Illuminate\Support\Facades\Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
             }
 
             $subscription->fill(request()->all());
             $subscription->save();
 
-            if ($subscriptionPublicId) {
-                $message = trans('texts.updated_subscription');
-            } else {
-                $message = trans('texts.created_subscription');
-            }
+            $message = $subscriptionPublicId ? trans('texts.updated_subscription') : trans('texts.created_subscription');
 
             Session::flash('message', $message);
         }

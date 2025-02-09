@@ -10,10 +10,7 @@ use App\Ninja\Repositories\InvoiceRepository;
  */
 class RecurringInvoiceController extends BaseController
 {
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * RecurringInvoiceController constructor.
@@ -27,9 +24,6 @@ class RecurringInvoiceController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    /**
-     * @return mixed
-     */
     public function index()
     {
         $data = [

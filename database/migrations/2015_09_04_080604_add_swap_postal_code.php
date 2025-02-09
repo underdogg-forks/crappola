@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSwapPostalCode extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -35,4 +34,4 @@ class AddSwapPostalCode extends Migration
             $table->dropColumn('show_item_taxes');
         });
     }
-}
+};

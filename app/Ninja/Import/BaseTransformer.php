@@ -2,10 +2,10 @@
 
 namespace App\Ninja\Import;
 
-use App\Libraries\Utils;
 use Carbon;
 use Exception;
 use League\Fractal\TransformerAbstract;
+use Utils;
 
 /**
  * Class BaseTransformer.
@@ -32,7 +32,7 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return bool
      */
-    public function hasClient($name)
+    public function hasClient($name): bool
     {
         $name = trim(mb_strtolower($name));
 
@@ -44,7 +44,7 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return bool
      */
-    public function hasVendor($name)
+    public function hasVendor($name): bool
     {
         $name = trim(mb_strtolower($name));
 
@@ -56,7 +56,7 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return bool
      */
-    public function hasProduct($key)
+    public function hasProduct($key): bool
     {
         $key = trim(mb_strtolower($key));
 
@@ -231,7 +231,7 @@ class BaseTransformer extends TransformerAbstract
         if ($date = data_get($data, $field)) {
             try {
                 $date = new Carbon($date);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // if we fail to parse return blank
                 $date = false;
             }
@@ -257,9 +257,9 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return string
      */
-    public function getInvoiceNumber($number)
+    public function getInvoiceNumber($number): ?string
     {
-        return $number ? str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
+        return $number ? mb_str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**
@@ -293,7 +293,7 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return bool
      */
-    public function hasInvoice($invoiceNumber)
+    public function hasInvoice($invoiceNumber): bool
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = mb_strtolower($invoiceNumber);

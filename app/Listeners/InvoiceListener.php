@@ -12,10 +12,11 @@ use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
-use App\Libraries\Utils;
 use App\Models\Activity;
+use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class InvoiceListener.
@@ -66,7 +67,7 @@ class InvoiceListener
      */
     public function emailedInvoice(InvoiceWasEmailed $event): void
     {
-        $invoice                 = $event->invoice;
+        $invoice = $event->invoice;
         $invoice->last_sent_date = date('Y-m-d');
         $invoice->save();
     }
@@ -76,10 +77,10 @@ class InvoiceListener
      */
     public function createdPayment(PaymentWasCreated $event): void
     {
-        $payment    = $event->payment;
-        $invoice    = $payment->invoice;
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
         $adjustment = $payment->amount * -1;
-        $partial    = max(0, $invoice->partial - $payment->amount);
+        $partial = max(0, $invoice->partial - $payment->amount);
 
         $invoice->updateBalances($adjustment, $partial);
         $invoice->updatePaidStatus(true);
@@ -92,7 +93,7 @@ class InvoiceListener
         $activity->save();
 
         if ($invoice->balance == 0 && $payment->account->auto_archive_invoice) {
-            $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoiceRepo = app(InvoiceRepository::class);
             $invoiceRepo->archive($invoice);
         }
     }
@@ -108,7 +109,7 @@ class InvoiceListener
             return;
         }
 
-        $invoice    = $payment->invoice;
+        $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount();
 
         $invoice->updateBalances($adjustment);
@@ -120,8 +121,8 @@ class InvoiceListener
      */
     public function refundedPayment(PaymentWasRefunded $event): void
     {
-        $payment    = $event->payment;
-        $invoice    = $payment->invoice;
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
         $adjustment = $event->refundAmount;
 
         $invoice->updateBalances($adjustment);
@@ -133,8 +134,8 @@ class InvoiceListener
      */
     public function voidedPayment(PaymentWasVoided $event): void
     {
-        $payment    = $event->payment;
-        $invoice    = $payment->invoice;
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
         $adjustment = $payment->amount;
 
         $invoice->updateBalances($adjustment);
@@ -146,8 +147,8 @@ class InvoiceListener
      */
     public function failedPayment(PaymentFailed $event): void
     {
-        $payment    = $event->payment;
-        $invoice    = $payment->invoice;
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount();
 
         $invoice->updateBalances($adjustment);
@@ -169,7 +170,7 @@ class InvoiceListener
             return;
         }
 
-        $invoice    = $payment->invoice;
+        $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount() * -1;
 
         $invoice->updateBalances($adjustment);

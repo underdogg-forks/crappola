@@ -6,16 +6,16 @@ use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\DeleteVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
-use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
 use Response;
+use Utils;
 
 class VendorApiController extends BaseAPIController
 {
-    protected $vendorRepo;
+    public $entityType = ENTITY_VENDOR;
 
-    protected $entityType = ENTITY_VENDOR;
+    protected VendorRepository $vendorRepo;
 
     public function __construct(VendorRepository $vendorRepo)
     {
@@ -28,7 +28,7 @@ class VendorApiController extends BaseAPIController
     {
         $headers = Utils::getApiHeaders();
 
-        return Response::make('', 200, $headers);
+        return \Illuminate\Support\Facades\Response::make('', 200, $headers);
     }
 
     /**
@@ -171,9 +171,9 @@ class VendorApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $vendor            = $this->vendorRepo->save($data, $request->entity());
+        $vendor = $this->vendorRepo->save($data, $request->entity());
 
         $vendor->load(['vendor_contacts']);
 

@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\User;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -19,8 +20,14 @@ class HostedMigration extends Job
 
     public $db;
 
+    /**
+     * @var mixed[]
+     */
     public $data;
 
+    /**
+     * @var User
+     */
     public $user;
 
     public $migration_token;
@@ -35,16 +42,13 @@ class HostedMigration extends Job
 
     public function __construct(User $user, array $data, $db, $forced = false)
     {
-        $this->user      = $user;
-        $this->data      = $data;
-        $this->db        = $db;
-        $this->forced    = $forced;
+        $this->user = $user;
+        $this->data = $data;
+        $this->db = $db;
+        $this->forced = $forced;
         $this->v4_secret = config('ninja.ninja_hosted_secret');
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         config(['database.default' => $this->db]);
@@ -73,23 +77,20 @@ class HostedMigration extends Job
 
             $this->account = $account;
 
-            if($this->forced) {
-                //forced migration - we need to set this v4 account as inactive.
-
-                //set activate URL
-                $account_email_settings                                             = $this->account->account_email_settings;
-                $account_email_settings->account_email_settings->forward_url_for_v5 = "https://invoiceninja-{$this->account->id}.invoicing.co";
+            if ($this->forced) {
+                $account_email_settings = $this->account->account_email_settings;
+                $account_email_settings->account_email_settings->forward_url_for_v5 = sprintf('https://invoiceninja-%s.invoicing.co', $this->account->id);
                 $account_email_settings->save();
 
-                $this->account->subdomain = "invoiceninja-{$this->account->id}";
+                $this->account->subdomain = 'invoiceninja-' . $this->account->id;
             }
 
-            $date       = date('Y-m-d');
+            $date = date('Y-m-d');
             $accountKey = $this->account->account_key;
 
             $output = fopen('php://output', 'w') || Utils::fatalError();
 
-            $fileName = "{$accountKey}-{$date}-invoiceninja";
+            $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 
             $localMigrationData['data'] = [
                 'account'               => $this->getAccount(),
@@ -114,14 +115,13 @@ class HostedMigration extends Job
                 'task_statuses'         => $this->getTaskStatuses(),
                 'expenses'              => $this->getExpenses(),
                 'tasks'                 => $this->getTasks(),
-                'documents'             => $this->getDocuments(),
                 'ninja_tokens'          => $this->getNinjaToken(),
             ];
 
             $localMigrationData['force'] = array_key_exists('force', $company);
 
             Storage::makeDirectory('migrations');
-            $file = Storage::path("app/migrations/{$fileName}.zip");
+            $file = Storage::path(sprintf('app/migrations/%s.zip', $fileName));
 
             //$file = storage_path("migrations/{$fileName}.zip");
 
@@ -140,7 +140,7 @@ class HostedMigration extends Job
         return $migrationData;
     }
 
-    private function getToken()
+    private function getToken(): static
     {
         $url = 'https://invoicing.co/api/v1/get_migration_account';
         // $url = 'http://devhosted.test:8000/api/v1/get_migration_account';
@@ -160,7 +160,7 @@ class HostedMigration extends Job
             'password'         => '',
         ];
 
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'headers' => $headers,
         ]);
 
@@ -169,13 +169,14 @@ class HostedMigration extends Job
             RequestOptions::ALLOW_REDIRECTS => false,
         ]);
 
-        if($response->getStatusCode() == 401) {
+        if ($response->getStatusCode() == 401) {
             info($response->getBody());
         } elseif ($response->getStatusCode() == 200) {
             $message_body = json_decode($response->getBody(), true);
 
             $this->migration_token = $message_body['token'];
         }
+
         // info(json_decode($response->getBody()->getContents()));
 
         return $this;

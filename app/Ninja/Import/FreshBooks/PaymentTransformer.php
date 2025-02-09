@@ -15,15 +15,13 @@ class PaymentTransformer extends BaseTransformer
      *
      * @return Item
      */
-    public function transform($data)
+    public function transform($data): Item
     {
-        return new Item($data, function ($data) {
-            return [
-                'amount'           => $data->paid,
-                'payment_date_sql' => $data->create_date,
-                'client_id'        => $data->client_id,
-                'invoice_id'       => $data->invoice_id,
-            ];
-        });
+        return new Item($data, fn ($data): array => [
+            'amount'           => $data->paid,
+            'payment_date_sql' => $data->create_date,
+            'client_id'        => $data->client_id,
+            'invoice_id'       => $data->invoice_id,
+        ]);
     }
 }

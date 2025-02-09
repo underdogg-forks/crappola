@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CreditReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'  => [],
@@ -21,7 +21,7 @@ class CreditReport extends AbstractReport
 
     public function run(): void
     {
-        $account  = Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -34,7 +34,7 @@ class CreditReport extends AbstractReport
             }]);
 
         foreach ($clients->get() as $client) {
-            $amount  = 0;
+            $amount = 0;
             $balance = 0;
 
             foreach ($client->credits as $credit) {

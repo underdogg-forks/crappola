@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddLateFees extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -45,4 +44,4 @@ class AddLateFees extends Migration
             $table->dropColumn('is_default');
         });
     }
-}
+};

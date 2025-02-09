@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddHeaderFooterOption extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -56,4 +55,4 @@ class AddHeaderFooterOption extends Migration
             $table->dropColumn('is_secure');
         });
     }
-}
+};

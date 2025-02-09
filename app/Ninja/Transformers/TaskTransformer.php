@@ -52,7 +52,7 @@ class TaskTransformer extends EntityTransformer
         }
     }
 
-    public function transform(Task $task)
+    public function transform(Task $task): array
     {
         return array_merge($this->getDefaults($task), [
             'id'                     => (int) $task->public_id,

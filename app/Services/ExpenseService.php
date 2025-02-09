@@ -2,27 +2,22 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class ExpenseService.
  */
 class ExpenseService extends BaseService
 {
-    /**
-     * @var ExpenseRepository
-     */
-    protected $expenseRepo;
+    protected ExpenseRepository $expenseRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected DatatableService $datatableService;
 
     /**
      * ExpenseService constructor.
@@ -32,7 +27,7 @@ class ExpenseService extends BaseService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
-        $this->expenseRepo      = $expenseRepo;
+        $this->expenseRepo = $expenseRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -58,7 +53,7 @@ class ExpenseService extends BaseService
     /**
      * @param $search
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search)
     {
@@ -74,7 +69,7 @@ class ExpenseService extends BaseService
     /**
      * @param $vendorPublicId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatableVendor($vendorPublicId)
     {
@@ -92,7 +87,7 @@ class ExpenseService extends BaseService
     /**
      * @param $clientPublicId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatableClient($clientPublicId)
     {
@@ -110,7 +105,7 @@ class ExpenseService extends BaseService
     /**
      * @return ExpenseRepository
      */
-    protected function getRepo()
+    protected function getRepo(): ExpenseRepository
     {
         return $this->expenseRepo;
     }

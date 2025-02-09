@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AllowNullClientCurrency extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -22,4 +21,4 @@ class AllowNullClientCurrency extends Migration
      * @return void
      */
     public function down(): void {}
-}
+};

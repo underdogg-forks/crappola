@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDefaultNoteToClient extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -117,4 +116,4 @@ class AddDefaultNoteToClient extends Migration
             $table->dropColumn('tax_rate2');
         });
     }
-}
+};

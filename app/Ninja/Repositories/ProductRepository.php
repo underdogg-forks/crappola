@@ -4,16 +4,16 @@ namespace App\Ninja\Repositories;
 
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
-use App\Libraries\Utils;
 use App\Models\Product;
-use DB;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class ProductRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Product';
+        return Product::class;
     }
 
     public function all()
@@ -70,9 +70,9 @@ class ProductRepository extends BaseRepository
 
         $product->fill($data);
         $product->product_key = isset($data['product_key']) ? trim($data['product_key']) : '';
-        $product->notes       = isset($data['notes']) ? trim($data['notes']) : '';
-        $product->cost        = isset($data['cost']) ? Utils::parseFloat($data['cost']) : 0;
-        $product->qty         = isset($data['qty']) ? Utils::parseFloat($data['qty']) : 1;
+        $product->notes = isset($data['notes']) ? trim($data['notes']) : '';
+        $product->cost = isset($data['cost']) ? Utils::parseFloat($data['cost']) : 0;
+        $product->qty = isset($data['qty']) ? Utils::parseFloat($data['qty']) : 1;
         $product->save();
 
         if ($publicId) {
@@ -88,8 +88,8 @@ class ProductRepository extends BaseRepository
     {
         $productNameMeta = metaphone($productName);
 
-        $map       = [];
-        $max       = SIMILAR_MIN_THRESHOLD;
+        $map = [];
+        $max = SIMILAR_MIN_THRESHOLD;
         $productId = 0;
 
         $products = Product::scope()->get();
@@ -100,11 +100,11 @@ class ProductRepository extends BaseRepository
             }
 
             $map[$product->id] = $product;
-            $similar           = similar_text($productNameMeta, metaphone($product->product_key), $percent);
+            $similar = similar_text($productNameMeta, metaphone($product->product_key), $percent);
 
             if ($percent > $max) {
                 $productId = $product->id;
-                $max       = $percent;
+                $max = $percent;
             }
         }
 

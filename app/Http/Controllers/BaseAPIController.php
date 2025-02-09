@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Request;
-use Response;
+use Utils;
 
 /**
  * @SWG\Swagger(
@@ -53,7 +53,9 @@ use Response;
  */
 class BaseAPIController extends Controller
 {
-    protected $manager;
+    public $entityType;
+
+    protected Manager $manager;
 
     protected $serializer;
 
@@ -80,7 +82,7 @@ class BaseAPIController extends Controller
         $action = $request->action;
 
         if ( ! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
-            return $this->errorResponse("Action [{$action}] is not supported");
+            return $this->errorResponse(sprintf('Action [%s] is not supported', $action));
         }
 
         if ($action == 'mark_sent') {
@@ -97,7 +99,7 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer      = new $transformerClass(Auth::user()->account, Request::input('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
@@ -115,7 +117,7 @@ class BaseAPIController extends Controller
 
         if (Request::input('client_id') > 0) {
             $clientPublicId = Request::input('client_id');
-            $filter         = function ($query) use ($clientPublicId): void {
+            $filter = function ($query) use ($clientPublicId): void {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
@@ -141,7 +143,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer      = new $transformerClass(Auth::user()->account, Request::input('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -170,9 +172,10 @@ class BaseAPIController extends Controller
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
+
             $paginator = $query->paginate($limit);
-            $query     = $paginator->getCollection();
-            $resource  = new Collection($query, $transformer, $entityType);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $entityType);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
             $resource = new Collection($query, $transformer, $entityType);
@@ -188,7 +191,7 @@ class BaseAPIController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta     = $response['meta'] ?? null;
+            $meta = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];
@@ -200,7 +203,7 @@ class BaseAPIController extends Controller
         }
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
-        $headers  = Utils::getApiHeaders();
+        $headers = Utils::getApiHeaders();
 
         return Response::make($response, 200, $headers);
     }
@@ -208,8 +211,8 @@ class BaseAPIController extends Controller
     protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
-        $error          = json_encode($error, JSON_PRETTY_PRINT);
-        $headers        = Utils::getApiHeaders();
+        $error = json_encode($error, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
 
         return Response::make($error, $httpErrorCode, $headers);
     }
@@ -220,21 +223,21 @@ class BaseAPIController extends Controller
         $included = explode(',', $included);
 
         foreach ($included as $include) {
-            if ($include == 'invoices') {
+            if ($include === 'invoices') {
                 $data[] = 'invoices.invoice_items';
                 $data[] = 'invoices.client.contacts';
-            } elseif ($include == 'invoice') {
+            } elseif ($include === 'invoice') {
                 $data[] = 'invoice.invoice_items';
                 $data[] = 'invoice.client.contacts';
-            } elseif ($include == 'client') {
+            } elseif ($include === 'client') {
                 $data[] = 'client.contacts';
-            } elseif ($include == 'clients') {
+            } elseif ($include === 'clients') {
                 $data[] = 'clients.contacts';
-            } elseif ($include == 'vendors') {
+            } elseif ($include === 'vendors') {
                 $data[] = 'vendors.vendor_contacts';
-            } elseif ($include == 'documents' && $this->entityType == ENTITY_INVOICE) {
+            } elseif ($include === 'documents' && $this->entityType == ENTITY_INVOICE) {
                 $data[] = 'documents.expense';
-            } elseif ($include) {
+            } elseif ($include !== '' && $include !== '0') {
                 $data[] = $include;
             }
         }
@@ -242,7 +245,7 @@ class BaseAPIController extends Controller
         return $data;
     }
 
-    protected function fileReponse($name, $data)
+    protected function fileReponse(string $name, $data)
     {
         header('Content-Type: application/pdf');
         header('Content-Length: ' . mb_strlen($data));

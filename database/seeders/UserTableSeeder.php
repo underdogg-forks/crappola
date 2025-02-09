@@ -21,9 +21,9 @@ class UserTableSeeder extends Seeder
     {
         $this->command->info('Running UserTableSeeder');
 
-        Model::unguard();
+        Eloquent::unguard();
 
-        $faker   = Faker\Factory::create();
+        $faker = Faker\Factory::create();
         $company = Company::create();
 
         $account = Account::create([

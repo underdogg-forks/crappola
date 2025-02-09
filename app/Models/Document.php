@@ -2,12 +2,70 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
-use DB;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Filesystem\AwsS3V3Adapter;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Document.
+ *
+ * @property int          $id
+ * @property int|null     $public_id
+ * @property int          $account_id
+ * @property int          $user_id
+ * @property int|null     $invoice_id
+ * @property int|null     $expense_id
+ * @property string       $path
+ * @property string       $preview
+ * @property string       $name
+ * @property string       $type
+ * @property string       $disk
+ * @property string       $hash
+ * @property int          $size
+ * @property int|null     $width
+ * @property int|null     $height
+ * @property Carbon|null  $created_at
+ * @property Carbon|null  $updated_at
+ * @property int|null     $is_default
+ * @property int          $is_proposal
+ * @property string|null  $document_key
+ * @property Account      $account
+ * @property Expense|null $expense
+ * @property Invoice|null $invoice
+ * @property User         $user
+ *
+ * @method static Builder|Document newModelQuery()
+ * @method static Builder|Document newQuery()
+ * @method static Builder|Document proposalImages()
+ * @method static Builder|Document query()
+ * @method static Builder|Document scope(bool $publicId = false, bool $accountId = false)
+ * @method static Builder|Document whereAccountId($value)
+ * @method static Builder|Document whereCreatedAt($value)
+ * @method static Builder|Document whereDisk($value)
+ * @method static Builder|Document whereDocumentKey($value)
+ * @method static Builder|Document whereExpenseId($value)
+ * @method static Builder|Document whereHash($value)
+ * @method static Builder|Document whereHeight($value)
+ * @method static Builder|Document whereId($value)
+ * @method static Builder|Document whereInvoiceId($value)
+ * @method static Builder|Document whereIsDefault($value)
+ * @method static Builder|Document whereIsProposal($value)
+ * @method static Builder|Document whereName($value)
+ * @method static Builder|Document wherePath($value)
+ * @method static Builder|Document wherePreview($value)
+ * @method static Builder|Document wherePublicId($value)
+ * @method static Builder|Document whereSize($value)
+ * @method static Builder|Document whereType($value)
+ * @method static Builder|Document whereUpdatedAt($value)
+ * @method static Builder|Document whereUserId($value)
+ * @method static Builder|Document whereWidth($value)
+ * @method static Builder|Document withActiveOrSelected($id = false)
+ * @method static Builder|Document withArchived()
+ *
+ * @mixin \Eloquent
  */
 class Document extends EntityModel
 {
@@ -99,11 +157,11 @@ class Document extends EntityModel
      */
     public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false)
     {
-        $adapter  = $disk->getAdapter();
+        $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
 
-        if ($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
-            $client  = $adapter->getClient();
+        if ($adapter instanceof AwsS3V3Adapter) {
+            $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
                 'Key'    => $fullPath,
@@ -111,8 +169,9 @@ class Document extends EntityModel
 
             return (string) $client->createPresignedRequest($command, '+10 minutes')->getUri();
         }
+
         if ( ! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
-                   && $adapter instanceof \League\Flysystem\Rackspace\RackspaceAdapter) {
+                   && $adapter instanceof RackspaceAdapter) {
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
             if ($secret) {
                 $object = $adapter->getContainer()->getObject($fullPath);
@@ -122,21 +181,18 @@ class Document extends EntityModel
                     $object->getService()->getAccount()->setTempUrlSecret($secret);
                 }
 
-                $url     = $object->getUrl();
-                $expiry  = strtotime('+10 minutes');
+                $url = $object->getUrl();
+                $expiry = strtotime('+10 minutes');
                 $urlPath = urldecode($url->getPath());
-                $body    = sprintf("%s\n%d\n%s", 'GET', $expiry, $urlPath);
-                $hash    = hash_hmac('sha1', $body, $secret);
+                $body = sprintf("%s\n%d\n%s", 'GET', $expiry, $urlPath);
+                $hash = hash_hmac('sha1', $body, $secret);
 
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
+    public function getEntityType(): string
     {
         return ENTITY_DOCUMENT;
     }
@@ -157,44 +213,29 @@ class Document extends EntityModel
         return $this;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function account()
     {
-        return $this->belongsTo('App\Models\Account');
+        return $this->belongsTo(Account::class);
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense')->withTrashed();
+        return $this->belongsTo(Expense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+        return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisk()
     {
-        return Storage::disk( ! empty($this->disk) ? $this->disk : env('DOCUMENT_FILESYSTEM', 'documents'));
+        return Storage::disk(empty($this->disk) ? env('DOCUMENT_FILESYSTEM', 'documents') : $this->disk);
     }
 
     /**
@@ -202,7 +243,7 @@ class Document extends EntityModel
      */
     public function setDiskAttribute($value): void
     {
-        $this->attributes['disk'] = $value ? $value : env('DOCUMENT_FILESYSTEM', 'documents');
+        $this->attributes['disk'] = $value ?: env('DOCUMENT_FILESYSTEM', 'documents');
     }
 
     /**
@@ -221,9 +262,6 @@ class Document extends EntityModel
         return $this->preview ? static::getDirectFileUrl($this->preview, $this->getDisk(), true) : null;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRaw()
     {
         $disk = $this->getDisk();
@@ -231,9 +269,6 @@ class Document extends EntityModel
         return $disk->get($this->path);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRawCached()
     {
         $key = 'image:' . $this->path;
@@ -248,9 +283,6 @@ class Document extends EntityModel
         return $image;
     }
 
-    /**
-     * @return mixed
-     */
     public function getStream()
     {
         $disk = $this->getDisk();
@@ -258,9 +290,6 @@ class Document extends EntityModel
         return $disk->readStream($this->path);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRawPreview()
     {
         $disk = $this->getDisk();
@@ -269,7 +298,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function getUrl()
     {
@@ -279,7 +308,7 @@ class Document extends EntityModel
     /**
      * @param $invitation
      *
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function getClientUrl($invitation)
     {
@@ -295,16 +324,13 @@ class Document extends EntityModel
         return url('proposal/image/' . $this->account->account_key . '/' . $this->document_key . '/' . $this->name);
     }
 
-    /**
-     * @return bool
-     */
-    public function isPDFEmbeddable()
+    public function isPDFEmbeddable(): bool
     {
         return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getVFSJSUrl()
     {
@@ -316,7 +342,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getClientVFSJSUrl()
     {
@@ -328,7 +354,7 @@ class Document extends EntityModel
     }
 
     /**
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     * @return UrlGenerator|null|string
      */
     public function getPreviewUrl()
     {
@@ -342,6 +368,7 @@ class Document extends EntityModel
         if (empty($this->visible) || in_array('url', $this->visible)) {
             $array['url'] = $this->getUrl();
         }
+
         if (empty($this->visible) || in_array('preview_url', $this->visible)) {
             $array['preview_url'] = $this->getPreviewUrl();
         }
@@ -349,21 +376,18 @@ class Document extends EntityModel
         return $array;
     }
 
-    /**
-     * @return mixed
-     */
     public function cloneDocument()
     {
-        $document          = self::createNew($this);
-        $document->path    = $this->path;
+        $document = self::createNew($this);
+        $document->path = $this->path;
         $document->preview = $this->preview;
-        $document->name    = $this->name;
-        $document->type    = $this->type;
-        $document->disk    = $this->disk;
-        $document->hash    = $this->hash;
-        $document->size    = $this->size;
-        $document->width   = $this->width;
-        $document->height  = $this->height;
+        $document->name = $this->name;
+        $document->type = $this->type;
+        $document->disk = $this->disk;
+        $document->hash = $this->hash;
+        $document->size = $this->size;
+        $document->width = $this->width;
+        $document->height = $this->height;
 
         return $document;
     }
@@ -371,11 +395,6 @@ class Document extends EntityModel
     public function scopeProposalImages($query)
     {
         return $query->whereIsProposal(1);
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
 

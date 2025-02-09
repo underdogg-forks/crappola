@@ -2,8 +2,9 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
 use Carbon;
+use stdClass;
+use Utils;
 
 class PaymentPresenter extends EntityPresenter
 {
@@ -19,7 +20,7 @@ class PaymentPresenter extends EntityPresenter
 
     public function currencySymbol()
     {
-        return Utils::getFromCache($this->entity->client->currency_id ? $this->entity->client->currency_id : DEFAULT_CURRENCY, 'currencies')->symbol;
+        return Utils::getFromCache($this->entity->client->currency_id ?: DEFAULT_CURRENCY, 'currencies')->symbol;
     }
 
     public function client()
@@ -51,14 +52,15 @@ class PaymentPresenter extends EntityPresenter
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
         }
+
         if ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
 
-    public function calendarEvent($subColors = false)
+    public function calendarEvent($subColors = false): stdClass
     {
-        $data    = parent::calendarEvent();
+        $data = parent::calendarEvent();
         $payment = $this->entity;
         $invoice = $payment->invoice;
 
@@ -66,9 +68,11 @@ class PaymentPresenter extends EntityPresenter
         $data->start = $payment->payment_date;
 
         if ($subColors) {
-            $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
+            $data->borderColor = Utils::brewerColor($payment->payment_status_id);
+            $data->backgroundColor = $data->borderColor;
         } else {
-            $data->borderColor = $data->backgroundColor = '#5fa213';
+            $data->borderColor = '#5fa213';
+            $data->backgroundColor = '#5fa213';
         }
 
         return $data;

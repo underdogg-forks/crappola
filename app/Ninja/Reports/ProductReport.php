@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class ProductReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'         => [],
@@ -44,9 +44,9 @@ class ProductReport extends AbstractReport
 
     public function run(): void
     {
-        $account   = Auth::user()->account;
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
-        $subgroup  = $this->options['subgroup'];
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
@@ -88,11 +88,7 @@ class ProductReport extends AbstractReport
 
                     $this->data[] = $row;
 
-                    if ($subgroup == 'product') {
-                        $dimension = $item->product_key;
-                    } else {
-                        $dimension = $this->getDimension($client);
-                    }
+                    $dimension = $subgroup == 'product' ? $item->product_key : $this->getDimension($client);
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
                 }

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Expense;
 
 /**
@@ -9,6 +10,8 @@ use App\Models\Expense;
  */
 class ExpenseTransformer extends EntityTransformer
 {
+    public $client;
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
@@ -38,7 +41,7 @@ class ExpenseTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct($account = null, $serializer = null, $client = null)
+    public function __construct(?Account $account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
 
@@ -57,7 +60,7 @@ class ExpenseTransformer extends EntityTransformer
         return $this->includeCollection($expense->documents, $transformer, ENTITY_DOCUMENT);
     }
 
-    public function transform(Expense $expense)
+    public function transform(Expense $expense): array
     {
         return array_merge($this->getDefaults($expense), [
             'id'                    => (int) $expense->public_id,

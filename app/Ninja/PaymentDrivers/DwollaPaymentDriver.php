@@ -4,7 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 class DwollaPaymentDriver extends BasePaymentDriver
 {
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         return [GATEWAY_TYPE_DWOLLA];
     }

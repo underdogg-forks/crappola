@@ -7,12 +7,21 @@ use stdClass;
 
 class InvoiceCard
 {
+    /**
+     * @var string
+     */
+    public $contentType = 'application/vnd.microsoft.card.receipt';
+
+    /**
+     * @var stdClass
+     */
+    public $content;
+
     public function __construct($invoice)
     {
-        $this->contentType      = 'application/vnd.microsoft.card.receipt';
-        $this->content          = new stdClass();
-        $this->content->facts   = [];
-        $this->content->items   = [];
+        $this->content = new stdClass();
+        $this->content->facts = [];
+        $this->content->items = [];
         $this->content->buttons = [];
 
         $this->setTitle('test');
@@ -42,7 +51,7 @@ class InvoiceCard
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if ((float) ($invoice->amount)) {
+        if ((float) ($invoice->amount) !== 0.0) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
@@ -62,8 +71,8 @@ class InvoiceCard
 
     public function addFact($key, $value): void
     {
-        $fact        = new stdClass();
-        $fact->key   = $key;
+        $fact = new stdClass();
+        $fact->key = $key;
         $fact->value = $value;
 
         $this->content->facts[] = $fact;

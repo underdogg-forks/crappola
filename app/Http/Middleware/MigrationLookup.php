@@ -20,18 +20,21 @@ class MigrationLookup
         }
 
         //need to wrap an additional block over this to funnel users in a particular range
-        if(auth()->user()->id >= config('ninja.migration_user_start') &&
+        if (auth()->user()->id >= config('ninja.migration_user_start') &&
            auth()->user()->id <= config('ninja.migration_user_end') &&
            ( ! auth()->user()->account->company->plan_expires || Carbon::parse(auth()->user()->account->company->plan_expires)->lt(now()))) {
-            if ($guard == 'user') {
-                if(request()->is('migration/*') || request()->is('settings/*')) {
-                    return $next($request);
-                }
+            if ($guard != 'user') {
+                return redirect('/settings/account_management')->with('warning', $this->silo);
+            }
+
+            if (request()->is('migration/*') || request()->is('settings/*')) {
+                return $next($request);
             }
 
             return redirect('/settings/account_management')->with('warning', $this->silo);
         }
-        if( ! auth()->user()->account->company->plan_expires || Carbon::parse(auth()->user()->account->company->plan_expires)->lt(now())) {
+
+        if ( ! auth()->user()->account->company->plan_expires || Carbon::parse(auth()->user()->account->company->plan_expires)->lt(now())) {
             session()->flash('warning', $this->migration_notification);
         }
 

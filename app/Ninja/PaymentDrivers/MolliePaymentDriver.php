@@ -4,18 +4,19 @@ namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Invitation;
 use App\Models\Payment;
+use Illuminate\Support\Arr;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
-    public function completeOffsitePurchase($input)
+    public function completeOffsitePurchase($input): bool
     {
         // payment is created by the webhook
         return false;
     }
 
-    public function handleWebHook($input)
+    public function handleWebHook($input): string
     {
-        $ref  = array_get($input, 'id');
+        $ref = Arr::get($input, 'id');
         $data = [
             'transactionReference' => $ref,
         ];
@@ -45,7 +46,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         return RESULT_SUCCESS;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 

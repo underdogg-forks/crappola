@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        Model::unguard();
+        Eloquent::unguard();
 
         $this->call('ConstantsSeeder');
         $this->call('CountriesSeeder');

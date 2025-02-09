@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class TrackLastSeenMessage extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -39,4 +38,4 @@ class TrackLastSeenMessage extends Migration
             $table->dropColumn('news_feed_id');
         });
     }
-}
+};

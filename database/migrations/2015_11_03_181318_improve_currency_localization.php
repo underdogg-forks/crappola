@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ImproveCurrencyLocalization extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,4 +30,4 @@ class ImproveCurrencyLocalization extends Migration
             $table->dropColumn('decimal_separator');
         });
     }
-}
+};

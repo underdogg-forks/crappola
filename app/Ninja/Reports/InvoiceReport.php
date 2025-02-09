@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class InvoiceReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'           => [],
@@ -38,6 +38,7 @@ class InvoiceReport extends AbstractReport
         if ($account->customLabel('invoice_text1')) {
             $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('invoice_text2')) {
             $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
@@ -51,11 +52,11 @@ class InvoiceReport extends AbstractReport
             return;
         }
 
-        $account      = Auth::user()->account;
-        $statusIds    = $this->options['status_ids'];
+        $account = Auth::user()->account;
+        $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
-        $subgroup     = $this->options['subgroup'];
-        $hasTaxRates  = TaxRate::scope()->count();
+        $subgroup = $this->options['subgroup'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
             ->orderBy('name')
@@ -88,6 +89,7 @@ class InvoiceReport extends AbstractReport
                     }
                 }
             }
+
             $zip->finish();
             exit;
         }
@@ -103,13 +105,14 @@ class InvoiceReport extends AbstractReport
                     $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
                 }
             }
+
             $zip->finish();
             exit;
         }
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $isFirst  = true;
+                $isFirst = true;
                 $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $row = [
@@ -137,6 +140,7 @@ class InvoiceReport extends AbstractReport
                     if ($account->customLabel('invoice_text1')) {
                         $row[] = $invoice->custom_text_value1;
                     }
+
                     if ($account->customLabel('invoice_text2')) {
                         $row[] = $invoice->custom_text_value2;
                     }
@@ -150,11 +154,7 @@ class InvoiceReport extends AbstractReport
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $this->addToTotals($client->currency_id, 'balance', $invoice->balance);
 
-                if ($subgroup == 'status') {
-                    $dimension = $invoice->statusLabel();
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'status' ? $invoice->statusLabel() : $this->getDimension($client);
 
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }

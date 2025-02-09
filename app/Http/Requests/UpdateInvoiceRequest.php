@@ -6,22 +6,12 @@ use App\Models\Client;
 
 class UpdateInvoiceRequest extends InvoiceRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->entity()) {
             return [];
@@ -41,7 +31,7 @@ class UpdateInvoiceRequest extends InvoiceRequest
         ];
 
         if ($this->user()->account->client_number_counter) {
-            $clientId                  = Client::getPrivateId(request()->input('client')['public_id']);
+            $clientId = Client::getPrivateId(request()->input('client')['public_id']);
             $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,account_id,' . $this->user()->account_id;
         }
 

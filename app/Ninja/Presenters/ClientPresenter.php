@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ClientPresenter extends EntityPresenter
 {
@@ -18,7 +18,7 @@ class ClientPresenter extends EntityPresenter
 
     public function balance()
     {
-        $client  = $this->entity;
+        $client = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->balance, $client);
@@ -33,20 +33,20 @@ class ClientPresenter extends EntityPresenter
         }
 
         $website = e($client->website);
-        $link    = Utils::addHttp($website);
+        $link = Utils::addHttp($website);
 
         return link_to($link, $website, ['target' => '_blank']);
     }
 
     public function paid_to_date()
     {
-        $client  = $this->entity;
+        $client = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->paid_to_date, $client);
     }
 
-    public function paymentTerms()
+    public function paymentTerms(): string
     {
         $client = $this->entity;
 
@@ -57,43 +57,43 @@ class ClientPresenter extends EntityPresenter
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
 
-    public function address($addressType = ADDRESS_BILLING, $showHeader = false)
+    public function address(string $addressType = ADDRESS_BILLING, $showHeader = false): string
     {
-        $str    = '';
-        $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
+        $str = '';
+        $prefix = $addressType === ADDRESS_BILLING ? '' : 'shipping_';
         $client = $this->entity;
 
         if ($address1 = $client->{$prefix . 'address1'}) {
             $str .= e($address1) . '<br/>';
         }
+
         if ($address2 = $client->{$prefix . 'address2'}) {
             $str .= e($address2) . '<br/>';
         }
+
         if ($cityState = $this->getCityState($addressType)) {
             $str .= e($cityState) . '<br/>';
         }
+
         if ($country = $client->{$prefix . 'country'}) {
             $str .= e($country->getName()) . '<br/>';
         }
 
         if ($str && $showHeader) {
-            $str = '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
+            return '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
         }
 
         return $str;
     }
 
-    /**
-     * @return string
-     */
     public function getCityState($addressType = ADDRESS_BILLING)
     {
         $client = $this->entity;
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
-        $swap   = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
+        $swap = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
 
-        $city       = e($client->{$prefix . 'city'});
-        $state      = e($client->{$prefix . 'state'});
+        $city = e($client->{$prefix . 'city'});
+        $state = e($client->{$prefix . 'state'});
         $postalCode = e($client->{$prefix . 'postal_code'});
 
         if ($city || $state || $postalCode) {
@@ -103,21 +103,15 @@ class ClientPresenter extends EntityPresenter
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate) !== 0.0) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function defaultTaskRate()
     {
         if ($rate = $this->taskRate()) {

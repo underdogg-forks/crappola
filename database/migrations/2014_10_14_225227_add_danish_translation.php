@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDanishTranslation extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -24,4 +23,4 @@ class AddDanishTranslation extends Migration
         //$language = \App\Models\Language::whereLocale('da')->first();
         //$language->delete();
     }
-}
+};

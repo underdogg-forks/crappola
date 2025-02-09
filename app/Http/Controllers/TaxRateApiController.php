@@ -11,14 +11,11 @@ use App\Ninja\Repositories\TaxRateRepository;
 class TaxRateApiController extends BaseAPIController
 {
     /**
-     * @var TaxRateRepository
-     */
-    protected $taxRateRepo;
-
-    /**
      * @var string
      */
-    protected $entityType = ENTITY_TAX_RATE;
+    public $entityType = ENTITY_TAX_RATE;
+
+    protected TaxRateRepository $taxRateRepo;
 
     /**
      * TaxRateApiController constructor.
@@ -168,9 +165,9 @@ class TaxRateApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $taxRate           = $this->taxRateRepo->save($data, $request->entity());
+        $taxRate = $this->taxRateRepo->save($data, $request->entity());
 
         return $this->itemResponse($taxRate);
     }

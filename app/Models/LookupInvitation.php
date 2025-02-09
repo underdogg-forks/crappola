@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int           $id
+ * @property int           $lookup_account_id
+ * @property string        $invitation_key
+ * @property string|null   $message_id
+ * @property LookupAccount $lookupAccount
+ *
+ * @method static Builder|LookupInvitation newModelQuery()
+ * @method static Builder|LookupInvitation newQuery()
+ * @method static Builder|LookupInvitation query()
+ * @method static Builder|LookupInvitation whereId($value)
+ * @method static Builder|LookupInvitation whereInvitationKey($value)
+ * @method static Builder|LookupInvitation whereLookupAccountId($value)
+ * @method static Builder|LookupInvitation whereMessageId($value)
+ *
+ * @mixin \Eloquent
  */
 class LookupInvitation extends LookupModel
 {
@@ -42,10 +58,5 @@ class LookupInvitation extends LookupModel
         $lookupInvitation->save();
 
         config(['database.default' => $current]);
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }

@@ -7,13 +7,13 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
-    protected $documentRepo;
+    public $entityType = ENTITY_DOCUMENT;
 
-    protected $entityType = ENTITY_DOCUMENT;
+    protected DocumentRepository $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -67,7 +67,7 @@ class DocumentController extends BaseController
         }
 
         $previewType = pathinfo($document->preview, PATHINFO_EXTENSION);
-        $response    = Response::make($document->getRawPreview(), 200);
+        $response = Response::make($document->getRawPreview(), 200);
         $response->header('content-type', Document::$types[$previewType]['mime']);
 
         return $response;
@@ -77,7 +77,7 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (mb_substr($name, -3) == '.js') {
+        if (mb_substr($name, -3) === '.js') {
             $name = mb_substr($name, 0, -3);
         }
 
@@ -85,8 +85,9 @@ class DocumentController extends BaseController
             return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
-        $content  = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content  = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+        $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -104,6 +105,7 @@ class DocumentController extends BaseController
                 'code'  => 400,
             ], 400);
         }
+
         if ($request->grapesjs) {
             $response = [
                 'data' => [
@@ -121,7 +123,7 @@ class DocumentController extends BaseController
         return Response::json($response, 200);
     }
 
-    public function delete(UpdateDocumentRequest $request)
+    public function delete(UpdateDocumentRequest $request): string
     {
         $request->entity()->delete();
 

@@ -30,7 +30,7 @@ class ContactTransformer extends EntityTransformer
      * @SWG\Property(property="custom_value1", type="string", example="Value")
      * @SWG\Property(property="custom_value2", type="string", example="Value")
      */
-    public function transform(Contact $contact)
+    public function transform(Contact $contact): array
     {
         return array_merge($this->getDefaults($contact), [
             'id'            => (int) $contact->public_id,

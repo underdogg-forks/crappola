@@ -5,30 +5,31 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateCreditRequest;
 use App\Http\Requests\CreditRequest;
 use App\Http\Requests\UpdateCreditRequest;
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use App\Services\CreditService;
-use Redirect;
-use Request;
-use Session;
-use View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 class CreditController extends BaseController
 {
-    protected $creditRepo;
+    public $entityType = ENTITY_CREDIT;
 
-    protected $creditService;
+    protected CreditRepository $creditRepo;
 
-    protected $entityType = ENTITY_CREDIT;
+    protected CreditService $creditService;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
         // parent::__construct();
 
-        $this->creditRepo    = $creditRepo;
+        $this->creditRepo = $creditRepo;
         $this->creditService = $creditService;
     }
 
@@ -54,7 +55,7 @@ class CreditController extends BaseController
     public function create(CreditRequest $request)
     {
         $data = [
-            'clientPublicId' => Request::old('client') ? Request::old('client') : ($request->client_id ?: 0),
+            'clientPublicId' => Request::old('client') ?: ($request->client_id ?: 0),
             'credit'         => null,
             'method'         => 'POST',
             'url'            => 'credits',
@@ -65,7 +66,7 @@ class CreditController extends BaseController
         return View::make('credits.edit', $data);
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $credit = Credit::withTrashed()->scope($publicId)->firstOrFail();
 
@@ -89,13 +90,13 @@ class CreditController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function show($publicId)
     {
         Session::reflash();
 
-        return Redirect::to("credits/{$publicId}/edit");
+        return Redirect::to(sprintf('credits/%s/edit', $publicId));
     }
 
     public function update(UpdateCreditRequest $request)
@@ -113,8 +114,8 @@ class CreditController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count  = $this->creditService->bulk($ids, $action);
+        $ids = Request::input('public_id') ?: Request::input('ids');
+        $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
             $message = Utils::pluralize($action . 'd_credit', $count);
@@ -131,6 +132,6 @@ class CreditController extends BaseController
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         Session::flash('message', $message);
 
-        return redirect()->to("clients/{$credit->client->public_id}#credits");
+        return redirect()->to(sprintf('clients/%s#credits', $credit->client->public_id));
     }
 }

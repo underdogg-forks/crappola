@@ -10,17 +10,19 @@ use App\Services\ExpenseCategoryService;
 
 class ExpenseCategoryApiController extends BaseAPIController
 {
-    protected $categoryRepo;
+    public $expenseCategoryRepo;
 
-    protected $categoryService;
+    public $entityType = ENTITY_EXPENSE_CATEGORY;
 
-    protected $entityType = ENTITY_EXPENSE_CATEGORY;
+    protected ExpenseCategoryRepository $categoryRepo;
+
+    protected ExpenseCategoryService $categoryService;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
     {
         parent::__construct();
 
-        $this->categoryRepo    = $categoryRepo;
+        $this->categoryRepo = $categoryRepo;
         $this->categoryService = $categoryService;
     }
 

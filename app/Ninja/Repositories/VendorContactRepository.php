@@ -15,7 +15,7 @@ class VendorContactRepository extends BaseRepository
         if ( ! $publicId || (int) $publicId < 0) {
             $contact = VendorContact::createNew();
             //$contact->send_invoice = true;
-            $contact->vendor_id  = $data['vendor_id'];
+            $contact->vendor_id = $data['vendor_id'];
             $contact->is_primary = VendorContact::scope()->where('vendor_id', '=', $contact->vendor_id)->count() == 0;
         } else {
             $contact = VendorContact::scope($publicId)->firstOrFail();

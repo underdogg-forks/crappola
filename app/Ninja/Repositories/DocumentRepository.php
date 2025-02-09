@@ -2,20 +2,22 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Document;
-use Auth;
 use Datatable;
-use DB;
 use Form;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
+use Utils;
 
 class DocumentRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Document';
+        return Document::class;
     }
 
     public function all()
@@ -28,7 +30,7 @@ class DocumentRepository extends BaseRepository
     public function find()
     {
         $accountid = Auth::user()->account_id;
-        $query     = DB::table('clients')
+        $query = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
@@ -58,10 +60,10 @@ class DocumentRepository extends BaseRepository
     {
         if ( ! empty($data['grapesjs']) && $data['grapesjs']) {
             $isProposal = true;
-            $uploaded   = $data['files'][0];
+            $uploaded = $data['files'][0];
         } else {
             $isProposal = false;
-            $uploaded   = $data['file'];
+            $uploaded = $data['file'];
         }
 
         $extension = mb_strtolower($uploaded->getClientOriginalExtension());
@@ -78,27 +80,27 @@ class DocumentRepository extends BaseRepository
         $documentTypeData = Document::$types[$documentType];
 
         $filePath = $uploaded->path();
-        $name     = $uploaded->getClientOriginalName();
-        $size     = filesize($filePath);
+        $name = $uploaded->getClientOriginalName();
+        $size = filesize($filePath);
 
         if ($size / 1000 > MAX_DOCUMENT_SIZE) {
             return 'File too large';
         }
 
         // don't allow a document to be linked to both an invoice and an expense
-        if (array_get($data, 'invoice_id') && array_get($data, 'expense_id')) {
+        if (Arr::get($data, 'invoice_id') && Arr::get($data, 'expense_id')) {
             unset($data['expense_id']);
         }
 
-        $hash     = sha1_file($filePath);
+        $hash = sha1_file($filePath);
         $filename = Auth::user()->account->account_key . '/' . $hash . '.' . $documentType;
 
         $document = Document::createNew();
         $document->fill($data);
 
         if ($isProposal) {
-            $document->is_proposal  = true;
-            $document->document_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $document->is_proposal = true;
+            $document->document_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
         }
 
         $disk = $document->getDisk();
@@ -110,10 +112,10 @@ class DocumentRepository extends BaseRepository
 
         // This is an image; check if we need to create a preview
         if (in_array($documentType, ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
-            $makePreview      = false;
-            $imageSize        = getimagesize($filePath);
-            $width            = $imageSize[0];
-            $height           = $imageSize[1];
+            $makePreview = false;
+            $imageSize = getimagesize($filePath);
+            $width = $imageSize[0];
+            $height = $imageSize[1];
             $imgManagerConfig = [];
             if (in_array($documentType, ['gif', 'bmp', 'tiff', 'psd'])) {
                 // Needs to be converted
@@ -146,14 +148,14 @@ class DocumentRepository extends BaseRepository
                     $img = $imgManager->make($filePath);
 
                     if ($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE) {
-                        $previewWidth  = $width;
+                        $previewWidth = $width;
                         $previewHeight = $height;
                     } elseif ($width > $height) {
-                        $previewWidth  = DOCUMENT_PREVIEW_SIZE;
+                        $previewWidth = DOCUMENT_PREVIEW_SIZE;
                         $previewHeight = $height * DOCUMENT_PREVIEW_SIZE / $width;
                     } else {
                         $previewHeight = DOCUMENT_PREVIEW_SIZE;
-                        $previewWidth  = $width * DOCUMENT_PREVIEW_SIZE / $height;
+                        $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
                     }
 
                     $img->resize($previewWidth, $previewHeight);
@@ -175,16 +177,16 @@ class DocumentRepository extends BaseRepository
         $document->hash = $hash;
         $document->name = mb_substr($name, -255);
 
-        if ( ! empty($imageSize)) {
-            $document->width  = $imageSize[0];
+        if ($imageSize !== [] && $imageSize !== false) {
+            $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }
 
         $document->save();
         $doc_array = $document->toArray();
 
-        if ( ! empty($base64)) {
-            $mime                = Document::$types[ ! empty($previewType) ? $previewType : $documentType]['mime'];
+        if ($base64 !== '' && $base64 !== '0') {
+            $mime = Document::$types[$previewType === '' || $previewType === '0' ? $documentType : $previewType]['mime'];
             $doc_array['base64'] = 'data:' . $mime . ';base64,' . $base64;
         }
 
@@ -216,25 +218,17 @@ class DocumentRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('invoice_number', function ($model) {
-                return link_to(
-                    '/view/' . $model->invitation_key,
-                    $model->invoice_number
-                )->toHtml();
-            })
-            ->addColumn('name', function ($model) {
-                return link_to(
-                    '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
-                    $model->name,
-                    ['target' => '_blank']
-                )->toHtml();
-            })
-            ->addColumn('created_at', function ($model) {
-                return Utils::dateToString($model->created_at);
-            })
-            ->addColumn('size', function ($model) {
-                return Form::human_filesize($model->size);
-            });
+            ->addColumn('invoice_number', fn ($model) => link_to(
+                '/view/' . $model->invitation_key,
+                $model->invoice_number
+            )->toHtml())
+            ->addColumn('name', fn ($model) => link_to(
+                '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
+                $model->name,
+                ['target' => '_blank']
+            )->toHtml())
+            ->addColumn('created_at', fn ($model) => Utils::dateToString($model->created_at))
+            ->addColumn('size', fn ($model) => Form::human_filesize($model->size));
 
         return $table->make();
     }

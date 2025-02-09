@@ -16,7 +16,7 @@ class CurlUtils
         return self::exec('GET', $url, null, $headers);
     }
 
-    public static function exec($method, $url, $data, $headers = false)
+    public static function exec($method, $url, $data, $headers = false): bool|string
     {
         $curl = curl_init();
 
@@ -34,7 +34,7 @@ class CurlUtils
         curl_setopt_array($curl, $opts);
         $response = curl_exec($curl);
 
-        if ($error = curl_error($curl)) {
+        if (($error = curl_error($curl)) !== '' && ($error = curl_error($curl)) !== '0') {
             Utils::logError('CURL Error #' . curl_errno($curl) . ': ' . $error);
         }
 
@@ -56,6 +56,7 @@ class CurlUtils
 
         $request = $client->getMessageFactory()->createRequest($url, $method);
         $request->setTimeout(5000);
+
         $response = $client->getMessageFactory()->createResponse();
 
         // Send the request
@@ -68,7 +69,7 @@ class CurlUtils
         return false;
     }
 
-    public static function renderPDF($url, $filename)
+    public static function renderPDF($url, $filename): false|string
     {
         if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;

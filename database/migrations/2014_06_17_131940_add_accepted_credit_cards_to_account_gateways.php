@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddAcceptedCreditCardsToAccountGateways extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,4 +26,4 @@ class AddAcceptedCreditCardsToAccountGateways extends Migration
             $table->dropColumn('accepted_credit_cards');
         });
     }
-}
+};

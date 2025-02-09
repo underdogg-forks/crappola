@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceDesignTable extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -507,4 +506,4 @@ class AddInvoiceDesignTable extends Migration
             $table->dropColumn('invoice_design');
         });
     }
-}
+};

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddMultipleDatabaseSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -66,4 +65,4 @@ class AddMultipleDatabaseSupport extends Migration
 
         Schema::rename('lookup_account_tokens', 'lookup_tokens');
     }
-}
+};

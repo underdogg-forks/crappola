@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomProductFields extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -78,4 +77,4 @@ class AddCustomProductFields extends Migration
 
         DB::table('currencies')->where('code', '=', 'HRK')->update(['code' => 'HKR']);
     }
-}
+};

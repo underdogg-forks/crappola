@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ActivityReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'date'     => [],
@@ -22,16 +22,16 @@ class ActivityReport extends AbstractReport
         $account = Auth::user()->account;
 
         $startDate = $this->startDate;
-        $endDate   = $this->endDate;
-        $subgroup  = $this->options['subgroup'];
+        $endDate = $this->endDate;
+        $subgroup = $this->options['subgroup'];
 
         $activities = Activity::scope()
             ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
-            ->whereRaw("DATE(created_at) >= \"{$startDate}\" and DATE(created_at) <= \"{$endDate}\"")
+            ->whereRaw(sprintf('DATE(created_at) >= "%s" and DATE(created_at) <= "%s"', $startDate, $endDate))
             ->orderBy('id', 'desc');
 
         foreach ($activities->get() as $activity) {
-            $client       = $activity->client;
+            $client = $activity->client;
             $this->data[] = [
                 $activity->present()->createdAt,
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
@@ -39,11 +39,7 @@ class ActivityReport extends AbstractReport
                 $this->isExport ? strip_tags($activity->getMessage()) : $activity->getMessage(),
             ];
 
-            if ($subgroup == 'category') {
-                $dimension = trans('texts.' . $activity->relatedEntityType());
-            } else {
-                $dimension = $this->getDimension($activity);
-            }
+            $dimension = $subgroup == 'category' ? trans('texts.' . $activity->relatedEntityType()) : $this->getDimension($activity);
 
             $this->addChartData($dimension, $activity->created_at, 1);
         }

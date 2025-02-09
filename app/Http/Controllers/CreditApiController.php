@@ -11,9 +11,9 @@ use Response;
 
 class CreditApiController extends BaseAPIController
 {
-    protected $creditRepo;
+    public $entityType = ENTITY_CREDIT;
 
-    protected $entityType = ENTITY_CREDIT;
+    protected CreditRepository $creditRepo;
 
     public function __construct(CreditRepository $creditRepo)
     {
@@ -159,9 +159,9 @@ class CreditApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $credit            = $this->creditRepo->save($data, $request->entity());
+        $credit = $this->creditRepo->save($data, $request->entity());
 
         return $this->itemResponse($credit);
     }

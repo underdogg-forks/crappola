@@ -13,21 +13,21 @@ use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\RecurringExpenseService;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class RecurringExpenseController extends BaseController
 {
-    protected $recurringExpenseRepo;
+    public $entityType = ENTITY_RECURRING_EXPENSE;
 
-    protected $recurringExpenseService;
+    protected RecurringExpenseRepository $recurringExpenseRepo;
 
-    protected $entityType = ENTITY_RECURRING_EXPENSE;
+    protected RecurringExpenseService $recurringExpenseService;
 
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, RecurringExpenseService $recurringExpenseService)
     {
-        $this->recurringExpenseRepo    = $recurringExpenseRepo;
+        $this->recurringExpenseRepo = $recurringExpenseRepo;
         $this->recurringExpenseService = $recurringExpenseService;
     }
 
@@ -62,7 +62,7 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId'   => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
+            'vendorPublicId'   => Request::old('vendor') ?: $request->vendor_id,
             'expense'          => null,
             'method'           => 'POST',
             'url'              => 'recurring_expenses',
@@ -74,7 +74,7 @@ class RecurringExpenseController extends BaseController
             'categoryPublicId' => $request->category_id,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return View::make('expenses.edit', $data);
     }
@@ -106,7 +106,7 @@ class RecurringExpenseController extends BaseController
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return View::make('expenses.edit', $data);
     }
@@ -136,19 +136,19 @@ class RecurringExpenseController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count  = $this->recurringExpenseService->bulk($ids, $action);
+        $ids = Request::input('public_id') ?: Request::input('ids');
+        $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field   = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_recurring_expense' : $action . 'd_recurring_expenses';
+            $message = trans('texts.' . $field, ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel()
+    private function getViewModel(): array
     {
         return [
             'data'        => Request::old('data'),

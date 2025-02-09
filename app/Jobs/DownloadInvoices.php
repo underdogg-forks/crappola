@@ -16,11 +16,7 @@ use Illuminate\Queue\SerializesModels;
 class DownloadInvoices extends Job
 {
     //use InteractsWithQueue, SerializesModels;
-
-    /**
-     * @var User
-     */
-    protected $user;
+    protected User $user;
 
     /**
      * @var array
@@ -35,7 +31,7 @@ class DownloadInvoices extends Job
      */
     public function __construct(User $user, $invoices)
     {
-        $this->user     = $user;
+        $this->user = $user;
         $this->invoices = $invoices;
     }
 

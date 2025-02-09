@@ -27,7 +27,7 @@ trait HasCustomMessages
         $this->attributes['custom_messages'] = count($fields) ? json_encode($fields) : null;
     }
 
-    public function getCustomMessagesAttribute($value)
+    public function getCustomMessagesAttribute($value): mixed
     {
         return json_decode($value ?: '{}');
     }

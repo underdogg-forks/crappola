@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPhoneToAccount extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -29,4 +28,4 @@ class AddPhoneToAccount extends Migration
             $table->dropColumn('work_email');
         });
     }
-}
+};

@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddAffiliatePrice extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -35,4 +34,4 @@ class AddAffiliatePrice extends Migration
             $table->dropColumn('product_id');
         });
     }
-}
+};

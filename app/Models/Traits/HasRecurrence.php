@@ -2,18 +2,19 @@
 
 namespace App\Models\Traits;
 
-use App\Libraries\Utils;
 use Carbon;
 use DateTime;
+use Recurr\RecurrenceCollection;
+use Recurr\Rule;
+use Recurr\Transformer\ArrayTransformer;
+use Recurr\Transformer\ArrayTransformerConfig;
+use Utils;
 
 /**
  * Class HasRecurrence.
  */
 trait HasRecurrence
 {
-    /**
-     * @return bool
-     */
     public function shouldSendToday()
     {
         if (Utils::isSelfHost()) {
@@ -23,9 +24,6 @@ trait HasRecurrence
         return $this->shouldSendTodayOld();
     }
 
-    /**
-     * @return bool
-     */
     public function shouldSendTodayOld()
     {
         if ( ! $this->user->confirmed) {
@@ -52,10 +50,11 @@ trait HasRecurrence
         if ( ! $this->last_sent_date) {
             return true;
         }
-        $date1               = new DateTime($this->last_sent_date);
-        $date2               = new DateTime();
-        $diff                = $date2->diff($date1);
-        $daysSinceLastSent   = $diff->format('%a');
+
+        $date1 = new DateTime($this->last_sent_date);
+        $date2 = new DateTime();
+        $diff = $date2->diff($date1);
+        $daysSinceLastSent = $diff->format('%a');
         $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
         // check we don't send a few hours early due to timezone difference
@@ -68,30 +67,19 @@ trait HasRecurrence
             return false;
         }
 
-        switch ($this->frequency_id) {
-            case FREQUENCY_WEEKLY:
-                return $daysSinceLastSent >= 7;
-            case FREQUENCY_TWO_WEEKS:
-                return $daysSinceLastSent >= 14;
-            case FREQUENCY_FOUR_WEEKS:
-                return $daysSinceLastSent >= 28;
-            case FREQUENCY_MONTHLY:
-                return $monthsSinceLastSent >= 1;
-            case FREQUENCY_TWO_MONTHS:
-                return $monthsSinceLastSent >= 2;
-            case FREQUENCY_THREE_MONTHS:
-                return $monthsSinceLastSent >= 3;
-            case FREQUENCY_FOUR_MONTHS:
-                return $monthsSinceLastSent >= 4;
-            case FREQUENCY_SIX_MONTHS:
-                return $monthsSinceLastSent >= 6;
-            case FREQUENCY_ANNUALLY:
-                return $monthsSinceLastSent >= 12;
-            case FREQUENCY_TWO_YEARS:
-                return $monthsSinceLastSent >= 24;
-            default:
-                return false;
-        }
+        return match ($this->frequency_id) {
+            FREQUENCY_WEEKLY       => $daysSinceLastSent >= 7,
+            FREQUENCY_TWO_WEEKS    => $daysSinceLastSent >= 14,
+            FREQUENCY_FOUR_WEEKS   => $daysSinceLastSent >= 28,
+            FREQUENCY_MONTHLY      => $monthsSinceLastSent >= 1,
+            FREQUENCY_TWO_MONTHS   => $monthsSinceLastSent >= 2,
+            FREQUENCY_THREE_MONTHS => $monthsSinceLastSent >= 3,
+            FREQUENCY_FOUR_MONTHS  => $monthsSinceLastSent >= 4,
+            FREQUENCY_SIX_MONTHS   => $monthsSinceLastSent >= 6,
+            FREQUENCY_ANNUALLY     => $monthsSinceLastSent >= 12,
+            FREQUENCY_TWO_YEARS    => $monthsSinceLastSent >= 24,
+            default                => false,
+        };
 
         return false;
     }
@@ -102,7 +90,7 @@ trait HasRecurrence
             return false;
         }
 
-        $account  = $this->account;
+        $account = $this->account;
         $timezone = $account->getTimezone();
 
         if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
@@ -116,6 +104,7 @@ trait HasRecurrence
         if ( ! $this->last_sent_date) {
             return true;
         }
+
         // check we don't send a few hours early due to timezone difference
         if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
             return false;
@@ -133,7 +122,7 @@ trait HasRecurrence
     /**
      * @throws \Recurr\Exception\MissingData
      *
-     * @return bool|\Recurr\RecurrenceCollection
+     * @return bool|RecurrenceCollection
      */
     public function getSchedule()
     {
@@ -146,14 +135,15 @@ trait HasRecurrence
         $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
-        $rule = new \Recurr\Rule("{$rule}", $startDate, null, $timezone);
+        $rule = new Rule($rule, $startDate, null, $timezone);
 
         // Fix for months with less than 31 days
-        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
+        $transformerConfig = new ArrayTransformerConfig();
         $transformerConfig->enableLastDayOfMonthFix();
 
-        $transformer = new \Recurr\Transformer\ArrayTransformer();
+        $transformer = new ArrayTransformer();
         $transformer->setConfig($transformerConfig);
+
         $dates = $transformer->transform($rule);
 
         if (count($dates) < 1) {
@@ -190,10 +180,7 @@ trait HasRecurrence
         return $schedule[1]->getStart();
     }
 
-    /**
-     * @return string
-     */
-    private function getRecurrenceRule()
+    private function getRecurrenceRule(): string
     {
         $rule = '';
 

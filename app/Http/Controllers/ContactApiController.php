@@ -12,17 +12,17 @@ use Response;
 
 class ContactApiController extends BaseAPIController
 {
-    protected $contactRepo;
+    public $entityType = ENTITY_CONTACT;
 
-    protected $contactService;
+    protected ContactRepository $contactRepo;
 
-    protected $entityType = ENTITY_CONTACT;
+    protected ContactService $contactService;
 
     public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {
         parent::__construct();
 
-        $this->contactRepo    = $contactRepo;
+        $this->contactRepo = $contactRepo;
         $this->contactService = $contactService;
     }
 
@@ -158,9 +158,9 @@ class ContactApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $contact           = $this->contactService->save($data, $request->entity());
+        $contact = $this->contactService->save($data, $request->entity());
 
         return $this->itemResponse($contact);
     }

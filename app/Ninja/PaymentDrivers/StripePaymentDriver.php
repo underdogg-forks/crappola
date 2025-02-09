@@ -7,10 +7,15 @@ use App\Models\Invitation;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
-use Cache;
+use App\Ninja\Mailers\UserMailer;
 use Exception;
-use Session;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
@@ -19,7 +24,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected $customerReferenceParam = 'customerReference';
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
@@ -27,7 +32,7 @@ class StripePaymentDriver extends BasePaymentDriver
         ];
 
         if ($gateway = $this->accountGateway) {
-            $achEnabled    = $gateway->getAchEnabled();
+            $achEnabled = $gateway->getAchEnabled();
             $sofortEnabled = $gateway->getSofortEnabled();
             if ($achEnabled && $sofortEnabled) {
                 if ($this->invitation) {
@@ -51,12 +56,15 @@ class StripePaymentDriver extends BasePaymentDriver
             if ($gateway->getSepaEnabled()) {
                 $types[] = GATEWAY_TYPE_SEPA;
             }
+
             if ($gateway->getBitcoinEnabled()) {
                 $types[] = GATEWAY_TYPE_BITCOIN;
             }
+
             if ($gateway->getAlipayEnabled()) {
                 $types[] = GATEWAY_TYPE_ALIPAY;
             }
+
             if ($gateway->getApplePayEnabled()) {
                 $types[] = GATEWAY_TYPE_APPLE_PAY;
             }
@@ -68,21 +76,21 @@ class StripePaymentDriver extends BasePaymentDriver
     /**
      * Returns a setup intent that allows the user to enter card details without initiating a transaction.
      *
-     * @return \Stripe\SetupIntent
+     * @return SetupIntent
      */
     public function getSetupIntent()
     {
         $this->prepareStripeAPI();
 
-        return \Stripe\SetupIntent::create();
+        return SetupIntent::create();
     }
 
-    public function tokenize()
+    public function tokenize(): bool
     {
         return $this->accountGateway->getPublishableKey();
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -97,7 +105,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return $rules;
     }
 
-    public function isValid()
+    public function isValid(): bool|string
     {
         $result = $this->makeStripeCall(
             'GET',
@@ -105,19 +113,19 @@ class StripePaymentDriver extends BasePaymentDriver
             'limit=1'
         );
 
-        if (array_get($result, 'object') == 'list') {
+        if (Arr::get($result, 'object') == 'list') {
             return true;
         }
 
         return $result;
     }
 
-    public function shouldUseSource()
+    public function shouldUseSource(): bool
     {
         return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT, GATEWAY_TYPE_BITCOIN]);
     }
 
-    public function isTwoStep()
+    public function isTwoStep(): bool
     {
         return $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER) && empty($this->input['plaidPublicToken']);
     }
@@ -142,8 +150,8 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! empty($real_data['payment_method'])) {
                 // Attach the payment method to the existing customer.
                 $this->prepareStripeAPI();
-                $payment_method      = \Stripe\PaymentMethod::retrieve($real_data['payment_method']);
-                $payment_method      = $payment_method->attach(['customer' => $this->getCustomerID()]);
+                $payment_method = \Stripe\PaymentMethod::retrieve($real_data['payment_method']);
+                $payment_method = $payment_method->attach(['customer' => $this->getCustomerID()]);
                 $this->tokenResponse = $payment_method;
                 parent::createToken();
 
@@ -166,14 +174,15 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
                 $intent = PaymentIntent::retrieve($data['payment_intent']);
-                if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
+                if ( ! $intent->amount == $data['amount'] * 10 ** $currency['precision']) {
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
                 }
+
                 $intent->confirm();
             } elseif ( ! empty($data['token']) || ! empty($data['payment_method'])) {
                 $params = [
-                    'amount'              => $data['amount'] * pow(10, $currency['precision']),
+                    'amount'              => $data['amount'] * 10 ** $currency['precision'],
                     'currency'            => $data['currency'],
                     'confirmation_method' => 'manual',
                     'confirm'             => true,
@@ -192,14 +201,14 @@ class StripePaymentDriver extends BasePaymentDriver
 
                     if ($this->shouldCreateToken()) {
                         // Tell Stripe to save the payment method for future usage.
-                        $params['setup_future_usage']  = 'off_session';
+                        $params['setup_future_usage'] = 'off_session';
                         $params['save_payment_method'] = true;
-                        $params['customer']            = $this->getCustomerID();
+                        $params['customer'] = $this->getCustomerID();
                     }
                 } elseif ( ! empty($data['token'])) {
                     // Use a stored payment method.
                     $params['payment_method'] = $data['token'];
-                    $params['customer']       = $this->getCustomerID();
+                    $params['customer'] = $this->getCustomerID();
 
                     if (mb_substr($data['token'], 0, 3) === 'ba_') {
                         // The PaymentIntent API doesn't seem to work with saved Bank Accounts.
@@ -207,19 +216,22 @@ class StripePaymentDriver extends BasePaymentDriver
                         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
                     }
                 }
+
                 $intent = PaymentIntent::create($params);
             }
 
             if (empty($intent)) {
                 throw new Exception('PaymentIntent not found.');
             }
+
             if (($intent->status == 'requires_source_action' || $intent->status == 'requires_action') &&
                       $intent->next_action->type == 'use_stripe_sdk') {
                 // Throw an exception that can either be logged or be handled by getting further interaction from the user.
                 throw new PaymentActionRequiredException(['payment_intent' => $intent]);
             }
+
             if ($intent->status == 'succeeded') {
-                $ref = ! empty($intent->charges->data) ? $intent->charges->data[0]->id : null;
+                $ref = empty($intent->charges->data) ? null : $intent->charges->data[0]->id;
 
                 $payment = $this->createPayment($ref, $paymentMethod);
 
@@ -231,17 +243,18 @@ class StripePaymentDriver extends BasePaymentDriver
 
                 if ($intent->setup_future_usage == 'off_session') {
                     // Save the payment method ID.
-                    $payment_method      = \Stripe\PaymentMethod::retrieve($intent->payment_method);
+                    $payment_method = \Stripe\PaymentMethod::retrieve($intent->payment_method);
                     $this->tokenResponse = $payment_method;
                     parent::createToken();
                 }
 
                 return $payment;
             }
+
             throw new Exception('Invalid PaymentIntent status: ' . $intent->status);
-        } else {
-            return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
         }
+
+        return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
     }
 
     public function getCustomerID()
@@ -250,9 +263,10 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($customer = $this->customer()) {
             return $customer->token;
         }
+
         // otherwise create a new czustomer
         $invoice = $this->invitation->invoice;
-        $client  = $invoice->client;
+        $client = $invoice->client;
 
         $response = $this->gateway()->createCustomer([
             'description' => $client->getDisplayName(),
@@ -265,7 +279,7 @@ class StripePaymentDriver extends BasePaymentDriver
     public function createToken()
     {
         $invoice = $this->invitation->invoice;
-        $client  = $invoice->client;
+        $client = $invoice->client;
 
         $data = $this->paymentDetails();
 
@@ -274,7 +288,7 @@ class StripePaymentDriver extends BasePaymentDriver
             return;
         }
 
-        $data['description']       = $client->getDisplayName();
+        $data['description'] = $client->getDisplayName();
         $data['customerReference'] = $this->getCustomerID();
 
         if ( ! empty($data['plaidPublicToken'])) {
@@ -293,21 +307,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return parent::createToken();
         }
+
         throw new Exception($tokenResponse->getMessage());
     }
 
-    public function creatingCustomer($customer)
-    {
-        if (isset($this->tokenResponse['customer'])) {
-            $customer->token = $this->tokenResponse['customer'];
-        } else {
-            $customer->token = $this->tokenResponse['id'];
-        }
-
-        return $customer;
-    }
-
-    public function removePaymentMethod($paymentMethod)
+    public function removePaymentMethod($paymentMethod): bool
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -323,12 +327,13 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($response->isSuccessful()) {
             return true;
         }
+
         throw new Exception($response->getMessage());
     }
 
-    public function verifyBankAccount($client, $publicId, $amount1, $amount2)
+    public function verifyBankAccount($client, $publicId, $amount1, $amount2): string
     {
-        $customer      = $this->customer($client->id);
+        $customer = $this->customer($client->id);
         $paymentMethod = PaymentMethod::clientId($client->id)
             ->wherePublicId($publicId)
             ->firstOrFail();
@@ -341,7 +346,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'amounts[]=' . (int) $amount1 . '&amounts[]=' . (int) $amount2
         );
 
-        if (is_string($result) && $result != 'This bank account has already been verified.') {
+        if (is_string($result) && $result !== 'This bank account has already been verified.') {
             return $result;
         }
 
@@ -358,35 +363,38 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function createSource()
     {
-        $amount        = (int) ($this->invoice()->getRequestedAmount() * 100);
+        $amount = (int) ($this->invoice()->getRequestedAmount() * 100);
         $invoiceNumber = $this->invoice()->invoice_number;
-        $currency      = $this->client()->getCurrencyCode();
-        $email         = $this->contact()->email;
-        $gatewayType   = GatewayType::getAliasFromId($this->gatewayType);
-        $redirect      = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
-        $country       = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
-        $extra         = '';
+        $currency = $this->client()->getCurrencyCode();
+        $email = $this->contact()->email;
+        $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
+        $redirect = url(sprintf('/complete_source/%s/%s', $this->invitation->invitation_key, $gatewayType));
+        $country = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
+        $extra = '';
 
         if ($this->gatewayType == GATEWAY_TYPE_ALIPAY) {
             if ( ! $this->accountGateway->getAlipayEnabled()) {
                 throw new Exception('Alipay is not enabled');
             }
+
             $type = 'alipay';
         } elseif ($this->gatewayType == GATEWAY_TYPE_BITCOIN) {
             if ( ! $this->accountGateway->getBitcoinEnabled()) {
                 throw new Exception('Bitcoin is not enabled');
             }
-            $type  = 'bitcoin';
-            $extra = "&owner[email]={$email}";
+
+            $type = 'bitcoin';
+            $extra = '&owner[email]=' . $email;
         } else {
             if ( ! $this->accountGateway->getSofortEnabled()) {
                 throw new Exception('Sofort is not enabled');
             }
-            $type  = 'sofort';
-            $extra = "&sofort[country]={$country}&statement_descriptor={$invoiceNumber}";
+
+            $type = 'sofort';
+            $extra = sprintf('&sofort[country]=%s&statement_descriptor=%s', $country, $invoiceNumber);
         }
 
-        $data     = "type={$type}&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}{$extra}";
+        $data = sprintf('type=%s&amount=%d&currency=%s&redirect[return_url]=%s%s', $type, $amount, $currency, $redirect, $extra);
         $response = $this->makeStripeCall('POST', 'sources', $data);
 
         if (is_array($response) && isset($response['id'])) {
@@ -406,10 +414,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return redirect($response['redirect']['url']);
         }
+
         throw new Exception($response);
     }
 
-    public function makeStripeCall($method, $url, $body = null)
+    public function makeStripeCall(string $method, $url, $body = null)
     {
         $apiKey = $this->accountGateway->getConfig()->apiKey;
 
@@ -427,32 +436,32 @@ class StripePaymentDriver extends BasePaymentDriver
                 $options['body'] = $body;
             }
 
-            $response = (new \GuzzleHttp\Client(['base_uri' => 'https://api.stripe.com/v1/']))->request(
+            $response = (new Client(['base_uri' => 'https://api.stripe.com/v1/']))->request(
                 $method,
                 $url,
                 $options
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
+        } catch (BadResponseException $badResponseException) {
+            $response = $badResponseException->getResponse();
 
             $body = json_decode($response->getBody(), true);
             if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
                 return $body['error']['message'];
             }
 
-            return $e->getMessage();
+            return $badResponseException->getMessage();
         }
     }
 
-    public function handleWebHook($input)
+    public function handleWebHook($input): array
     {
-        $eventId   = array_get($input, 'id');
-        $eventType = array_get($input, 'type');
+        $eventId = Arr::get($input, 'id');
+        $eventType = Arr::get($input, 'type');
 
         $accountGateway = $this->accountGateway;
-        $accountId      = $accountGateway->account_id;
+        $accountId = $accountGateway->account_id;
 
         if ( ! $eventId) {
             throw new Exception('Missing event id');
@@ -490,7 +499,7 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
-        $source    = $eventDetails['data']['object'];
+        $source = $eventDetails['data']['object'];
         $sourceRef = $source['id'];
 
         if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
@@ -508,7 +517,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($source['failure_message']);
 
-                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer = app(UserMailer::class);
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($eventType == 'charge.succeeded') {
@@ -533,9 +542,11 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! $this->invitation) {
                 return false;
             }
-            $data                   = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
-            $this->purchaseResponse = $response = $this->makeStripeCall('POST', 'charges', $data);
-            $this->gatewayType      = GatewayType::getIdFromAlias($source['type']);
+
+            $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
+            $this->purchaseResponse = $this->makeStripeCall('POST', 'charges', $data);
+            $response = $this->purchaseResponse;
+            $this->gatewayType = GatewayType::getIdFromAlias($source['type']);
             if (is_array($response) && isset($response['id'])) {
                 $this->createPayment($response['id']);
             }
@@ -544,18 +555,29 @@ class StripePaymentDriver extends BasePaymentDriver
         return 'Processed successfully';
     }
 
+    protected function creatingCustomer($customer)
+    {
+        if (isset($this->tokenResponse['customer'])) {
+            $customer->token = $this->tokenResponse['customer'];
+        } else {
+            $customer->token = $this->tokenResponse['id'];
+        }
+
+        return $customer;
+    }
+
     protected function prepareStripeAPI(): void
     {
         Stripe::setApiKey($this->accountGateway->getConfigField('apiKey'));
     }
 
-    protected function checkCustomerExists($customer)
+    protected function checkCustomerExists($customer): bool
     {
         $response = $this->gateway()
             ->fetchCustomer(['customerReference' => $customer->token])
             ->send();
 
-        return ! ( ! $response->isSuccessful());
+        return (bool) $response->isSuccessful();
 
         /*
         $this->tokenResponse = $response->getData();
@@ -571,7 +593,7 @@ class StripePaymentDriver extends BasePaymentDriver
         */
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -601,7 +623,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! empty($this->input['plaidPublicToken'])) {
             $data['plaidPublicToken'] = $this->input['plaidPublicToken'];
-            $data['plaidAccountId']   = $this->input['plaidAccountId'];
+            $data['plaidAccountId'] = $this->input['plaidAccountId'];
             unset($data['card']);
         }
 
@@ -610,14 +632,14 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected function creatingPaymentMethod($paymentMethod)
     {
-        $data   = $this->tokenResponse;
+        $data = $this->tokenResponse;
         $source = false;
 
         if ( ! empty($data['object']) && ($data['object'] == 'card' || $data['object'] == 'bank_account')) {
             $source = $data;
         } elseif ( ! empty($data['object']) && $data['object'] == 'customer') {
-            $sources = ! empty($data['sources']) ? $data['sources'] : $data['cards'];
-            $source  = reset($sources['data']);
+            $sources = empty($data['sources']) ? $data['cards'] : $data['sources'];
+            $source = reset($sources['data']);
         } elseif ( ! empty($data['source'])) {
             $source = $data['source'];
         } elseif ( ! empty($data['card'])) {
@@ -634,6 +656,7 @@ class StripePaymentDriver extends BasePaymentDriver
             // Find an ID on the payment method instead of the card.
             $paymentMethod->source_reference = $data['id'];
         }
+
         $paymentMethod->last4 = $source['last4'];
 
         // For older users the Stripe account may just have the customer token but not the card version
@@ -644,14 +667,15 @@ class StripePaymentDriver extends BasePaymentDriver
             if (isset($source['exp_year'], $source['exp_month'])) {
                 $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             }
+
             if (isset($source['brand'])) {
                 $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
             }
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-            $paymentMethod->routing_number  = $source['routing_number'];
+            $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
-            $paymentMethod->status          = $source['status'];
-            $currency                       = Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
+            $paymentMethod->status = $source['status'];
+            $currency = Cache::get('currencies')->where('code', mb_strtoupper($source['currency']))->first();
 
             if ($currency) {
                 $paymentMethod->currency_id = $currency->id;
@@ -664,9 +688,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected function creatingPayment($payment, $paymentMethod)
     {
-        $isBank    = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
-        $isAlipay  = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
-        $isSofort  = $this->isGatewayType(GATEWAY_TYPE_SOFORT, $paymentMethod);
+        $isBank = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
+        $isAlipay = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
+        $isSofort = $this->isGatewayType(GATEWAY_TYPE_SOFORT, $paymentMethod);
         $isBitcoin = $this->isGatewayType(GATEWAY_TYPE_BITCOIN, $paymentMethod);
 
         if ($isBank || $isAlipay || $isSofort || $isBitcoin) {
@@ -679,19 +703,19 @@ class StripePaymentDriver extends BasePaymentDriver
                 $payment->payment_type_id = PAYMENT_TYPE_BITCOIN;
             }
         } elseif ( ! $paymentMethod && $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) && ! strcmp($this->purchaseResponse['payment_method_details']['type'], 'card')) {
-            $card                     = $this->purchaseResponse['payment_method_details']['card'];
-            $payment->last4           = $card['last4'];
-            $payment->expiration      = $card['exp_year'] . '-' . $card['exp_month'] . '-01';
+            $card = $this->purchaseResponse['payment_method_details']['card'];
+            $payment->last4 = $card['last4'];
+            $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-01';
             $payment->payment_type_id = PaymentType::parseCardType($card['brand']);
         }
 
         return $payment;
     }
 
-    private function getPlaidToken($publicToken, $accountId)
+    private function getPlaidToken($publicToken, $accountId): mixed
     {
         $clientId = $this->accountGateway->getPlaidClientId();
-        $secret   = $this->accountGateway->getPlaidSecret();
+        $secret = $this->accountGateway->getPlaidSecret();
 
         if ( ! $clientId) {
             throw new Exception('plaid client id not set'); // TODO use text strings
@@ -703,7 +727,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         try {
             $subdomain = $this->accountGateway->getPlaidEnvironment() == 'production' ? 'api' : 'tartan';
-            $response  = (new \GuzzleHttp\Client(['base_uri' => "https://{$subdomain}.plaid.com"]))->request(
+            $response = (new Client(['base_uri' => sprintf('https://%s.plaid.com', $subdomain)]))->request(
                 'POST',
                 'exchange_token',
                 [
@@ -719,14 +743,15 @@ class StripePaymentDriver extends BasePaymentDriver
             );
 
             return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-            $body     = json_decode($response->getBody(), true);
+        } catch (BadResponseException $badResponseException) {
+            $response = $badResponseException->getResponse();
+            $body = json_decode($response->getBody(), true);
 
             if ($body && ! empty($body['message'])) {
-                throw new Exception($body['message']);
+                throw new Exception($body['message'], $badResponseException->getCode(), $badResponseException);
             }
-            throw new Exception($e->getMessage());
+
+            throw new Exception($badResponseException->getMessage(), $badResponseException->getCode(), $badResponseException);
         }
     }
 }

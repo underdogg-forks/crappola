@@ -5,32 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Libraries\Utils;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Redirect;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 /**
  * Class ProductController.
  */
 class ProductController extends BaseController
 {
-    /**
-     * @var ProductService
-     */
-    protected $productService;
+    protected ProductService $productService;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected ProductRepository $productRepo;
 
     /**
      * ProductController constructor.
@@ -42,11 +38,11 @@ class ProductController extends BaseController
         //parent::__construct();
 
         $this->productService = $productService;
-        $this->productRepo    = $productRepo;
+        $this->productRepo = $productRepo;
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function index()
     {
@@ -62,11 +58,11 @@ class ProductController extends BaseController
     {
         Session::reflash();
 
-        return Redirect::to("products/{$publicId}/edit");
+        return Redirect::to(sprintf('products/%s/edit', $publicId));
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable()
     {
@@ -83,7 +79,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(ProductRequest $request, $publicId, $clone = false)
+    public function edit(ProductRequest $request, string $publicId, $clone = false)
     {
         Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
 
@@ -91,13 +87,13 @@ class ProductController extends BaseController
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         if ($clone) {
-            $product->id         = null;
-            $product->public_id  = null;
+            $product->id = null;
+            $product->public_id = null;
             $product->deleted_at = null;
-            $url                 = 'products';
-            $method              = 'POST';
+            $url = 'products';
+            $method = 'POST';
         } else {
-            $url    = 'products/' . $publicId;
+            $url = 'products/' . $publicId;
             $method = 'PUT';
         }
 
@@ -134,7 +130,7 @@ class ProductController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateProductRequest $request)
     {
@@ -144,7 +140,7 @@ class ProductController extends BaseController
     /**
      * @param $publicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdateProductRequest $request, $publicId)
     {
@@ -152,22 +148,23 @@ class ProductController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();
-            $data     = [];
+            $data = [];
             foreach ($products as $product) {
                 $data[] = $product->product_key;
             }
 
             return redirect('invoices/create')->with('selectedProducts', $data);
         }
+
         $count = $this->productService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_product', $count);
@@ -179,7 +176,7 @@ class ProductController extends BaseController
     /**
      * @param bool $productPublicId
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     private function save($productPublicId = false)
     {
@@ -203,6 +200,6 @@ class ProductController extends BaseController
             return redirect()->to(sprintf('products/%s/clone', $product->public_id));
         }
 
-        return redirect()->to("products/{$product->public_id}/edit");
+        return redirect()->to(sprintf('products/%s/edit', $product->public_id));
     }
 }

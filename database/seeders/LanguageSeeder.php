@@ -9,7 +9,7 @@ class LanguageSeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         // https://github.com/caouecs/Laravel-lang
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
@@ -59,6 +59,6 @@ class LanguageSeeder extends Seeder
             }
         }
 
-        Model::reguard();
+        Eloquent::reguard();
     }
 }

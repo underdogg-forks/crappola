@@ -9,24 +9,29 @@ use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Request;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 class PaymentApiController extends BaseAPIController
 {
-    protected $paymentRepo;
+    /**
+     * @var ContactMailer
+     */
+    public $contactMailer;
 
-    protected $paymentService;
+    public $entityType = ENTITY_PAYMENT;
 
-    protected $entityType = ENTITY_PAYMENT;
+    protected PaymentRepository $paymentRepo;
+
+    protected PaymentService $paymentService;
 
     public function __construct(PaymentRepository $paymentRepo, PaymentService $paymentService, ContactMailer $contactMailer)
     {
         parent::__construct();
 
-        $this->paymentRepo    = $paymentRepo;
+        $this->paymentRepo = $paymentRepo;
         $this->paymentService = $paymentService;
-        $this->contactMailer  = $contactMailer;
+        $this->contactMailer = $contactMailer;
     }
 
     /**
@@ -173,9 +178,9 @@ class PaymentApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $payment           = $this->paymentRepo->save($data, $request->entity());
+        $payment = $this->paymentRepo->save($data, $request->entity());
 
         if (Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);

@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class BaseRepository.
@@ -15,9 +15,6 @@ class BaseRepository
      */
     public function getClassName() {}
 
-    /**
-     * @param $entity
-     */
     public function archive($entity): void
     {
         if ($entity->trashed()) {
@@ -33,9 +30,6 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $entity
-     */
     public function restore($entity): void
     {
         if ( ! $entity->trashed()) {
@@ -46,7 +40,7 @@ class BaseRepository
         $entity->restore();
 
         if ($entity->is_deleted) {
-            $fromDeleted        = true;
+            $fromDeleted = true;
             $entity->is_deleted = false;
             $entity->save();
         }
@@ -58,9 +52,6 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $entity
-     */
     public function delete($entity): void
     {
         if ($entity->is_deleted) {
@@ -79,13 +70,7 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $ids
-     * @param $action
-     *
-     * @return int
-     */
-    public function bulk($ids, $action)
+    public function bulk($ids, $action): int
     {
         if ( ! $ids) {
             return 0;
@@ -102,27 +87,17 @@ class BaseRepository
         return count($entities);
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
     public function findByPublicIds($ids)
     {
         return $this->getInstance()->scope($ids)->get();
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    protected function applyFilters($query, $entityType, $table = false)
+    protected function applyFilters($query, string $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
 
@@ -134,15 +109,17 @@ class BaseRepository
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
+
                 if (in_array(STATUS_ARCHIVED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if ( ! in_array($table, ['users'])) {
+                        if ($table != 'users') {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
                 }
+
                 if (in_array(STATUS_DELETED, $filters)) {
                     $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at')
@@ -155,9 +132,6 @@ class BaseRepository
         return $query;
     }
 
-    /**
-     * @return mixed
-     */
     private function getInstance()
     {
         $className = $this->getClassName();
@@ -165,13 +139,7 @@ class BaseRepository
         return new $className();
     }
 
-    /**
-     * @param $entity
-     * @param $type
-     *
-     * @return string
-     */
-    private function getEventClass($entity, $type)
+    private function getEventClass($entity, string $type): string
     {
         return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }

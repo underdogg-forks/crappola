@@ -11,18 +11,20 @@
 
 namespace App\Services\Migration;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\StreamInterface;
 
 // use Unirest\Request;
 // use Unirest\Request\Body;
 
 class AuthService
 {
-    protected $username;
+    protected string $username;
 
-    protected $password;
+    protected string $password;
 
-    protected $apiSecret;
+    protected ?string $apiSecret;
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
@@ -36,26 +38,26 @@ class AuthService
 
     public function __construct(string $username, string $password, ?string $apiSecret = null)
     {
-        $this->username  = $username;
-        $this->password  = $password;
+        $this->username = $username;
+        $this->password = $password;
         $this->apiSecret = $apiSecret;
     }
 
-    public function endpoint(string $endpoint)
+    public function endpoint(string $endpoint): static
     {
         $this->endpoint = $endpoint;
 
         return $this;
     }
 
-    public function start()
+    public function start(): static
     {
         $data = [
             'email'    => $this->username,
             'password' => $this->password,
         ];
 
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'headers' => $this->getHeaders(),
         ]);
 
@@ -64,7 +66,7 @@ class AuthService
             RequestOptions::ALLOW_REDIRECTS => false,
         ]);
 
-        if($response->getStatusCode() == 401) {
+        if ($response->getStatusCode() == 401) {
             info($response->getBody());
             $this->isSuccessful = false;
             $this->processErrors($response->getBody());
@@ -74,12 +76,12 @@ class AuthService
             //info(print_r($message_body,1));
 
             $this->isSuccessful = true;
-            $this->token        = $message_body['data'][0]['token']['token'];
+            $this->token = $message_body['data'][0]['token']['token'];
         } else {
             info(json_decode($response->getBody()->getContents()));
 
             $this->isSuccessful = false;
-            $this->errors       = [trans('texts.migration_went_wrong')];
+            $this->errors = [trans('texts.migration_went_wrong')];
         }
 
         //return $response->getBody();
@@ -118,7 +120,7 @@ class AuthService
         }
     }
 
-    public function getApiSecret()
+    public function getApiSecret(): ?string
     {
         return $this->apiSecret;
     }
@@ -128,7 +130,7 @@ class AuthService
         return $this->errors;
     }
 
-    private function getHeaders()
+    private function getHeaders(): array
     {
         $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
@@ -142,12 +144,12 @@ class AuthService
         return $headers;
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
         return $this->endpoint . $this->uri;
     }
 
-    private function processErrors($errors): void
+    private function processErrors(StreamInterface $errors): void
     {
         $array = (array) $errors;
 

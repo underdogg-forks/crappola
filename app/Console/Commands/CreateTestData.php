@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\Utils;
 use App\Models\ExpenseCategory;
 use App\Models\Project;
 use App\Models\TaxRate;
@@ -17,12 +16,57 @@ use App\Ninja\Repositories\VendorRepository;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 /**
  * Class CreateTestData.
  */
 class CreateTestData extends Command
 {
+    public $faker;
+
+    /**
+     * @var ClientRepository
+     */
+    public $clientRepo;
+
+    /**
+     * @var InvoiceRepository
+     */
+    public $invoiceRepo;
+
+    /**
+     * @var PaymentRepository
+     */
+    public $paymentRepo;
+
+    /**
+     * @var VendorRepository
+     */
+    public $vendorRepo;
+
+    /**
+     * @var ExpenseRepository
+     */
+    public $expenseRepo;
+
+    /**
+     * @var TaskRepository
+     */
+    public $taskRepo;
+
+    /**
+     * @var ProjectRepository
+     */
+    public $projectRepo;
+
+    /**
+     * @var AccountRepository
+     */
+    public $accountRepo;
+
+    public $count;
+
     /**
      * @var string
      */
@@ -63,20 +107,17 @@ class CreateTestData extends Command
 
         $this->faker = Factory::create();
 
-        $this->clientRepo  = $clientRepo;
+        $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
-        $this->vendorRepo  = $vendorRepo;
+        $this->vendorRepo = $vendorRepo;
         $this->expenseRepo = $expenseRepo;
-        $this->taskRepo    = $taskRepo;
+        $this->taskRepo = $taskRepo;
         $this->projectRepo = $projectRepo;
         $this->accountRepo = $accountRepo;
     }
 
-    /**
-     * @return bool
-     */
-    public function handle()
+    public function handle(): bool
     {
         if (Utils::isNinjaProd()) {
             $this->info('Unable to run in production');
@@ -110,7 +151,7 @@ class CreateTestData extends Command
 
         $this->info('Done');
 
-        return 0;
+        return true;
     }
 
     protected function getArguments()
@@ -153,15 +194,15 @@ class CreateTestData extends Command
     /**
      * @param $client
      */
-    private function createInvoices($client, $isQuote = false): void
+    private function createInvoices($client, bool $isQuote = false): void
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'is_public'        => true,
                 'is_quote'         => $isQuote,
                 'client_id'        => $client->id,
-                'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
-                'due_date_sql'     => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'invoice_date_sql' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
+                'due_date_sql'     => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
                 'invoice_items'    => [[
                     'product_key' => $this->faker->word,
                     'qty'         => $this->faker->randomDigit + 1,
@@ -189,7 +230,7 @@ class CreateTestData extends Command
             'invoice_id'       => $invoice->id,
             'client_id'        => $client->id,
             'amount'           => $this->faker->randomFloat(2, 0, $invoice->amount),
-            'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+            'payment_date_sql' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
         ];
 
         $payment = $this->paymentRepo->save($data);
@@ -206,10 +247,10 @@ class CreateTestData extends Command
         $project = $this->projectRepo->save($data);
 
         for ($i = 0; $i < $this->count; $i++) {
-            $startTime = date_create()->modify(rand(-100, 100) . ' days')->format('U');
-            $endTime   = $startTime + (60 * 60 * 2);
-            $timeLog   = "[[{$startTime},{$endTime}]]";
-            $data      = [
+            $startTime = date_create()->modify(random_int(-100, 100) . ' days')->format('U');
+            $endTime = $startTime + (60 * 60 * 2);
+            $timeLog = sprintf('[[%s,%s]]', $startTime, $endTime);
+            $data = [
                 'client_id'   => $client->id,
                 'project_id'  => $project->id,
                 'description' => $this->faker->text($this->faker->numberBetween(50, 300)),
@@ -254,7 +295,7 @@ class CreateTestData extends Command
             $data = [
                 'vendor_id'    => $vendor->id,
                 'amount'       => $this->faker->randomFloat(2, 1, 10),
-                'expense_date' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'expense_date' => date_create()->modify(random_int(-100, 100) . ' days')->format('Y-m-d'),
                 'public_notes' => '',
             ];
 
@@ -275,35 +316,35 @@ class CreateTestData extends Command
         $this->createProject('Project 2', 2);
     }
 
-    private function createTaxRate($name, $rate, $publicId): void
+    private function createTaxRate(string $name, int $rate, int $publicId): void
     {
-        $taxRate             = new TaxRate();
-        $taxRate->name       = $name;
-        $taxRate->rate       = $rate;
+        $taxRate = new TaxRate();
+        $taxRate->name = $name;
+        $taxRate->rate = $rate;
         $taxRate->account_id = 1;
-        $taxRate->user_id    = 1;
-        $taxRate->public_id  = $publicId;
+        $taxRate->user_id = 1;
+        $taxRate->public_id = $publicId;
         $taxRate->save();
     }
 
-    private function createCategory($name, $publicId): void
+    private function createCategory(string $name, int $publicId): void
     {
-        $category             = new ExpenseCategory();
-        $category->name       = $name;
+        $category = new ExpenseCategory();
+        $category->name = $name;
         $category->account_id = 1;
-        $category->user_id    = 1;
-        $category->public_id  = $publicId;
+        $category->user_id = 1;
+        $category->public_id = $publicId;
         $category->save();
     }
 
-    private function createProject($name, $publicId): void
+    private function createProject(string $name, int $publicId): void
     {
-        $project             = new Project();
-        $project->name       = $name;
+        $project = new Project();
+        $project->name = $name;
         $project->account_id = 1;
-        $project->client_id  = 1;
-        $project->user_id    = 1;
-        $project->public_id  = $publicId;
+        $project->client_id = 1;
+        $project->user_id = 1;
+        $project->public_id = $publicId;
         $project->save();
     }
 }

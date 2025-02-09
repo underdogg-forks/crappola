@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddCustomContactFields extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -145,4 +144,4 @@ class AddCustomContactFields extends Migration
         Schema::dropIfExists('lookup_invitations');
         Schema::dropIfExists('lookup_tokens');
     }
-}
+};

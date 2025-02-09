@@ -41,7 +41,7 @@ class PermissionsCest
 
         $permissions = [];
 
-        foreach($this->entityArray as $item) {
+        foreach ($this->entityArray as $item) {
             array_push($permissions, 'view_' . $item);
         }
 

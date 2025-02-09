@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SendInvoiceEmail;
-use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\RecurringExpense;
@@ -14,12 +13,18 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\InputOption;
+use Utils;
 
 /**
  * Class SendRecurringInvoices.
  */
 class SendRecurringInvoices extends Command
 {
+    /**
+     * @var RecurringExpenseRepository
+     */
+    public $recurringExpenseRepo;
+
     /**
      * @var string
      */
@@ -30,10 +35,7 @@ class SendRecurringInvoices extends Command
      */
     protected $description = 'Send recurring invoices';
 
-    /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepo;
+    protected InvoiceRepository $invoiceRepo;
 
     /**
      * SendRecurringInvoices constructor.
@@ -44,11 +46,11 @@ class SendRecurringInvoices extends Command
     {
         parent::__construct();
 
-        $this->invoiceRepo          = $invoiceRepo;
+        $this->invoiceRepo = $invoiceRepo;
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running SendRecurringInvoices...');
 
@@ -61,8 +63,6 @@ class SendRecurringInvoices extends Command
         $this->createExpenses();
 
         $this->info(date('r') . ' Done');
-
-        return 0;
     }
 
     protected function getArguments()
@@ -84,7 +84,7 @@ class SendRecurringInvoices extends Command
             ->get();
 
         foreach ($accounts as $account) {
-            if( ! $account->account_email_settings->is_disabled) {
+            if ( ! $account->account_email_settings->is_disabled) {
                 $account->checkCounterReset();
             }
         }
@@ -111,7 +111,7 @@ class SendRecurringInvoices extends Command
 
             $account = $recurInvoice->account;
 
-            if($account->account_email_settings->is_disabled) {
+            if ($account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -147,8 +147,11 @@ class SendRecurringInvoices extends Command
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
+            if ( ! $shouldSendToday) {
+                continue;
+            }
 
-            if ( ! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
+            if ($expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 

@@ -4,11 +4,21 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\ProductRepository;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
+    /**
+     * @var mixed
+     */
+    public $invoiceRepo;
+
+    public $data;
+
     protected $fieldMap = [
         'deposit' => 'partial',
         'due'     => 'due_date',
@@ -16,12 +26,12 @@ class InvoiceIntent extends BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $this->invoiceRepo = app(InvoiceRepository::class);
 
         parent::__construct($state, $data);
     }
 
-    protected function stateInvoice()
+    protected function stateInvoice(): Invoice|Builder
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
@@ -42,12 +52,12 @@ class InvoiceIntent extends BaseIntent
         return $invoice;
     }
 
-    protected function requestInvoiceItems()
+    protected function requestInvoiceItems(): array
     {
-        $productRepo = app('App\Ninja\Repositories\ProductRepository');
+        $productRepo = app(ProductRepository::class);
 
         $invoiceItems = [];
-        $offset       = 0;
+        $offset = 0;
 
         if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
@@ -56,32 +66,33 @@ class InvoiceIntent extends BaseIntent
         foreach ($this->data->compositeEntities as $entity) {
             if ($entity->parentType == 'InvoiceItem') {
                 $product = false;
-                $qty     = 1;
+                $qty = 1;
                 foreach ($entity->children as $child) {
                     if ($child->type == 'Product') {
                         // check additional words in product name
                         // https://social.msdn.microsoft.com/Forums/azure/en-US/a508e039-0f76-4280-8156-4a017bcfc6dd/none-of-your-composite-entities-contain-all-of-the-highlighted-entities?forum=LUIS
-                        $query      = $this->data->query;
+                        $query = $this->data->query;
                         $startIndex = mb_strpos($query, $child->value, $offset);
-                        $endIndex   = mb_strlen($query);
-                        $offset     = $startIndex + 1;
+                        $endIndex = mb_strlen($query);
+                        $offset = $startIndex + 1;
                         foreach ($this->data->entities as $indexChild) {
                             if ($indexChild->startIndex > $startIndex) {
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
+
                         $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
-                        $product     = $productRepo->findPhonetically($productName);
+                        $product = $productRepo->findPhonetically($productName);
                     } else {
                         $qty = $child->value;
                     }
                 }
 
                 if ($product) {
-                    $item['qty']         = $qty;
+                    $item['qty'] = $qty;
                     $item['product_key'] = $product->product_key;
-                    $item['cost']        = $product->cost;
-                    $item['notes']       = $product->notes;
+                    $item['cost'] = $product->cost;
+                    $item['notes'] = $product->notes;
 
                     /*
                     if ($taxRate = $product->default_tax_rate) {
@@ -108,10 +119,10 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses($entityType): void
+    protected function loadStatuses(string $entityType): void
     {
         $statusIds = [];
-        $statuses  = $this->getFields('Filter');
+        $statuses = $this->getFields('Filter');
 
         foreach ($statuses as $status) {
             if ($statusId = InvoiceStatus::getIdFromAlias($status)) {
@@ -120,7 +131,7 @@ class InvoiceIntent extends BaseIntent
         }
 
         if (count($statusIds) || $this->hasField('Filter', 'all')) {
-            session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
+            session(['entity_status_filter:' . $entityType => implode(',', $statusIds)]);
         }
     }
 }

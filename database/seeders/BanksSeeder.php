@@ -9,7 +9,7 @@ class BanksSeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         $this->createBanks();
     }

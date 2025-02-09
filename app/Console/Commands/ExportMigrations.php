@@ -38,25 +38,20 @@ class ExportMigrations extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
 
-        if($this->option('user')) {
+        if ($this->option('user')) {
             $record = User::on(DB_NINJA_1)->find($this->option('user'));
 
-            if($record) {
+            if ($record) {
                 return $this->export($record);
             }
 
             $record = User::on(DB_NINJA_2)->find($this->option('user'));
 
-            if($record) {
+            if ($record) {
                 return $this->export($record);
             }
 
@@ -65,16 +60,16 @@ class ExportMigrations extends Command
             return;
         }
 
-        if($this->option('email')) {
+        if ($this->option('email')) {
             $record = User::on(DB_NINJA_1)->where('email', $this->option('email'))->first();
 
-            if($record) {
+            if ($record) {
                 return $this->export($record);
             }
 
             $record = User::on(DB_NINJA_2)->where('email', $this->option('email'))->first();
 
-            if($record) {
+            if ($record) {
                 return $this->export($record);
             }
 
@@ -83,7 +78,7 @@ class ExportMigrations extends Command
             return;
         }
 
-        if($this->option('random')) {
+        if ($this->option('random')) {
             User::all()->random(200)->each(function ($user): void {
                 $this->export($user);
             });
@@ -93,25 +88,23 @@ class ExportMigrations extends Command
 
         $users = User::all();
 
-        foreach($users as $user) {
+        foreach ($users as $user) {
             Auth::login($user);
             $this->export($user);
         }
-
-        return 0;
     }
 
-    private function export($user): void
+    private function export($user)
     {
         $this->account = $user->account;
         Auth::login($user);
 
-        $date       = date('Y-m-d');
+        $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
         $output = fopen('php://output', 'w') || Utils::fatalError();
 
-        $fileName = "{$accountKey}-{$date}-invoiceninja";
+        $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 
         $data['data'] = [
             'account'               => $this->getAccount(),
@@ -136,12 +129,11 @@ class ExportMigrations extends Command
             'task_statuses'         => $this->getTaskStatuses(),
             'expenses'              => $this->getExpenses(),
             'tasks'                 => $this->getTasks(),
-            'documents'             => $this->getDocuments(),
             'ninja_tokens'          => $this->getNinjaToken(),
         ];
 
         Storage::makeDirectory('migrations');
-        $file = storage_path("migrations/{$fileName}.zip");
+        $file = storage_path(sprintf('migrations/%s.zip', $fileName));
 
         $zip = new ZipArchive();
         $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);

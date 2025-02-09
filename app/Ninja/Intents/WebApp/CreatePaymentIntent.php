@@ -6,9 +6,9 @@ use App\Ninja\Intents\BaseIntent;
 
 class CreatePaymentIntent extends BaseIntent
 {
-    public function process()
+    public function process(): string|bool
     {
-        $clientPublicId  = 0;
+        $clientPublicId = 0;
         $invoicePublicId = 0;
 
         if ($invoice = $this->requestInvoice()) {

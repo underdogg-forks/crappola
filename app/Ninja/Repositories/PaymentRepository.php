@@ -2,18 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Credit;
 use App\Models\Payment;
-use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class PaymentRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Payment';
+        return Payment::class;
     }
 
     public function find($clientPublicId = null, $filter = null)
@@ -27,7 +27,7 @@ class PaymentRepository extends BaseRepository
             ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
             ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
             ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-            ->where('payments.account_id', '=', \Auth::user()->account_id)
+            ->where('payments.account_id', '=', Auth::user()->account_id)
             ->where('contacts.is_primary', '=', true)
             ->where('contacts.deleted_at', '=', null)
             ->where('invoices.is_deleted', '=', false)
@@ -178,7 +178,7 @@ class PaymentRepository extends BaseRepository
 
         $paymentTypeId = false;
         if (isset($input['payment_type_id'])) {
-            $paymentTypeId            = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+            $paymentTypeId = $input['payment_type_id'] ?: null;
             $payment->payment_type_id = $paymentTypeId;
         }
 
@@ -194,8 +194,8 @@ class PaymentRepository extends BaseRepository
 
         if ( ! $publicId) {
             $clientId = $input['client_id'];
-            $amount   = round(Utils::parseFloat($input['amount']), 2);
-            $amount   = min($amount, MAX_INVOICE_AMOUNT);
+            $amount = round(Utils::parseFloat($input['amount']), 2);
+            $amount = min($amount, MAX_INVOICE_AMOUNT);
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
                 $credits = Credit::scope()->where('client_id', '=', $clientId)
@@ -211,8 +211,8 @@ class PaymentRepository extends BaseRepository
             }
 
             $payment->invoice_id = $input['invoice_id'];
-            $payment->client_id  = $clientId;
-            $payment->amount     = $amount;
+            $payment->client_id = $clientId;
+            $payment->amount = $amount;
         }
 
         $payment->save();
@@ -220,19 +220,19 @@ class PaymentRepository extends BaseRepository
         return $payment;
     }
 
-    public function delete($payment)
+    public function delete($payment): void
     {
         if ($payment->invoice->is_deleted) {
-            return false;
+            return;
         }
 
         parent::delete($payment);
     }
 
-    public function restore($payment)
+    public function restore($payment): void
     {
         if ($payment->invoice->is_deleted) {
-            return false;
+            return;
         }
 
         parent::restore($payment);

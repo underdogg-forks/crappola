@@ -3,6 +3,7 @@
 namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
+use App\Ninja\Mailers\UserMailer;
 use Exception;
 use Omnipay;
 
@@ -10,7 +11,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = "\x00*\x00id";
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_GOCARDLESS,
@@ -22,15 +23,16 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 
     public function completeOffsitePurchase($input)
     {
-        $details                = $this->paymentDetails();
-        $this->purchaseResponse = $response = $this->gateway()->completePurchase($details)->send();
+        $details = $this->paymentDetails();
+        $this->purchaseResponse = $this->gateway()->completePurchase($details)->send();
+        $response = $this->purchaseResponse;
 
         if ( ! $response->isSuccessful()) {
             return false;
         }
 
         $paymentMethod = $this->createToken();
-        $payment       = $this->completeOnsitePurchase(false, $paymentMethod);
+        $payment = $this->completeOnsitePurchase(false, $paymentMethod);
 
         return $payment;
     }
@@ -38,11 +40,11 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     public function handleWebHook($input): void
     {
         $accountGateway = $this->accountGateway;
-        $accountId      = $accountGateway->account_id;
+        $accountId = $accountGateway->account_id;
 
-        $token               = $accountGateway->getConfigField('webhookSecret');
-        $rawPayload          = file_get_contents('php://input');
-        $providedSignature   = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
+        $token = $accountGateway->getConfigField('webhookSecret');
+        $rawPayload = file_get_contents('php://input');
+        $providedSignature = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
         $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
 
         if ( ! hash_equals($providedSignature, $calculatedSignature)) {
@@ -50,7 +52,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         }
 
         foreach ($input['events'] as $event) {
-            $type   = $event['resource_type'];
+            $type = $event['resource_type'];
             $action = $event['action'];
 
             $supported = [
@@ -58,19 +60,26 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 'failed',
                 'charged_back',
             ];
+            if ($type != 'payments') {
+                continue;
+            }
 
-            if ($type != 'payments' || ! in_array($action, $supported)) {
+            if ( ! in_array($action, $supported)) {
                 continue;
             }
 
             $sourceRef = $event['links']['payment'] ?? false;
-            $payment   = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
 
             if ( ! $payment) {
                 continue;
             }
 
-            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+            if ($payment->is_deleted) {
+                continue;
+            }
+
+            if ($payment->invoice->is_deleted) {
                 continue;
             }
 
@@ -78,7 +87,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($event['details']['description']);
 
-                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer = app(UserMailer::class);
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($action == 'paid_out') {
@@ -96,9 +105,9 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 
         $this->gateway = Omnipay::create($this->accountGateway->gateway->provider);
 
-        $config                 = (array) $this->accountGateway->getConfig();
+        $config = (array) $this->accountGateway->getConfig();
         $config['access_token'] = $config['accessToken'];
-        $config['secret']       = $config['webhookSecret'];
+        $config['secret'] = $config['webhookSecret'];
         $this->gateway->initialize($config);
 
         if (isset($config['testMode']) && $config['testMode']) {
@@ -108,7 +117,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $this->gateway;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -123,7 +132,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function shouldCreateToken()
+    protected function shouldCreateToken(): bool
     {
         return false;
     }
@@ -138,8 +147,8 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     protected function creatingPaymentMethod($paymentMethod)
     {
         $paymentMethod->source_reference = $this->purchaseResponse->getMandateId();
-        $paymentMethod->payment_type_id  = PAYMENT_TYPE_GOCARDLESS;
-        $paymentMethod->status           = PAYMENT_METHOD_STATUS_VERIFIED;
+        $paymentMethod->payment_type_id = PAYMENT_TYPE_GOCARDLESS;
+        $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
 
         return $paymentMethod;
     }

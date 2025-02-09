@@ -16,12 +16,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @var string
      */
-    protected $entityType = ENTITY_PRODUCT;
+    public $entityType = ENTITY_PRODUCT;
 
-    /**
-     * @var ProductRepository
-     */
-    protected $productRepo;
+    protected ProductRepository $productRepo;
 
     /**
      * ProductApiController constructor.
@@ -171,9 +168,9 @@ class ProductApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $product           = $this->productRepo->save($data, $request->entity());
+        $product = $this->productRepo->save($data, $request->entity());
 
         return $this->itemResponse($product);
     }

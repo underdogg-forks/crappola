@@ -61,12 +61,12 @@ class SendNotificationEmail extends Job implements ShouldQueue
      */
     public function __construct(User $user, Invoice $invoice, $type, ?Payment $payment, $notes)
     {
-        $this->user    = $user;
+        $this->user = $user;
         $this->invoice = $invoice;
-        $this->type    = $type;
+        $this->type = $type;
         $this->payment = $payment;
-        $this->notes   = $notes;
-        $this->server  = config('database.default');
+        $this->notes = $notes;
+        $this->server = config('database.default');
     }
 
     /**

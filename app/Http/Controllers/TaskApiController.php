@@ -8,14 +8,14 @@ use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
 use Illuminate\Support\Facades\Auth;
-use Request;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 class TaskApiController extends BaseAPIController
 {
-    protected $taskRepo;
+    public $entityType = ENTITY_TASK;
 
-    protected $entityType = ENTITY_TASK;
+    protected TaskRepository $taskRepo;
 
     public function __construct(TaskRepository $taskRepo)
     {
@@ -115,7 +115,7 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data   = Request::all();
+        $data = Request::all();
         $taskId = $data['id'] ?? false;
 
         if (isset($data['client_id']) && $data['client_id']) {
@@ -126,7 +126,7 @@ class TaskApiController extends BaseAPIController
             $timeLog = [];
             foreach ($data['time_details'] as $detail) {
                 $startTime = strtotime($detail['start_datetime']);
-                $endTime   = false;
+                $endTime = false;
                 if ( ! empty($detail['end_datetime'])) {
                     $endTime = strtotime($detail['end_datetime']);
                 } else {
@@ -134,29 +134,34 @@ class TaskApiController extends BaseAPIController
                     if ( ! empty($detail['duration_seconds'])) {
                         $duration += $detail['duration_seconds'];
                     }
+
                     if ( ! empty($detail['duration_minutes'])) {
                         $duration += $detail['duration_minutes'] * 60;
                     }
+
                     if ( ! empty($detail['duration_hours'])) {
                         $duration += $detail['duration_hours'] * 60 * 60;
                     }
+
                     if ($duration) {
                         $endTime = $startTime + $duration;
                     }
                 }
+
                 $timeLog[] = [$startTime, $endTime];
                 if ( ! $endTime) {
                     $data['is_running'] = true;
                 }
             }
+
             $data['time_log'] = json_encode($timeLog);
         }
 
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
-        $transformer = new TaskTransformer(Auth::user()->account, Request::input('serializer'));
-        $data        = $this->createItem($task, $transformer, 'task');
+        $transformer = new TaskTransformer(Auth::user()->account);
+        $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);
     }
@@ -202,7 +207,7 @@ class TaskApiController extends BaseAPIController
 
         $task = $request->entity();
 
-        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Request::all());
+        $task = $this->taskRepo->save($task->public_id, Request::all());
 
         return $this->itemResponse($task);
     }

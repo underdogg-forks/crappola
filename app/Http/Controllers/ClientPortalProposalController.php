@@ -16,7 +16,7 @@ class ClientPortalProposalController extends BaseController
 
     private $documentRepo;
 
-    private $propoosalRepo;
+    private readonly ProposalRepository $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {
@@ -29,8 +29,8 @@ class ClientPortalProposalController extends BaseController
             return $this->returnError(trans('texts.proposal_not_found'));
         }
 
-        $account           = $invitation->account;
-        $proposal          = $invitation->proposal;
+        $account = $invitation->account;
+        $proposal = $invitation->proposal;
         $invoiceInvitation = Invitation::whereContactId($invitation->contact_id)
             ->whereInvoiceId($proposal->invoice_id)
             ->firstOrFail();
@@ -57,7 +57,7 @@ class ClientPortalProposalController extends BaseController
 
         $proposal = $invitation->proposal;
 
-        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }

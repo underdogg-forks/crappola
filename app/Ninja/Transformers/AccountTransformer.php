@@ -3,6 +3,8 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use League\Fractal\Resource\Collection;
 
 /**
  * Class AccountTransformer.
@@ -33,7 +35,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeAccountEmailSettings(Account $account)
     {
@@ -45,7 +47,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeExpenseCategories(Account $account)
     {
@@ -57,7 +59,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeProjects(Account $account)
     {
@@ -69,7 +71,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeUsers(Account $account)
     {
@@ -81,7 +83,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeClients(Account $account)
     {
@@ -93,7 +95,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeInvoices(Account $account)
     {
@@ -105,7 +107,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeProducts(Account $account)
     {
@@ -117,7 +119,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeTaxRates(Account $account)
     {
@@ -129,7 +131,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includePayments(Account $account)
     {
@@ -141,11 +143,11 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     * @throws PresenterException
      *
      * @return array
      */
-    public function transform(Account $account)
+    public function transform(Account $account): array
     {
         return [
             'account_key'                     => $account->account_key,

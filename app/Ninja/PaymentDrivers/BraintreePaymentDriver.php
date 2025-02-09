@@ -2,12 +2,14 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use App\Libraries\Utils;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Braintree\Customer;
+use Braintree\Result\Error;
 use Exception;
+use Illuminate\Support\Arr;
 use Session;
+use Utils;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -17,7 +19,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected $sourceReferenceParam = 'paymentMethodToken';
 
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
@@ -31,7 +33,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $types;
     }
 
-    public function tokenize()
+    public function tokenize(): bool
     {
         return true;
     }
@@ -49,7 +51,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             Session::put($this->invitation->id . 'device_data', $input['device_data']);
             */
 
-            $data['details'] = ! empty($input['device_data']) ? json_decode($input['device_data']) : false;
+            $data['details'] = empty($input['device_data']) ? false : json_decode($input['device_data']);
         }
 
         return $data;
@@ -92,14 +94,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    public function creatingCustomer($customer)
-    {
-        $customer->token = $this->tokenResponse->customerId;
-
-        return $customer;
-    }
-
-    public function removePaymentMethod($paymentMethod)
+    public function removePaymentMethod($paymentMethod): bool
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -110,6 +105,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         if ($response->isSuccessful()) {
             return true;
         }
+
         throw new Exception($response->getMessage());
     }
 
@@ -121,7 +117,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             ->getToken();
     }
 
-    public function isValid()
+    public function isValid(): bool|string
     {
         try {
             $this->createTransactionToken();
@@ -132,7 +128,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
         }
     }
 
-    protected function checkCustomerExists($customer)
+    protected function creatingCustomer($customer)
+    {
+        $customer->token = $this->tokenResponse->customerId;
+
+        return $customer;
+    }
+
+    protected function checkCustomerExists($customer): bool
     {
         if ( ! parent::checkCustomerExists($customer)) {
             return false;
@@ -156,11 +159,11 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $url;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false): array
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
+        $deviceData = Arr::get($this->input, 'device_data') ?: \Illuminate\Support\Facades\Session::get($this->invitation->id . 'device_data');
 
         if ($deviceData) {
             $data['device_data'] = $deviceData;
@@ -185,10 +188,10 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             $paymentMethod->payment_type_id = PaymentType::parseCardType($response->cardType);
-            $paymentMethod->last4           = $response->last4;
-            $paymentMethod->expiration      = $response->expirationYear . '-' . $response->expirationMonth . '-01';
+            $paymentMethod->last4 = $response->last4;
+            $paymentMethod->expiration = $response->expirationYear . '-' . $response->expirationMonth . '-01';
         } elseif ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {
-            $paymentMethod->email           = $response->email;
+            $paymentMethod->email = $response->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_PAYPAL;
         } else {
             return;
@@ -197,7 +200,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount)
+    protected function attemptVoidPayment($response, $payment, $amount): bool
     {
         if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
@@ -205,7 +208,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
         $data = $response->getData();
 
-        if ($data instanceof \Braintree\Result\Error) {
+        if ($data instanceof Error) {
             $error = $data->errors->deepAll()[0];
             if ($error && $error->code == 91506) {
                 return true;
@@ -215,11 +218,11 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    private function customerData()
+    private function customerData(): array
     {
         return [
-            'firstName' => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
-            'lastName'  => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
+            'firstName' => Arr::get($this->input, 'first_name') ?: $this->contact()->first_name,
+            'lastName'  => Arr::get($this->input, 'last_name') ?: $this->contact()->last_name,
             'company'   => $this->client()->name,
             'email'     => $this->contact()->email,
             'phone'     => $this->contact()->phone,

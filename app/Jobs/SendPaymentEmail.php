@@ -34,7 +34,7 @@ class SendPaymentEmail extends Job implements ShouldQueue
     public function __construct($payment)
     {
         $this->payment = $payment;
-        $this->server  = config('database.default');
+        $this->server = config('database.default');
     }
 
     /**

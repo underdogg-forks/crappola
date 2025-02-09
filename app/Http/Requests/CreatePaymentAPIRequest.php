@@ -6,22 +6,12 @@ use App\Models\Invoice;
 
 class CreatePaymentAPIRequest extends PaymentRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         if ( ! $this->invoice_id || ! $this->amount) {
             return [
@@ -29,11 +19,11 @@ class CreatePaymentAPIRequest extends PaymentRequest
                 'amount'     => 'required|numeric',
             ];
         }
-
-        $this->invoice = $invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
+        $this->invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
             ->withArchived()
             ->invoices()
             ->first();
+        $invoice = $this->invoice;
 
         if ( ! $this->invoice) {
             abort(404, 'Invoice was not found');

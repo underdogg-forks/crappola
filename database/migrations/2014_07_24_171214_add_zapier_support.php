@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddZapierSupport extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -34,4 +33,4 @@ class AddZapierSupport extends Migration
     {
         Schema::dropIfExists('subscriptions');
     }
-}
+};

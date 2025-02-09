@@ -2,19 +2,19 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
-use Auth;
-use DB;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Utils;
 
 class RecurringExpenseRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\RecurringExpense';
+        return RecurringExpense::class;
     }
 
     public function all()
@@ -29,7 +29,7 @@ class RecurringExpenseRepository extends BaseRepository
     public function find($filter = null)
     {
         $accountid = Auth::user()->account_id;
-        $query     = DB::table('recurring_expenses')
+        $query = DB::table('recurring_expenses')
             ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -117,8 +117,10 @@ class RecurringExpenseRepository extends BaseRepository
             if ($expense->exists && ! $expense->deleted_at && $expense->start_date && $expense->start_date != Utils::toSqlDate($input['start_date'])) {
                 $expense->last_sent_date = null;
             }
+
             $expense->start_date = Utils::toSqlDate($input['start_date']);
         }
+
         if (isset($input['end_date'])) {
             $expense->end_date = Utils::toSqlDate($input['end_date']);
         }
@@ -180,9 +182,9 @@ class RecurringExpenseRepository extends BaseRepository
             $expense->{$field} = $recurringExpense->{$field};
         }
 
-        $expense->expense_date         = $account->getDateTime()->format('Y-m-d');
-        $expense->exchange_rate        = 1;
-        $expense->invoice_currency_id  = $recurringExpense->expense_currency_id;
+        $expense->expense_date = $account->getDateTime()->format('Y-m-d');
+        $expense->exchange_rate = 1;
+        $expense->invoice_currency_id = $recurringExpense->expense_currency_id;
         $expense->recurring_expense_id = $recurringExpense->id;
         $expense->save();
 

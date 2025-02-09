@@ -5,31 +5,32 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
-use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
-use URL;
-use View;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 class VendorController extends BaseController
 {
-    protected $vendorService;
+    public $entityType = ENTITY_VENDOR;
 
-    protected $vendorRepo;
+    protected VendorService $vendorService;
 
-    protected $entityType = ENTITY_VENDOR;
+    protected VendorRepository $vendorRepo;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
         //parent::__construct();
 
-        $this->vendorRepo    = $vendorRepo;
+        $this->vendorRepo = $vendorRepo;
         $this->vendorService = $vendorService;
     }
 
@@ -94,11 +95,6 @@ class VendorController extends BaseController
         return View::make('vendors.show', $data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
     public function create(VendorRequest $request)
     {
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
@@ -112,19 +108,12 @@ class VendorController extends BaseController
             'title'  => trans('texts.new_vendor'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
         return View::make('vendors.edit', $data);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function edit(VendorRequest $request)
+    public function edit(VendorRequest $request): \Illuminate\Contracts\View\View
     {
         $vendor = $request->entity();
 
@@ -135,24 +124,16 @@ class VendorController extends BaseController
             'title'  => trans('texts.edit_vendor'),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, $this->getViewModel());
 
-        if (Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
-                $data['planDetails'] = $account->getPlanDetails(false, false);
-            }
+        $client = null;
+        if (Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client?->public_id)->first())) {
+            $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
         return View::make('vendors.edit', $data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function update(UpdateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input(), $request->entity());
@@ -165,8 +146,8 @@ class VendorController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count  = $this->vendorService->bulk($ids, $action);
+        $ids = Request::input('public_id') ?: Request::input('ids');
+        $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
         Session::flash('message', $message);
@@ -174,7 +155,7 @@ class VendorController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel()
+    private function getViewModel(): array
     {
         return [
             'data'    => Request::old('data'),

@@ -15,21 +15,19 @@ class ProductTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data)
+    public function transform($data): false|Item
     {
         if (empty($data->product_key)) {
             return false;
         }
 
-        return new Item($data, function ($data) {
-            return [
-                'public_id'     => $this->getProduct($data, 'product_key', 'public_id'),
-                'product_key'   => $this->getString($data, 'product_key'),
-                'notes'         => $this->getString($data, 'notes'),
-                'cost'          => $this->getFloat($data, 'cost'),
-                'custom_value1' => $this->getString($data, 'custom_value1'),
-                'custom_value2' => $this->getString($data, 'custom_value2'),
-            ];
-        });
+        return new Item($data, fn ($data): array => [
+            'public_id'     => $this->getProduct($data, 'product_key', 'public_id'),
+            'product_key'   => $this->getString($data, 'product_key'),
+            'notes'         => $this->getString($data, 'notes'),
+            'cost'          => $this->getFloat($data, 'cost'),
+            'custom_value1' => $this->getString($data, 'custom_value1'),
+            'custom_value2' => $this->getString($data, 'custom_value2'),
+        ]);
     }
 }

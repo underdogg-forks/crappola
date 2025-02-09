@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         $columns = [
             'client'        => [],
@@ -21,12 +21,13 @@ class ClientReport extends AbstractReport
             'user'          => ['columnSelector-false'],
         ];
 
-        $user    = auth()->user();
+        $user = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('client1')) {
             $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
+
         if ($account->customLabel('client2')) {
             $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
@@ -36,7 +37,7 @@ class ClientReport extends AbstractReport
 
     public function run(): void
     {
-        $account  = Auth::user()->account;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -53,17 +54,13 @@ class ClientReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             $amount = 0;
-            $paid   = 0;
+            $paid = 0;
 
             foreach ($client->invoices as $invoice) {
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
 
-                if ($subgroup == 'country') {
-                    $dimension = $client->present()->country;
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                $dimension = $subgroup == 'country' ? $client->present()->country : $this->getDimension($client);
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
 
@@ -82,6 +79,7 @@ class ClientReport extends AbstractReport
             if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
+
             if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }

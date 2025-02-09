@@ -40,8 +40,8 @@ class SendPushNotification extends Job implements ShouldQueue
     public function __construct($invoice, $type)
     {
         $this->invoice = $invoice;
-        $this->type    = $type;
-        $this->server  = config('database.default');
+        $this->type = $type;
+        $this->server = config('database.default');
     }
 
     /**

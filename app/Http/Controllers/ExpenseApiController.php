@@ -11,18 +11,18 @@ use App\Services\ExpenseService;
 
 class ExpenseApiController extends BaseAPIController
 {
+    public $entityType = ENTITY_EXPENSE;
+
     // Expenses
-    protected $expenseRepo;
+    protected ExpenseRepository $expenseRepo;
 
-    protected $expenseService;
-
-    protected $entityType = ENTITY_EXPENSE;
+    protected ExpenseService $expenseService;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
         parent::__construct();
 
-        $this->expenseRepo    = $expenseRepo;
+        $this->expenseRepo = $expenseRepo;
         $this->expenseService = $expenseService;
     }
 
@@ -167,9 +167,9 @@ class ExpenseApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $expense           = $this->expenseService->save($data, $request->entity());
+        $expense = $this->expenseService->save($data, $request->entity());
 
         return $this->itemResponse($expense);
     }

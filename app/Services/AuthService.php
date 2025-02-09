@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Events\UserLoggedIn;
-use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
 use Socialite;
+use Utils;
 
 /**
  * Class AuthService.
@@ -26,10 +27,7 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    /**
-     * @var AccountRepository
-     */
-    private $accountRepo;
+    private readonly AccountRepository $accountRepo;
 
     /**
      * AuthService constructor.
@@ -48,9 +46,9 @@ class AuthService
      *
      * @return mixed
      */
-    public static function getProviderId($provider)
+    public static function getProviderId($provider): int|string|false
     {
-        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers));
+        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers), true);
     }
 
     /**
@@ -67,7 +65,7 @@ class AuthService
      * @param $provider
      * @param $hasCode
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function execute($provider, $hasCode)
     {
@@ -76,16 +74,16 @@ class AuthService
         }
 
         $socialiteUser = Socialite::driver($provider)->user();
-        $providerId    = self::getProviderId($provider);
+        $providerId = self::getProviderId($provider);
 
-        $email       = $socialiteUser->email;
+        $email = $socialiteUser->email;
         $oauthUserId = $socialiteUser->id;
-        $name        = Utils::splitName($socialiteUser->name);
+        $name = Utils::splitName($socialiteUser->name);
 
         if (Auth::check()) {
-            $user         = Auth::user();
+            $user = Auth::user();
             $isRegistered = $user->registered;
-            $result       = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
+            $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
                 if ( ! $isRegistered) {
@@ -107,6 +105,7 @@ class AuthService
 
                     return redirect('/validate_two_factor/' . $user->account->account_key);
                 }
+
                 Auth::login($user);
                 event(new UserLoggedIn());
             } else {

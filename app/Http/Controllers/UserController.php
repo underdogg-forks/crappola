@@ -2,38 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
+use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
-use Password;
-use Redirect;
-use Request;
-use Session;
-use Validator;
-use View;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+use Utils;
 
 class UserController extends BaseController
 {
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    protected $contactMailer;
+    protected ContactMailer $contactMailer;
 
-    protected $userMailer;
+    protected UserMailer $userMailer;
 
-    protected $userService;
+    protected UserService $userService;
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
         //parent::__construct();
 
-        $this->accountRepo   = $accountRepo;
+        $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
-        $this->userMailer    = $userMailer;
-        $this->userService   = $userService;
+        $this->userMailer = $userMailer;
+        $this->userService = $userService;
     }
 
     public function index()
@@ -48,7 +50,7 @@ class UserController extends BaseController
 
     public function forcePDFJS()
     {
-        $user              = Auth::user();
+        $user = Auth::user();
         $user->force_pdfjs = true;
         $user->save();
 
@@ -69,10 +71,10 @@ class UserController extends BaseController
     {
         Session::reflash();
 
-        return redirect("users/{$publicId}/edit");
+        return redirect(sprintf('users/%s/edit', $publicId));
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $user = User::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)
@@ -133,7 +135,7 @@ class UserController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $id     = Request::input('bulk_public_id');
+        $id = Request::input('bulk_public_id');
 
         $user = User::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $id)
@@ -151,7 +153,7 @@ class UserController extends BaseController
             $user->restore();
         }
 
-        Session::flash('message', trans("texts.{$action}d_user"));
+        Session::flash('message', trans(sprintf('texts.%sd_user', $action)));
 
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
@@ -180,7 +182,7 @@ class UserController extends BaseController
 
             $rules['email'] = 'required|email|unique:users,email,' . $user->id . ',id';
         } else {
-            $user           = false;
+            $user = false;
             $rules['email'] = 'required|email|unique:users';
         }
 
@@ -192,7 +194,7 @@ class UserController extends BaseController
                 ->withInput();
         }
 
-        if ( ! \App\Models\LookupUser::validateField('email', Request::input('email'), $user)) {
+        if ( ! LookupUser::validateField('email', Request::input('email'), $user)) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
@@ -200,29 +202,29 @@ class UserController extends BaseController
 
         if ($userPublicId) {
             $user->first_name = trim(Request::input('first_name'));
-            $user->last_name  = trim(Request::input('last_name'));
-            $user->username   = trim(Request::input('email'));
-            $user->email      = trim(Request::input('email'));
+            $user->last_name = trim(Request::input('last_name'));
+            $user->username = trim(Request::input('email'));
+            $user->email = trim(Request::input('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin    = (bool) (Request::input('is_admin'));
+                $user->is_admin = (bool) (Request::input('is_admin'));
                 $user->permissions = self::formatUserPermissions(Request::input('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
                 ->orderBy('public_id', 'DESC')->first();
 
-            $user                    = new User();
-            $user->account_id        = Auth::user()->account_id;
-            $user->first_name        = trim(Request::input('first_name'));
-            $user->last_name         = trim(Request::input('last_name'));
-            $user->username          = trim(Request::input('email'));
-            $user->email             = trim(Request::input('email'));
-            $user->registered        = true;
-            $user->password          = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->public_id         = $lastUser->public_id + 1;
+            $user = new User();
+            $user->account_id = Auth::user()->account_id;
+            $user->first_name = trim(Request::input('first_name'));
+            $user->last_name = trim(Request::input('last_name'));
+            $user->username = trim(Request::input('email'));
+            $user->email = trim(Request::input('email'));
+            $user->registered = true;
+            $user->password = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $user->public_id = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin    = (bool) (Request::input('is_admin'));
+                $user->is_admin = (bool) (Request::input('is_admin'));
                 $user->permissions = self::formatUserPermissions(Request::input('permissions'));
             }
         }
@@ -259,12 +261,12 @@ class UserController extends BaseController
      */
     public function confirm($code)
     {
-        $user = User::where('confirmation_code', '=', $code)->get()->first();
+        $user = User::where('confirmation_code', '=', $code)->first();
 
         if ($user) {
             $notice_msg = trans('texts.security_confirmation');
 
-            $user->confirmed         = true;
+            $user->confirmed = true;
             $user->confirmation_code = null;
             $user->save();
 
@@ -273,8 +275,9 @@ class UserController extends BaseController
                 Session::flush();
                 $token = Password::getRepository()->create($user);
 
-                return Redirect::to("/password/reset/{$token}");
+                return Redirect::to('/password/reset/' . $token);
             }
+
             if (Auth::check()) {
                 if (Session::has(REQUESTED_PRO_PLAN)) {
                     Session::forget(REQUESTED_PRO_PLAN);
@@ -288,6 +291,7 @@ class UserController extends BaseController
 
             return Redirect::to($url)->with('message', $notice_msg);
         }
+
         $error_msg = trans('texts.wrong_confirmation');
 
         return Redirect::to('/login')->with('error', $error_msg);
@@ -305,14 +309,14 @@ class UserController extends BaseController
 
         // validate the new password
         $password = Request::input('new_password');
-        $confirm  = Request::input('confirm_password');
+        $confirm = Request::input('confirm_password');
 
         if (mb_strlen($password) < 6 || $password != $confirm) {
             return trans('texts.password_error_invalid');
         }
 
         // save the new password
-        $user           = Auth::user();
+        $user = Auth::user();
         $user->password = bcrypt($password);
         $user->save();
 
@@ -322,23 +326,20 @@ class UserController extends BaseController
     public function switchAccount($newUserId)
     {
         $oldUserId = Auth::user()->id;
-        $referer   = Request::header('referer');
-        $account   = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
+        $referer = Request::header('referer');
+        $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
 
-        if ($account) {
-            if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
-                Auth::loginUsingId($newUserId);
-                Auth::user()->account->loadLocalizationSettings();
-
-                // regenerate token to prevent open pages
-                // from saving under the wrong account
-                Session::put('_token', str_random(40));
-            }
+        if ($account && ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId))) {
+            Auth::loginUsingId($newUserId);
+            Auth::user()->account->loadLocalizationSettings();
+            // regenerate token to prevent open pages
+            // from saving under the wrong account
+            Session::put('_token', Str::random(40));
         }
 
         // If the user is looking at an entity redirect to the dashboard
         preg_match('/\/[0-9*][\/edit]*$/', $referer, $matches);
-        if (count($matches)) {
+        if ($matches !== []) {
             return Redirect::to('/dashboard');
         }
 
@@ -379,7 +380,7 @@ class UserController extends BaseController
         return View::make('users.account_management');
     }
 
-    public function saveSidebarState()
+    public function saveSidebarState(): string
     {
         if (Request::has('show_left')) {
             Session::put(SESSION_LEFT_SIDEBAR, (bool) (Request::input('show_left')));
@@ -394,7 +395,7 @@ class UserController extends BaseController
 
     public function acceptTerms()
     {
-        $ip      = Request::getClientIp();
+        $ip = Request::getClientIp();
         $referer = Request::server('HTTP_REFERER');
         $message = '';
 

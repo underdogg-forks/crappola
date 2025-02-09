@@ -12,21 +12,21 @@ use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class ProjectController extends BaseController
 {
-    protected $projectRepo;
+    public $entityType = ENTITY_PROJECT;
 
-    protected $projectService;
+    protected ProjectRepository $projectRepo;
 
-    protected $entityType = ENTITY_PROJECT;
+    protected ProjectService $projectService;
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
-        $this->projectRepo    = $projectRepo;
+        $this->projectRepo = $projectRepo;
         $this->projectService = $projectService;
     }
 
@@ -54,16 +54,16 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
-        $account   = auth()->user()->account;
-        $project   = $request->entity();
-        $chartData = dispatch_now(new GenerateProjectChartData($project));
+        $account = auth()->user()->account;
+        $project = $request->entity();
+        //$chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
             'account'         => auth()->user()->account,
             'project'         => $project,
             'title'           => trans('texts.view_project'),
             'showBreadcrumbs' => false,
-            'chartData'       => $chartData,
+            'chartData'       => null,
         ];
 
         return View::make('projects.show', $data);
@@ -127,14 +127,14 @@ class ProjectController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids = Request::input('public_id') ?: Request::input('ids');
 
         if ($action == 'invoice') {
-            $data           = [];
+            $data = [];
             $clientPublicId = false;
-            $lastClientId   = false;
-            $lastProjectId  = false;
-            $projects       = Project::scope($ids)
+            $lastClientId = false;
+            $lastProjectId = false;
+            $projects = Project::scope($ids)
                 ->with(['client', 'tasks' => function ($query): void {
                     $query->whereNull('invoice_id');
                 }])
@@ -143,17 +143,20 @@ class ProjectController extends BaseController
                 if ( ! $clientPublicId) {
                     $clientPublicId = $project->client->public_id;
                 }
+
                 if ($lastClientId && $lastClientId != $project->client_id) {
                     return redirect('projects')->withError(trans('texts.project_error_multiple_clients'));
                 }
+
                 $lastClientId = $project->client_id;
 
                 foreach ($project->tasks as $task) {
                     if ($task->is_running) {
                         return redirect('projects')->withError(trans('texts.task_error_running'));
                     }
+
                     $showProject = $lastProjectId != $task->project_id;
-                    $data[]      = [
+                    $data[] = [
                         'publicId'    => $task->public_id,
                         'description' => $task->present()->invoiceDescription(auth()->user()->account, $showProject),
                         'duration'    => $task->getHours(),
@@ -163,13 +166,14 @@ class ProjectController extends BaseController
                 }
             }
 
-            return redirect("invoices/create/{$clientPublicId}")->with('tasks', $data);
+            return redirect('invoices/create/' . $clientPublicId)->with('tasks', $data);
         }
+
         $count = $this->projectService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field   = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
-            $message = trans("texts.{$field}", ['count' => $count]);
+            $field = $count == 1 ? $action . 'd_project' : $action . 'd_projects';
+            $message = trans('texts.' . $field, ['count' => $count]);
             Session::flash('message', $message);
         }
 

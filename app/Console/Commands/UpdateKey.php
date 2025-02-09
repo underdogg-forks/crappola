@@ -5,10 +5,11 @@ namespace App\Console\Commands;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
-use Artisan;
-use Crypt;
 use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Laravel\LegacyEncrypter\McryptEncrypter;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -27,7 +28,7 @@ class UpdateKey extends Command
      */
     protected $description = 'Update application key';
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' Running UpdateKey...');
 
@@ -46,24 +47,16 @@ class UpdateKey extends Command
         }
 
         // load the current values
-        $gatewayConfigs   = [];
-        $bankUsernames    = [];
+        $gatewayConfigs = [];
+        $bankUsernames = [];
         $twoFactorSecrets = [];
 
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
-            if ($legacy) {
-                $gatewayConfigs[$gateway->id] = json_decode($legacy->decrypt($gateway->config));
-            } else {
-                $gatewayConfigs[$gateway->id] = $gateway->getConfig();
-            }
+            $gatewayConfigs[$gateway->id] = $legacy ? json_decode($legacy->decrypt($gateway->config)) : $gateway->getConfig();
         }
 
         foreach (BankAccount::withTrashed()->get() as $bank) {
-            if ($legacy) {
-                $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
-            } else {
-                $bankUsernames[$bank->id] = $bank->getUsername();
-            }
+            $bankUsernames[$bank->id] = $legacy ? $legacy->decrypt($bank->username) : $bank->getUsername();
         }
 
         foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
@@ -75,7 +68,7 @@ class UpdateKey extends Command
         }
 
         // check if we can write to the .env file
-        $envPath      = base_path() . '/.env';
+        $envPath = base_path() . '/.env';
         $envWriteable = file_exists($envPath) && @fopen($envPath, 'a');
 
         if ($key = $this->option('key')) {
@@ -84,27 +77,27 @@ class UpdateKey extends Command
             Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
-            $key = str_random(32);
+            $key = Str::random(32);
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');
-        $crypt  = new Encrypter($key, $cipher);
+        $crypt = new Encrypter($key, $cipher);
 
         // update values using the new key/encrypter
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
-            $config          = $gatewayConfigs[$gateway->id];
+            $config = $gatewayConfigs[$gateway->id];
             $gateway->config = $crypt->encrypt(json_encode($config));
             $gateway->save();
         }
 
         foreach (BankAccount::withTrashed()->get() as $bank) {
-            $username       = $bankUsernames[$bank->id];
+            $username = $bankUsernames[$bank->id];
             $bank->username = $crypt->encrypt($username);
             $bank->save();
         }
 
         foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
-            $secret                  = $twoFactorSecrets[$user->id];
+            $secret = $twoFactorSecrets[$user->id];
             $user->google_2fa_secret = $crypt->encrypt($secret);
             $user->save();
         }
@@ -116,16 +109,13 @@ class UpdateKey extends Command
             } else {
                 $message .= 'the key';
             }
+        } elseif ($legacy) {
+            $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
         } else {
-            if ($legacy) {
-                $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
-            } else {
-                $message .= 'the data, make sure to set the new key: ' . $key;
-            }
+            $message .= 'the data, make sure to set the new key: ' . $key;
         }
-        $this->info($message);
 
-        return 0;
+        $this->info($message);
     }
 
     protected function getArguments()

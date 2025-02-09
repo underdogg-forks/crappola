@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class EncryptTokens extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -35,4 +34,4 @@ class EncryptTokens extends Migration
                 ->update(['config' => Crypt::decrypt($gateway->config)]);
         }
     }
-}
+};

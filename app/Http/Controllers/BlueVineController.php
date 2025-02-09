@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
-use Redirect;
-use Request;
-use Session;
-use URL;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 
 class BlueVineController extends BaseController
 {
@@ -27,15 +29,15 @@ class BlueVineController extends BaseController
 
         if ( ! empty(Request::input('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line']     = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line'] = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
         }
 
         if ( ! empty(Request::input('quote_type_loc'))) {
-            $data['line_of_credit_offer']        = true;
+            $data['line_of_credit_offer'] = true;
             $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
         }
 
-        $api_client = new \GuzzleHttp\Client();
+        $api_client = new Client();
         try {
             $response = $api_client->request(
                 'POST',
@@ -48,9 +50,9 @@ class BlueVineController extends BaseController
                     'json' => $data,
                 ]
             );
-        } catch (\GuzzleHttp\Exception\RequestException $ex) {
-            if ($ex->getCode() == 403) {
-                $response_body = $ex->getResponse()->getBody(true);
+        } catch (RequestException $requestException) {
+            if ($requestException->getCode() == 403) {
+                $response_body = $requestException->getResponse()->getBody(true);
                 $response_data = json_decode($response_body);
 
                 return response()->json([
@@ -64,7 +66,7 @@ class BlueVineController extends BaseController
             ]);
         }
 
-        $company                  = $user->account->company;
+        $company = $user->account->company;
         $company->bluevine_status = 'signed_up';
         $company->save();
 
@@ -73,12 +75,12 @@ class BlueVineController extends BaseController
         return response()->json($quote_data);
     }
 
-    public function hideMessage()
+    public function hideMessage(): string
     {
         $user = Auth::user();
 
         if ($user) {
-            $company                  = $user->account->company;
+            $company = $user->account->company;
             $company->bluevine_status = 'ignored';
             $company->save();
         }

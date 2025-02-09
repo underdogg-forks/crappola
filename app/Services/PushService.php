@@ -11,10 +11,7 @@ use App\Ninja\Notifications\PushFactory;
  */
 class PushService
 {
-    /**
-     * @var PushFactory
-     */
-    protected $pushFactory;
+    protected PushFactory $pushFactory;
 
     /**
      * @param PushFactory $pushFactory
@@ -39,9 +36,9 @@ class PushService
         $devices = json_decode($invoice->account->devices, true);
 
         foreach ($devices as $device) {
-            if (($device["notify_{$type}"] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
+            if (($device['notify_' . $type] == true) && ($device['device'] == 'ios') && IOS_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, IOS_DEVICE);
-            } elseif (($device["notify_{$type}"] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
+            } elseif (($device['notify_' . $type] == true) && ($device['device'] == 'fcm') && ANDROID_DEVICE) {
                 $this->pushMessage($invoice, $device['token'], $type, ANDROID_DEVICE);
             }
         }
@@ -71,7 +68,7 @@ class PushService
      *
      * @return bool
      */
-    private function checkDeviceExists(Account $account)
+    private function checkDeviceExists(Account $account): bool
     {
         $devices = json_decode($account->devices, true);
 
@@ -88,7 +85,7 @@ class PushService
      *
      * @return string
      */
-    private function messageType(Invoice $invoice, $type)
+    private function messageType(Invoice $invoice, $type): string
     {
         switch ($type) {
             case 'sent':

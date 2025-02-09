@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
+use App\Models\Account;
+use App\Models\Client;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\Models\Invitation;
 use Form;
 use HTML;
+use Utils;
 
 class TemplateService
 {
@@ -18,28 +21,28 @@ class TemplateService
      */
     public function processVariables($template, array $data)
     {
-        /** @var \App\Models\Invitation $invitation */
+        /** @var Invitation $invitation */
         $invitation = $data['invitation'];
 
-        /** @var \App\Models\Account $account */
-        $account = ! empty($data['account']) ? $data['account'] : $invitation->account;
+        /** @var Account $account */
+        $account = empty($data['account']) ? $invitation->account : $data['account'];
 
-        /** @var \App\Models\Client $client */
-        $client = ! empty($data['client']) ? $data['client'] : $invitation->invoice->client;
+        /** @var Client $client */
+        $client = empty($data['client']) ? $invitation->invoice->client : $data['client'];
 
-        $amount = ! empty($data['amount']) ? $data['amount'] : $invitation->invoice->getRequestedAmount();
+        $amount = empty($data['amount']) ? $invitation->invoice->getRequestedAmount() : $data['amount'];
 
         // check if it's a proposal
         if ($invitation->proposal) {
-            $invoice    = $invitation->proposal->invoice;
+            $invoice = $invitation->proposal->invoice;
             $entityType = ENTITY_PROPOSAL;
         } else {
-            $invoice    = $invitation->invoice;
+            $invoice = $invitation->invoice;
             $entityType = $invoice->getEntityType();
         }
 
-        $contact       = $invitation->contact;
-        $passwordHTML  = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
+        $contact = $invitation->contact;
+        $passwordHTML = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
         $documentsHTML = '';
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
@@ -47,6 +50,7 @@ class TemplateService
             foreach ($invoice->allDocuments() as $document) {
                 $documentsHTML .= '<li><a href="' . HTML::entities($document->getClientUrl($invitation)) . '">' . HTML::entities($document->name) . '</a></li>';
             }
+
             $documentsHTML .= '</ul>';
         }
 
@@ -96,10 +100,11 @@ class TemplateService
             if ($type == GATEWAY_TYPE_TOKEN) {
                 continue;
             }
-            $camelType                         = Utils::toCamelCase(GatewayType::getAliasFromId($type));
-            $snakeCase                         = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
-            $variables["\${$camelType}Link"]   = $invitation->getLink('payment') . "/{$snakeCase}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$snakeCase}");
+
+            $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
+            $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
+            $variables[sprintf('$%sLink', $camelType)] = $invitation->getLink('payment') . ('/' . $snakeCase);
+            $variables[sprintf('$%sButton', $camelType)] = Form::emailPaymentButton($invitation->getLink('payment') . ('/' . $snakeCase));
         }
 
         $includesPasswordPlaceholder = str_contains($template, '$password');
@@ -112,6 +117,7 @@ class TemplateService
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
         }
+
         $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
 

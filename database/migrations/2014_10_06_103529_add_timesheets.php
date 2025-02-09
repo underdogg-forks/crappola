@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddTimesheets extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -146,4 +145,4 @@ class AddTimesheets extends Migration
         Schema::dropIfExists('project_codes');
         Schema::dropIfExists('projects');
     }
-}
+};

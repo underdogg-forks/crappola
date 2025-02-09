@@ -27,7 +27,7 @@ class InvoiceWasRestored extends Event
      */
     public function __construct(Invoice $invoice, $fromDeleted)
     {
-        $this->invoice     = $invoice;
+        $this->invoice = $invoice;
         $this->fromDeleted = $fromDeleted;
     }
 }

@@ -2,20 +2,20 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use Datatable;
-use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Utils;
 
 class TaskRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Task';
+        return Task::class;
     }
 
     public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
@@ -78,18 +78,22 @@ class TaskRepository extends BaseRepository
                     $query->orWhere('tasks.invoice_id', '=', 0)
                         ->orWhereNull('tasks.invoice_id');
                 }
+
                 if (in_array(TASK_STATUS_RUNNING, $statuses)) {
                     $query->orWhere('tasks.is_running', '=', 1);
                 }
+
                 if (in_array(TASK_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '>', 0);
                     if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
+
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
+
                 $query->orWhere(function ($query) use ($statuses): void {
                     $query->whereIn('task_statuses.public_id', $statuses)
                         ->whereNull('tasks.invoice_id');
@@ -127,18 +131,10 @@ class TaskRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('project', function ($model) {
-                return $model->project;
-            })
-            ->addColumn('date', function ($model) {
-                return Task::calcStartTime($model);
-            })
-            ->addColumn('duration', function ($model) {
-                return Utils::formatTime(Task::calcDuration($model));
-            })
-            ->addColumn('description', function ($model) {
-                return $model->description;
-            });
+            ->addColumn('project', fn ($model) => $model->project)
+            ->addColumn('date', fn ($model) => Task::calcStartTime($model))
+            ->addColumn('duration', fn ($model) => Utils::formatTime(Task::calcDuration($model)))
+            ->addColumn('description', fn ($model) => $model->description);
 
         return $table->make();
     }
@@ -150,7 +146,7 @@ class TaskRepository extends BaseRepository
         } elseif ($publicId) {
             $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
-            $task                         = Task::createNew();
+            $task = Task::createNew();
             $task->task_status_sort_order = 9999;
         }
 
@@ -161,23 +157,23 @@ class TaskRepository extends BaseRepository
         $task->fill($data);
 
         if ( ! empty($data['project_id'])) {
-            $project          = Project::scope($data['project_id'])->firstOrFail();
+            $project = Project::scope($data['project_id'])->firstOrFail();
             $task->project_id = $project->id;
-            $task->client_id  = $project->client_id;
-        } else {
-            if (isset($data['client'])) {
-                $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
-            } elseif (isset($data['client_id'])) {
-                $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
-            }
+            $task->client_id = $project->client_id;
+        } elseif (isset($data['client'])) {
+            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+        } elseif (isset($data['client_id'])) {
+            $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
         }
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
         }
+
         if (isset($data['task_status_id'])) {
             $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
         }
+
         if (isset($data['task_status_sort_order'])) {
             $task->task_status_sort_order = $data['task_status_sort_order'];
         }
@@ -195,13 +191,13 @@ class TaskRepository extends BaseRepository
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
                 $task->is_running = true;
-                $timeLog[]        = [strtotime('now'), false];
+                $timeLog[] = [strtotime('now'), false];
             } elseif ($data['action'] == 'resume') {
                 $task->is_running = true;
-                $timeLog[]        = [strtotime('now'), false];
+                $timeLog[] = [strtotime('now'), false];
             } elseif ($data['action'] == 'stop' && $task->is_running) {
                 $timeLog[count($timeLog) - 1][1] = time();
-                $task->is_running                = false;
+                $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }

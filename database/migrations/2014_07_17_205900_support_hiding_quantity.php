@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SupportHidingQuantity extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -57,4 +56,4 @@ class SupportHidingQuantity extends Migration
             $table->dropColumn('custom_taxes2');
         });
     }
-}
+};

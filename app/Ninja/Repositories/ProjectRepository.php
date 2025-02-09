@@ -2,24 +2,26 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Libraries\Utils;
 use App\Models\Project;
-use DB;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Utils;
 
 class ProjectRepository extends BaseRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
-        return 'App\Models\Project';
+        return Project::class;
     }
 
-    public function all()
+    public function all(): Collection|array
     {
         return Project::scope()->get();
     }
 
-    public function find($filter = null, $userId = false)
+    public function find($filter = null, $userId = false): Builder
     {
         $query = DB::table('projects')
             ->where('projects.account_id', '=', Auth::user()->account_id)
@@ -70,7 +72,7 @@ class ProjectRepository extends BaseRepository
         $publicId = $data['public_id'] ?? false;
 
         if ( ! $project) {
-            $project              = Project::createNew();
+            $project = Project::createNew();
             $project['client_id'] = $input['client_id'];
         }
 

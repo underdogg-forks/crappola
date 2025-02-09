@@ -2,14 +2,30 @@
 
 namespace App\Models;
 
-use Cache;
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class InvoiceDesign.
+ *
+ * @property int         $id
+ * @property string      $name
+ * @property string|null $javascript
+ * @property string|null $pdfmake
+ *
+ * @method static Builder|InvoiceDesign newModelQuery()
+ * @method static Builder|InvoiceDesign newQuery()
+ * @method static Builder|InvoiceDesign query()
+ * @method static Builder|InvoiceDesign whereId($value)
+ * @method static Builder|InvoiceDesign whereJavascript($value)
+ * @method static Builder|InvoiceDesign whereName($value)
+ * @method static Builder|InvoiceDesign wherePdfmake($value)
+ *
+ * @mixin \Eloquent
  */
-class InvoiceDesign extends Eloquent
+class InvoiceDesign extends Model
 {
     /**
      * @var bool
@@ -67,9 +83,6 @@ class InvoiceDesign extends Eloquent
         'Tabloid',
     ];
 
-    /**
-     * @return mixed
-     */
     public static function getDesigns()
     {
         $account = Auth::user()->account;
@@ -83,7 +96,7 @@ class InvoiceDesign extends Eloquent
             }
 
             $design->javascript = $design->pdfmake;
-            $design->pdfmake    = null;
+            $design->pdfmake = null;
 
             if (in_array($design->id, [CUSTOM_DESIGN1, CUSTOM_DESIGN2, CUSTOM_DESIGN3])) {
                 if ($javascript = $account->getCustomDesign($design->id)) {

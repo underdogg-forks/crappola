@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardApiController extends BaseAPIController
 {
+    /**
+     * @var DashboardRepository
+     */
+    public $dashboardRepo;
+
     public function __construct(DashboardRepository $dashboardRepo)
     {
         parent::__construct();
@@ -17,14 +22,14 @@ class DashboardApiController extends BaseAPIController
 
     public function index()
     {
-        $user            = Auth::user();
-        $viewAll         = $user->hasPermission('view_reports');
-        $userId          = $user->id;
-        $accountId       = $user->account->id;
+        $user = Auth::user();
+        $viewAll = $user->hasPermission('view_reports');
+        $userId = $user->id;
+        $accountId = $user->account->id;
         $defaultCurrency = $user->account->currency_id;
 
         $dashboardRepo = $this->dashboardRepo;
-        $activities    = $dashboardRepo->activities($accountId, $userId, $viewAll);
+        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
 
         // optimization for new mobile app
         if (request()->only_activity) {
@@ -34,13 +39,13 @@ class DashboardApiController extends BaseAPIController
             ]);
         }
 
-        $metrics        = $dashboardRepo->totals($accountId, $userId, $viewAll);
-        $paidToDate     = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
+        $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
+        $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($user->account, $userId, $viewAll);
-        $balances       = $dashboardRepo->balances($user->account, $userId, $viewAll);
-        $pastDue        = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
-        $upcoming       = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
-        $payments       = $dashboardRepo->payments($accountId, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($user->account, $userId, $viewAll);
+        $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
+        $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
+        $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
 
         $data = [
             'id'                     => 1,

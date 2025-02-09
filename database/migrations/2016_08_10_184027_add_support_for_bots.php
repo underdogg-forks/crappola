@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSupportForBots extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -62,4 +61,4 @@ class AddSupportForBots extends Migration
             $table->dropColumn('include_item_taxes_inline');
         });
     }
-}
+};

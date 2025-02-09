@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddSubscriptionFormat extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -189,4 +188,4 @@ class AddSubscriptionFormat extends Migration
         Schema::dropIfExists('proposal_snippets');
         Schema::dropIfExists('proposal_categories');
     }
-}
+};

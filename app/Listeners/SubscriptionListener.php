@@ -23,7 +23,6 @@ use App\Events\TaskWasUpdated;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
-use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
@@ -34,6 +33,7 @@ use App\Ninja\Transformers\TaskTransformer;
 use App\Ninja\Transformers\VendorTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
+use Utils;
 
 /**
  * Class SubscriptionListener.
@@ -229,11 +229,11 @@ class SubscriptionListener
         $this->checkSubscriptions(EVENT_DELETE_TASK, $event->task, $transformer);
     }
 
-    private static function notifySubscription($subscription, $data): void
+    private function notifySubscription($subscription, $data): void
     {
-        $curl            = curl_init();
+        $curl = curl_init();
         $jsonEncodedData = json_encode($data);
-        $url             = $subscription->target_url;
+        $url = $subscription->target_url;
 
         if ( ! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
             $url .= '?secret=' . $secret;
@@ -266,7 +266,7 @@ class SubscriptionListener
      * @param        $transformer
      * @param string $include
      */
-    private function checkSubscriptions($eventId, $entity, $transformer, $include = ''): void
+    private function checkSubscriptions(int $eventId, $entity, ClientTransformer|PaymentTransformer|InvoiceTransformer|VendorTransformer|ExpenseTransformer|TaskTransformer $transformer, array|string $include = ''): void
     {
         if ( ! EntityModel::$notifySubscriptions) {
             return;
@@ -297,10 +297,12 @@ class SubscriptionListener
                     $data = $jsonData;
                     break;
                 case SUBSCRIPTION_FORMAT_UBL:
+                    $ublData = null;
                     $data = $ublData;
                     break;
             }
-            self::notifySubscription($subscription, $data);
+
+            $this->notifySubscription($subscription, $data);
         }
     }
 }

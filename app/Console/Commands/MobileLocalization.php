@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class MobileLocalization extends Command
 {
@@ -31,25 +32,14 @@ class MobileLocalization extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    public function handle(): void
     {
         $type = mb_strtolower($this->option('type'));
 
-        switch ($type) {
-            case 'laravel':
-                $this->laravelResources();
-                break;
-            default:
-                $this->flutterResources();
-                break;
-        }
-
-        return 0;
+        match ($type) {
+            'laravel' => $this->laravelResources(),
+            default   => $this->flutterResources(),
+        };
     }
 
     protected function getOptions()
@@ -64,7 +54,7 @@ class MobileLocalization extends Command
         $resources = $this->getResources();
 
         foreach ($resources as $key => $val) {
-            $transKey = "texts.{$key}";
+            $transKey = 'texts.' . $key;
             if (trans($transKey) == $transKey) {
                 echo "'{$key}' => '{$val}',\n";
             }
@@ -84,8 +74,8 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
-                if (mb_substr($text, 0, 6) == 'texts.') {
+                $text = trim(addslashes(trans('texts.' . $key, [], $language->locale)));
+                if (mb_substr($text, 0, 6) === 'texts.') {
                     $text = $resources->{$key};
                 }
 
@@ -100,14 +90,14 @@ class MobileLocalization extends Command
         }
     }
 
-    private function getResources()
+    private function getResources(): mixed
     {
-        $url  = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
         $start = mb_strpos($data, 'do not remove comment') + 25;
-        $end   = mb_strpos($data, '},', $start);
-        $data  = mb_substr($data, $start, $end - $start - 5);
+        $end = mb_strpos($data, '},', $start);
+        $data = mb_substr($data, $start, $end - $start - 5);
 
         $data = str_replace("\n", '', $data);
         $data = str_replace('"', "\'", $data);

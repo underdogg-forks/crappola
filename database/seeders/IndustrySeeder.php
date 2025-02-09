@@ -9,7 +9,7 @@ class IndustrySeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         $industries = [
             ['name' => 'Accounting & Legal'],
@@ -54,6 +54,6 @@ class IndustrySeeder extends Seeder
             }
         }
 
-        Model::reguard();
+        Eloquent::reguard();
     }
 }

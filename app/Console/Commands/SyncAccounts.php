@@ -32,14 +32,9 @@ class SyncAccounts extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    public function handle(): void
     {
-        if( ! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return;
         }
 
@@ -50,8 +45,6 @@ class SyncAccounts extends Command
         config(['database.default' => DB_NINJA_2]);
 
         $this->updateAccounts();
-
-        return 0;
     }
 
     private function updateAccounts(): void

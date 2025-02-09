@@ -27,7 +27,7 @@ class QuoteInvitationWasViewed extends Event
      */
     public function __construct($quote, Invitation $invitation)
     {
-        $this->quote      = $quote;
+        $this->quote = $quote;
         $this->invitation = $invitation;
     }
 }

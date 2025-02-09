@@ -9,11 +9,11 @@ use DropdownButton;
  */
 class ProposalPresenter extends EntityPresenter
 {
-    public function moreActions()
+    public function moreActions(): array
     {
-        $proposal   = $this->entity;
+        $proposal = $this->entity;
         $invitation = $proposal->invitations->first();
-        $actions    = [];
+        $actions = [];
 
         $actions[] = ['url' => $invitation->getLink('proposal'), 'label' => trans('texts.view_in_portal')];
 
@@ -22,6 +22,7 @@ class ProposalPresenter extends EntityPresenter
         if ( ! $proposal->trashed()) {
             $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans('texts.archive_proposal')];
         }
+
         if ( ! $proposal->is_deleted) {
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_proposal')];
         }
@@ -29,7 +30,7 @@ class ProposalPresenter extends EntityPresenter
         return $actions;
     }
 
-    public function htmlDocument()
+    public function htmlDocument(): string
     {
         $proposal = $this->entity;
 
@@ -50,7 +51,7 @@ class ProposalPresenter extends EntityPresenter
         return $html;
     }
 
-    public function filename()
+    public function filename(): string
     {
         $proposal = $this->entity;
 

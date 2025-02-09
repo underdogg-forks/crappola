@@ -9,7 +9,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Carbon;
 use Illuminate\Console\Command;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -30,17 +30,11 @@ class ChargeRenewalInvoices extends Command
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
+    protected AccountRepository $accountRepo;
 
-    /**
-     * @var PaymentService
-     */
-    protected $paymentService;
+    protected PaymentService $paymentService;
 
     /**
      * ChargeRenewalInvoices constructor.
@@ -53,12 +47,12 @@ class ChargeRenewalInvoices extends Command
     {
         parent::__construct();
 
-        $this->mailer         = $mailer;
-        $this->accountRepo    = $repo;
+        $this->mailer = $mailer;
+        $this->accountRepo = $repo;
         $this->paymentService = $paymentService;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this->info(date('r') . ' ChargeRenewalInvoices...');
 
@@ -67,7 +61,7 @@ class ChargeRenewalInvoices extends Command
         }
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
-        $invoices     = Invoice::whereAccountId($ninjaAccount->id)
+        $invoices = Invoice::whereAccountId($ninjaAccount->id)
             ->whereDueDate(date('Y-m-d'))
             ->where('balance', '>', 0)
             ->with('client')
@@ -85,7 +79,11 @@ class ChargeRenewalInvoices extends Command
             }
 
             $company = $account->company;
-            if ( ! $company->plan || $company->plan == PLAN_FREE) {
+            if ( ! $company->plan) {
+                continue;
+            }
+
+            if ($company->plan == PLAN_FREE) {
                 continue;
             }
 
@@ -94,7 +92,7 @@ class ChargeRenewalInvoices extends Command
                 continue;
             }
 
-            $this->info("Charging invoice {$invoice->invoice_number}");
+            $this->info('Charging invoice ' . $invoice->invoice_number);
             if ( ! $this->paymentService->autoBillInvoice($invoice)) {
                 $this->info('Failed to auto-bill, emailing invoice');
                 $this->mailer->sendInvoice($invoice);
@@ -110,8 +108,6 @@ class ChargeRenewalInvoices extends Command
                     ->subject('ChargeRenewalInvoices: Finished successfully');
             });
         }
-
-        return 0;
     }
 
     protected function getArguments()

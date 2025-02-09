@@ -15,19 +15,13 @@ use App\Services\ProjectService;
 class ProjectApiController extends BaseAPIController
 {
     /**
-     * @var ProjectRepository
-     */
-    protected $projectRepo;
-
-    /**
-     * @var ProjectService
-     */
-    protected $projectService;
-
-    /**
      * @var string
      */
-    protected $entityType = ENTITY_PROJECT;
+    public $entityType = ENTITY_PROJECT;
+
+    protected ProjectRepository $projectRepo;
+
+    protected ProjectService $projectService;
 
     /**
      * ProjectApiController constructor.
@@ -39,7 +33,7 @@ class ProjectApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->projectRepo    = $projectRepo;
+        $this->projectRepo = $projectRepo;
         $this->projectService = $projectService;
     }
 
@@ -179,9 +173,9 @@ class ProjectApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data              = $request->input();
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $project           = $this->projectService->save($request->input(), $request->entity());
+        $project = $this->projectService->save($request->input(), $request->entity());
 
         return $this->itemResponse($project);
     }

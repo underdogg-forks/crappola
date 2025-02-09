@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App;
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use View;
+use Illuminate\Support\Facades\View;
+use Utils;
 
 /**
  * Class DashboardController.
  */
 class DashboardController extends BaseController
 {
+    /**
+     * @var DashboardRepository
+     */
+    public $dashboardRepo;
+
     public function __construct(DashboardRepository $dashboardRepo)
     {
         $this->dashboardRepo = $dashboardRepo;
@@ -25,23 +30,23 @@ class DashboardController extends BaseController
      */
     public function index()
     {
-        $user      = Auth::user();
-        $viewAll   = $user->hasPermission('view_reports');
-        $userId    = $user->id;
-        $account   = $user->account;
+        $user = Auth::user();
+        $viewAll = $user->hasPermission('view_reports');
+        $userId = $user->id;
+        $account = $user->account;
         $accountId = $account->id;
 
-        $dashboardRepo  = $this->dashboardRepo;
-        $metrics        = $dashboardRepo->totals($accountId, $userId, $viewAll);
-        $paidToDate     = $dashboardRepo->paidToDate($account, $userId, $viewAll);
+        $dashboardRepo = $this->dashboardRepo;
+        $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
+        $paidToDate = $dashboardRepo->paidToDate($account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($account, $userId, $viewAll);
-        $balances       = $dashboardRepo->balances($accountId, $userId, $viewAll);
-        $activities     = $dashboardRepo->activities($accountId, $userId, $viewAll);
-        $pastDue        = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
-        $upcoming       = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
-        $payments       = $dashboardRepo->payments($accountId, $userId, $viewAll);
-        $expenses       = $dashboardRepo->expenses($account, $userId, $viewAll);
-        $tasks          = $dashboardRepo->tasks($accountId, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
+        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
+        $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
+        $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
+        $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
+        $expenses = $dashboardRepo->expenses($account, $userId, $viewAll);
+        $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
         $showBlueVinePromo = false;
         if ($user->is_admin && env('BLUEVINE_PARTNER_UNIQUE_ID')) {
@@ -90,8 +95,8 @@ class DashboardController extends BaseController
         ];
 
         if ($showBlueVinePromo) {
-            $usdLast12Months  = 0;
-            $pastYear         = date('Y-m-d', strtotime('-1 year'));
+            $usdLast12Months = 0;
+            $pastYear = date('Y-m-d', strtotime('-1 year'));
             $paidLast12Months = $dashboardRepo->paidToDate($account, $userId, $viewAll, $pastYear);
 
             foreach ($paidLast12Months as $item) {
@@ -115,14 +120,14 @@ class DashboardController extends BaseController
     public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
     {
         $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
-        $data            = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
+        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
 
         return json_encode($data);
     }
 
-    private function getCurrencyCodes()
+    private function getCurrencyCodes(): array
     {
-        $account     = Auth::user()->account;
+        $account = Auth::user()->account;
         $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
 
         // get client/invoice currencies
@@ -132,7 +137,7 @@ class DashboardController extends BaseController
             ->get(['currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds): void {
+        array_map(function (array $item) use (&$currencyIds): void {
             $currencyId = (int) ($item['currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;
@@ -146,7 +151,7 @@ class DashboardController extends BaseController
             ->get(['expense_currency_id'])
             ->toArray();
 
-        array_map(function ($item) use (&$currencyIds): void {
+        array_map(function (array $item) use (&$currencyIds): void {
             $currencyId = (int) ($item['expense_currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;

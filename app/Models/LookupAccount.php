@@ -2,10 +2,27 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property int                $id
+ * @property int                $lookup_company_id
+ * @property string             $account_key
+ * @property string|null        $subdomain
+ * @property LookupAccount|null $lookupAccount
+ * @property LookupCompany      $lookupCompany
+ *
+ * @method static Builder|LookupAccount newModelQuery()
+ * @method static Builder|LookupAccount newQuery()
+ * @method static Builder|LookupAccount query()
+ * @method static Builder|LookupAccount whereAccountKey($value)
+ * @method static Builder|LookupAccount whereId($value)
+ * @method static Builder|LookupAccount whereLookupCompanyId($value)
+ * @method static Builder|LookupAccount whereSubdomain($value)
+ *
+ * @mixin \Eloquent
  */
 class LookupAccount extends LookupModel
 {
@@ -26,7 +43,7 @@ class LookupAccount extends LookupModel
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $server        = DbServer::whereName($current)->firstOrFail();
+        $server = DbServer::whereName($current)->firstOrFail();
         $lookupCompany = LookupCompany::whereDbServerId($server->id)
             ->whereCompanyId($companyId)->first();
 
@@ -75,11 +92,7 @@ class LookupAccount extends LookupModel
 
         $lookupAccount = self::where($field, '=', $value)->first();
 
-        if ($account) {
-            $isValid = ! $lookupAccount || ($lookupAccount->account_key == $account->account_key);
-        } else {
-            $isValid = ! $lookupAccount;
-        }
+        $isValid = $account ? ! $lookupAccount || ($lookupAccount->account_key == $account->account_key) : ! $lookupAccount;
 
         config(['database.default' => $current]);
 
@@ -88,16 +101,11 @@ class LookupAccount extends LookupModel
 
     public function lookupCompany()
     {
-        return $this->belongsTo('App\Models\LookupCompany');
+        return $this->belongsTo(LookupCompany::class);
     }
 
     public function getDbServer()
     {
         return $this->lookupCompany->dbServer->name;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }

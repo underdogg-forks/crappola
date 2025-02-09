@@ -9,7 +9,7 @@ class FontsSeeder extends Seeder
 {
     public function run(): void
     {
-        Model::unguard();
+        Eloquent::unguard();
 
         $this->createFonts();
     }

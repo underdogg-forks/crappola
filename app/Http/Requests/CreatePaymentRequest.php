@@ -6,28 +6,19 @@ use App\Models\Invoice;
 
 class CreatePaymentRequest extends PaymentRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
-        $input         = $this->input();
-        $this->invoice = $invoice = Invoice::scope($input['invoice'])
+        $input = $this->input();
+        $this->invoice = Invoice::scope($input['invoice'])
             ->withArchived()
             ->invoices()
             ->firstOrFail();
+        $invoice = $this->invoice;
 
         $this->merge([
             'invoice_id' => $invoice->id,

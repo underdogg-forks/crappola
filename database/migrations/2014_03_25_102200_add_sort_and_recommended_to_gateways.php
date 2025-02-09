@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddSortAndRecommendedToGateways extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -38,4 +37,4 @@ class AddSortAndRecommendedToGateways extends Migration
             });
         }
     }
-}
+};

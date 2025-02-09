@@ -22,7 +22,7 @@ class CreditTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(Credit $credit)
+    public function transform(Credit $credit): array
     {
         return array_merge($this->getDefaults($credit), [
             'id'            => (int) $credit->public_id,

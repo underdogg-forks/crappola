@@ -7,10 +7,17 @@ use stdClass;
 
 class LoadPostmarkHistory extends Job
 {
+    public $email;
+
+    public $bounceId = false;
+
+    public $account;
+
+    public $postmark;
+
     public function __construct($email)
     {
-        $this->email    = $email;
-        $this->bounceId = false;
+        $this->email = $email;
     }
 
     /**
@@ -18,36 +25,40 @@ class LoadPostmarkHistory extends Job
      *
      * @return void
      */
-    public function handle()
+    public function handle(): stdClass
     {
         $str = '';
 
         if (config('services.postmark')) {
-            $this->account  = auth()->user()->account;
+            $this->account = auth()->user()->account;
             $this->postmark = new PostmarkClient(config('services.postmark'));
 
             $str .= $this->loadBounceEvents();
             $str .= $this->loadEmailEvents();
         }
 
-        if ( ! $str) {
+        if ($str === '' || $str === '0') {
             $str = trans('texts.no_messages_found');
         }
 
-        $response            = new stdClass();
-        $response->str       = $str;
+        $response = new stdClass();
+        $response->str = $str;
         $response->bounce_id = $this->bounceId;
 
         return $response;
     }
 
-    private function loadBounceEvents()
+    private function loadBounceEvents(): string
     {
-        $str      = '';
+        $str = '';
         $response = $this->postmark->getBounces(5, 0, null, null, $this->email, $this->account->account_key);
 
         foreach ($response['bounces'] as $bounce) {
-            if ( ! $bounce['inactive'] || ! $bounce['canactivate']) {
+            if ( ! $bounce['inactive']) {
+                continue;
+            }
+
+            if ( ! $bounce['canactivate']) {
                 continue;
             }
 
@@ -61,9 +72,9 @@ class LoadPostmarkHistory extends Job
         return $str;
     }
 
-    private function loadEmailEvents()
+    private function loadEmailEvents(): string
     {
-        $str      = '';
+        $str = '';
         $response = $this->postmark->getOutboundMessages(5, 0, $this->email, null, $this->account->account_key);
 
         foreach ($response['messages'] as $message) {
@@ -75,6 +86,7 @@ class LoadPostmarkHistory extends Job
             if ($message = $event['Details']['DeliveryMessage']) {
                 $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
             }
+
             if ($server = $event['Details']['DestinationServer']) {
                 $str .= sprintf('<span class="text-muted">%s</span><br/>', $server);
             }

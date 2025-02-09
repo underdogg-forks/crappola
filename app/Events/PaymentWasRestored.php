@@ -27,7 +27,7 @@ class PaymentWasRestored extends Event
      */
     public function __construct(Payment $payment, $fromDeleted)
     {
-        $this->payment     = $payment;
+        $this->payment = $payment;
         $this->fromDeleted = $fromDeleted;
     }
 }

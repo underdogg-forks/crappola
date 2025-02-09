@@ -35,7 +35,7 @@ class ActivityTransformer extends EntityTransformer
      *
      * @return array
      */
-    public function transform(Activity $activity)
+    public function transform(Activity $activity): array
     {
         return [
             'id'               => $activity->key(),

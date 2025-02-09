@@ -4,8 +4,7 @@ use App\Models\Subscription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddSubdomainToLookups extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -79,11 +78,11 @@ class AddSubdomainToLookups extends Migration
                 $publicId = $accountPublicIds[$accountId];
                 $accountPublicIds[$accountId]++;
             } else {
-                $publicId                     = 1;
+                $publicId = 1;
                 $accountPublicIds[$accountId] = 2;
             }
             $subscription->public_id = $publicId;
-            $subscription->user_id   = $subscription->account->users[0]->id;
+            $subscription->user_id = $subscription->account->users[0]->id;
             $subscription->save();
         }
 
@@ -149,4 +148,4 @@ class AddSubdomainToLookups extends Migration
             $table->dropColumn('inclusive_taxes');
         });
     }
-}
+};

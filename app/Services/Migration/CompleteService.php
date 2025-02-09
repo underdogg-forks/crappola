@@ -2,13 +2,14 @@
 
 namespace App\Services\Migration;
 
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Storage;
 
 // use Unirest\Request;
 
 class CompleteService
 {
-    protected $token;
+    protected string $token;
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
@@ -25,14 +26,14 @@ class CompleteService
         $this->token = $token;
     }
 
-    public function data(array $data)
+    public function data(array $data): static
     {
         $this->data = $data;
 
         return $this;
     }
 
-    public function endpoint(string $endpoint)
+    public function endpoint(string $endpoint): static
     {
         $this->endpoint = $endpoint;
 
@@ -68,7 +69,7 @@ class CompleteService
             ];
         }
 
-        $client = new \GuzzleHttp\Client(
+        $client = new Client(
             [
                 'headers' => $this->getHeaders(),
             ]
@@ -81,16 +82,17 @@ class CompleteService
         // info(print_r($payload_data,1));
         $response = $client->request('POST', $this->getUrl(), $payload_data);
 
-        if($response->getStatusCode() == 200) {
+        if ($response->getStatusCode() == 200) {
             $this->isSuccessful = true;
 
             return json_decode($response->getBody(), true);
         }
+
         // info($response->raw_body);
 
         $this->isSuccessful = false;
-        $this->errors       = [
-            'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+        $this->errors = [
+            "Oops, something went wrong. Migration can't be processed at the moment. Please checks the logs.",
         ];
 
         return $this;
@@ -111,7 +113,7 @@ class CompleteService
         Storage::delete($path);
     }
 
-    private function getHeaders()
+    private function getHeaders(): array
     {
         $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
@@ -126,8 +128,8 @@ class CompleteService
         return $headers;
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
-        return "{$this->endpoint}/{$this->uri}";
+        return sprintf('%s/%s', $this->endpoint, $this->uri);
     }
 }

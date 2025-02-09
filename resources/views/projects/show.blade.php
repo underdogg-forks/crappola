@@ -91,14 +91,14 @@
 			<table class="table" style="width:100%">
 				<tr>
 					<td><small>{{ trans('texts.tasks') }}</small></td>
-					<td style="text-align: right">{{ $chartData->count }}</td>
+					<td style="text-align: right">{{-- $chartData->count --}}</td>
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.duration') }}</small></td>
 					<td style="text-align: right">
-                        {{ Utils::formatTime($chartData->duration) }}
+                        {{-- Utils::formatTime($chartData->duration) --}}
                         @if (floatval($project->budgeted_hours))
-            				[{{ round($chartData->duration / ($project->budgeted_hours * 60 * 60) * 100) }}%]
+            				[{{-- round($chartData->duration / ($project->budgeted_hours * 60 * 60) * 100) --}}%]
                         @endif
                     </td>
 				</tr>
@@ -111,9 +111,9 @@
     </div>
     </div>
 
-    @if ($chartData->duration)
+    {{--@if ($chartData->duration)
         <canvas id="chart-canvas" height="50px" style="background-color:white;padding:20px;display:none"></canvas><br/>
-    @endif
+    @endif--}}
 
     <ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
@@ -172,7 +172,7 @@
         }
         var ctx = document.getElementById('chart-canvas').getContext('2d');
         $('#chart-canvas').fadeIn();
-        window.myChart = new Chart(ctx, {
+        /*window.myChart = new Chart(ctx, {
             type: 'line',
             data: data,
             options: {
@@ -192,18 +192,18 @@
                     }],
                     yAxes: [{
                         ticks: {
-                            @if ($project->budgeted_hours)
+                            {{--@if ($project->budgeted_hours)
                                 max: {{ max($project->budgeted_hours, $chartData->duration / 60 / 60) }},
-                            @endif
+                            @endif--}}
                             beginAtZero: true,
                             callback: function(label, index, labels) {
-                                return roundToTwo(label) + " {{ trans('texts.hours') }}";
+                                return roundToTwo(label) + " {{-- trans('texts.hours') --}}";
                             }
                         },
                     }]
                 }
             }
-        });
+        });*/
     }
 
 

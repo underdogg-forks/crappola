@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
-use App\Libraries\Utils;
 use App\Models\EntityModel;
+use Utils;
 
 class EntityRequest extends Request
 {
@@ -22,18 +22,20 @@ class EntityRequest extends Request
 
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
-        $field    = $this->entityType . '_id';
+        $field = $this->entityType . '_id';
         if ( ! empty($this->{$field})) {
             $publicId = $this->{$field};
         }
+
         if ( ! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
             if ( ! empty($this->{$field})) {
                 $publicId = $this->{$field};
             }
         }
+
         if ( ! $publicId) {
-            $publicId = \Request::input('public_id') ?: \Request::input('id');
+            $publicId = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('id');
         }
 
         if ( ! $publicId) {
@@ -54,20 +56,18 @@ class EntityRequest extends Request
         $this->entity = $entity;
     }
 
-    public function authorize()
+    public function authorize(): bool
     {
-        if ($this->entity()) {
-            if ($this->user()->can('view', $this->entity())) {
-                HistoryUtils::trackViewed($this->entity());
+        if ($this->entity() && $this->user()->can('view', $this->entity())) {
+            HistoryUtils::trackViewed($this->entity());
 
-                return true;
-            }
-        } else {
-            return $this->user()->can('create', $this->entityType);
+            return true;
         }
+
+        return $this->user()->can('create', $this->entityType);
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [];
     }

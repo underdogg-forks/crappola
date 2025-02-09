@@ -20,7 +20,7 @@
           <div class="input-div">
               {!! Former::plaintext('contact_us_from')
                     ->label('from')
-                    ->value(Auth::user()->present()->email) !!}
+                    ->value(Auth::user()->present()->emailForDisplay()) !!}
 
               {!! Former::textarea('contact_us_message')
                     ->label('message')

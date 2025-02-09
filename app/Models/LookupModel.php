@@ -2,20 +2,29 @@
 
 namespace App\Models;
 
-use Cache;
-use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.
+ *
+ * @property LookupAccount|null $lookupAccount
+ *
+ * @method static Builder|LookupModel newModelQuery()
+ * @method static Builder|LookupModel newQuery()
+ * @method static Builder|LookupModel query()
+ *
+ * @mixin \Eloquent
  */
-class LookupModel extends Eloquent
+class LookupModel extends Model
 {
     /**
      * @var bool
      */
     public $timestamps = false;
 
-    public static function createNew($accountKey, $data): void
+    public static function createNew(string $accountKey, array $data): void
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -57,9 +66,10 @@ class LookupModel extends Eloquent
             return;
         }
 
-        $className = get_called_class();
+        $className = static::class;
         $className = str_replace('Lookup', '', $className);
-        $key       = sprintf('server:%s:%s:%s', $className, $field, $value);
+
+        $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
@@ -80,8 +90,8 @@ class LookupModel extends Eloquent
             // check entity is found on the server
             if ($field === 'oauth_user_key') {
                 $providerId = mb_substr($value, 0, 1);
-                $oauthId    = mb_substr($value, 2);
-                $isFound    = $entity::where('oauth_provider_id', '=', $providerId)
+                $oauthId = mb_substr($value, 2);
+                $isFound = $entity::where('oauth_provider_id', '=', $providerId)
                     ->where('oauth_user_id', '=', $oauthId)
                     ->withTrashed()
                     ->first();
@@ -90,8 +100,9 @@ class LookupModel extends Eloquent
                     ->withTrashed()
                     ->first();
             }
+
             if ( ! $isFound) {
-                abort(404, "Looked up {$className} not found: {$field} => {$value}");
+                abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
             }
 
             Cache::put($key, $server, 120 * 60);
@@ -102,7 +113,7 @@ class LookupModel extends Eloquent
 
     public function lookupAccount()
     {
-        return $this->belongsTo('App\Models\LookupAccount');
+        return $this->belongsTo(LookupAccount::class);
     }
 
     public function getDbServer()

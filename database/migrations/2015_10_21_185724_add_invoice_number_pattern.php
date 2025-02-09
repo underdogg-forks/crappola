@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddInvoiceNumberPattern extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -29,4 +28,4 @@ class AddInvoiceNumberPattern extends Migration
             $table->dropColumn('quote_number_pattern');
         });
     }
-}
+};

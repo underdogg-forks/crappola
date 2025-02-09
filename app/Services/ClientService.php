@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -13,14 +14,13 @@ use Illuminate\Support\Facades\Auth;
 class ClientService extends BaseService
 {
     /**
-     * @var ClientRepository
+     * @var NinjaRepository
      */
-    protected $clientRepo;
+    public $ninjaRepo;
 
-    /**
-     * @var DatatableService
-     */
-    protected $datatableService;
+    protected ClientRepository $clientRepo;
+
+    protected DatatableService $datatableService;
 
     /**
      * ClientService constructor.
@@ -31,8 +31,8 @@ class ClientService extends BaseService
      */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
-        $this->clientRepo       = $clientRepo;
-        $this->ninjaRepo        = $ninjaRepo;
+        $this->clientRepo = $clientRepo;
+        $this->ninjaRepo = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -55,7 +55,7 @@ class ClientService extends BaseService
      * @param $search
      * @param $userId
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getDatatable($search, $userId)
     {
@@ -69,7 +69,7 @@ class ClientService extends BaseService
     /**
      * @return ClientRepository
      */
-    protected function getRepo()
+    protected function getRepo(): ClientRepository
     {
         return $this->clientRepo;
     }

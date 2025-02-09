@@ -27,7 +27,7 @@ trait SerialisesDeletedModels
         }
 
         $instance = new $value->class();
-        $query    = $instance->newQuery()->useWritePdo();
+        $query = $instance->newQuery()->useWritePdo();
 
         if (property_exists($instance, 'forceDeleting')) {
             return $query->withTrashed()->find($value->id);

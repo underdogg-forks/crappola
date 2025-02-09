@@ -11,7 +11,7 @@ class TimeTrackerController extends Controller
 {
     public function index()
     {
-        $user    = auth()->user();
+        $user = auth()->user();
         $account = $user->account;
 
         if ( ! $account->hasFeature(FEATURE_TASKS)) {

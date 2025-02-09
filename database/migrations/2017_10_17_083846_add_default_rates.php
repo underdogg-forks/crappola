@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddDefaultRates extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -69,4 +68,4 @@ class AddDefaultRates extends Migration
             $table->dropColumn('google_2fa_secret');
         });
     }
-}
+};

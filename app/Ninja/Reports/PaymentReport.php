@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Utils;
 
 class PaymentReport extends AbstractReport
 {
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'client'         => [],
@@ -25,10 +25,10 @@ class PaymentReport extends AbstractReport
 
     public function run(): void
     {
-        $account      = Auth::user()->account;
+        $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
-        $invoiceMap   = [];
-        $subgroup     = $this->options['subgroup'];
+        $invoiceMap = [];
+        $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
             ->orderBy('payment_date', 'desc')
@@ -47,8 +47,8 @@ class PaymentReport extends AbstractReport
         $lastInvoiceId = 0;
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
-            $client  = $payment->client;
-            $amount  = $payment->getCompletedAmount();
+            $client = $payment->client;
+            $amount = $payment->getCompletedAmount();
 
             if ($currencyType == 'converted') {
                 $amount *= $payment->exchange_rate;
@@ -81,11 +81,7 @@ class PaymentReport extends AbstractReport
                 }
             }
 
-            if ($subgroup == 'method') {
-                $dimension = $payment->present()->method;
-            } else {
-                $dimension = $this->getDimension($payment);
-            }
+            $dimension = $subgroup == 'method' ? $payment->present()->method : $this->getDimension($payment);
 
             $convertedAmount = $currencyType == 'converted' ? ($invoice->amount * $payment->exchange_rate) : $invoice->amount;
             $this->addChartData($dimension, $payment->payment_date, $convertedAmount);

@@ -8,23 +8,23 @@ use App\Models\TaxRate;
 use App\Ninja\Repositories\TaxRateRepository;
 use App\Services\TaxRateService;
 use Illuminate\Support\Facades\Auth;
-use Redirect;
-use Request;
-use Session;
-use View;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class TaxRateController extends BaseController
 {
-    protected $taxRateService;
+    protected TaxRateService $taxRateService;
 
-    protected $taxRateRepo;
+    protected TaxRateRepository $taxRateRepo;
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
         //parent::__construct();
 
         $this->taxRateService = $taxRateService;
-        $this->taxRateRepo    = $taxRateRepo;
+        $this->taxRateRepo = $taxRateRepo;
     }
 
     public function index()
@@ -37,7 +37,7 @@ class TaxRateController extends BaseController
         return $this->taxRateService->getDatatable(Auth::user()->account_id);
     }
 
-    public function edit($publicId)
+    public function edit(string $publicId)
     {
         $data = [
             'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
@@ -82,8 +82,8 @@ class TaxRateController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids    = Request::input('bulk_public_id');
-        $count  = $this->taxRateService->bulk($ids, $action);
+        $ids = Request::input('bulk_public_id');
+        $count = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));
 

@@ -2,13 +2,47 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Omnipay;
+use Utils;
 
 /**
  * Class Gateway.
+ *
+ * @property int         $id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string      $name
+ * @property string      $provider
+ * @property int         $visible
+ * @property int         $payment_library_id
+ * @property int         $sort_order
+ * @property int         $recommended
+ * @property string|null $site_url
+ * @property int         $is_offsite
+ * @property int         $is_secure
+ *
+ * @method static Builder|Gateway newModelQuery()
+ * @method static Builder|Gateway newQuery()
+ * @method static Builder|Gateway primary($accountGatewaysIds)
+ * @method static Builder|Gateway query()
+ * @method static Builder|Gateway secondary($accountGatewaysIds)
+ * @method static Builder|Gateway whereCreatedAt($value)
+ * @method static Builder|Gateway whereId($value)
+ * @method static Builder|Gateway whereIsOffsite($value)
+ * @method static Builder|Gateway whereIsSecure($value)
+ * @method static Builder|Gateway whereName($value)
+ * @method static Builder|Gateway wherePaymentLibraryId($value)
+ * @method static Builder|Gateway whereProvider($value)
+ * @method static Builder|Gateway whereRecommended($value)
+ * @method static Builder|Gateway whereSiteUrl($value)
+ * @method static Builder|Gateway whereSortOrder($value)
+ * @method static Builder|Gateway whereUpdatedAt($value)
+ * @method static Builder|Gateway whereVisible($value)
+ *
+ * @mixin \Eloquent
  */
 class Gateway extends Model
 {
@@ -99,7 +133,6 @@ class Gateway extends Model
     ];
 
     protected $fillable = [
-        'name',
         'provider',
         'is_offsite',
         'sort_order',
@@ -120,17 +153,14 @@ class Gateway extends Model
      *
      * @return int
      */
-    public static function hasStandardGateway($gatewayIds)
+    public static function hasStandardGateway($gatewayIds): int
     {
         $diff = array_diff($gatewayIds, static::$alternate);
 
         return count($diff);
     }
 
-    /**
-     * @return string
-     */
-    public function getLogoUrl()
+    public function getLogoUrl(): string
     {
         return '/images/gateways/logo_' . $this->provider . '.png';
     }
@@ -140,7 +170,7 @@ class Gateway extends Model
      *
      * @return bool
      */
-    public function isGateway($gatewayId)
+    public function isGateway($gatewayId): bool
     {
         return $this->id == $gatewayId;
     }
@@ -198,16 +228,13 @@ class Gateway extends Model
 
         $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
-            'link'          => "<a href='{$link}' >Click here</a>",
+            'link'          => sprintf("<a href='%s' >Click here</a>", $link),
             'complete_link' => url('/complete'),
         ]);
 
         return $key != $str ? $str : '';
     }
 
-    /**
-     * @return mixed
-     */
     public function getFields()
     {
         if ($this->isCustom()) {
@@ -220,13 +247,8 @@ class Gateway extends Model
         return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
-    public function isCustom()
+    public function isCustom(): bool
     {
         return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
