@@ -44,7 +44,7 @@ class SendRecurringInvoices extends Command
     {
         parent::__construct();
 
-        $this->invoiceRepo = $invoiceRepo;
+        $this->invoiceRepo          = $invoiceRepo;
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 

@@ -249,7 +249,7 @@ class Utils
         }
 
         $mysqlVersion = DB::select(DB::raw('select version() as version'))[0]->version;
-        $accountKey = Auth::check() ? Auth::user()->account->account_key : '';
+        $accountKey   = Auth::check() ? Auth::user()->account->account_key : '';
 
         $info = 'App Version: v' . NINJA_VERSION . '\\n' .
                 'White Label: ' . (self::isWhiteLabel() ? 'Yes' : 'No') . " - {$accountKey}\\n" .
@@ -284,9 +284,9 @@ class Utils
             $userType = self::getUserType();
         }
 
-        $response = new stdClass();
+        $response          = new stdClass();
         $response->message = $_ENV["{$userType}_MESSAGE"] ?? '';
-        $response->id = $_ENV["{$userType}_ID"] ?? '';
+        $response->id      = $_ENV["{$userType}_ID"] ?? '';
         $response->version = NINJA_VERSION;
 
         return $response;
@@ -305,9 +305,9 @@ class Utils
 
     public static function getPlanPrice($plan)
     {
-        $term = $plan['term'];
+        $term     = $plan['term'];
         $numUsers = $plan['num_users'];
-        $plan = $plan['plan'];
+        $plan     = $plan['plan'];
 
         if ($plan == PLAN_FREE) {
             $price = 0;
@@ -396,7 +396,7 @@ class Utils
     public static function getErrorString($exception)
     {
         $class = get_class($exception);
-        $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
+        $code  = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
 
         return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
@@ -440,7 +440,7 @@ class Utils
         ];
 
         if (static::isNinja()) {
-            $data['url'] = Request::input('url', Request::url());
+            $data['url']      = Request::input('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();
@@ -451,7 +451,7 @@ class Utils
 
     public static function getErrors()
     {
-        $data = [];
+        $data     = [];
         $filename = storage_path('logs/laravel-error.log');
 
         if ( ! file_exists($filename)) {
@@ -573,7 +573,7 @@ class Utils
 
         $currency = self::getFromCache($currencyId, 'currencies');
         $thousand = $currency->thousand_separator;
-        $decimal = $currency->decimal_separator;
+        $decimal  = $currency->decimal_separator;
 
         return number_format($value, $precision, $decimal, $thousand);
     }
@@ -594,15 +594,15 @@ class Utils
             $countryId = Auth::user()->account->country_id;
         }
 
-        $currency = self::getFromCache($currencyId, 'currencies');
-        $thousand = $currency->thousand_separator;
-        $decimal = $currency->decimal_separator;
-        $precision = $currency->precision;
-        $code = $currency->code;
+        $currency   = self::getFromCache($currencyId, 'currencies');
+        $thousand   = $currency->thousand_separator;
+        $decimal    = $currency->decimal_separator;
+        $precision  = $currency->precision;
+        $code       = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
 
         if ($countryId && $currencyId == CURRENCY_EURO) {
-            $country = self::getFromCache($countryId, 'countries');
+            $country    = self::getFromCache($countryId, 'countries');
             $swapSymbol = $country->swap_currency_symbol;
             if ($country->thousand_separator) {
                 $thousand = $country->thousand_separator;
@@ -612,7 +612,7 @@ class Utils
             }
         }
 
-        $value = number_format($value, $precision, $decimal, $thousand);
+        $value  = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
         if ($decorator == CURRENCY_DECORATOR_NONE) {
@@ -630,7 +630,7 @@ class Utils
 
     public static function pluralize($string, $count)
     {
-        $field = $count == 1 ? $string : $string . 's';
+        $field  = $count == 1 ? $string : $string . 's';
         $string = trans("texts.{$field}", ['count' => $count]);
 
         return $string;
@@ -724,7 +724,7 @@ class Utils
     public static function timestampToDateTimeString($timestamp)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+        $format   = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
         return self::timestampToString($timestamp, $timezone, $format);
     }
@@ -732,7 +732,7 @@ class Utils
     public static function timestampToDateString($timestamp)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format   = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         return self::timestampToString($timestamp, $timezone, $format);
     }
@@ -750,7 +750,7 @@ class Utils
         }
 
         $timestamp = $dateTime->getTimestamp();
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format    = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         return self::timestampToString($timestamp, false, $format);
     }
@@ -777,7 +777,7 @@ class Utils
             return;
         }
 
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format   = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
         if ( ! $dateTime) {
@@ -793,7 +793,7 @@ class Utils
             return '';
         }
 
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format   = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
         if ( ! $dateTime) {
@@ -810,7 +810,7 @@ class Utils
         }
 
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+        $format   = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
         $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
         $dateTime->setTimeZone(new DateTimeZone($timezone));
@@ -829,7 +829,7 @@ class Utils
     public static function today($formatResult = true)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
-        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $format   = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $date = date_create(null, new DateTimeZone($timezone));
 
@@ -849,7 +849,7 @@ class Utils
         $variables = ['MONTH', 'QUARTER', 'YEAR'];
         for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
-            $regExp = '/:' . $variable . '[+-]?[\d]*/';
+            $regExp   = '/:' . $variable . '[+-]?[\d]*/';
             preg_match_all($regExp, $str, $matches);
             $matches = $matches[0];
             if (count($matches) == 0) {
@@ -859,7 +859,7 @@ class Utils
                 return mb_strlen($b) - mb_strlen($a);
             });
             foreach ($matches as $match) {
-                $offset = 0;
+                $offset   = 0;
                 $addArray = explode('+', $match);
                 $minArray = explode('-', $match);
                 if (count($addArray) > 1) {
@@ -869,8 +869,8 @@ class Utils
                 }
 
                 $locale = $client && $client->language_id ? $client->language->locale : null;
-                $val = self::getDatePart($variable, $offset, $locale);
-                $str = str_replace($match, $val, $str);
+                $val    = self::getDatePart($variable, $offset, $locale);
+                $str    = str_replace($match, $val, $str);
             }
         }
 
@@ -882,8 +882,8 @@ class Utils
         $months = [];
 
         for ($i = 1; $i <= count(static::$months); $i++) {
-            $month = static::$months[$i - 1];
-            $number = $i < 10 ? '0' . $i : $i;
+            $month                       = static::$months[$i - 1];
+            $number                      = $i < 10 ? '0' . $i : $i;
             $months["2000-{$number}-01"] = trans("texts.{$month}");
         }
 
@@ -1103,7 +1103,7 @@ class Utils
             $url = Request::server('HTTP_HOST');
         }
 
-        $parts = parse_url($url);
+        $parts     = parse_url($url);
         $subdomain = '';
 
         if (isset($parts['host']) || isset($parts['path'])) {
@@ -1127,7 +1127,7 @@ class Utils
 
     public static function getDomainPlaceholder()
     {
-        $parts = parse_url(SITE_URL);
+        $parts  = parse_url(SITE_URL);
         $domain = '';
         if (isset($parts['host'])) {
             $host = explode('.', $parts['host']);
@@ -1148,10 +1148,10 @@ class Utils
     public static function replaceSubdomain($domain, $subdomain)
     {
         $parsedUrl = parse_url($domain);
-        $host = explode('.', $parsedUrl['host']);
+        $host      = explode('.', $parsedUrl['host']);
         if (count($host) > 0) {
             $oldSubdomain = $host[0];
-            $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
+            $domain       = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
         }
 
         return $domain;
@@ -1159,8 +1159,8 @@ class Utils
 
     public static function splitName($name)
     {
-        $name = trim($name);
-        $lastName = ( ! str_contains($name, ' ')) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+        $name      = trim($name);
+        $lastName  = ( ! str_contains($name, ' ')) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
         $firstName = trim(preg_replace('#' . preg_quote($lastName, '/') . '#', '', $name));
 
         return [$firstName, $lastName];
@@ -1217,7 +1217,7 @@ class Utils
             return '';
         }
 
-        $link = e($link);
+        $link  = e($link);
         $title = $link;
         if (mb_substr($link, 0, 4) != 'http') {
             $link = 'http://' . $link;
@@ -1228,7 +1228,7 @@ class Utils
 
     public static function wrapAdjustment($adjustment, $currencyId, $countryId)
     {
-        $class = $adjustment <= 0 ? 'success' : 'default';
+        $class      = $adjustment <= 0 ? 'success' : 'default';
         $adjustment = self::formatMoney($adjustment, $currencyId, $countryId);
 
         return "<h4><div class=\"label label-{$class}\">{$adjustment}</div></h4>";
@@ -1315,9 +1315,9 @@ class Utils
         $url = static::getDocsUrl($path);
 
         $parts = explode('/', $url);
-        $part = $parts[count($parts) - 1];
-        $part = str_replace('#', '> ', $part);
-        $part = str_replace(['.html', '-', '_'], ' ', $part);
+        $part  = $parts[count($parts) - 1];
+        $part  = str_replace('#', '> ', $part);
+        $part  = str_replace(['.html', '-', '_'], ' ', $part);
 
         if ($part) {
             return trans('texts.user_guide') . ': ' . ucwords($part);
@@ -1328,9 +1328,9 @@ class Utils
 
     public static function getDocsUrl($path)
     {
-        $page = '';
-        $parts = explode('/', $path);
-        $first = count($parts) ? $parts[0] : false;
+        $page   = '';
+        $parts  = explode('/', $path);
+        $first  = count($parts) ? $parts[0] : false;
         $second = count($parts) > 1 ? $parts[1] : false;
 
         $entityTypes = [
@@ -1352,7 +1352,7 @@ class Utils
             $page = "/{$path}.html#list-" . str_replace('_', '-', $path);
         } elseif (in_array($first, $entityTypes)) {
             $action = ($first == 'payments' || $first == 'credits') ? 'enter' : 'create';
-            $page = "/{$first}.html#{$action}-" . mb_substr(str_replace('_', '-', $first), 0, -1);
+            $page   = "/{$first}.html#{$action}-" . mb_substr(str_replace('_', '-', $first), 0, -1);
         } elseif ($first == 'expense_categories') {
             $page = '/expenses.html#expense-categories';
         } elseif ($first == 'settings') {
@@ -1410,7 +1410,7 @@ class Utils
     // http://stackoverflow.com/a/14238078/497368
     public static function isInterlaced($filename)
     {
-        $handle = fopen($filename, 'r');
+        $handle   = fopen($filename, 'r');
         $contents = fread($handle, 32);
         fclose($handle);
 
@@ -1450,7 +1450,7 @@ class Utils
 
     public static function brewerColorRGB($number)
     {
-        $color = static::brewerColor($number);
+        $color           = static::brewerColor($number);
         list($r, $g, $b) = sscanf($color, '#%02x%02x%02x');
 
         return "{$r},{$g},{$b}";
@@ -1529,7 +1529,7 @@ class Utils
     private static function getMonth($offset, $locale)
     {
         $months = static::$months;
-        $month = (int) (date('n')) - 1;
+        $month  = (int) (date('n')) - 1;
 
         $month += $offset;
         $month = $month % 12;
@@ -1543,7 +1543,7 @@ class Utils
 
     private static function getQuarter($offset)
     {
-        $month = (int) (date('n')) - 1;
+        $month   = (int) (date('n')) - 1;
         $quarter = floor(($month + 3) / 3);
         $quarter += $offset;
         $quarter = $quarter % 4;

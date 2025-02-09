@@ -212,8 +212,8 @@ class CheckData extends Command
         }
 
         $isValid = true;
-        $date = new Carbon();
-        $date = $date->subDays(1)->format('Y-m-d');
+        $date    = new Carbon();
+        $date    = $date->subDays(1)->format('Y-m-d');
 
         $invoices = Invoice::with('invitations')
             ->where('created_at', '>', $date)
@@ -221,9 +221,9 @@ class CheckData extends Command
             ->get();
 
         foreach ($invoices as $invoice) {
-            $link = $invoice->getInvitationLink('view', true, true);
-            $result = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
-            $result = (float) (strip_tags($result));
+            $link    = $invoice->getInvitationLink('view', true, true);
+            $result  = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
+            $result  = (float) (strip_tags($result));
             $invoice = $invoice->fresh();
 
             //$this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
@@ -406,14 +406,14 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
-                $contact = new Contact();
-                $contact->account_id = $client->account_id;
-                $contact->user_id = $client->user_id;
-                $contact->client_id = $client->id;
-                $contact->is_primary = true;
+                $contact               = new Contact();
+                $contact->account_id   = $client->account_id;
+                $contact->user_id      = $client->user_id;
+                $contact->client_id    = $client->id;
+                $contact->is_primary   = true;
                 $contact->send_invoice = true;
-                $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-                $contact->public_id = Contact::whereAccountId($client->account_id)->withTrashed()->max('public_id') + 1;
+                $contact->contact_key  = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+                $contact->public_id    = Contact::whereAccountId($client->account_id)->withTrashed()->max('public_id') + 1;
                 $contact->save();
             }
         }
@@ -447,7 +447,7 @@ class CheckData extends Command
         }
 
         $queueDB = config('queue.connections.database.connection');
-        $count = DB::connection($queueDB)->table('failed_jobs')->count();
+        $count   = DB::connection($queueDB)->table('failed_jobs')->count();
 
         if ($count > 25) {
             $this->isValid = false;
@@ -490,13 +490,13 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
             foreach ($invoices as $invoice) {
-                $invitation = new Invitation();
-                $invitation->account_id = $invoice->account_id;
-                $invitation->user_id = $invoice->user_id;
-                $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = Contact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
+                $invitation                 = new Invitation();
+                $invitation->account_id     = $invoice->account_id;
+                $invitation->user_id        = $invoice->user_id;
+                $invitation->invoice_id     = $invoice->id;
+                $invitation->contact_id     = Contact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
                 $invitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-                $invitation->public_id = Invitation::whereAccountId($invoice->account_id)->withTrashed()->max('public_id') + 1;
+                $invitation->public_id      = Invitation::whereAccountId($invoice->account_id)->withTrashed()->max('public_id') + 1;
                 $invitation->save();
             }
         }
@@ -583,7 +583,7 @@ class CheckData extends Command
         foreach ($tables as $table => $entityTypes) {
             foreach ($entityTypes as $entityType) {
                 $tableName = Utils::pluralizeEntityType($entityType);
-                $field = $entityType;
+                $field     = $entityType;
                 if ($table == 'accounts') {
                     $accountId = 'id';
                 } else {

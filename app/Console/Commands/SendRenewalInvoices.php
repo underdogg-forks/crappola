@@ -45,7 +45,7 @@ class SendRenewalInvoices extends Command
     {
         parent::__construct();
 
-        $this->mailer = $mailer;
+        $this->mailer      = $mailer;
         $this->accountRepo = $repo;
     }
 
@@ -68,22 +68,22 @@ class SendRenewalInvoices extends Command
                 continue;
             }
 
-            $account = $company->accounts->sortBy('id')->first();
-            $plan = [];
-            $plan['plan'] = $company->plan;
-            $plan['term'] = $company->plan_term;
+            $account           = $company->accounts->sortBy('id')->first();
+            $plan              = [];
+            $plan['plan']      = $company->plan;
+            $plan['term']      = $company->plan_term;
             $plan['num_users'] = $company->num_users;
-            $plan['price'] = min($company->plan_price, Utils::getPlanPrice($plan));
+            $plan['price']     = min($company->plan_price, Utils::getPlanPrice($plan));
 
             if ($plan['plan'] == PLAN_FREE || ! $plan['plan'] || ! $plan['term'] || ! $plan['price']) {
                 continue;
             }
 
-            $client = $this->accountRepo->getNinjaClient($account);
+            $client     = $this->accountRepo->getNinjaClient($account);
             $invitation = $this->accountRepo->createNinjaInvoice($client, $account, $plan, 0, false);
 
             // set the due date to 10 days from now
-            $invoice = $invitation->invoice;
+            $invoice           = $invitation->invoice;
             $invoice->due_date = date('Y-m-d', strtotime('+ 10 days'));
             $invoice->save();
 

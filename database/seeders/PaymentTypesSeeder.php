@@ -51,7 +51,7 @@ class PaymentTypesSeeder extends Seeder
             $record = PaymentType::where('name', '=', $paymentType['name'])->first();
 
             if ($record) {
-                $record->name = $paymentType['name'];
+                $record->name            = $paymentType['name'];
                 $record->gateway_type_id = ! empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
 
                 $record->save();

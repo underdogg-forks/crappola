@@ -45,13 +45,13 @@ class ClientPortalController extends BaseController
         CreditRepository $creditRepo,
         TaskRepository $taskRepo
     ) {
-        $this->invoiceRepo = $invoiceRepo;
-        $this->paymentRepo = $paymentRepo;
-        $this->activityRepo = $activityRepo;
-        $this->documentRepo = $documentRepo;
+        $this->invoiceRepo    = $invoiceRepo;
+        $this->paymentRepo    = $paymentRepo;
+        $this->activityRepo   = $activityRepo;
+        $this->documentRepo   = $documentRepo;
         $this->paymentService = $paymentService;
-        $this->creditRepo = $creditRepo;
-        $this->taskRepo = $taskRepo;
+        $this->creditRepo     = $creditRepo;
+        $this->taskRepo       = $taskRepo;
     }
 
     public function viewInvoice($invitationKey)
@@ -61,7 +61,7 @@ class ClientPortalController extends BaseController
         }
 
         $invoice = $invitation->invoice;
-        $client = $invoice->client;
+        $client  = $invoice->client;
         $account = $invoice->account;
 
         // Forward requests from V4 to V5 if the domain is set
@@ -99,10 +99,10 @@ class ClientPortalController extends BaseController
         Session::put($invitation->invitation_key, true); // track this invitation has been seen
         Session::put('contact_key', $invitation->contact->contact_key); // track current contact
 
-        $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
-        $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+        $invoice->invoice_date     = Utils::fromSqlDate($invoice->invoice_date);
+        $invoice->due_date         = Utils::fromSqlDate($invoice->due_date);
         $invoice->partial_due_date = Utils::fromSqlDate($invoice->partial_due_date);
-        $invoice->features = [
+        $invoice->features         = [
             'customize_invoice_design' => $account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
             'remove_created_by'        => $account->hasFeature(FEATURE_REMOVE_CREATED_BY),
             'invoice_settings'         => $account->hasFeature(FEATURE_INVOICE_SETTINGS),
@@ -133,9 +133,9 @@ class ClientPortalController extends BaseController
             $invoice->account->country->name = $invoice->account->country->getName();
         }
 
-        $data = [];
+        $data         = [];
         $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
-        $paymentURL = '';
+        $paymentURL   = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
             if (array_key_exists('gatewayTypeId', $paymentTypes[0]) && in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
@@ -194,7 +194,7 @@ class ClientPortalController extends BaseController
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
 
             if (count($zipDocs) > 1) {
-                $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
+                $data['documentsZipURL']  = URL::to("client/documents/{$invitation->invitation_key}");
                 $data['documentsZipSize'] = $size;
             }
         }
@@ -211,8 +211,8 @@ class ClientPortalController extends BaseController
             ]);
         }
 
-        $invoice = $invitation->invoice;
-        $decode = ! request()->base64;
+        $invoice   = $invitation->invoice;
+        $decode    = ! request()->base64;
         $pdfString = $invoice->getPDFString($invitation, $decode);
 
         header('Content-Type: application/pdf');
@@ -232,7 +232,7 @@ class ClientPortalController extends BaseController
 
         if ($signature = Request::input('signature')) {
             $invitation->signature_base64 = $signature;
-            $invitation->signature_date = date_create();
+            $invitation->signature_date   = date_create();
             $invitation->save();
         }
 
@@ -252,7 +252,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $client->account;
 
         if (request()->silent) {
@@ -261,7 +261,7 @@ class ClientPortalController extends BaseController
             return redirect(request()->url());
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color    = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
         if ( ! $account->enable_client_portal) {
@@ -340,9 +340,9 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $color   = $account->primary_color ? $account->primary_color : '#0b4d78';
         $columns = ['frequency', 'start_date', 'end_date', 'invoice_total'];
-        $client = $contact->client;
+        $client  = $contact->client;
 
         if ($client->hasAutoBillConfigurableInvoices()) {
             $columns[] = 'auto_bill';
@@ -633,8 +633,8 @@ class ClientPortalController extends BaseController
             $name = mb_substr($name, 0, -3);
         }
 
-        $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+        $content  = $document->preview ? $document->getRawPreview() : $document->getRaw();
+        $content  = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -711,11 +711,11 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $client->account;
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
-        $customer = $paymentDriver->customer($client->id);
+        $customer      = $paymentDriver->customer($client->id);
 
         $data = [
             'account'          => $account,
@@ -734,18 +734,18 @@ class ClientPortalController extends BaseController
     public function verifyPaymentMethod()
     {
         $publicId = Request::input('source_id');
-        $amount1 = Request::input('verification1');
-        $amount2 = Request::input('verification2');
+        $amount1  = Request::input('verification1');
+        $amount2  = Request::input('verification2');
 
         if ( ! $contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $client->account;
 
         $paymentDriver = $account->paymentDriver(null, GATEWAY_TYPE_BANK_TRANSFER);
-        $result = $paymentDriver->verifyBankAccount($client, $publicId, $amount1, $amount2);
+        $result        = $paymentDriver->verifyBankAccount($client, $publicId, $amount1, $amount2);
 
         if (is_string($result)) {
             Session::flash('error', $result);
@@ -762,7 +762,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $contact->account;
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
@@ -786,7 +786,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $client->account;
 
         $validator = Validator::make(Request::all(), ['source' => 'required']);
@@ -799,7 +799,7 @@ class ClientPortalController extends BaseController
             ->wherePublicId(Request::input('source'))
             ->firstOrFail();
 
-        $customer = $paymentDriver->customer($client->id);
+        $customer                            = $paymentDriver->customer($client->id);
         $customer->default_payment_method_id = $paymentMethod->id;
         $customer->save();
 
@@ -823,8 +823,8 @@ class ClientPortalController extends BaseController
         }
 
         $publicId = Request::input('public_id');
-        $enable = Request::input('enable');
-        $invoice = $client->invoices()->where('public_id', (int) $publicId)->first();
+        $enable   = Request::input('enable');
+        $invoice  = $client->invoices()->where('public_id', (int) $publicId)->first();
 
         if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
             $invoice->client_enable_auto_bill = $enable ? true : false;
@@ -855,7 +855,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $contact->account;
 
         if ( ! $account->enable_client_portal) {
@@ -875,7 +875,7 @@ class ClientPortalController extends BaseController
             $rules['name'] = 'required';
         } else {
             $rules['first_name'] = 'required';
-            $rules['last_name'] = 'required';
+            $rules['last_name']  = 'required';
         }
         if ($account->vat_number || $account->isNinjaAccount()) {
             $rules['vat_number'] = 'required';
@@ -901,20 +901,20 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $contact->account;
 
         if ( ! $account->enable_client_portal || ! $account->enable_client_portal_dashboard) {
             return $this->returnError();
         }
 
-        $statusId = request()->status_id;
+        $statusId  = request()->status_id;
         $startDate = request()->start_date;
-        $endDate = request()->end_date;
+        $endDate   = request()->end_date;
 
         if ( ! $startDate) {
             $startDate = Utils::today(false)->modify('-6 month')->format('Y-m-d');
-            $endDate = Utils::today(false)->format('Y-m-d');
+            $endDate   = Utils::today(false)->format('Y-m-d');
         }
 
         if (request()->json) {
@@ -949,9 +949,9 @@ class ClientPortalController extends BaseController
 
         $documents = $documents->sortBy('size');
 
-        $size = 0;
+        $size    = 0;
         $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
-        $toZip = [];
+        $toZip   = [];
         foreach ($documents as $document) {
             if ($size + $document->size > $maxSize) {
                 break;
@@ -992,8 +992,8 @@ class ClientPortalController extends BaseController
 
         foreach ($account->account_gateways as $accountGateway) {
             $paymentDriver = $accountGateway->paymentDriver($invitation);
-            $links = array_merge($links, $paymentDriver->tokenLinks());
-            $links = array_merge($links, $paymentDriver->paymentLinks());
+            $links         = array_merge($links, $paymentDriver->tokenLinks());
+            $links         = array_merge($links, $paymentDriver->paymentLinks());
         }
 
         return $links;

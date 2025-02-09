@@ -64,9 +64,9 @@ class SendReminders extends Command
         parent::__construct();
 
         $this->paymentService = $paymentService;
-        $this->invoiceRepo = $invoiceRepo;
-        $this->accountRepo = $accountRepo;
-        $this->userMailer = $userMailer;
+        $this->invoiceRepo    = $invoiceRepo;
+        $this->accountRepo    = $accountRepo;
+        $this->userMailer     = $userMailer;
     }
 
     public function handle()
@@ -158,7 +158,7 @@ class SendReminders extends Command
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
-                    $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
+                    $amount  = $account->account_email_settings->{"late_fee{$number}_amount"};
                     $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
                     $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
                 }
@@ -214,7 +214,7 @@ class SendReminders extends Command
         foreach ($scheduledReports as $scheduledReport) {
             $this->info(date('r') . ' Processing report: ' . $scheduledReport->id);
 
-            $user = $scheduledReport->user;
+            $user    = $scheduledReport->user;
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
 
@@ -222,14 +222,14 @@ class SendReminders extends Command
                 continue;
             }
 
-            $config = (array) json_decode($scheduledReport->config);
+            $config     = (array) json_decode($scheduledReport->config);
             $reportType = $config['report_type'];
 
             // send email as user
             auth()->onceUsingId($user->id);
 
             $report = dispatch_now(new RunReport($scheduledReport->user, $reportType, $config, true));
-            $file = dispatch_now(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
+            $file   = dispatch_now(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
                 try {
@@ -258,7 +258,7 @@ class SendReminders extends Command
             $this->info(date('r') . ' Loading latest exchange rates...');
 
             $response = CurlUtils::get(config('ninja.exchange_rates_url'));
-            $data = json_decode($response);
+            $data     = json_decode($response);
 
             if ($data && property_exists($data, 'rates')) {
                 Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);

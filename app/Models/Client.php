@@ -270,7 +270,7 @@ class Client extends EntityModel
         if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = Contact::scope($publicId)->whereClientId($this->id)->firstOrFail();
         } else {
-            $contact = Contact::createNew();
+            $contact               = Contact::createNew();
             $contact->send_invoice = true;
 
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
@@ -290,7 +290,7 @@ class Client extends EntityModel
 
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
-        $contact->email = trim($contact->email);
+        $contact->email      = trim($contact->email);
 
         return $this->contacts()->save($contact);
     }
@@ -305,7 +305,7 @@ class Client extends EntityModel
             return;
         }
 
-        $this->balance = $this->balance + $balanceAdjustment;
+        $this->balance      = $this->balance + $balanceAdjustment;
         $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
 
         $this->save();

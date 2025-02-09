@@ -28,7 +28,7 @@ class Frequency extends Eloquent
         $data = [];
 
         foreach (Cache::get('frequencies') as $frequency) {
-            $name = Str::snake(str_replace(' ', '_', $frequency->name));
+            $name                 = Str::snake(str_replace(' ', '_', $frequency->name));
             $data[$frequency->id] = trans('texts.freq_' . $name);
         }
 

@@ -61,7 +61,7 @@ class TaskController extends BaseController
     ) {
         // parent::__construct();
 
-        $this->taskRepo = $taskRepo;
+        $this->taskRepo    = $taskRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->taskService = $taskService;
     }
@@ -214,8 +214,8 @@ class TaskController extends BaseController
      */
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ?: (Request::input('id') ?: Request::input('ids'));
+        $action  = Request::input('action');
+        $ids     = Request::input('public_id') ?: (Request::input('id') ?: Request::input('ids'));
         $referer = Request::server('HTTP_REFERER');
 
         if (in_array($action, ['resume', 'stop'])) {
@@ -235,9 +235,9 @@ class TaskController extends BaseController
             return $this->returnBulk($this->entityType, $action, $ids);
         }
         if ($action == 'invoice' || $action == 'add_to_invoice') {
-            $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id')->orderBy('id')->get();
+            $tasks          = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id')->orderBy('id')->get();
             $clientPublicId = false;
-            $data = [];
+            $data           = [];
 
             $lastProjectId = false;
             foreach ($tasks as $task) {
@@ -260,9 +260,9 @@ class TaskController extends BaseController
                     return redirect($referer)->withError(trans('texts.task_error_invoiced'));
                 }
 
-                $account = Auth::user()->account;
+                $account     = Auth::user()->account;
                 $showProject = $lastProjectId != $task->project_id;
-                $data[] = [
+                $data[]      = [
                     'publicId'    => $task->public_id,
                     'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration'    => $task->getHours(),

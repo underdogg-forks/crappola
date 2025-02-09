@@ -16,8 +16,8 @@ class UserPresenter extends EntityPresenter
 
     public function statusCode()
     {
-        $status = '';
-        $user = $this->entity;
+        $status  = '';
+        $user    = $this->entity;
         $account = $user->account;
 
         if ($user->confirmed) {

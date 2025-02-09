@@ -99,11 +99,11 @@ class Document extends EntityModel
      */
     public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false)
     {
-        $adapter = $disk->getAdapter();
+        $adapter  = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
 
         if ($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
-            $client = $adapter->getClient();
+            $client  = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
                 'Key'    => $fullPath,
@@ -122,11 +122,11 @@ class Document extends EntityModel
                     $object->getService()->getAccount()->setTempUrlSecret($secret);
                 }
 
-                $url = $object->getUrl();
-                $expiry = strtotime('+10 minutes');
+                $url     = $object->getUrl();
+                $expiry  = strtotime('+10 minutes');
                 $urlPath = urldecode($url->getPath());
-                $body = sprintf("%s\n%d\n%s", 'GET', $expiry, $urlPath);
-                $hash = hash_hmac('sha1', $body, $secret);
+                $body    = sprintf("%s\n%d\n%s", 'GET', $expiry, $urlPath);
+                $hash    = hash_hmac('sha1', $body, $secret);
 
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
@@ -354,16 +354,16 @@ class Document extends EntityModel
      */
     public function cloneDocument()
     {
-        $document = self::createNew($this);
-        $document->path = $this->path;
+        $document          = self::createNew($this);
+        $document->path    = $this->path;
         $document->preview = $this->preview;
-        $document->name = $this->name;
-        $document->type = $this->type;
-        $document->disk = $this->disk;
-        $document->hash = $this->hash;
-        $document->size = $this->size;
-        $document->width = $this->width;
-        $document->height = $this->height;
+        $document->name    = $this->name;
+        $document->type    = $this->type;
+        $document->disk    = $this->disk;
+        $document->hash    = $this->hash;
+        $document->size    = $this->size;
+        $document->width   = $this->width;
+        $document->height  = $this->height;
 
         return $document;
     }

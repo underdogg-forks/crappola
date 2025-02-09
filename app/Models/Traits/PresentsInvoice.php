@@ -228,7 +228,7 @@ trait PresentsInvoice
 
     public function getInvoiceLabels()
     {
-        $data = [];
+        $data   = [];
         $custom = (array) json_decode($this->invoice_labels);
 
         $fields = [
@@ -319,7 +319,7 @@ trait PresentsInvoice
         foreach ($fields as $field) {
             $translated = $this->isEnglish() ? uctrans("texts.{$field}") : trans("texts.{$field}");
             if (isset($custom[$field]) && $custom[$field]) {
-                $data[$field] = $custom[$field];
+                $data[$field]           = $custom[$field];
                 $data[$field . '_orig'] = $translated;
             } else {
                 $data[$field] = $translated;

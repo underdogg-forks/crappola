@@ -42,10 +42,10 @@ class AccountGateway extends EntityModel
      */
     public static function paymentDriverClass($provider)
     {
-        $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $folder   = 'App\\Ninja\\PaymentDrivers\\';
         $provider = str_replace('\\', '', $provider);
-        $class = $folder . $provider . 'PaymentDriver';
-        $class = str_replace('_', '', $class);
+        $class    = $folder . $provider . 'PaymentDriver';
+        $class    = str_replace('_', '', $class);
 
         if (class_exists($class)) {
             return $class;
@@ -72,7 +72,7 @@ class AccountGateway extends EntityModel
 
     public function getCreditcardTypes()
     {
-        $flags = unserialize(CREDIT_CARDS);
+        $flags         = unserialize(CREDIT_CARDS);
         $arrayOfImages = [];
 
         foreach ($flags as $card => $name) {
@@ -315,7 +315,7 @@ class AccountGateway extends EntityModel
         }
 
         $templateService = app('App\Services\TemplateService');
-        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
+        $text            = $templateService->processVariables($text, ['invitation' => $invitation]);
 
         return $text;
     }

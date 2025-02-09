@@ -436,8 +436,8 @@ trait GenerateMigrationResources
         if($this->account->account_tokens()->exists()) {
             $this->token = $this->account->account_tokens->first()->token;
         } else {
-            $mtoken = AccountToken::createNew();
-            $mtoken->name = 'Migration Token';
+            $mtoken        = AccountToken::createNew();
+            $mtoken->name  = 'Migration Token';
             $mtoken->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $mtoken->save();
 
@@ -509,7 +509,7 @@ trait GenerateMigrationResources
         info('get clients => ' . $this->account->clients()->count());
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
-            $number = $client->id_number;
+            $number    = $client->id_number;
             $id_number = '';
 
             $clients[] = [
@@ -598,11 +598,11 @@ trait GenerateMigrationResources
             return $transformed;
         }
 
-        $db = DB_NINJA_1;
+        $db         = DB_NINJA_1;
         $account_id = 20432;
 
         if($this->account->id > 1000000) {
-            $db = DB_NINJA_2;
+            $db         = DB_NINJA_2;
             $account_id = 1000002;
         }
 
@@ -612,7 +612,7 @@ trait GenerateMigrationResources
             return $transformed;
         }
 
-        $agts = AccountGatewayToken::on($db)->where('client_id', $ninja_client->id)->get();
+        $agts       = AccountGatewayToken::on($db)->where('client_id', $ninja_client->id)->get();
         $is_default = true;
 
         if(count($agts) == 0) {
@@ -991,14 +991,14 @@ trait GenerateMigrationResources
     private function buildReminderString($direction, $field)
     {
         $direction_string = $direction == 1 ? 'after_' : 'before_';
-        $field_string = $field == 1 ? 'due_date' : 'invoice_date';
+        $field_string     = $field == 1 ? 'due_date' : 'invoice_date';
 
         return $direction_string . $field_string;
     }
 
     private function getClientSettings($client)
     {
-        $settings = new stdClass();
+        $settings              = new stdClass();
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
 
         if($client->task_rate && $client->task_rate > 0) {
@@ -1014,7 +1014,7 @@ trait GenerateMigrationResources
 
     private function getCreditsNotes()
     {
-        $credits = [];
+        $credits        = [];
         $export_credits = collect([]);
 
         $export_credits = Credit::where('account_id', $this->account->id)->where('amount', '>', 0)->whereIsDeleted(false)
@@ -1134,7 +1134,7 @@ trait GenerateMigrationResources
         }
 
         $start_date = $invoice->getNextSendDate();
-        $end_date = Carbon::parse($invoice->end_date);
+        $end_date   = Carbon::parse($invoice->end_date);
 
         //v4
         // define('FREQUENCY_WEEKLY', 1);
@@ -1814,7 +1814,7 @@ trait GenerateMigrationResources
 
         foreach ($payment_methods as $payment_method) {
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
-            $agt = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
+            $agt     = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
 
             if( ! $contact && ! $agt) {
                 continue;
@@ -1882,8 +1882,8 @@ trait GenerateMigrationResources
                 'done',
             ];
             for ($i = 0; $i < count($defaults); $i++) {
-                $status = TaskStatus::createNew();
-                $status->name = trans('texts.' . $defaults[$i]);
+                $status             = TaskStatus::createNew();
+                $status->name       = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
                 $status->save();
             }
@@ -2074,18 +2074,18 @@ trait GenerateMigrationResources
 
         if (is_array($expiry) && count($expiry) >= 2) {
             $exp_month = $expiry[1];
-            $exp_year = $expiry[0];
+            $exp_year  = $expiry[0];
         } else {
             $exp_month = '';
-            $exp_year = '';
+            $exp_year  = '';
         }
 
-        $meta = new stdClass();
+        $meta            = new stdClass();
         $meta->exp_month = (string) $exp_month;
-        $meta->exp_year = (string) $exp_year;
-        $meta->brand = (string) $payment_method->payment_type->name;
-        $meta->last4 = (string) str_replace(',', '', ($payment_method->last4));
-        $meta->type = $payment_method->payment_type->gateway_type_id;
+        $meta->exp_year  = (string) $exp_year;
+        $meta->brand     = (string) $payment_method->payment_type->name;
+        $meta->last4     = (string) str_replace(',', '', ($payment_method->last4));
+        $meta->type      = $payment_method->payment_type->gateway_type_id;
 
         return $meta;
     }
@@ -2102,18 +2102,18 @@ trait GenerateMigrationResources
             return new stdClass();
         }
 
-        $fees_and_limits = new stdClass();
-        $fees_and_limits->min_limit = $ags->min_limit > 0 ? $ags->min_limit : -1;
-        $fees_and_limits->max_limit = $ags->max_limit > 0 ? $ags->max_limit : -1;
-        $fees_and_limits->fee_amount = $ags->fee_amount;
-        $fees_and_limits->fee_percent = $ags->fee_percent;
+        $fees_and_limits                = new stdClass();
+        $fees_and_limits->min_limit     = $ags->min_limit > 0 ? $ags->min_limit : -1;
+        $fees_and_limits->max_limit     = $ags->max_limit > 0 ? $ags->max_limit : -1;
+        $fees_and_limits->fee_amount    = $ags->fee_amount;
+        $fees_and_limits->fee_percent   = $ags->fee_percent;
         $fees_and_limits->fee_tax_name1 = $ags->tax_name1;
         $fees_and_limits->fee_tax_rate1 = $ags->tax_rate1;
         $fees_and_limits->fee_tax_name2 = $ags->tax_name2;
         $fees_and_limits->fee_tax_rate2 = $ags->tax_rate2;
         $fees_and_limits->fee_tax_name3 = '';
         $fees_and_limits->fee_tax_rate3 = 0;
-        $fees_and_limits->is_enabled = true;
+        $fees_and_limits->is_enabled    = true;
 
         return $fees_and_limits;
         // $data = [];

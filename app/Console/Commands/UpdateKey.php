@@ -46,8 +46,8 @@ class UpdateKey extends Command
         }
 
         // load the current values
-        $gatewayConfigs = [];
-        $bankUsernames = [];
+        $gatewayConfigs   = [];
+        $bankUsernames    = [];
         $twoFactorSecrets = [];
 
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
@@ -75,7 +75,7 @@ class UpdateKey extends Command
         }
 
         // check if we can write to the .env file
-        $envPath = base_path() . '/.env';
+        $envPath      = base_path() . '/.env';
         $envWriteable = file_exists($envPath) && @fopen($envPath, 'a');
 
         if ($key = $this->option('key')) {
@@ -88,23 +88,23 @@ class UpdateKey extends Command
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');
-        $crypt = new Encrypter($key, $cipher);
+        $crypt  = new Encrypter($key, $cipher);
 
         // update values using the new key/encrypter
         foreach (AccountGateway::withTrashed()->get() as $gateway) {
-            $config = $gatewayConfigs[$gateway->id];
+            $config          = $gatewayConfigs[$gateway->id];
             $gateway->config = $crypt->encrypt(json_encode($config));
             $gateway->save();
         }
 
         foreach (BankAccount::withTrashed()->get() as $bank) {
-            $username = $bankUsernames[$bank->id];
+            $username       = $bankUsernames[$bank->id];
             $bank->username = $crypt->encrypt($username);
             $bank->save();
         }
 
         foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
-            $secret = $twoFactorSecrets[$user->id];
+            $secret                  = $twoFactorSecrets[$user->id];
             $user->google_2fa_secret = $crypt->encrypt($secret);
             $user->save();
         }
