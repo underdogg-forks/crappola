@@ -7,7 +7,6 @@ use App\Http\Requests\CreditRequest;
 use App\Http\Requests\UpdateCreditRequest;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Response;
 
 class CreditApiController extends BaseAPIController
 {

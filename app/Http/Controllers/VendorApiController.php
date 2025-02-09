@@ -9,7 +9,7 @@ use App\Http\Requests\VendorRequest;
 use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 class VendorApiController extends BaseAPIController
 {

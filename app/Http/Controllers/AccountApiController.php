@@ -16,7 +16,7 @@ use Crypt;
 use Google2FA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 class AccountApiController extends BaseAPIController
 {

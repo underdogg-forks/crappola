@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use App\Ninja\Repositories\ContactRepository;
 use App\Services\ContactService;
-use Response;
 
 class ContactApiController extends BaseAPIController
 {

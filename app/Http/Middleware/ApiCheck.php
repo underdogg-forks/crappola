@@ -8,7 +8,7 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Request;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 /**
  * Class ApiCheck.

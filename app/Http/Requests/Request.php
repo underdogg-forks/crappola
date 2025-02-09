@@ -5,8 +5,8 @@ namespace App\Http\Requests;
 use App\Libraries\Utils;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
-use Response;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
 abstract class Request extends FormRequest

@@ -18,7 +18,7 @@ use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Response;
+use Illuminate\Support\Facades\Response;
 use Validator;
 
 class InvoiceApiController extends BaseAPIController
