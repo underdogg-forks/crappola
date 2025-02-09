@@ -1,0 +1,44 @@
+parameters:
+    level: 2
+    paths:
+        - app
+        - Modules
+    ignoreErrors:
+        - '#Result of method .*::.*\(\) \(void\) is used#'
+        - '#Method .*::.* should return .* but return statement is missing#'
+        - '#Method .*::.*\(\) should return .* but return statement is missing#'
+        - '#Access to an undefined property .*::.*#'
+        - '#Access to an undefined property .*::\$.*#'
+        - '#Access to an undefined static property .*::\$.*#'
+        - '#Anonymous function has invalid return type .*#'
+        - '#Call to an undefined method Illuminate\\.*#'
+        - '#Call to an undefined method .*::.*\(\)#'
+        - '#Call to an undefined static method .*::.*\(\)#'
+        - '#Call to an undefined static method Intervention\\\\Image\\\\Laravel\\\\Facades\\\\Image::.*\(\)#'
+        - '#Call to static method .* on an unknown class .*#'
+        - '#Class Illuminate\\.* not found#'
+        - '#Class .* not found#'
+        - '#Dynamic property .* not found#'
+        - '#Instantiated class .* not found#'
+        - '#Method .* but return statement is missing#'
+        - '#Method .* not found in Laravel container#'
+        - '#Method .*::.* should return .* but return statement is missing#'
+        - '#Method .*::.*\\(\\) should return .* but return statement is missing#'
+        - '#Method .*::.*\(\) invoked with \d+ parameters, \d+ required#'
+        - '#Method .*::.*\(\) should return .* but return statement is missing#'
+        - '#Relation .* is not found in App\\\\Models\\\\.* model#'
+        - "#Relation '.*' is not found in App\\\\Models\\\\.* model#"
+        - '#Removing parent param type is forbidden#'
+        - '#Result of method .*::.*\\(\\) \\(void\\) is used#'
+        - '#Static call to instance method .*::.*\(\)#'
+        - '#Use explicit methods over array access on object#'
+        - '#Variable .* might not be defined#'
+        - '#Variable .* on left side of \?\? is never defined#'
+        - '#Variable \\\$.* might not be defined#'
+    excludePaths:
+        - bootstrap/cache/**
+        - database/factories/**
+        - database/migrations/**
+        - public/**
+        - storage/**
+        - vendor/**
