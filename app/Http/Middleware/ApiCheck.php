@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\AccountToken;
 use Closure;
@@ -85,7 +86,7 @@ class ApiCheck
         $hour_limit = 1000;
         $hour_throttle = Cache::get('hour_throttle:' . $key, null);
         $last_api_request = Cache::get('last_api_request:' . $key, 0);
-        $last_api_diff = time() - $last_api_request;
+        $last_api_diff = Carbon::now()->timestamp - $last_api_request;
 
         if (null === $hour_throttle) {
             $new_hour_throttle = 0;
@@ -105,7 +106,7 @@ class ApiCheck
         }
 
         Cache::put('hour_throttle:' . $key, $new_hour_throttle, 60 * 60);
-        Cache::put('last_api_request:' . $key, time(), 60 * 60);
+        Cache::put('last_api_request:' . $key, Carbon::now()->timestamp, 60 * 60);
 
         return $next($request);
     }

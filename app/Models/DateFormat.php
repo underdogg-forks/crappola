@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,7 +35,7 @@ class DateFormat extends Model
 
     public function __toString(): string
     {
-        $date = mktime(0, 0, 0, 12, 31, date('Y'));
+        $date = mktime(0, 0, 0, 12, 31, Carbon::now()->format('Y'));
 
         return date($this->format, $date);
     }

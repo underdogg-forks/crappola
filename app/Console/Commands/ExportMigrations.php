@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\User;
 use App\Traits\GenerateMigrationResources;
@@ -101,7 +102,7 @@ class ExportMigrations extends Command
         $this->account = $user->account;
         Auth::login($user);
 
-        $date = date('Y-m-d');
+        $date = Carbon::now()->format('Y-m-d');
         $accountKey = $this->account->account_key;
 
         fopen('php://output', 'w') || Utils::fatalError();

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
@@ -42,7 +43,7 @@ class SendRenewalInvoices extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running SendRenewalInvoices...');
+        $this->info(Carbon::now()->format('r') . ' Running SendRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

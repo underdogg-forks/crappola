@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use DateInterval;
 use DatePeriod;
 use stdClass;
@@ -23,8 +24,8 @@ class GenerateProjectChartData extends Job
         $project = $this->project;
         $account = $project->account;
         $taskMap = [];
-        $startTimestamp = time();
-        $endTimestamp = max(time(), strtotime($project->due_date));
+        $startTimestamp = Carbon::now()->timestamp;
+        $endTimestamp = max(Carbon::now()->timestamp, strtotime($project->due_date));
         $count = 0;
         $duration = 0;
 
@@ -39,7 +40,7 @@ class GenerateProjectChartData extends Job
 
             foreach ($parts as $part) {
                 $start = $part[0];
-                $end = (count($part) > 1 && $part[1]) ? $part[1] : time();
+                $end = (count($part) > 1 && $part[1]) ? $part[1] : Carbon::now()->timestamp;
 
                 $date = $account->getDateTime();
                 $date->setTimestamp($part[0]);

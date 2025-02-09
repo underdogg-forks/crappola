@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use Carbon\Carbon;
 use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteWasEmailed;
 
@@ -22,7 +23,7 @@ class QuoteListener
     public function emailedQuote(QuoteWasEmailed $event): void
     {
         $quote = $event->quote;
-        $quote->last_sent_date = date('Y-m-d');
+        $quote->last_sent_date = Carbon::now()->format('Y-m-d');
         $quote->save();
     }
 }

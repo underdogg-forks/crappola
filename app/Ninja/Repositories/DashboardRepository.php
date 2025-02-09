@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Carbon\Carbon;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Task;
@@ -266,7 +267,7 @@ class DashboardRepository
             ->where('invoices.deleted_at', '=', null)
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
-            ->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', date('Y-m-d'));
+            ->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', Carbon::now()->format('Y-m-d'));
 
         if ( ! $viewAll) {
             $pastDue = $pastDue->where('invoices.user_id', '=', $userId);
@@ -294,7 +295,7 @@ class DashboardRepository
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
             ->where(function ($query): void {
-                $query->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', date('Y-m-d'))
+                $query->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', Carbon::now()->format('Y-m-d'))
                     ->orWhereNull('invoices.due_date');
             })
             ->orderBy('invoices.due_date', 'asc');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Jobs\ImportData;
 use App\Libraries\Utils;
 use App\Services\ImportService;
@@ -33,7 +34,7 @@ class ImportController extends BaseController
 
         $source = \Illuminate\Support\Facades\Request::input('source');
         $files = [];
-        $timestamp = time();
+        $timestamp = Carbon::now()->timestamp;
 
         foreach (ImportService::$entityTypes as $entityType) {
             $fileName = $entityType;

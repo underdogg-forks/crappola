@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Mailers;
 
+use Carbon\Carbon;
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
 use App\Jobs\ConvertInvoiceToUbl;
@@ -383,7 +384,7 @@ class ContactMailer extends Mailer
         $day_limit = $account->getDailyEmailLimit();
         $day_throttle = Cache::get('email_day_throttle:' . $key, null);
         $last_api_request = Cache::get('last_email_request:' . $key, 0);
-        $last_api_diff = time() - $last_api_request;
+        $last_api_diff = Carbon::now()->timestamp - $last_api_request;
 
         if (null === $day_throttle) {
             $new_day_throttle = 0;
@@ -396,7 +397,7 @@ class ContactMailer extends Mailer
         }
 
         Cache::put('email_day_throttle:' . $key, $new_day_throttle, 60 * 60);
-        Cache::put('last_email_request:' . $key, time(), 60 * 60);
+        Cache::put('last_email_request:' . $key, Carbon::now()->timestamp, 60 * 60);
 
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');

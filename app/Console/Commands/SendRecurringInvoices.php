@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Jobs\SendInvoiceEmail;
 use App\Libraries\Utils;
 use App\Models\Account;
@@ -50,7 +51,7 @@ class SendRecurringInvoices extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running SendRecurringInvoices...');
+        $this->info(Carbon::now()->format('r') . ' Running SendRecurringInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -60,7 +61,7 @@ class SendRecurringInvoices extends Command
         $this->createInvoices();
         $this->createExpenses();
 
-        $this->info(date('r') . ' Done');
+        $this->info(Carbon::now()->format('r') . ' Done');
     }
 
     protected function getArguments()
@@ -90,13 +91,13 @@ class SendRecurringInvoices extends Command
 
     private function createInvoices(): void
     {
-        $today = new DateTime();
+        $today = Carbon::now();
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->cursor();
-        $this->info(date('r ') . ' Recurring invoice(s) found');
+        $this->info(Carbon::now()->format('r ') . ' Recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
@@ -105,7 +106,7 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $this->info(date('r') . ' Processing Invoice: ' . $recurInvoice->id);
+            $this->info(Carbon::now()->format('r') . ' Processing Invoice: ' . $recurInvoice->id);
 
             $account = $recurInvoice->account;
 
@@ -119,13 +120,13 @@ class SendRecurringInvoices extends Command
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
                 if ($invoice && ! $invoice->isPaid() && $account->auto_email_invoice) {
-                    $this->info(date('r') . ' Not billed - Sending Invoice');
+                    $this->info(Carbon::now()->format('r') . ' Not billed - Sending Invoice');
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
                 } elseif ($invoice) {
-                    $this->info(date('r') . ' Successfully billed invoice');
+                    $this->info(Carbon::now()->format('r') . ' Successfully billed invoice');
                 }
             } catch (Exception $exception) {
-                $this->info(date('r') . ' Error: ' . $exception->getMessage());
+                $this->info(Carbon::now()->format('r') . ' Error: ' . $exception->getMessage());
                 Utils::logError($exception);
             }
 
@@ -135,13 +136,13 @@ class SendRecurringInvoices extends Command
 
     private function createExpenses(): void
     {
-        $today = new DateTime();
+        $today = Carbon::now();
 
         $expenses = RecurringExpense::with('client')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
-        $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
+        $this->info(Carbon::now()->format('r ') . $expenses->count() . ' recurring expenses(s) found');
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
@@ -153,7 +154,7 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $this->info(date('r') . ' Processing Expense: ' . $expense->id);
+            $this->info(Carbon::now()->format('r') . ' Processing Expense: ' . $expense->id);
             $this->recurringExpenseRepo->createRecurringExpense($expense);
         }
     }

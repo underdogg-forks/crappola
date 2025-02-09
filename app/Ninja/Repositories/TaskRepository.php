@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
@@ -196,7 +197,7 @@ class TaskRepository extends BaseRepository
                 $task->is_running = true;
                 $timeLog[] = [strtotime('now'), false];
             } elseif ($data['action'] == 'stop' && $task->is_running) {
-                $timeLog[count($timeLog) - 1][1] = time();
+                $timeLog[count($timeLog) - 1][1] = Carbon::now()->timestamp;
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;

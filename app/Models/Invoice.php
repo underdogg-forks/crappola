@@ -314,7 +314,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         // it isn't considered overdue until the end of the day
-        return time() > (strtotime($dueDate) + (60 * 60 * 24));
+        return \Carbon\Carbon::now()->timestamp > (strtotime($dueDate) + (60 * 60 * 24));
     }
 
     /**
@@ -624,7 +624,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if (in_array(INVOICE_STATUS_OVERDUE, $statusIds)) {
                 $query->orWhere(function ($query): void {
                     $query->where('balance', '>', 0)
-                        ->where('due_date', '<', date('Y-m-d'))
+                        ->where('due_date', '<', \Carbon\Carbon::now()->format('Y-m-d'))
                         ->where('is_public', '=', true);
                 });
             }
@@ -1124,7 +1124,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return $this->due_date ?: null;
         }
 
-        $now = time();
+        $now = \Carbon\Carbon::now()->timestamp;
         if ($invoice_date) {
             // If $invoice_date is specified, all calculations are based on that date
             if (is_numeric($invoice_date)) {

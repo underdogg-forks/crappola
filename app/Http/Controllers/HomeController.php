@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use App\Libraries\Utils;
@@ -147,7 +148,7 @@ class HomeController extends BaseController
                 $subject .= 'Self-Host] | ';
             }
 
-            $subject .= date('M jS, g:ia');
+            $subject .= Carbon::now()->format('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                 ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                 ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)

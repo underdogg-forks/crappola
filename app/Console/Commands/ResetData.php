@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -24,7 +25,7 @@ class ResetData extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running ResetData...');
+        $this->info(Carbon::now()->format('r') . ' Running ResetData...');
 
         if ( ! Utils::isNinjaDev()) {
             return;

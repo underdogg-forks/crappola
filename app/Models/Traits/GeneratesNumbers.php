@@ -162,7 +162,7 @@ trait GeneratesNumbers
         }
 
         $search = ['{$year}'];
-        $replace = [date('Y')];
+        $replace = [\Carbon\Carbon::now()->format('Y')];
 
         $search[] = '{$counter}';
         $replace[] = mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);

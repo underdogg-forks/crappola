@@ -118,7 +118,7 @@ class Task extends EntityModel
 
         foreach ($parts as $part) {
             $startTime = $part[0];
-            $endTime = count($part) == 1 || ! $part[1] ? time() : $part[1];
+            $endTime = count($part) == 1 || ! $part[1] ? \Carbon\Carbon::now()->timestamp : $part[1];
 
             if ($startTimeCutoff) {
                 $startTime = max($startTime, $startTimeCutoff);
@@ -268,7 +268,7 @@ class Task extends EntityModel
         $part = $parts[count($parts) - 1];
 
         if (count($part) == 1 || ! $part[1]) {
-            return time() - $part[0];
+            return \Carbon\Carbon::now()->timestamp - $part[0];
         }
 
         return 0;

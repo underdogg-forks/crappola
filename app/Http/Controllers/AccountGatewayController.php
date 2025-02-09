@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\AccountGateway;
@@ -416,7 +417,7 @@ class AccountGatewayController extends BaseController
                 'last_name'           => Request::input('last_name'),
                 'original_ip'         => Request::getClientIp(),
                 'original_device'     => Request::server('HTTP_USER_AGENT'),
-                'tos_acceptance_time' => time(),
+                'tos_acceptance_time' => Carbon::now()->timestamp,
                 'redirect_uri'        => URL::to('gateways'),
                 'scope'               => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
             ];
@@ -424,7 +425,7 @@ class AccountGatewayController extends BaseController
             $wepayUser = $wepay->request('user/register/', $userDetails);
 
             $accessToken = $wepayUser->access_token;
-            $accessTokenExpires = $wepayUser->expires_in ? (time() + $wepayUser->expires_in) : null;
+            $accessTokenExpires = $wepayUser->expires_in ? (Carbon::now()->timestamp + $wepayUser->expires_in) : null;
 
             $wepay = new WePay($accessToken);
 

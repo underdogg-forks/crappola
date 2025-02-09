@@ -241,7 +241,7 @@ class InvoicePresenter extends EntityPresenter
         }
 
         $data = new stdClass();
-        $data->receive_time = time();
+        $data->receive_time = \Carbon\Carbon::now()->timestamp;
         $data->type = 'transaction_details';
         $data->source = 'user';
         $data->properties = $properties;

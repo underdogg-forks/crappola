@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
@@ -30,14 +31,14 @@ class UpdateKey extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running UpdateKey...');
+        $this->info(Carbon::now()->format('r') . ' Running UpdateKey...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
 
         if ( ! env('APP_KEY') || ! env('APP_CIPHER')) {
-            $this->info(date('r') . ' Error: app key and cipher are not set');
+            $this->info(Carbon::now()->format('r') . ' Error: app key and cipher are not set');
             exit;
         }
 
@@ -102,7 +103,7 @@ class UpdateKey extends Command
             $user->save();
         }
 
-        $message = date('r') . ' Successfully updated ';
+        $message = Carbon::now()->format('r') . ' Successfully updated ';
         if ($envWriteable) {
             if ($legacy) {
                 $message .= 'the key, set the cipher in the .env file to AES-256-CBC';

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
@@ -104,7 +105,7 @@ class CreditRepository extends BaseRepository
             $credit = Credit::createNew();
             $credit->balance = Utils::parseFloat($input['amount']);
             $credit->client_id = Client::getPrivateId($input['client_id']);
-            $credit->credit_date = date('Y-m-d');
+            $credit->credit_date = Carbon::now()->format('Y-m-d');
         }
 
         $credit->fill($input);

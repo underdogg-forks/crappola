@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\ExpenseCategory;
 use App\Models\Project;
@@ -114,7 +115,7 @@ class CreateTestData extends Command
             return false;
         }
 
-        $this->info(date('r') . ' Running CreateTestData...');
+        $this->info(Carbon::now()->format('r') . ' Running CreateTestData...');
         $this->count = $this->argument('count');
 
         if ($database = $this->option('database')) {

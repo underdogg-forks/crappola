@@ -52,7 +52,7 @@ trait HasRecurrence
         }
 
         $date1 = new DateTime($this->last_sent_date);
-        $date2 = new DateTime();
+        $date2 = \Carbon\Carbon::now();
         $diff = $date2->diff($date1);
         $daysSinceLastSent = $diff->format('%a');
         $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');

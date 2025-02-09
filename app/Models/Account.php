@@ -1638,7 +1638,7 @@ class Account extends Model
             return 0;
         }
 
-        $today = new DateTime('now');
+        $today = \Carbon\Carbon::now();
         $interval = $today->diff($planDetails['expires']);
 
         return $interval ? $interval->d : 0;
@@ -2050,7 +2050,7 @@ class Account extends Model
         }
 
         $yearStart = Carbon::parse($this->financial_year_start);
-        $yearStart->year = date('Y');
+        $yearStart->year = \Carbon\Carbon::now()->format('Y');
 
         if ($yearStart->isFuture()) {
             $yearStart->subYear();

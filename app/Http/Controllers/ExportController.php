@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Contact;
@@ -33,7 +34,7 @@ class ExportController extends BaseController
     public function doExport(Request $request)
     {
         $format = $request->input('format');
-        $date = date('Y-m-d');
+        $date = Carbon::now()->format('Y-m-d');
 
         // set the filename based on the entity types selected
         if ($request->include == 'all') {

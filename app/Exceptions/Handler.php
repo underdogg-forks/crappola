@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -66,7 +67,7 @@ class Handler extends ExceptionHandler
             }
 
             // Log 404s to a separate file
-            $errorStr = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ' URL:' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
+            $errorStr = Carbon::now()->format('Y-m-d h:i:s') . ' ' . $e->getMessage() . ' URL:' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
             if (config('app.log') == 'single') {
                 @file_put_contents(storage_path('logs/not-found.log'), $errorStr, FILE_APPEND);
             } else {
@@ -82,7 +83,7 @@ class Handler extends ExceptionHandler
 
         if ( ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
-            $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
+            $stacktrace = Carbon::now()->format('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
             if (config('app.log') == 'single') {
                 @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
             } else {

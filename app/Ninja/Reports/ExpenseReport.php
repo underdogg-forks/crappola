@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Reports;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
@@ -72,11 +73,11 @@ class ExpenseReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
+            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
                     $expenseId = mb_str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
-                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: Carbon::now()->format('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
                     $name = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }

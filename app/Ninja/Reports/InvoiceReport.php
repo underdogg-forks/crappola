@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Reports;
 
+use Carbon\Carbon;
 use App\Models\Client;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
@@ -80,11 +81,11 @@ class InvoiceReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_documents')));
+            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_documents')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
                     foreach ($invoice->documents as $document) {
-                        $name = sprintf('%s_%s_%s', $invoice->invoice_date ?: date('Y-m-d'), $invoice->present()->titledName, $document->name);
+                        $name = sprintf('%s_%s_%s', $invoice->invoice_date ?: Carbon::now()->format('Y-m-d'), $invoice->present()->titledName, $document->name);
                         $zip->add_file($name, $document->getRaw());
                     }
                 }
@@ -99,7 +100,7 @@ class InvoiceReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
+            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
                     $zip->add_file($invoice->getFileName(), $invoice->getPDFString());

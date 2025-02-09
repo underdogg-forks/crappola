@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Migration;
 
+use Carbon\Carbon;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\MigrationAuthRequest;
 use App\Http\Requests\MigrationCompaniesRequest;
@@ -284,7 +285,7 @@ class StepsController extends BaseController
 
             $this->account = $account;
 
-            $date = date('Y-m-d');
+            $date = Carbon::now()->format('Y-m-d');
             $accountKey = $this->account->account_key;
 
             $output = fopen('php://output', 'w') || Utils::fatalError();

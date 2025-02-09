@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Jobs\ExportReportResults;
 use App\Jobs\RunReport;
 use App\Jobs\SendInvoiceEmail;
@@ -69,7 +70,7 @@ class SendReminders extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running SendReminders...');
+        $this->info(Carbon::now()->format('r') . ' Running SendReminders...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -81,7 +82,7 @@ class SendReminders extends Command
         $this->sendScheduledReports();
         $this->loadExchangeRates();
 
-        $this->info(date('r') . ' Done');
+        $this->info(Carbon::now()->format('r') . ' Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
             Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
@@ -106,7 +107,7 @@ class SendReminders extends Command
 
     private function billInvoices(): void
     {
-        $today = new DateTime();
+        $today = Carbon::now();
 
         $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
             ->whereRaw(
@@ -116,7 +117,7 @@ class SendReminders extends Command
             )
             ->orderBy('invoices.id', 'asc')
             ->get();
-        $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
+        $this->info(Carbon::now()->format('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
@@ -137,7 +138,7 @@ class SendReminders extends Command
             }
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
-                $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
+                $this->info(Carbon::now()->format('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
                 Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();
@@ -148,7 +149,7 @@ class SendReminders extends Command
     private function chargeLateFees(): void
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
+        $this->info(Carbon::now()->format('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
             if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -160,11 +161,11 @@ class SendReminders extends Command
             }
 
             $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
-            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
+            $this->info(Carbon::now()->format('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice, false)) {
-                    $this->info(date('r') . ' Charge fee: ' . $invoice->id);
+                    $this->info(Carbon::now()->format('r') . ' Charge fee: ' . $invoice->id);
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
@@ -179,7 +180,7 @@ class SendReminders extends Command
     private function sendReminderEmails(): void
     {
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
+        $this->info(Carbon::now()->format('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
             if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -192,29 +193,29 @@ class SendReminders extends Command
 
             // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
-            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
+            $this->info(Carbon::now()->format('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
-                    if ($invoice->last_sent_date == date('Y-m-d')) {
+                    if ($invoice->last_sent_date == Carbon::now()->format('Y-m-d')) {
                         continue;
                     }
 
-                    $this->info(date('r') . ' Send email: ' . $invoice->id);
+                    $this->info(Carbon::now()->format('r') . ' Send email: ' . $invoice->id);
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, $reminder));
                 }
             }
 
             // endless reminders
             $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account);
-            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' endless invoices found');
+            $this->info(Carbon::now()->format('r ') . $account->name . ': ' . $invoices->count() . ' endless invoices found');
 
             foreach ($invoices as $invoice) {
-                if ($invoice->last_sent_date == date('Y-m-d')) {
+                if ($invoice->last_sent_date == Carbon::now()->format('Y-m-d')) {
                     continue;
                 }
 
-                $this->info(date('r') . ' Send email: ' . $invoice->id);
+                $this->info(Carbon::now()->format('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
         }
@@ -222,13 +223,13 @@ class SendReminders extends Command
 
     private function sendScheduledReports(): void
     {
-        $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))
+        $scheduledReports = ScheduledReport::where('send_date', '<=', Carbon::now()->format('Y-m-d'))
             ->with('user', 'account.company')
             ->get();
-        $this->info(date('r ') . $scheduledReports->count() . ' scheduled reports');
+        $this->info(Carbon::now()->format('r ') . $scheduledReports->count() . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
-            $this->info(date('r') . ' Processing report: ' . $scheduledReport->id);
+            $this->info(Carbon::now()->format('r') . ' Processing report: ' . $scheduledReport->id);
 
             $user = $scheduledReport->user;
             $account = $scheduledReport->account;
@@ -253,12 +254,12 @@ class SendReminders extends Command
             if ($file) {
                 try {
                     $this->userMailer->sendScheduledReport($scheduledReport, $file);
-                    $this->info(date('r') . ' Sent report');
+                    $this->info(Carbon::now()->format('r') . ' Sent report');
                 } catch (Exception $exception) {
-                    $this->info(date('r') . ' ERROR: ' . $exception->getMessage());
+                    $this->info(Carbon::now()->format('r') . ' ERROR: ' . $exception->getMessage());
                 }
             } else {
-                $this->info(date('r') . ' ERROR: Failed to run report');
+                $this->info(Carbon::now()->format('r') . ' ERROR: Failed to run report');
             }
 
             $scheduledReport->updateSendDate();
@@ -274,7 +275,7 @@ class SendReminders extends Command
         }
 
         if (config('ninja.exchange_rates_enabled')) {
-            $this->info(date('r') . ' Loading latest exchange rates...');
+            $this->info(Carbon::now()->format('r') . ' Loading latest exchange rates...');
 
             $response = CurlUtils::get(config('ninja.exchange_rates_url'));
             $data = json_decode($response);
@@ -286,7 +287,7 @@ class SendReminders extends Command
                     Currency::whereCode($code)->update(['exchange_rate' => $rate]);
                 }
             } else {
-                $this->info(date('r') . ' Error: failed to load exchange rates - ' . $response);
+                $this->info(Carbon::now()->format('r') . ' Error: failed to load exchange rates - ' . $response);
                 DB::table('currencies')->update(['exchange_rate' => 1]);
             }
         } else {

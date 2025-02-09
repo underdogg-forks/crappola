@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class PruneData extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running PruneData...');
+        $this->info(Carbon::now()->format('r') . ' Running PruneData...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

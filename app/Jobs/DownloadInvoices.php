@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Barracuda\ArchiveStream\Archive;
@@ -46,7 +47,7 @@ class DownloadInvoices extends Job
             die(trans('texts.gmp_required'));
         }
 
-        $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));
+        $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));
 
         foreach ($this->invoices as $invoice) {
             $zip->add_file($invoice->getFileName(), $invoice->getPDFString());

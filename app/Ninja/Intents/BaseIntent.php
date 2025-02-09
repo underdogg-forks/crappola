@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Intents;
 
+use Carbon\Carbon;
 use App\Libraries\Skype\SkypeResponse;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
@@ -303,7 +304,7 @@ class BaseIntent
             }
 
             $value = $entity->resolution->date;
-            $value = str_replace('XXXX', date('Y'), $value);
+            $value = str_replace('XXXX', Carbon::now()->format('Y'), $value);
         }
 
         return $value;

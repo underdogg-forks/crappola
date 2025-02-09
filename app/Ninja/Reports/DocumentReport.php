@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Reports;
 
+use Carbon\Carbon;
 use App\Models\Expense;
 use App\Models\Invoice;
 use Barracuda\ArchiveStream\Archive;
@@ -50,7 +51,7 @@ class DocumentReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
+            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
             foreach ($records as $record) {
                 foreach ($record->documents as $document) {
                     $name = sprintf('%s_%s_%s', $document->created_at->format('Y-m-d'), $record->present()->titledName, $document->name);

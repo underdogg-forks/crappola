@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Events\SubdomainWasRemoved;
 use App\Events\SubdomainWasUpdated;
 use App\Events\UserSettingsChanged;
@@ -1090,7 +1091,7 @@ class AccountController extends BaseController
 
             $invoice = new stdClass();
             $invoice->invoice_number = '0000';
-            $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
+            $invoice->invoice_date = Utils::fromSqlDate(Carbon::now()->format('Y-m-d'));
             $invoice->account = json_decode($account->toJson());
             $invoice->amount = 100;
             $invoice->balance = 100;

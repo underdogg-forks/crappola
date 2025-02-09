@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use stdClass;
 
@@ -50,7 +51,7 @@ class TaskPresenter extends EntityPresenter
 
         foreach ($parts as $part) {
             $start = $part[0];
-            $end = count($part) == 1 || ! $part[1] ? time() : $part[1];
+            $end = count($part) == 1 || ! $part[1] ? Carbon::now()->timestamp : $part[1];
 
             $start = $account->formatDateTime('@' . (int) $start);
             $end = $account->formatTime('@' . (int) $end);

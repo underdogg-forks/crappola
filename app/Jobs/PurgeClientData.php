@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use App\Libraries\HistoryUtils;
 use App\Libraries\Utils;
 
@@ -27,7 +28,7 @@ class PurgeClientData extends Job
             return;
         }
 
-        $message = sprintf('%s %s (%s) purged client: %s %s', date('Y-m-d h:i:s'), $user->email, request()->getClientIp(), $client->name, $contact->email);
+        $message = sprintf('%s %s (%s) purged client: %s %s', Carbon::now()->format('Y-m-d h:i:s'), $user->email, request()->getClientIp(), $client->name, $contact->email);
 
         if (config('app.log') == 'single') {
             @file_put_contents(storage_path('logs/purged-clients.log'), $message, FILE_APPEND);

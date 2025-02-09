@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Jobs\HostedMigration;
 use App\Libraries\Utils;
 use App\Models\Company;
@@ -109,7 +110,7 @@ class ForceMigration extends Command
 
     private function logMessage(string $str): void
     {
-        $str = date('Y-m-d h:i:s') . ' ' . $str;
+        $str = Carbon::now()->format('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }

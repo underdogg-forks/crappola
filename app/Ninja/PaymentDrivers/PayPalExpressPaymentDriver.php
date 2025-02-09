@@ -2,6 +2,8 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use Carbon\Carbon;
+
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes(): array
@@ -17,7 +19,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
-        $data['transactionId'] = $data['transactionId'] . '-' . time();
+        $data['transactionId'] = $data['transactionId'] . '-' . Carbon::now()->timestamp;
 
         return $data;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Libraries;
 
+use Carbon\Carbon;
 use App\Models\Activity;
 use App\Models\EntityModel;
 use Illuminate\Support\Facades\Session;
@@ -221,7 +222,7 @@ class HistoryUtils
         $object->url = $entity->present()->url;
         $object->entityType = $entity->subEntityType();
         $object->name = $entity->present()->titledName;
-        $object->timestamp = time();
+        $object->timestamp = Carbon::now()->timestamp;
 
         if ($entity->isEntityType(ENTITY_CLIENT)) {
             $object->client_id = $entity->public_id;

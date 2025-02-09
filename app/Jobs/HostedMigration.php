@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\User;
@@ -85,7 +86,7 @@ class HostedMigration extends Job
                 $this->account->subdomain = 'invoiceninja-' . $this->account->id;
             }
 
-            $date = date('Y-m-d');
+            $date = Carbon::now()->format('Y-m-d');
             $accountKey = $this->account->account_key;
 
             $output = fopen('php://output', 'w') || Utils::fatalError();

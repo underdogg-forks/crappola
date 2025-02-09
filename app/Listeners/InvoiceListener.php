@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use Carbon\Carbon;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasEmailed;
@@ -56,7 +57,7 @@ class InvoiceListener
     public function emailedInvoice(InvoiceWasEmailed $event): void
     {
         $invoice = $event->invoice;
-        $invoice->last_sent_date = date('Y-m-d');
+        $invoice->last_sent_date = Carbon::now()->format('Y-m-d');
         $invoice->save();
     }
 

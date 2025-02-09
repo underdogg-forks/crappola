@@ -3,7 +3,7 @@
 namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
-
+use Carbon\Carbon;
 use Log;
 use SimpleXMLElement;
 
@@ -142,7 +142,7 @@ class Login
             "</SIGNONMSGSRQV1>\n" .
             "<SIGNUPMSGSRQV1>\n" .
                 "<ACCTINFOTRNRQ>\n" .
-                    '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
+                    '<TRNUID>' . md5(Carbon::now()->timestamp . $this->bank->url . $this->id) . "\n" .
                     "<ACCTINFORQ>\n" .
                         "<DTACCTUP>19900101\n" .
                     "</ACCTINFORQ>\n" .
@@ -222,7 +222,7 @@ class Account
             $ofxRequest .=
                 "	<BANKMSGSRQV1>\n" .
                 "		<STMTTRNRQ>\n" .
-                '			<TRNUID>' . md5(time() . $this->login->bank->url . $this->id) . "\n" .
+                '			<TRNUID>' . md5(Carbon::now()->timestamp . $this->login->bank->url . $this->id) . "\n" .
                 "			<STMTRQ>\n" .
                 "				<BANKACCTFROM>\n" .
                 '					<BANKID>' . $this->bankId . "\n" .
@@ -240,7 +240,7 @@ class Account
             $ofxRequest .=
                 "	<CREDITCARDMSGSRQV1>\n" .
                 "		<CCSTMTTRNRQ>\n" .
-                '			<TRNUID>' . md5(time() . $this->login->bank->url . $this->id) . "\n" .
+                '			<TRNUID>' . md5(Carbon::now()->timestamp . $this->login->bank->url . $this->id) . "\n" .
                 "			<CCSTMTRQ>\n" .
                 "				<CCACCTFROM>\n" .
                 '					<ACCTID>' . $this->id . "\n" .

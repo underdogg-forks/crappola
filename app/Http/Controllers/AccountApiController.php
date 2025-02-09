@@ -307,8 +307,8 @@ class AccountApiController extends BaseAPIController
 
         $company->app_store_order_id = $orderId;
         $company->plan_term = PLAN_TERM_YEARLY;
-        $company->plan_started = $company->plan_started ?: date('Y-m-d');
-        $company->plan_paid = date('Y-m-d');
+        $company->plan_started = $company->plan_started ?: \Carbon\Carbon::now()->format('Y-m-d');
+        $company->plan_paid = \Carbon\Carbon::now()->format('Y-m-d');
         $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
         $company->trial_plan = null;
         $company->save();

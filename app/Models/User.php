@@ -494,7 +494,7 @@ class User extends Authenticatable
     public function acceptLatestTerms($ip): static
     {
         $this->accepted_terms_version = NINJA_TERMS_VERSION;
-        $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
+        $this->accepted_terms_timestamp = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
         $this->accepted_terms_ip = $ip;
 
         return $this;

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Credit;
 use App\Models\Payment;
@@ -187,7 +188,7 @@ class PaymentRepository extends BaseRepository
         } elseif (isset($input['payment_date'])) {
             $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         } else {
-            $payment->payment_date = date('Y-m-d');
+            $payment->payment_date = Carbon::now()->format('Y-m-d');
         }
 
         $payment->fill($input);

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use Carbon\Carbon;
 use App\Events\InvoiceItemsWereCreated;
 use App\Events\InvoiceItemsWereUpdated;
 use App\Events\QuoteItemsWereCreated;
@@ -132,7 +133,7 @@ class InvoiceRepository extends BaseRepository
                 if (in_array(INVOICE_STATUS_OVERDUE, $statuses)) {
                     $query->orWhere(function ($query): void {
                         $query->where('invoices.balance', '>', 0)
-                            ->where('invoices.due_date', '<', date('Y-m-d'))
+                            ->where('invoices.due_date', '<', Carbon::now()->format('Y-m-d'))
                             ->where('invoices.is_public', '=', true);
                     });
                 }
@@ -1096,7 +1097,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->invitations()->save($invitation);
         }
 
-        $recurInvoice->last_sent_date = date('Y-m-d');
+        $recurInvoice->last_sent_date = Carbon::now()->format('Y-m-d');
         $recurInvoice->save();
 
         // autoBillInvoice will check for ACH, so we're not checking here

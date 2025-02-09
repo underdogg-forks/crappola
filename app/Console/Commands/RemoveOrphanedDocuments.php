@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Models\Document;
 use DateTime;
 use Illuminate\Console\Command;
@@ -24,13 +25,13 @@ class RemoveOrphanedDocuments extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running RemoveOrphanedDocuments...');
+        $this->info(Carbon::now()->format('r') . ' Running RemoveOrphanedDocuments...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
 
-        $documents = Document::whereRaw('invoice_id IS NULL AND expense_id IS NULL AND updated_at <= ?', [new DateTime('-1 hour')])
+        $documents = Document::whereRaw('invoice_id IS NULL AND expense_id IS NULL AND updated_at <= ?', [Carbon::now()->subHours(1)])
             ->get();
 
         $this->info($documents->count() . ' orphaned document(s) found');

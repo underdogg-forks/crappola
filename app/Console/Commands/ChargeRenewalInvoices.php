@@ -47,7 +47,7 @@ class ChargeRenewalInvoices extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' ChargeRenewalInvoices...');
+        $this->info(\Carbon\Carbon::now()->format('r') . ' ChargeRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -55,7 +55,7 @@ class ChargeRenewalInvoices extends Command
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
         $invoices = Invoice::whereAccountId($ninjaAccount->id)
-            ->whereDueDate(date('Y-m-d'))
+            ->whereDueDate(\Carbon\Carbon::now()->format('Y-m-d'))
             ->where('balance', '>', 0)
             ->with('client')
             ->orderBy('id')

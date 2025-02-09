@@ -124,14 +124,14 @@ class AccountPresenter extends Presenter
         $data[] = $this->createRBit('email', 'user', ['email' => $user->email]);
         $data[] = $this->createRBit('phone', 'user', ['phone' => $user->phone]);
         $data[] = $this->createRBit('website_uri', 'user', ['uri' => $account->website]);
-        $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
+        $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => \Carbon\Carbon::now()->timestamp]);
 
         return $data;
     }
 
     public function dateRangeOptions(): string
     {
-        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
+        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: \Carbon\Carbon::now()->format('Y') . '-01-01');
         $month = $yearStart->month - 1;
         $year = $yearStart->year;
         $lastYear = $year - 1;
@@ -245,7 +245,7 @@ class AccountPresenter extends Presenter
     private function createRBit(string $type, string $source, array $properties): stdClass
     {
         $data = new stdClass();
-        $data->receive_time = time();
+        $data->receive_time = \Carbon\Carbon::now()->timestamp;
         $data->type = $type;
         $data->source = $source;
         $data->properties = new stdClass();

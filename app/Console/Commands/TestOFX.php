@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Services\BankAccountService;
 use Illuminate\Console\Command;
 
@@ -34,6 +35,6 @@ class TestOFX extends Command
 
     public function handle(): void
     {
-        $this->info(date('r') . ' Running TestOFX...');
+        $this->info(Carbon::now()->format('r') . ' Running TestOFX...');
     }
 }

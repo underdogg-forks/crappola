@@ -1566,7 +1566,7 @@ class Utils
     private static function getMonth(int $offset, $locale)
     {
         $months = static::$months;
-        $month = (int) (date('n')) - 1;
+        $month = (int) (\Carbon\Carbon::now()->format('n')) - 1;
 
         $month += $offset;
         $month %= 12;
@@ -1580,7 +1580,7 @@ class Utils
 
     private static function getQuarter(int $offset): string
     {
-        $month = (int) (date('n')) - 1;
+        $month = (int) (\Carbon\Carbon::now()->format('n')) - 1;
         $quarter = floor(($month + 3) / 3);
         $quarter += $offset;
         $quarter %= 4;
@@ -1593,7 +1593,7 @@ class Utils
 
     private static function getYear(int $offset): int
     {
-        $year = (int) (date('Y'));
+        $year = (int) (\Carbon\Carbon::now()->format('Y'));
 
         return $year + $offset;
     }

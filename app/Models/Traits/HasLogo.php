@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits;
 
+use Carbon\Carbon;
 use App\Models\Document;
 use Illuminate\Support\Facades\Storage;
 
@@ -54,7 +55,7 @@ trait HasLogo
             $logoUrl = url('/logo/' . $this->logo);
 
             if ($cachebuster) {
-                $logoUrl .= '?no_cache=' . time();
+                $logoUrl .= '?no_cache=' . Carbon::now()->timestamp;
             }
 
             return $logoUrl;

@@ -71,7 +71,7 @@ class CheckData extends Command
 
     public function handle(): void
     {
-        $this->logMessage(date('Y-m-d h:i:s') . ' Running CheckData...');
+        $this->logMessage(\Carbon\Carbon::now()->format('Y-m-d h:i:s') . ' Running CheckData...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -131,7 +131,7 @@ class CheckData extends Command
 
     private function logMessage(string $str): void
     {
-        $str = date('Y-m-d h:i:s') . ' ' . $str;
+        $str = \Carbon\Carbon::now()->format('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }

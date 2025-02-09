@@ -348,7 +348,7 @@ class OnlinePaymentController extends BaseController
             'is_public'          => filter_var(Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
             'frequency_id'       => Request::input('frequency_id'),
             'auto_bill_id'       => Request::input('auto_bill_id'),
-            'start_date'         => Request::input('start_date', date('Y-m-d')),
+            'start_date'         => Request::input('start_date', \Carbon\Carbon::now()->format('Y-m-d')),
             'tax_rate1'          => $account->tax_rate1,
             'tax_name1'          => $account->tax_name1 ?: '',
             'tax_rate2'          => $account->tax_rate2,

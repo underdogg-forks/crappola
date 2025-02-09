@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Models\DbServer;
 use App\Models\LookupAccount;
 use App\Models\LookupAccountToken;
@@ -364,7 +365,7 @@ class InitLookup extends Command
 
     private function logMessage($str): void
     {
-        $str = date('Y-m-d h:i:s') . ' ' . $str;
+        $str = Carbon::now()->format('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }
