@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ClientService.

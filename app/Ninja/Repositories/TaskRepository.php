@@ -7,9 +7,9 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Auth;
 use Datatable;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class TaskRepository extends BaseRepository
 {

@@ -4,10 +4,10 @@ namespace App\Http\Middleware;
 
 use App\Libraries\Utils;
 use App\Models\AccountToken;
-use Auth;
-use Cache;
 use Closure;
-use Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 /**

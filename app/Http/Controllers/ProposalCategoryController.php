@@ -10,10 +10,10 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Request;
-use View;
+use Illuminate\Support\Facades\View;
 
 class ProposalCategoryController extends BaseController
 {

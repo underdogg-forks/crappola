@@ -5,7 +5,7 @@ namespace App\Ninja\Datatables;
 use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use URL;
 use WePayException;
 

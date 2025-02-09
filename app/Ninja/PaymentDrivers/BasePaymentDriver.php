@@ -13,10 +13,10 @@ use App\Models\PaymentMethod;
 use CreditCard;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Omnipay;
 use Omnipay\Common\Item;
-use Request;
 use URL;
 
 class BasePaymentDriver

@@ -9,10 +9,10 @@ use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Request;
-use View;
+use Illuminate\Support\Facades\View;
 
 class ProposalSnippetController extends BaseController
 {

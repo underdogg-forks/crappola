@@ -5,8 +5,8 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 class RecurringExpenseRepository extends BaseRepository

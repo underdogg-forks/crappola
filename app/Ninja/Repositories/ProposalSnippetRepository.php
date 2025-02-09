@@ -3,8 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProposalSnippetRepository extends BaseRepository
 {

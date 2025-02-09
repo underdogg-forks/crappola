@@ -4,7 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Libraries\Utils;
 use App\Models\Client;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ProductReport extends AbstractReport
 {

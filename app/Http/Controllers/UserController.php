@@ -8,13 +8,13 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Password;
 use Redirect;
-use Request;
 use Validator;
-use View;
 
 class UserController extends BaseController
 {
@@ -259,7 +259,7 @@ class UserController extends BaseController
      */
     public function confirm($code)
     {
-        $user = User::where('confirmation_code', '=', $code)->get()->first();
+        $user = User::where('confirmation_code', '=', $code)->first();
 
         if ($user) {
             $notice_msg = trans('texts.security_confirmation');

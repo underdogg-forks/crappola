@@ -17,17 +17,17 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\PaymentService;
-use Auth;
 use Barracuda\ArchiveStream\ZipArchive;
 use Datatable;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use Request;
-use Response;
 use URL;
 use Validator;
-use View;
 
 class ClientPortalController extends BaseController
 {

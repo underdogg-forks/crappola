@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class ProposalTemplateDatatable extends EntityDatatable

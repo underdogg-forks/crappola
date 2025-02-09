@@ -261,11 +261,6 @@ class Expense extends EntityModel
         return $array;
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('expense_date', [$startDate, $endDate]);
@@ -280,7 +275,7 @@ class Expense extends EntityModel
     public function scopeBankId($query, $bankdId = null)
     {
         if ($bankdId) {
-            $query->whereBankId($bankId);
+            $query->whereBankId($bankdId);
         }
 
         return $query;

@@ -7,14 +7,14 @@ use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
 use App\Libraries\Utils;
 use App\Models\Language;
-use Auth;
-use Cache;
 use Closure;
-use Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
-use Redirect;
 
 /**
  * Class StartupCheck.
@@ -31,18 +31,6 @@ class StartupCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        // Set up trusted X-Forwarded-Proto proxies
-        // TRUSTED_PROXIES accepts a comma delimited list of subnets
-        // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
-        // set TRUSTED_PROXIES=* if you want to trust every proxy.
-        if (isset($_ENV['TRUSTED_PROXIES'])) {
-            if (env('TRUSTED_PROXIES') == '*') {
-                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')], Request::HEADER_X_FORWARDED_ALL);
-            } else {
-                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))), Request::HEADER_X_FORWARDED_ALL);
-            }
-        }
-
         // Ensure all request are over HTTPS in production
         if (Utils::requireHTTPS() && ! $request->secure()) {
             return Redirect::secure($request->path());

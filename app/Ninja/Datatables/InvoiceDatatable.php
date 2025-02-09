@@ -4,8 +4,8 @@ namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
 use App\Models\Invoice;
-use Auth;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class InvoiceDatatable extends EntityDatatable

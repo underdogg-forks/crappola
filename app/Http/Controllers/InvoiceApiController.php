@@ -16,8 +16,8 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
-use Auth;
-use Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Response;
 use Validator;
 

@@ -8,11 +8,11 @@ use App\Jobs\RunReport;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\ScheduledReport;
-use Auth;
 use Carbon;
-use Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\View;
 use Validator;
-use View;
 
 /**
  * Class ReportController.

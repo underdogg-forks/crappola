@@ -9,11 +9,6 @@ class InvoiceRequest extends EntityRequest
 {
     protected $entityType = ENTITY_INVOICE;
 
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         $invoice = parent::entity();

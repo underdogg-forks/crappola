@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Auth;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -21,11 +21,6 @@ class Activity extends Eloquent
      */
     protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeScope($query)
     {
         return $query->whereAccountId(Auth::user()->account_id);

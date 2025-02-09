@@ -6,8 +6,8 @@ use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalInvitation;
 use App\Models\ProposalTemplate;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProposalRepository extends BaseRepository
 {

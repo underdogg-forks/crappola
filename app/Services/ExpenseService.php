@@ -7,7 +7,7 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ExpenseService.

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Libraries\Utils;
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
 use App\Ninja\Repositories\InvoiceRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class RecurringInvoiceService extends BaseService
 {

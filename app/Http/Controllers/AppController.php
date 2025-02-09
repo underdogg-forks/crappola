@@ -11,17 +11,17 @@ use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\EmailService;
 use Artisan;
-use Auth;
-use Cache;
 use Config;
 use DB;
-use Event;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use Request;
-use Response;
-use View;
 
 class AppController extends BaseController
 {

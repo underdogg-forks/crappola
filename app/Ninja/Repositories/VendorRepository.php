@@ -4,8 +4,8 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Vendor;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 // vendor

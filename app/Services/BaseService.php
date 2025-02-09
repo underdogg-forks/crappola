@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BaseService.

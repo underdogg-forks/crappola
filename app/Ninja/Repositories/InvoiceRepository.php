@@ -18,9 +18,9 @@ use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
 use App\Services\PaymentService;
-use Auth;
 use Datatable;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 class InvoiceRepository extends BaseRepository

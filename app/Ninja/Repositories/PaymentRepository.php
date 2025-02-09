@@ -5,8 +5,8 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Credit;
 use App\Models\Payment;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 class PaymentRepository extends BaseRepository

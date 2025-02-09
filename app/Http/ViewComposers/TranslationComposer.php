@@ -2,7 +2,7 @@
 
 namespace App\Http\ViewComposers;
 
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Str;
 
@@ -27,8 +27,6 @@ class TranslationComposer
         })->sortBy(function ($industry) {
             return $industry->name;
         }));
-
-        dd(Cache::get('countries'));
 
         $view->with('countries', Cache::get('countries')->each(function ($country) {
             $country->name = trans('texts.country_' . $country->name);

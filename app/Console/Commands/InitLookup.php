@@ -13,6 +13,7 @@ use DB;
 use Exception;
 use Illuminate\Console\Command;
 use Mail;
+use Symfony\Component\Console\Input\InputOption;
 
 class InitLookup extends Command
 {

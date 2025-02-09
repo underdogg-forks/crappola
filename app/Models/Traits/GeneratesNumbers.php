@@ -4,8 +4,8 @@ namespace App\Models\Traits;
 
 use App\Models\Client;
 use App\Models\Invoice;
-use Auth;
 use Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class GeneratesNumbers.

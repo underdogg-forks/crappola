@@ -6,7 +6,7 @@ use App\Libraries\Utils;
 use App\Ninja\Datatables\ProjectTaskDatatable;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\TaskRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class TaskService.

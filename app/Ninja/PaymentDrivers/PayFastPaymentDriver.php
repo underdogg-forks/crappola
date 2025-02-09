@@ -2,7 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Request;
+use Illuminate\Support\Facades\Request;
 
 class PayFastPaymentDriver extends BasePaymentDriver
 {

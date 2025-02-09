@@ -5,8 +5,8 @@ namespace App\Ninja\Reports;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseReport extends AbstractReport
 {

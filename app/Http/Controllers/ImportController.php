@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Jobs\ImportData;
 use App\Libraries\Utils;
 use App\Services\ImportService;
-use Auth;
 use Exception;
 use File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use View;
 
 class ImportController extends BaseController
 {

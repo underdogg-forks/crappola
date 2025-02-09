@@ -11,7 +11,7 @@ use App\Models\Invoice;
 use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceService extends BaseService
 {

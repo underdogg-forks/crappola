@@ -6,11 +6,11 @@ use App\Libraries\Utils;
 use Form;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Module;
 use Queue;
-use Request;
 use URL;
 use Validator;
 

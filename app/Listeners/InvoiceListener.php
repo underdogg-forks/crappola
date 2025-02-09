@@ -14,8 +14,8 @@ use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
 use App\Libraries\Utils;
 use App\Models\Activity;
-use Auth;
 use Illuminate\Queue\Events\JobExceptionOccurred;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class InvoiceListener.

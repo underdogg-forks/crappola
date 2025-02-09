@@ -11,11 +11,12 @@ use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
-use Request;
-use URL;
-use View;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 class VendorController extends BaseController
 {
@@ -138,7 +139,7 @@ class VendorController extends BaseController
         $data = array_merge($data, self::getViewModel());
 
         if (Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
+            if ($account = Account::whereId($vendor->public_id)->first()) {
                 $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }

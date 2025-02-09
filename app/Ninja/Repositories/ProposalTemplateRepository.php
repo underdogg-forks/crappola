@@ -3,8 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalTemplate;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProposalTemplateRepository extends BaseRepository
 {

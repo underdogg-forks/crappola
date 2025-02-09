@@ -5,9 +5,9 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
-use Auth;
 use Datatable;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 class CreditRepository extends BaseRepository

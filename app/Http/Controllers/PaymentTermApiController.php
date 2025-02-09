@@ -7,7 +7,7 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\PaymentTermRepository;
-use Request;
+use Illuminate\Support\Facades\Request;
 
 class PaymentTermApiController extends BaseAPIController
 {

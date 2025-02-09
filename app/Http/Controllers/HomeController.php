@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Mail;
 use Redirect;
-use Request;
-use Response;
-use View;
 
 /**
  * Class HomeController.

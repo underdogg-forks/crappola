@@ -4,8 +4,8 @@ namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
 use App\Models\Invoice;
-use Auth;
 use Carbon;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class RecurringInvoiceDatatable extends EntityDatatable

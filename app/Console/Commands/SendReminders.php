@@ -14,11 +14,11 @@ use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\PaymentService;
-use Auth;
 use DateTime;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
 

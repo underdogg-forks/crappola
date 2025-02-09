@@ -7,8 +7,8 @@ use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Log;
 
 class ExpenseRepository extends BaseRepository

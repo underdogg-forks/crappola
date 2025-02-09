@@ -10,14 +10,14 @@ use App\Models\Traits\HasCustomMessages;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
-use Cache;
 use Carbon;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
-use Event;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Laracasts\Presenter\PresentableTrait;
 

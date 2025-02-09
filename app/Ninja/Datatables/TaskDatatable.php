@@ -5,8 +5,8 @@ namespace App\Ninja\Datatables;
 use App\Libraries\Utils;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Auth;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class TaskDatatable extends EntityDatatable

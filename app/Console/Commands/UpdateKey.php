@@ -6,9 +6,9 @@ use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
 use Artisan;
-use Crypt;
 use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\LegacyEncrypter\McryptEncrypter;
 use Symfony\Component\Console\Input\InputOption;
 

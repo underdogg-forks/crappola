@@ -4,7 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\Payment;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {

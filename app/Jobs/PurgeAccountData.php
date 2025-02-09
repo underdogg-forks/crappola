@@ -5,9 +5,9 @@ namespace App\Jobs;
 use App\Models\Document;
 use App\Models\LookupAccount;
 use App\Ninja\Mailers\UserMailer;
-use Auth;
 use DB;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class PurgeAccountData extends Job
 {

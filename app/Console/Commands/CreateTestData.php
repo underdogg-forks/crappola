@@ -14,9 +14,9 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class CreateTestData.

@@ -9,11 +9,11 @@ use App\Models\SecurityCode;
 use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
-use Auth;
-use Cache;
 use DB;
 use Exception;
-use Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 
 class BotController extends Controller
 {

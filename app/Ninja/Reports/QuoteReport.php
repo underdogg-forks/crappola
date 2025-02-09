@@ -4,8 +4,8 @@ namespace App\Ninja\Reports;
 
 use App\Models\Client;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class QuoteReport extends AbstractReport
 {

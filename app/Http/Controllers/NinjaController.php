@@ -9,16 +9,16 @@ use App\Models\Country;
 use App\Models\License;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
-use Cache;
 use CreditCard;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Omnipay;
-use Request;
 use URL;
 use Validator;
-use View;
 
 class NinjaController extends BaseController
 {

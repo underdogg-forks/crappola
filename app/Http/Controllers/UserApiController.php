@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Ninja\Repositories\UserRepository;
 use App\Ninja\Transformers\UserTransformer;
 use App\Services\UserService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends BaseAPIController
 {
@@ -115,7 +114,7 @@ class UserApiController extends BaseAPIController
      *   )
      * )
      */
-    public function store(CreateUserRequest $request)
+    public function store(UserRequest $request)
     {
         return $this->save($request);
     }

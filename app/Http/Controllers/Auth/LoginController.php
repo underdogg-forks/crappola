@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Libraries\Utils;
 use App\Models\User;
-use Cache;
 use Cookie;
-use Event;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Lang;
 use Str;
 

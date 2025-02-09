@@ -3,7 +3,7 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract

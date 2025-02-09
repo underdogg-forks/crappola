@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Cache;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use stdClass;
 
 /**

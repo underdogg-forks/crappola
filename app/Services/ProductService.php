@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Libraries\Utils;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ProductService extends BaseService
 {

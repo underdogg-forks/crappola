@@ -5,10 +5,10 @@ namespace App\Jobs;
 use App;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
-use Auth;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SendInvoiceEmail.

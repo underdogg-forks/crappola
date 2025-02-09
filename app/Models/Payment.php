@@ -8,8 +8,8 @@ use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
 use DateTimeInterface;
-use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Event;
 use Laracasts\Presenter\PresentableTrait;
 use stdClass;
 
@@ -153,11 +153,6 @@ class Payment extends EntityModel
         return $query;
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('payment_date', [$startDate, $endDate]);

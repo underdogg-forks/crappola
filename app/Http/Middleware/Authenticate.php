@@ -7,8 +7,8 @@ use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
-use Auth;
 use Closure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Redirect;
 

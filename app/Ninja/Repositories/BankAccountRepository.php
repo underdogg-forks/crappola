@@ -4,9 +4,9 @@ namespace App\Ninja\Repositories;
 
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
-use Auth;
 use Crypt;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class BankAccountRepository extends BaseRepository
 {

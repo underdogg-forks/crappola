@@ -7,8 +7,7 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
-use Request;
-use Response;
+use Illuminate\Support\Facades\Request;
 
 class ClientApiController extends BaseAPIController
 {

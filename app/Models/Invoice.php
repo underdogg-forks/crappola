@@ -12,11 +12,11 @@ use App\Libraries\CurlUtils;
 use App\Libraries\Utils;
 use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
-use Cache;
 use DateTime;
 use DateTimeInterface;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -438,33 +438,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Expense', 'invoice_id', 'id')->withTrashed();
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeInvoices($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', '=', false);
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeRecurring($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', '=', true);
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->where(function ($query) use ($startDate, $endDate) {
@@ -474,22 +459,12 @@ class Invoice extends EntityModel implements BalanceAffecting
         });
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeQuotes($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
             ->where('is_recurring', '=', false);
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeUnapprovedQuotes($query, $includeInvoiceId = false)
     {
         return $query->quotes()

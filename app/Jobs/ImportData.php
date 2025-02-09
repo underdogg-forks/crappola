@@ -7,11 +7,11 @@ use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use App\Services\ImportService;
-use Auth;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SendInvoiceEmail.

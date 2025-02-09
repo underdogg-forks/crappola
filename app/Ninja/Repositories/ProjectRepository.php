@@ -4,8 +4,8 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Project;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectRepository extends BaseRepository
 {

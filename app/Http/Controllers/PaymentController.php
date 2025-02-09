@@ -14,12 +14,12 @@ use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Auth;
-use Cache;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Request;
-use View;
+use Illuminate\Support\Facades\View;
 
 class PaymentController extends BaseController
 {

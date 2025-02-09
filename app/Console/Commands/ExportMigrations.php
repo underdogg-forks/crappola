@@ -136,7 +136,6 @@ class ExportMigrations extends Command
             'task_statuses'         => $this->getTaskStatuses(),
             'expenses'              => $this->getExpenses(),
             'tasks'                 => $this->getTasks(),
-            'documents'             => $this->getDocuments(),
             'ninja_tokens'          => $this->getNinjaToken(),
         ];
 

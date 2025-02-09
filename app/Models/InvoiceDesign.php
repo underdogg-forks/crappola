@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Auth;
-use Cache;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class InvoiceDesign.

@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Libraries\Utils;
-use Crypt;
 use DateTimeInterface;
 use HTMLUtils;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 use Laracasts\Presenter\PresentableTrait;
 use URL;
 

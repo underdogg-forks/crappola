@@ -6,9 +6,9 @@ use App\Events\UserLoggedIn;
 use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Request;
 use Socialite;
 
 /**

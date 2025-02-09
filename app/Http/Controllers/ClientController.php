@@ -17,13 +17,13 @@ use App\Models\Task;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
-use Auth;
-use Cache;
 use DropdownButton;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Request;
+use Illuminate\Support\Facades\View;
 use URL;
-use View;
 
 class ClientController extends BaseController
 {

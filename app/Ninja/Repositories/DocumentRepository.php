@@ -4,10 +4,10 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Document;
-use Auth;
 use Datatable;
 use DB;
 use Form;
+use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManager;
 
 class DocumentRepository extends BaseRepository

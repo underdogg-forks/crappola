@@ -9,7 +9,7 @@ use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Request;
+use Illuminate\Support\Facades\Request;
 use Response;
 
 class PaymentApiController extends BaseAPIController

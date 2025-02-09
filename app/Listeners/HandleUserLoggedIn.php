@@ -8,8 +8,8 @@ use App\Libraries\HistoryUtils;
 use App\Libraries\Utils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
 use Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 /**

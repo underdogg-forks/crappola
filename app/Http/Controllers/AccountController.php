@@ -30,21 +30,21 @@ use App\Ninja\Repositories\ReferralRepository;
 use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
-use Auth;
-use Cache;
 use Exception;
 use File;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Image;
 use Log;
 use Nwidart\Modules\Facades\Module;
 use Redirect;
-use Request;
-use Response;
 use stdClass;
 use URL;
 use Validator;
-use View;
 
 /**
  * Class AccountController.

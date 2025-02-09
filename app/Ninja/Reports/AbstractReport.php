@@ -4,11 +4,11 @@ namespace App\Ninja\Reports;
 
 use App\Libraries\Utils;
 use App\Models\Client;
-use Auth;
 use Carbon;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 
 class AbstractReport

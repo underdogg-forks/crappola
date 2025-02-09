@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateBankAccountRequest;
 use App\Libraries\Utils;
-use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
-use Auth;
-use Cache;
-use Crypt;
 use Exception;
 use File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use View;
 
 class BankAccountController extends BaseController
 {

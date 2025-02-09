@@ -11,11 +11,11 @@ use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
-use Auth;
 use Carbon;
 use Crypt;
 use Google2FA;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Response;
 
 class AccountApiController extends BaseAPIController

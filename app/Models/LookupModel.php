@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Cache;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.

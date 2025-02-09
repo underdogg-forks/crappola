@@ -4,8 +4,8 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
-use Auth;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {

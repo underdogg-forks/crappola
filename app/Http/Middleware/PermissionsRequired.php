@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\Controller;
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class PermissionsRequired.

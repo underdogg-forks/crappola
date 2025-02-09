@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Libraries\Utils;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class CreditService.

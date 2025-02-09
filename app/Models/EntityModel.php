@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Libraries\Utils;
-use Auth;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Auth;
 use Module;
 use Str;
 use Validator;
@@ -333,11 +333,6 @@ class EntityModel extends Eloquent
             });
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeWithArchived($query)
     {
         return $query->withTrashed()->where('is_deleted', '=', false);

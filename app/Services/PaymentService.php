@@ -10,9 +10,9 @@ use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\PaymentRepository;
-use Auth;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentService extends BaseService
 {

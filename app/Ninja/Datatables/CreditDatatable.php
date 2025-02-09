@@ -3,7 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class CreditDatatable extends EntityDatatable

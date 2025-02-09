@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Libraries\Utils;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Request;
+use Illuminate\Support\Facades\Request;
 
 class BaseController extends Controller
 {

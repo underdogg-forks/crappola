@@ -7,9 +7,8 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
-use Auth;
-use Request;
-use Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class TaskApiController extends BaseAPIController
 {

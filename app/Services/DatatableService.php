@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Libraries\Utils;
 use App\Ninja\Datatables\EntityDatatable;
-use Auth;
 use Chumper\Datatable\Table;
 use Datatable;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class DatatableService.

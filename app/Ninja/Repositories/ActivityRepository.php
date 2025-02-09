@@ -7,9 +7,9 @@ use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
-use Auth;
 use DB;
-use Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class ActivityRepository
 {

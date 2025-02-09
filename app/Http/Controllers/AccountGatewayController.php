@@ -8,15 +8,15 @@ use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\Gateway;
 use App\Services\AccountGatewayService;
-use Auth;
 use File;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Redirect;
-use Request;
 use stdClass;
 use URL;
 use Validator;
-use View;
 use WePay;
 use WePayException;
 

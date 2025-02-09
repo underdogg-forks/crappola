@@ -9,8 +9,8 @@ use App\Libraries\Utils;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;
-use Cache;
 use HTMLUtils;
+use Illuminate\Support\Facades\Cache;
 use Mail;
 
 class ContactMailer extends Mailer

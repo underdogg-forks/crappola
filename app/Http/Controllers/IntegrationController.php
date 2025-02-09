@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
 use App\Models\Subscription;
-use Request;
-use Response;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 
 /**
  * Class IntegrationController.

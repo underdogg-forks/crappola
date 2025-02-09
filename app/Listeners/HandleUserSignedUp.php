@@ -6,7 +6,7 @@ use App\Events\UserSignedUp;
 use App\Libraries\Utils;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class HandleUserSignedUp.

@@ -3,8 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ExpenseCategory;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
