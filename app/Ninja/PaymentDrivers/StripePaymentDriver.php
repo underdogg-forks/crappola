@@ -161,7 +161,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return;
+            return null;
         }
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent']) || ! empty($data['token'])) {
@@ -285,7 +285,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ( ! empty($data['payment_method']) || ! empty($data['payment_intent'])) {
             // Using the PaymentIntent API; we'll save the details later.
-            return;
+            return null;
         }
 
         $data['description'] = $client->getDisplayName();

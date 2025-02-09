@@ -436,6 +436,7 @@ class Client extends EntityModel
         if ($contact = $this->getPrimaryContact()) {
             return $contact->getDisplayName();
         }
+        return null;
     }
 
     public function getCityState()
@@ -621,6 +622,7 @@ class Client extends EntityModel
         if (($invoice = $this->invoices->first()) && ($invitation = $invoice->invitations->first())) {
             return $invitation->invitation_key;
         }
+        return null;
     }
 }
 

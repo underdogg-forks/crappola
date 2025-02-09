@@ -188,7 +188,7 @@ class Company extends Model
         }
 
         // if they've already been pro return false
-        if ($this->plan_expires && $this->plan_expires != '0000-00-00') {
+        if ($this->plan_expires && $this->plan_expires !== '0000-00-00') {
             return false;
         }
 

@@ -39,7 +39,7 @@ class EntityRequest extends Request
         }
 
         if ( ! $publicId) {
-            return;
+            return null;
         }
 
         if (method_exists($class, 'trashed')) {

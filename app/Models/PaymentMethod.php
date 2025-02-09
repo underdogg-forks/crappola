@@ -166,6 +166,7 @@ class PaymentMethod extends EntityModel
         }
 
         Cache::put('bankData:' . $routingNumber, false, 5 * 60);
+        return null;
     }
 
     public function account()
@@ -204,7 +205,7 @@ class PaymentMethod extends EntityModel
     public function getBankDataAttribute()
     {
         if ( ! $this->routing_number) {
-            return;
+            return null;
         }
 
         return static::lookupBankData($this->routing_number);

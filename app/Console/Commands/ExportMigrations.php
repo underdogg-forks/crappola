@@ -57,7 +57,7 @@ class ExportMigrations extends Command
 
             $this->info('I could not find that user - sorry');
 
-            return;
+            return null;
         }
 
         if ($this->option('email')) {
@@ -75,7 +75,7 @@ class ExportMigrations extends Command
 
             $this->info('I could not find that user by email - sorry');
 
-            return;
+            return null;
         }
 
         if ($this->option('random')) {
@@ -83,7 +83,7 @@ class ExportMigrations extends Command
                 $this->export($user);
             });
 
-            return;
+            return null;
         }
 
         $users = User::all();
@@ -92,6 +92,7 @@ class ExportMigrations extends Command
             Auth::login($user);
             $this->export($user);
         }
+        return null;
     }
 
     private function export($user)

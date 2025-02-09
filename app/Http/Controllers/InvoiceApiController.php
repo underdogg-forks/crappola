@@ -407,6 +407,7 @@ class InvoiceApiController extends BaseAPIController
         }
 
         abort(404);
+        return null;
     }
 
     private function prepareData($data, $client)

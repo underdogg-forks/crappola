@@ -165,11 +165,7 @@ class InvoiceItem extends EntityModel
 
     public function hasTaxes(): bool
     {
-        if ($this->tax_name1 || $this->tax_rate1) {
-            return true;
-        }
-
-        return false;
+        return $this->tax_name1 || $this->tax_rate1;
     }
 
     public function costWithDiscount()

@@ -83,7 +83,9 @@ class LoginController extends Controller
      */
     public function postLoginWrapper(Request $request)
     {
-        auth()->check() ? auth()->user()->id : null;
+        if (auth()->check()) {
+            auth()->user()->id;
+        }
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {

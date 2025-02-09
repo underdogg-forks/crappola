@@ -275,7 +275,7 @@ class AccountGateway extends EntityModel
     public function getPlaidEnvironment()
     {
         if ( ! $this->getPlaidClientId()) {
-            return;
+            return null;
         }
 
         $stripe_key = $this->getPublishableKey();

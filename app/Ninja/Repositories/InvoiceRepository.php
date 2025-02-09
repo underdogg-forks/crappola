@@ -733,36 +733,32 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            if (Auth::check() && ($productKey = trim($item['product_key']))) {
-                if ($account->update_products
-                    && ! $invoice->has_tasks
-                    && ! $invoice->has_expenses
-                    && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
-                ) {
-                    $product = Product::findProductByKey($productKey);
-                    if ( ! $product) {
-                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
-                            $product = Product::createNew();
-                            $product->product_key = trim($item['product_key']);
-                        } else {
-                            $product = null;
-                        }
+            if (Auth::check() && ($productKey = trim($item['product_key'])) && ($account->update_products
+                && ! $invoice->has_tasks
+                && ! $invoice->has_expenses
+                && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item'])))) {
+                $product = Product::findProductByKey($productKey);
+                if ( ! $product) {
+                    if (Auth::user()->can('create', ENTITY_PRODUCT)) {
+                        $product = Product::createNew();
+                        $product->product_key = trim($item['product_key']);
+                    } else {
+                        $product = null;
+                    }
+                }
+                if ($product && (Auth::user()->can('edit', $product))) {
+                    $product->notes = ($task || $expense) ? '' : $item['notes'];
+                    if ( ! $account->convert_products) {
+                        $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
                     }
 
-                    if ($product && (Auth::user()->can('edit', $product))) {
-                        $product->notes = ($task || $expense) ? '' : $item['notes'];
-                        if ( ! $account->convert_products) {
-                            $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
-                        }
-
-                        $product->tax_name1 = $item['tax_name1'] ?? null;
-                        $product->tax_rate1 = $item['tax_rate1'] ?? 0;
-                        $product->tax_name2 = $item['tax_name2'] ?? null;
-                        $product->tax_rate2 = $item['tax_rate2'] ?? 0;
-                        $product->custom_value1 = $item['custom_value1'] ?? null;
-                        $product->custom_value2 = $item['custom_value2'] ?? null;
-                        $product->save();
-                    }
+                    $product->tax_name1 = $item['tax_name1'] ?? null;
+                    $product->tax_rate1 = $item['tax_rate1'] ?? 0;
+                    $product->tax_name2 = $item['tax_name2'] ?? null;
+                    $product->tax_rate2 = $item['tax_rate2'] ?? 0;
+                    $product->custom_value1 = $item['custom_value1'] ?? null;
+                    $product->custom_value2 = $item['custom_value2'] ?? null;
+                    $product->save();
                 }
             }
 
@@ -954,7 +950,7 @@ class InvoiceRepository extends BaseRepository
     public function markPaid(Invoice $invoice)
     {
         if ( ! $invoice->canBePaid()) {
-            return;
+            return null;
         }
 
         $invoice->markSentIfUnsent();
@@ -1231,6 +1227,7 @@ class InvoiceRepository extends BaseRepository
         $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
+        return null;
     }
 
     public function setGatewayFee($invoice, $gatewayTypeId): void

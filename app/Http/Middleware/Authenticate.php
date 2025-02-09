@@ -108,7 +108,7 @@ class Authenticate
             if ($guard == 'client') {
                 $url = '/client/login';
                 if (Utils::isNinjaProd()) {
-                    if ($account && Utils::getSubdomain() == 'app') {
+                    if ($account && Utils::getSubdomain() === 'app') {
                         $url .= '?account_key=' . $account->account_key;
                     }
                 } elseif ($account && Account::count() > 1) {
@@ -148,6 +148,7 @@ class Authenticate
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
         }
+        return null;
     }
 
     /**
@@ -161,5 +162,6 @@ class Authenticate
         if ($contact && ! $contact->is_deleted) {
             return $contact;
         }
+        return null;
     }
 }

@@ -12,5 +12,6 @@ class DatabaseLookup
         if ( ! env('MULTI_DB_ENABLED')) {
             return $next($request);
         }
+        return null;
     }
 }

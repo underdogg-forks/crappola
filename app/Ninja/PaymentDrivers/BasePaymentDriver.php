@@ -123,7 +123,7 @@ class BasePaymentDriver
 
         // For these gateway types we use the API directrly rather than Omnipay
         if ($this->shouldUseSource()) {
-            return;
+            return null;
         }
 
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
@@ -277,7 +277,7 @@ class BasePaymentDriver
 
         if ( ! $data) {
             // No payment method to charge against yet; probably a 2-step or capture-only transaction.
-            return;
+            return null;
         }
 
         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
@@ -799,7 +799,7 @@ class BasePaymentDriver
         }
 
         if ($this->isTwoStep() || request()->capture) {
-            return;
+            return null;
         }
 
         // prepare and process payment
@@ -858,6 +858,7 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+        return null;
     }
 
     protected function paymentDetails($paymentMethod = false): array
@@ -1023,7 +1024,7 @@ class BasePaymentDriver
         foreach ($invoice->invoice_items as $invoiceItem) {
             // Some gateways require quantity is an integer
             if ((float) ($invoiceItem->qty) != (int) ($invoiceItem->qty)) {
-                return;
+                return null;
             }
 
             $item = new Item([

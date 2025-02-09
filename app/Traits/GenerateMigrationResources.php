@@ -1160,6 +1160,7 @@ trait GenerateMigrationResources
         if ($next_send_date = $invoice->getNextSendDate()) {
             return $next_send_date->format('Y-m-d');
         }
+        return null;
     }
 
     // Determine the number of remaining cycles

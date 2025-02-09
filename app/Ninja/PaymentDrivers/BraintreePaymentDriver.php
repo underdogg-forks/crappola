@@ -194,7 +194,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $paymentMethod->email = $response->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_PAYPAL;
         } else {
-            return;
+            return null;
         }
 
         return $paymentMethod;

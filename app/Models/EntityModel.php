@@ -115,7 +115,7 @@ class EntityModel extends Model
     public static function getPrivateId($publicId)
     {
         if ( ! $publicId) {
-            return;
+            return null;
         }
 
         $className = static::class;

@@ -25,8 +25,8 @@ return RectorConfig::configure()
         ReturnTypeFromStrictTypedPropertyRector::class,
     ])
     ->withSets([
-        SetList::DEAD_CODE,
-        //SetList::CODE_QUALITY,
+        //SetList::DEAD_CODE,
+        SetList::CODE_QUALITY,
         //SetList::CODING_STYLE,
         //SetList::EARLY_RETURN,
         //SetList::TYPE_DECLARATION,

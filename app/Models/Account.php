@@ -985,7 +985,7 @@ class Account extends Model
     public function getDate($date = 'now')
     {
         if ( ! $date) {
-            return;
+            return null;
         }
 
         if ( ! $date instanceof DateTime) {
@@ -1080,7 +1080,7 @@ class Account extends Model
         $date = $this->getDate($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomDateFormat());
@@ -1096,7 +1096,7 @@ class Account extends Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomDateTimeFormat());
@@ -1112,7 +1112,7 @@ class Account extends Model
         $date = $this->getDateTime($date);
 
         if ( ! $date) {
-            return;
+            return null;
         }
 
         return $date->format($this->getCustomTimeFormat());
@@ -1270,6 +1270,7 @@ class Account extends Model
                 return $token->token;
             }
         }
+        return null;
     }
 
     /**
@@ -1467,6 +1468,7 @@ class Account extends Model
             default:
                 return false;
         }
+        return null;
     }
 
     public function isPaid()
@@ -1524,7 +1526,7 @@ class Account extends Model
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
         if ( ! $this->company) {
-            return;
+            return null;
         }
 
         $plan = $this->company->plan;
@@ -1532,7 +1534,7 @@ class Account extends Model
         $trial_plan = $this->company->trial_plan;
 
         if (( ! $plan || $plan == PLAN_FREE) && ( ! $trial_plan || ! $include_trial)) {
-            return;
+            return null;
         }
 
         $trial_active = false;
@@ -1560,7 +1562,7 @@ class Account extends Model
         }
 
         if ( ! $include_inactive && ! $plan_active && ! $trial_active) {
-            return;
+            return null;
         }
 
         // Should we show plan details or trial details?
@@ -1755,7 +1757,7 @@ class Account extends Model
     {
         $gatewayId = $this->getTokenGatewayId();
         if ( ! $gatewayId) {
-            return;
+            return null;
         }
 
         return $this->getGatewayConfig($gatewayId);
@@ -2007,7 +2009,7 @@ class Account extends Model
         } elseif ($this->payment_terms != 0) {
             $numDays = $this->defaultDaysDue();
         } else {
-            return;
+            return null;
         }
 
         return Carbon::now()->addDays($numDays)->format('Y-m-d');

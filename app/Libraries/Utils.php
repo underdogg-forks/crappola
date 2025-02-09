@@ -52,6 +52,7 @@ class Utils
         } catch (Exception) {
             return false;
         }
+        return null;
     }
 
     public static function isDownForMaintenance(): bool
@@ -61,7 +62,7 @@ class Utils
 
     public static function isCron(): bool
     {
-        return PHP_SAPI == 'cli';
+        return PHP_SAPI === 'cli';
     }
 
     public static function isTravis(): bool
@@ -437,6 +438,7 @@ class Utils
         } else {
             Log::error($error . "\n", $data);
         }
+        return null;
     }
 
     public static function prepareErrorData($context): array
@@ -515,6 +517,7 @@ class Utils
         if ($record = $data->first()) {
             return $record->id;
         }
+        return null;
     }
 
     public static function getStaticData($locale = false): array
@@ -558,7 +561,7 @@ class Utils
         if ( ! $cache) {
             static::logError(sprintf('Cache for %s is not set', $type));
 
-            return;
+            return null;
         }
 
         $data = $cache->filter(fn ($item): bool => $item->id == $id);
@@ -782,7 +785,7 @@ class Utils
     public static function toSqlDate($date, $formatResult = true)
     {
         if ( ! $date) {
-            return;
+            return null;
         }
 
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -1553,6 +1556,7 @@ class Utils
         if ($part === 'YEAR') {
             return self::getYear($offset);
         }
+        return null;
     }
 
     private static function getMonth(int $offset, $locale)

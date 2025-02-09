@@ -190,6 +190,7 @@ class Document extends EntityModel
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
+        return null;
     }
 
     public function getEntityType(): string
@@ -333,7 +334,7 @@ class Document extends EntityModel
     public function getVFSJSUrl()
     {
         if ( ! $this->isPDFEmbeddable()) {
-            return;
+            return null;
         }
 
         return url('documents/js/' . $this->public_id . '/' . $this->name . '.js');
@@ -345,7 +346,7 @@ class Document extends EntityModel
     public function getClientVFSJSUrl()
     {
         if ( ! $this->isPDFEmbeddable()) {
-            return;
+            return null;
         }
 
         return url('client/documents/js/' . $this->public_id . '/' . $this->name . '.js');

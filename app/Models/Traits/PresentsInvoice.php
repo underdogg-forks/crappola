@@ -369,6 +369,7 @@ trait PresentsInvoice
         if ($designId == CUSTOM_DESIGN3) {
             return $this->custom_design3;
         }
+        return null;
     }
 
     public function hasInvoiceField(string $type, $field): bool

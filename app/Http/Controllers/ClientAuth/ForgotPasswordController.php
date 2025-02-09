@@ -74,7 +74,7 @@ class ForgotPasswordController extends Controller
             $account = Account::whereAccountKey($accountKey)->first();
         } else {
             $subdomain = Utils::getSubdomain(\Illuminate\Support\Facades\Request::server('HTTP_HOST'));
-            if ($subdomain && $subdomain != 'app') {
+            if ($subdomain && $subdomain !== 'app') {
                 $account = Account::whereSubdomain($subdomain)->first();
             }
         }

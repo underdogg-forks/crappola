@@ -345,6 +345,7 @@ trait GeneratesNumbers
         $this->quote_number_counter = 1;
         $this->credit_number_counter = $this->credit_number_counter > 0 ? 1 : 0;
         $this->save();
+        return null;
     }
 
     /**

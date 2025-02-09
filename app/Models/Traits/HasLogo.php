@@ -23,13 +23,13 @@ trait HasLogo
     public function getLogoRaw()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         $disk = $this->getLogoDisk();
 
         if ( ! $disk->exists($this->logo)) {
-            return;
+            return null;
         }
 
         return $disk->get($this->logo);
@@ -43,7 +43,7 @@ trait HasLogo
     public function getLogoURL($cachebuster = false)
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         $disk = $this->getLogoDisk();
@@ -66,7 +66,7 @@ trait HasLogo
     public function getLogoPath()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         $disk = $this->getLogoDisk();
@@ -85,7 +85,7 @@ trait HasLogo
     public function getLogoWidth()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         return $this->logo_width;
@@ -97,7 +97,7 @@ trait HasLogo
     public function getLogoHeight()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         return $this->logo_height;
@@ -109,7 +109,7 @@ trait HasLogo
     public function getLogoSize()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         return round($this->logo_size / 1000);
@@ -121,7 +121,7 @@ trait HasLogo
     public function getLogoName()
     {
         if ( ! $this->hasLogo()) {
-            return;
+            return null;
         }
 
         return $this->logo;

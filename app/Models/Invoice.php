@@ -1209,6 +1209,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         // Couldn't calculate one
+        return null;
     }
 
     /**
@@ -1218,7 +1219,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getPrettySchedule($min = 0, $max = 10)
     {
         if ( ! $schedule = $this->getSchedule()) {
-            return;
+            return null;
         }
 
         $dates = [];
@@ -1295,12 +1296,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         if ($decode) {
-            if ($pdf = Utils::decodePDF($pdfString)) {
+            $pdf = Utils::decodePDF($pdfString);
+            if ($pdf !== '' && $pdf !== '0') {
                 return $pdf;
             }
-
             Utils::logError('PhantomJS - Unable to decode ' . $phantomjsLink);
-
             return false;
         }
 
@@ -1528,11 +1528,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function hasTaxes(): bool
     {
-        if ($this->tax_name1 || $this->tax_rate1) {
-            return true;
-        }
-
-        return false;
+        return $this->tax_name1 || $this->tax_rate1;
     }
 
     public function isLocked()

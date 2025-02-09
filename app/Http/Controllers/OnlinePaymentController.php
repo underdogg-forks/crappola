@@ -393,7 +393,7 @@ class OnlinePaymentController extends BaseController
     {
         if (Utils::isNinja()) {
             $subdomain = Utils::getSubdomain(Request::server('HTTP_HOST'));
-            if ( ! $subdomain || $subdomain == 'app') {
+            if ( ! $subdomain || $subdomain === 'app') {
                 exit('Invalid subdomain');
             }
 

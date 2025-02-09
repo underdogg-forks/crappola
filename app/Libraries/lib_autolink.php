@@ -80,14 +80,11 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
         // to see if there was whitespace before this match
         //
 
-        if ($ok !== 0 && $pre) {
-            if ( ! preg_match('![\s\(\[\{>]$!s', $pre)) {
-                //echo "fail 2 at $cursor ($pre)<br />\n";
-
-                $ok = 0;
-                $cursor += $fail_len;
-                $buffer .= $fail_text;
-            }
+        if ($ok !== 0 && $pre && ! preg_match('![\s\(\[\{>]$!s', $pre)) {
+            //echo "fail 2 at $cursor ($pre)<br />\n";
+            $ok = 0;
+            $cursor += $fail_len;
+            $buffer .= $fail_text;
         }
 
         //
