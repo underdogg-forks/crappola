@@ -48,12 +48,12 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Image;
 use Nwidart\Modules\Facades\Module;
 use stdClass;
 use Utils;
-use View;
 
 /**
  * Class AccountController.

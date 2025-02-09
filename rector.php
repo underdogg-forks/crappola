@@ -10,7 +10,6 @@ use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php81\Rector\Class_\SpatieEnumClassToEnumRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedPropertyRector;
-use RectorLaravel\Set\LaravelLevelSetList;
 
 return RectorConfig::configure()
     ->withSkip([

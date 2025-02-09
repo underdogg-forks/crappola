@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Response;
 use Redirect;
 use Request;
 use Session;
-use View;
 
 /**
  * Class HomeController.

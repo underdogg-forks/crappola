@@ -23,8 +23,8 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Utils;
-use View;
 
 class ClientController extends BaseController
 {
@@ -49,7 +49,7 @@ class ClientController extends BaseController
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\View::make('list_wrapper', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_CLIENT,
             'datatable'  => new ClientDatatable(),
             'title'      => trans('texts.clients'),
@@ -86,7 +86,7 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function show(ClientRequest $request)
+    public function show(ClientRequest $request): Response
     {
         $client = $request->entity();
         $user = \Illuminate\Support\Facades\Auth::user();
@@ -144,7 +144,7 @@ class ClientController extends BaseController
             'gatewayName'          => $token ? $token->gatewayName() : false,
         ];
 
-        return \Illuminate\Support\Facades\View::make('clients.show', $data);
+        return View::make('clients.show', $data);
     }
 
     /**
@@ -152,12 +152,12 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function create(ClientRequest $request): Response
+    public function create(ClientRequest $request)
     {
         //Auth::user()->can('create', ENTITY_CLIENT);
 
         if (Client::scope()->withTrashed()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
-            return \Illuminate\Support\Facades\View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . \Illuminate\Support\Facades\Auth::user()->getMaxNumClients() . ' clients']);
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . \Illuminate\Support\Facades\Auth::user()->getMaxNumClients() . ' clients']);
         }
 
         $data = [
@@ -169,7 +169,7 @@ class ClientController extends BaseController
 
         $data = array_merge($data, $this->getViewModel());
 
-        return \Illuminate\Support\Facades\View::make('clients.edit', $data);
+        return View::make('clients.edit', $data);
     }
 
     public function edit(ClientRequest $request): \Illuminate\Contracts\View\View
@@ -189,7 +189,7 @@ class ClientController extends BaseController
             $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
-        return \Illuminate\Support\Facades\View::make('clients.edit', $data);
+        return View::make('clients.edit', $data);
     }
 
     public function update(UpdateClientRequest $request)

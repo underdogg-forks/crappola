@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UserSettingsChanged;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Models\Invoice;
@@ -22,7 +21,6 @@ use Request;
 use Response;
 use Session;
 use Utils;
-use View;
 
 class AppController extends BaseController
 {

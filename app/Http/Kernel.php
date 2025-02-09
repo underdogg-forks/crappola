@@ -82,9 +82,9 @@ class Kernel extends HttpKernel
         'can'                  => Authorize::class,
         'guest'                => RedirectIfAuthenticated::class,
         'throttle'             => ThrottleRequests::class,
-        'lookup'               => DatabaseLookup::class,
         'permissions.required' => PermissionsRequired::class,
         'migration'            => EligibleForMigration::class,
         'migration_channel'    => MigrationLookup::class,
+        'lookup'               => DatabaseLookup::class,
     ];
 }
