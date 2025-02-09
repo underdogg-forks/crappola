@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Libraries\Utils;
 use App\Ninja\Datatables\EntityDatatable;
-use Chumper\Datatable\Datatable;
+use Chumper\Datatable\Facades\DatatableFacade as Datatable;
 use Chumper\Datatable\Table;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -16,9 +16,10 @@ use Illuminate\Support\Facades\Auth;
 class DatatableService
 {
     /**
-     * @param                 $query
+     * @param $query
      *
      * @throws Exception
+     *
      * @return JsonResponse
      */
     public function createDatatable(EntityDatatable $datatable, $query)
@@ -56,7 +57,7 @@ class DatatableService
     }
 
     /**
-     * @param Table           $table
+     * @param Table $table
      */
     private function createDropdown(EntityDatatable $datatable, $table): void
     {
