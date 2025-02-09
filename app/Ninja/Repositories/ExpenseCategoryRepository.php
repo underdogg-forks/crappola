@@ -43,8 +43,6 @@ class ExpenseCategoryRepository extends BaseRepository
 
     public function save($input, $category = false)
     {
-        $publicId = $data['public_id'] ?? false;
-
         if ( ! $category) {
             $category = ExpenseCategory::createNew();
         }

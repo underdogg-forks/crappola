@@ -285,10 +285,9 @@ class BasePaymentDriver
 
     public function paymentDetailsFromClient(): array
     {
-        $invoice = $this->invoice();
+        $this->invoice();
         $client = $this->client();
         $contact = $this->invitation->contact ?: $client->contacts()->first();
-        $hasShippingAddress = $this->accountGateway->show_shipping_address;
 
         return [
             'email'            => $contact->email,
@@ -485,7 +484,7 @@ class BasePaymentDriver
                 }
             }
 
-            if ($plan !== '' && $plan !== '0') {
+            if ($plan !== '0') {
                 $account = Account::with('users')->find($invoice->client->public_id);
                 $company = $account->company;
 
@@ -1011,10 +1010,8 @@ class BasePaymentDriver
 
     protected function paymentUrl($gatewayTypeAlias)
     {
-        $account = $this->account();
-        $url = \Illuminate\Support\Facades\URL::to(sprintf('/payment/%s/%s', $this->invitation->invitation_key, $gatewayTypeAlias));
-
-        return $url;
+        $this->account();
+        return \Illuminate\Support\Facades\URL::to(sprintf('/payment/%s/%s', $this->invitation->invitation_key, $gatewayTypeAlias));
     }
 
     private function paymentItems()
@@ -1103,7 +1100,7 @@ class BasePaymentDriver
 
     private function paymentDetailsFromInput($input): array
     {
-        $invoice = $this->invoice();
+        $this->invoice();
         $client = $this->client();
 
         $data = [

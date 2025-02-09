@@ -21,8 +21,6 @@ class ContactMailer extends Mailer
 
     /**
      * ContactMailer constructor.
-     *
-     * @param TemplateService $templateService
      */
     public function __construct(TemplateService $templateService)
     {
@@ -30,10 +28,8 @@ class ContactMailer extends Mailer
     }
 
     /**
-     * @param Invoice $invoice
      * @param bool    $reminder
      * @param bool    $pdfString
-     *
      * @return bool|null|string
      */
     public function sendInvoice(Invoice $invoice, $reminder = false, $template = false, $proposal = false)
@@ -123,9 +119,6 @@ class ContactMailer extends Mailer
         return $response;
     }
 
-    /**
-     * @param Payment $payment
-     */
     public function sendPaymentConfirmation(Payment $payment, $refunded = 0): void
     {
         $account = $payment->account;
@@ -240,8 +233,6 @@ class ContactMailer extends Mailer
 
     /**
      * @param int $length
-     *
-     * @return string
      */
     protected function generatePassword($length = 9): string
     {
@@ -262,14 +253,11 @@ class ContactMailer extends Mailer
             $password .= $all[array_rand($all)];
         }
 
-        $password = str_shuffle($password);
-
-        return $password;
+        return str_shuffle($password);
     }
 
     /**
      * @param Invitation $invitation
-     * @param Invoice    $invoice
      * @param            $body
      * @param            $subject
      * @param            $pdfString
@@ -277,7 +265,6 @@ class ContactMailer extends Mailer
      * @param mixed      $reminder
      *
      * @throws PresenterException
-     *
      * @return bool|string
      */
     private function sendInvitation(

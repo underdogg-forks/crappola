@@ -129,9 +129,6 @@ class AccountGatewayToken extends Model
         return $this->account_gateway->gateway->name;
     }
 
-    /**
-     * @return bool|string
-     */
     public function gatewayLink(): string|false
     {
         $accountGateway = $this->account_gateway;

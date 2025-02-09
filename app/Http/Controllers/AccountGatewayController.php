@@ -116,7 +116,7 @@ class AccountGatewayController extends BaseController
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $count = $this->accountGatewayService->bulk($ids, $action);
+        $this->accountGatewayService->bulk($ids, $action);
 
         Session::flash('message', trans(sprintf('texts.%sd_account_gateway', $action)));
 
@@ -277,7 +277,7 @@ class AccountGatewayController extends BaseController
 
         $cardCount = 0;
         if ($creditcards) {
-            foreach ($creditcards as $card => $value) {
+            foreach ($creditcards as $value) {
                 $cardCount += (int) $value;
             }
         }

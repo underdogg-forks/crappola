@@ -25,7 +25,6 @@ class DashboardRepository
      */
     public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses): stdClass
     {
-        $accountId = $account->id;
         $startDate = date_create($startDate);
         $endDate = date_create($endDate);
         $groupBy = mb_strtoupper($groupBy);

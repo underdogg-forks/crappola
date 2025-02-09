@@ -46,8 +46,6 @@ class SendPushNotification extends Job implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @param PushService $pushService
      */
     public function handle(PushService $pushService): void
     {

@@ -72,8 +72,6 @@ class ExpensePresenter extends EntityPresenter
         $data = parent::calendarEvent();
         $expense = $this->entity;
 
-        $data->title = trans('texts.expense') . ' ' . $this->amount() . ' | ' . $this->category();
-
         $data->title = trans('texts.expense') . ' ' . $this->amount();
         if ($category = $this->category()) {
             $data->title .= ' | ' . $category;

@@ -25,8 +25,6 @@ class DocumentAPIController extends BaseAPIController
 
     /**
      * DocumentAPIController constructor.
-     *
-     * @param DocumentRepository $documentRepo
      */
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -63,7 +61,6 @@ class DocumentAPIController extends BaseAPIController
     }
 
     /**
-     * @param DocumentRequest $request
      *
      * @return Response|Redirect|StreamedResponse
      *
@@ -74,6 +71,25 @@ class DocumentAPIController extends BaseAPIController
      *   tags={"document"},
      *   produces={"application/octet-stream"},
      *
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="document_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A file",
+     *
+     *      @SWG\Schema(type="file")
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      *   @SWG\Parameter(
      *     in="path",
      *     name="document_id",
@@ -105,6 +121,8 @@ class DocumentAPIController extends BaseAPIController
      *     response=200,
      *     description="A file",
      *
+     *      @SWG\Schema(type="file")
+     *   ),
      *      @SWG\Schema(type="file")
      *   ),
      *

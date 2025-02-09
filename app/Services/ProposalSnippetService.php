@@ -20,7 +20,6 @@ class ProposalSnippetService extends BaseService
      * CreditService constructor.
      *
      * @param ProposalSnippetRepository $creditRepo
-     * @param DatatableService          $datatableService
      */
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, DatatableService $datatableService)
     {

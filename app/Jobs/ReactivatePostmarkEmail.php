@@ -25,6 +25,6 @@ class ReactivatePostmarkEmail extends Job
         }
 
         $postmark = new PostmarkClient(config('services.postmark'));
-        $response = $postmark->activateBounce($this->bounceId);
+        $postmark->activateBounce($this->bounceId);
     }
 }

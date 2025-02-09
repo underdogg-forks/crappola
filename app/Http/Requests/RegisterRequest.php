@@ -18,13 +18,11 @@ class RegisterRequest extends Request
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'email'      => 'email|required|unique:users',
             'first_name' => 'required',
             'last_name'  => 'required',
             'password'   => 'required',
         ];
-
-        return $rules;
     }
 }

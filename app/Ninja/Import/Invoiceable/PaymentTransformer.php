@@ -12,8 +12,6 @@ class PaymentTransformer extends BaseTransformer
 {
     /**
      * @param $data
-     *
-     * @return Item
      */
     public function transform($data): Item
     {

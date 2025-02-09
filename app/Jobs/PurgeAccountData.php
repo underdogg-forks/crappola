@@ -13,8 +13,6 @@ class PurgeAccountData extends Job
 {
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(UserMailer $userMailer): void
     {

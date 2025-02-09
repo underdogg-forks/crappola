@@ -11,13 +11,11 @@ class CreateCustomerRequest extends CustomerRequest
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'token'                           => 'required',
             'client_id'                       => 'required',
             'contact_id'                      => 'required',
             'payment_method.source_reference' => 'required',
         ];
-
-        return $rules;
     }
 }

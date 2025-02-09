@@ -20,9 +20,6 @@ class TaskService extends BaseService
 
     /**
      * TaskService constructor.
-     *
-     * @param TaskRepository   $taskRepo
-     * @param DatatableService $datatableService
      */
     public function __construct(TaskRepository $taskRepo, DatatableService $datatableService)
     {
@@ -53,9 +50,6 @@ class TaskService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return TaskRepository
-     */
     protected function getRepo(): TaskRepository
     {
         return $this->taskRepo;

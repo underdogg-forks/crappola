@@ -11,7 +11,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'email'          => 'required_without:client_id',
             'client_id'      => 'required_without:email',
             'invoice_items'  => 'valid_invoice_items',
@@ -22,7 +22,5 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
-
-        return $rules;
     }
 }

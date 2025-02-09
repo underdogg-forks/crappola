@@ -17,9 +17,6 @@ class SubscriptionService extends BaseService
 
     /**
      * SubscriptionService constructor.
-     *
-     * @param SubscriptionRepository $subscriptionRepo
-     * @param DatatableService       $datatableService
      */
     public function __construct(SubscriptionRepository $subscriptionRepo, DatatableService $datatableService)
     {
@@ -40,9 +37,6 @@ class SubscriptionService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return SubscriptionRepository
-     */
     protected function getRepo(): SubscriptionRepository
     {
         return $this->subscriptionRepo;

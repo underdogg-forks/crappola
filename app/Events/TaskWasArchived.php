@@ -19,8 +19,6 @@ class TaskWasArchived extends Event
 
     /**
      * Create a new event instance.
-     *
-     * @param Task $task
      */
     public function __construct(Task $task)
     {

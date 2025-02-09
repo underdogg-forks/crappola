@@ -15,8 +15,6 @@ class BaseService
     /**
      * @param $ids
      * @param $action
-     *
-     * @return int
      */
     public function bulk($ids, $action): int
     {
@@ -35,8 +33,5 @@ class BaseService
         return count($entities);
     }
 
-    /**
-     * @return null
-     */
     protected function getRepo() {}
 }

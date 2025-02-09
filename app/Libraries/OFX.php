@@ -60,9 +60,7 @@ class OFX
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
 
-        $x = new SimpleXMLElement($xml);
-
-        return $x;
+        return new SimpleXMLElement($xml);
     }
 }
 

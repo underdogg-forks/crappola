@@ -30,7 +30,8 @@ class DocumentRepository extends BaseRepository
     public function find()
     {
         $accountid = Auth::user()->account_id;
-        $query = DB::table('clients')
+
+        return DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
@@ -52,8 +53,6 @@ class DocumentRepository extends BaseRepository
                 'expenses.public_id as expense_public_id',
                 'expenses.user_id as expense_user_id'
             );
-
-        return $query;
     }
 
     public function upload($data, &$doc_array = null)
@@ -177,7 +176,7 @@ class DocumentRepository extends BaseRepository
         $document->hash = $hash;
         $document->name = mb_substr($name, -255);
 
-        if ($imageSize !== [] && $imageSize !== false) {
+        if ($imageSize !== false) {
             $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }

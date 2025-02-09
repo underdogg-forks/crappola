@@ -16,10 +16,8 @@ class GenericEntityPolicy
     use HandlesAuthorization;
 
     /**
-     * @param User $user
      * @param      $entityType
      * @param      $ownerUserId
-     *
      * @return bool|mixed
      */
     public static function editByOwner(User $user, $entityType, $ownerUserId): mixed
@@ -33,11 +31,9 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User  $user
      * @param       $entityTypee
      * @param       $ownerUserId
      * @param mixed $entityType
-     *
      * @return bool|mixed
      */
     public static function viewByOwner(User $user, $entityType, $ownerUserId)
@@ -51,9 +47,7 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User $user
      * @param      $entityType
-     *
      * @return bool|mixed
      */
     public static function create(User $user, string $entityType): bool
@@ -70,9 +64,7 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User $user
      * @param      $entityType
-     *
      * @return bool|mixed
      */
     public static function view(User $user, string $entityType): bool
@@ -89,9 +81,7 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User $user
      * @param      $item - entity name or object
-     *
      * @return bool
      */
     public static function edit(User $user, $item)
@@ -109,9 +99,7 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User $user
      * @param      $item - entity name or object
-     *
      * @return bool
      */
     private static function checkModuleEnabled(User $user, $item)

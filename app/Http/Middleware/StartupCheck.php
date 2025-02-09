@@ -256,59 +256,6 @@ HTML;
         }
     }
 
-    private function processLicenseClaims(Request $request): void
-    {
-        if (Utils::isNinjaProd() || ! $request->has(['license_key', 'product_id'])) {
-            return;
-        }
-
-        $licenseKey = $request->input('license_key');
-        $productId = $request->input('product_id');
-        $url = $this->generateLicenseClaimUrl($licenseKey, $productId);
-
-        $response = trim(CurlUtils::get($url));
-        $this->handleLicenseResponse($response);
-    }
-
-    private function generateLicenseClaimUrl(string $licenseKey, string $productId): string
-    {
-        $base = Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL;
-
-        return sprintf('%s/claim_license?license_key=%s&product_id=%s&get_date=true', $base, $licenseKey, $productId);
-    }
-
-    private function handleLicenseResponse(string $response): void
-    {
-        if ($response === RESULT_FAILURE) {
-            Session::flash('error', trans('texts.invalid_white_label_license'));
-        } elseif ( ! empty($response) && $response !== '0') {
-            $this->processValidLicenseResponse($response);
-        } else {
-            Session::flash('error', trans('texts.white_label_license_error'));
-        }
-    }
-
-    private function processValidLicenseResponse(string $response): void
-    {
-        $date = date_create($response)->modify('+1 year');
-        if ($date < date_create()) {
-            Session::flash('message', trans('texts.expired_white_label'));
-        } else {
-            $this->updateLicensePlan($date);
-            Session::flash('message', trans('texts.bought_white_label'));
-        }
-    }
-
-    private function updateLicensePlan($date): void
-    {
-        $company = Auth::user()->account->company;
-        $company->plan_term = PLAN_TERM_YEARLY;
-        $company->plan_paid = $date->format('Y-m-d');
-        $company->plan_expires = $date->format('Y-m-d');
-        $company->plan = PLAN_WHITE_LABEL;
-        $company->save();
-    }
-
     private function cacheData(): void
     {
         if (request()->has('clear_cache')) {

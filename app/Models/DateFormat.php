@@ -32,9 +32,6 @@ class DateFormat extends Model
      */
     public $timestamps = false;
 
-    /**
-     * @return bool|string
-     */
     public function __toString(): string
     {
         $date = mktime(0, 0, 0, 12, 31, date('Y'));

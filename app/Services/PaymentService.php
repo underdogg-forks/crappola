@@ -38,10 +38,6 @@ class PaymentService extends BaseService
 
     /**
      * PaymentService constructor.
-     *
-     * @param PaymentRepository $paymentRepo
-     * @param AccountRepository $accountRepo
-     * @param DatatableService  $datatableService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
@@ -54,8 +50,6 @@ class PaymentService extends BaseService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return bool
      */
     public function autoBillInvoice(Invoice $invoice)

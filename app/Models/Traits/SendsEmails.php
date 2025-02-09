@@ -54,8 +54,6 @@ trait SendsEmails
     /**
      * @param      $entityType
      * @param bool $message
-     *
-     * @return string
      */
     public function getDefaultEmailTemplate($entityType, $message = false): string
     {
@@ -132,8 +130,6 @@ trait SendsEmails
 
     /**
      * @param $reminder
-     *
-     * @return bool
      */
     public function getReminderDate($reminder, $filterEnabled = true): false|string
     {
@@ -149,8 +145,6 @@ trait SendsEmails
 
     /**
      * @param Invoice $invoice
-     *
-     * @return bool|string
      */
     public function getInvoiceReminder($invoice, $filterEnabled = true): string|false
     {

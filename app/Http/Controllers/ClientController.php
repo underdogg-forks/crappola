@@ -217,7 +217,7 @@ class ClientController extends BaseController
 
     public function statement($clientPublicId)
     {
-        $statusId = request()->status_id;
+        request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
         $account = Auth::user()->account;

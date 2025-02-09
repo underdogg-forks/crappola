@@ -12,9 +12,7 @@ use App\Models\Contact;
 class ContactTransformer extends EntityTransformer
 {
     /**
-     * @param Contact $contact
      *
-     * @return array
      *
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="first_name", type="string", example="John")

@@ -14,8 +14,6 @@ class RecurringInvoiceController extends BaseController
 
     /**
      * RecurringInvoiceController constructor.
-     *
-     * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo)
     {

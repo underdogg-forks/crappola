@@ -166,11 +166,9 @@ class ProposalController extends BaseController
             $templates = ProposalTemplate::whereNull('account_id')->orderBy('name')->get();
         }
 
-        $data = [
+        return [
             'templates' => $templates,
             'account'   => $account,
         ];
-
-        return $data;
     }
 }

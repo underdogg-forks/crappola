@@ -23,8 +23,6 @@ class TokenController extends BaseController
 
     /**
      * TokenController constructor.
-     *
-     * @param TokenService $tokenService
      */
     public function __construct(TokenService $tokenService)
     {
@@ -109,7 +107,7 @@ class TokenController extends BaseController
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $count = $this->tokenService->bulk($ids, $action);
+        $this->tokenService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_token'));
 

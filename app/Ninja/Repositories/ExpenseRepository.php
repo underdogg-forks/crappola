@@ -39,18 +39,14 @@ class ExpenseRepository extends BaseRepository
     {
         $vendorId = Vendor::getPrivateId($vendorPublicId);
 
-        $query = $this->find()->where('expenses.vendor_id', '=', $vendorId);
-
-        return $query;
+        return $this->find()->where('expenses.vendor_id', '=', $vendorId);
     }
 
     public function findClient($clientPublicId)
     {
         $clientId = Client::getPrivateId($clientPublicId);
 
-        $query = $this->find()->where('expenses.client_id', '=', $clientId);
-
-        return $query;
+        return $this->find()->where('expenses.client_id', '=', $clientId);
     }
 
     public function find($filter = null)

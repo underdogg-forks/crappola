@@ -79,13 +79,11 @@ class LoginController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
      * @return Response
      */
     public function postLoginWrapper(Request $request)
     {
-        $userId = auth()->check() ? auth()->user()->id : null;
+        auth()->check() ? auth()->user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
@@ -202,7 +200,6 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param Request $request
      *
      * @return RedirectResponse
      */
@@ -218,12 +215,10 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param Request         $request
-     * @param Authenticatable $user
      *
      * @return Response
      */
-    private function authenticated(Request $request, Authenticatable $user)
+    private function authenticated(Authenticatable $user)
     {
         if ($user->google_2fa_secret) {
             $cookie = false;

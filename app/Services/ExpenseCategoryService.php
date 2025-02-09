@@ -19,7 +19,6 @@ class ExpenseCategoryService extends BaseService
      * CreditService constructor.
      *
      * @param ExpenseCategoryRepository $creditRepo
-     * @param DatatableService          $datatableService
      */
     public function __construct(ExpenseCategoryRepository $categoryRepo, DatatableService $datatableService)
     {

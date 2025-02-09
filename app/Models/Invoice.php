@@ -192,9 +192,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
-    /**
-     * @var array
-     */
     public static array $requestFields = [
         'invoice_number',
         'invoice_date',
@@ -322,8 +319,6 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     /**
      * @param $invoice
-     *
-     * @return string
      */
     public static function calcLink($invoice): string
     {
@@ -638,8 +633,6 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     /**
      * @param $typeId
-     *
-     * @return bool
      */
     public function isType($typeId): bool
     {
@@ -1123,8 +1116,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param null $invoice_date
-     *
      * @return mixed|null
      */
     public function getDueDate($invoice_date = null)
@@ -1223,8 +1214,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @param int $min
      * @param int $max
-     *
-     * @return null
      */
     public function getPrettySchedule($min = 0, $max = 10)
     {
@@ -1321,8 +1310,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @param $invoiceItem
      * @param $invoiceTotal
-     *
-     * @return float|int
      */
     public function getItemTaxable($invoiceItem, $invoiceTotal): float
     {
@@ -1401,7 +1388,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
-        $account = $this->account;
         $taxable = $this->getTaxable();
         $paidAmount = $this->getAmountPaid($calculatePaid);
 
@@ -1544,10 +1530,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         if ($this->tax_name1 || $this->tax_rate1) {
             return true;
-        }
-
-        if ($this->tax_name2 || $this->tax_rate2) {
-            return false;
         }
 
         return false;

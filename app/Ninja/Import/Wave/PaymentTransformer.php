@@ -12,8 +12,6 @@ class PaymentTransformer extends BaseTransformer
 {
     /**
      * @param $data
-     *
-     * @return bool|Item
      */
     public function transform($data): false|Item
     {

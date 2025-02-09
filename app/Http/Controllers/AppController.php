@@ -347,8 +347,6 @@ class AppController extends BaseController
         $messageId = \Illuminate\Support\Facades\Request::input('MessageID');
 
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
-
-        return RESULT_SUCCESS;
     }
 
     public function checkData(): string

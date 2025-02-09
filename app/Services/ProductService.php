@@ -16,9 +16,6 @@ class ProductService extends BaseService
 
     /**
      * ProductService constructor.
-     *
-     * @param DatatableService  $datatableService
-     * @param ProductRepository $productRepo
      */
     public function __construct(DatatableService $datatableService, ProductRepository $productRepo)
     {
@@ -44,9 +41,6 @@ class ProductService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return ProductRepository
-     */
     protected function getRepo(): ProductRepository
     {
         return $this->productRepo;

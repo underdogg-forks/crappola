@@ -20,8 +20,6 @@ class OAuth
 
     private ?int $providerId = null;
 
-    public function __construct() {}
-
     public function getProvider($provider)
     {
         switch ($provider) {
@@ -33,7 +31,6 @@ class OAuth
 
             default:
                 return;
-                break;
         }
     }
 

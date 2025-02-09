@@ -13,16 +13,12 @@ class PushService
 {
     protected PushFactory $pushFactory;
 
-    /**
-     * @param PushFactory $pushFactory
-     */
     public function __construct(PushFactory $pushFactory)
     {
         $this->pushFactory = $pushFactory;
     }
 
     /**
-     * @param Invoice $invoice
      * @param         $type
      */
     public function sendNotification(Invoice $invoice, $type): void
@@ -49,7 +45,6 @@ class PushService
      *
      * method to dispatch iOS notifications
      *
-     * @param Invoice $invoice
      * @param         $token
      * @param         $type
      * @param mixed   $device
@@ -64,15 +59,13 @@ class PushService
      *
      * Returns a boolean if this account has devices registered for PUSH notifications
      *
-     * @param Account $account
      *
-     * @return bool
      */
     private function checkDeviceExists(Account $account): bool
     {
         $devices = json_decode($account->devices, true);
 
-        return (bool) (count((array) $devices) >= 1);
+        return count((array) $devices) >= 1;
     }
 
     /**
@@ -80,35 +73,27 @@ class PushService
      *
      * method which formats an appropriate message depending on message type
      *
-     * @param Invoice $invoice
      * @param         $type
      *
-     * @return string
      */
     private function messageType(Invoice $invoice, $type): string
     {
         switch ($type) {
             case 'sent':
                 return $this->entitySentMessage($invoice);
-                break;
 
             case 'paid':
                 return $this->invoicePaidMessage($invoice);
-                break;
 
             case 'approved':
                 return $this->quoteApprovedMessage($invoice);
-                break;
 
             case 'viewed':
                 return $this->entityViewedMessage($invoice);
-                break;
         }
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function entitySentMessage(Invoice $invoice)
@@ -121,8 +106,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function invoicePaidMessage(Invoice $invoice)
@@ -131,8 +114,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function quoteApprovedMessage(Invoice $invoice)
@@ -141,8 +122,6 @@ class PushService
     }
 
     /**
-     * @param Invoice $invoice
-     *
      * @return string
      */
     private function entityViewedMessage(Invoice $invoice)

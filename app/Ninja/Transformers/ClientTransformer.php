@@ -53,9 +53,6 @@ class ClientTransformer extends EntityTransformer
         'contacts',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
         'invoices',
         'credits',
@@ -63,8 +60,6 @@ class ClientTransformer extends EntityTransformer
     ];
 
     /**
-     * @param Client $client
-     *
      * @return Collection
      */
     public function includeActivities(Client $client)
@@ -75,8 +70,6 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @param Client $client
-     *
      * @return Collection
      */
     public function includeContacts(Client $client)
@@ -87,8 +80,6 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @param Client $client
-     *
      * @return Collection
      */
     public function includeInvoices(Client $client)
@@ -99,8 +90,6 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @param Client $client
-     *
      * @return Collection
      */
     public function includeCredits(Client $client)
@@ -111,8 +100,6 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @param Client $client
-     *
      * @return Collection
      */
     public function includeExpenses(Client $client)
@@ -122,11 +109,7 @@ class ClientTransformer extends EntityTransformer
         return $this->includeCollection($client->expenses, $transformer, ENTITY_EXPENSE);
     }
 
-    /**
-     * @param Client $client
-     *
-     * @return array
-     */
+    
     public function transform(Client $client): array
     {
         return array_merge($this->getDefaults($client), [

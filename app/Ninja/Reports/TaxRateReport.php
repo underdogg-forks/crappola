@@ -24,7 +24,6 @@ class TaxRateReport extends AbstractReport
     public function run(): void
     {
         $account = Auth::user()->account;
-        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
@@ -72,7 +71,7 @@ class TaxRateReport extends AbstractReport
                     }
                 }
 
-                foreach ($taxTotals as $currencyId => $taxes) {
+                foreach ($taxTotals as $taxes) {
                     foreach ($taxes as $tax) {
                         $this->data[] = [
                             $this->isExport ? $client->getDisplayName() : $client->present()->link,

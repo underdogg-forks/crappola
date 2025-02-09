@@ -83,14 +83,12 @@ class CreditRepository extends BaseRepository
                 'credits.public_notes'
             );
 
-        $table = Datatable::query($query)
+        return Datatable::query($query)
             ->addColumn('credit_date', fn ($model) => Utils::fromSqlDate($model->credit_date))
             ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
             ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
             ->addColumn('public_notes', fn ($model) => e($model->public_notes))
             ->make();
-
-        return $table;
     }
 
     public function save($input, $credit = null)

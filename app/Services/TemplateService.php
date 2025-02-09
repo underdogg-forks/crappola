@@ -15,7 +15,6 @@ class TemplateService
 {
     /**
      * @param       $template
-     * @param array $data
      *
      * @return mixed|string
      */
@@ -119,8 +118,7 @@ class TemplateService
         }
 
         $str = str_replace('$password', '', $str);
-        $str = autolink($str, 100);
 
-        return $str;
+        return autolink($str, 100);
     }
 }

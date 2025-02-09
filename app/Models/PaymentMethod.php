@@ -212,8 +212,6 @@ class PaymentMethod extends EntityModel
 
     /**
      * @param $bank_name
-     *
-     * @return null
      */
     public function getBankNameAttribute($bank_name)
     {
@@ -228,8 +226,6 @@ class PaymentMethod extends EntityModel
 
     /**
      * @param $value
-     *
-     * @return null|string
      */
     public function getLast4Attribute($value): ?string
     {
@@ -239,8 +235,6 @@ class PaymentMethod extends EntityModel
     /**
      * @param $query
      * @param $clientId
-     *
-     * @return mixed
      */
     public function scopeClientId($query, $clientId): void
     {

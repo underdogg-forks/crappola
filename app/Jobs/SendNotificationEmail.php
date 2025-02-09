@@ -18,14 +18,8 @@ class SendNotificationEmail extends Job implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    /**
-     * @var User
-     */
     public User $user;
 
-    /**
-     * @var Invoice
-     */
     public Invoice $invoice;
 
     /**
@@ -33,9 +27,6 @@ class SendNotificationEmail extends Job implements ShouldQueue
      */
     public $type;
 
-    /**
-     * @var Payment
-     */
     public ?Payment $payment;
 
     /**

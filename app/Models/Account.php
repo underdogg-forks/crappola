@@ -891,8 +891,6 @@ class Account extends Model
 
     /**
      * @param int $gatewayId
-     *
-     * @return bool
      */
     public function isGatewayConfigured($gatewayId = 0): bool
     {
@@ -1026,10 +1024,8 @@ class Account extends Model
 
     /**
      * @param       $amount
-     * @param null  $client
      * @param bool  $hideSymbol
      * @param mixed $decorator
-     *
      * @return string
      */
     public function formatMoney($amount, $client = null, $decorator = false)
@@ -1234,8 +1230,6 @@ class Account extends Model
 
     /**
      * @param $gatewayId
-     *
-     * @return bool
      */
     public function hasGatewayId($gatewayId): bool
     {
@@ -1268,8 +1262,6 @@ class Account extends Model
     /**
      * @param $userId
      * @param $name
-     *
-     * @return null
      */
     public function getToken($userId, $name)
     {
@@ -1282,7 +1274,6 @@ class Account extends Model
 
     /**
      * @param      $entityType
-     * @param null $clientId
      *
      * @return mixed
      */
@@ -1484,8 +1475,6 @@ class Account extends Model
     }
 
     /**
-     * @param null $plan_details
-     *
      * @return bool
      */
     public function isPro(&$plan_details = null)
@@ -1509,8 +1498,6 @@ class Account extends Model
     }
 
     /**
-     * @param null $plan_details
-     *
      * @return bool
      */
     public function isEnterprise(&$plan_details = null)
@@ -1732,8 +1719,6 @@ class Account extends Model
     }
 
     /**
-     * @param null $storage_gateway
-     *
      * @return bool
      */
     public function showTokenCheckbox(&$storage_gateway = null)
@@ -1855,8 +1840,6 @@ class Account extends Model
 
     /**
      * @param string $protocol
-     *
-     * @return string
      */
     public function getFontsUrl(?string $protocol = ''): string
     {
@@ -1884,17 +1867,11 @@ class Account extends Model
         return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
     }
 
-    /**
-     * @return null
-     */
     public function getHeaderFontName()
     {
         return Utils::getFromCache($this->getHeaderFontId(), 'fonts')['name'];
     }
 
-    /**
-     * @return null
-     */
     public function getBodyFontName()
     {
         return Utils::getFromCache($this->getBodyFontId(), 'fonts')['name'];
@@ -1902,8 +1879,6 @@ class Account extends Model
 
     /**
      * @param bool $include_weight
-     *
-     * @return string
      */
     public function getHeaderFontCss($include_weight = true): string
     {
@@ -1919,8 +1894,6 @@ class Account extends Model
 
     /**
      * @param bool $include_weight
-     *
-     * @return string
      */
     public function getBodyFontCss($include_weight = true): string
     {

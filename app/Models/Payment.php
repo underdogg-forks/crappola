@@ -273,11 +273,7 @@ class Payment extends EntityModel
         return $this->isVoided();
     }
 
-    /**
-     * @param null $amount
-     *
-     * @return bool
-     */
+    
     public function recordRefund($amount = null): bool
     {
         if ($this->isRefunded() || $this->isVoided()) {
@@ -369,8 +365,6 @@ class Payment extends EntityModel
 
     /**
      * @param $bank_name
-     *
-     * @return null
      */
     public function getBankNameAttribute($bank_name)
     {
@@ -385,8 +379,6 @@ class Payment extends EntityModel
 
     /**
      * @param $value
-     *
-     * @return null|string
      */
     public function getLast4Attribute($value): ?string
     {

@@ -80,8 +80,6 @@ trait HasRecurrence
             FREQUENCY_TWO_YEARS    => $monthsSinceLastSent >= 24,
             default                => false,
         };
-
-        return false;
     }
 
     public function shouldSendTodayNew()
@@ -153,9 +151,6 @@ trait HasRecurrence
         return $dates;
     }
 
-    /**
-     * @return null
-     */
     public function getNextSendDate()
     {
         // expenses don't have an is_public flag

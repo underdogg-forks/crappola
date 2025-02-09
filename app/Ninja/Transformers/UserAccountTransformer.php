@@ -55,9 +55,6 @@ class UserAccountTransformer extends EntityTransformer
         'user',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
         'users',
         'tax_rates',

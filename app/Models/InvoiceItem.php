@@ -169,10 +169,6 @@ class InvoiceItem extends EntityModel
             return true;
         }
 
-        if ($this->tax_name2 || $this->tax_rate2) {
-            return false;
-        }
-
         return false;
     }
 

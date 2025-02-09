@@ -21,8 +21,6 @@ class HandleUserLoggedIn
 
     /**
      * Create the event handler.
-     *
-     * @param AccountRepository $accountRepo
      */
     public function __construct(AccountRepository $accountRepo)
     {
@@ -32,9 +30,7 @@ class HandleUserLoggedIn
     /**
      * Handle the event.
      *
-     * @param UserLoggedIn $event
      *
-     * @return void
      */
     public function handle(UserLoggedIn $event): void
     {

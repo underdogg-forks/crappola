@@ -28,9 +28,8 @@ function autolink($text, $limit = 30, $tagfill = '', $auto_title = true)
 {
     $text = autolink_do($text, '![a-z][a-z-]+://!i', $limit, $tagfill, $auto_title);
     $text = autolink_do($text, '!(mailto|skype):!i', $limit, $tagfill, $auto_title);
-    $text = autolink_do($text, '!www\\.!i', $limit, $tagfill, $auto_title, 'http://');
 
-    return $text;
+    return autolink_do($text, '!www\\.!i', $limit, $tagfill, $auto_title, 'http://');
 }
 
 //###################################################################

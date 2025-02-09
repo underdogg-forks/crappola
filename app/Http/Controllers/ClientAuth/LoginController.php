@@ -91,7 +91,6 @@ class LoginController extends Controller
     /**
      * Get the needed authorization credentials from the request.
      *
-     * @param Request $request
      *
      * @return array
      */
@@ -129,7 +128,6 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
-     * @param Request $request
      *
      * @return RedirectResponse
      */
@@ -145,9 +143,7 @@ class LoginController extends Controller
     /**
      * Validate the user login request - don't require the email.
      *
-     * @param Request $request
      *
-     * @return void
      */
     protected function validateLogin(Request $request): void
     {
@@ -165,12 +161,10 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
-     * @param Request         $request
      * @param Authenticatable $user
-     *
      * @return Response
      */
-    private function authenticated(Request $request, Authenticatable $contact)
+    private function authenticated(Authenticatable $contact)
     {
         session(['contact_key' => $contact->contact_key]);
 

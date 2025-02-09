@@ -10,12 +10,6 @@ use App\Ninja\Repositories\ProposalRepository;
 
 class ClientPortalProposalController extends BaseController
 {
-    private $invoiceRepo;
-
-    private $paymentRepo;
-
-    private $documentRepo;
-
     private readonly ProposalRepository $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)

@@ -144,9 +144,8 @@ class AccountRepository
     {
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
-        return $invitation;
+        return $this->createNinjaInvoice($client, $account, $plan, $credit);
     }
 
     public function createNinjaCredit($client, $amount): Credit
@@ -322,11 +321,9 @@ class AccountRepository
 
     public function findByKey($key)
     {
-        $account = Account::whereAccountKey($key)
+        return Account::whereAccountKey($key)
             ->with('clients.invoices.invoice_items', 'clients.contacts')
             ->firstOrFail();
-
-        return $account;
     }
 
     public function unlinkUserFromOauth($user): void

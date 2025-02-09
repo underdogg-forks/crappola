@@ -102,7 +102,7 @@ class ExportMigrations extends Command
         $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
-        $output = fopen('php://output', 'w') || Utils::fatalError();
+        fopen('php://output', 'w') || Utils::fatalError();
 
         $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
 

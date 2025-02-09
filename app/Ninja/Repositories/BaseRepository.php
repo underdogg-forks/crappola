@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class BaseRepository
 {
-    /**
-     * @return null
-     */
     public function getClassName() {}
 
     public function archive($entity): void

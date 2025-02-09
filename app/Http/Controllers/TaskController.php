@@ -39,10 +39,6 @@ class TaskController extends BaseController
 
     /**
      * TaskController constructor.
-     *
-     * @param TaskRepository    $taskRepo
-     * @param InvoiceRepository $invoiceRepo
-     * @param TaskService       $taskService
      */
     public function __construct(
         TaskRepository $taskRepo,
@@ -69,8 +65,6 @@ class TaskController extends BaseController
     }
 
     /**
-     * @param null $clientPublicId
-     *
      * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null, $projectPublicId = null)
@@ -81,7 +75,6 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param CreateTaskRequest $request
      *
      * @return RedirectResponse
      */
@@ -105,7 +98,6 @@ class TaskController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param TaskRequest $request
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -132,7 +124,6 @@ class TaskController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param TaskRequest $request
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -188,7 +179,6 @@ class TaskController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param UpdateTaskRequest $request
      *
      * @return RedirectResponse
      */
@@ -294,8 +284,6 @@ class TaskController extends BaseController
     }
 
     /**
-     * @param null $publicId
-     *
      * @return RedirectResponse
      */
     private function save(CreateTaskRequest|UpdateTaskRequest $request, $publicId = null)

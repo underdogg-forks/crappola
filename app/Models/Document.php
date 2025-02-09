@@ -198,8 +198,6 @@ class Document extends EntityModel
     }
 
     /**
-     * @param array $attributes
-     *
      * @return $this
      */
     public function fill(array $attributes)

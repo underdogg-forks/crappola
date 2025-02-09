@@ -19,9 +19,6 @@ class CreditService extends BaseService
 
     /**
      * CreditService constructor.
-     *
-     * @param CreditRepository $creditRepo
-     * @param DatatableService $datatableService
      */
     public function __construct(CreditRepository $creditRepo, DatatableService $datatableService)
     {
@@ -59,9 +56,6 @@ class CreditService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return CreditRepository
-     */
     protected function getRepo(): CreditRepository
     {
         return $this->creditRepo;

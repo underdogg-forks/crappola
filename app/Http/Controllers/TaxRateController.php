@@ -83,7 +83,7 @@ class TaxRateController extends BaseController
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $count = $this->taxRateService->bulk($ids, $action);
+        $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));
 

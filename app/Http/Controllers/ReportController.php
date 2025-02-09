@@ -115,17 +115,14 @@ class ReportController extends BaseController
             switch ($action) {
                 case 'export':
                     return dispatch_sync(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
-                    break;
                 case 'schedule':
                     self::schedule($params, $config);
 
                     return redirect('/reports');
-                    break;
                 case 'cancel_schedule':
                     self::cancelSchdule();
 
                     return redirect('/reports');
-                    break;
             }
         } else {
             $params['columns'] = [];

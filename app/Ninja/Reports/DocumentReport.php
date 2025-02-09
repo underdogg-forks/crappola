@@ -20,10 +20,9 @@ class DocumentReport extends AbstractReport
 
     public function run(): void
     {
-        $account = auth()->user()->account;
+        auth()->user()->account;
         $filter = $this->options['document_filter'];
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
         $records = false;
 
         if ( ! $filter || $filter == ENTITY_INVOICE) {

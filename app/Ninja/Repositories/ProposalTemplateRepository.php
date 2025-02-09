@@ -53,8 +53,6 @@ class ProposalTemplateRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = $data['public_id'] ?? false;
-
         if ( ! $proposal) {
             $proposal = ProposalTemplate::createNew();
         }

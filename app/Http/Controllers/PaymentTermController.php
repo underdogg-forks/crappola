@@ -21,8 +21,6 @@ class PaymentTermController extends BaseController
 
     /**
      * PaymentTermController constructor.
-     *
-     * @param PaymentTermService $paymentTermService
      */
     public function __construct(PaymentTermService $paymentTermService)
     {
@@ -106,7 +104,7 @@ class PaymentTermController extends BaseController
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $count = $this->paymentTermService->bulk($ids, $action);
+        $this->paymentTermService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_payment_term'));
 

@@ -28,9 +28,6 @@ class NinjaController extends BaseController
 
     /**
      * NinjaController constructor.
-     *
-     * @param AccountRepository $accountRepo
-     * @param ContactMailer     $contactMailer
      */
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
@@ -273,12 +270,7 @@ class NinjaController extends BaseController
         return redirect()->back()->withError(trans('texts.error_refresh_page'));
     }
 
-    /**
-     * @param array     $input
-     * @param Affiliate $affiliate
-     *
-     * @return array
-     */
+    
     private function getLicensePaymentDetails(array $input, Affiliate $affiliate): array
     {
         $country = Country::find($input['country_id']);

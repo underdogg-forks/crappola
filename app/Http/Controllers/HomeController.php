@@ -24,8 +24,6 @@ class HomeController extends BaseController
 
     /**
      * HomeController constructor.
-     *
-     * @param Mailer $mailer
      */
     public function __construct(Mailer $mailer)
     {

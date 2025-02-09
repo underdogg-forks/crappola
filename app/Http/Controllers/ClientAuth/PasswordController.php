@@ -16,10 +16,8 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param Request     $request
      * @param string|null $key
      * @param string|null $token
-     *
      * @return Response
      */
     public function showResetForm(Request $request, $token = null)
@@ -45,10 +43,8 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param Request     $request
      * @param string|null $key
      * @param string|null $token
-     *
      * @return Response
      */
     public function getReset(Request $request, $token = null)
@@ -59,7 +55,6 @@ class PasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param Request $request
      *
      * @return Response
      */
@@ -97,8 +92,6 @@ class PasswordController extends Controller
 
     /**
      * Get the password reset validation rules.
-     *
-     * @return array
      */
     protected function getResetValidationRules(): array
     {

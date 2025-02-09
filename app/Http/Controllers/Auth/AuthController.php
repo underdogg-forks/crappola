@@ -17,8 +17,6 @@ class AuthController extends Controller
     /**
      * Create a new authentication controller instance.
      *
-     * @param AccountRepository $repo
-     * @param AuthService       $authService
      *
      * @internal param \Illuminate\Contracts\Auth\Guard $auth
      * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
@@ -31,7 +29,6 @@ class AuthController extends Controller
 
     /**
      * @param         $provider
-     * @param Request $request
      *
      * @return RedirectResponse
      */

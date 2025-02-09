@@ -37,10 +37,6 @@ class PaymentController extends BaseController
 
     /**
      * PaymentController constructor.
-     *
-     * @param PaymentRepository $paymentRepo
-     * @param ContactMailer     $contactMailer
-     * @param PaymentService    $paymentService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
@@ -65,8 +61,6 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @param null $clientPublicId
-     *
      * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null)
@@ -75,8 +69,6 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @param PaymentRequest $request
-     *
      * @return \Illuminate\Contracts\View\View
      */
     public function create(PaymentRequest $request)
@@ -131,8 +123,6 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @param PaymentRequest $request
-     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit(PaymentRequest $request)
@@ -184,8 +174,6 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @param CreatePaymentRequest $request
-     *
      * @return RedirectResponse
      */
     public function store(CreatePaymentRequest $request)
@@ -214,8 +202,6 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @param UpdatePaymentRequest $request
-     *
      * @return RedirectResponse
      */
     public function update(UpdatePaymentRequest $request)

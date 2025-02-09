@@ -270,8 +270,6 @@ class ExpenseController extends BaseController
                     ->with('expenseCurrencyId', $currencyId)
                     ->with('expenses', $ids);
 
-                break;
-
             default:
                 $count = $this->expenseService->bulk($ids, $action);
         }

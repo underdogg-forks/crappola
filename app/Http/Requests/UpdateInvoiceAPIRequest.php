@@ -21,7 +21,7 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
 
         $invoiceId = $this->entity()->id;
 
-        $rules = [
+        return [
             'invoice_items'  => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount'       => 'positive',
@@ -30,7 +30,5 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
-
-        return $rules;
     }
 }

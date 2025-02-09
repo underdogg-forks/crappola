@@ -26,8 +26,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return bool
      */
     public function hasClient($name): bool
     {
@@ -38,8 +36,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return bool
      */
     public function hasVendor($name): bool
     {
@@ -50,8 +46,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $key
-     *
-     * @return bool
      */
     public function hasProduct($key): bool
     {
@@ -95,8 +89,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getClientId($name)
     {
@@ -107,8 +99,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getProduct($data, $key, $field, $default = false)
     {
@@ -125,8 +115,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getContact($email)
     {
@@ -141,8 +129,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getCustomer($key)
     {
@@ -157,8 +143,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getCountryId($name)
     {
@@ -169,8 +153,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getCountryIdBy2($name)
     {
@@ -181,8 +163,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getTaxRate($name)
     {
@@ -193,8 +173,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getTaxName($name)
     {
@@ -220,8 +198,6 @@ class BaseTransformer extends TransformerAbstract
      * @param string $format
      * @param mixed  $data
      * @param mixed  $field
-     *
-     * @return null
      */
     public function getDate($data, $field)
     {
@@ -261,8 +237,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
-     *
-     * @return null
      */
     public function getInvoiceId($invoiceNumber)
     {
@@ -274,8 +248,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
-     *
-     * @return null
      */
     public function getInvoicePublicId($invoiceNumber)
     {
@@ -287,8 +259,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
-     *
-     * @return bool
      */
     public function hasInvoice($invoiceNumber): bool
     {
@@ -300,8 +270,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
-     *
-     * @return null
      */
     public function getInvoiceClientId($invoiceNumber)
     {
@@ -313,8 +281,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getVendorId($name)
     {
@@ -325,8 +291,6 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
-     *
-     * @return null
      */
     public function getExpenseCategoryId($name)
     {

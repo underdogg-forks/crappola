@@ -138,7 +138,7 @@ class Proposal extends EntityModel
 
     public function getFilename(string $extension = 'pdf'): string
     {
-        $entityType = $this->getEntityType();
+        $this->getEntityType();
 
         return trans('texts.proposal') . '_' . $this->invoice->invoice_number . '.' . $extension;
     }

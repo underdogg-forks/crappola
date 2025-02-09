@@ -25,18 +25,12 @@ class SendRenewalInvoices extends Command
      */
     protected $description = 'Send renewal invoices';
 
-    /**
-     * @var Mailer
-     */
     protected Mailer $mailer;
 
     protected AccountRepository $accountRepo;
 
     /**
      * SendRenewalInvoices constructor.
-     *
-     * @param Mailer            $mailer
-     * @param AccountRepository $repo
      */
     public function __construct(Mailer $mailer, AccountRepository $repo)
     {

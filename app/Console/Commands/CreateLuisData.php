@@ -59,7 +59,7 @@ class CreateLuisData extends Command
             $intents = array_merge($intents, $this->createIntents($entityType));
         }
 
-        $intents = array_merge($intents, $this->getNavigateToIntents($entityType));
+        $intents = array_merge($intents, $this->getNavigateToIntents());
 
         $this->info(json_encode($intents));
     }
@@ -80,9 +80,8 @@ class CreateLuisData extends Command
 
         $intents = array_merge($intents, $this->getCreateEntityIntents($entityType));
         $intents = array_merge($intents, $this->getFindEntityIntents($entityType));
-        $intents = array_merge($intents, $this->getListEntityIntents($entityType));
 
-        return $intents;
+        return array_merge($intents, $this->getListEntityIntents($entityType));
     }
 
     private function getCreateEntityIntents($entityType): array
@@ -174,11 +173,10 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getNavigateToIntents(string $entityType): array
+    private function getNavigateToIntents(): array
     {
         $intents = [];
         $locations = array_merge(Account::$basicSettings, Account::$advancedSettings);
-
         foreach ($locations as $location) {
             $location = str_replace('_', ' ', $location);
             $intents[] = $this->createIntent('NavigateTo', 'go to ' . $location, [
@@ -188,7 +186,6 @@ class CreateLuisData extends Command
                 $location => 'Location',
             ]);
         }
-
         return $intents;
     }
 

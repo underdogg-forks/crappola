@@ -15,8 +15,6 @@ trait Inviteable
     /**
      * @param string $type
      * @param bool   $forceOnsite
-     *
-     * @return string
      */
     public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false): string
     {
@@ -55,9 +53,6 @@ trait Inviteable
         return sprintf('%s/%s/%s', $url, $type, $this->invitation_key);
     }
 
-    /**
-     * @return bool|string
-     */
     public function getStatus(): string|false
     {
         $hasValue = false;
@@ -84,9 +79,6 @@ trait Inviteable
         return $this->invitation_key;
     }
 
-    /**
-     * @param null $messageId
-     */
     public function markSent($messageId = null): void
     {
         $this->message_id = $messageId;

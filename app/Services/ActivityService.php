@@ -18,9 +18,6 @@ class ActivityService extends BaseService
 
     /**
      * ActivityService constructor.
-     *
-     * @param ActivityRepository $activityRepo
-     * @param DatatableService   $datatableService
      */
     public function __construct(ActivityRepository $activityRepo, DatatableService $datatableService)
     {
@@ -29,8 +26,6 @@ class ActivityService extends BaseService
     }
 
     /**
-     * @param null $clientPublicId
-     *
      * @return JsonResponse
      */
     public function getDatatable($clientPublicId = null)

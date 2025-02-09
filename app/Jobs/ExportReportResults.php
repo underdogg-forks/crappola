@@ -43,7 +43,6 @@ class ExportReportResults extends Job
         $params = $this->params;
 
         $data = $params['displayData'];
-        $columns = $params['columns'];
         $totals = $params['reportTotals'];
         $report = $params['report'];
 

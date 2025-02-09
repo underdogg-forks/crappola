@@ -16,11 +16,9 @@ use Illuminate\Support\Facades\Auth;
 class DatatableService
 {
     /**
-     * @param EntityDatatable $datatable
      * @param                 $query
      *
      * @throws Exception
-     *
      * @return JsonResponse
      */
     public function createDatatable(EntityDatatable $datatable, $query)
@@ -58,7 +56,6 @@ class DatatableService
     }
 
     /**
-     * @param EntityDatatable $datatable
      * @param Table           $table
      */
     private function createDropdown(EntityDatatable $datatable, $table): void

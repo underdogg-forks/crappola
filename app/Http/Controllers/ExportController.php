@@ -28,8 +28,6 @@ use League\Fractal\Resource\Item;
 class ExportController extends BaseController
 {
     /**
-     * @param Request $request
-     *
      * @return JsonResponse
      */
     public function doExport(Request $request)
@@ -51,7 +49,7 @@ class ExportController extends BaseController
         }
 
         if ($format === 'JSON') {
-            return $this->returnJSON($request, $fileName);
+            return $this->returnJSON($fileName);
         }
 
         if ($format === 'CSV') {
@@ -67,9 +65,9 @@ class ExportController extends BaseController
      *
      * @return JsonResponse
      */
-    private function returnJSON(Request $request, string $fileName)
+    private function returnJSON(string $fileName)
     {
-        $output = fopen('php://output', 'w') || Utils::fatalError();
+        fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
         header(sprintf('Content-Disposition:attachment;filename=%s.json', $fileName));
 
@@ -116,8 +114,6 @@ class ExportController extends BaseController
     /**
      * @param $request
      * @param $fileName
-     *
-     * @return mixed
      */
     private function returnXLS(Request $request, string $fileName): mixed
     {
@@ -168,8 +164,6 @@ class ExportController extends BaseController
 
     /**
      * @param $request
-     *
-     * @return array
      */
     private function getData($request): array
     {

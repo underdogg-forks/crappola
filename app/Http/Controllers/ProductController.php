@@ -30,8 +30,6 @@ class ProductController extends BaseController
 
     /**
      * ProductController constructor.
-     *
-     * @param ProductService $productService
      */
     public function __construct(ProductService $productService, ProductRepository $productRepo)
     {

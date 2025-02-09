@@ -95,7 +95,7 @@ class AbstractReport
         $columns_labeled = $this->tableHeaderArray();
         $str = '';
 
-        foreach ($columns_labeled as $field => $attr) {
+        foreach ($columns_labeled as $attr) {
             $str .= sprintf('<th class="%s" data-priorityx="3">%s</th>', $attr['class'], $attr['label']);
         }
 
@@ -109,8 +109,6 @@ class AbstractReport
         $format = $account->getMomentDateFormat();
         $format = mb_strtolower($format);
         $format = str_replace('do', '', $format);
-
-        $orignalFormat = $format;
         $format = preg_replace('/[^mdy]/', '', $format);
 
         $lastLetter = false;
@@ -221,11 +219,10 @@ class AbstractReport
         }
 
         $datasets = [];
-        $labels = [];
         $totals = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            foreach ($data as $date => $value) {
+            foreach ($data as $value) {
                 if ( ! isset($totals[$dimension])) {
                     $totals[$dimension] = 0;
                 }

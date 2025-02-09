@@ -9,20 +9,17 @@ class CreditReport extends AbstractReport
 {
     public function getColumns(): array
     {
-        $columns = [
+        return [
             'client'  => [],
             'amount'  => [],
             'balance' => [],
             'user'    => ['columnSelector-false'],
         ];
-
-        return $columns;
     }
 
     public function run(): void
     {
         $account = Auth::user()->account;
-        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')

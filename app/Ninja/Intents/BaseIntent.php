@@ -212,7 +212,6 @@ class BaseIntent
     protected function requestInvoice()
     {
         $invoiceRepo = app(InvoiceRepository::class);
-        $invoice = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'builtin.number') {
@@ -276,22 +275,19 @@ class BaseIntent
         }
 
         $str = rtrim($str, '?');
-        $str = rtrim($str, '&');
 
-        return $str;
+        return rtrim($str, '&');
     }
 
     protected function processField($field): string|array
     {
-        $field = str_replace(' ', '_', $field);
-
         /* Shouldn't be need any more
         if (strpos($field, 'date') !== false) {
             $field .= '_sql';
         }
         */
 
-        return $field;
+        return str_replace(' ', '_', $field);
     }
 
     protected function processValue($value)

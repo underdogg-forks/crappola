@@ -39,8 +39,6 @@ class SendRecurringInvoices extends Command
 
     /**
      * SendRecurringInvoices constructor.
-     *
-     * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo, RecurringExpenseRepository $recurringExpenseRepo)
     {

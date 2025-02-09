@@ -14,8 +14,6 @@ class ContactService extends BaseService
 
     /**
      * ContactService constructor.
-     *
-     * @param ContactRepository $contactRepo
      */
     public function __construct(ContactRepository $contactRepo)
     {
@@ -24,7 +22,6 @@ class ContactService extends BaseService
 
     /**
      * @param      $data
-     * @param null $contact
      *
      * @return mixed|null
      */
@@ -37,9 +34,6 @@ class ContactService extends BaseService
         return $this->contactRepo->save($data, $contact);
     }
 
-    /**
-     * @return ContactRepository
-     */
     protected function getRepo(): ContactRepository
     {
         return $this->contactRepo;

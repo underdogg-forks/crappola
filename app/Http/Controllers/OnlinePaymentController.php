@@ -41,9 +41,6 @@ class OnlinePaymentController extends BaseController
 
     /**
      * OnlinePaymentController constructor.
-     *
-     * @param PaymentService $paymentService
-     * @param UserMailer     $userMailer
      */
     public function __construct(PaymentService $paymentService, UserMailer $userMailer, InvoiceRepository $invoiceRepo)
     {
@@ -106,8 +103,6 @@ class OnlinePaymentController extends BaseController
     }
 
     /**
-     * @param CreateOnlinePaymentRequest $request
-     *
      * @return RedirectResponse
      */
     public function doPayment(
@@ -263,7 +258,7 @@ class OnlinePaymentController extends BaseController
             ], 404);
         }
 
-        $accountGateway = $account->getGatewayConfig((int) $gatewayId);
+        $accountGateway = $account->getGatewayConfig($gatewayId);
 
         if ( ! $accountGateway) {
             return response()->json([
@@ -445,7 +440,6 @@ class OnlinePaymentController extends BaseController
     /**
      * @param      $paymentDriver
      * @param      $exception
-     * @param bool $showPayment
      *
      * @return RedirectResponse
      */

@@ -43,8 +43,6 @@ class ProposalCategoryRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = $input['public_id'] ?? false;
-
         if ( ! $proposal) {
             $proposal = ProposalCategory::createNew();
         }

@@ -17,8 +17,6 @@ class GenerateProjectChartData extends Job
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): stdClass
     {

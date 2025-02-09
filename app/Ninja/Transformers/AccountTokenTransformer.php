@@ -10,11 +10,7 @@ use League\Fractal\TransformerAbstract;
  */
 class AccountTokenTransformer extends TransformerAbstract
 {
-    /**
-     * @param AccountToken $account_token
-     *
-     * @return array
-     */
+    
     public function transform(AccountToken $account_token): array
     {
         return [

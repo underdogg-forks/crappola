@@ -52,7 +52,6 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Invoice $invoice
      * @param string  $pdf
      * @param bool    $reminder
      * @param mixed   $pdfString
@@ -69,8 +68,6 @@ class SendInvoiceEmail extends Job implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @param ContactMailer $mailer
      */
     public function handle(ContactMailer $mailer): void
     {

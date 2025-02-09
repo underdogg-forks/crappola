@@ -600,7 +600,7 @@ class InvoiceController extends BaseController
     {
         $reminder = Request::input('reminder');
         $template = Request::input('template');
-        $pdfUpload = Utils::decodePDF(Request::input('pdfupload'));
+        Utils::decodePDF(Request::input('pdfupload'));
         $entityType = $invoice->getEntityType();
 
         if (filter_var(Request::input('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {

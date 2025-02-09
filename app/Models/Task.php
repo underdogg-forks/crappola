@@ -110,8 +110,6 @@ class Task extends EntityModel
 
     /**
      * @param $task
-     *
-     * @return int
      */
     public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0): float
     {
@@ -283,9 +281,6 @@ class Task extends EntityModel
         return count($parts) && (count($parts[0]) && $parts[0][1]);
     }
 
-    /**
-     * @return float
-     */
     public function getHours(): float
     {
         return round($this->getDuration() / (60 * 60), 2);
@@ -293,8 +288,6 @@ class Task extends EntityModel
 
     /**
      * Gets the route to the tasks edit action.
-     *
-     * @return string
      */
     public function getRoute(): string
     {

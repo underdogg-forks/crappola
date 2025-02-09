@@ -24,10 +24,6 @@ class ClientService extends BaseService
 
     /**
      * ClientService constructor.
-     *
-     * @param ClientRepository $clientRepo
-     * @param DatatableService $datatableService
-     * @param NinjaRepository  $ninjaRepo
      */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
@@ -38,7 +34,6 @@ class ClientService extends BaseService
 
     /**
      * @param      $data
-     * @param null $client
      *
      * @return mixed|null
      */
@@ -66,9 +61,6 @@ class ClientService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return ClientRepository
-     */
     protected function getRepo(): ClientRepository
     {
         return $this->clientRepo;

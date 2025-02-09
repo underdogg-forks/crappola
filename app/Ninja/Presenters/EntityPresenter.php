@@ -29,7 +29,6 @@ class EntityPresenter extends Presenter
     public function statusLabel($label = false): string
     {
         $class = '';
-        $text = '';
         if ( ! $this->entity->id) {
             return '';
         }

@@ -17,9 +17,6 @@ class UserService extends BaseService
 
     /**
      * UserService constructor.
-     *
-     * @param UserRepository   $userRepo
-     * @param DatatableService $datatableService
      */
     public function __construct(UserRepository $userRepo, DatatableService $datatableService)
     {
@@ -40,9 +37,6 @@ class UserService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return UserRepository
-     */
     protected function getRepo(): UserRepository
     {
         return $this->userRepo;

@@ -34,8 +34,6 @@ class Bank extends Model
 
     /**
      * @param $finance
-     *
-     * @return \App\Libraries\Bank
      */
     public function getOFXBank($finance): \App\Libraries\Bank
     {

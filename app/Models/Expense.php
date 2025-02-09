@@ -327,8 +327,6 @@ class Expense extends EntityModel
     }
 
     /**
-     * @param null $bankId
-     *
      * @return mixed
      */
     public function scopeBankId($query, $bankId = null)

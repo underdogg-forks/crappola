@@ -22,8 +22,6 @@ class ProductApiController extends BaseAPIController
 
     /**
      * ProductApiController constructor.
-     *
-     * @param ProductRepository $productRepo
      */
     public function __construct(ProductRepository $productRepo)
     {

@@ -107,7 +107,6 @@ class AccountApiController extends BaseAPIController
     public function show(Request $request)
     {
         $account = Auth::user()->account;
-        $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
         $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
@@ -276,7 +275,6 @@ class AccountApiController extends BaseAPIController
         $account = $user->account;
         $company = $account->company;
         $orderId = $request->order_id;
-        $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
         if ($company->app_store_order_id) {

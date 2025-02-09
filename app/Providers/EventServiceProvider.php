@@ -325,8 +325,6 @@ class EventServiceProvider extends ServiceProvider
      * Register any other events for your application.
      *
      * @param Dispatcher $events
-     *
-     * @return void
      */
     public function boot(): void
     {

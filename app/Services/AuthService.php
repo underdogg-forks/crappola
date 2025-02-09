@@ -31,8 +31,6 @@ class AuthService
 
     /**
      * AuthService constructor.
-     *
-     * @param AccountRepository $repo
      */
     public function __construct(AccountRepository $repo)
     {
@@ -43,8 +41,6 @@ class AuthService
 
     /**
      * @param $provider
-     *
-     * @return mixed
      */
     public static function getProviderId($provider): int|string|false
     {

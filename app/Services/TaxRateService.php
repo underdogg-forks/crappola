@@ -17,9 +17,6 @@ class TaxRateService extends BaseService
 
     /**
      * TaxRateService constructor.
-     *
-     * @param TaxRateRepository $taxRateRepo
-     * @param DatatableService  $datatableService
      */
     public function __construct(TaxRateRepository $taxRateRepo, DatatableService $datatableService)
     {
@@ -40,9 +37,6 @@ class TaxRateService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return TaxRateRepository
-     */
     protected function getRepo(): TaxRateRepository
     {
         return $this->taxRateRepo;

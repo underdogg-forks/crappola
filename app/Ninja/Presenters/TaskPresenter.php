@@ -32,8 +32,6 @@ class TaskPresenter extends EntityPresenter
 
     /**
      * @param mixed $showProject
-     *
-     * @return mixed
      */
     public function invoiceDescription($account, $showProject): string
     {

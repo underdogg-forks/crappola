@@ -19,7 +19,7 @@ class ActivityReport extends AbstractReport
 
     public function run(): void
     {
-        $account = Auth::user()->account;
+        Auth::user()->account;
 
         $startDate = $this->startDate;
         $endDate = $this->endDate;

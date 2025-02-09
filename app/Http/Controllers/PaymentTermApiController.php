@@ -17,8 +17,6 @@ class PaymentTermApiController extends BaseAPIController
 
     /**
      * PaymentTermApiController constructor.
-     *
-     * @param PaymentTermRepository $paymentTermRepo
      */
     public function __construct(PaymentTermRepository $paymentTermRepo)
     {

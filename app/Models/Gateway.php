@@ -150,8 +150,6 @@ class Gateway extends Model
 
     /**
      * @param $gatewayIds
-     *
-     * @return int
      */
     public static function hasStandardGateway($gatewayIds): int
     {
@@ -167,8 +165,6 @@ class Gateway extends Model
 
     /**
      * @param $gatewayId
-     *
-     * @return bool
      */
     public function isGateway($gatewayId): bool
     {

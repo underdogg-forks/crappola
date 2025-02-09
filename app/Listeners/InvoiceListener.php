@@ -23,9 +23,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class InvoiceListener
 {
-    /**
-     * @param InvoiceWasCreated $event
-     */
     public function createdInvoice(InvoiceWasCreated $event): void
     {
         if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
@@ -44,27 +41,18 @@ class InvoiceListener
         }
     }
 
-    /**
-     * @param InvoiceWasUpdated $event
-     */
     public function updatedInvoice(InvoiceWasUpdated $event): void
     {
         $invoice = $event->invoice;
         $invoice->updatePaidStatus(false, false);
     }
 
-    /**
-     * @param InvoiceInvitationWasViewed $event
-     */
     public function viewedInvoice(InvoiceInvitationWasViewed $event): void
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
     }
 
-    /**
-     * @param InvoiceWasEmailed $event
-     */
     public function emailedInvoice(InvoiceWasEmailed $event): void
     {
         $invoice = $event->invoice;
@@ -72,9 +60,6 @@ class InvoiceListener
         $invoice->save();
     }
 
-    /**
-     * @param PaymentWasCreated $event
-     */
     public function createdPayment(PaymentWasCreated $event): void
     {
         $payment = $event->payment;
@@ -98,9 +83,6 @@ class InvoiceListener
         }
     }
 
-    /**
-     * @param PaymentWasDeleted $event
-     */
     public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;
@@ -116,9 +98,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasRefunded $event
-     */
     public function refundedPayment(PaymentWasRefunded $event): void
     {
         $payment = $event->payment;
@@ -129,9 +108,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasVoided $event
-     */
     public function voidedPayment(PaymentWasVoided $event): void
     {
         $payment = $event->payment;
@@ -142,9 +118,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentFailed $event
-     */
     public function failedPayment(PaymentFailed $event): void
     {
         $payment = $event->payment;
@@ -155,9 +128,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    /**
-     * @param PaymentWasRestored $event
-     */
     public function restoredPayment(PaymentWasRestored $event): void
     {
         if ( ! $event->fromDeleted) {

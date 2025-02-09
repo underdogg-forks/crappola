@@ -16,17 +16,12 @@ class CreditListener
 
     /**
      * CreditListener constructor.
-     *
-     * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)
     {
         $this->creditRepo = $creditRepo;
     }
 
-    /**
-     * @param PaymentWasDeleted $event
-     */
     public function deletedPayment(PaymentWasDeleted $event): void
     {
         $payment = $event->payment;

@@ -132,7 +132,7 @@ class InvoiceTransformer extends EntityTransformer
             'quote_invoice_id'     => (int) ($invoice->quote_invoice_id ?: 0),
             'custom_text_value1'   => $invoice->custom_text_value1 ?: '',
             'custom_text_value2'   => $invoice->custom_text_value2 ?: '',
-            'is_quote'             => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
+            'is_quote'             => $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
             'is_public'            => (bool) $invoice->is_public,
             'filename'             => $invoice->getFileName(),
             'invoice_design_id'    => (int) $invoice->invoice_design_id,

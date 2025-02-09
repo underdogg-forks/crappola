@@ -168,7 +168,6 @@ class InvoiceApiController extends BaseAPIController
     public function store(CreateInvoiceAPIRequest $request)
     {
         $data = Request::all();
-        $error = null;
 
         if (isset($data['email'])) {
             $email = $data['email'];

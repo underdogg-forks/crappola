@@ -36,8 +36,6 @@ class UserAccount extends Model
 
     /**
      * @param $userId
-     *
-     * @return bool
      */
     public function hasUserId($userId): bool
     {

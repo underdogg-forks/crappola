@@ -13,12 +13,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 
     public function gatewayTypes(): array
     {
-        $types = [
+        return [
             GATEWAY_TYPE_GOCARDLESS,
             GATEWAY_TYPE_TOKEN,
         ];
-
-        return $types;
     }
 
     public function completeOffsitePurchase($input)
@@ -32,9 +30,8 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         }
 
         $paymentMethod = $this->createToken();
-        $payment = $this->completeOnsitePurchase(false, $paymentMethod);
 
-        return $payment;
+        return $this->completeOnsitePurchase(false, $paymentMethod);
     }
 
     public function handleWebHook($input): void

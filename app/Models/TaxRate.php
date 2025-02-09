@@ -58,9 +58,6 @@ class TaxRate extends EntityModel
 
     protected $casts = ['deleted_at' => 'datetime'];
 
-    /**
-     * @return bool|string
-     */
     public function __toString(): string
     {
         return sprintf('%s: %s%%', $this->name, $this->rate);

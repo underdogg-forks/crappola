@@ -29,7 +29,7 @@ class DocumentTransformer extends EntityTransformer
             'expense_id' => (int) ($document->expense_id && $document->expense ? $document->expense->public_id : null),
             'updated_at' => $this->getTimestamp($document->updated_at),
             'created_at' => $this->getTimestamp($document->created_at),
-            'is_deleted' => (bool) false,
+            'is_deleted' => false,
             'is_default' => (bool) $document->is_default,
             'preview'    => $document->preview,
             'size'       => (int) $document->size,

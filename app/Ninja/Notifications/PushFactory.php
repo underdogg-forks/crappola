@@ -13,11 +13,6 @@ use NotificationChannels\PusherPushNotifications\PusherMessage;
 class PushFactory
 {
     /**
-     * PushFactory constructor.
-     */
-    public function __construct() {}
-
-    /**
      * customMessage function.
      *
      * Send a message with a nested custom payload to perform additional trickery within application
@@ -27,8 +22,6 @@ class PushFactory
      * @param        $message
      * @param        $messageArray
      * @param string $device       - Type of device the message is being pushed to
-     *
-     * @return void
      */
     public function customMessage($token, $message, $messageArray, $device): void
     {
@@ -46,8 +39,6 @@ class PushFactory
      * @param       $token   - device token
      * @param       $message - user specific message
      * @param mixed $device
-     *
-     * @return void
      */
     public function message($token, $message, $device): void
     {

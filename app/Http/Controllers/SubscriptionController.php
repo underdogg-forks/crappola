@@ -22,8 +22,6 @@ class SubscriptionController extends BaseController
 
     /**
      * SubscriptionController constructor.
-     *
-     * @param SubscriptionService $subscriptionService
      */
     public function __construct(SubscriptionService $subscriptionService)
     {
@@ -108,7 +106,7 @@ class SubscriptionController extends BaseController
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
 
-        $count = $this->subscriptionService->bulk($ids, $action);
+        $this->subscriptionService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_subscription'));
 

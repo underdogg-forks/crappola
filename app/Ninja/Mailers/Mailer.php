@@ -24,7 +24,6 @@ class Mailer
      * @param       $fromName
      * @param       $subject
      * @param       $view
-     * @param array $data
      *
      * @return bool|string
      */
@@ -197,8 +196,6 @@ class Mailer
     /**
      * @param $response
      * @param $data
-     *
-     * @return bool
      */
     private function handleSuccess($data, $messageId = false): bool
     {

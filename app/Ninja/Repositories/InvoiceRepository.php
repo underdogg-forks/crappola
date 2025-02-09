@@ -362,8 +362,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * @param array        $data
-     * @param Invoice|null $invoice
      *
      * @return Invoice|mixed
      */
@@ -813,8 +811,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * @param Invoice $invoice
-     * @param null    $quoteId
      *
      * @return mixed
      */
@@ -942,9 +938,6 @@ class InvoiceRepository extends BaseRepository
         return $clone;
     }
 
-    /**
-     * @param Invoice $invoice
-     */
     public function emailInvoice(Invoice $invoice): void
     {
         // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
@@ -955,17 +948,11 @@ class InvoiceRepository extends BaseRepository
         }
     }
 
-    /**
-     * @param Invoice $invoice
-     */
     public function markSent(Invoice $invoice): void
     {
         $invoice->markSent();
     }
 
-    /**
-     * @param Invoice $invoice
-     */
     public function markPaid(Invoice $invoice)
     {
         if ( ! $invoice->canBePaid()) {
@@ -1037,8 +1024,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * @param Invoice $recurInvoice
-     *
      * @return mixed
      */
     public function createRecurringInvoice(Invoice $recurInvoice)
@@ -1132,8 +1117,6 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * @param Account $account
-     *
      * @return mixed
      */
     public function findNeedingReminding(Account $account, $filterEnabled = true)
@@ -1155,7 +1138,8 @@ class InvoiceRepository extends BaseRepository
         }
 
         $sql = implode(' OR ', $dates);
-        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+
+        return Invoice::invoiceType(INVOICE_TYPE_STANDARD)
             ->with('client', 'invoice_items')
             ->whereHas('client', function ($query): void {
                 $query->whereSendReminders(true);
@@ -1166,8 +1150,6 @@ class InvoiceRepository extends BaseRepository
             ->whereIsPublic(true)
             ->whereRaw('(' . $sql . ')')
             ->get();
-
-        return $invoices;
     }
 
     public function findNeedingEndlessReminding(Account $account)
@@ -1213,8 +1195,6 @@ class InvoiceRepository extends BaseRepository
 
     public function clearGatewayFee($invoice): void
     {
-        $account = $invoice->account;
-
         if ( ! $invoice->relationLoaded('invoice_items')) {
             $invoice->load('invoice_items');
         }

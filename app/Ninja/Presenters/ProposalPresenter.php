@@ -34,7 +34,7 @@ class ProposalPresenter extends EntityPresenter
     {
         $proposal = $this->entity;
 
-        $html = "<html>
+        return "<html>
                     <head>
                         <style>
                             @page {
@@ -47,8 +47,6 @@ class ProposalPresenter extends EntityPresenter
                         {$proposal->html}
                     </body>
                 </html>";
-
-        return $html;
     }
 
     public function filename(): string

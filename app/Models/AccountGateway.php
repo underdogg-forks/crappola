@@ -78,8 +78,6 @@ class AccountGateway extends EntityModel
 
     /**
      * @param $provider
-     *
-     * @return string
      */
     public static function paymentDriverClass($provider): string
     {
@@ -314,8 +312,7 @@ class AccountGateway extends EntityModel
         }
 
         $templateService = app(TemplateService::class);
-        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
 
-        return $text;
+        return $templateService->processVariables($text, ['invitation' => $invitation]);
     }
 }

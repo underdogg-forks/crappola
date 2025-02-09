@@ -26,10 +26,6 @@ class VendorService extends BaseService
 
     /**
      * VendorService constructor.
-     *
-     * @param VendorRepository $vendorRepo
-     * @param DatatableService $datatableService
-     * @param NinjaRepository  $ninjaRepo
      */
     public function __construct(
         VendorRepository $vendorRepo,
@@ -42,8 +38,6 @@ class VendorService extends BaseService
     }
 
     /**
-     * @param array       $data
-     * @param Vendor|null $vendor
      *
      * @return mixed|null
      */
@@ -69,9 +63,6 @@ class VendorService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return VendorRepository
-     */
     protected function getRepo(): VendorRepository
     {
         return $this->vendorRepo;

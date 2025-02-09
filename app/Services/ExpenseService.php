@@ -21,9 +21,6 @@ class ExpenseService extends BaseService
 
     /**
      * ExpenseService constructor.
-     *
-     * @param ExpenseRepository $expenseRepo
-     * @param DatatableService  $datatableService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
@@ -33,7 +30,6 @@ class ExpenseService extends BaseService
 
     /**
      * @param      $data
-     * @param null $expense
      *
      * @return mixed|null
      */
@@ -102,9 +98,6 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return ExpenseRepository
-     */
     protected function getRepo(): ExpenseRepository
     {
         return $this->expenseRepo;

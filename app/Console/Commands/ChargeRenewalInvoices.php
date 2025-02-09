@@ -27,9 +27,6 @@ class ChargeRenewalInvoices extends Command
      */
     protected $description = 'Charge renewal invoices';
 
-    /**
-     * @var Mailer
-     */
     protected Mailer $mailer;
 
     protected AccountRepository $accountRepo;
@@ -38,10 +35,6 @@ class ChargeRenewalInvoices extends Command
 
     /**
      * ChargeRenewalInvoices constructor.
-     *
-     * @param Mailer            $mailer
-     * @param AccountRepository $repo
-     * @param PaymentService    $paymentService
      */
     public function __construct(Mailer $mailer, AccountRepository $repo, PaymentService $paymentService)
     {

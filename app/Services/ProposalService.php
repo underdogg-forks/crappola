@@ -20,7 +20,6 @@ class ProposalService extends BaseService
      * CreditService constructor.
      *
      * @param ProposalRepository $creditRepo
-     * @param DatatableService   $datatableService
      */
     public function __construct(ProposalRepository $proposalRepo, DatatableService $datatableService)
     {

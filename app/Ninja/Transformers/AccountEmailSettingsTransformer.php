@@ -10,22 +10,14 @@ use Laracasts\Presenter\Exceptions\PresenterException;
  */
 class AccountEmailSettingsTransformer extends EntityTransformer
 {
-    /**
-     * @var array
-     */
     protected array $defaultIncludes = [];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [];
 
     /**
      * @param Account $settings
      *
      * @throws PresenterException
-     *
-     * @return array
      */
     public function transform(AccountEmailSettings $settings): array
     {

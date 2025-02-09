@@ -118,9 +118,7 @@ class TaskDatatable extends EntityDatatable
             $actions[] = DropdownButton::DIVIDER;
         }
 
-        $actions = array_merge($actions, parent::bulkActions());
-
-        return $actions;
+        return array_merge($actions, parent::bulkActions());
     }
 
     private function getStatusLabel($model): string

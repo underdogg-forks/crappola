@@ -13,8 +13,6 @@ class SelfUpdateController extends BaseController
 
     /**
      * SelfUpdateController constructor.
-     *
-     * @param UpdaterManager $updater
      */
     public function __construct(UpdaterManager $updater)
     {

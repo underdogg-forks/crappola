@@ -55,7 +55,6 @@ class SendReminders extends Command
      * SendReminders constructor.
      *
      * @param Mailer            $mailer
-     * @param InvoiceRepository $invoiceRepo
      * @param accountRepository $accountRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo, PaymentService $paymentService, AccountRepository $accountRepo, UserMailer $userMailer)

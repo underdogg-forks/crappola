@@ -154,7 +154,7 @@ class ClientPortalController extends BaseController
         }
 
         $data = [];
-        $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
+        $paymentTypes = $this->getPaymentTypes($account, $invitation);
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
@@ -638,7 +638,7 @@ class ClientPortalController extends BaseController
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . $name) . ',"' . base64_encode($content) . '")';
 
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
@@ -691,9 +691,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        Session::put('contact_key', $invitation->contact->contact_key); // track current contact
-
-        $clientId = $invitation->invoice->client_id;
+        Session::put('contact_key', $invitation->contact->contact_key);
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
 
         $authorized = false;
@@ -916,7 +914,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        $statusId = request()->status_id;
+        request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
 
@@ -995,7 +993,7 @@ class ClientPortalController extends BaseController
         return $toZip;
     }
 
-    private function getPaymentTypes($account, $client, $invitation): array
+    private function getPaymentTypes($account, $invitation): array
     {
         $links = [];
 

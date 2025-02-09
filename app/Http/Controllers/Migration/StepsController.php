@@ -54,9 +54,6 @@ class StepsController extends BaseController
         $this->middleware('migration');
     }
 
-    /**
-     * @return Factory|View
-     */
     public function start(): Factory|View
     {
         if (Utils::isNinja()) {
@@ -75,9 +72,6 @@ class StepsController extends BaseController
         return view('migration.import');
     }
 
-    /**
-     * @return Factory|View
-     */
     public function download(): Factory|View
     {
         return view('migration.download');
@@ -230,8 +224,6 @@ class StepsController extends BaseController
                 url($this->access['companies']['redirect'])
             );
         }
-
-        $bool = true;
 
         if (Utils::isNinja()) {
             $this->dispatch(new HostedMigration(auth()->user(), $request->all(), config('database.default')));

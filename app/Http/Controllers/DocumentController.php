@@ -86,7 +86,7 @@ class DocumentController extends BaseController
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . $name) . ',"' . base64_encode($content) . '")';
 
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');

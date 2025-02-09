@@ -131,14 +131,6 @@ class ImportService
 
     /**
      * ImportService constructor.
-     *
-     * @param Manager            $manager
-     * @param ClientRepository   $clientRepo
-     * @param CustomerRepository $customerRepo
-     * @param InvoiceRepository  $invoiceRepo
-     * @param PaymentRepository  $paymentRepo
-     * @param ContactRepository  $contactRepo
-     * @param ProductRepository  $productRepo
      */
     public function __construct(
         Manager $manager,
@@ -171,8 +163,6 @@ class ImportService
     /**
      * @param $source
      * @param $entityType
-     *
-     * @return string
      */
     public static function getTransformerClassName(string $source, $entityType): string
     {
@@ -304,8 +294,6 @@ class ImportService
 
     /**
      * @param $array
-     *
-     * @return mixed
      */
     public function removeIdFields(array $array): array
     {
@@ -323,13 +311,10 @@ class ImportService
     /**
      * @param $source
      * @param $files
-     *
-     * @return array
      */
     public function importFiles($source, $files): array
     {
         $results = [];
-        $imported_files = null;
         $this->initMaps();
 
         foreach ($files as $entityType => $file) {
@@ -340,11 +325,9 @@ class ImportService
     }
 
     /**
-     * @param array $files
      *
      * @throws Exception
      *
-     * @return array
      */
     public function mapCSV(array $files): array
     {
@@ -455,10 +438,8 @@ class ImportService
     }
 
     /**
-     * @param array $maps
      * @param       $headers
      *
-     * @return array
      */
     public function importCSV(array $maps, array $headers, $timestamp): array
     {
@@ -504,8 +485,6 @@ class ImportService
      * @param $source
      * @param $entityType
      * @param $file
-     *
-     * @return array
      */
     private function execute($source, $entityType, $fileName): array
     {
@@ -739,8 +718,6 @@ class ImportService
     /**
      * @param $column
      * @param $pattern
-     *
-     * @return bool
      */
     private function checkForMatch($column, $pattern): bool
     {
@@ -780,8 +757,6 @@ class ImportService
      * @param $entityType
      * @param $map
      * @param $hasHeaders
-     *
-     * @return array
      */
     private function executeCSV(int|string $entityType, $map, $hasHeaders, $timestamp): array
     {
@@ -842,8 +817,6 @@ class ImportService
      * @param $entityType
      * @param $data
      * @param $map
-     *
-     * @return stdClass
      */
     private function convertToObject(int|string $entityType, $data, $map): stdClass
     {
@@ -977,9 +950,6 @@ class ImportService
         }
     }
 
-    /**
-     * @param Invoice $invoice
-     */
     private function addInvoiceToMaps(Invoice $invoice): void
     {
         if (($number = mb_strtolower(trim($invoice->invoice_number))) !== '' && ($number = mb_strtolower(trim($invoice->invoice_number))) !== '0') {
@@ -990,9 +960,6 @@ class ImportService
         }
     }
 
-    /**
-     * @param Client $client
-     */
     private function addClientToMaps(Client $client): void
     {
         if (($name = mb_strtolower(trim($client->name))) !== '' && ($name = mb_strtolower(trim($client->name))) !== '0') {
@@ -1030,9 +997,6 @@ class ImportService
         }
     }
 
-    /**
-     * @param Product $product
-     */
     private function addProductToMaps(Product $product): void
     {
         if (($key = mb_strtolower(trim($product->product_key))) !== '' && ($key = mb_strtolower(trim($product->product_key))) !== '0') {
@@ -1040,7 +1004,7 @@ class ImportService
         }
     }
 
-    private function addExpenseToMaps(Expense $expense): void
+    private function addExpenseToMaps(): void
     {
         // do nothing
     }
@@ -1061,7 +1025,7 @@ class ImportService
     {
         $isEmpty = true;
 
-        foreach ($row as $key => $val) {
+        foreach ($row as $val) {
             if (trim($val) !== '' && trim($val) !== '0') {
                 $isEmpty = false;
             }

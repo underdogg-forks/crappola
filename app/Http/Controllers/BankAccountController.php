@@ -77,7 +77,7 @@ class BankAccountController extends BaseController
     {
         $action = \Illuminate\Support\Facades\Request::input('bulk_action');
         $ids = \Illuminate\Support\Facades\Request::input('bulk_public_id');
-        $count = $this->bankAccountService->bulk($ids, $action);
+        $this->bankAccountService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_bank_account'));
 
@@ -119,7 +119,7 @@ class BankAccountController extends BaseController
     {
         $bankAccount = $this->bankAccountRepo->save($request->all());
 
-        $bankId = \Illuminate\Support\Facades\Request::input('bank_id');
+        \Illuminate\Support\Facades\Request::input('bank_id');
         $username = trim(\Illuminate\Support\Facades\Request::input('bank_username'));
         $password = trim(\Illuminate\Support\Facades\Request::input('bank_password'));
 

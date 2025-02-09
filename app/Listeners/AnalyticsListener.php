@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\App;
  */
 class AnalyticsListener
 {
-    /**
-     * @param PaymentWasCreated $event
-     */
     public function trackRevenue(PaymentWasCreated $event): void
     {
         $payment = $event->payment;

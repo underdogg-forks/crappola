@@ -81,14 +81,6 @@ class CreateTestData extends Command
 
     /**
      * CreateTestData constructor.
-     *
-     * @param ClientRepository  $clientRepo
-     * @param InvoiceRepository $invoiceRepo
-     * @param PaymentRepository $paymentRepo
-     * @param VendorRepository  $vendorRepo
-     * @param ExpenseRepository $expenseRepo
-     * @param TaskRepository    $taskRepo
-     * @param AccountRepository $accountRepo
      */
     public function __construct(
         ClientRepository $clientRepo,

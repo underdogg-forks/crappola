@@ -165,13 +165,11 @@ class ProposalTemplateController extends BaseController
             $options[trans('texts.default')][$template->public_id] = $template->name;
         }
 
-        $data = [
+        return [
             'account'          => auth()->user()->account,
             'customTemplates'  => $customTemplates,
             'defaultTemplates' => $defaultTemplates,
             'templateOptions'  => $options,
         ];
-
-        return $data;
     }
 }

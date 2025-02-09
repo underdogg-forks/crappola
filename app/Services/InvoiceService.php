@@ -24,10 +24,6 @@ class InvoiceService extends BaseService
 
     /**
      * InvoiceService constructor.
-     *
-     * @param ClientRepository  $clientRepo
-     * @param InvoiceRepository $invoiceRepo
-     * @param DatatableService  $datatableService
      */
     public function __construct(
         ClientRepository $clientRepo,
@@ -42,8 +38,6 @@ class InvoiceService extends BaseService
     /**
      * @param $ids
      * @param $action
-     *
-     * @return int
      */
     public function bulk($ids, $action): int
     {
@@ -58,8 +52,6 @@ class InvoiceService extends BaseService
     }
 
     /**
-     * @param array        $data
-     * @param Invoice|null $invoice
      *
      * @return Invoice|Invoice|mixed
      */
@@ -109,7 +101,6 @@ class InvoiceService extends BaseService
 
     /**
      * @param                 $quote
-     * @param Invitation|null $invitation
      *
      * @return mixed|null
      */
@@ -153,9 +144,6 @@ class InvoiceService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    /**
-     * @return InvoiceRepository
-     */
     protected function getRepo(): InvoiceRepository
     {
         return $this->invoiceRepo;

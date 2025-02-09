@@ -34,11 +34,6 @@ class BankAccountService extends BaseService
 
     /**
      * BankAccountService constructor.
-     *
-     * @param BankAccountRepository $bankAccountRepo
-     * @param ExpenseRepository     $expenseRepo
-     * @param VendorRepository      $vendorRepo
-     * @param DatatableService      $datatableService
      */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
@@ -53,8 +48,6 @@ class BankAccountService extends BaseService
      * @param      $username
      * @param      $password
      * @param bool $includeTransactions
-     *
-     * @return array|bool
      */
     public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true): false|array
     {
@@ -174,17 +167,12 @@ class BankAccountService extends BaseService
         return $this->datatableService->createDatatable(new BankAccountDatatable(false), $query);
     }
 
-    /**
-     * @return BankAccountRepository
-     */
     protected function getRepo(): BankAccountRepository
     {
         return $this->bankAccountRepo;
     }
 
     /**
-     * @param null $bankId
-     *
      * @return array
      */
     private function getExpenses($bankId = null)
@@ -196,9 +184,8 @@ class BankAccountService extends BaseService
             ->withTrashed()
             ->get(['transaction_id'])
             ->toArray();
-        $expenses = array_flip(array_map(fn ($val) => $val['transaction_id'], $expenses));
 
-        return $expenses;
+        return array_flip(array_map(fn ($val) => $val['transaction_id'], $expenses));
     }
 
     /**
@@ -244,8 +231,6 @@ class BankAccountService extends BaseService
      * @param $data
      * @param $expenses
      * @param $vendorMap
-     *
-     * @return mixed
      */
     private function parseTransactions(stdClass $account, $data, $expenses, $vendorMap): stdClass
     {
@@ -285,8 +270,6 @@ class BankAccountService extends BaseService
 
     /**
      * @param $value
-     *
-     * @return string
      */
     private function prepareValue($value): string
     {

@@ -72,12 +72,6 @@ class AccountController extends BaseController
 
     /**
      * AccountController constructor.
-     *
-     * @param AccountRepository  $accountRepo
-     * @param UserMailer         $userMailer
-     * @param ContactMailer      $contactMailer
-     * @param ReferralRepository $referralRepository
-     * @param PaymentService     $paymentService
      */
     public function __construct(
         AccountRepository $accountRepo,
@@ -218,8 +212,6 @@ class AccountController extends BaseController
      * @param       $entityType
      * @param       $visible
      * @param mixed $filter
-     *
-     * @return mixed
      */
     public function setEntityFilter($entityType, $filter = ''): string
     {
@@ -332,9 +324,6 @@ class AccountController extends BaseController
         return View::make($view, $data);
     }
 
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
     public function showUserDetails(): \Illuminate\Contracts\View\View
     {
         if ( ! auth()->user()->registered) {
@@ -423,7 +412,7 @@ class AccountController extends BaseController
                 ->withInput();
         }
 
-        (bool) $fireUpdateSubdomainEvent = false;
+        $fireUpdateSubdomainEvent = false;
 
         if ($account->subdomain !== $request->subdomain) {
             $fireUpdateSubdomainEvent = true;
@@ -463,8 +452,6 @@ class AccountController extends BaseController
     }
 
     /**
-     * @param UpdateAccountRequest $request
-     *
      * @return RedirectResponse
      */
     public function updateDetails(UpdateAccountRequest $request)
@@ -835,8 +822,6 @@ class AccountController extends BaseController
     }
 
     /**
-     * @param TemplateService $templateService
-     *
      * @return \Illuminate\Http\Response
      */
     public function previewEmail(TemplateService $templateService)
@@ -1002,7 +987,7 @@ class AccountController extends BaseController
         $account->load('account_gateways');
 
         $count = $account->account_gateways->count();
-        $trashedCount = AccountGateway::scope()->withTrashed()->count();
+        AccountGateway::scope()->withTrashed()->count();
 
         if (($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) && ! $accountGateway->getPublishableKey()) {
             Session::now('warning', trans('texts.missing_publishable_key'));

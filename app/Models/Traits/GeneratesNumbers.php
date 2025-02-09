@@ -122,8 +122,6 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
-     *
-     * @return bool
      */
     public function hasNumberPattern($entityType): bool
     {
@@ -186,9 +184,8 @@ trait GeneratesNumbers
         }
 
         $pattern = str_replace($search, $replace, $pattern);
-        $pattern = $this->getClientInvoiceNumber($pattern, $entity);
 
-        return $pattern;
+        return $this->getClientInvoiceNumber($pattern, $entity);
     }
 
     /**

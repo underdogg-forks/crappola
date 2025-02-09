@@ -25,9 +25,6 @@ class HandleUserSettingsChanged
 
     /**
      * Create the event handler.
-     *
-     * @param AccountRepository $accountRepo
-     * @param UserMailer        $userMailer
      */
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
@@ -38,9 +35,7 @@ class HandleUserSettingsChanged
     /**
      * Handle the event.
      *
-     * @param UserSettingsChanged $event
      *
-     * @return void
      */
     public function handle(UserSettingsChanged $event): void
     {

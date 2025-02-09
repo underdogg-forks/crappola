@@ -77,11 +77,7 @@ class EntityModel extends Model
         return parent::__call($method, $params);
     }
 
-    /**
-     * @param null $context
-     *
-     * @return mixed
-     */
+    
     public static function createNew($context = null): static
     {
         $className = static::class;
@@ -133,8 +129,6 @@ class EntityModel extends Model
 
     /**
      * @param $entityType
-     *
-     * @return string
      */
     public static function getClassName($entityType): string
     {
@@ -151,8 +145,6 @@ class EntityModel extends Model
 
     /**
      * @param $entityType
-     *
-     * @return string
      */
     public static function getTransformerName($entityType): string
     {

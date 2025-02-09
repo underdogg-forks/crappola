@@ -19,9 +19,6 @@ class PermissionsRequired
 
     /**
      * add a controller's action permission.
-     *
-     * @param Controller $controller
-     * @param array      $permissions
      */
     public static function addPermission(Controller $controller, array $permissions): void
     {
@@ -31,8 +28,6 @@ class PermissionsRequired
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
      * @param string  $guard
      *
      * @return mixed

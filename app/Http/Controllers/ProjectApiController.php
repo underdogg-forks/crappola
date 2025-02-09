@@ -25,9 +25,6 @@ class ProjectApiController extends BaseAPIController
 
     /**
      * ProjectApiController constructor.
-     *
-     * @param ProjectRepository $projectRepo
-     * @param ProjectService    $projectService
      */
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {

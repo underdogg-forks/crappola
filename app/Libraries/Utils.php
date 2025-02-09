@@ -637,9 +637,8 @@ class Utils
     public static function pluralize($string, $count)
     {
         $field = $count == 1 ? $string : $string . 's';
-        $string = trans('texts.' . $field, ['count' => $count]);
 
-        return $string;
+        return trans('texts.' . $field, ['count' => $count]);
     }
 
     public static function pluralizeEntityType($type)
@@ -1278,7 +1277,7 @@ class Utils
             'invitation_id',
         ];
 
-        $fields1 = $entity1->getAttributes();
+        $entity1->getAttributes();
         $fields2 = $entity2->getAttributes();
 
         foreach ($fields as $field) {
@@ -1543,7 +1542,6 @@ class Utils
 
     private static function getDatePart(string $part, int $offset, $locale)
     {
-        $offset = (int) $offset;
         if ($part === 'MONTH') {
             return self::getMonth($offset, $locale);
         }

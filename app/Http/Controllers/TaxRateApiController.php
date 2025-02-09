@@ -19,8 +19,6 @@ class TaxRateApiController extends BaseAPIController
 
     /**
      * TaxRateApiController constructor.
-     *
-     * @param TaxRateRepository $taxRateRepo
      */
     public function __construct(TaxRateRepository $taxRateRepo)
     {

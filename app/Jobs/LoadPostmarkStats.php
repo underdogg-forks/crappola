@@ -75,7 +75,7 @@ class LoadPostmarkStats extends Job
                 $response = $this->postmark->getOutboundOpenStatistics($this->account->account_key, request()->start_date, request()->end_date);
             }
 
-            foreach ($response->days as $key => $val) {
+            foreach ($response->days as $val) {
                 $field = $eventType === 'opened' ? 'unique' : $eventType;
                 $data[$val['date']] = $val[$field];
             }
@@ -131,7 +131,6 @@ class LoadPostmarkStats extends Job
         $data = $this->postmark->getOutboundPlatformStatistics($this->account->account_key, request()->start_date, request()->end_date);
         $account = $this->account;
         $str = '';
-        $total = 0;
 
         $total = $data['desktop'] + $data['mobile'] + $data['webmail'];
 

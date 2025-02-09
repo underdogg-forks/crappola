@@ -20,9 +20,6 @@ trait HasLogo
         return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
     }
 
-    /**
-     * @return null
-     */
     public function getLogoRaw()
     {
         if ( ! $this->hasLogo()) {

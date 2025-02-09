@@ -15,8 +15,6 @@ class EmailService
 
     /**
      * EmailService constructor.
-     *
-     * @param UserMailer $userMailer
      */
     public function __construct(UserMailer $userMailer)
     {
@@ -25,8 +23,6 @@ class EmailService
 
     /**
      * @param $messageId
-     *
-     * @return bool
      */
     public function markOpened($messageId): bool
     {
@@ -46,8 +42,6 @@ class EmailService
     /**
      * @param $messageId
      * @param $error
-     *
-     * @return bool
      */
     public function markBounced($messageId, $error): bool
     {

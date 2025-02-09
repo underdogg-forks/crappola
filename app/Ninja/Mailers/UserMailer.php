@@ -9,10 +9,6 @@ use App\Models\User;
 
 class UserMailer extends Mailer
 {
-    /**
-     * @param User      $user
-     * @param User|null $invitor
-     */
     public function sendConfirmation(User $user, ?User $invitor = null): void
     {
         if ( ! $user->email) {
@@ -39,7 +35,6 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User      $user
      * @param User|null $invitor
      */
     public function sendEmailChanged(User $user): void
@@ -64,10 +59,7 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User         $user
-     * @param Invoice      $invoice
      * @param              $notificationType
-     * @param Payment|null $payment
      */
     public function sendNotification(
         User $user,
@@ -114,13 +106,9 @@ class UserMailer extends Mailer
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    /**
-     * @param Invitation $invitation
-     */
     public function sendEmailBounced(Invitation $invitation): void
     {
         $user = $invitation->user;
-        $account = $user->account;
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 

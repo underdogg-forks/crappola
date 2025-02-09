@@ -30,8 +30,6 @@ class PaymentCreated extends Notification implements ShouldQueue
      * Get the notification's delivery channels.
      *
      * @param mixed $notifiable
-     *
-     * @return array
      */
     public function via($notifiable): array
     {
@@ -47,8 +45,6 @@ class PaymentCreated extends Notification implements ShouldQueue
      */
     public function toSlack($notifiable)
     {
-        $url = 'http://www.ninja.test/subscriptions/create';
-
         return (new SlackMessage())
             ->from(APP_NAME)
             ->image('https://app.invoiceninja.com/favicon-v2.png')
@@ -68,8 +64,6 @@ class PaymentCreated extends Notification implements ShouldQueue
      * Get the array representation of the notification.
      *
      * @param mixed $notifiable
-     *
-     * @return array
      */
     public function toArray($notifiable): array
     {

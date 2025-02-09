@@ -17,9 +17,6 @@ class AccountGatewayService extends BaseService
 
     /**
      * AccountGatewayService constructor.
-     *
-     * @param AccountGatewayRepository $accountGatewayRepo
-     * @param DatatableService         $datatableService
      */
     public function __construct(AccountGatewayRepository $accountGatewayRepo, DatatableService $datatableService)
     {
@@ -39,9 +36,6 @@ class AccountGatewayService extends BaseService
         return $this->datatableService->createDatatable(new AccountGatewayDatatable(false), $query);
     }
 
-    /**
-     * @return AccountGatewayRepository
-     */
     protected function getRepo(): AccountGatewayRepository
     {
         return $this->accountGatewayRepo;

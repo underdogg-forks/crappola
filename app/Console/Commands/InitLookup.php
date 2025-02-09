@@ -115,8 +115,8 @@ class InitLookup extends Command
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $validate = $this->option('validate');
-        $update = $this->option('update');
+        $this->option('validate');
+        $this->option('update');
 
         foreach ($data as $accountKey => $subdomain) {
             LookupAccount::whereAccountKey($accountKey)->update(['subdomain' => $subdomain]);

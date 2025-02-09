@@ -11,9 +11,6 @@ use League\Fractal\Resource\Collection;
  */
 class AccountTransformer extends EntityTransformer
 {
-    /**
-     * @var array
-     */
     protected array $defaultIncludes = [
         'users',
         'products',
@@ -23,9 +20,6 @@ class AccountTransformer extends EntityTransformer
         'account_email_settings',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
         'clients',
         'invoices',
@@ -33,8 +27,6 @@ class AccountTransformer extends EntityTransformer
     ];
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeAccountEmailSettings(Account $account)
@@ -45,8 +37,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeExpenseCategories(Account $account)
@@ -57,8 +47,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeProjects(Account $account)
@@ -69,8 +57,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeUsers(Account $account)
@@ -81,8 +67,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeClients(Account $account)
@@ -93,8 +77,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeInvoices(Account $account)
@@ -105,8 +87,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeProducts(Account $account)
@@ -117,8 +97,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includeTaxRates(Account $account)
@@ -129,8 +107,6 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
-     *
      * @return Collection
      */
     public function includePayments(Account $account)
@@ -141,11 +117,9 @@ class AccountTransformer extends EntityTransformer
     }
 
     /**
-     * @param Account $account
      *
      * @throws PresenterException
      *
-     * @return array
      */
     public function transform(Account $account): array
     {

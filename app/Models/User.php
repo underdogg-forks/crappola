@@ -412,13 +412,11 @@ class User extends Authenticatable
             return true;
         }
 
-        return (bool) ($model->user_id == $this->id);
+        return $model->user_id == $this->id;
     }
 
     /**
      * @param $entity
-     *
-     * @return bool
      */
     public function owns($entity): bool
     {

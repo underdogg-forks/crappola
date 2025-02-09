@@ -72,38 +72,38 @@ trait GenerateMigrationResources
             'custom_value2'                   => $this->account->custom_value2 ? (string) $this->account->custom_value2 : '',
             'custom_value3'                   => '',
             'custom_value4'                   => '',
-            'hide_paid_to_date'               => $this->account->hide_paid_to_date ? (bool) $this->account->hide_paid_to_date : false,
+            'hide_paid_to_date'               => $this->account->hide_paid_to_date && (bool) $this->account->hide_paid_to_date,
             'vat_number'                      => $this->account->vat_number ?: '',
             'shared_invoice_quote_counter'    => $this->account->share_counter ? (bool) $this->account->share_counter : true,
             'id_number'                       => $this->account->id_number ?: '',
             'invoice_footer'                  => $this->account->invoice_footer ?: '',
-            'pdf_email_attachment'            => $this->account->pdf_email_attachment ? (bool) $this->account->pdf_email_attachment : false,
+            'pdf_email_attachment'            => $this->account->pdf_email_attachment && (bool) $this->account->pdf_email_attachment,
             'font_size'                       => $this->account->font_size ?: 9,
             'invoice_labels'                  => $this->account->invoice_labels ?: '',
-            'military_time'                   => $this->account->military_time ? (bool) $this->account->military_time : false,
+            'military_time'                   => $this->account->military_time && (bool) $this->account->military_time,
             'invoice_number_counter'          => $this->account->invoice_number_counter ?: 0,
             'invoice_number_pattern'          => $this->account->invoice_number_pattern ?: '',
             'quote_number_pattern'            => $this->account->quote_number_pattern ?: '',
             'quote_terms'                     => $this->account->quote_terms ?: '',
             'website'                         => $this->account->website ?: '',
-            'auto_convert_quote'              => $this->account->auto_convert_quote ? (bool) $this->account->auto_convert_quote : false,
+            'auto_convert_quote'              => $this->account->auto_convert_quote && (bool) $this->account->auto_convert_quote,
             'all_pages_footer'                => $this->account->all_pages_footer ? (bool) $this->account->all_pages_footer : true,
             'all_pages_header'                => $this->account->all_pages_header ? (bool) $this->account->all_pages_header : true,
-            'show_currency_code'              => $this->account->show_currency_code ? (bool) $this->account->show_currency_code : false,
-            'enable_client_portal_password'   => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : false,
-            'send_portal_password'            => $this->account->send_portal_password ? (bool) $this->account->send_portal_password : false,
+            'show_currency_code'              => $this->account->show_currency_code && (bool) $this->account->show_currency_code,
+            'enable_client_portal_password'   => $this->account->enable_portal_password && (bool) $this->account->enable_portal_password,
+            'send_portal_password'            => $this->account->send_portal_password && (bool) $this->account->send_portal_password,
             'recurring_number_prefix'         => $this->account->recurring_invoice_number_prefix ?: 'R',
-            'enable_client_portal'            => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
+            'enable_client_portal'            => $this->account->enable_client_portal && (bool) $this->account->enable_client_portal,
             'invoice_fields'                  => $this->account->invoice_fields ?: '',
             'company_logo'                    => $this->account->getLogoURL() ?: '',
-            'embed_documents'                 => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
-            'document_email_attachment'       => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
+            'embed_documents'                 => $this->account->invoice_embed_documents && (bool) $this->account->invoice_embed_documents,
+            'document_email_attachment'       => $this->account->document_email_attachment && (bool) $this->account->document_email_attachment,
             'enable_client_portal_dashboard'  => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
             'page_size'                       => $this->account->page_size ?: 'A4',
-            'show_accept_invoice_terms'       => $this->account->show_accept_invoice_terms ? (bool) $this->account->show_accept_invoice_terms : false,
-            'show_accept_quote_terms'         => $this->account->show_accept_quote_terms ? (bool) $this->account->show_accept_quote_terms : false,
-            'require_invoice_signature'       => $this->account->require_invoice_signature ? (bool) $this->account->require_invoice_signature : false,
-            'require_quote_signature'         => $this->account->require_quote_signature ? (bool) $this->account->require_quote_signature : false,
+            'show_accept_invoice_terms'       => $this->account->show_accept_invoice_terms && (bool) $this->account->show_accept_invoice_terms,
+            'show_accept_quote_terms'         => $this->account->show_accept_quote_terms && (bool) $this->account->show_accept_quote_terms,
+            'require_invoice_signature'       => $this->account->require_invoice_signature && (bool) $this->account->require_invoice_signature,
+            'require_quote_signature'         => $this->account->require_quote_signature && (bool) $this->account->require_quote_signature,
             'client_number_counter'           => $this->account->client_number_counter ?: 0,
             'client_number_pattern'           => $this->account->client_number_pattern ?: '',
             'payment_number_pattern'          => '',
@@ -121,12 +121,12 @@ trait GenerateMigrationResources
             'credit_number_counter'           => $this->account->credit_number_counter ?: 0,
             'credit_number_pattern'           => $this->account->credit_number_pattern ?: '',
             'default_task_rate'               => $this->account->task_rate ?: 0,
-            'inclusive_taxes'                 => $this->account->inclusive_taxes ? (bool) $this->account->inclusive_taxes : false,
-            'signature_on_pdf'                => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
-            'ubl_email_attachment'            => $this->account->ubl_email_attachment ? (bool) $this->account->ubl_email_attachment : false,
-            'auto_archive_invoice'            => $this->account->auto_archive_invoice ? (bool) $this->account->auto_archive_invoice : false,
-            'auto_archive_quote'              => $this->account->auto_archive_quote ? (bool) $this->account->auto_archive_quote : false,
-            'auto_email_invoice'              => $this->account->auto_email_invoice ? (bool) $this->account->auto_email_invoice : false,
+            'inclusive_taxes'                 => $this->account->inclusive_taxes && (bool) $this->account->inclusive_taxes,
+            'signature_on_pdf'                => $this->account->signature_on_pdf && (bool) $this->account->signature_on_pdf,
+            'ubl_email_attachment'            => $this->account->ubl_email_attachment && (bool) $this->account->ubl_email_attachment,
+            'auto_archive_invoice'            => $this->account->auto_archive_invoice && (bool) $this->account->auto_archive_invoice,
+            'auto_archive_quote'              => $this->account->auto_archive_quote && (bool) $this->account->auto_archive_quote,
+            'auto_email_invoice'              => $this->account->auto_email_invoice && (bool) $this->account->auto_email_invoice,
             'counter_padding'                 => $this->account->invoice_number_padding ?: 4,
             'reply_to_email'                  => $this->account->account_email_settings->reply_to_email ?: '',
             'bcc_email'                       => $this->account->account_email_settings->bcc_email ?: '',
@@ -326,7 +326,7 @@ trait GenerateMigrationResources
                 'tax_rate1'     => (float) $item->tax_rate1,
                 'tax_name2'     => (string) $item->tax_name2,
                 'tax_rate2'     => (float) $item->tax_rate2,
-                'tax_name3'     => (string) '',
+                'tax_name3'     => '',
                 'tax_rate3'     => (float) 0,
                 'date'          => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1 ?: '',
@@ -1208,12 +1208,12 @@ trait GenerateMigrationResources
 
         $due_date_parts = explode('-', $invoice->due_date);
 
-        if (is_array($due_date_parts) && count($due_date_parts) >= 3) {
+        if (count($due_date_parts) >= 3) {
             if ($due_date_parts[2] === '00') {
                 return '0';
             }
 
-            return (string) $due_date_parts[2];
+            return $due_date_parts[2];
         }
 
         return 'terms';
@@ -1959,7 +1959,7 @@ trait GenerateMigrationResources
 
         $expiry = explode('-', $payment_method->expiration);
 
-        if (is_array($expiry) && count($expiry) >= 2) {
+        if (count($expiry) >= 2) {
             $exp_month = $expiry[1];
             $exp_year = $expiry[0];
         } else {
@@ -1968,8 +1968,8 @@ trait GenerateMigrationResources
         }
 
         $meta = new stdClass();
-        $meta->exp_month = (string) $exp_month;
-        $meta->exp_year = (string) $exp_year;
+        $meta->exp_month = $exp_month;
+        $meta->exp_year = $exp_year;
         $meta->brand = (string) $payment_method->payment_type->name;
         $meta->last4 = (string) str_replace(',', '', ($payment_method->last4));
         $meta->type = $payment_method->payment_type->gateway_type_id;

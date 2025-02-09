@@ -13,9 +13,7 @@ class BusServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      *
-     * @param Dispatcher $dispatcher
      *
-     * @return void
      */
     public function boot(Dispatcher $dispatcher): void
     {

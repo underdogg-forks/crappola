@@ -11,10 +11,8 @@ use App\Models\User;
 class DocumentPolicy extends EntityPolicy
 {
     /**
-     * @param User  $user
      * @param mixed $item
      *
-     * @return bool
      */
     public static function create(User $user, $item): bool
     {
@@ -22,9 +20,7 @@ class DocumentPolicy extends EntityPolicy
     }
 
     /**
-     * @param User     $user
      * @param Document $document
-     *
      * @return bool
      */
     public static function view(User $user, $document)

@@ -54,7 +54,7 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
-        $account = auth()->user()->account;
+        auth()->user()->account;
         $project = $request->entity();
         //$chartData = dispatch_now(new GenerateProjectChartData($project));
 
