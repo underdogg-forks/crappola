@@ -1300,6 +1300,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf !== '' && $pdf !== '0') {
                 return $pdf;
             }
+
             Utils::logError('PhantomJS - Unable to decode ' . $phantomjsLink);
             return false;
         }

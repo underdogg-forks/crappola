@@ -231,6 +231,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_RESTORE_TASK:
                 return ENTITY_TASK;
         }
+
         return null;
     }
 }

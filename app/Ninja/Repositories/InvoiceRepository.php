@@ -746,6 +746,7 @@ class InvoiceRepository extends BaseRepository
                         $product = null;
                     }
                 }
+
                 if ($product && (Auth::user()->can('edit', $product))) {
                     $product->notes = ($task || $expense) ? '' : $item['notes'];
                     if ( ! $account->convert_products) {

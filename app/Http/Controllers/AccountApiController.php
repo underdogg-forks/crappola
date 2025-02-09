@@ -233,6 +233,7 @@ class AccountApiController extends BaseAPIController
                 return $this->response($newDevice);
             }
         }
+
         return null;
     }
 

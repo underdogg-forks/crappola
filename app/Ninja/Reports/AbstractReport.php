@@ -288,6 +288,7 @@ class AbstractReport
 
             return trans('texts.unset');
         }
+
         return null;
     }
 

@@ -56,6 +56,7 @@ class PaymentPresenter extends EntityPresenter
         if ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
+
         return null;
     }
 

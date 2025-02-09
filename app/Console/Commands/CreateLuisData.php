@@ -186,6 +186,7 @@ class CreateLuisData extends Command
                 $location => 'Location',
             ]);
         }
+
         return $intents;
     }
 

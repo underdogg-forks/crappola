@@ -86,6 +86,7 @@ class LoginController extends Controller
         if (auth()->check()) {
             auth()->user()->id;
         }
+
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {

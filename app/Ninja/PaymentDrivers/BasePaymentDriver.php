@@ -858,6 +858,7 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+
         return null;
     }
 

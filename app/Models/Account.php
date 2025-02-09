@@ -1270,6 +1270,7 @@ class Account extends Model
                 return $token->token;
             }
         }
+
         return null;
     }
 
@@ -1468,6 +1469,7 @@ class Account extends Model
             default:
                 return false;
         }
+
         return null;
     }
 

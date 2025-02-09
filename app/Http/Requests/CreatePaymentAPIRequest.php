@@ -19,6 +19,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
                 'amount'     => 'required|numeric',
             ];
         }
+
         $this->invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
             ->withArchived()
             ->invoices()

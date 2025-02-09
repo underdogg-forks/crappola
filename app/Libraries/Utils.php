@@ -52,6 +52,7 @@ class Utils
         } catch (Exception) {
             return false;
         }
+
         return null;
     }
 
@@ -438,6 +439,7 @@ class Utils
         } else {
             Log::error($error . "\n", $data);
         }
+
         return null;
     }
 
@@ -517,6 +519,7 @@ class Utils
         if ($record = $data->first()) {
             return $record->id;
         }
+
         return null;
     }
 
@@ -1556,6 +1559,7 @@ class Utils
         if ($part === 'YEAR') {
             return self::getYear($offset);
         }
+
         return null;
     }
 

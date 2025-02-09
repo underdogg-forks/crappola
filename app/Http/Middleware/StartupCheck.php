@@ -160,6 +160,7 @@ HTML;
         } else {
             $company->applyDiscount($discount);
         }
+
         $company->save();
     }
 

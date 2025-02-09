@@ -123,15 +123,18 @@ class BotController extends Controller
         } elseif ( ! $this->validateToken($token)) {
             return false;
         }
+
         if ($token = Cache::get('msbot_token')) {
             return $token;
         }
+
         $clientId = env('MSBOT_CLIENT_ID');
         $clientSecret = env('MSBOT_CLIENT_SECRET');
         $scope = 'https://graph.microsoft.com/.default';
         $data = sprintf('grant_type=client_credentials&client_id=%s&client_secret=%s&scope=%s', $clientId, $clientSecret, $scope);
         $response = CurlUtils::post(MSBOT_LOGIN_URL, $data);
         $response = json_decode($response);
+
         $expires = ($response->expires_in / 60) - 5;
         Cache::put('msbot_token', $response->access_token, $expires);
         return $response->access_token;

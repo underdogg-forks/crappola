@@ -190,6 +190,7 @@ class Document extends EntityModel
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
+
         return null;
     }
 

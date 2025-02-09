@@ -634,6 +634,7 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
+
         return null;
     }
 

@@ -148,6 +148,7 @@ class Authenticate
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
         }
+
         return null;
     }
 
@@ -162,6 +163,7 @@ class Authenticate
         if ($contact && ! $contact->is_deleted) {
             return $contact;
         }
+
         return null;
     }
 }
