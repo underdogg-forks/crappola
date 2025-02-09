@@ -2,27 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
-/**
- * Class Theme.
- *
- * @property int    $id
- * @property string $name
- *
- * @method static Builder|Theme newModelQuery()
- * @method static Builder|Theme newQuery()
- * @method static Builder|Theme query()
- * @method static Builder|Theme whereId($value)
- * @method static Builder|Theme whereName($value)
- *
- * @mixin \Eloquent
- */
-class Theme extends Model
+class Theme extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 }

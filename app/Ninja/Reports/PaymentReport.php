@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'client'         => [],
@@ -23,7 +23,7 @@ class PaymentReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
@@ -34,10 +34,10 @@ class PaymentReport extends AbstractReport
             ->orderBy('payment_date', 'desc')
             ->withArchived()
             ->excludeFailed()
-            ->whereHas('client', function ($query): void {
+            ->whereHas('client', function ($query) {
                 $query->where('is_deleted', '=', false);
             })
-            ->whereHas('invoice', function ($query): void {
+            ->whereHas('invoice', function ($query) {
                 $query->where('is_deleted', '=', false);
             })
             ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
@@ -81,7 +81,11 @@ class PaymentReport extends AbstractReport
                 }
             }
 
-            $dimension = $subgroup == 'method' ? $payment->present()->method : $this->getDimension($payment);
+            if ($subgroup == 'method') {
+                $dimension = $payment->present()->method;
+            } else {
+                $dimension = $this->getDimension($payment);
+            }
 
             $convertedAmount = $currencyType == 'converted' ? ($invoice->amount * $payment->exchange_rate) : $invoice->amount;
             $this->addChartData($dimension, $payment->payment_date, $convertedAmount);

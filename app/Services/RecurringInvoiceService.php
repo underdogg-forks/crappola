@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class RecurringInvoiceService extends BaseService
 {
-    protected InvoiceRepository $invoiceRepo;
+    protected $invoiceRepo;
 
-    protected DatatableService $datatableService;
+    protected $datatableService;
 
     public function __construct(InvoiceRepository $invoiceRepo, DatatableService $datatableService)
     {

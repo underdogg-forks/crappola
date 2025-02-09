@@ -3,7 +3,6 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\AccountEmailSettings;
-use Laracasts\Presenter\Exceptions\PresenterException;
 
 /**
  * Class AccountTransformer.
@@ -17,9 +16,11 @@ class AccountEmailSettingsTransformer extends EntityTransformer
     /**
      * @param Account $settings
      *
-     * @throws PresenterException
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     *
+     * @return array
      */
-    public function transform(AccountEmailSettings $settings): array
+    public function transform(AccountEmailSettings $settings)
     {
         return [
             'reply_to_email'           => $settings->reply_to_email,

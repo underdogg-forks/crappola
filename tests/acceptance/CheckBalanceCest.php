@@ -6,14 +6,14 @@ class CheckBalanceCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function checkBalance(AcceptanceTester $I): void
+    public function checkBalance(AcceptanceTester $I)
     {
         $I->wantTo('ensure the balance is correct');
 

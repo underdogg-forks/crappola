@@ -2,21 +2,20 @@
 
 namespace App\Ninja\Repositories;
 
-use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Chumper\Datatable\Facades\DatatableFacade as Datatable;
+use Datatable;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TaskRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Task::class;
+        return 'App\Models\Task';
     }
 
     public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
@@ -28,7 +27,7 @@ class TaskRepository extends BaseRepository
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
             ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
             ->where('tasks.account_id', '=', Auth::user()->account_id)
-            ->where(function ($query): void { // handle when client isn't set
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
@@ -74,28 +73,24 @@ class TaskRepository extends BaseRepository
 
         if ($statuses = session('entity_status_filter:' . ENTITY_TASK)) {
             $statuses = explode(',', $statuses);
-            $query->where(function ($query) use ($statuses): void {
+            $query->where(function ($query) use ($statuses) {
                 if (in_array(TASK_STATUS_LOGGED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '=', 0)
                         ->orWhereNull('tasks.invoice_id');
                 }
-
                 if (in_array(TASK_STATUS_RUNNING, $statuses)) {
                     $query->orWhere('tasks.is_running', '=', 1);
                 }
-
                 if (in_array(TASK_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '>', 0);
                     if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
-
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
-
-                $query->orWhere(function ($query) use ($statuses): void {
+                $query->orWhere(function ($query) use ($statuses) {
                     $query->whereIn('task_statuses.public_id', $statuses)
                         ->whereNull('tasks.invoice_id');
                 });
@@ -103,7 +98,7 @@ class TaskRepository extends BaseRepository
         }
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
@@ -132,10 +127,18 @@ class TaskRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('project', fn ($model) => $model->project)
-            ->addColumn('date', fn ($model) => Task::calcStartTime($model))
-            ->addColumn('duration', fn ($model) => Utils::formatTime(Task::calcDuration($model)))
-            ->addColumn('description', fn ($model) => $model->description);
+            ->addColumn('project', function ($model) {
+                return $model->project;
+            })
+            ->addColumn('date', function ($model) {
+                return Task::calcStartTime($model);
+            })
+            ->addColumn('duration', function ($model) {
+                return Utils::formatTime(Task::calcDuration($model));
+            })
+            ->addColumn('description', function ($model) {
+                return $model->description;
+            });
 
         return $table->make();
     }
@@ -161,20 +164,20 @@ class TaskRepository extends BaseRepository
             $project = Project::scope($data['project_id'])->firstOrFail();
             $task->project_id = $project->id;
             $task->client_id = $project->client_id;
-        } elseif (isset($data['client'])) {
-            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
-        } elseif (isset($data['client_id'])) {
-            $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
+        } else {
+            if (isset($data['client'])) {
+                $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+            } elseif (isset($data['client_id'])) {
+                $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
+            }
         }
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
         }
-
         if (isset($data['task_status_id'])) {
             $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
         }
-
         if (isset($data['task_status_sort_order'])) {
             $task->task_status_sort_order = $data['task_status_sort_order'];
         }
@@ -197,7 +200,7 @@ class TaskRepository extends BaseRepository
                 $task->is_running = true;
                 $timeLog[] = [strtotime('now'), false];
             } elseif ($data['action'] == 'stop' && $task->is_running) {
-                $timeLog[count($timeLog) - 1][1] = Carbon::now()->timestamp;
+                $timeLog[count($timeLog) - 1][1] = time();
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;

@@ -6,8 +6,6 @@ use Postmark\PostmarkClient;
 
 class ReactivatePostmarkEmail extends Job
 {
-    public $bounceId;
-
     public function __construct($bounceId)
     {
         $this->bounceId = $bounceId;
@@ -25,7 +23,6 @@ class ReactivatePostmarkEmail extends Job
         }
 
         $postmark = new PostmarkClient(config('services.postmark'));
-        $postmark->activateBounce($this->bounceId);
-        return null;
+        $response = $postmark->activateBounce($this->bounceId);
     }
 }

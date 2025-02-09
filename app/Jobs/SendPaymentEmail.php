@@ -42,7 +42,7 @@ class SendPaymentEmail extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ContactMailer $contactMailer): void
+    public function handle(ContactMailer $contactMailer)
     {
         $contactMailer->sendPaymentConfirmation($this->payment);
     }

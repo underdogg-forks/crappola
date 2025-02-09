@@ -3,16 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Timezone;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run(): void
+    public function run()
     {
         $this->command->info('Running DatabaseSeeder');
 
@@ -22,25 +18,27 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        Eloquent::unguard();
+        Model::unguard();
 
-        $this->call('ConstantsSeeder');
-        $this->call('CountriesSeeder');
-        $this->call('PaymentLibrariesSeeder');
-        $this->call('FontsSeeder');
-        $this->call('GatewayTypesSeeder');
-        $this->call('BanksSeeder');
-        $this->call('InvoiceStatusSeeder');
-        $this->call('ProposalTemplatesSeeder');
-        $this->call('PaymentStatusSeeder');
-        $this->call('CurrenciesSeeder');
-        $this->call('DateFormatsSeeder');
-        $this->call('InvoiceDesignsSeeder');
-        $this->call('PaymentTermsSeeder');
-        $this->call('PaymentTypesSeeder');
-        $this->call('LanguageSeeder');
-        $this->call('IndustrySeeder');
-        $this->call('FrequencySeeder');
-        $this->call('DbServerSeeder');
+        $this->call([
+            CountriesSeeder::class,
+            CountriesSeeder::class,
+            PaymentLibrariesSeeder::class,
+            FontsSeeder::class,
+            GatewayTypesSeeder::class,
+            BanksSeeder::class,
+            InvoiceStatusSeeder::class,
+            ProposalTemplatesSeeder::class,
+            PaymentStatusSeeder::class,
+            CurrenciesSeeder::class,
+            DateFormatsSeeder::class,
+            InvoiceDesignsSeeder::class,
+            PaymentTermsSeeder::class,
+            PaymentTypesSeeder::class,
+            LanguageSeeder::class,
+            IndustrySeeder::class,
+            FrequencySeeder::class,
+            DbServerSeeder::class,
+        ]);
     }
 }

@@ -35,7 +35,12 @@ class CalculatePayouts extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
         $type = mb_strtolower($this->option('type'));
 
@@ -47,9 +52,11 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
+
+        return 0;
     }
 
-    protected function getOptions(): array
+    protected function getOptions()
     {
         return [
             ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
@@ -58,7 +65,7 @@ class CalculatePayouts extends Command
         ];
     }
 
-    private function referralPayouts(): void
+    private function referralPayouts()
     {
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
@@ -109,7 +116,7 @@ class CalculatePayouts extends Command
         }
     }
 
-    private function resellerPayouts(): void
+    private function resellerPayouts()
     {
         $response = CurlUtils::post($this->option('url') . '/reseller_stats', [
             'password' => $this->option('password'),

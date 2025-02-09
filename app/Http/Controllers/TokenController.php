@@ -4,25 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
+use Validator;
 
 /**
  * Class TokenController.
  */
 class TokenController extends BaseController
 {
-    protected TokenService $tokenService;
+    /**
+     * @var TokenService
+     */
+    protected $tokenService;
 
     /**
      * TokenController constructor.
+     *
+     * @param TokenService $tokenService
      */
     public function __construct(TokenService $tokenService)
     {
@@ -32,7 +34,7 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
@@ -40,7 +42,7 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable()
     {
@@ -52,7 +54,7 @@ class TokenController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(string $publicId)
+    public function edit($publicId)
     {
         $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();
@@ -70,7 +72,7 @@ class TokenController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
     {
@@ -78,7 +80,7 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store()
     {
@@ -101,13 +103,13 @@ class TokenController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function bulk()
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $this->tokenService->bulk($ids, $action);
+        $count = $this->tokenService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_token'));
 
@@ -117,7 +119,7 @@ class TokenController extends BaseController
     /**
      * @param bool $tokenPublicId
      *
-     * @return $this|RedirectResponse
+     * @return $this|\Illuminate\Http\RedirectResponse
      */
     public function save($tokenPublicId = false)
     {
@@ -142,12 +144,16 @@ class TokenController extends BaseController
             } else {
                 $token = AccountToken::createNew();
                 $token->name = trim(Request::input('name'));
-                $token->token = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+                $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();
 
-            $message = $tokenPublicId ? trans('texts.updated_token') : trans('texts.created_token');
+            if ($tokenPublicId) {
+                $message = trans('texts.updated_token');
+            } else {
+                $message = trans('texts.created_token');
+            }
 
             Session::flash('message', $message);
         }

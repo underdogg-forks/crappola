@@ -16,9 +16,11 @@ class ProposalComposer
     /**
      * Bind data to the view.
      *
+     * @param View $view
      *
+     * @return void
      */
-    public function compose(View $view): void
+    public function compose(View $view)
     {
         $snippets = ProposalSnippet::scope()
             ->with('proposal_category')

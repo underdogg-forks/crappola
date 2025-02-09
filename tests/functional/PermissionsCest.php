@@ -12,7 +12,7 @@ class PermissionsCest
 
     private $entityArray;
 
-    public function _before(FunctionalTester $I): void
+    public function _before(FunctionalTester $I)
     {
         $this->faker = Factory::create();
         $I->checkIfLogin($I);
@@ -35,13 +35,13 @@ class PermissionsCest
         ];
     }
 
-    public function setViewPermissions(FunctionalTester $I): void
+    public function setViewPermissions(FunctionalTester $I)
     {
         $I->wantTo('create a view only permission user');
 
         $permissions = [];
 
-        foreach ($this->entityArray as $item) {
+        foreach($this->entityArray as $item) {
             array_push($permissions, 'view_' . $item);
         }
 
@@ -61,73 +61,73 @@ class PermissionsCest
      *
      */
 
-    public function viewInvoice(FunctionalTester $I): void
+    public function viewInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewClient(FunctionalTester $I): void
+    public function viewClient(FunctionalTester $I)
     {
         $I->amOnPage('/clients/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProduct(FunctionalTester $I): void
+    public function viewProduct(FunctionalTester $I)
     {
         $I->amOnPage('/products/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewPayment(FunctionalTester $I): void
+    public function viewPayment(FunctionalTester $I)
     {
         $I->amOnPage('/payments/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewQuote(FunctionalTester $I): void
+    public function viewQuote(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewRecurringInvoice(FunctionalTester $I): void
+    public function viewRecurringInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/recurring_invoices/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewCredit(FunctionalTester $I): void
+    public function viewCredit(FunctionalTester $I)
     {
         $I->amOnPage('/credits/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProposal(FunctionalTester $I): void
+    public function viewProposal(FunctionalTester $I)
     {
         $I->amOnPage('/proposals/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProject(FunctionalTester $I): void
+    public function viewProject(FunctionalTester $I)
     {
         $I->amOnPage('/projects/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewTask(FunctionalTester $I): void
+    public function viewTask(FunctionalTester $I)
     {
         $I->amOnPage('/tasks/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewExpense(FunctionalTester $I): void
+    public function viewExpense(FunctionalTester $I)
     {
         $I->amOnPage('/expenses/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewVendor(FunctionalTester $I): void
+    public function viewVendor(FunctionalTester $I)
     {
         $I->amOnPage('/vendors/1');
         $I->seeResponseCodeIs(200);
@@ -135,73 +135,73 @@ class PermissionsCest
 
     // Test view permissions for lists
 
-    public function viewInvoices(FunctionalTester $I): void
+    public function viewInvoices(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewClients(FunctionalTester $I): void
+    public function viewClients(FunctionalTester $I)
     {
         $I->amOnPage('/clients/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProducts(FunctionalTester $I): void
+    public function viewProducts(FunctionalTester $I)
     {
         $I->amOnPage('/products/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewPayments(FunctionalTester $I): void
+    public function viewPayments(FunctionalTester $I)
     {
         $I->amOnPage('/payments/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewQuotes(FunctionalTester $I): void
+    public function viewQuotes(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewRecurringInvoices(FunctionalTester $I): void
+    public function viewRecurringInvoices(FunctionalTester $I)
     {
         $I->amOnPage('/recurring_invoices/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewCredits(FunctionalTester $I): void
+    public function viewCredits(FunctionalTester $I)
     {
         $I->amOnPage('/credits/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProposals(FunctionalTester $I): void
+    public function viewProposals(FunctionalTester $I)
     {
         $I->amOnPage('/proposals/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewProjects(FunctionalTester $I): void
+    public function viewProjects(FunctionalTester $I)
     {
         $I->amOnPage('/projects/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewTasks(FunctionalTester $I): void
+    public function viewTasks(FunctionalTester $I)
     {
         $I->amOnPage('/tasks/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewExpenses(FunctionalTester $I): void
+    public function viewExpenses(FunctionalTester $I)
     {
         $I->amOnPage('/expenses/');
         $I->seeResponseCodeIs(200);
     }
 
-    public function viewVendors(FunctionalTester $I): void
+    public function viewVendors(FunctionalTester $I)
     {
         $I->amOnPage('/vendors/');
         $I->seeResponseCodeIs(200);
@@ -209,73 +209,73 @@ class PermissionsCest
 
     // Test Create permissions when only VIEW enabled
 
-    public function createInvoice(FunctionalTester $I): void
+    public function createInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createClient(FunctionalTester $I): void
+    public function createClient(FunctionalTester $I)
     {
         $I->amOnPage('/clients/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createProduct(FunctionalTester $I): void
+    public function createProduct(FunctionalTester $I)
     {
         $I->amOnPage('/products/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createPayment(FunctionalTester $I): void
+    public function createPayment(FunctionalTester $I)
     {
         $I->amOnPage('/payments/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createQuote(FunctionalTester $I): void
+    public function createQuote(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createRecurringInvoice(FunctionalTester $I): void
+    public function createRecurringInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/recurring_invoices/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createCredit(FunctionalTester $I): void
+    public function createCredit(FunctionalTester $I)
     {
         $I->amOnPage('/credits/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createProposal(FunctionalTester $I): void
+    public function createProposal(FunctionalTester $I)
     {
         $I->amOnPage('/proposals/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createProject(FunctionalTester $I): void
+    public function createProject(FunctionalTester $I)
     {
         $I->amOnPage('/projects/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createTask(FunctionalTester $I): void
+    public function createTask(FunctionalTester $I)
     {
         $I->amOnPage('/tasks/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createExpense(FunctionalTester $I): void
+    public function createExpense(FunctionalTester $I)
     {
         $I->amOnPage('/expenses/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function createVendor(FunctionalTester $I): void
+    public function createVendor(FunctionalTester $I)
     {
         $I->amOnPage('/vendors/create');
         $I->seeResponseCodeIs(403);
@@ -283,7 +283,7 @@ class PermissionsCest
 
     // Test the edge case with Invoice and Quote Permissions
 
-    public function setQuoteOnlyPermissions(FunctionalTester $I): void
+    public function setQuoteOnlyPermissions(FunctionalTester $I)
     {
         $I->wantTo('create a quote view only permission user');
 
@@ -302,7 +302,7 @@ class PermissionsCest
         );
     }
 
-    public function testCreateInvoice(FunctionalTester $I): void
+    public function testCreateInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/create');
         $I->seeResponseCodeIs(403);
@@ -325,25 +325,25 @@ class PermissionsCest
 
     */
 
-    public function testCreateQuote(FunctionalTester $I): void
+    public function testCreateQuote(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/create');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testEditQuote(FunctionalTester $I): void
+    public function testEditQuote(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1/edit');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testViewQuote(FunctionalTester $I): void
+    public function testViewQuote(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function setInvoiceOnlyPermissions(FunctionalTester $I): void
+    public function setInvoiceOnlyPermissions(FunctionalTester $I)
     {
         $I->wantTo('create a invoice view only permission user');
 
@@ -362,37 +362,37 @@ class PermissionsCest
         );
     }
 
-    public function testCreateInvoiceOnly(FunctionalTester $I): void
+    public function testCreateInvoiceOnly(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/create');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testViewInvoiceOnly(FunctionalTester $I): void
+    public function testViewInvoiceOnly(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/1');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testEditInvoiceOnly(FunctionalTester $I): void
+    public function testEditInvoiceOnly(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/1/edit');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testCreateQuoteOnly(FunctionalTester $I): void
+    public function testCreateQuoteOnly(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/create');
         $I->seeResponseCodeIs(403);
     }
 
-    public function testEditQuoteOnly(FunctionalTester $I): void
+    public function testEditQuoteOnly(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1/edit');
         $I->seeResponseCodeIs(200);
     }
 
-    public function testViewQuoteOnly(FunctionalTester $I): void
+    public function testViewQuoteOnly(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1');
         $I->seeResponseCodeIs(403);

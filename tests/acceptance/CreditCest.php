@@ -6,14 +6,14 @@ class CreditCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function create(AcceptanceTester $I): void
+    public function create(AcceptanceTester $I)
     {
         $note = $this->faker->catchPhrase;
         $clientEmail = $this->faker->safeEmail;

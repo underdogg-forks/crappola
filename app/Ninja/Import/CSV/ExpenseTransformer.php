@@ -16,9 +16,9 @@ class ExpenseTransformer extends BaseTransformer
      *
      * @return bool|Item
      */
-    public function transform($data): Item
+    public function transform($data)
     {
-        return new Item($data, function ($data): array {
+        return new Item($data, function ($data) {
             $clientId = isset($data->client) ? $this->getClientId($data->client) : null;
 
             return [
@@ -32,7 +32,7 @@ class ExpenseTransformer extends BaseTransformer
                 'payment_type_id'       => isset($data->payment_type) ? Utils::lookupIdInCache($data->payment_type, 'paymentTypes') : null,
                 'payment_date'          => isset($data->payment_date) ? date('Y-m-d', strtotime($data->payment_date)) : null,
                 'transaction_reference' => $this->getString($data, 'transaction_reference'),
-                'should_be_invoiced'    => (bool) $clientId,
+                'should_be_invoiced'    => $clientId ? true : false,
             ];
         });
     }

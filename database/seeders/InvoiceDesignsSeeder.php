@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceDesign;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class InvoiceDesignsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $designs = [
             'Clean',

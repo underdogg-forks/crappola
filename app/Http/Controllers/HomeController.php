@@ -2,29 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
-use Redirect;
-use Request;
-use Session;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 /**
  * Class HomeController.
  */
 class HomeController extends BaseController
 {
-    protected Mailer $mailer;
+    /**
+     * @var Mailer
+     */
+    protected $mailer;
 
     /**
      * HomeController constructor.
+     *
+     * @param Mailer $mailer
      */
     public function __construct(Mailer $mailer)
     {
@@ -34,21 +36,20 @@ class HomeController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function showIndex()
     {
-        \Illuminate\Support\Facades\Session::reflash();
+        Session::reflash();
 
         if ( ! Utils::isNinja() && ( ! Utils::isDatabaseSetup() || Account::count() == 0)) {
-            return \Illuminate\Support\Facades\Redirect::to('/setup');
+            return Redirect::to('/setup');
         }
-
         if (Auth::check()) {
-            return \Illuminate\Support\Facades\Redirect::to('/dashboard');
+            return Redirect::to('/dashboard');
         }
 
-        return \Illuminate\Support\Facades\Redirect::to('/login');
+        return Redirect::to('/login');
     }
 
     /**
@@ -60,17 +61,17 @@ class HomeController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function invoiceNow()
     {
         $url = 'https://invoicing.co';
 
-        if (\Illuminate\Support\Facades\Request::has('rc')) {
-            $url = $url . '?rc=' . \Illuminate\Support\Facades\Request::input('rc');
+        if (Request::has('rc')) {
+            $url = $url . '?rc=' . Request::input('rc');
         }
 
-        return \Illuminate\Support\Facades\Redirect::to($url);
+        return Redirect::to($url);
 
         /*
         // Track the referral/campaign code
@@ -91,7 +92,7 @@ class HomeController extends BaseController
      * @param $userType
      * @param $version
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function newsFeed($userType, $version)
     {
@@ -100,10 +101,13 @@ class HomeController extends BaseController
         return Response::json($response);
     }
 
-    public function hideMessage(): string
+    /**
+     * @return string
+     */
+    public function hideMessage()
     {
-        if (Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
-            $newsFeedId = \Illuminate\Support\Facades\Session::get('news_feed_id');
+        if (Auth::check() && Session::has('news_feed_id')) {
+            $newsFeedId = Session::get('news_feed_id');
             if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > Auth::user()->news_feed_id) {
                 $user = Auth::user();
                 $user->news_feed_id = $newsFeedId;
@@ -111,35 +115,38 @@ class HomeController extends BaseController
             }
         }
 
-        \Illuminate\Support\Facades\Session::forget('news_feed_message');
+        Session::forget('news_feed_message');
 
         return 'success';
     }
 
+    /**
+     * @return string
+     */
     public function logError()
     {
-        return Utils::logError(\Illuminate\Support\Facades\Request::input('error'), 'JavaScript');
+        return Utils::logError(Request::input('error'), 'JavaScript');
     }
 
-    public function keepAlive(): string
+    public function keepAlive()
     {
         return RESULT_SUCCESS;
     }
 
-    public function loggedIn(): string
+    public function loggedIn()
     {
         return RESULT_SUCCESS;
     }
 
-    public function contactUs(): string
+    public function contactUs()
     {
         $message = request()->contact_us_message;
 
         if (request()->include_errors) {
-            $message .= "\n\n" . implode("\n", Utils::getErrors());
+            $message .= "\n\n" . join("\n", Utils::getErrors());
         }
 
-        Mail::raw($message, function ($message): void {
+        Mail::raw($message, function ($message) {
             $subject = 'Customer Message [';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-ninja-', '', config('database.default'));
@@ -147,8 +154,7 @@ class HomeController extends BaseController
             } else {
                 $subject .= 'Self-Host] | ';
             }
-
-            $subject .= Carbon::now()->format('M jS, g:ia');
+            $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                 ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                 ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)

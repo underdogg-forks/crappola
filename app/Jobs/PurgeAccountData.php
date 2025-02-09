@@ -5,16 +5,18 @@ namespace App\Jobs;
 use App\Models\Document;
 use App\Models\LookupAccount;
 use App\Ninja\Mailers\UserMailer;
+use DB;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PurgeAccountData extends Job
 {
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
         $user = Auth::user();
         $account = $user->account;
@@ -24,7 +26,7 @@ class PurgeAccountData extends Job
         }
 
         // delete the documents from cloud storage
-        Document::scope()->each(function ($item, $key): void {
+        Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 

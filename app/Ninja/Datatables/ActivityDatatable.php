@@ -8,7 +8,7 @@ class ActivityDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACTIVITY;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
@@ -52,10 +52,10 @@ class ActivityDatatable extends EntityDatatable
                         'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, mb_substr($model->expense_public_notes, 0, 30) . '...') : null,
                     ];
 
-                    $str = trans('texts.activity_' . $model->activity_type_id, $data);
+                    $str = trans("texts.activity_{$model->activity_type_id}", $data);
 
                     if ($model->notes) {
-                        $str .= ' - ' . trans('texts.notes_' . $model->notes);
+                        $str .= ' - ' . trans("texts.notes_{$model->notes}");
                     }
 
                     return $str;
@@ -63,11 +63,15 @@ class ActivityDatatable extends EntityDatatable
             ],
             [
                 'balance',
-                fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
+                function ($model) {
+                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+                },
             ],
             [
                 'adjustment',
-                fn ($model) => $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '',
+                function ($model) {
+                    return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
+                },
             ],
         ];
     }

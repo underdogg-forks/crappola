@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\User;
 use App\Traits\GenerateMigrationResources;
@@ -39,62 +38,67 @@ class ExportMigrations extends Command
         parent::__construct();
     }
 
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle()
     {
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
 
-        if ($this->option('user')) {
+        if($this->option('user')) {
             $record = User::on(DB_NINJA_1)->find($this->option('user'));
 
-            if ($record) {
+            if($record) {
                 return $this->export($record);
             }
 
             $record = User::on(DB_NINJA_2)->find($this->option('user'));
 
-            if ($record) {
+            if($record) {
                 return $this->export($record);
             }
 
             $this->info('I could not find that user - sorry');
 
-            return null;
+            return;
         }
 
-        if ($this->option('email')) {
+        if($this->option('email')) {
             $record = User::on(DB_NINJA_1)->where('email', $this->option('email'))->first();
 
-            if ($record) {
+            if($record) {
                 return $this->export($record);
             }
 
             $record = User::on(DB_NINJA_2)->where('email', $this->option('email'))->first();
 
-            if ($record) {
+            if($record) {
                 return $this->export($record);
             }
 
             $this->info('I could not find that user by email - sorry');
 
-            return null;
+            return;
         }
 
-        if ($this->option('random')) {
-            User::all()->random(200)->each(function ($user): void {
+        if($this->option('random')) {
+            User::all()->random(200)->each(function ($user) {
                 $this->export($user);
             });
 
-            return null;
+            return;
         }
 
         $users = User::all();
 
-        foreach ($users as $user) {
+        foreach($users as $user) {
             Auth::login($user);
             $this->export($user);
         }
 
-        return null;
+        return 0;
     }
 
     private function export($user)
@@ -102,12 +106,12 @@ class ExportMigrations extends Command
         $this->account = $user->account;
         Auth::login($user);
 
-        $date = Carbon::now()->format('Y-m-d');
+        $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
-        fopen('php://output', 'w') || Utils::fatalError();
+        $output = fopen('php://output', 'w') || Utils::fatalError();
 
-        $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
+        $fileName = "{$accountKey}-{$date}-invoiceninja";
 
         $data['data'] = [
             'account'               => $this->getAccount(),
@@ -136,7 +140,7 @@ class ExportMigrations extends Command
         ];
 
         Storage::makeDirectory('migrations');
-        $file = storage_path(sprintf('migrations/%s.zip', $fileName));
+        $file = storage_path("migrations/{$fileName}.zip");
 
         $zip = new ZipArchive();
         $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);

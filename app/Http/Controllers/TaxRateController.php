@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\View;
 
 class TaxRateController extends BaseController
 {
-    protected TaxRateService $taxRateService;
+    protected $taxRateService;
 
-    protected TaxRateRepository $taxRateRepo;
+    protected $taxRateRepo;
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
@@ -37,7 +37,7 @@ class TaxRateController extends BaseController
         return $this->taxRateService->getDatatable(Auth::user()->account_id);
     }
 
-    public function edit(string $publicId)
+    public function edit($publicId)
     {
         $data = [
             'taxRate' => TaxRate::scope($publicId)->firstOrFail(),
@@ -83,7 +83,7 @@ class TaxRateController extends BaseController
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
-        $this->taxRateService->bulk($ids, $action);
+        $count = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));
 

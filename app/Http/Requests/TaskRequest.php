@@ -4,11 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\Client;
 use App\Models\Project;
-use App\Ninja\Repositories\ProjectRepository;
 
 class TaskRequest extends EntityRequest
 {
-    public $entityType = ENTITY_TASK;
+    protected $entityType = ENTITY_TASK;
 
     public function sanitize()
     {
@@ -21,7 +20,7 @@ class TaskRequest extends EntityRequest
                 'name' => trim($this->client_name),
             ];
             if (Client::validate($client) === true) {
-                $client = app(\App\Ninja\Repositories\ClientRepository::class)->save($client);
+                $client = app('App\Ninja\Repositories\ClientRepository')->save($client);
                 $input['client_id'] = $this->client_id = $client->public_id;
             }
         }
@@ -34,7 +33,7 @@ class TaskRequest extends EntityRequest
                 'client_id' => Client::getPrivateId($this->client_id ?: $this->client),
             ];
             if (Project::validate($project) === true) {
-                $project = app(ProjectRepository::class)->save($project);
+                $project = app('App\Ninja\Repositories\ProjectRepository')->save($project);
                 $input['project_id'] = $project->public_id;
             } else {
                 $input['project_id'] = null;

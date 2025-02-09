@@ -6,91 +6,13 @@ use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
 use App\Libraries\Utils;
-use App\Ninja\Presenters\VendorPresenter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use DateTimeInterface;
+use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Vendor.
- *
- * @property int                            $id
- * @property Carbon|null                    $created_at
- * @property Carbon|null                    $updated_at
- * @property Carbon|null                    $deleted_at
- * @property int                            $user_id
- * @property int                            $account_id
- * @property int|null                       $currency_id
- * @property string|null                    $name
- * @property string                         $address1
- * @property string                         $address2
- * @property string                         $city
- * @property string                         $state
- * @property string                         $postal_code
- * @property int|null                       $country_id
- * @property string                         $work_phone
- * @property string                         $private_notes
- * @property string                         $website
- * @property int                            $is_deleted
- * @property int                            $public_id
- * @property string|null                    $vat_number
- * @property string|null                    $id_number
- * @property string|null                    $transaction_name
- * @property string|null                    $custom_value1
- * @property string|null                    $custom_value2
- * @property Account                        $account
- * @property Country|null                   $country
- * @property Currency|null                  $currency
- * @property Collection<int, Expense>       $expenses
- * @property int|null                       $expenses_count
- * @property Industry|null                  $industry
- * @property Language|null                  $language
- * @property Collection<int, Payment>       $payments
- * @property int|null                       $payments_count
- * @property Size|null                      $size
- * @property User                           $user
- * @property Collection<int, VendorContact> $vendor_contacts
- * @property int|null                       $vendor_contacts_count
- *
- * @method static Builder|Vendor newModelQuery()
- * @method static Builder|Vendor newQuery()
- * @method static Builder|Vendor onlyTrashed()
- * @method static Builder|Vendor query()
- * @method static Builder|Vendor scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|Vendor whereAccountId($value)
- * @method static Builder|Vendor whereAddress1($value)
- * @method static Builder|Vendor whereAddress2($value)
- * @method static Builder|Vendor whereCity($value)
- * @method static Builder|Vendor whereCountryId($value)
- * @method static Builder|Vendor whereCreatedAt($value)
- * @method static Builder|Vendor whereCurrencyId($value)
- * @method static Builder|Vendor whereCustomValue1($value)
- * @method static Builder|Vendor whereCustomValue2($value)
- * @method static Builder|Vendor whereDeletedAt($value)
- * @method static Builder|Vendor whereId($value)
- * @method static Builder|Vendor whereIdNumber($value)
- * @method static Builder|Vendor whereIsDeleted($value)
- * @method static Builder|Vendor whereName($value)
- * @method static Builder|Vendor wherePostalCode($value)
- * @method static Builder|Vendor wherePrivateNotes($value)
- * @method static Builder|Vendor wherePublicId($value)
- * @method static Builder|Vendor whereState($value)
- * @method static Builder|Vendor whereTransactionName($value)
- * @method static Builder|Vendor whereUpdatedAt($value)
- * @method static Builder|Vendor whereUserId($value)
- * @method static Builder|Vendor whereVatNumber($value)
- * @method static Builder|Vendor whereWebsite($value)
- * @method static Builder|Vendor whereWorkPhone($value)
- * @method static Builder|Vendor withActiveOrSelected($id = false)
- * @method static Builder|Vendor withArchived()
- * @method static Builder|Vendor withTrashed()
- * @method static Builder|Vendor withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class Vendor extends EntityModel
 {
@@ -145,11 +67,10 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = VendorPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
 
-    /**
-     * @var array
-     */
+    protected $dates = ['deleted_at'];
+
     protected $fillable = [
         'name',
         'id_number',
@@ -169,9 +90,10 @@ class Vendor extends EntityModel
         'custom_value2',
     ];
 
-    protected $casts = ['deleted_at' => 'datetime'];
-
-    public static function getImportColumns(): array
+    /**
+     * @return array
+     */
+    public static function getImportColumns()
     {
         return [
             self::$fieldName,
@@ -190,7 +112,10 @@ class Vendor extends EntityModel
         ];
     }
 
-    public static function getImportMap(): array
+    /**
+     * @return array
+     */
+    public static function getImportMap()
     {
         return [
             'first'                    => 'contact_first_name',
@@ -209,61 +134,88 @@ class Vendor extends EntityModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany('App\Models\Payment');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function vendor_contacts()
     {
-        return $this->hasMany(VendorContact::class);
+        return $this->hasMany('App\Models\VendorContact');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function country()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo('App\Models\Country');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo('App\Models\Currency');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function language()
     {
-        return $this->belongsTo(Language::class);
+        return $this->belongsTo('App\Models\Language');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function size()
     {
-        return $this->belongsTo(Size::class);
+        return $this->belongsTo('App\Models\Size');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function industry()
     {
-        return $this->belongsTo(Industry::class);
+        return $this->belongsTo('App\Models\Industry');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function expenses()
     {
-        return $this->hasMany(Expense::class, 'vendor_id', 'id');
+        return $this->hasMany('App\Models\Expense', 'vendor_id', 'id');
     }
 
     /**
      * @param      $data
      * @param bool $isPrimary
      *
-     * @return Model
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function addVendorContact($data, $isPrimary = false)
     {
@@ -281,9 +233,12 @@ class Vendor extends EntityModel
         return $this->vendor_contacts()->save($contact);
     }
 
-    public function getRoute(): string
+    /**
+     * @return string
+     */
+    public function getRoute()
     {
-        return '/vendors/' . $this->public_id;
+        return "/vendors/{$this->public_id}";
     }
 
     public function getName()
@@ -296,6 +251,9 @@ class Vendor extends EntityModel
         return $this->getName();
     }
 
+    /**
+     * @return string
+     */
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
@@ -303,17 +261,26 @@ class Vendor extends EntityModel
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    public function getEntityType(): string
+    /**
+     * @return string
+     */
+    public function getEntityType()
     {
         return 'vendor';
     }
 
-    public function showMap(): bool
+    /**
+     * @return bool
+     */
+    public function showMap()
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
-    public function hasAddress(): bool
+    /**
+     * @return bool
+     */
+    public function hasAddress()
     {
         $fields = [
             'address1',
@@ -333,6 +300,9 @@ class Vendor extends EntityModel
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function getDateCreated()
     {
         if ($this->created_at == '0000-00-00 00:00:00') {
@@ -367,28 +337,33 @@ class Vendor extends EntityModel
             ->groupBy('expense_currency_id')
             ->get();
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
 
-Vendor::creating(function ($vendor): void {
+Vendor::creating(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::created(function ($vendor): void {
+Vendor::created(function ($vendor) {
     event(new VendorWasCreated($vendor));
 });
 
-Vendor::updating(function ($vendor): void {
+Vendor::updating(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::updated(function ($vendor): void {
+Vendor::updated(function ($vendor) {
     event(new VendorWasUpdated($vendor));
 });
 
-Vendor::deleting(function ($vendor): void {
+Vendor::deleting(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::deleted(function ($vendor): void {
+Vendor::deleted(function ($vendor) {
     event(new VendorWasDeleted($vendor));
 });

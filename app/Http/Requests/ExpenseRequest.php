@@ -4,12 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\ExpenseCategory;
 use App\Models\Vendor;
-use App\Ninja\Repositories\ExpenseCategoryRepository;
-use App\Ninja\Repositories\VendorRepository;
 
 class ExpenseRequest extends EntityRequest
 {
-    public $entityType = ENTITY_EXPENSE;
+    protected $entityType = ENTITY_EXPENSE;
 
     public function entity()
     {
@@ -33,7 +31,7 @@ class ExpenseRequest extends EntityRequest
                 'name' => trim($this->expense_category_name),
             ];
             if (ExpenseCategory::validate($data) === true) {
-                $category = app(ExpenseCategoryRepository::class)->save($data);
+                $category = app('App\Ninja\Repositories\ExpenseCategoryRepository')->save($data);
                 $input['expense_category_id'] = $category->id;
             } else {
                 $input['expense_category_id'] = null;
@@ -48,7 +46,7 @@ class ExpenseRequest extends EntityRequest
                 'name' => trim($this->vendor_name),
             ];
             if (Vendor::validate($data) === true) {
-                $vendor = app(VendorRepository::class)->save($data);
+                $vendor = app('App\Ninja\Repositories\VendorRepository')->save($data);
                 // TODO change to private id once service is refactored
                 $input['vendor_id'] = $vendor->public_id;
             } else {

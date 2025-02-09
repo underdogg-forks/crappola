@@ -16,8 +16,13 @@ class CreditTransformer extends EntityTransformer
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
      * @SWG\Property(property="public_notes", type="string", example="Notes...")
      */
-    
-    public function transform(Credit $credit): array
+
+    /**
+     * @param Credit $credit
+     *
+     * @return array
+     */
+    public function transform(Credit $credit)
     {
         return array_merge($this->getDefaults($credit), [
             'id'            => (int) $credit->public_id,

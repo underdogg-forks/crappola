@@ -7,7 +7,9 @@ use App\Models\User;
 class TaskPolicy extends EntityPolicy
 {
     /**
+     * @param User  $user
      * @param mixed $item
+     *
      * @return bool
      */
     public static function create(User $user, $item)

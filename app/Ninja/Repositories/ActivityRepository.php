@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Repositories;
 
+use App;
 use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\App;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class ActivityRepository
@@ -98,7 +98,7 @@ class ActivityRepository
             );
     }
 
-    private function getBlank($entity): Activity
+    private function getBlank($entity)
     {
         $activity = new Activity();
 

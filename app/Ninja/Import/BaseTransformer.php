@@ -12,6 +12,9 @@ use League\Fractal\TransformerAbstract;
  */
 class BaseTransformer extends TransformerAbstract
 {
+    /**
+     * @var
+     */
     protected $maps;
 
     /**
@@ -26,8 +29,10 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return bool
      */
-    public function hasClient($name): bool
+    public function hasClient($name)
     {
         $name = trim(mb_strtolower($name));
 
@@ -36,8 +41,10 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return bool
      */
-    public function hasVendor($name): bool
+    public function hasVendor($name)
     {
         $name = trim(mb_strtolower($name));
 
@@ -46,8 +53,10 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $key
+     *
+     * @return bool
      */
-    public function hasProduct($key): bool
+    public function hasProduct($key)
     {
         $key = trim(mb_strtolower($key));
 
@@ -89,6 +98,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getClientId($name)
     {
@@ -99,6 +110,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getProduct($data, $key, $field, $default = false)
     {
@@ -115,6 +128,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getContact($email)
     {
@@ -129,6 +144,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getCustomer($key)
     {
@@ -143,6 +160,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getCountryId($name)
     {
@@ -153,6 +172,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getCountryIdBy2($name)
     {
@@ -163,6 +184,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getTaxRate($name)
     {
@@ -173,6 +196,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getTaxName($name)
     {
@@ -198,13 +223,15 @@ class BaseTransformer extends TransformerAbstract
      * @param string $format
      * @param mixed  $data
      * @param mixed  $field
+     *
+     * @return null
      */
     public function getDate($data, $field)
     {
         if ($date = data_get($data, $field)) {
             try {
                 $date = new Carbon($date);
-            } catch (Exception) {
+            } catch (Exception $e) {
                 // if we fail to parse return blank
                 $date = false;
             }
@@ -230,13 +257,15 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return string
      */
-    public function getInvoiceNumber($number): ?string
+    public function getInvoiceNumber($number)
     {
-        return $number ? mb_str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
+        return $number ? str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**
      * @param $invoiceNumber
+     *
+     * @return null
      */
     public function getInvoiceId($invoiceNumber)
     {
@@ -248,6 +277,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
+     *
+     * @return null
      */
     public function getInvoicePublicId($invoiceNumber)
     {
@@ -259,8 +290,10 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
+     *
+     * @return bool
      */
-    public function hasInvoice($invoiceNumber): bool
+    public function hasInvoice($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = mb_strtolower($invoiceNumber);
@@ -270,6 +303,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $invoiceNumber
+     *
+     * @return null
      */
     public function getInvoiceClientId($invoiceNumber)
     {
@@ -281,6 +316,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getVendorId($name)
     {
@@ -291,6 +328,8 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
+     * @return null
      */
     public function getExpenseCategoryId($name)
     {

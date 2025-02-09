@@ -6,12 +6,12 @@ class CreateTaxRateRequest extends TaxRateRequest
 {
     // Expenses
 
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_TAX_RATE);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => 'required',

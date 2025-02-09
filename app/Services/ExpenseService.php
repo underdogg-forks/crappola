@@ -7,7 +7,6 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -15,12 +14,21 @@ use Illuminate\Support\Facades\Auth;
  */
 class ExpenseService extends BaseService
 {
-    protected ExpenseRepository $expenseRepo;
+    /**
+     * @var ExpenseRepository
+     */
+    protected $expenseRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * ExpenseService constructor.
+     *
+     * @param ExpenseRepository $expenseRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
@@ -30,6 +38,7 @@ class ExpenseService extends BaseService
 
     /**
      * @param      $data
+     * @param null $expense
      *
      * @return mixed|null
      */
@@ -49,7 +58,7 @@ class ExpenseService extends BaseService
     /**
      * @param $search
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search)
     {
@@ -65,7 +74,7 @@ class ExpenseService extends BaseService
     /**
      * @param $vendorPublicId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatableVendor($vendorPublicId)
     {
@@ -83,7 +92,7 @@ class ExpenseService extends BaseService
     /**
      * @param $clientPublicId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatableClient($clientPublicId)
     {
@@ -98,7 +107,10 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    protected function getRepo(): ExpenseRepository
+    /**
+     * @return ExpenseRepository
+     */
+    protected function getRepo()
     {
         return $this->expenseRepo;
     }

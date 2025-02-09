@@ -8,8 +8,6 @@ use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
 use Closure;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -22,8 +20,10 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param string  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param Closure                  $next
+     * @param string                   $guard
+     *
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = 'user')
@@ -50,7 +50,6 @@ class Authenticate
                         $authenticated = false;
                         Auth::guard($guard)->logout();
                     }
-
                     Session::put('contact_key', $invitation->contact->contact_key);
                 }
             }
@@ -69,14 +68,13 @@ class Authenticate
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
             }
-
             if ( ! $contact) {
                 return Redirect::to('client/login');
             }
 
             $account = $contact->account;
 
-            if (Auth::guard('user')->check() && Auth::user()->account_id == $account->id) {
+            if (Auth::guard('user')->check() && Auth::user('user')->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }
@@ -104,15 +102,16 @@ class Authenticate
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             }
-
             if ($guard == 'client') {
                 $url = '/client/login';
                 if (Utils::isNinjaProd()) {
-                    if ($account && Utils::getSubdomain() === 'app') {
+                    if ($account && Utils::getSubdomain() == 'app') {
                         $url .= '?account_key=' . $account->account_key;
                     }
-                } elseif ($account && Account::count() > 1) {
-                    $url .= '?account_key=' . $account->account_key;
+                } else {
+                    if ($account && Account::count() > 1) {
+                        $url .= '?account_key=' . $account->account_key;
+                    }
                 }
             } else {
                 $url = '/login';
@@ -127,7 +126,7 @@ class Authenticate
     /**
      * @param $key
      *
-     * @return Model|null|static
+     * @return \Illuminate\Database\Eloquent\Model|null|static
      */
     protected function getInvitation($key, $isProposal = false)
     {
@@ -136,7 +135,7 @@ class Authenticate
         }
 
         // check for extra params at end of value (from website feature)
-        [$key] = explode('&', $key);
+        list($key) = explode('&', $key);
         $key = mb_substr($key, 0, RANDOM_KEY_LENGTH);
 
         if ($isProposal) {
@@ -148,14 +147,12 @@ class Authenticate
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
         }
-
-        return null;
     }
 
     /**
      * @param $key
      *
-     * @return Model|null|static
+     * @return \Illuminate\Database\Eloquent\Model|null|static
      */
     protected function getContact($key)
     {
@@ -163,7 +160,5 @@ class Authenticate
         if ($contact && ! $contact->is_deleted) {
             return $contact;
         }
-
-        return null;
     }
 }

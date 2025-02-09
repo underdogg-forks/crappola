@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class TaxRateReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'client'         => [],
@@ -21,15 +21,16 @@ class TaxRateReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
             ->with('contacts', 'user')
-            ->with(['invoices' => function ($query): void {
+            ->with(['invoices' => function ($query) {
                 $query->with('invoice_items')
                     ->withArchived()
                     ->invoices()
@@ -39,12 +40,12 @@ class TaxRateReport extends AbstractReport
                         ->where('invoice_date', '<=', $this->endDate)
                         ->with('payments');
                 } else {
-                    $query->whereHas('payments', function ($query): void {
+                    $query->whereHas('payments', function ($query) {
                         $query->where('payment_date', '>=', $this->startDate)
                             ->where('payment_date', '<=', $this->endDate)
                             ->withArchived();
                     })
-                        ->with(['payments' => function ($query): void {
+                        ->with(['payments' => function ($query) {
                             $query->where('payment_date', '>=', $this->startDate)
                                 ->where('payment_date', '<=', $this->endDate)
                                 ->withArchived();
@@ -62,7 +63,6 @@ class TaxRateReport extends AbstractReport
                     if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
-
                     if (isset($taxTotals[$currencyId][$key])) {
                         $taxTotals[$currencyId][$key]['amount'] += $tax['amount'];
                         $taxTotals[$currencyId][$key]['paid'] += $tax['paid'];
@@ -71,7 +71,7 @@ class TaxRateReport extends AbstractReport
                     }
                 }
 
-                foreach ($taxTotals as $taxes) {
+                foreach ($taxTotals as $currencyId => $taxes) {
                     foreach ($taxes as $tax) {
                         $this->data[] = [
                             $this->isExport ? $client->getDisplayName() : $client->present()->link,

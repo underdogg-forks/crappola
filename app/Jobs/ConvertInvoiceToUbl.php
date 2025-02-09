@@ -24,8 +24,6 @@ class ConvertInvoiceToUbl extends Job
 
     public const INVOICE_TYPE_CREDIT = 381;
 
-    public $invoice;
-
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
@@ -62,8 +60,7 @@ class ConvertInvoiceToUbl extends Job
         $ublInvoice->setInvoiceLines($invoiceLines);
 
         $taxtotal = new TaxTotal();
-        $taxAmount1 = 0;
-        $taxAmount2 = 0;
+        $taxAmount1 = $taxAmount2 = 0;
 
         $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
         if ($invoice->tax_name2 || (float) ($invoice->tax_rate2)) {
@@ -87,11 +84,10 @@ class ConvertInvoiceToUbl extends Job
         }
     }
 
-    private function createParty($company, $user): Party
+    private function createParty($company, $user)
     {
         $party = new Party();
         $party->setName($company->name);
-
         $address = (new Address())
             ->setCityName($company->city)
             ->setStreetName($company->address1)
@@ -109,7 +105,6 @@ class ConvertInvoiceToUbl extends Job
 
         $contact = new Contact();
         $contact->setElectronicMail($user->email);
-
         $party->setContact($contact);
 
         return $party;
@@ -127,8 +122,7 @@ class ConvertInvoiceToUbl extends Job
         //->setSellersItemIdentification("1ABCD"));
 
         $taxtotal = new TaxTotal();
-        $itemTaxAmount1 = 0;
-        $itemTaxAmount2 = 0;
+        $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
         $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
         if ($item->tax_name2 || (float) ($item->tax_rate2)) {

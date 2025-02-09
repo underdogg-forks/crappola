@@ -3,7 +3,6 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Client;
-use League\Fractal\Resource\Collection;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
@@ -60,7 +59,9 @@ class ClientTransformer extends EntityTransformer
     ];
 
     /**
-     * @return Collection
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeActivities(Client $client)
     {
@@ -70,7 +71,9 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @return Collection
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeContacts(Client $client)
     {
@@ -80,7 +83,9 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @return Collection
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeInvoices(Client $client)
     {
@@ -90,7 +95,9 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @return Collection
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeCredits(Client $client)
     {
@@ -100,7 +107,9 @@ class ClientTransformer extends EntityTransformer
     }
 
     /**
-     * @return Collection
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeExpenses(Client $client)
     {
@@ -109,8 +118,12 @@ class ClientTransformer extends EntityTransformer
         return $this->includeCollection($client->expenses, $transformer, ENTITY_EXPENSE);
     }
 
-    
-    public function transform(Client $client): array
+    /**
+     * @param Client $client
+     *
+     * @return array
+     */
+    public function transform(Client $client)
     {
         return array_merge($this->getDefaults($client), [
             'id'                     => (int) $client->public_id,

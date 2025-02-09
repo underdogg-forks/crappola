@@ -10,9 +10,15 @@ use Illuminate\Support\Facades\Auth;
  */
 class BaseRepository
 {
+    /**
+     * @return null
+     */
     public function getClassName() {}
 
-    public function archive($entity): void
+    /**
+     * @param $entity
+     */
+    public function archive($entity)
     {
         if ($entity->trashed()) {
             return;
@@ -27,7 +33,10 @@ class BaseRepository
         }
     }
 
-    public function restore($entity): void
+    /**
+     * @param $entity
+     */
+    public function restore($entity)
     {
         if ( ! $entity->trashed()) {
             return;
@@ -49,7 +58,10 @@ class BaseRepository
         }
     }
 
-    public function delete($entity): void
+    /**
+     * @param $entity
+     */
+    public function delete($entity)
     {
         if ($entity->is_deleted) {
             return;
@@ -67,7 +79,13 @@ class BaseRepository
         }
     }
 
-    public function bulk($ids, $action): int
+    /**
+     * @param $ids
+     * @param $action
+     *
+     * @return int
+     */
+    public function bulk($ids, $action)
     {
         if ( ! $ids) {
             return 0;
@@ -84,41 +102,49 @@ class BaseRepository
         return count($entities);
     }
 
+    /**
+     * @param $ids
+     *
+     * @return mixed
+     */
     public function findByPublicIds($ids)
     {
         return $this->getInstance()->scope($ids)->get();
     }
 
+    /**
+     * @param $ids
+     *
+     * @return mixed
+     */
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    protected function applyFilters($query, string $entityType, $table = false)
+    protected function applyFilters($query, $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
 
         if ($filter = session('entity_state_filter:' . $entityType, STATUS_ACTIVE)) {
             $filters = explode(',', $filter);
-            $query->where(function ($query) use ($filters, $table): void {
+            $query->where(function ($query) use ($filters, $table) {
                 $query->whereNull($table . '.id');
 
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
-
                 if (in_array(STATUS_ARCHIVED, $filters)) {
-                    $query->orWhere(function ($query) use ($table): void {
+                    $query->orWhere(function ($query) use ($table) {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if ($table != 'users') {
+                        if ( ! in_array($table, ['users'])) {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
                 }
-
                 if (in_array(STATUS_DELETED, $filters)) {
-                    $query->orWhere(function ($query) use ($table): void {
+                    $query->orWhere(function ($query) use ($table) {
                         $query->whereNotNull($table . '.deleted_at')
                             ->where($table . '.is_deleted', '=', 1);
                     });
@@ -136,7 +162,13 @@ class BaseRepository
         return new $className();
     }
 
-    private function getEventClass($entity, string $type): string
+    /**
+     * @param $entity
+     * @param $type
+     *
+     * @return string
+     */
+    private function getEventClass($entity, $type)
     {
         return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }

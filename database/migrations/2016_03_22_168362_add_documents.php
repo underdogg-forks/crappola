@@ -1,16 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddDocuments extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('logo')->nullable()->default(null);
             $table->unsignedInteger('logo_width');
             $table->unsignedInteger('logo_height');
@@ -19,15 +17,15 @@ return new class () extends Migration {
             $table->boolean('document_email_attachment')->default(0);
         });
 
-        \DB::table('accounts')->update(['logo' => '']);
+        DB::table('accounts')->update(['logo' => '']);
         Schema::dropIfExists('documents');
-        Schema::create('documents', function ($t): void {
+        Schema::create('documents', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('public_id')->nullable();
             $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
             $t->unsignedInteger('invoice_id')->nullable();
             $t->unsignedInteger('expense_id')->nullable();
+            $t->unsignedInteger('user_id');
             $t->string('path');
             $t->string('preview');
             $t->string('name');
@@ -40,7 +38,7 @@ return new class () extends Migration {
             $t->timestamps();
         });
 
-        Schema::table('documents', function ($t): void {
+        Schema::table('documents', function ($t) {
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
@@ -49,14 +47,9 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('logo');
             $table->dropColumn('logo_width');
             $table->dropColumn('logo_height');
@@ -67,4 +60,4 @@ return new class () extends Migration {
 
         Schema::dropIfExists('documents');
     }
-};
+}

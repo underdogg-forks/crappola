@@ -3,59 +3,15 @@
 namespace App\Models;
 
 use App\Libraries\Utils;
-use App\Services\TemplateService;
+use DateTimeInterface;
 use HTMLUtils;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
+use URL;
 
 /**
  * Class AccountGateway.
- *
- * @property int         $id
- * @property int         $account_id
- * @property int         $user_id
- * @property int         $gateway_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property string      $config
- * @property int         $public_id
- * @property int|null    $accepted_credit_cards
- * @property int|null    $show_address
- * @property int|null    $update_address
- * @property int|null    $require_cvv
- * @property int|null    $show_shipping_address
- * @property Gateway     $gateway
- *
- * @method static Builder|AccountGateway newModelQuery()
- * @method static Builder|AccountGateway newQuery()
- * @method static Builder|AccountGateway onlyTrashed()
- * @method static Builder|AccountGateway query()
- * @method static Builder|AccountGateway scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|AccountGateway whereAcceptedCreditCards($value)
- * @method static Builder|AccountGateway whereAccountId($value)
- * @method static Builder|AccountGateway whereConfig($value)
- * @method static Builder|AccountGateway whereCreatedAt($value)
- * @method static Builder|AccountGateway whereDeletedAt($value)
- * @method static Builder|AccountGateway whereGatewayId($value)
- * @method static Builder|AccountGateway whereId($value)
- * @method static Builder|AccountGateway wherePublicId($value)
- * @method static Builder|AccountGateway whereRequireCvv($value)
- * @method static Builder|AccountGateway whereShowAddress($value)
- * @method static Builder|AccountGateway whereShowShippingAddress($value)
- * @method static Builder|AccountGateway whereUpdateAddress($value)
- * @method static Builder|AccountGateway whereUpdatedAt($value)
- * @method static Builder|AccountGateway whereUserId($value)
- * @method static Builder|AccountGateway withActiveOrSelected($id = false)
- * @method static Builder|AccountGateway withArchived()
- * @method static Builder|AccountGateway withTrashed()
- * @method static Builder|AccountGateway withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class AccountGateway extends EntityModel
 {
@@ -67,19 +23,18 @@ class AccountGateway extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\AccountGatewayPresenter';
 
-    /**
-     * @var array
-     */
+    protected $dates = ['deleted_at'];
+
     protected $hidden = [
         'config',
     ];
 
-    protected $casts = ['deleted_at' => 'datetime'];
-
     /**
      * @param $provider
+     *
+     * @return string
      */
-    public static function paymentDriverClass($provider): string
+    public static function paymentDriverClass($provider)
     {
         $folder = 'App\\Ninja\\PaymentDrivers\\';
         $provider = str_replace('\\', '', $provider);
@@ -93,17 +48,23 @@ class AccountGateway extends EntityModel
         return $folder . 'BasePaymentDriver';
     }
 
-    public function getEntityType(): string
+    public function getEntityType()
     {
         return ENTITY_ACCOUNT_GATEWAY;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function gateway()
     {
-        return $this->belongsTo(Gateway::class);
+        return $this->belongsTo('App\Models\Gateway');
     }
 
-    public function getCreditcardTypes(): array
+    /**
+     * @return array
+     */
+    public function getCreditcardTypes()
     {
         $flags = unserialize(CREDIT_CARDS);
         $arrayOfImages = [];
@@ -138,13 +99,19 @@ class AccountGateway extends EntityModel
     public function isGateway($gatewayId)
     {
         if (is_array($gatewayId)) {
-            return in_array($this->gateway_id, $gatewayId);
+            foreach ($gatewayId as $id) {
+                if ($this->gateway_id == $id) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         return $this->gateway_id == $gatewayId;
     }
 
-    public function isCustom(): bool
+    public function isCustom()
     {
         return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }
@@ -152,12 +119,12 @@ class AccountGateway extends EntityModel
     /**
      * @param $config
      */
-    public function setConfig($config): void
+    public function setConfig($config)
     {
         $this->config = Crypt::encrypt(json_encode($config));
     }
 
-    public function getConfig(): mixed
+    public function getConfig()
     {
         return json_decode(Crypt::decrypt($this->config));
     }
@@ -193,37 +160,58 @@ class AccountGateway extends EntityModel
         return $this->getConfigField('appleMerchantId');
     }
 
-    public function getAchEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getAchEnabled()
     {
         return ! empty($this->getConfigField('enableAch'));
     }
 
-    public function getApplePayEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getApplePayEnabled()
     {
         return ! empty($this->getConfigField('enableApplePay'));
     }
 
-    public function getAlipayEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getAlipayEnabled()
     {
         return ! empty($this->getConfigField('enableAlipay'));
     }
 
-    public function getSofortEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getSofortEnabled()
     {
         return ! empty($this->getConfigField('enableSofort'));
     }
 
-    public function getSepaEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getSepaEnabled()
     {
         return ! empty($this->getConfigField('enableSepa'));
     }
 
-    public function getBitcoinEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getBitcoinEnabled()
     {
         return ! empty($this->getConfigField('enableBitcoin'));
     }
 
-    public function getPayPalEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getPayPalEnabled()
     {
         return ! empty($this->getConfigField('enablePayPal'));
     }
@@ -264,7 +252,10 @@ class AccountGateway extends EntityModel
         return $this->getConfigField('plaidPublicKey');
     }
 
-    public function getPlaidEnabled(): bool
+    /**
+     * @return bool
+     */
+    public function getPlaidEnabled()
     {
         return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
     }
@@ -275,17 +266,20 @@ class AccountGateway extends EntityModel
     public function getPlaidEnvironment()
     {
         if ( ! $this->getPlaidClientId()) {
-            return null;
+            return;
         }
 
         $stripe_key = $this->getPublishableKey();
 
-        return mb_substr(trim($stripe_key), 0, 8) === 'pk_test_' ? 'tartan' : 'production';
+        return mb_substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
 
+    /**
+     * @return string
+     */
     public function getWebhookUrl()
     {
-        $account = $this->account ?: Account::find($this->account_id);
+        $account = $this->account ? $this->account : Account::find($this->account_id);
 
         return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
@@ -311,8 +305,14 @@ class AccountGateway extends EntityModel
             $text = HTMLUtils::sanitizeHTML($text);
         }
 
-        $templateService = app(TemplateService::class);
+        $templateService = app('App\Services\TemplateService');
+        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
 
-        return $templateService->processVariables($text, ['invitation' => $invitation]);
+        return $text;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Migration;
 
-use Carbon\Carbon;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\MigrationAuthRequest;
 use App\Http\Requests\MigrationCompaniesRequest;
@@ -17,25 +16,19 @@ use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use Auth;
 use Exception;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\View\View;
+use Validator;
 use ZipArchive;
 
 class StepsController extends BaseController
 {
     use GenerateMigrationResources;
 
-    private array $access = [
+    private $access = [
         'auth' => [
             'steps'    => ['MIGRATION_TYPE'],
             'redirect' => '/migration/start',
@@ -55,12 +48,16 @@ class StepsController extends BaseController
         $this->middleware('migration');
     }
 
-    public function start(): Factory|View
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function start()
     {
-        if (Utils::isNinja()) {
+        if(Utils::isNinja()) {
             session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
+            //    session()->put('MIGRATION_ENDPOINT', 'http://ninja.test:8000');
             session()->put('MIGRATION_ACCOUNT_TOKEN', '');
-            session()->put('MIGRATION_API_SECRET');
+            session()->put('MIGRAITON_API_SECRET', null);
 
             return $this->companies();
         }
@@ -68,17 +65,20 @@ class StepsController extends BaseController
         return view('migration.start');
     }
 
-    public function import(): Factory|Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    public function import()
     {
         return view('migration.import');
     }
 
-    public function download(): Factory|View
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function download()
     {
         return view('migration.download');
     }
 
-    public function handleType(MigrationTypeRequest $request): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
+    public function handleType(MigrationTypeRequest $request)
     {
         session()->put('MIGRATION_TYPE', $request->option);
 
@@ -95,7 +95,7 @@ class StepsController extends BaseController
 
     public function forwardUrl(Request $request)
     {
-        if (Utils::isNinjaProd()) {
+        if(Utils::isNinjaProd()) {
             return $this->autoForwardUrl();
         }
 
@@ -113,7 +113,11 @@ class StepsController extends BaseController
 
         $account_settings = Auth::user()->account->account_email_settings;
 
-        $account_settings->is_disabled = mb_strlen($request->input('url')) != 0;
+        if(mb_strlen($request->input('url')) == 0) {
+            $account_settings->is_disabled = false;
+        } else {
+            $account_settings->is_disabled = true;
+        }
 
         $account_settings->forward_url_for_v5 = rtrim($request->input('url'), '/');
         $account_settings->save();
@@ -188,7 +192,7 @@ class StepsController extends BaseController
 
         if ($authentication->isSuccessful()) {
             session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
-            session()->put('MIGRATION_API_SECRET', $authentication->getApiSecret());
+            session()->put('MIGRAITON_API_SECRET', $authentication->getApiSecret());
 
             return redirect(
                 url('/migration/companies')
@@ -198,7 +202,7 @@ class StepsController extends BaseController
         return back()->with('responseErrors', $authentication->getErrors());
     }
 
-    public function companies(): \Illuminate\Contracts\View\View|Application|Factory|JsonResponse|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function companies()
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
@@ -218,15 +222,16 @@ class StepsController extends BaseController
         ], 500);
     }
 
-    public function handleCompanies(MigrationCompaniesRequest $request): \Illuminate\Contracts\View\View|Application|Factory|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function handleCompanies(MigrationCompaniesRequest $request)
     {
         if ($this->shouldGoBack('companies')) {
             return redirect(
                 url($this->access['companies']['redirect'])
             );
         }
+        $bool = true;
 
-        if (Utils::isNinja()) {
+        if(Utils::isNinja()) {
             $this->dispatch(new HostedMigration(auth()->user(), $request->all(), config('database.default')));
 
             return view('migration.completed');
@@ -240,10 +245,10 @@ class StepsController extends BaseController
             $completeService->data($migrationData)
                 ->endpoint(session('MIGRATION_ENDPOINT'))
                 ->start();
-        } catch (Exception $exception) {
-            info($exception->getMessage());
+        } catch(Exception $e) {
+            info($e->getMessage());
 
-            return view('migration.completed', ['customMessage' => $exception->getMessage()]);
+            return view('migration.completed', ['customMessage' => $e->getMessage()]);
         }
 
         if ($completeService->isSuccessful()) {
@@ -253,7 +258,7 @@ class StepsController extends BaseController
         return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
     }
 
-    public function completed(): Factory|Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    public function completed()
     {
         return view('migration.completed');
     }
@@ -263,17 +268,26 @@ class StepsController extends BaseController
      * Rest of functions that are used as 'actions', not controller methods.
      * ==================================.
      */
-    public function shouldGoBack(string $step): bool
+    public function shouldGoBack(string $step)
     {
         $redirect = true;
 
         foreach ($this->access[$step]['steps'] as $step) {
-            $redirect = ! session()->has($step);
+            if (session()->has($step)) {
+                $redirect = false;
+            } else {
+                $redirect = true;
+            }
         }
 
         return $redirect;
     }
 
+    /**
+     * Handle data downloading for the migration.
+     *
+     * @return string
+     */
     public function generateMigrationData(array $data): array
     {
         set_time_limit(0);
@@ -285,12 +299,12 @@ class StepsController extends BaseController
 
             $this->account = $account;
 
-            $date = Carbon::now()->format('Y-m-d');
+            $date = date('Y-m-d');
             $accountKey = $this->account->account_key;
 
             $output = fopen('php://output', 'w') || Utils::fatalError();
 
-            $fileName = sprintf('%s-%s-invoiceninja', $accountKey, $date);
+            $fileName = "{$accountKey}-{$date}-invoiceninja";
 
             $localMigrationData['data'] = [
                 'account'               => $this->getAccount(),
@@ -321,7 +335,7 @@ class StepsController extends BaseController
             $localMigrationData['force'] = array_key_exists('force', $company);
 
             Storage::makeDirectory('migrations');
-            $file = Storage::path(sprintf('migrations/%s.zip', $fileName));
+            $file = Storage::path("migrations/{$fileName}.zip");
 
             ksort($localMigrationData);
 
@@ -342,7 +356,7 @@ class StepsController extends BaseController
         // header("Content-Disposition: attachment; filename={$fileName}.zip");
     }
 
-    private function autoForwardUrl(): RedirectResponse
+    private function autoForwardUrl()
     {
         $url = 'https://invoicing.co/api/v1/confirm_forwarding';
         // $url = 'http://devhosted.test:8000/api/v1/confirm_forwarding';
@@ -358,10 +372,10 @@ class StepsController extends BaseController
 
         $ninja_client = Client::where('public_id', $account->id)->first();
 
-        if ($ninja_client) {
+        if($ninja_client) {
             $agt = AccountGatewayToken::where('client_id', $ninja_client->id)->first();
 
-            if ($agt) {
+            if($agt) {
                 $gateway_reference = $agt->token;
             }
         }
@@ -390,7 +404,7 @@ class StepsController extends BaseController
             RequestOptions::ALLOW_REDIRECTS => false,
         ]);
 
-        if ($response->getStatusCode() == 401) {
+        if($response->getStatusCode() == 401) {
             info('autoForwardUrl');
             info($response->getBody());
         } elseif ($response->getStatusCode() == 200) {
@@ -400,22 +414,27 @@ class StepsController extends BaseController
 
             $account_settings = $account->account_email_settings;
 
-            $account_settings->is_disabled = mb_strlen($forwarding_url) != 0;
+            if(mb_strlen($forwarding_url) == 0) {
+                $account_settings->is_disabled = false;
+            } else {
+                $account_settings->is_disabled = true;
+            }
 
             $account_settings->forward_url_for_v5 = rtrim($forwarding_url, '/');
             $account_settings->save();
 
             $billing_transferred = $message_body['billing_transferred'];
 
-            if ($billing_transferred == 'true') {
+            if($billing_transferred == 'true') {
                 $company = $account->company;
                 $company->plan = null;
                 $company->plan_expires = null;
                 $company->save();
             }
         } else {
-            info('failed to auto forward');
+            info('failed to autoforward');
             info(json_decode($response->getBody()->getContents()));
+            // dd('else');
         }
 
         return back();

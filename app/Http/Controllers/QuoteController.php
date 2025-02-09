@@ -25,15 +25,15 @@ use Illuminate\Support\Facades\View;
 
 class QuoteController extends BaseController
 {
-    public $entityType = ENTITY_INVOICE;
+    protected $mailer;
 
-    protected Mailer $mailer;
+    protected $invoiceRepo;
 
-    protected InvoiceRepository $invoiceRepo;
+    protected $clientRepo;
 
-    protected ClientRepository $clientRepo;
+    protected $invoiceService;
 
-    protected InvoiceService $invoiceService;
+    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
@@ -78,7 +78,6 @@ class QuoteController extends BaseController
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-
         $invoice = $account->createInvoice(ENTITY_QUOTE, $clientId);
         $invoice->public_id = 0;
 
@@ -90,7 +89,7 @@ class QuoteController extends BaseController
             'url'        => 'invoices',
             'title'      => trans('texts.new_quote'),
         ];
-        $data = array_merge($data, $this->getViewModel());
+        $data = array_merge($data, self::getViewModel());
 
         return View::make('invoices.edit', $data);
     }
@@ -118,9 +117,8 @@ class QuoteController extends BaseController
             } elseif ($action == 'download') {
                 $key = 'downloaded_quote';
             } else {
-                $key = $action . 'd_quote';
+                $key = "{$action}d_quote";
             }
-
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }
@@ -141,20 +139,20 @@ class QuoteController extends BaseController
         if ($invoice->due_date) {
             $carbonDueDate = Carbon::parse($invoice->due_date);
             if ( ! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
-                return redirect('view/' . $invitationKey)->withError(trans('texts.quote_has_expired'));
+                return redirect("view/{$invitationKey}")->withError(trans('texts.quote_has_expired'));
             }
         }
 
         if ($invoiceInvitationKey = $this->invoiceService->approveQuote($invoice, $invitation)) {
             Session::flash('message', trans('texts.quote_is_approved'));
 
-            return Redirect::to('view/' . $invoiceInvitationKey);
+            return Redirect::to("view/{$invoiceInvitationKey}");
         }
 
-        return Redirect::to('view/' . $invitationKey);
+        return Redirect::to("view/{$invitationKey}");
     }
 
-    private function getViewModel(): array
+    private static function getViewModel()
     {
         $account = Auth::user()->account;
 

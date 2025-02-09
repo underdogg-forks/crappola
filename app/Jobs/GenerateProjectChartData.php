@@ -2,15 +2,12 @@
 
 namespace App\Jobs;
 
-use Carbon\Carbon;
 use DateInterval;
 use DatePeriod;
 use stdClass;
 
 class GenerateProjectChartData extends Job
 {
-    public $project;
-
     public function __construct($project)
     {
         $this->project = $project;
@@ -18,21 +15,23 @@ class GenerateProjectChartData extends Job
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(): stdClass
+    public function handle()
     {
         $project = $this->project;
         $account = $project->account;
         $taskMap = [];
-        $startTimestamp = Carbon::now()->timestamp;
-        $endTimestamp = max(Carbon::now()->timestamp, strtotime($project->due_date));
+        $startTimestamp = time();
+        $endTimestamp = max(time(), strtotime($project->due_date));
         $count = 0;
         $duration = 0;
 
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if (count($parts) === 0) {
+            if ( ! count($parts)) {
                 continue;
             }
 
@@ -40,7 +39,7 @@ class GenerateProjectChartData extends Job
 
             foreach ($parts as $part) {
                 $start = $part[0];
-                $end = (count($part) > 1 && $part[1]) ? $part[1] : Carbon::now()->timestamp;
+                $end = (count($part) > 1 && $part[1]) ? $part[1] : time();
 
                 $date = $account->getDateTime();
                 $date->setTimestamp($part[0]);
@@ -84,8 +83,8 @@ class GenerateProjectChartData extends Job
         $dataset->label = trans('texts.tasks');
         $dataset->lineTension = 0;
         $dataset->borderWidth = 4;
-        $dataset->borderColor = sprintf('rgba(%s, 1)', $color);
-        $dataset->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
+        $dataset->borderColor = "rgba({$color}, 1)";
+        $dataset->backgroundColor = "rgba({$color}, 0.1)";
 
         $data = new stdClass();
         $data->labels = $labels;

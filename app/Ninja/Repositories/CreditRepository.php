@@ -2,25 +2,22 @@
 
 namespace App\Ninja\Repositories;
 
-use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
 use Datatable;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Http\JsonResponse;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CreditRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Credit::class;
+        return 'App\Models\Credit';
     }
 
-    public function find($clientPublicId = null, $filter = null): Builder
+    public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
@@ -59,7 +56,7 @@ class CreditRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_CREDIT);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%');
             });
         }
@@ -67,7 +64,7 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
-    public function getClientDatatable($clientId): JsonResponse
+    public function getClientDatatable($clientId)
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
@@ -84,12 +81,22 @@ class CreditRepository extends BaseRepository
                 'credits.public_notes'
             );
 
-        return Datatable::query($query)
-            ->addColumn('credit_date', fn ($model) => Utils::fromSqlDate($model->credit_date))
-            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
-            ->addColumn('balance', fn ($model) => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id))
-            ->addColumn('public_notes', fn ($model) => e($model->public_notes))
+        $table = Datatable::query($query)
+            ->addColumn('credit_date', function ($model) {
+                return Utils::fromSqlDate($model->credit_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('balance', function ($model) {
+                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('public_notes', function ($model) {
+                return e($model->public_notes);
+            })
             ->make();
+
+        return $table;
     }
 
     public function save($input, $credit = null)
@@ -105,7 +112,7 @@ class CreditRepository extends BaseRepository
             $credit = Credit::createNew();
             $credit->balance = Utils::parseFloat($input['amount']);
             $credit->client_id = Client::getPrivateId($input['client_id']);
-            $credit->credit_date = Carbon::now()->format('Y-m-d');
+            $credit->credit_date = date('Y-m-d');
         }
 
         $credit->fill($input);
@@ -113,11 +120,9 @@ class CreditRepository extends BaseRepository
         if (isset($input['credit_date'])) {
             $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         }
-
         if (isset($input['amount'])) {
             $credit->amount = Utils::parseFloat($input['amount']);
         }
-
         if (isset($input['balance'])) {
             $credit->balance = Utils::parseFloat($input['balance']);
         }

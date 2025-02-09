@@ -6,13 +6,11 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class TaskKanbanController extends BaseController
 {
     /**
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function index($clientPublicId = false, $projectPublicId = false)
     {
@@ -41,8 +39,7 @@ class TaskKanbanController extends BaseController
                 'in_progress',
                 'done',
             ];
-            $counter = count($defaults);
-            for ($i = 0; $i < $counter; $i++) {
+            for ($i = 0; $i < count($defaults); $i++) {
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
@@ -52,14 +49,12 @@ class TaskKanbanController extends BaseController
                     $firstStatus = $status;
                 }
             }
-
             $i = 0;
             foreach ($tasks as $task) {
                 $task->task_status_id = $firstStatus->id;
                 $task->task_status_sort_order = $i++;
                 $task->save();
             }
-
             // otherwise, check that the orders are correct
         } else {
             for ($i = 0; $i < $statuses->count(); $i++) {
@@ -77,15 +72,12 @@ class TaskKanbanController extends BaseController
                     $task->task_status_id = $firstStatus->id;
                     $task->setRelation('task_status', $firstStatus);
                 }
-
                 if ( ! isset($counts[$task->task_status_id])) {
                     $counts[$task->task_status_id] = 0;
                 }
-
                 if ($task->task_status_sort_order != $counts[$task->task_status_id]) {
                     $task->task_status_sort_order = $counts[$task->task_status_id];
                 }
-
                 $counts[$task->task_status_id]++;
                 if ($task->isDirty()) {
                     $task->save();
@@ -110,7 +102,7 @@ class TaskKanbanController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function storeStatus()
     {
@@ -124,7 +116,7 @@ class TaskKanbanController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateStatus($publicId)
     {
@@ -150,7 +142,7 @@ class TaskKanbanController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteStatus($publicId)
     {
@@ -181,7 +173,7 @@ class TaskKanbanController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateTask($publicId)
     {

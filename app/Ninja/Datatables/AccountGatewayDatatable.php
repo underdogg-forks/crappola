@@ -6,18 +6,18 @@ use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\URL;
+use URL;
 use WePayException;
 
 class AccountGatewayDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACCOUNT_GATEWAY;
 
-    private static ?array $accountGateways = null;
+    private static $accountGateways;
 
-    private static ?array $accountGatewaySettings = null;
+    private static $accountGatewaySettings;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
@@ -27,22 +27,19 @@ class AccountGatewayDatatable extends EntityDatatable
                     if ($model->deleted_at) {
                         return $model->name;
                     }
-
                     if (in_array($model->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3])) {
                         $name = $accountGateway->getConfigField('name') . ' [' . trans('texts.custom') . ']';
 
-                        return link_to(sprintf('gateways/%s/edit', $model->public_id), $name)->toHtml();
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
                     }
-
                     if ($model->gateway_id != GATEWAY_WEPAY) {
                         $name = $model->name;
                         if ($accountGateway->isTestMode()) {
                             $name .= sprintf(' [%s]', trans('texts.test'));
                         }
 
-                        return link_to(sprintf('gateways/%s/edit', $model->public_id), $name)->toHtml();
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
                     }
-
                     $config = $accountGateway->getConfig();
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                     $wepayAccountId = $config->accountId;
@@ -56,15 +53,14 @@ class AccountGatewayDatatable extends EntityDatatable
                             $updateUri = $endpoint . 'api/account_update/' . $wepayAccountId . '?redirect_uri=' . urlencode(URL::to('gateways'));
                             $linkText .= ' <span style="color:#d9534f">(' . trans('texts.action_required') . ')</span>';
                             $url = $updateUri;
-                            $html = sprintf('<a href="%s">%s</a>', $url, $linkText);
+                            $html = "<a href=\"{$url}\">{$linkText}</a>";
                             $model->setupUrl = $url;
                         } elseif ($wepayState == 'pending') {
                             $linkText .= ' (' . trans('texts.resend_confirmation_email') . ')';
-                            $model->resendConfirmationUrl = URL::to(sprintf('gateways/%s/resend_confirmation', $accountGateway->public_id));
-                            $url = $model->resendConfirmationUrl;
+                            $model->resendConfirmationUrl = $url = URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
                             $html = link_to($url, $linkText)->toHtml();
                         }
-                    } catch (WePayException) {
+                    } catch (WePayException $ex) {
                     }
 
                     return $html;
@@ -72,7 +68,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ],
             [
                 'limit',
-                function ($model): string {
+                function ($model) {
                     $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
@@ -83,7 +79,6 @@ class AccountGatewayDatatable extends EntityDatatable
                             if ($html) {
                                 $html .= '<br>';
                             }
-
                             $html .= $gatewayType->name . ' &mdash; ';
                         }
 
@@ -118,24 +113,18 @@ class AccountGatewayDatatable extends EntityDatatable
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
                         $accountGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
-                        if ( ! $accountGatewaySettings) {
-                            continue;
-                        }
-
-                        if ( ! $accountGatewaySettings->areFeesEnabled()) {
+                        if ( ! $accountGatewaySettings || ! $accountGatewaySettings->areFeesEnabled()) {
                             continue;
                         }
 
                         $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
 
                         if (count($gatewayTypes) > 1) {
-                            if ($html !== '' && $html !== '0') {
+                            if ($html) {
                                 $html .= '<br>';
                             }
-
                             $html .= $gatewayType->name . ' &mdash; ';
                         }
-
                         $html .= $accountGatewaySettings->feesToString();
 
                         if ($accountGatewaySettings->hasTaxes()) {
@@ -149,24 +138,36 @@ class AccountGatewayDatatable extends EntityDatatable
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         $actions = [
             [
                 uctrans('texts.resend_confirmation_email'),
-                fn ($model)       => $model->resendConfirmationUrl,
-                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl),
+                function ($model) {
+                    return $model->resendConfirmationUrl;
+                },
+                function ($model) {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->resendConfirmationUrl);
+                },
             ], [
                 uctrans('texts.edit_gateway'),
-                fn ($model)       => URL::to(sprintf('gateways/%s/edit', $model->public_id)),
-                fn ($model): bool => ! $model->deleted_at,
+                function ($model) {
+                    return URL::to("gateways/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return ! $model->deleted_at;
+                },
             ], [
                 uctrans('texts.finish_setup'),
-                fn ($model)       => $model->setupUrl,
-                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->setupUrl),
+                function ($model) {
+                    return $model->setupUrl;
+                },
+                function ($model) {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && ! empty($model->setupUrl);
+                },
             ], [
                 uctrans('texts.manage_account'),
-                function ($model): array {
+                function ($model) {
                     $accountGateway = $this->getAccountGateway($model->id);
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
 
@@ -175,32 +176,37 @@ class AccountGatewayDatatable extends EntityDatatable
                         'attributes' => 'target="_blank"',
                     ];
                 },
-                fn ($model): bool => ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY,
+                function ($model) {
+                    return ! $model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
+                },
             ], [
                 uctrans('texts.terms_of_service'),
-                fn ($model): string => 'https://go.wepay.com/terms-of-service-us',
-                fn ($model): bool   => $model->gateway_id == GATEWAY_WEPAY,
+                function ($model) {
+                    return 'https://go.wepay.com/terms-of-service-us';
+                },
+                function ($model) {
+                    return $model->gateway_id == GATEWAY_WEPAY;
+                },
             ],
         ];
 
         foreach (Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
                 trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
-                fn (): string => sprintf("javascript:showLimitsModal('%s', %s)", $gatewayType->name, $gatewayType->id),
+                function () use ($gatewayType) {
+                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
+                },
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type
                     if ($model->gateway_id == GATEWAY_CUSTOM1) {
                         return $gatewayType->id == GATEWAY_TYPE_CUSTOM1;
                     }
-
                     if ($model->gateway_id == GATEWAY_CUSTOM2) {
                         return $gatewayType->id == GATEWAY_TYPE_CUSTOM2;
                     }
-
                     if ($model->gateway_id == GATEWAY_CUSTOM3) {
                         return $gatewayType->id == GATEWAY_TYPE_CUSTOM3;
                     }
-
                     $accountGateway = $this->getAccountGateway($model->id);
 
                     return $accountGateway->paymentDriver()->supportsGatewayType($gatewayType->id);

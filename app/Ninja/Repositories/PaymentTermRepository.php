@@ -2,14 +2,13 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\PaymentTerm;
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class PaymentTermRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return PaymentTerm::class;
+        return 'App\Models\PaymentTerm';
     }
 
     public function find($accountId = 0)

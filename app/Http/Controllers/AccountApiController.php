@@ -6,22 +6,21 @@ use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Libraries\Utils;
-use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
 use Carbon;
+use Crypt;
 use Google2FA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
 
 class AccountApiController extends BaseAPIController
 {
-    protected AccountRepository $accountRepo;
+    protected $accountRepo;
 
     public function __construct(AccountRepository $accountRepo)
     {
@@ -44,7 +43,7 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
-        if ( ! LookupUser::validateField('email', $request->email)) {
+        if ( ! \App\Models\LookupUser::validateField('email', $request->email)) {
             return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
         }
 
@@ -74,12 +73,10 @@ class AccountApiController extends BaseAPIController
                 if ( ! $request->one_time_password) {
                     return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
                 }
-
                 if ( ! Google2FA::verifyKey($secret, $request->one_time_password)) {
                     return $this->errorResponse(['message' => 'Invalid one time password'], 401);
                 }
             }
-
             if ($user && $user->failed_logins > 0) {
                 $user->failed_logins = 0;
                 $user->save();
@@ -87,13 +84,11 @@ class AccountApiController extends BaseAPIController
 
             return $this->processLogin($request);
         }
-
         error_log('login failed');
         if ($user) {
-            $user->failed_logins += 1;
+            $user->failed_logins = $user->failed_logins + 1;
             $user->save();
         }
-
         sleep(ERROR_DELAY);
 
         return $this->errorResponse(['message' => 'Invalid credentials'], 401);
@@ -107,6 +102,7 @@ class AccountApiController extends BaseAPIController
     public function show(Request $request)
     {
         $account = Auth::user()->account;
+        $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
         $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
@@ -148,9 +144,8 @@ class AccountApiController extends BaseAPIController
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices, true);
-        $counter = count($devices);
 
-        for ($x = 0; $x < $counter; $x++) {
+        for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == $request->email) {
                 $devices[$x]['token'] = $request->token; //update
                 $devices[$x]['device'] = $request->device;
@@ -187,10 +182,9 @@ class AccountApiController extends BaseAPIController
         $account = Auth::user()->account;
 
         $devices = json_decode($account->devices, true);
-        $counter = count($devices);
 
-        for ($x = 0; $x < $counter; $x++) {
-            if ($request->token == $devices[$x]['token']) {
+        for($x = 0; $x < count($devices); $x++) {
+            if($request->token == $devices[$x]['token']) {
                 unset($devices[$x]);
             }
         }
@@ -211,9 +205,7 @@ class AccountApiController extends BaseAPIController
             return $this->errorResponse(['message' => 'No registered devices.'], 400);
         }
 
-        $counter = count($devices);
-
-        for ($x = 0; $x < $counter; $x++) {
+        for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == Auth::user()->username) {
                 $newDevice = [
                     'token'           => $devices[$x]['token'],
@@ -233,8 +225,6 @@ class AccountApiController extends BaseAPIController
                 return $this->response($newDevice);
             }
         }
-
-        return null;
     }
 
     public function oauthLogin(Request $request)
@@ -266,17 +256,18 @@ class AccountApiController extends BaseAPIController
         return $this->errorResponse(['message' => 'Invalid credentials'], 401);
     }
 
-    public function iosSubscriptionStatus(): void
+    public function iosSubscriptionStatus()
     {
         //stubbed for iOS callbacks
     }
 
-    public function upgrade(Request $request): string
+    public function upgrade(Request $request)
     {
         $user = Auth::user();
         $account = $user->account;
         $company = $account->company;
         $orderId = $request->order_id;
+        $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
         if ($company->app_store_order_id) {
@@ -307,8 +298,8 @@ class AccountApiController extends BaseAPIController
 
         $company->app_store_order_id = $orderId;
         $company->plan_term = PLAN_TERM_YEARLY;
-        $company->plan_started = $company->plan_started ?: \Carbon\Carbon::now()->format('Y-m-d');
-        $company->plan_paid = \Carbon\Carbon::now()->format('Y-m-d');
+        $company->plan_started = $company->plan_started ?: date('Y-m-d');
+        $company->plan_paid = date('Y-m-d');
         $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
         $company->trial_plan = null;
         $company->save();
@@ -316,7 +307,7 @@ class AccountApiController extends BaseAPIController
         return '{"message":"success"}';
     }
 
-    private function processLogin(Request $request, bool $createToken = true)
+    private function processLogin(Request $request, $createToken = true)
     {
         // Create a new token only if one does not already exist
         $user = Auth::user();

@@ -4,7 +4,7 @@ namespace App\Ninja\Datatables;
 
 class ProjectTaskDatatable extends TaskDatatable
 {
-    public function columns(): array
+    public function columns()
     {
         $columns = parent::columns();
 

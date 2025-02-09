@@ -2,29 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.
- *
- * @property LookupAccount|null $lookupAccount
- *
- * @method static Builder|LookupModel newModelQuery()
- * @method static Builder|LookupModel newQuery()
- * @method static Builder|LookupModel query()
- *
- * @mixin \Eloquent
  */
-class LookupModel extends Model
+class LookupModel extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    public static function createNew(string $accountKey, array $data): void
+    public static function createNew($accountKey, $data)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -46,7 +34,7 @@ class LookupModel extends Model
         config(['database.default' => $current]);
     }
 
-    public static function deleteWhere($where): void
+    public static function deleteWhere($where)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -60,15 +48,14 @@ class LookupModel extends Model
         config(['database.default' => $current]);
     }
 
-    public static function setServerByField($field, $value): void
+    public static function setServerByField($field, $value)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
-        $className = static::class;
+        $className = get_called_class();
         $className = str_replace('Lookup', '', $className);
-
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
 
         // check if we've cached this lookup
@@ -100,9 +87,8 @@ class LookupModel extends Model
                     ->withTrashed()
                     ->first();
             }
-
             if ( ! $isFound) {
-                abort(404, sprintf('Looked up %s not found: %s => %s', $className, $field, $value));
+                abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
             Cache::put($key, $server, 120 * 60);
@@ -113,7 +99,7 @@ class LookupModel extends Model
 
     public function lookupAccount()
     {
-        return $this->belongsTo(LookupAccount::class);
+        return $this->belongsTo('App\Models\LookupAccount');
     }
 
     public function getDbServer()
@@ -121,7 +107,7 @@ class LookupModel extends Model
         return $this->lookupAccount->lookupCompany->dbServer->name;
     }
 
-    protected static function setDbServer($server): void
+    protected static function setDbServer($server)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;

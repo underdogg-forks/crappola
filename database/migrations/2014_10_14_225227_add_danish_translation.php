@@ -2,25 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddDanishTranslation extends Migration
+{
+    public function up()
     {
         //DB::table('languages')->insert(['name' => 'Danish', 'locale' => 'da']);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         //$language = \App\Models\Language::whereLocale('da')->first();
         //$language->delete();
     }
-};
+}

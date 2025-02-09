@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddDefaultQuoteTerms extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->text('quote_terms')->nullable();
         });
 
@@ -25,15 +21,10 @@ return new class () extends Migration {
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('quote_terms');
         });
     }
-};
+}

@@ -7,7 +7,7 @@ use App\Ninja\Intents\BaseIntent;
 
 class NavigateToIntent extends BaseIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $location = $this->getField('Location');
         $location = str_replace(' ', '_', $location);

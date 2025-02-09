@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'         => [],
@@ -42,7 +42,7 @@ class ProductReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
@@ -52,7 +52,7 @@ class ProductReport extends AbstractReport
             ->orderBy('name')
             ->withArchived()
             ->with('contacts', 'user')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
+            ->with(['invoices' => function ($query) use ($statusIds) {
                 $query->invoices()
                     ->withArchived()
                     ->statusIds($statusIds)
@@ -88,7 +88,11 @@ class ProductReport extends AbstractReport
 
                     $this->data[] = $row;
 
-                    $dimension = $subgroup == 'product' ? $item->product_key : $this->getDimension($client);
+                    if ($subgroup == 'product') {
+                        $dimension = $item->product_key;
+                    } else {
+                        $dimension = $this->getDimension($client);
+                    }
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
                 }

@@ -2,14 +2,12 @@
 
 namespace App\Ninja\Repositories;
 
-use Carbon\Carbon;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Task;
 use DateInterval;
 use DatePeriod;
-use DateTime;
-use Illuminate\Support\Facades\DB;
+use DB;
 use stdClass;
 
 class DashboardRepository
@@ -24,12 +22,13 @@ class DashboardRepository
      *
      * @return array
      */
-    public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses): stdClass
+    public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses)
     {
+        $accountId = $account->id;
         $startDate = date_create($startDate);
         $endDate = date_create($endDate);
         $groupBy = mb_strtoupper($groupBy);
-        if ($groupBy === 'DAY') {
+        if ($groupBy == 'DAY') {
             $groupBy = 'DAYOFYEAR';
         }
 
@@ -48,13 +47,13 @@ class DashboardRepository
             $balance = 0;
             $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
 
-            array_map(function ($item) use (&$data, &$count, &$balance, $groupBy): void {
+            array_map(function ($item) use (&$data, &$count, &$balance, $groupBy) {
                 $data[$item->{$groupBy}] = $item->total;
                 $count += $item->count;
                 $balance += $item->balance ?? 0;
             }, $records);
 
-            $padding = $groupBy === 'DAYOFYEAR' ? 'day' : ($groupBy === 'WEEK' ? 'week' : 'month');
+            $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 ' . $padding);
             $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
             $period = new DatePeriod($startDate, $interval, $endDate);
@@ -62,48 +61,47 @@ class DashboardRepository
             $records = [];
 
             foreach ($period as $d) {
-                $dateFormat = $groupBy === 'DAYOFYEAR' ? 'z' : ($groupBy === 'WEEK' ? 'W' : 'n');
-                if ($groupBy === 'DAYOFYEAR') {
+                $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
+                if ($groupBy == 'DAYOFYEAR') {
                     // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
                     $date = $d->format('Y') . ($d->format($dateFormat) + 1);
-                } elseif ($groupBy === 'WEEK' && ($d->format($dateFormat) < 10)) {
+                } elseif ($groupBy == 'WEEK' && ($d->format($dateFormat) < 10)) {
                     // PHP zero pads the week
                     $date = $d->format('Y') . round($d->format($dateFormat));
                 } else {
                     $date = $d->format('Y' . $dateFormat);
                 }
-
                 $records[] = $data[$date] ?? 0;
 
-                if ($entityType === ENTITY_INVOICE) {
+                if ($entityType == ENTITY_INVOICE) {
                     $labels[] = $d->format('m/d/Y');
                 }
             }
 
-            if ($entityType === ENTITY_INVOICE) {
+            if ($entityType == ENTITY_INVOICE) {
                 $color = '51,122,183';
-            } elseif ($entityType === ENTITY_PAYMENT) {
+            } elseif ($entityType == ENTITY_PAYMENT) {
                 $color = '54,193,87';
-            } elseif ($entityType === ENTITY_EXPENSE) {
+            } elseif ($entityType == ENTITY_EXPENSE) {
                 $color = '128,128,128';
             }
 
             $record = new stdClass();
             $record->data = $records;
-            $record->label = trans(sprintf('texts.%ss', $entityType));
+            $record->label = trans("texts.{$entityType}s");
             $record->lineTension = 0;
             $record->borderWidth = 4;
-            $record->borderColor = sprintf('rgba(%s, 1)', $color);
-            $record->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
+            $record->borderColor = "rgba({$color}, 1)";
+            $record->backgroundColor = "rgba({$color}, 0.1)";
             $datasets[] = $record;
 
-            if ($entityType === ENTITY_INVOICE) {
+            if ($entityType == ENTITY_INVOICE) {
                 $totals->invoices = array_sum($data);
                 $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
                 $totals->balance = $balance;
-            } elseif ($entityType === ENTITY_PAYMENT) {
+            } elseif ($entityType == ENTITY_PAYMENT) {
                 $totals->revenue = array_sum($data);
-            } elseif ($entityType === ENTITY_EXPENSE) {
+            } elseif ($entityType == ENTITY_EXPENSE) {
                 //$totals->profit = $totals->revenue - array_sum($data);
                 $totals->expenses = array_sum($data);
             }
@@ -141,9 +139,9 @@ class DashboardRepository
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
         if ( ! $viewAll) {
-            $metrics = $metrics->where(function ($query) use ($userId): void {
+            $metrics = $metrics->where(function ($query) use ($userId) {
                 $query->where('invoices.user_id', '=', $userId);
-                $query->orwhere(function ($query) use ($userId): void {
+                $query->orwhere(function ($query) use ($userId) {
                     $query->where('invoices.user_id', '=', null);
                     $query->where('clients.user_id', '=', $userId);
                 });
@@ -267,7 +265,7 @@ class DashboardRepository
             ->where('invoices.deleted_at', '=', null)
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
-            ->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', Carbon::now()->format('Y-m-d'));
+            ->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '<', date('Y-m-d'));
 
         if ( ! $viewAll) {
             $pastDue = $pastDue->where('invoices.user_id', '=', $userId);
@@ -294,8 +292,8 @@ class DashboardRepository
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_public', '=', true)
             ->where('contacts.is_primary', '=', true)
-            ->where(function ($query): void {
-                $query->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', Carbon::now()->format('Y-m-d'))
+            ->where(function ($query) {
+                $query->where(DB::raw('coalesce(invoices.partial_due_date, invoices.due_date)'), '>=', date('Y-m-d'))
                     ->orWhereNull('invoices.due_date');
             })
             ->orderBy('invoices.due_date', 'asc');
@@ -340,7 +338,7 @@ class DashboardRepository
         $taxRate2Field = DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
 
         $select = DB::raw(
-            sprintf('SUM(%s + (%s * %s / 100) + (%s * %s / 100)) as value,', $amountField, $amountField, $taxRate1Field, $amountField, $taxRate2Field)
+            "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
                   . DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true) . ' as currency_id'
         );
         $expenses = DB::table('accounts')
@@ -370,7 +368,7 @@ class DashboardRepository
             ->get();
     }
 
-    private function rawChartData(string $entityType, $account, string $groupBy, DateTime|bool $startDate, DateTime|bool $endDate, $currencyId)
+    private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
     {
         if ( ! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
             return [];
@@ -389,25 +387,25 @@ class DashboardRepository
             ->where($entityType . 's.' . $entityType . '_date', '<=', $endDate->format('Y-m-d'))
             ->groupBy($groupBy);
 
-        if ($entityType === ENTITY_EXPENSE) {
+        if ($entityType == ENTITY_EXPENSE) {
             $records->where('expenses.expense_currency_id', '=', $currencyId);
         } elseif ($currencyId == $account->getCurrencyId()) {
-            $records->whereRaw(sprintf('(clients.currency_id = %d or coalesce(clients.currency_id, 0) = 0)', $currencyId));
+            $records->whereRaw("(clients.currency_id = {$currencyId} or coalesce(clients.currency_id, 0) = 0)");
         } else {
             $records->where('clients.currency_id', '=', $currencyId);
         }
 
-        if ($entityType === ENTITY_INVOICE) {
+        if ($entityType == ENTITY_INVOICE) {
             $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                 ->where('invoices.is_public', '=', true)
                 ->where('is_recurring', '=', false);
-        } elseif ($entityType === ENTITY_PAYMENT) {
+        } elseif ($entityType == ENTITY_PAYMENT) {
             $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                 ->where('invoices.is_deleted', '=', false)
                 ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
-        } elseif ($entityType === ENTITY_EXPENSE) {
+        } elseif ($entityType == ENTITY_EXPENSE) {
             $records->select(DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, ' . $timeframe . ' as ' . $groupBy));
         }
 

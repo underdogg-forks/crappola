@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 class ClientRequest extends EntityRequest
 {
-    public $entityType = ENTITY_CLIENT;
+    protected $entityType = ENTITY_CLIENT;
 
     public function entity()
     {

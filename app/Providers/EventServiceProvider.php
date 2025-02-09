@@ -2,69 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\ClientWasArchived;
-use App\Events\ClientWasCreated;
-use App\Events\ClientWasDeleted;
-use App\Events\ClientWasRestored;
-use App\Events\ClientWasUpdated;
-use App\Events\CreditWasArchived;
-use App\Events\CreditWasCreated;
-use App\Events\CreditWasDeleted;
-use App\Events\CreditWasRestored;
-use App\Events\ExpenseWasArchived;
-use App\Events\ExpenseWasCreated;
-use App\Events\ExpenseWasDeleted;
-use App\Events\ExpenseWasRestored;
-use App\Events\ExpenseWasUpdated;
-use App\Events\InvoiceInvitationWasEmailed;
-use App\Events\InvoiceInvitationWasViewed;
-use App\Events\InvoiceItemsWereCreated;
-use App\Events\InvoiceItemsWereUpdated;
-use App\Events\InvoiceWasArchived;
-use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasDeleted;
-use App\Events\InvoiceWasEmailed;
-use App\Events\InvoiceWasRestored;
-use App\Events\InvoiceWasUpdated;
-use App\Events\PaymentFailed;
-use App\Events\PaymentWasArchived;
-use App\Events\PaymentWasCreated;
-use App\Events\PaymentWasDeleted;
-use App\Events\PaymentWasRefunded;
-use App\Events\PaymentWasRestored;
-use App\Events\PaymentWasVoided;
-use App\Events\ProjectWasDeleted;
-use App\Events\ProposalWasDeleted;
-use App\Events\QuoteInvitationWasApproved;
-use App\Events\QuoteInvitationWasEmailed;
-use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteItemsWereCreated;
-use App\Events\QuoteItemsWereUpdated;
-use App\Events\QuoteWasArchived;
-use App\Events\QuoteWasCreated;
-use App\Events\QuoteWasDeleted;
-use App\Events\QuoteWasEmailed;
-use App\Events\QuoteWasRestored;
-use App\Events\QuoteWasUpdated;
-use App\Events\SubdomainWasRemoved;
-use App\Events\SubdomainWasUpdated;
-use App\Events\TaskWasArchived;
-use App\Events\TaskWasCreated;
-use App\Events\TaskWasDeleted;
-use App\Events\TaskWasRestored;
-use App\Events\TaskWasUpdated;
-use App\Events\UserLoggedIn;
-use App\Events\UserSettingsChanged;
-use App\Events\UserSignedUp;
-use App\Events\VendorWasCreated;
-use App\Events\VendorWasDeleted;
-use App\Events\VendorWasUpdated;
-use App\Listeners\HandleUserLoggedIn;
-use App\Listeners\HandleUserSettingsChanged;
-use App\Listeners\HandleUserSignedUp;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Queue\Events\JobExceptionOccurred;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -75,241 +13,241 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         // Clients
-        ClientWasCreated::class => [
+        'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
             'App\Listeners\SubscriptionListener@createdClient',
         ],
-        ClientWasArchived::class => [
+        'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
         ],
-        ClientWasUpdated::class => [
+        'App\Events\ClientWasUpdated' => [
             'App\Listeners\SubscriptionListener@updatedClient',
         ],
-        ClientWasDeleted::class => [
+        'App\Events\ClientWasDeleted' => [
             'App\Listeners\ActivityListener@deletedClient',
             'App\Listeners\SubscriptionListener@deletedClient',
             'App\Listeners\HistoryListener@deletedClient',
         ],
-        ClientWasRestored::class => [
+        'App\Events\ClientWasRestored' => [
             'App\Listeners\ActivityListener@restoredClient',
         ],
 
         // Invoices
-        InvoiceWasCreated::class => [
+        'App\Events\InvoiceWasCreated' => [
             'App\Listeners\ActivityListener@createdInvoice',
             'App\Listeners\InvoiceListener@createdInvoice',
         ],
-        InvoiceWasUpdated::class => [
+        'App\Events\InvoiceWasUpdated' => [
             'App\Listeners\ActivityListener@updatedInvoice',
             'App\Listeners\InvoiceListener@updatedInvoice',
         ],
-        InvoiceItemsWereCreated::class => [
+        'App\Events\InvoiceItemsWereCreated' => [
             'App\Listeners\SubscriptionListener@createdInvoice',
         ],
-        InvoiceItemsWereUpdated::class => [
+        'App\Events\InvoiceItemsWereUpdated' => [
             'App\Listeners\SubscriptionListener@updatedInvoice',
         ],
-        InvoiceWasArchived::class => [
+        'App\Events\InvoiceWasArchived' => [
             'App\Listeners\ActivityListener@archivedInvoice',
         ],
-        InvoiceWasDeleted::class => [
+        'App\Events\InvoiceWasDeleted' => [
             'App\Listeners\ActivityListener@deletedInvoice',
             'App\Listeners\TaskListener@deletedInvoice',
             'App\Listeners\ExpenseListener@deletedInvoice',
             'App\Listeners\HistoryListener@deletedInvoice',
             'App\Listeners\SubscriptionListener@deletedInvoice',
         ],
-        InvoiceWasRestored::class => [
+        'App\Events\InvoiceWasRestored' => [
             'App\Listeners\ActivityListener@restoredInvoice',
         ],
-        InvoiceWasEmailed::class => [
+        'App\Events\InvoiceWasEmailed' => [
             'App\Listeners\InvoiceListener@emailedInvoice',
             'App\Listeners\NotificationListener@emailedInvoice',
         ],
-        InvoiceInvitationWasEmailed::class => [
+        'App\Events\InvoiceInvitationWasEmailed' => [
             'App\Listeners\ActivityListener@emailedInvoice',
         ],
-        InvoiceInvitationWasViewed::class => [
+        'App\Events\InvoiceInvitationWasViewed' => [
             'App\Listeners\ActivityListener@viewedInvoice',
             'App\Listeners\NotificationListener@viewedInvoice',
             'App\Listeners\InvoiceListener@viewedInvoice',
         ],
 
         // Quotes
-        QuoteWasCreated::class => [
+        'App\Events\QuoteWasCreated' => [
             'App\Listeners\ActivityListener@createdQuote',
         ],
-        QuoteWasUpdated::class => [
+        'App\Events\QuoteWasUpdated' => [
             'App\Listeners\ActivityListener@updatedQuote',
         ],
-        QuoteItemsWereCreated::class => [
+        'App\Events\QuoteItemsWereCreated' => [
             'App\Listeners\SubscriptionListener@createdQuote',
         ],
-        QuoteItemsWereUpdated::class => [
+        'App\Events\QuoteItemsWereUpdated' => [
             'App\Listeners\SubscriptionListener@updatedQuote',
         ],
-        QuoteWasArchived::class => [
+        'App\Events\QuoteWasArchived' => [
             'App\Listeners\ActivityListener@archivedQuote',
         ],
-        QuoteWasDeleted::class => [
+        'App\Events\QuoteWasDeleted' => [
             'App\Listeners\ActivityListener@deletedQuote',
             'App\Listeners\HistoryListener@deletedQuote',
             'App\Listeners\SubscriptionListener@deletedQuote',
         ],
-        QuoteWasRestored::class => [
+        'App\Events\QuoteWasRestored' => [
             'App\Listeners\ActivityListener@restoredQuote',
         ],
-        QuoteWasEmailed::class => [
+        'App\Events\QuoteWasEmailed' => [
             'App\Listeners\QuoteListener@emailedQuote',
             'App\Listeners\NotificationListener@emailedQuote',
         ],
-        QuoteInvitationWasEmailed::class => [
+        'App\Events\QuoteInvitationWasEmailed' => [
             'App\Listeners\ActivityListener@emailedQuote',
         ],
-        QuoteInvitationWasViewed::class => [
+        'App\Events\QuoteInvitationWasViewed' => [
             'App\Listeners\ActivityListener@viewedQuote',
             'App\Listeners\NotificationListener@viewedQuote',
             'App\Listeners\QuoteListener@viewedQuote',
         ],
-        QuoteInvitationWasApproved::class => [
+        'App\Events\QuoteInvitationWasApproved' => [
             'App\Listeners\ActivityListener@approvedQuote',
             'App\Listeners\NotificationListener@approvedQuote',
             'App\Listeners\SubscriptionListener@approvedQuote',
         ],
 
         // Payments
-        PaymentWasCreated::class => [
+        'App\Events\PaymentWasCreated' => [
             'App\Listeners\ActivityListener@createdPayment',
             'App\Listeners\SubscriptionListener@createdPayment',
             'App\Listeners\InvoiceListener@createdPayment',
             'App\Listeners\NotificationListener@createdPayment',
             'App\Listeners\AnalyticsListener@trackRevenue',
         ],
-        PaymentWasArchived::class => [
+        'App\Events\PaymentWasArchived' => [
             'App\Listeners\ActivityListener@archivedPayment',
         ],
-        PaymentWasDeleted::class => [
+        'App\Events\PaymentWasDeleted' => [
             'App\Listeners\ActivityListener@deletedPayment',
             'App\Listeners\InvoiceListener@deletedPayment',
             'App\Listeners\CreditListener@deletedPayment',
             'App\Listeners\SubscriptionListener@deletedPayment',
         ],
-        PaymentWasRefunded::class => [
+        'App\Events\PaymentWasRefunded' => [
             'App\Listeners\ActivityListener@refundedPayment',
             'App\Listeners\InvoiceListener@refundedPayment',
         ],
-        PaymentWasVoided::class => [
+        'App\Events\PaymentWasVoided' => [
             'App\Listeners\ActivityListener@voidedPayment',
             'App\Listeners\InvoiceListener@voidedPayment',
         ],
-        PaymentFailed::class => [
+        'App\Events\PaymentFailed' => [
             'App\Listeners\ActivityListener@failedPayment',
             'App\Listeners\InvoiceListener@failedPayment',
         ],
-        PaymentWasRestored::class => [
+        'App\Events\PaymentWasRestored' => [
             'App\Listeners\ActivityListener@restoredPayment',
             'App\Listeners\InvoiceListener@restoredPayment',
         ],
 
         // Credits
-        CreditWasCreated::class => [
+        'App\Events\CreditWasCreated' => [
             'App\Listeners\ActivityListener@createdCredit',
         ],
-        CreditWasArchived::class => [
+        'App\Events\CreditWasArchived' => [
             'App\Listeners\ActivityListener@archivedCredit',
         ],
-        CreditWasDeleted::class => [
+        'App\Events\CreditWasDeleted' => [
             'App\Listeners\ActivityListener@deletedCredit',
         ],
-        CreditWasRestored::class => [
+        'App\Events\CreditWasRestored' => [
             'App\Listeners\ActivityListener@restoredCredit',
         ],
 
         // User events
-        UserSignedUp::class => [
-            HandleUserSignedUp::class,
+        'App\Events\UserSignedUp' => [
+            'App\Listeners\HandleUserSignedUp',
         ],
-        UserLoggedIn::class => [
-            HandleUserLoggedIn::class,
+        'App\Events\UserLoggedIn' => [
+            'App\Listeners\HandleUserLoggedIn',
         ],
-        UserSettingsChanged::class => [
-            HandleUserSettingsChanged::class,
+        'App\Events\UserSettingsChanged' => [
+            'App\Listeners\HandleUserSettingsChanged',
         ],
 
         // Task events
-        TaskWasCreated::class => [
+        'App\Events\TaskWasCreated' => [
             'App\Listeners\ActivityListener@createdTask',
             'App\Listeners\SubscriptionListener@createdTask',
         ],
-        TaskWasUpdated::class => [
+        'App\Events\TaskWasUpdated' => [
             'App\Listeners\ActivityListener@updatedTask',
             'App\Listeners\SubscriptionListener@updatedTask',
         ],
-        TaskWasRestored::class => [
+        'App\Events\TaskWasRestored' => [
             'App\Listeners\ActivityListener@restoredTask',
         ],
-        TaskWasArchived::class => [
+        'App\Events\TaskWasArchived' => [
             'App\Listeners\ActivityListener@archivedTask',
         ],
-        TaskWasDeleted::class => [
+        'App\Events\TaskWasDeleted' => [
             'App\Listeners\ActivityListener@deletedTask',
             'App\Listeners\SubscriptionListener@deletedTask',
             'App\Listeners\HistoryListener@deletedTask',
         ],
 
         // Vendor events
-        VendorWasCreated::class => [
+        'App\Events\VendorWasCreated' => [
             'App\Listeners\SubscriptionListener@createdVendor',
         ],
-        VendorWasUpdated::class => [
+        'App\Events\VendorWasUpdated' => [
             'App\Listeners\SubscriptionListener@updatedVendor',
         ],
-        VendorWasDeleted::class => [
+        'App\Events\VendorWasDeleted' => [
             'App\Listeners\SubscriptionListener@deletedVendor',
         ],
 
         // Expense events
-        ExpenseWasCreated::class => [
+        'App\Events\ExpenseWasCreated' => [
             'App\Listeners\ActivityListener@createdExpense',
             'App\Listeners\SubscriptionListener@createdExpense',
         ],
-        ExpenseWasUpdated::class => [
+        'App\Events\ExpenseWasUpdated' => [
             'App\Listeners\ActivityListener@updatedExpense',
             'App\Listeners\SubscriptionListener@updatedExpense',
         ],
-        ExpenseWasRestored::class => [
+        'App\Events\ExpenseWasRestored' => [
             'App\Listeners\ActivityListener@restoredExpense',
         ],
-        ExpenseWasArchived::class => [
+        'App\Events\ExpenseWasArchived' => [
             'App\Listeners\ActivityListener@archivedExpense',
         ],
-        ExpenseWasDeleted::class => [
+        'App\Events\ExpenseWasDeleted' => [
             'App\Listeners\ActivityListener@deletedExpense',
             'App\Listeners\SubscriptionListener@deletedExpense',
             'App\Listeners\HistoryListener@deletedExpense',
         ],
 
         // Project events
-        ProjectWasDeleted::class => [
+        'App\Events\ProjectWasDeleted' => [
             'App\Listeners\HistoryListener@deletedProject',
         ],
 
         // Proposal events
-        ProposalWasDeleted::class => [
+        'App\Events\ProposalWasDeleted' => [
             'App\Listeners\HistoryListener@deletedProposal',
         ],
 
-        JobExceptionOccurred::class => [
+        'Illuminate\Queue\Events\JobExceptionOccurred' => [
             'App\Listeners\InvoiceListener@jobFailed',
         ],
 
         //DNS Add A record to Cloudflare
-        SubdomainWasUpdated::class => [
+        'App\Events\SubdomainWasUpdated' => [
             'App\Listeners\DNSListener@addDNSRecord',
         ],
 
         //DNS Remove A record from Cloudflare
-        SubdomainWasRemoved::class => [
+        'App\Events\SubdomainWasRemoved' => [
             'App\Listeners\DNSListener@removeDNSRecord',
         ],
 
@@ -324,9 +262,11 @@ class EventServiceProvider extends ServiceProvider
     /**
      * Register any other events for your application.
      *
-     * @param Dispatcher $events
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         parent::boot();
     }

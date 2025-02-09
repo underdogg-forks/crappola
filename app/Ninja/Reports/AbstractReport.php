@@ -35,14 +35,14 @@ class AbstractReport
         $this->options = $options;
     }
 
-    public function run(): void {}
+    public function run() {}
 
-    public function getColumns(): array
+    public function getColumns()
     {
         return [];
     }
 
-    public function results(): array
+    public function results()
     {
         return [
             'columns'      => $this->getColumns(),
@@ -51,10 +51,7 @@ class AbstractReport
         ];
     }
 
-    /**
-     * @return array<mixed, array<'class'|'key'|'label', mixed>>
-     */
-    public function tableHeaderArray(): array
+    public function tableHeaderArray()
     {
         $columns_labeled = [];
 
@@ -73,11 +70,15 @@ class AbstractReport
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';
-            } elseif ($field == 'age') {
+            } elseif (in_array($field, ['age'])) {
                 $class[] = 'group-number-30';
             }
 
-            $label = in_array('custom', $class) ? $field : trans('texts.' . $field);
+            if ( ! in_array('custom', $class)) {
+                $label = trans("texts.{$field}");
+            } else {
+                $label = $field;
+            }
             $class = count($class) ? implode(' ', $class) : 'group-false';
 
             $columns_labeled[] = [
@@ -90,12 +91,12 @@ class AbstractReport
         return $columns_labeled;
     }
 
-    public function tableHeader(): string
+    public function tableHeader()
     {
         $columns_labeled = $this->tableHeaderArray();
         $str = '';
 
-        foreach ($columns_labeled as $attr) {
+        foreach ($columns_labeled as $field => $attr) {
             $str .= sprintf('<th class="%s" data-priorityx="3">%s</th>', $attr['class'], $attr['label']);
         }
 
@@ -103,12 +104,14 @@ class AbstractReport
     }
 
     // convert the date format to one supported by tablesorter
-    public function convertDateFormat(): string
+    public function convertDateFormat()
     {
         $account = Auth::user()->account;
         $format = $account->getMomentDateFormat();
         $format = mb_strtolower($format);
         $format = str_replace('do', '', $format);
+
+        $orignalFormat = $format;
         $format = preg_replace('/[^mdy]/', '', $format);
 
         $lastLetter = false;
@@ -116,27 +119,26 @@ class AbstractReport
         $phpParts = [];
 
         foreach (mb_str_split($format) as $letter) {
-            if ($lastLetter && $letter === $lastLetter) {
+            if ($lastLetter && $letter == $lastLetter) {
                 continue;
             }
-
             $lastLetter = $letter;
-            if ($letter === 'm') {
+            if ($letter == 'm') {
                 $reportParts[] = 'mm';
                 $phpParts[] = 'm';
-            } elseif ($letter === 'd') {
+            } elseif ($letter == 'd') {
                 $reportParts[] = 'dd';
                 $phpParts[] = 'd';
-            } elseif ($letter === 'y') {
+            } elseif ($letter == 'y') {
                 $reportParts[] = 'yyyy';
                 $phpParts[] = 'Y';
             }
         }
 
-        return implode('', $reportParts);
+        return join('', $reportParts);
     }
 
-    public function chartGroupBy(): string
+    public function chartGroupBy()
     {
         $groupBy = empty($this->options['group']) ? 'day' : $this->options['group'];
 
@@ -147,7 +149,7 @@ class AbstractReport
         return mb_strtoupper($groupBy);
     }
 
-    public function getLineChartData(): stdClass
+    public function getLineChartData()
     {
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
@@ -164,12 +166,11 @@ class AbstractReport
             // round dates to match grouping
             $intervalStartDate->hour(0)->minute(0)->second(0);
             $intervalEndDate->hour(24)->minute(0)->second(0);
-            if ($groupBy === 'MONTHYEAR' || $groupBy === 'YEAR') {
+            if ($groupBy == 'MONTHYEAR' || $groupBy == 'YEAR') {
                 $intervalStartDate->day(1);
                 $intervalEndDate->addMonth(1)->day(1);
             }
-
-            if ($groupBy === 'YEAR') {
+            if ($groupBy == 'YEAR') {
                 $intervalStartDate->month(1);
                 $intervalEndDate->month(12);
             }
@@ -191,7 +192,7 @@ class AbstractReport
             $record->label = $dimension;
             $record->lineTension = 0;
             $record->borderWidth = 3;
-            $record->borderColor = sprintf('rgba(%s, 1)', $color);
+            $record->borderColor = "rgba({$color}, 1)";
             $record->backgroundColor = 'rgba(255,255,255,0)';
         }
 
@@ -212,17 +213,18 @@ class AbstractReport
         return $this->options['subgroup'];
     }
 
-    public function getPieChartData(): false|stdClass
+    public function getPieChartData()
     {
         if ( ! $this->isPieChartEnabled()) {
             return false;
         }
 
         $datasets = [];
+        $labels = [];
         $totals = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            foreach ($data as $value) {
+            foreach ($data as $date => $value) {
                 if ( ! isset($totals[$dimension])) {
                     $totals[$dimension] = 0;
                 }
@@ -245,8 +247,8 @@ class AbstractReport
             $datasets->borderWidth = 3;
 
             $color = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
-            $datasets->borderColor[] = sprintf('rgba(%s, 1)', $color);
-            $datasets->backgroundColor[] = sprintf('rgba(%s, 0.1)', $color);
+            $datasets->borderColor[] = "rgba({$color}, 1)";
+            $datasets->backgroundColor[] = "rgba({$color}, 0.1)";
         }
 
         $response->datasets = [$datasets];
@@ -254,7 +256,7 @@ class AbstractReport
         return $response;
     }
 
-    protected function addToTotals($currencyId, $field, $value, $dimension = false): void
+    protected function addToTotals($currencyId, $field, $value, $dimension = false)
     {
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
@@ -276,23 +278,19 @@ class AbstractReport
         if ($subgroup == 'user') {
             return $entity->user->getDisplayName();
         }
-
         if ($subgroup == 'client') {
             if ($entity instanceof Client) {
                 return $entity->getDisplayName();
             }
-
             if ($entity->client) {
                 return $entity->client->getDisplayName();
             }
 
             return trans('texts.unset');
         }
-
-        return null;
     }
 
-    protected function addChartData($dimension, $date, $amount): void
+    protected function addChartData($dimension, $date, $amount)
     {
         if ( ! isset($this->chartData[$dimension])) {
             $this->chartData[$dimension] = [];
@@ -307,14 +305,14 @@ class AbstractReport
         $this->chartData[$dimension][$date] += $amount;
     }
 
-    protected function formatDate($date): string
+    protected function formatDate($date)
     {
         if ( ! $date instanceof DateTime) {
             $date = new DateTime($date);
         }
 
         $groupBy = $this->chartGroupBy();
-        $dateFormat = $groupBy === 'DAY' ? 'z' : ($groupBy === 'MONTH' ? 'm' : '');
+        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
 
         return $date->format('Y' . $dateFormat);
     }

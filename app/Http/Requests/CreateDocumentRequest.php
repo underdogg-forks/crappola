@@ -9,12 +9,14 @@ class CreateDocumentRequest extends DocumentRequest
         ENTITY_EXPENSE,
     ];
 
-    public function authorize(): bool
+    public function authorize()
     {
-        return $this->user()->hasFeature(FEATURE_DOCUMENTS);
+        if($this->user()->hasFeature(FEATURE_DOCUMENTS)) {
+            return true;
+        }
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             //'file' => 'mimes:jpg'

@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddProductsSettings extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->boolean('fill_products')->default(true);
             $table->boolean('update_products')->default(true);
         });
@@ -19,16 +15,11 @@ return new class () extends Migration {
         DB::table('accounts')->update(['update_products' => true]);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('fill_products');
             $table->dropColumn('update_products');
         });
     }
-};
+}

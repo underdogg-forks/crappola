@@ -3,19 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\Bank;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class BanksSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createBanks();
     }
 
     // Source: http://www.ofxhome.com/
-    private function createBanks(): void
+    private function createBanks()
     {
         // http://www.ofxhome.com/api.php?dump=yes
         // http://www.utilities-online.info/xmltojson

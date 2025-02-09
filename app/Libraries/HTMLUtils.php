@@ -35,7 +35,7 @@ class HTMLUtils
         $css = $purifier->context->get('StyleBlocks');
 
         // Get the first style block
-        return count($css) > 0 ? $css[0] : '';
+        return count($css) ? $css[0] : '';
     }
 
     public static function sanitizeHTML($html)
@@ -62,7 +62,7 @@ class HTMLUtils
         return $previous;
     }
 
-    public static function getEnvForAccount(string $field, $default = '')
+    public static function getEnvForAccount($field, $default = '')
     {
         $key = '';
 

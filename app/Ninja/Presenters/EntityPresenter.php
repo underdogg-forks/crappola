@@ -8,12 +8,15 @@ use stdClass;
 
 class EntityPresenter extends Presenter
 {
-    public function url(): string
+    /**
+     * @return string
+     */
+    public function url()
     {
         return SITE_URL . $this->path();
     }
 
-    public function path(): string
+    public function path()
     {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
@@ -21,18 +24,18 @@ class EntityPresenter extends Presenter
         return sprintf('/%s/%s', $type, $id);
     }
 
-    public function editUrl(): string
+    public function editUrl()
     {
         return $this->url() . '/edit';
     }
 
-    public function statusLabel($label = false): string
+    public function statusLabel($label = false)
     {
-        $class = '';
+        $class = $text = '';
+
         if ( ! $this->entity->id) {
             return '';
         }
-
         if ($this->entity->is_deleted) {
             $class = 'danger';
             $label = trans('texts.deleted');
@@ -44,20 +47,25 @@ class EntityPresenter extends Presenter
             $label = $label ?: $this->entity->statusLabel();
         }
 
-        return sprintf('<span style="font-size:13px" class="label label-%s">%s</span>', $class, $label);
+        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
 
-    public function statusColor(): string
+    public function statusColor()
     {
         $class = $this->entity->statusClass();
 
-        return match ($class) {
-            'success' => '#5cb85c',
-            'warning' => '#f0ad4e',
-            'primary' => '#337ab7',
-            'info'    => '#5bc0de',
-            default   => '#777',
-        };
+        switch ($class) {
+            case 'success':
+                return '#5cb85c';
+            case 'warning':
+                return '#f0ad4e';
+            case 'primary':
+                return '#337ab7';
+            case 'info':
+                return '#5bc0de';
+            default:
+                return '#777';
+        }
     }
 
     public function link()
@@ -68,7 +76,7 @@ class EntityPresenter extends Presenter
         return link_to($link, $name)->toHtml();
     }
 
-    public function titledName(): string
+    public function titledName()
     {
         $entity = $this->entity;
         $entityType = $entity->getEntityType();
@@ -76,7 +84,7 @@ class EntityPresenter extends Presenter
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
 
-    public function calendarEvent($subColors = false): stdClass
+    public function calendarEvent($subColors = false)
     {
         $entity = $this->entity;
 

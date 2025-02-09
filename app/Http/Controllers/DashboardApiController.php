@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardApiController extends BaseAPIController
 {
-    /**
-     * @var DashboardRepository
-     */
-    public $dashboardRepo;
-
     public function __construct(DashboardRepository $dashboardRepo)
     {
         parent::__construct();
@@ -43,9 +38,9 @@ class DashboardApiController extends BaseAPIController
         $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($user->account, $userId, $viewAll);
         $balances = $dashboardRepo->balances($user->account, $userId, $viewAll);
-        $dashboardRepo->pastDue($accountId, $userId, $viewAll);
-        $dashboardRepo->upcoming($accountId, $userId, $viewAll);
-        $dashboardRepo->payments($accountId, $userId, $viewAll);
+        $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
+        $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
+        $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
 
         $data = [
             'id'                     => 1,

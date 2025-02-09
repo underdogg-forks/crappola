@@ -2,38 +2,21 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class DatetimeFormat.
- *
- * @property int    $id
- * @property string $format
- * @property string $format_moment
- * @property string $format_dart
- *
- * @method static Builder|DatetimeFormat newModelQuery()
- * @method static Builder|DatetimeFormat newQuery()
- * @method static Builder|DatetimeFormat query()
- * @method static Builder|DatetimeFormat whereFormat($value)
- * @method static Builder|DatetimeFormat whereFormatDart($value)
- * @method static Builder|DatetimeFormat whereFormatMoment($value)
- * @method static Builder|DatetimeFormat whereId($value)
- *
- * @mixin \Eloquent
  */
-class DatetimeFormat extends Model
+class DatetimeFormat extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    public function __toString(): string
+    /**
+     * @return bool|string
+     */
+    public function __toString()
     {
-        $date = mktime(0, 0, 0, 12, 31, Carbon::now()->format('Y'));
+        $date = mktime(0, 0, 0, 12, 31, date('Y'));
 
         return date($this->format, $date);
     }

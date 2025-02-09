@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 class UpdateContactRequest extends ContactRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'first_name' => 'required',

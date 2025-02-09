@@ -5,16 +5,16 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class RecurringExpenseRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName(): string
+    public function getClassName()
     {
-        return RecurringExpense::class;
+        return 'App\Models\RecurringExpense';
     }
 
     public function all()
@@ -40,7 +40,7 @@ class RecurringExpenseRepository extends BaseRepository
             ->where('contacts.deleted_at', '=', null)
             ->where('vendors.deleted_at', '=', null)
             ->where('clients.deleted_at', '=', null)
-            ->where(function ($query): void { // handle when client isn't set
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
@@ -80,7 +80,7 @@ class RecurringExpenseRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_RECURRING_EXPENSE);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('recurring_expenses.public_notes', 'like', '%' . $filter . '%')
                     ->orWhere('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('vendors.name', 'like', '%' . $filter . '%')
@@ -117,10 +117,8 @@ class RecurringExpenseRepository extends BaseRepository
             if ($expense->exists && ! $expense->deleted_at && $expense->start_date && $expense->start_date != Utils::toSqlDate($input['start_date'])) {
                 $expense->last_sent_date = null;
             }
-
             $expense->start_date = Utils::toSqlDate($input['start_date']);
         }
-
         if (isset($input['end_date'])) {
             $expense->end_date = Utils::toSqlDate($input['end_date']);
         }

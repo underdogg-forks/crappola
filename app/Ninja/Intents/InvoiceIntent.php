@@ -4,21 +4,11 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\ProductRepository;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
-    /**
-     * @var mixed
-     */
-    public $invoiceRepo;
-
-    public $data;
-
     protected $fieldMap = [
         'deposit' => 'partial',
         'due'     => 'due_date',
@@ -26,12 +16,12 @@ class InvoiceIntent extends BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->invoiceRepo = app(InvoiceRepository::class);
+        $this->invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
 
         parent::__construct($state, $data);
     }
 
-    protected function stateInvoice(): Invoice|Builder
+    protected function stateInvoice()
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
@@ -52,9 +42,9 @@ class InvoiceIntent extends BaseIntent
         return $invoice;
     }
 
-    protected function requestInvoiceItems(): array
+    protected function requestInvoiceItems()
     {
-        $productRepo = app(ProductRepository::class);
+        $productRepo = app('App\Ninja\Repositories\ProductRepository');
 
         $invoiceItems = [];
         $offset = 0;
@@ -80,7 +70,6 @@ class InvoiceIntent extends BaseIntent
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
-
                         $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
                         $product = $productRepo->findPhonetically($productName);
                     } else {
@@ -119,7 +108,7 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses(string $entityType): void
+    protected function loadStatuses($entityType)
     {
         $statusIds = [];
         $statuses = $this->getFields('Filter');
@@ -131,7 +120,7 @@ class InvoiceIntent extends BaseIntent
         }
 
         if (count($statusIds) || $this->hasField('Filter', 'all')) {
-            session(['entity_status_filter:' . $entityType => implode(',', $statusIds)]);
+            session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
         }
     }
 }

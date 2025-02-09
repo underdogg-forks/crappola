@@ -10,10 +10,15 @@ use App\Ninja\Repositories\ContactRepository;
  */
 class ContactService extends BaseService
 {
-    protected ContactRepository $contactRepo;
+    /**
+     * @var ContactRepository
+     */
+    protected $contactRepo;
 
     /**
      * ContactService constructor.
+     *
+     * @param ContactRepository $contactRepo
      */
     public function __construct(ContactRepository $contactRepo)
     {
@@ -22,6 +27,7 @@ class ContactService extends BaseService
 
     /**
      * @param      $data
+     * @param null $contact
      *
      * @return mixed|null
      */
@@ -34,7 +40,10 @@ class ContactService extends BaseService
         return $this->contactRepo->save($data, $contact);
     }
 
-    protected function getRepo(): ContactRepository
+    /**
+     * @return ContactRepository
+     */
+    protected function getRepo()
     {
         return $this->contactRepo;
     }

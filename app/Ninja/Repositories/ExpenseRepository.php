@@ -7,13 +7,13 @@ use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ExpenseRepository extends BaseRepository
 {
-    protected DocumentRepository $documentRepo;
+    protected $documentRepo;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -21,9 +21,9 @@ class ExpenseRepository extends BaseRepository
     }
 
     // Expenses
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Expense::class;
+        return 'App\Models\Expense';
     }
 
     public function all()
@@ -39,14 +39,18 @@ class ExpenseRepository extends BaseRepository
     {
         $vendorId = Vendor::getPrivateId($vendorPublicId);
 
-        return $this->find()->where('expenses.vendor_id', '=', $vendorId);
+        $query = $this->find()->where('expenses.vendor_id', '=', $vendorId);
+
+        return $query;
     }
 
     public function findClient($clientPublicId)
     {
         $clientId = Client::getPrivateId($clientPublicId);
 
-        return $this->find()->where('expenses.client_id', '=', $clientId);
+        $query = $this->find()->where('expenses.client_id', '=', $clientId);
+
+        return $query;
     }
 
     public function find($filter = null)
@@ -63,7 +67,7 @@ class ExpenseRepository extends BaseRepository
             ->where('contacts.deleted_at', '=', null)
                     //->where('vendors.deleted_at', '=', null)
                     //->where('clients.deleted_at', '=', null)
-            ->where(function ($query): void { // handle when client isn't set
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
@@ -112,34 +116,29 @@ class ExpenseRepository extends BaseRepository
 
         if ($statuses = session('entity_status_filter:' . ENTITY_EXPENSE)) {
             $statuses = explode(',', $statuses);
-            $query->where(function ($query) use ($statuses): void {
+            $query->where(function ($query) use ($statuses) {
                 $query->whereNull('expenses.id');
 
                 if (in_array(EXPENSE_STATUS_LOGGED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '=', 0)
                         ->orWhereNull('expenses.invoice_id');
                 }
-
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
                     if ( ! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
-
                 if (in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0)
                         ->where('expenses.invoice_id', '>', 0);
                 }
-
                 if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
                     $query->orWhereNotNull('expenses.payment_date');
                 }
-
                 if (in_array(EXPENSE_STATUS_UNPAID, $statuses)) {
                     $query->orWhereNull('expenses.payment_date');
                 }
-
                 if (in_array(EXPENSE_STATUS_PENDING, $statuses)) {
                     $query->orWhere('expenses.should_be_invoiced', '=', 1)
                         ->whereNull('expenses.invoice_id');
@@ -148,7 +147,7 @@ class ExpenseRepository extends BaseRepository
         }
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('expenses.public_notes', 'like', '%' . $filter . '%')
                     ->orWhere('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('vendors.name', 'like', '%' . $filter . '%')
@@ -184,7 +183,6 @@ class ExpenseRepository extends BaseRepository
         if (isset($input['expense_date'])) {
             $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         }
-
         if (isset($input['payment_date'])) {
             $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
@@ -192,7 +190,6 @@ class ExpenseRepository extends BaseRepository
         if ( ! $expense->expense_currency_id) {
             $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
         }
-
         if ( ! $expense->invoice_currency_id) {
             $expense->invoice_currency_id = Auth::user()->account->getCurrencyId();
         }
@@ -206,7 +203,7 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = empty($input['document_ids']) ? [] : array_map('intval', $input['document_ids']);
+        $document_ids = ! empty($input['document_ids']) ? array_map('intval', $input['document_ids']) : [];
 
         foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form

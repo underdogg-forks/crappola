@@ -6,13 +6,13 @@ use App\Libraries\Utils;
 use App\Models\Invoice;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class RecurringInvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_RECURRING_INVOICE;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
@@ -26,21 +26,27 @@ class RecurringInvoiceDatatable extends EntityDatatable
                         $label = trans('texts.freq_inactive');
                     }
 
-                    return link_to(sprintf('recurring_invoices/%s/edit', $model->public_id), $label)->toHtml();
+                    return link_to("recurring_invoices/{$model->public_id}/edit", $label)->toHtml();
                 },
             ],
             [
                 'client_name',
-                fn ($model) => link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml(),
+                function ($model) {
+                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                },
                 ! $this->hideClient,
             ],
             [
                 'start_date',
-                fn ($model) => Utils::fromSqlDate($model->start_date_sql),
+                function ($model) {
+                    return Utils::fromSqlDate($model->start_date_sql);
+                },
             ],
             [
                 'last_sent',
-                fn ($model) => Utils::fromSqlDate($model->last_sent_date_sql),
+                function ($model) {
+                    return Utils::fromSqlDate($model->last_sent_date_sql);
+                },
             ],
             /*
             [
@@ -52,41 +58,59 @@ class RecurringInvoiceDatatable extends EntityDatatable
             */
             [
                 'amount',
-                fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id),
+                function ($model) {
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+                },
             ],
             [
                 'private_notes',
-                fn ($model) => $this->showWithTooltip($model->private_notes),
+                function ($model) {
+                    return $this->showWithTooltip($model->private_notes);
+                },
             ],
             [
                 'status',
-                fn ($model) => self::getStatusLabel($model),
+                function ($model) {
+                    return self::getStatusLabel($model);
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [
             [
                 trans('texts.edit_invoice'),
-                fn ($model) => URL::to(sprintf('invoices/%s/edit', $model->public_id)),
-                fn ($model) => Auth::user()->can('view', [ENTITY_INVOICE, $model]),
+                function ($model) {
+                    return URL::to("invoices/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                },
             ],
             [
                 trans('texts.clone_invoice'),
-                fn ($model) => URL::to(sprintf('invoices/%s/clone', $model->public_id)),
-                fn ($model) => Auth::user()->can('create', ENTITY_INVOICE),
+                function ($model) {
+                    return URL::to("invoices/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
             [
                 trans('texts.clone_quote'),
-                fn ($model) => URL::to(sprintf('quotes/%s/clone', $model->public_id)),
-                fn ($model) => Auth::user()->can('create', ENTITY_QUOTE),
+                function ($model) {
+                    return URL::to("quotes/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_QUOTE);
+                },
             ],
         ];
     }
 
-    private function getStatusLabel($model): string
+    private function getStatusLabel($model)
     {
         $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
@@ -101,6 +125,6 @@ class RecurringInvoiceDatatable extends EntityDatatable
             }
         }
 
-        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

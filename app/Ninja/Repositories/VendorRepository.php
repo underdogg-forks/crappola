@@ -4,16 +4,16 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Vendor;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 // vendor
 class VendorRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Vendor::class;
+        return 'App\Models\Vendor';
     }
 
     public function all()
@@ -53,7 +53,7 @@ class VendorRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_VENDOR);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('vendors.name', 'like', '%' . $filter . '%')
                     ->orWhere('vendor_contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('vendor_contacts.last_name', 'like', '%' . $filter . '%')
@@ -98,7 +98,7 @@ class VendorRepository extends BaseRepository
         $vendorcontactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($vendorcontacts, function ($left, $right): int|float {
+        usort($vendorcontacts, function ($left, $right) {
             if (isset($right['is_primary'], $left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }

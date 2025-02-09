@@ -7,7 +7,7 @@ use App\Models\Invitation;
 
 class CreateOnlinePaymentRequest extends Request
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }

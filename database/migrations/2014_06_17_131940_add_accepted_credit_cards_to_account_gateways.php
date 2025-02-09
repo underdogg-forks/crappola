@@ -2,28 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddAcceptedCreditCardsToAccountGateways extends Migration
+{
+    public function up()
     {
-        Schema::table('account_gateways', function ($table): void {
+        Schema::table('account_gateways', function ($table) {
             $table->unsignedInteger('accepted_credit_cards')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('account_gateways', function ($table): void {
+        Schema::table('account_gateways', function ($table) {
             $table->dropColumn('accepted_credit_cards');
         });
     }
-};
+}

@@ -2,39 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 
 /**
  * Class ExpenseCategory.
- *
- * @property int         $id
- * @property int         $lookup_account_id
- * @property string|null $email
- * @property string|null $confirmation_code
- * @property int         $user_id
- * @property string|null $oauth_user_key
- * @property string|null $referral_code
- *
- * @method static Builder|LookupUser newModelQuery()
- * @method static Builder|LookupUser newQuery()
- * @method static Builder|LookupUser query()
- * @method static Builder|LookupUser whereConfirmationCode($value)
- * @method static Builder|LookupUser whereEmail($value)
- * @method static Builder|LookupUser whereId($value)
- * @method static Builder|LookupUser whereLookupAccountId($value)
- * @method static Builder|LookupUser whereOauthUserKey($value)
- * @method static Builder|LookupUser whereReferralCode($value)
- * @method static Builder|LookupUser whereUserId($value)
- *
- * @property LookupAccount $lookupAccount
- *
- * @mixin \Eloquent
  */
 class LookupUser extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'lookup_account_id',
         'email',
@@ -44,7 +18,7 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($accountKey, $user): void
+    public static function updateUser($accountKey, $user)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -92,5 +66,10 @@ class LookupUser extends LookupModel
         config(['database.default' => $current]);
 
         return $isValid;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

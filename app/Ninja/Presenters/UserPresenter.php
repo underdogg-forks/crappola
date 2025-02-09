@@ -4,22 +4,17 @@ namespace App\Ninja\Presenters;
 
 class UserPresenter extends EntityPresenter
 {
-    public function email(): string
+    public function email()
     {
         return htmlentities(sprintf('%s <%s>', $this->fullName(), $this->entity->email));
     }
 
-    public function emailForDisplay(): string
-    {
-        return htmlspecialchars($this->entity->email, ENT_QUOTES, 'UTF-8');
-    }
-
-    public function fullName(): string
+    public function fullName()
     {
         return $this->entity->first_name . ' ' . $this->entity->last_name;
     }
 
-    public function statusCode(): string
+    public function statusCode()
     {
         $status = '';
         $user = $this->entity;

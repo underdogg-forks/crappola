@@ -2,24 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Carbon\Carbon;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
 use App\Libraries\Utils;
 use App\Models\User;
-use App\Ninja\Repositories\AccountRepository;
-use Cache;
+use Cookie;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Str;
+use Lang;
+use Str;
 
 class LoginController extends Controller
 {
@@ -54,7 +49,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function getLoginWrapper(Request $request)
     {
@@ -76,18 +71,17 @@ class LoginController extends Controller
             }
         }
 
-        return self::showLoginForm();
+        return self::showLoginForm($request);
     }
 
     /**
-     * @return Response
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\Response
      */
     public function postLoginWrapper(Request $request)
     {
-        if (auth()->check()) {
-            auth()->user()->id;
-        }
-
+        $userId = auth()->check() ? auth()->user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
@@ -111,15 +105,14 @@ class LoginController extends Controller
             }
             */
         } else {
-            $stacktrace = sprintf("%s %s %s %s\n", Carbon::now()->format('Y-m-d h:i:s'), $request->input('email'), \Illuminate\Support\Facades\Request::getClientIp(), Arr::get($_SERVER, 'HTTP_USER_AGENT'));
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Request::getClientIp(), array_get($_SERVER, 'HTTP_USER_AGENT'));
             if (config('app.log') == 'single') {
                 file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             } else {
                 Utils::logError('[failed login] ' . $stacktrace);
             }
-
             if ($user) {
-                $user->failed_logins += 1;
+                $user->failed_logins = $user->failed_logins + 1;
                 $user->save();
             }
         }
@@ -128,7 +121,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function getValidateToken()
     {
@@ -142,7 +135,7 @@ class LoginController extends Controller
     /**
      * @param App\Http\Requests\ValidateSecretRequest $request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function postValidateToken(ValidateTwoFactorRequest $request)
     {
@@ -151,7 +144,7 @@ class LoginController extends Controller
         $key = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
-        \Illuminate\Support\Facades\Cache::add($key, true, 4 * 60);
+        Cache::add($key, true, 4 * 60);
 
         //login and redirect user
         auth()->loginUsingId($userId);
@@ -163,7 +156,6 @@ class LoginController extends Controller
                 $user->remember_2fa_token = Str::random(60);
                 $user->save();
             }
-
             $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
             cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
         }
@@ -172,19 +164,18 @@ class LoginController extends Controller
     }
 
     /**
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function getLogoutWrapper(Request $request)
     {
         if (auth()->check() && ! auth()->user()->email && ! auth()->user()->registered) {
             if (request()->force_logout) {
                 $account = auth()->user()->account;
-                app(AccountRepository::class)->unlinkAccount($account);
+                app('App\Ninja\Repositories\AccountRepository')->unlinkAccount($account);
 
                 if ( ! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
                 }
-
                 $account->forceDelete();
             } else {
                 return redirect('/');
@@ -194,8 +185,8 @@ class LoginController extends Controller
         $response = self::logout($request);
 
         $reason = htmlentities(request()->reason);
-        if ($reason !== '' && $reason !== '0' && Lang::has(sprintf('texts.%s_logout', $reason))) {
-            session()->flash('warning', trans(sprintf('texts.%s_logout', $reason)));
+        if ( ! empty($reason) && Lang::has("texts.{$reason}_logout")) {
+            session()->flash('warning', trans("texts.{$reason}_logout"));
         }
 
         return $response;
@@ -204,8 +195,9 @@ class LoginController extends Controller
     /**
      * Get the failed login response instance.
      *
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendFailedLoginResponse(Request $request)
     {
@@ -219,10 +211,12 @@ class LoginController extends Controller
     /**
      * Send the post-authentication response.
      *
+     * @param \Illuminate\Http\Request                   $request
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
-    private function authenticated(Authenticatable $user)
+    private function authenticated(Request $request, Authenticatable $user)
     {
         if ($user->google_2fa_secret) {
             $cookie = false;

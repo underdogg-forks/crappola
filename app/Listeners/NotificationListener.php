@@ -21,14 +21,27 @@ use App\Services\PushService;
  */
 class NotificationListener
 {
-    protected UserMailer $userMailer;
+    /**
+     * @var UserMailer
+     */
+    protected $userMailer;
 
-    protected ContactMailer $contactMailer;
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
 
-    protected PushService $pushService;
+    /**
+     * @var PushService
+     */
+    protected $pushService;
 
     /**
      * NotificationListener constructor.
+     *
+     * @param UserMailer    $userMailer
+     * @param ContactMailer $contactMailer
+     * @param PushService   $pushService
      */
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
     {
@@ -37,21 +50,30 @@ class NotificationListener
         $this->pushService = $pushService;
     }
 
-    public function emailedInvoice(InvoiceWasEmailed $event): void
+    /**
+     * @param InvoiceWasEmailed $event
+     */
+    public function emailedInvoice(InvoiceWasEmailed $event)
     {
         $this->sendNotifications($event->invoice, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->invoice, 'sent');
     }
 
-    public function emailedQuote(QuoteWasEmailed $event): void
+    /**
+     * @param QuoteWasEmailed $event
+     */
+    public function emailedQuote(QuoteWasEmailed $event)
     {
         $this->sendNotifications($event->quote, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->quote, 'sent');
     }
 
-    public function viewedInvoice(InvoiceInvitationWasViewed $event): void
+    /**
+     * @param InvoiceInvitationWasViewed $event
+     */
+    public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
-        if ((float) ($event->invoice->balance) === 0.0) {
+        if ( ! (float) ($event->invoice->balance)) {
             return;
         }
 
@@ -59,7 +81,10 @@ class NotificationListener
         $this->pushService->sendNotification($event->invoice, 'viewed');
     }
 
-    public function viewedQuote(QuoteInvitationWasViewed $event): void
+    /**
+     * @param QuoteInvitationWasViewed $event
+     */
+    public function viewedQuote(QuoteInvitationWasViewed $event)
     {
         if ($event->quote->quote_invoice_id) {
             return;
@@ -69,13 +94,19 @@ class NotificationListener
         $this->pushService->sendNotification($event->quote, 'viewed');
     }
 
-    public function approvedQuote(QuoteInvitationWasApproved $event): void
+    /**
+     * @param QuoteInvitationWasApproved $event
+     */
+    public function approvedQuote(QuoteInvitationWasApproved $event)
     {
         $this->sendNotifications($event->quote, 'approved');
         $this->pushService->sendNotification($event->quote, 'approved');
     }
 
-    public function createdPayment(PaymentWasCreated $event): void
+    /**
+     * @param PaymentWasCreated $event
+     */
+    public function createdPayment(PaymentWasCreated $event)
     {
         // only send emails for online payments
         if ( ! $event->payment->account_gateway_id) {
@@ -91,11 +122,12 @@ class NotificationListener
     /**
      * @param      $invoice
      * @param      $type
+     * @param null $payment
      */
-    private function sendNotifications(Invoice $invoice, string $type, $payment = null, $notes = false): void
+    private function sendNotifications(Invoice $invoice, $type, $payment = null, $notes = false)
     {
         foreach ($invoice->account->users as $user) {
-            if ($user->{'notify_' . $type}) {
+            if ($user->{"notify_{$type}"}) {
                 dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
             }
 

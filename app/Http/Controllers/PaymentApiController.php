@@ -10,20 +10,14 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
 use Illuminate\Support\Facades\Request;
-use Response;
 
 class PaymentApiController extends BaseAPIController
 {
-    /**
-     * @var ContactMailer
-     */
-    public $contactMailer;
+    protected $paymentRepo;
 
-    public $entityType = ENTITY_PAYMENT;
+    protected $paymentService;
 
-    protected PaymentRepository $paymentRepo;
-
-    protected PaymentService $paymentService;
+    protected $entityType = ENTITY_PAYMENT;
 
     public function __construct(PaymentRepository $paymentRepo, PaymentService $paymentService, ContactMailer $contactMailer)
     {

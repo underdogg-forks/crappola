@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
 use App\Models\Subscription;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\Response;
 class IntegrationController extends BaseAPIController
 {
     /**
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function subscribe()
     {

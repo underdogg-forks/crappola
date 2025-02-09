@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -18,21 +17,21 @@ use App\Models\Task;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
-use Bootstrapper\Facades\DropdownButton;
+use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use URL;
 
 class ClientController extends BaseController
 {
-    public $entityType = ENTITY_CLIENT;
+    protected $clientService;
 
-    protected ClientService $clientService;
+    protected $clientRepo;
 
-    protected ClientRepository $clientRepo;
+    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
@@ -45,7 +44,7 @@ class ClientController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return Response
      */
     public function index()
     {
@@ -79,6 +78,13 @@ class ClientController extends BaseController
         return redirect()->to($client->getRoute());
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
     public function show(ClientRequest $request)
     {
         $client = $request->entity();
@@ -91,15 +97,12 @@ class ClientController extends BaseController
         if ($user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/' . $client->public_id)];
         }
-
         if ($user->can('create', ENTITY_TASK)) {
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/' . $client->public_id)];
         }
-
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/' . $client->public_id)];
         }
-
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/' . $client->public_id)];
         }
@@ -160,12 +163,19 @@ class ClientController extends BaseController
             'title'  => trans('texts.new_client'),
         ];
 
-        $data = array_merge($data, $this->getViewModel());
+        $data = array_merge($data, self::getViewModel());
 
         return View::make('clients.edit', $data);
     }
 
-    public function edit(ClientRequest $request): \Illuminate\Contracts\View\View
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function edit(ClientRequest $request)
     {
         $client = $request->entity();
 
@@ -176,15 +186,24 @@ class ClientController extends BaseController
             'title'  => trans('texts.edit_client'),
         ];
 
-        $data = array_merge($data, $this->getViewModel());
+        $data = array_merge($data, self::getViewModel());
 
-        if (Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
-            $data['planDetails'] = $account->getPlanDetails(false, false);
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($client->public_id)->first()) {
+                $data['planDetails'] = $account->getPlanDetails(false, false);
+            }
         }
 
         return View::make('clients.edit', $data);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
     public function update(UpdateClientRequest $request)
     {
         $client = $this->clientService->save($request->input(), $request->entity());
@@ -197,7 +216,7 @@ class ClientController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
@@ -217,7 +236,7 @@ class ClientController extends BaseController
 
     public function statement($clientPublicId)
     {
-        request()->status_id;
+        $statusId = request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
         $account = Auth::user()->account;
@@ -229,7 +248,7 @@ class ClientController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch_sync(new GenerateStatementData($client, request()->all()));
+            return dispatch_now(new GenerateStatementData($client, request()->all()));
         }
 
         $data = [
@@ -245,19 +264,19 @@ class ClientController extends BaseController
 
     public function getEmailHistory()
     {
-        $history = dispatch_sync(new LoadPostmarkHistory(request()->email));
+        $history = dispatch_now(new LoadPostmarkHistory(request()->email));
 
         return response()->json($history);
     }
 
     public function reactivateEmail()
     {
-        $result = dispatch_sync(new ReactivatePostmarkEmail(request()->bounce_id));
+        $result = dispatch_now(new ReactivatePostmarkEmail(request()->bounce_id));
 
         return response()->json($result);
     }
 
-    private function getViewModel(): array
+    private static function getViewModel()
     {
         return [
             'data'         => Request::old('data'),

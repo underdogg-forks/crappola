@@ -11,8 +11,6 @@ use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
@@ -24,12 +22,20 @@ use Illuminate\Support\Facades\View;
  */
 class ProductController extends BaseController
 {
-    protected ProductService $productService;
+    /**
+     * @var ProductService
+     */
+    protected $productService;
 
-    protected ProductRepository $productRepo;
+    /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
 
     /**
      * ProductController constructor.
+     *
+     * @param ProductService $productService
      */
     public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
@@ -40,7 +46,7 @@ class ProductController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
@@ -56,11 +62,11 @@ class ProductController extends BaseController
     {
         Session::reflash();
 
-        return Redirect::to(sprintf('products/%s/edit', $publicId));
+        return Redirect::to("products/{$publicId}/edit");
     }
 
     /**
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable()
     {
@@ -77,7 +83,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(ProductRequest $request, string $publicId, $clone = false)
+    public function edit(ProductRequest $request, $publicId, $clone = false)
     {
         Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
 
@@ -128,7 +134,7 @@ class ProductController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreateProductRequest $request)
     {
@@ -138,7 +144,7 @@ class ProductController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdateProductRequest $request, $publicId)
     {
@@ -146,12 +152,12 @@ class ProductController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();
@@ -162,7 +168,6 @@ class ProductController extends BaseController
 
             return redirect('invoices/create')->with('selectedProducts', $data);
         }
-
         $count = $this->productService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_product', $count);
@@ -174,7 +179,7 @@ class ProductController extends BaseController
     /**
      * @param bool $productPublicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     private function save($productPublicId = false)
     {
@@ -198,6 +203,6 @@ class ProductController extends BaseController
             return redirect()->to(sprintf('products/%s/clone', $product->public_id));
         }
 
-        return redirect()->to(sprintf('products/%s/edit', $product->public_id));
+        return redirect()->to("products/{$product->public_id}/edit");
     }
 }

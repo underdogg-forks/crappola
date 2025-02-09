@@ -6,12 +6,12 @@ class CreateExpenseRequest extends ExpenseRequest
 {
     // Expenses
 
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_EXPENSE);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [];
     }

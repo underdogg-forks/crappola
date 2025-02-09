@@ -5,79 +5,18 @@ namespace App\Models;
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
 use App\Libraries\Utils;
-use App\Ninja\Presenters\TaskPresenter;
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Task.
- *
- * @property int             $id
- * @property int             $user_id
- * @property int             $account_id
- * @property int|null        $client_id
- * @property int|null        $invoice_id
- * @property Carbon|null     $created_at
- * @property Carbon|null     $updated_at
- * @property Carbon|null     $deleted_at
- * @property string|null     $description
- * @property int             $is_deleted
- * @property int             $public_id
- * @property int             $is_running
- * @property string|null     $time_log
- * @property int|null        $project_id
- * @property int|null        $task_status_id
- * @property int             $task_status_sort_order
- * @property string|null     $custom_value1
- * @property string|null     $custom_value2
- * @property Account         $account
- * @property Client|null     $client
- * @property Invoice|null    $invoice
- * @property Project|null    $project
- * @property TaskStatus|null $task_status
- * @property User            $user
- *
- * @method static Builder|Task dateRange($startDate, $endDate)
- * @method static Builder|Task newModelQuery()
- * @method static Builder|Task newQuery()
- * @method static Builder|Task onlyTrashed()
- * @method static Builder|Task query()
- * @method static Builder|Task scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|Task whereAccountId($value)
- * @method static Builder|Task whereClientId($value)
- * @method static Builder|Task whereCreatedAt($value)
- * @method static Builder|Task whereCustomValue1($value)
- * @method static Builder|Task whereCustomValue2($value)
- * @method static Builder|Task whereDeletedAt($value)
- * @method static Builder|Task whereDescription($value)
- * @method static Builder|Task whereId($value)
- * @method static Builder|Task whereInvoiceId($value)
- * @method static Builder|Task whereIsDeleted($value)
- * @method static Builder|Task whereIsRunning($value)
- * @method static Builder|Task whereProjectId($value)
- * @method static Builder|Task wherePublicId($value)
- * @method static Builder|Task whereTaskStatusId($value)
- * @method static Builder|Task whereTaskStatusSortOrder($value)
- * @method static Builder|Task whereTimeLog($value)
- * @method static Builder|Task whereUpdatedAt($value)
- * @method static Builder|Task whereUserId($value)
- * @method static Builder|Task withActiveOrSelected($id = false)
- * @method static Builder|Task withArchived()
- * @method static Builder|Task withTrashed()
- * @method static Builder|Task withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class Task extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'client_id',
         'description',
@@ -90,7 +29,7 @@ class Task extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = TaskPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
 
     /**
      * @param $task
@@ -101,7 +40,7 @@ class Task extends EntityModel
     {
         $parts = json_decode($task->time_log) ?: [];
 
-        if (count($parts) > 0) {
+        if (count($parts)) {
             return Utils::timestampToDateTimeString($parts[0][0]);
         }
 
@@ -110,20 +49,25 @@ class Task extends EntityModel
 
     /**
      * @param $task
+     *
+     * @return int
      */
-    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0): float
+    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         $duration = 0;
         $parts = json_decode($task->time_log) ?: [];
 
         foreach ($parts as $part) {
             $startTime = $part[0];
-            $endTime = count($part) == 1 || ! $part[1] ? \Carbon\Carbon::now()->timestamp : $part[1];
+            if (count($part) == 1 || ! $part[1]) {
+                $endTime = time();
+            } else {
+                $endTime = $part[1];
+            }
 
             if ($startTimeCutoff) {
                 $startTime = max($startTime, $startTimeCutoff);
             }
-
             if ($endTimeCutoff) {
                 $endTime = min($endTime, $endTimeCutoff);
             }
@@ -134,7 +78,7 @@ class Task extends EntityModel
         return round($duration);
     }
 
-    public static function getStatuses($entityType = false): array
+    public static function getStatuses($entityType = false)
     {
         $statuses = [];
 
@@ -155,7 +99,11 @@ class Task extends EntityModel
     public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
     {
         if ($invoiceNumber) {
-            $label = (float) $balance > 0 ? trans('texts.invoiced') : trans('texts.paid');
+            if ((float) $balance > 0) {
+                $label = trans('texts.invoiced');
+            } else {
+                $label = trans('texts.paid');
+            }
         } elseif ($taskStatus) {
             $label = $taskStatus;
         } else {
@@ -169,16 +117,15 @@ class Task extends EntityModel
         return $label;
     }
 
-    public static function calcStatusClass($isRunning, $balance, $invoiceNumber): string
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
     {
         if ($invoiceNumber) {
-            if ((float) $balance !== 0.0) {
+            if ((float) $balance) {
                 return 'default';
             }
 
             return 'success';
         }
-
         if ($isRunning) {
             return 'primary';
         }
@@ -186,41 +133,50 @@ class Task extends EntityModel
         return 'info';
     }
 
-    public function getEntityType(): string
+    public function getEntityType()
     {
         return ENTITY_TASK;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function project()
     {
-        return $this->belongsTo(Project::class)->withTrashed();
+        return $this->belongsTo('App\Models\Project')->withTrashed();
     }
 
     public function task_status()
     {
-        return $this->belongsTo(TaskStatus::class)->withTrashed();
+        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
     }
 
+    /**
+     * @return string
+     */
     public function getStartTime()
     {
         return self::calcStartTime($this);
@@ -230,7 +186,7 @@ class Task extends EntityModel
     {
         $parts = json_decode($this->time_log) ?: [];
 
-        if (count($parts) > 0) {
+        if (count($parts)) {
             $index = count($parts) - 1;
 
             return $parts[$index][0];
@@ -262,39 +218,47 @@ class Task extends EntityModel
         return Utils::roundSignificant($value);
     }
 
-    public function getCurrentDuration(): int|float
+    public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
         $part = $parts[count($parts) - 1];
 
         if (count($part) == 1 || ! $part[1]) {
-            return \Carbon\Carbon::now()->timestamp - $part[0];
+            return time() - $part[0];
         }
 
         return 0;
     }
 
-    public function hasPreviousDuration(): bool
+    /**
+     * @return bool
+     */
+    public function hasPreviousDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
 
         return count($parts) && (count($parts[0]) && $parts[0][1]);
     }
 
-    public function getHours(): float
+    /**
+     * @return float
+     */
+    public function getHours()
     {
         return round($this->getDuration() / (60 * 60), 2);
     }
 
     /**
      * Gets the route to the tasks edit action.
+     *
+     * @return string
      */
-    public function getRoute(): string
+    public function getRoute()
     {
-        return sprintf('/tasks/%s/edit', $this->public_id);
+        return "/tasks/{$this->public_id}/edit";
     }
 
-    public function getName(): string
+    public function getName()
     {
         return '#' . $this->public_id;
     }
@@ -319,7 +283,7 @@ class Task extends EntityModel
         return $query;
     }
 
-    public function statusClass(): string
+    public function statusClass()
     {
         if ($this->invoice) {
             $balance = $this->invoice->balance;
@@ -332,7 +296,7 @@ class Task extends EntityModel
         return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
     }
 
-    public function statusLabel(): string
+    public function statusLabel()
     {
         if ($this->invoice) {
             $balance = $this->invoice->balance;
@@ -346,12 +310,17 @@ class Task extends EntityModel
 
         return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
 
-Task::created(function ($task): void {
+Task::created(function ($task) {
     event(new TaskWasCreated($task));
 });
 
-Task::updated(function ($task): void {
+Task::updated(function ($task) {
     event(new TaskWasUpdated($task));
 });

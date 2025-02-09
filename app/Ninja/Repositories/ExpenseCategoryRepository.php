@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ExpenseCategory;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return ExpenseCategory::class;
+        return 'App\Models\ExpenseCategory';
     }
 
     public function all()
@@ -33,7 +33,7 @@ class ExpenseCategoryRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_EXPENSE_CATEGORY);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('expense_categories.name', 'like', '%' . $filter . '%');
             });
         }
@@ -43,6 +43,8 @@ class ExpenseCategoryRepository extends BaseRepository
 
     public function save($input, $category = false)
     {
+        $publicId = $data['public_id'] ?? false;
+
         if ( ! $category) {
             $category = ExpenseCategory::createNew();
         }

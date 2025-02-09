@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 class CreateProductRequest extends ProductRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_PRODUCT);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'product_key' => 'required',

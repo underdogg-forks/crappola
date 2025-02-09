@@ -53,9 +53,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseAPIController extends Controller
 {
-    public $entityType;
-
-    protected Manager $manager;
+    protected $manager;
 
     protected $serializer;
 
@@ -82,7 +80,7 @@ class BaseAPIController extends Controller
         $action = $request->action;
 
         if ( ! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
-            return $this->errorResponse(sprintf('Action [%s] is not supported', $action));
+            return $this->errorResponse("Action [{$action}] is not supported");
         }
 
         if ($action == 'mark_sent') {
@@ -117,7 +115,7 @@ class BaseAPIController extends Controller
 
         if (Request::input('client_id') > 0) {
             $clientPublicId = Request::input('client_id');
-            $filter = function ($query) use ($clientPublicId): void {
+            $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
@@ -172,7 +170,6 @@ class BaseAPIController extends Controller
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
-
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $entityType);
@@ -223,21 +220,21 @@ class BaseAPIController extends Controller
         $included = explode(',', $included);
 
         foreach ($included as $include) {
-            if ($include === 'invoices') {
+            if ($include == 'invoices') {
                 $data[] = 'invoices.invoice_items';
                 $data[] = 'invoices.client.contacts';
-            } elseif ($include === 'invoice') {
+            } elseif ($include == 'invoice') {
                 $data[] = 'invoice.invoice_items';
                 $data[] = 'invoice.client.contacts';
-            } elseif ($include === 'client') {
+            } elseif ($include == 'client') {
                 $data[] = 'client.contacts';
-            } elseif ($include === 'clients') {
+            } elseif ($include == 'clients') {
                 $data[] = 'clients.contacts';
-            } elseif ($include === 'vendors') {
+            } elseif ($include == 'vendors') {
                 $data[] = 'vendors.vendor_contacts';
-            } elseif ($include === 'documents' && $this->entityType == ENTITY_INVOICE) {
+            } elseif ($include == 'documents' && $this->entityType == ENTITY_INVOICE) {
                 $data[] = 'documents.expense';
-            } elseif ($include !== '' && $include !== '0') {
+            } elseif ($include) {
                 $data[] = $include;
             }
         }
@@ -245,7 +242,7 @@ class BaseAPIController extends Controller
         return $data;
     }
 
-    protected function fileReponse(string $name, $data)
+    protected function fileReponse($name, $data)
     {
         header('Content-Type: application/pdf');
         header('Content-Length: ' . mb_strlen($data));

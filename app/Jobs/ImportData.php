@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App;
 use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
@@ -10,7 +11,6 @@ use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -21,16 +21,16 @@ class ImportData extends Job implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    protected User $user;
+    /**
+     * @var User
+     */
+    protected $user;
 
     /**
      * @var string
      */
     protected $type;
 
-    /**
-     * @var array
-     */
     protected $settings;
 
     /**
@@ -57,7 +57,7 @@ class ImportData extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ImportService $importService, UserMailer $userMailer): void
+    public function handle(ImportService $importService, UserMailer $userMailer)
     {
         $includeSettings = false;
 

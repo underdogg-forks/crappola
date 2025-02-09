@@ -17,10 +17,15 @@ use Illuminate\Support\Facades\Session;
  */
 class HandleUserLoggedIn
 {
-    protected AccountRepository $accountRepo;
+    /**
+     * @var AccountRepository
+     */
+    protected $accountRepo;
 
     /**
      * Create the event handler.
+     *
+     * @param AccountRepository $accountRepo
      */
     public function __construct(AccountRepository $accountRepo)
     {
@@ -30,9 +35,11 @@ class HandleUserLoggedIn
     /**
      * Handle the event.
      *
+     * @param UserLoggedIn $event
      *
+     * @return void
      */
-    public function handle(UserLoggedIn $event): void
+    public function handle(UserLoggedIn $event)
     {
         $user = auth()->user();
         $account = $user->account;
@@ -85,11 +92,9 @@ class HandleUserLoggedIn
                 if ( ! $appKey) {
                     fwrite($fp, "\nAPP_KEY=" . config('app.key'));
                 }
-
                 if ( ! $appCipher) {
                     fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
                 }
-
                 fclose($fp);
             }
 

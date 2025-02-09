@@ -2,34 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Class InvoiceDesign.
- *
- * @property int         $id
- * @property string      $name
- * @property string|null $javascript
- * @property string|null $pdfmake
- *
- * @method static Builder|InvoiceDesign newModelQuery()
- * @method static Builder|InvoiceDesign newQuery()
- * @method static Builder|InvoiceDesign query()
- * @method static Builder|InvoiceDesign whereId($value)
- * @method static Builder|InvoiceDesign whereJavascript($value)
- * @method static Builder|InvoiceDesign whereName($value)
- * @method static Builder|InvoiceDesign wherePdfmake($value)
- *
- * @mixin \Eloquent
  */
-class InvoiceDesign extends Model
+class InvoiceDesign extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     public static $pageSizes = [

@@ -4,20 +4,18 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Document;
-use Chumper\Datatable\Facades\DatatableFacade as Datatable;
+use Datatable;
+use DB;
 use Form;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 
 class DocumentRepository extends BaseRepository
 {
     // Expenses
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Document::class;
+        return 'App\Models\Document';
     }
 
     public function all()
@@ -30,8 +28,7 @@ class DocumentRepository extends BaseRepository
     public function find()
     {
         $accountid = Auth::user()->account_id;
-
-        return DB::table('clients')
+        $query = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
@@ -53,6 +50,8 @@ class DocumentRepository extends BaseRepository
                 'expenses.public_id as expense_public_id',
                 'expenses.user_id as expense_user_id'
             );
+
+        return $query;
     }
 
     public function upload($data, &$doc_array = null)
@@ -87,7 +86,7 @@ class DocumentRepository extends BaseRepository
         }
 
         // don't allow a document to be linked to both an invoice and an expense
-        if (Arr::get($data, 'invoice_id') && Arr::get($data, 'expense_id')) {
+        if (array_get($data, 'invoice_id') && array_get($data, 'expense_id')) {
             unset($data['expense_id']);
         }
 
@@ -99,7 +98,7 @@ class DocumentRepository extends BaseRepository
 
         if ($isProposal) {
             $document->is_proposal = true;
-            $document->document_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $document->document_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         }
 
         $disk = $document->getDisk();
@@ -176,7 +175,7 @@ class DocumentRepository extends BaseRepository
         $document->hash = $hash;
         $document->name = mb_substr($name, -255);
 
-        if ($imageSize !== false) {
+        if ( ! empty($imageSize)) {
             $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }
@@ -184,8 +183,8 @@ class DocumentRepository extends BaseRepository
         $document->save();
         $doc_array = $document->toArray();
 
-        if ($base64 !== '' && $base64 !== '0') {
-            $mime = Document::$types[$previewType === '' || $previewType === '0' ? $documentType : $previewType]['mime'];
+        if ( ! empty($base64)) {
+            $mime = Document::$types[ ! empty($previewType) ? $previewType : $documentType]['mime'];
             $doc_array['base64'] = 'data:' . $mime . ';base64,' . $base64;
         }
 
@@ -217,17 +216,25 @@ class DocumentRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('invoice_number', fn ($model) => link_to(
-                '/view/' . $model->invitation_key,
-                $model->invoice_number
-            )->toHtml())
-            ->addColumn('name', fn ($model) => link_to(
-                '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
-                $model->name,
-                ['target' => '_blank']
-            )->toHtml())
-            ->addColumn('created_at', fn ($model) => Utils::dateToString($model->created_at))
-            ->addColumn('size', fn ($model) => Form::human_filesize($model->size));
+            ->addColumn('invoice_number', function ($model) {
+                return link_to(
+                    '/view/' . $model->invitation_key,
+                    $model->invoice_number
+                )->toHtml();
+            })
+            ->addColumn('name', function ($model) {
+                return link_to(
+                    '/client/documents/' . $model->invitation_key . '/' . $model->public_id . '/' . $model->name,
+                    $model->name,
+                    ['target' => '_blank']
+                )->toHtml();
+            })
+            ->addColumn('created_at', function ($model) {
+                return Utils::dateToString($model->created_at);
+            })
+            ->addColumn('size', function ($model) {
+                return Form::human_filesize($model->size);
+            });
 
         return $table->make();
     }

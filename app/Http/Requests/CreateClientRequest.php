@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 class CreateClientRequest extends ClientRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_CLIENT);
     }
 
-    public function rules(): array
+    public function rules()
     {
         $rules = [];
 

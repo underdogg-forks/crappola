@@ -6,12 +6,12 @@ class GoProCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $this->faker = Factory::create();
     }
 
-    public function signUpAndGoPro(AcceptanceTester $I): void
+    public function signUpAndGoPro(AcceptanceTester $I)
     {
         $userEmail = $this->faker->safeEmail;
         $userPassword = $this->faker->password;

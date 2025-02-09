@@ -22,17 +22,17 @@ class EntityDatatable
         }
     }
 
-    public function columns(): array
+    public function columns()
     {
         return [];
     }
 
-    public function actions(): array
+    public function actions()
     {
         return [];
     }
 
-    public function bulkActions(): array
+    public function bulkActions()
     {
         return [
             [
@@ -46,7 +46,7 @@ class EntityDatatable
         ];
     }
 
-    public function columnFields(): array
+    public function columnFields()
     {
         $data = [];
         $columns = $this->columns();
@@ -56,11 +56,12 @@ class EntityDatatable
         }
 
         foreach ($columns as $column) {
-            // third column is optionally used to determine visibility
-            if (count($column) == 3 && ! $column[2]) {
-                continue;
+            if (count($column) == 3) {
+                // third column is optionally used to determine visibility
+                if ( ! $column[2]) {
+                    continue;
+                }
             }
-
             $data[] = $column[0];
         }
 
@@ -79,10 +80,7 @@ class EntityDatatable
         return $this->alignIndices(['status']);
     }
 
-    /**
-     * @return float[]|int[]
-     */
-    public function alignIndices($fields): array
+    public function alignIndices($fields)
     {
         $columns = $this->columnFields();
         $indices = [];
@@ -96,7 +94,7 @@ class EntityDatatable
         return $indices;
     }
 
-    public function addNote(string $str, $note): string
+    public function addNote($str, $note)
     {
         if ( ! $note) {
             return $str;

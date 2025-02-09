@@ -2,19 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Credit;
 use App\Models\Payment;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PaymentRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Payment::class;
+        return 'App\Models\Payment';
     }
 
     public function find($clientPublicId = null, $filter = null)
@@ -83,7 +82,7 @@ class PaymentRepository extends BaseRepository
         }
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%')
                     ->orWhere('payments.transaction_reference', 'like', '%' . $filter . '%')
@@ -106,7 +105,7 @@ class PaymentRepository extends BaseRepository
             ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
-            ->leftJoin('invitations', function ($join): void {
+            ->leftJoin('invitations', function ($join) {
                 $join->on('invitations.invoice_id', '=', 'invoices.id')
                     ->on('invitations.contact_id', '=', 'contacts.id');
             })
@@ -146,7 +145,7 @@ class PaymentRepository extends BaseRepository
             );
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%');
             });
         }
@@ -179,7 +178,7 @@ class PaymentRepository extends BaseRepository
 
         $paymentTypeId = false;
         if (isset($input['payment_type_id'])) {
-            $paymentTypeId = $input['payment_type_id'] ?: null;
+            $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
             $payment->payment_type_id = $paymentTypeId;
         }
 
@@ -188,7 +187,7 @@ class PaymentRepository extends BaseRepository
         } elseif (isset($input['payment_date'])) {
             $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         } else {
-            $payment->payment_date = Carbon::now()->format('Y-m-d');
+            $payment->payment_date = date('Y-m-d');
         }
 
         $payment->fill($input);
@@ -221,19 +220,19 @@ class PaymentRepository extends BaseRepository
         return $payment;
     }
 
-    public function delete($payment): void
+    public function delete($payment)
     {
         if ($payment->invoice->is_deleted) {
-            return;
+            return false;
         }
 
         parent::delete($payment);
     }
 
-    public function restore($payment): void
+    public function restore($payment)
     {
         if ($payment->invoice->is_deleted) {
-            return;
+            return false;
         }
 
         parent::restore($payment);

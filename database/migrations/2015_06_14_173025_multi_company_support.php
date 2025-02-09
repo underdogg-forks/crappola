@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class MultiCompanySupport extends Migration
+{
+    public function up()
     {
-        Schema::create('user_accounts', function ($table): void {
+        Schema::create('user_accounts', function ($table) {
             $table->increments('id');
 
             $table->unsignedInteger('user_id1')->nullable();
@@ -27,13 +23,8 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('user_accounts');
     }
-};
+}

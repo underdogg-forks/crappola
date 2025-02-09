@@ -6,7 +6,6 @@ use App\Events\UserLoggedIn;
 use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
@@ -17,9 +16,6 @@ use Socialite;
  */
 class AuthService
 {
-    /**
-     * @var array
-     */
     public static $providers = [
         1 => SOCIAL_GOOGLE,
         2 => SOCIAL_FACEBOOK,
@@ -27,24 +23,31 @@ class AuthService
         4 => SOCIAL_LINKEDIN,
     ];
 
-    private readonly AccountRepository $accountRepo;
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepo;
 
     /**
      * AuthService constructor.
+     *
+     * @param AccountRepository $repo
      */
     public function __construct(AccountRepository $repo)
     {
         $this->accountRepo = $repo;
     }
 
-    public static function getProviders(): void {}
+    public static function getProviders() {}
 
     /**
      * @param $provider
+     *
+     * @return mixed
      */
-    public static function getProviderId($provider): int|string|false
+    public static function getProviderId($provider)
     {
-        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers), true);
+        return array_search(mb_strtolower($provider), array_map('strtolower', self::$providers));
     }
 
     /**
@@ -61,7 +64,7 @@ class AuthService
      * @param $provider
      * @param $hasCode
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function execute($provider, $hasCode)
     {
@@ -101,7 +104,6 @@ class AuthService
 
                     return redirect('/validate_two_factor/' . $user->account->account_key);
                 }
-
                 Auth::login($user);
                 event(new UserLoggedIn());
             } else {

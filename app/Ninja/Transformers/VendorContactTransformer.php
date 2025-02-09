@@ -7,7 +7,7 @@ use App\Models\VendorContact;
 // vendor
 class VendorContactTransformer extends EntityTransformer
 {
-    public function transform(VendorContact $contact): array
+    public function transform(VendorContact $contact)
     {
         return array_merge($this->getDefaults($contact), [
             'id'          => (int) $contact->public_id,

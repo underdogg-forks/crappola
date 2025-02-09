@@ -18,7 +18,7 @@ class Google implements ProviderInterface
         return $payload['email'];
     }
 
-    public function harvestSubField(array $payload)
+    public function harvestSubField($payload)
     {
         return $payload['sub']; // user ID
     }

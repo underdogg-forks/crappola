@@ -3,7 +3,7 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\Contact;
-use Illuminate\Support\Facades\DB;
+use DB;
 use Illuminate\View\View;
 
 /**
@@ -16,6 +16,7 @@ class ClientPortalHeaderComposer
     /**
      * Bind data to the view.
      *
+     * @param View $view
      *
      * @return void
      */
@@ -57,6 +58,5 @@ class ClientPortalHeaderComposer
         $view->with('hasCredits', $client->creditsWithBalance->count());
         $view->with('hasDocuments', $hasDocuments);
         $view->with('hasPaymentMethods', $hasPaymentMethods);
-        return null;
     }
 }

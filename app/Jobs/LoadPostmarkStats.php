@@ -4,34 +4,17 @@ namespace App\Jobs;
 
 use DateInterval;
 use DatePeriod;
-use Postmark\PostmarkClient;
 use stdClass;
 
 class LoadPostmarkStats extends Job
 {
-    public $startDate;
-
-    public $endDate;
-
-    /**
-     * @var stdClass
-     */
-    public $response;
-
-    /**
-     * @var PostmarkClient
-     */
-    public $postmark;
-
-    public $account;
-
     public function __construct($startDate, $endDate)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
 
         $this->response = new stdClass();
-        $this->postmark = new PostmarkClient(config('services.postmark'));
+        $this->postmark = new \Postmark\PostmarkClient(config('services.postmark'));
         $this->account = auth()->user()->account;
     }
 
@@ -54,7 +37,7 @@ class LoadPostmarkStats extends Job
         return $this->response;
     }
 
-    private function loadOverallStats(): void
+    private function loadOverallStats()
     {
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
@@ -69,14 +52,14 @@ class LoadPostmarkStats extends Job
             $endDate->modify('-1 day');
             $records = [];
 
-            if ($eventType === 'sent') {
+            if ($eventType == 'sent') {
                 $response = $this->postmark->getOutboundSendStatistics($this->account->account_key, request()->start_date, request()->end_date);
             } else {
                 $response = $this->postmark->getOutboundOpenStatistics($this->account->account_key, request()->start_date, request()->end_date);
             }
 
-            foreach ($response->days as $val) {
-                $field = $eventType === 'opened' ? 'unique' : $eventType;
+            foreach ($response->days as $key => $val) {
+                $field = $eventType == 'opened' ? 'unique' : $eventType;
                 $data[$val['date']] = $val[$field];
             }
 
@@ -84,14 +67,14 @@ class LoadPostmarkStats extends Job
                 $date = $day->format('Y-m-d');
                 $records[] = $data[$date] ?? 0;
 
-                if ($eventType === 'sent') {
+                if ($eventType == 'sent') {
                     $labels[] = $day->format('m/d/Y');
                 }
             }
 
-            if ($eventType === 'sent') {
+            if ($eventType == 'sent') {
                 $color = '51,122,183';
-            } elseif ($eventType === 'opened') {
+            } elseif ($eventType == 'opened') {
                 $color = '54,193,87';
             } elseif ($eventType == 'bounced') {
                 $color = '128,128,128';
@@ -99,11 +82,11 @@ class LoadPostmarkStats extends Job
 
             $group = new stdClass();
             $group->data = $records;
-            $group->label = trans('texts.' . $eventType);
+            $group->label = trans("texts.{$eventType}");
             $group->lineTension = 0;
             $group->borderWidth = 4;
-            $group->borderColor = sprintf('rgba(%s, 1)', $color);
-            $group->backgroundColor = sprintf('rgba(%s, 0.1)', $color);
+            $group->borderColor = "rgba({$color}, 1)";
+            $group->backgroundColor = "rgba({$color}, 0.1)";
             $datasets[] = $group;
         }
 
@@ -113,7 +96,7 @@ class LoadPostmarkStats extends Job
         $this->response->data = $data;
     }
 
-    private function loadSentStats(): void
+    private function loadSentStats()
     {
         $account = $this->account;
         $data = $this->postmark->getOutboundOverviewStatistics($this->account->account_key, request()->start_date, request()->end_date);
@@ -126,11 +109,12 @@ class LoadPostmarkStats extends Job
         ];
     }
 
-    private function loadPlatformStats(): void
+    private function loadPlatformStats()
     {
         $data = $this->postmark->getOutboundPlatformStatistics($this->account->account_key, request()->start_date, request()->end_date);
         $account = $this->account;
         $str = '';
+        $total = 0;
 
         $total = $data['desktop'] + $data['mobile'] + $data['webmail'];
 
@@ -142,7 +126,7 @@ class LoadPostmarkStats extends Job
         $this->response->platforms = $str;
     }
 
-    private function loadEmailClientStats(): void
+    private function loadEmailClientStats()
     {
         $data = $this->postmark->getOutboundEmailClientStatistics($this->account->account_key, request()->start_date, request()->end_date);
         $account = $this->account;
@@ -166,7 +150,6 @@ class LoadPostmarkStats extends Job
             if ($percent < 0.5) {
                 continue;
             }
-
             $str .= sprintf('<tr><td>%s</td><td>%s%%</td></tr>', ucwords($key), $account->formatNumber($percent));
         }
 

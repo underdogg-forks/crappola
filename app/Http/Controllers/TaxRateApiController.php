@@ -11,14 +11,19 @@ use App\Ninja\Repositories\TaxRateRepository;
 class TaxRateApiController extends BaseAPIController
 {
     /**
+     * @var TaxRateRepository
+     */
+    protected $taxRateRepo;
+
+    /**
      * @var string
      */
-    public $entityType = ENTITY_TAX_RATE;
-
-    protected TaxRateRepository $taxRateRepo;
+    protected $entityType = ENTITY_TAX_RATE;
 
     /**
      * TaxRateApiController constructor.
+     *
+     * @param TaxRateRepository $taxRateRepo
      */
     public function __construct(TaxRateRepository $taxRateRepo)
     {

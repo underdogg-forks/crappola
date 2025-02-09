@@ -2,16 +2,19 @@
 
 namespace App\Listeners;
 
+use App;
 use App\Events\PaymentWasCreated;
 use App\Libraries\Utils;
-use Illuminate\Support\Facades\App;
 
 /**
  * Class AnalyticsListener.
  */
 class AnalyticsListener
 {
-    public function trackRevenue(PaymentWasCreated $event): void
+    /**
+     * @param PaymentWasCreated $event
+     */
+    public function trackRevenue(PaymentWasCreated $event)
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -21,10 +24,12 @@ class AnalyticsListener
 
         if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
             $analyticsId = env('ANALYTICS_KEY');
-        } elseif (Utils::isNinja()) {
-            $analyticsId = $account->analytics_key;
         } else {
-            $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
+            if (Utils::isNinja()) {
+                $analyticsId = $account->analytics_key;
+            } else {
+                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
+            }
         }
 
         if ( ! $analyticsId) {
@@ -40,19 +45,19 @@ class AnalyticsListener
             $item .= ' [R]';
         }
 
-        $base = sprintf('v=1&tid=%s&cid=%s&cu=%s&ti=%s', $analyticsId, $client->public_id, $currencyCode, $invoice->invoice_number);
+        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu={$currencyCode}&ti={$invoice->invoice_number}";
 
-        $url = $base . ('&t=transaction&ta=ninja&tr=' . $amount);
+        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base . sprintf('&t=item&in=%s&ip=%s&iq=1', $item, $amount);
+        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
     }
 
     /**
      * @param $data
      */
-    private function sendAnalytics(string $data): void
+    private function sendAnalytics($data)
     {
         $data = utf8_encode($data);
         $curl = curl_init();

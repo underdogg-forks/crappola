@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Reports;
 
-use Carbon\Carbon;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
@@ -11,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ExpenseReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'vendor'            => [],
@@ -33,7 +32,6 @@ class ExpenseReport extends AbstractReport
         if ($account->customLabel('expense1')) {
             $columns[$account->present()->customLabel('expense1')] = ['columnSelector-false', 'custom'];
         }
-
         if ($account->customLabel('expense2')) {
             $columns[$account->present()->customLabel('expense2')] = ['columnSelector-false', 'custom'];
         }
@@ -49,7 +47,7 @@ class ExpenseReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
@@ -73,16 +71,15 @@ class ExpenseReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
+            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
-                    $expenseId = mb_str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
-                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: Carbon::now()->format('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                    $expenseId = str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
+                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
                     $name = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }
             }
-
             $zip->finish();
             exit;
         }
@@ -107,7 +104,6 @@ class ExpenseReport extends AbstractReport
             if ($account->customLabel('expense1')) {
                 $row[] = $expense->custom_value1;
             }
-
             if ($account->customLabel('expense2')) {
                 $row[] = $expense->custom_value2;
             }

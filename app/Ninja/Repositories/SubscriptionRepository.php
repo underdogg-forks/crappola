@@ -2,19 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Subscription;
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class SubscriptionRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Subscription::class;
+        return 'App\Models\Subscription';
     }
 
     public function find($accountId)
     {
-        return DB::table('subscriptions')
+        $query = DB::table('subscriptions')
             ->where('subscriptions.account_id', '=', $accountId)
             ->whereNull('subscriptions.deleted_at')
             ->select(
@@ -24,5 +23,7 @@ class SubscriptionRepository extends BaseRepository
                 'subscriptions.deleted_at',
                 'subscriptions.format'
             );
+
+        return $query;
     }
 }

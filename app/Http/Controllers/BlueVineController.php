@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class BlueVineController extends BaseController
 {
@@ -37,7 +35,7 @@ class BlueVineController extends BaseController
             $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
         }
 
-        $api_client = new Client();
+        $api_client = new \GuzzleHttp\Client();
         try {
             $response = $api_client->request(
                 'POST',
@@ -50,9 +48,9 @@ class BlueVineController extends BaseController
                     'json' => $data,
                 ]
             );
-        } catch (RequestException $requestException) {
-            if ($requestException->getCode() == 403) {
-                $response_body = $requestException->getResponse()->getBody(true);
+        } catch (\GuzzleHttp\Exception\RequestException $ex) {
+            if ($ex->getCode() == 403) {
+                $response_body = $ex->getResponse()->getBody(true);
                 $response_data = json_decode($response_body);
 
                 return response()->json([
@@ -75,7 +73,7 @@ class BlueVineController extends BaseController
         return response()->json($quote_data);
     }
 
-    public function hideMessage(): string
+    public function hideMessage()
     {
         $user = Auth::user();
 

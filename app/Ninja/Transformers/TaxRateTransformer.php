@@ -18,7 +18,7 @@ class TaxRateTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
-    public function transform(TaxRate $taxRate): array
+    public function transform(TaxRate $taxRate)
     {
         return array_merge($this->getDefaults($taxRate), [
             'id'           => (int) $taxRate->public_id,

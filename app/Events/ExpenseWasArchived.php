@@ -19,6 +19,8 @@ class ExpenseWasArchived extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param Expense $expense
      */
     public function __construct(Expense $expense)
     {

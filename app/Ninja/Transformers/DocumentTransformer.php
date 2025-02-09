@@ -18,7 +18,7 @@ class DocumentTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
-    public function transform(Document $document): array
+    public function transform(Document $document)
     {
         return array_merge($this->getDefaults($document), [
             'id'         => (int) $document->public_id,
@@ -29,7 +29,7 @@ class DocumentTransformer extends EntityTransformer
             'expense_id' => (int) ($document->expense_id && $document->expense ? $document->expense->public_id : null),
             'updated_at' => $this->getTimestamp($document->updated_at),
             'created_at' => $this->getTimestamp($document->created_at),
-            'is_deleted' => false,
+            'is_deleted' => (bool) false,
             'is_default' => (bool) $document->is_default,
             'preview'    => $document->preview,
             'size'       => (int) $document->size,

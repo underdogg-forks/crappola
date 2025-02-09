@@ -27,8 +27,12 @@ class ActivityTransformer extends EntityTransformer
 
     protected array $availableIncludes = [];
 
-    
-    public function transform(Activity $activity): array
+    /**
+     * @param Activity $activity
+     *
+     * @return array
+     */
+    public function transform(Activity $activity)
     {
         return [
             'id'               => $activity->key(),

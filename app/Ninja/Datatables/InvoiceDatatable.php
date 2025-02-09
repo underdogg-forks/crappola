@@ -4,9 +4,9 @@ namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
 use App\Models\Invoice;
-use Bootstrapper\Facades\DropdownButton;
+use DropdownButton;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
+use URL;
 
 class InvoiceDatatable extends EntityDatatable
 {
@@ -14,7 +14,7 @@ class InvoiceDatatable extends EntityDatatable
 
     public $sortCol = 3;
 
-    public function columns(): array
+    public function columns()
     {
         $entityType = $this->entityType;
 
@@ -22,8 +22,8 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if (Auth::user()->viewModel($model, $entityType)) {
-                        $str = link_to(sprintf('%ss/%s/edit', $entityType, $model->public_id), $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
+                    if(Auth::user()->viewModel($model, $entityType)) {
+                        $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
 
                         return $this->addNote($str, $model->private_notes);
                     }
@@ -34,8 +34,8 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
-                        return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml();
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     }
 
                     return Utils::getClientDisplayName($model);
@@ -44,27 +44,33 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'date',
-                fn ($model) => Utils::fromSqlDate($model->invoice_date),
+                function ($model) {
+                    return Utils::fromSqlDate($model->invoice_date);
+                },
             ],
             [
                 'amount',
-                fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id),
+                function ($model) {
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+                },
             ],
             [
                 'balance',
-                fn ($model) => $model->partial > 0 ?
-                    trans(
-                        'texts.partial_remaining',
-                        [
-                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
-                    ) :
-                    Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
+                function ($model) {
+                    return $model->partial > 0 ?
+                        trans(
+                            'texts.partial_remaining',
+                            [
+                                'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                                'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
+                        ) :
+                        Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+                },
                 $entityType == ENTITY_INVOICE,
             ],
             [
                 $entityType == ENTITY_INVOICE ? 'due_date' : 'valid_until',
-                function ($model): string {
+                function ($model) {
                     $str = '';
                     if ($model->partial_due_date) {
                         $str = Utils::fromSqlDate($model->partial_due_date);
@@ -78,73 +84,117 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'status',
-                fn ($model) => $model->quote_invoice_id ? link_to(sprintf('invoices/%s/edit', $model->quote_invoice_id), trans('texts.converted'))->toHtml() : self::getStatusLabel($model),
+                function ($model) {
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
+                },
             ],
         ];
     }
 
-    public function actions(): array
+    public function actions()
     {
         $entityType = $this->entityType;
 
         return [
             [
                 trans('texts.clone_invoice'),
-                fn ($model) => URL::to(sprintf('invoices/%s/clone', $model->public_id)),
-                fn ($model) => Auth::user()->can('create', ENTITY_INVOICE),
+                function ($model) {
+                    return URL::to("invoices/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
             [
                 trans('texts.clone_quote'),
-                fn ($model) => URL::to(sprintf('quotes/%s/clone', $model->public_id)),
-                fn ($model) => Auth::user()->can('create', ENTITY_QUOTE),
+                function ($model) {
+                    return URL::to("quotes/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_QUOTE);
+                },
             ],
             [
-                trans(sprintf('texts.%s_history', $entityType)),
-                fn ($model) => URL::to(sprintf('%ss/%s_history/%s', $entityType, $entityType, $model->public_id)),
+                trans("texts.{$entityType}_history"),
+                function ($model) use ($entityType) {
+                    return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
+                },
             ],
             [
                 trans('texts.delivery_note'),
-                fn ($model)       => url('invoices/delivery_note/' . $model->public_id),
-                fn ($model): bool => $entityType == ENTITY_INVOICE,
+                function ($model) {
+                    return url("invoices/delivery_note/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE;
+                },
             ],
             [
-                '--divider--', fn (): bool => false,
-                fn ($model) => Auth::user()->canCreateOrEdit(ENTITY_INVOICE),
+                '--divider--', function () {
+                    return false;
+                },
+                function ($model) {
+                    return Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
+                },
             ],
             [
                 trans('texts.mark_sent'),
-                fn ($model): string => sprintf("javascript:submitForm_%s('markSent', %s)", $entityType, $model->public_id),
-                fn ($model): bool   => ! $model->is_public && Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
+                },
+                function ($model) {
+                    return ! $model->is_public && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                },
             ],
             [
                 trans('texts.mark_paid'),
-                fn ($model): string => sprintf("javascript:submitForm_%s('markPaid', %s)", $entityType, $model->public_id),
-                fn ($model): bool   => $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                },
             ],
             [
                 trans('texts.enter_payment'),
-                fn ($model)       => URL::to(sprintf('payments/create/%s/%s', $model->client_public_id, $model->public_id)),
-                fn ($model): bool => $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('create', ENTITY_PAYMENT),
+                function ($model) {
+                    return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('create', ENTITY_PAYMENT);
+                },
             ],
             [
                 trans('texts.view_invoice'),
-                fn ($model)       => URL::to(sprintf('invoices/%s/edit', $model->quote_invoice_id)),
-                fn ($model): bool => $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]),
+                function ($model) {
+                    return URL::to("invoices/{$model->quote_invoice_id}/edit");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                },
             ],
             [
                 trans('texts.new_proposal'),
-                fn ($model)       => URL::to('proposals/create/' . $model->public_id),
-                fn ($model): bool => $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && Auth::user()->can('create', ENTITY_PROPOSAL),
+                function ($model) {
+                    return URL::to("proposals/create/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && Auth::user()->can('create', ENTITY_PROPOSAL);
+                },
             ],
             [
                 trans('texts.convert_to_invoice'),
-                fn ($model): string => sprintf("javascript:submitForm_quote('convert', %s)", $model->public_id),
-                fn ($model): bool   => $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('edit', [ENTITY_INVOICE, $model]),
+                function ($model) {
+                    return "javascript:submitForm_quote('convert', {$model->public_id})";
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                },
             ],
         ];
     }
 
-    public function bulkActions(): array
+    public function bulkActions()
     {
         $actions = [];
 
@@ -159,7 +209,6 @@ class InvoiceDatatable extends EntityDatatable
                     'url'   => 'javascript:submitForm_' . $this->entityType . '("emailInvoice")',
                 ];
             }
-
             $actions[] = DropdownButton::DIVIDER;
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
@@ -175,15 +224,16 @@ class InvoiceDatatable extends EntityDatatable
         }
 
         $actions[] = DropdownButton::DIVIDER;
+        $actions = array_merge($actions, parent::bulkActions());
 
-        return array_merge($actions, parent::bulkActions());
+        return $actions;
     }
 
-    private function getStatusLabel($model): string
+    private function getStatusLabel($model)
     {
         $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->partial_due_date ?: $model->due_date_sql, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
 
-        return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
-use App\Ninja\Mailers\UserMailer;
 use Exception;
 use Omnipay;
 
@@ -11,30 +10,32 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = "\x00*\x00id";
 
-    public function gatewayTypes(): array
+    public function gatewayTypes()
     {
-        return [
+        $types = [
             GATEWAY_TYPE_GOCARDLESS,
             GATEWAY_TYPE_TOKEN,
         ];
+
+        return $types;
     }
 
     public function completeOffsitePurchase($input)
     {
         $details = $this->paymentDetails();
-        $this->purchaseResponse = $this->gateway()->completePurchase($details)->send();
-        $response = $this->purchaseResponse;
+        $this->purchaseResponse = $response = $this->gateway()->completePurchase($details)->send();
 
         if ( ! $response->isSuccessful()) {
             return false;
         }
 
         $paymentMethod = $this->createToken();
+        $payment = $this->completeOnsitePurchase(false, $paymentMethod);
 
-        return $this->completeOnsitePurchase(false, $paymentMethod);
+        return $payment;
     }
 
-    public function handleWebHook($input): void
+    public function handleWebHook($input)
     {
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
@@ -57,11 +58,8 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 'failed',
                 'charged_back',
             ];
-            if ($type != 'payments') {
-                continue;
-            }
 
-            if ( ! in_array($action, $supported)) {
+            if ($type != 'payments' || ! in_array($action, $supported)) {
                 continue;
             }
 
@@ -72,11 +70,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 continue;
             }
 
-            if ($payment->is_deleted) {
-                continue;
-            }
-
-            if ($payment->invoice->is_deleted) {
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
                 continue;
             }
 
@@ -84,7 +78,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 if ( ! $payment->isFailed()) {
                     $payment->markFailed($event['details']['description']);
 
-                    $userMailer = app(UserMailer::class);
+                    $userMailer = app('App\Ninja\Mailers\UserMailer');
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
                 }
             } elseif ($action == 'paid_out') {
@@ -114,7 +108,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $this->gateway;
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -129,7 +123,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function shouldCreateToken(): bool
+    protected function shouldCreateToken()
     {
         return false;
     }

@@ -2,7 +2,6 @@
 
 namespace App\Models\Traits;
 
-use Carbon\Carbon;
 use App\Models\Document;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,7 +10,10 @@ use Illuminate\Support\Facades\Storage;
  */
 trait HasLogo
 {
-    public function hasLogo(): bool
+    /**
+     * @return bool
+     */
+    public function hasLogo()
     {
         return ! empty($this->logo);
     }
@@ -21,16 +23,19 @@ trait HasLogo
         return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
     }
 
+    /**
+     * @return null
+     */
     public function getLogoRaw()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         $disk = $this->getLogoDisk();
 
         if ( ! $disk->exists($this->logo)) {
-            return null;
+            return;
         }
 
         return $disk->get($this->logo);
@@ -44,18 +49,18 @@ trait HasLogo
     public function getLogoURL($cachebuster = false)
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof Local) {
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             // Stored locally
             $logoUrl = url('/logo/' . $this->logo);
 
             if ($cachebuster) {
-                $logoUrl .= '?no_cache=' . Carbon::now()->timestamp;
+                $logoUrl .= '?no_cache=' . time();
             }
 
             return $logoUrl;
@@ -67,13 +72,13 @@ trait HasLogo
     public function getLogoPath()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof Local) {
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             return $adapter->applyPathPrefix($this->logo);
         }
 
@@ -86,7 +91,7 @@ trait HasLogo
     public function getLogoWidth()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         return $this->logo_width;
@@ -98,7 +103,7 @@ trait HasLogo
     public function getLogoHeight()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         return $this->logo_height;
@@ -110,7 +115,7 @@ trait HasLogo
     public function getLogoSize()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         return round($this->logo_size / 1000);
@@ -122,18 +127,21 @@ trait HasLogo
     public function getLogoName()
     {
         if ( ! $this->hasLogo()) {
-            return null;
+            return;
         }
 
         return $this->logo;
     }
 
-    public function isLogoTooLarge(): bool
+    /**
+     * @return bool
+     */
+    public function isLogoTooLarge()
     {
         return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
-    public function clearLogo(): void
+    public function clearLogo()
     {
         $this->logo = '';
         $this->logo_width = 0;
@@ -141,7 +149,7 @@ trait HasLogo
         $this->logo_size = 0;
     }
 
-    protected function calculateLogoDetails(): void
+    protected function calculateLogoDetails()
     {
         $disk = $this->getLogoDisk();
 
@@ -159,7 +167,6 @@ trait HasLogo
         } else {
             $this->logo = null;
         }
-
         $this->save();
     }
 }

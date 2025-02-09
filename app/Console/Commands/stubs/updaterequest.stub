@@ -5,16 +5,12 @@ namespace $NAMESPACE$;
 class Update$CLASS$Request extends $CLASS$Request
 {
 
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('edit', $this->entity());
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
+
     public function rules()
     {
         return [

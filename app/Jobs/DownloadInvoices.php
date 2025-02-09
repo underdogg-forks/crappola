@@ -2,13 +2,9 @@
 
 namespace App\Jobs;
 
-use Carbon\Carbon;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Barracuda\ArchiveStream\Archive;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 /**
  * Class SendInvoiceEmail.
@@ -17,11 +13,12 @@ use Illuminate\Queue\SerializesModels;
 class DownloadInvoices extends Job
 {
     //use InteractsWithQueue, SerializesModels;
-    protected User $user;
 
     /**
-     * @var array
+     * @var User
      */
+    protected $user;
+
     protected $invoices;
 
     /**
@@ -41,13 +38,13 @@ class DownloadInvoices extends Job
      *
      * @param ContactMailer $mailer
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
         if ( ! extension_loaded('GMP')) {
             die(trans('texts.gmp_required'));
         }
 
-        $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));
+        $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));
 
         foreach ($this->invoices as $invoice) {
             $zip->add_file($invoice->getFileName(), $invoice->getPDFString());

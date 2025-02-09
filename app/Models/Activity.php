@@ -2,140 +2,79 @@
 
 namespace App\Models;
 
-use App\Ninja\Presenters\ActivityPresenter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Activity.
- *
- * @property int          $id
- * @property Carbon|null  $created_at
- * @property Carbon|null  $updated_at
- * @property int          $account_id
- * @property int          $user_id
- * @property int|null     $client_id
- * @property int|null     $contact_id
- * @property int|null     $payment_id
- * @property int|null     $invoice_id
- * @property int|null     $credit_id
- * @property int|null     $invitation_id
- * @property int|null     $task_id
- * @property string|null  $json_backup
- * @property int          $activity_type_id
- * @property string|null  $adjustment
- * @property string|null  $balance
- * @property int|null     $token_id
- * @property string|null  $ip
- * @property int          $is_system
- * @property int|null     $expense_id
- * @property string|null  $notes
- * @property Account      $account
- * @property Client|null  $client
- * @property Contact|null $contact
- * @property Credit|null  $credit
- * @property Expense|null $expense
- * @property Invoice|null $invoice
- * @property Payment|null $payment
- * @property Task|null    $task
- * @property User|null    $user
- *
- * @method static Builder|Activity newModelQuery()
- * @method static Builder|Activity newQuery()
- * @method static Builder|Activity query()
- * @method static Builder|Activity scope()
- * @method static Builder|Activity whereAccountId($value)
- * @method static Builder|Activity whereActivityTypeId($value)
- * @method static Builder|Activity whereAdjustment($value)
- * @method static Builder|Activity whereBalance($value)
- * @method static Builder|Activity whereClientId($value)
- * @method static Builder|Activity whereContactId($value)
- * @method static Builder|Activity whereCreatedAt($value)
- * @method static Builder|Activity whereCreditId($value)
- * @method static Builder|Activity whereExpenseId($value)
- * @method static Builder|Activity whereId($value)
- * @method static Builder|Activity whereInvitationId($value)
- * @method static Builder|Activity whereInvoiceId($value)
- * @method static Builder|Activity whereIp($value)
- * @method static Builder|Activity whereIsSystem($value)
- * @method static Builder|Activity whereJsonBackup($value)
- * @method static Builder|Activity whereNotes($value)
- * @method static Builder|Activity wherePaymentId($value)
- * @method static Builder|Activity whereTaskId($value)
- * @method static Builder|Activity whereTokenId($value)
- * @method static Builder|Activity whereUpdatedAt($value)
- * @method static Builder|Activity whereUserId($value)
- *
- * @mixin \Eloquent
  */
-class Activity extends Model
+class Activity extends Eloquent
 {
     use PresentableTrait;
 
-    /**
-     * @var bool
-     */
     public $timestamps = true;
 
     /**
      * @var string
      */
-    protected $presenter = ActivityPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
 
     public function scopeScope($query)
     {
         return $query->whereAccountId(Auth::user()->account_id);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function contact()
     {
-        return $this->belongsTo(Contact::class)->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function credit()
     {
-        return $this->belongsTo(Credit::class)->withTrashed();
+        return $this->belongsTo('App\Models\Credit')->withTrashed();
     }
 
     public function payment()
     {
-        return $this->belongsTo(Payment::class)->withTrashed();
+        return $this->belongsTo('App\Models\Payment')->withTrashed();
     }
 
     public function task()
     {
-        return $this->belongsTo(Task::class)->withTrashed();
+        return $this->belongsTo('App\Models\Task')->withTrashed();
     }
 
     public function expense()
     {
-        return $this->belongsTo(Expense::class)->withTrashed();
+        return $this->belongsTo('App\Models\Expense')->withTrashed();
     }
 
-    public function key(): string
+    public function key()
     {
         return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
     }
@@ -169,7 +108,7 @@ class Activity extends Model
             'expense'        => $expense ? link_to($expense->getRoute(), mb_substr($expense->public_notes, 0, 30) . '...') : null,
         ];
 
-        return trans('texts.activity_' . $activityTypeId, $data);
+        return trans("texts.activity_{$activityTypeId}", $data);
     }
 
     public function relatedEntityType()
@@ -184,6 +123,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_DELETE_CREDIT:
             case ACTIVITY_TYPE_RESTORE_CREDIT:
                 return ENTITY_CLIENT;
+                break;
 
             case ACTIVITY_TYPE_CREATE_INVOICE:
             case ACTIVITY_TYPE_UPDATE_INVOICE:
@@ -193,6 +133,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_DELETE_INVOICE:
             case ACTIVITY_TYPE_RESTORE_INVOICE:
                 return ENTITY_INVOICE;
+                break;
 
             case ACTIVITY_TYPE_CREATE_PAYMENT:
             case ACTIVITY_TYPE_ARCHIVE_PAYMENT:
@@ -202,6 +143,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_REFUNDED_PAYMENT:
             case ACTIVITY_TYPE_FAILED_PAYMENT:
                 return ENTITY_PAYMENT;
+                break;
 
             case ACTIVITY_TYPE_CREATE_QUOTE:
             case ACTIVITY_TYPE_UPDATE_QUOTE:
@@ -212,6 +154,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_RESTORE_QUOTE:
             case ACTIVITY_TYPE_APPROVE_QUOTE:
                 return ENTITY_QUOTE;
+                break;
 
             case ACTIVITY_TYPE_CREATE_VENDOR:
             case ACTIVITY_TYPE_ARCHIVE_VENDOR:
@@ -223,6 +166,7 @@ class Activity extends Model
             case ACTIVITY_TYPE_RESTORE_EXPENSE:
             case ACTIVITY_TYPE_UPDATE_EXPENSE:
                 return ENTITY_EXPENSE;
+                break;
 
             case ACTIVITY_TYPE_CREATE_TASK:
             case ACTIVITY_TYPE_UPDATE_TASK:
@@ -230,8 +174,12 @@ class Activity extends Model
             case ACTIVITY_TYPE_DELETE_TASK:
             case ACTIVITY_TYPE_RESTORE_TASK:
                 return ENTITY_TASK;
+                break;
         }
+    }
 
-        return null;
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

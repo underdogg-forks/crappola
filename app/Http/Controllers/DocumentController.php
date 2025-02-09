@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
-    public $entityType = ENTITY_DOCUMENT;
+    protected $documentRepo;
 
-    protected DocumentRepository $documentRepo;
+    protected $entityType = ENTITY_DOCUMENT;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -37,7 +37,7 @@ class DocumentController extends BaseController
                 'Content-Length' => $document->size,
             ];
 
-            $response = Response::stream(function () use ($stream): void {
+            $response = Response::stream(function () use ($stream) {
                 fpassthru($stream);
             }, 200, $headers);
         } else {
@@ -77,7 +77,7 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (mb_substr($name, -3) === '.js') {
+        if (mb_substr($name, -3) == '.js') {
             $name = mb_substr($name, 0, -3);
         }
 
@@ -86,8 +86,7 @@ class DocumentController extends BaseController
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . $name) . ',"' . base64_encode($content) . '")';
-
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
@@ -105,7 +104,6 @@ class DocumentController extends BaseController
                 'code'  => 400,
             ], 400);
         }
-
         if ($request->grapesjs) {
             $response = [
                 'data' => [
@@ -123,7 +121,7 @@ class DocumentController extends BaseController
         return Response::json($response, 200);
     }
 
-    public function delete(UpdateDocumentRequest $request): string
+    public function delete(UpdateDocumentRequest $request)
     {
         $request->entity()->delete();
 

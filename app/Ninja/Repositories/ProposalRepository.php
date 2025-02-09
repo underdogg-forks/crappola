@@ -2,20 +2,18 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalInvitation;
 use App\Models\ProposalTemplate;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ProposalRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Proposal::class;
+        return 'App\Models\Proposal';
     }
 
     public function all()
@@ -57,7 +55,7 @@ class ProposalRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
@@ -95,7 +93,7 @@ class ProposalRepository extends BaseRepository
         $contactIds = [];
 
         foreach ($proposal->invoice->invitations as $invitation) {
-            $contactIds[] = $invitation->contact_id;
+            $conactIds[] = $invitation->contact_id;
             $found = false;
             foreach ($proposal->proposal_invitations as $proposalInvitation) {
                 if ($invitation->contact_id == $proposalInvitation->contact_id) {
@@ -103,19 +101,18 @@ class ProposalRepository extends BaseRepository
                     break;
                 }
             }
-
             if ( ! $found) {
                 $proposalInvitation = ProposalInvitation::createNew();
                 $proposalInvitation->proposal_id = $proposal->id;
                 $proposalInvitation->contact_id = $invitation->contact_id;
-                $proposalInvitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+                $proposalInvitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
                 $proposalInvitation->save();
             }
         }
 
         // delete invitations
         foreach ($proposal->proposal_invitations as $proposalInvitation) {
-            if ( ! in_array($proposalInvitation->contact_id, $contactIds)) {
+            if ( ! in_array($proposalInvitation->contact_id, $conactIds)) {
                 $proposalInvitation->delete();
             }
         }
@@ -131,10 +128,10 @@ class ProposalRepository extends BaseRepository
     public function findInvitationByKey($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        [$invitationKey] = explode('&', $invitationKey);
+        list($invitationKey) = explode('&', $invitationKey);
         $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = ProposalInvitation::where('invitation_key', '=', $invitationKey)->first();
         if ( ! $invitation) {
             return false;

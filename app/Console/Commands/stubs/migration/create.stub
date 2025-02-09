@@ -5,11 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class $CLASS$ extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+
     public function up()
     {
         Schema::create(strtolower('$TABLE$'), function (Blueprint $table) {
@@ -32,11 +28,7 @@ $FIELDS$
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down()
     {
         Schema::dropIfExists(strtolower('$TABLE$'));

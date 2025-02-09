@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Libraries\Utils;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -13,12 +12,21 @@ use Illuminate\Support\Facades\Auth;
  */
 class CreditService extends BaseService
 {
-    protected CreditRepository $creditRepo;
+    /**
+     * @var CreditRepository
+     */
+    protected $creditRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * CreditService constructor.
+     *
+     * @param CreditRepository $creditRepo
+     * @param DatatableService $datatableService
      */
     public function __construct(CreditRepository $creditRepo, DatatableService $datatableService)
     {
@@ -41,7 +49,7 @@ class CreditService extends BaseService
      * @param $clientPublicId
      * @param $search
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId, $search)
     {
@@ -56,7 +64,10 @@ class CreditService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    protected function getRepo(): CreditRepository
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
     {
         return $this->creditRepo;
     }

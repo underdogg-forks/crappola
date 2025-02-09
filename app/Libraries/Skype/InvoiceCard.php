@@ -7,18 +7,9 @@ use stdClass;
 
 class InvoiceCard
 {
-    /**
-     * @var string
-     */
-    public $contentType = 'application/vnd.microsoft.card.receipt';
-
-    /**
-     * @var stdClass
-     */
-    public $content;
-
     public function __construct($invoice)
     {
+        $this->contentType = 'application/vnd.microsoft.card.receipt';
         $this->content = new stdClass();
         $this->content->facts = [];
         $this->content->items = [];
@@ -51,7 +42,7 @@ class InvoiceCard
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if ((float) ($invoice->amount) !== 0.0) {
+        if ((float) ($invoice->amount)) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
@@ -59,17 +50,17 @@ class InvoiceCard
         }
     }
 
-    public function setTitle($title): void
+    public function setTitle($title)
     {
         $this->content->title = $title;
     }
 
-    public function setTotal($value): void
+    public function setTotal($value)
     {
         $this->content->total = $value;
     }
 
-    public function addFact($key, $value): void
+    public function addFact($key, $value)
     {
         $fact = new stdClass();
         $fact->key = $key;
@@ -78,12 +69,12 @@ class InvoiceCard
         $this->content->facts[] = $fact;
     }
 
-    public function addItem($item, $account): void
+    public function addItem($item, $account)
     {
         $this->content->items[] = new InvoiceItemCard($item, $account);
     }
 
-    public function addButton($type, $title, $value, $url = false): void
+    public function addButton($type, $title, $value, $url = false)
     {
         $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }

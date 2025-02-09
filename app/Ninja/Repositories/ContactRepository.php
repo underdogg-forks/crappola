@@ -3,7 +3,6 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Contact;
-use Illuminate\Support\Str;
 
 class ContactRepository extends BaseRepository
 {
@@ -25,7 +24,7 @@ class ContactRepository extends BaseRepository
             $contact->send_invoice = true;
             $contact->client_id = $data['client_id'];
             $contact->is_primary = Contact::scope()->where('client_id', '=', $contact->client_id)->count() == 0;
-            $contact->contact_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         } else {
             $contact = Contact::scope($publicId)->firstOrFail();
         }

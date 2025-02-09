@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AgingReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'client'         => [],
@@ -20,7 +20,7 @@ class AgingReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
@@ -29,7 +29,7 @@ class AgingReport extends AbstractReport
             ->orderBy('name')
             ->withArchived()
             ->with('contacts')
-            ->with(['invoices' => function ($query): void {
+            ->with(['invoices' => function ($query) {
                 $query->invoices()
                     ->whereIsPublic(true)
                     ->withArchived()
@@ -57,7 +57,11 @@ class AgingReport extends AbstractReport
                 //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
 
-                $dimension = $subgroup == 'age' ? trans('texts.' . $invoice->present()->ageGroup) : $this->getDimension($client);
+                if ($subgroup == 'age') {
+                    $dimension = trans('texts.' . $invoice->present()->ageGroup);
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->balance);
             }
         }

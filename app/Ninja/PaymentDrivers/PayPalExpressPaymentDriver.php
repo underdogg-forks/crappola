@@ -2,24 +2,22 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Carbon\Carbon;
-
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    public function gatewayTypes(): array
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_PAYPAL,
         ];
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
-        $data['transactionId'] = $data['transactionId'] . '-' . Carbon::now()->timestamp;
+        $data['transactionId'] = $data['transactionId'] . '-' . time();
 
         return $data;
     }
@@ -43,7 +41,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $url;
     }
 
-    protected function updateClientFromOffsite($transRef, $paymentRef): void
+    protected function updateClientFromOffsite($transRef, $paymentRef)
     {
         $response = $this->gateway()->fetchCheckout([
             'token' => $transRef,
@@ -62,7 +60,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
-        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === mb_strtolower(trim($data['SHIPTOCOUNTRYCODE'])))->first()) {
+        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
+            return mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE']));
+        })->first()) {
             $client->shipping_country_id = $country->id;
         } else {
             $client->shipping_country_id = null;

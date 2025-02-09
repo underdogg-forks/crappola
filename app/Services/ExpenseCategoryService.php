@@ -4,21 +4,27 @@ namespace App\Services;
 
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class ExpenseCategoryService.
  */
 class ExpenseCategoryService extends BaseService
 {
-    protected ExpenseCategoryRepository $categoryRepo;
+    /**
+     * @var ExpenseCategoryRepository
+     */
+    protected $categoryRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * CreditService constructor.
      *
      * @param ExpenseCategoryRepository $creditRepo
+     * @param DatatableService          $datatableService
      */
     public function __construct(ExpenseCategoryRepository $categoryRepo, DatatableService $datatableService)
     {
@@ -40,7 +46,7 @@ class ExpenseCategoryService extends BaseService
      * @param $clientPublicId
      * @param $search
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search)
     {
@@ -55,7 +61,7 @@ class ExpenseCategoryService extends BaseService
     /**
      * @return CreditRepository
      */
-    protected function getRepo(): ExpenseCategoryRepository
+    protected function getRepo()
     {
         return $this->categoryRepo;
     }

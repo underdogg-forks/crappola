@@ -6,14 +6,14 @@ use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
 use App\Libraries\Utils;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
+use DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Product::class;
+        return 'App\Models\Product';
     }
 
     public function all()
@@ -42,7 +42,7 @@ class ProductRepository extends BaseRepository
             );
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('products.product_key', 'like', '%' . $filter . '%')
                     ->orWhere('products.notes', 'like', '%' . $filter . '%')
                     ->orWhere('products.custom_value1', 'like', '%' . $filter . '%')

@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Reports;
 
-use Carbon\Carbon;
 use App\Models\Client;
 use App\Models\TaxRate;
 use Barracuda\ArchiveStream\Archive;
@@ -10,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class QuoteReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'           => [],
@@ -33,7 +32,6 @@ class QuoteReport extends AbstractReport
         if ($account->customLabel('invoice_text1')) {
             $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-
         if ($account->customLabel('invoice_text2')) {
             $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
@@ -41,7 +39,7 @@ class QuoteReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
@@ -53,7 +51,7 @@ class QuoteReport extends AbstractReport
             ->orderBy('name')
             ->withArchived()
             ->with('contacts', 'user')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
+            ->with(['invoices' => function ($query) use ($statusIds) {
                 $query->quotes()
                     ->withArchived()
                     ->statusIds($statusIds)
@@ -67,17 +65,16 @@ class QuoteReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
+            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
                     foreach ($invoice->documents as $document) {
-                        $name = sprintf('%s_%s_%s', $invoice->invoice_date ?: Carbon::now()->format('Y-m-d'), $invoice->present()->titledName, $document->name);
+                        $name = sprintf('%s_%s_%s', $invoice->invoice_date ?: date('Y-m-d'), $invoice->present()->titledName, $document->name);
                         $name = str_replace(' ', '_', $name);
                         $zip->add_file($name, $document->getRaw());
                     }
                 }
             }
-
             $zip->finish();
             exit;
         }
@@ -103,7 +100,6 @@ class QuoteReport extends AbstractReport
                 if ($account->customLabel('invoice_text1')) {
                     $row[] = $invoice->custom_text_value1;
                 }
-
                 if ($account->customLabel('invoice_text2')) {
                     $row[] = $invoice->custom_text_value2;
                 }
@@ -112,7 +108,11 @@ class QuoteReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
 
-                $dimension = $subgroup == 'status' ? $invoice->statusLabel() : $this->getDimension($client);
+                if ($subgroup == 'status') {
+                    $dimension = $invoice->statusLabel();
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
 
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }

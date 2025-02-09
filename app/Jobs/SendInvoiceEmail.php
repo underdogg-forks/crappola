@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
+use App;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Monolog\Logger;
 
 /**
  * Class SendInvoiceEmail.
@@ -24,14 +23,8 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      */
     public $invoice;
 
-    /**
-     * @var bool
-     */
     protected $reminder;
 
-    /**
-     * @var array
-     */
     protected $template;
 
     /**
@@ -52,6 +45,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param Invoice $invoice
      * @param string  $pdf
      * @param bool    $reminder
      * @param mixed   $pdfString
@@ -68,8 +62,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
 
     /**
      * Execute the job.
+     *
+     * @param ContactMailer $mailer
      */
-    public function handle(ContactMailer $mailer): void
+    public function handle(ContactMailer $mailer)
     {
         // send email as user
         if (App::runningInConsole() && $this->userId) {

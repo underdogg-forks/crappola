@@ -2,14 +2,11 @@
 
 namespace App\Jobs;
 
-use Carbon\Carbon;
 use App\Libraries\HistoryUtils;
 use App\Libraries\Utils;
 
 class PurgeClientData extends Job
 {
-    public $client;
-
     public function __construct($client)
     {
         $this->client = $client;
@@ -17,8 +14,10 @@ class PurgeClientData extends Job
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(): void
+    public function handle()
     {
         $user = auth()->user();
         $client = $this->client;
@@ -28,7 +27,7 @@ class PurgeClientData extends Job
             return;
         }
 
-        $message = sprintf('%s %s (%s) purged client: %s %s', Carbon::now()->format('Y-m-d h:i:s'), $user->email, request()->getClientIp(), $client->name, $contact->email);
+        $message = sprintf('%s %s (%s) purged client: %s %s', date('Y-m-d h:i:s'), $user->email, request()->getClientIp(), $client->name, $contact->email);
 
         if (config('app.log') == 'single') {
             @file_put_contents(storage_path('logs/purged-clients.log'), $message, FILE_APPEND);
@@ -44,7 +43,6 @@ class PurgeClientData extends Job
                 $document->delete();
             }
         }
-
         foreach ($expenses as $expense) {
             foreach ($expense->documents as $document) {
                 $document->delete();

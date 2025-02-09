@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 class UpdateInvoiceAPIRequest extends InvoiceRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
-    public function rules(): array
+    public function rules()
     {
         if ( ! $this->entity()) {
             return [];
@@ -21,7 +21,7 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
 
         $invoiceId = $this->entity()->id;
 
-        return [
+        $rules = [
             'invoice_items'  => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount'       => 'positive',
@@ -30,5 +30,7 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
+
+        return $rules;
     }
 }

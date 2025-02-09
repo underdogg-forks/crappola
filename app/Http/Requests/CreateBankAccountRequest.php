@@ -6,12 +6,12 @@ class CreateBankAccountRequest extends Request
 {
     // Expenses
 
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'bank_id'       => 'required',

@@ -10,7 +10,13 @@ use App\Ninja\Repositories\ProposalRepository;
 
 class ClientPortalProposalController extends BaseController
 {
-    private readonly ProposalRepository $propoosalRepo;
+    private $invoiceRepo;
+
+    private $paymentRepo;
+
+    private $documentRepo;
+
+    private $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {
@@ -51,10 +57,9 @@ class ClientPortalProposalController extends BaseController
 
         $proposal = $invitation->proposal;
 
-        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
-        return null;
     }
 
     public function getProposalImage($accountKey, $documentKey)

@@ -6,19 +6,18 @@ use App\Models\Invoice;
 
 class CreatePaymentRequest extends PaymentRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
-    public function rules(): array
+    public function rules()
     {
         $input = $this->input();
-        $this->invoice = Invoice::scope($input['invoice'])
+        $this->invoice = $invoice = Invoice::scope($input['invoice'])
             ->withArchived()
             ->invoices()
             ->firstOrFail();
-        $invoice = $this->invoice;
 
         $this->merge([
             'invoice_id' => $invoice->id,

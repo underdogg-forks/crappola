@@ -2,10 +2,9 @@
 
 namespace App\Ninja\Mailers;
 
+use App;
 use App\Libraries\Utils;
-use App\Models\Invoice;
 use Exception;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Postmark\Models\PostmarkAttachment;
@@ -24,10 +23,11 @@ class Mailer
      * @param       $fromName
      * @param       $subject
      * @param       $view
+     * @param array $data
      *
      * @return bool|string
      */
-    public function sendTo($toEmail, $fromEmail, $fromName, $subject, string $view, array $data = [])
+    public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
         // don't send emails to dummy addresses
         if (mb_stristr($toEmail, '@example.com')) {
@@ -44,7 +44,7 @@ class Mailer
         $fromEmail = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
-            Log::info(sprintf('Sending email - To: %s | Reply: %s | From: %s', $toEmail, $replyEmail, $fromEmail));
+            Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
         }
 
         // Optionally send for alternate domain
@@ -59,38 +59,42 @@ class Mailer
         return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
     }
 
-    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
-        if (Utils::isSelfHost() && isset($data['account'])) {
-            $account = $data['account'];
-            if (env($account->id . '_MAIL_FROM_ADDRESS')) {
-                $fields = [
-                    'driver',
-                    'host',
-                    'port',
-                    'from.address',
-                    'from.name',
-                    'encryption',
-                    'username',
-                    'password',
-                ];
-                foreach ($fields as $field) {
-                    $envKey = mb_strtoupper(str_replace('.', '_', $field));
-                    if ($value = env($account->id . '_MAIL_' . $envKey)) {
-                        config(['mail.' . $field => $value]);
+        if (Utils::isSelfHost()) {
+            if (isset($data['account'])) {
+                $account = $data['account'];
+                if (env($account->id . '_MAIL_FROM_ADDRESS')) {
+                    $fields = [
+                        'driver',
+                        'host',
+                        'port',
+                        'from.address',
+                        'from.name',
+                        'encryption',
+                        'username',
+                        'password',
+                    ];
+                    foreach ($fields as $field) {
+                        $envKey = mb_strtoupper(str_replace('.', '_', $field));
+                        if ($value = env($account->id . '_MAIL_' . $envKey)) {
+                            config(['mail.' . $field => $value]);
+                        }
                     }
-                }
 
-                $fromEmail = config('mail.from.address');
-                $app = App::getInstance();
-                $app->singleton('swift.transport', fn ($app): TransportManager => new TransportManager($app));
-                $mailer = new Swift_Mailer($app['swift.transport']->driver());
-                Mail::setSwiftMailer($mailer);
+                    $fromEmail = config('mail.from.address');
+                    $app = App::getInstance();
+                    $app->singleton('swift.transport', function ($app) {
+                        return new \Illuminate\Mail\TransportManager($app);
+                    });
+                    $mailer = new Swift_Mailer($app['swift.transport']->driver());
+                    Mail::setSwiftMailer($mailer);
+                }
             }
         }
 
         try {
-            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data): void {
+            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data) {
                 $message->to($toEmail)
                     ->from($fromEmail, $fromName)
                     ->replyTo($replyEmail, $fromName)
@@ -105,11 +109,9 @@ class Mailer
                 if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
-
                 if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
                     $message->attachData($data['ublString'], $data['ublFileName']);
                 }
-
                 if ( ! empty($data['documents'])) {
                     foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
@@ -123,7 +125,7 @@ class Mailer
         }
     }
 
-    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, array $views, array $data = [])
+    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
         $htmlBody = view($views[0], $data)->render();
         $textBody = view($views[1], $data)->render();
@@ -148,11 +150,9 @@ class Mailer
         if ( ! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['pdfString'], $data['pdfFileName']);
         }
-
         if ( ! empty($data['ublString']) && ! empty($data['ublFileName'])) {
             $attachments[] = PostmarkAttachment::fromRawData($data['ublString'], $data['ublFileName']);
         }
-
         if ( ! empty($data['documents'])) {
             foreach ($data['documents'] as $document) {
                 $attachments[] = PostmarkAttachment::fromRawData($document['data'], $document['name']);
@@ -196,8 +196,10 @@ class Mailer
     /**
      * @param $response
      * @param $data
+     *
+     * @return bool
      */
-    private function handleSuccess($data, $messageId = false): bool
+    private function handleSuccess($data, $messageId = false)
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];

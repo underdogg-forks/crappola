@@ -4,24 +4,22 @@ namespace App\Ninja\Repositories;
 
 use App\Libraries\Utils;
 use App\Models\Project;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProjectRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Project::class;
+        return 'App\Models\Project';
     }
 
-    public function all(): Collection|array
+    public function all()
     {
         return Project::scope()->get();
     }
 
-    public function find($filter = null, $userId = false): Builder
+    public function find($filter = null, $userId = false)
     {
         $query = DB::table('projects')
             ->where('projects.account_id', '=', Auth::user()->account_id)
@@ -29,7 +27,7 @@ class ProjectRepository extends BaseRepository
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
             ->where('clients.deleted_at', '=', null)
-            ->where(function ($query): void { // handle when client isn't set
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
@@ -51,7 +49,7 @@ class ProjectRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROJECT);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
@@ -69,6 +67,8 @@ class ProjectRepository extends BaseRepository
 
     public function save($input, $project = false)
     {
+        $publicId = $data['public_id'] ?? false;
+
         if ( ! $project) {
             $project = Project::createNew();
             $project['client_id'] = $input['client_id'];

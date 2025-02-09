@@ -14,9 +14,8 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
 use Carbon;
 use Exception;
+use Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use OfxParser\Parser;
 use stdClass;
 
 /**
@@ -24,16 +23,33 @@ use stdClass;
  */
 class BankAccountService extends BaseService
 {
-    protected BankAccountRepository $bankAccountRepo;
+    /**
+     * @var BankAccountRepository
+     */
+    protected $bankAccountRepo;
 
-    protected ExpenseRepository $expenseRepo;
+    /**
+     * @var ExpenseRepository
+     */
+    protected $expenseRepo;
 
-    protected VendorRepository $vendorRepo;
+    /**
+     * @var VendorRepository
+     */
+    protected $vendorRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * BankAccountService constructor.
+     *
+     * @param BankAccountRepository $bankAccountRepo
+     * @param ExpenseRepository     $expenseRepo
+     * @param VendorRepository      $vendorRepo
+     * @param DatatableService      $datatableService
      */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
@@ -48,8 +64,10 @@ class BankAccountService extends BaseService
      * @param      $username
      * @param      $password
      * @param bool $includeTransactions
+     *
+     * @return array|bool
      */
-    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true): false|array
+    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true)
     {
         if ( ! $bankAccount || ! $username || ! $password) {
             return false;
@@ -59,7 +77,7 @@ class BankAccountService extends BaseService
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
         $bankAccounts = BankSubaccount::scope()
-            ->whereHas('bank_account', function ($query) use ($bankId): void {
+            ->whereHas('bank_account', function ($query) use ($bankId) {
                 $query->where('bank_id', '=', $bankId);
             })
             ->get();
@@ -82,7 +100,6 @@ class BankAccountService extends BaseService
                     if ( ! is_array($login->accounts)) {
                         return false;
                     }
-
                     foreach ($login->accounts as $account) {
                         $account->setup($includeTransactions);
                         if ($account = $this->parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)) {
@@ -93,8 +110,8 @@ class BankAccountService extends BaseService
             }
 
             return $data;
-        } catch (Exception $exception) {
-            Utils::logError($exception);
+        } catch (Exception $e) {
+            Utils::logError($e);
 
             return false;
         }
@@ -167,12 +184,17 @@ class BankAccountService extends BaseService
         return $this->datatableService->createDatatable(new BankAccountDatatable(false), $query);
     }
 
-    protected function getRepo(): BankAccountRepository
+    /**
+     * @return BankAccountRepository
+     */
+    protected function getRepo()
     {
         return $this->bankAccountRepo;
     }
 
     /**
+     * @param null $bankId
+     *
      * @return array
      */
     private function getExpenses($bankId = null)
@@ -184,8 +206,11 @@ class BankAccountService extends BaseService
             ->withTrashed()
             ->get(['transaction_id'])
             ->toArray();
+        $expenses = array_flip(array_map(function ($val) {
+            return $val['transaction_id'];
+        }, $expenses));
 
-        return array_flip(array_map(fn ($val) => $val['transaction_id'], $expenses));
+        return $expenses;
     }
 
     /**
@@ -220,7 +245,7 @@ class BankAccountService extends BaseService
         $obj->balance = Utils::formatMoney($account->ledgerBalance, CURRENCY_DOLLAR);
 
         if ($includeTransactions) {
-            return $this->parseTransactions($obj, $account->response, $expenses, $vendorMap);
+            $obj = $this->parseTransactions($obj, $account->response, $expenses, $vendorMap);
         }
 
         return $obj;
@@ -231,10 +256,12 @@ class BankAccountService extends BaseService
      * @param $data
      * @param $expenses
      * @param $vendorMap
+     *
+     * @return mixed
      */
-    private function parseTransactions(stdClass $account, $data, $expenses, $vendorMap): stdClass
+    private function parseTransactions($account, $data, $expenses, $vendorMap)
     {
-        $ofxParser = new Parser();
+        $ofxParser = new \OfxParser\Parser();
         $ofx = $ofxParser->loadFromString($data);
 
         $bankAccount = reset($ofx->bankAccounts);
@@ -247,7 +274,6 @@ class BankAccountService extends BaseService
             if (isset($expenses[$transaction->uniqueId])) {
                 continue;
             }
-
             if ($transaction->amount >= 0) {
                 continue;
             }
@@ -270,13 +296,18 @@ class BankAccountService extends BaseService
 
     /**
      * @param $value
+     *
+     * @return string
      */
-    private function prepareValue($value): string
+    private function prepareValue($value)
     {
         return ucwords(mb_strtolower(trim($value)));
     }
 
-    private function createVendorMap(): array
+    /**
+     * @return array
+     */
+    private function createVendorMap()
     {
         $vendorMap = [];
         $vendors = Vendor::scope()
@@ -290,12 +321,11 @@ class BankAccountService extends BaseService
         return $vendorMap;
     }
 
-    private function determineInfoField($value): string
+    private function determineInfoField($value)
     {
         if (preg_match("/^[0-9\-\(\)\.]+$/", $value)) {
             return 'work_phone';
         }
-
         if (str_contains($value, '.')) {
             return 'private_notes';
         }

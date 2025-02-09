@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalCategory;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProposalCategoryRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return ProposalCategory::class;
+        return 'App\Models\ProposalCategory';
     }
 
     public function all()
@@ -33,7 +33,7 @@ class ProposalCategoryRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL_CATEGORY);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->Where('proposal_categories.name', 'like', '%' . $filter . '%');
             });
         }
@@ -43,6 +43,8 @@ class ProposalCategoryRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
+        $publicId = $input['public_id'] ?? false;
+
         if ( ! $proposal) {
             $proposal = ProposalCategory::createNew();
         }

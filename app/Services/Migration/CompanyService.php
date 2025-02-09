@@ -7,13 +7,11 @@ use Exception;
 
 class CompanyService
 {
-    public $errors;
-
     protected $isSuccessful;
 
     protected $companies = [];
 
-    public function start(): static
+    public function start()
     {
         try {
             if (session(SESSION_USER_ACCOUNTS)) {
@@ -37,7 +35,7 @@ class CompanyService
             }
 
             $this->isSuccessful = true;
-        } catch (Exception) {
+        } catch (Exception $th) {
             $this->isSuccessful = false;
             $this->errors = [];
         }

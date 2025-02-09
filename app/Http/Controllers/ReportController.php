@@ -11,8 +11,8 @@ use App\Models\ScheduledReport;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
+use Validator;
 
 /**
  * Class ReportController.
@@ -110,19 +110,22 @@ class ReportController extends BaseController
                 'start_date'      => $params['startDate'],
                 'end_date'        => $params['endDate'],
             ];
-            $report = dispatch_sync(new RunReport(auth()->user(), $reportType, $config, $isExport));
+            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':
-                    return dispatch_sync(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
+                    return dispatch_now(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
+                    break;
                 case 'schedule':
                     self::schedule($params, $config);
 
                     return redirect('/reports');
+                    break;
                 case 'cancel_schedule':
                     self::cancelSchdule();
 
                     return redirect('/reports');
+                    break;
             }
         } else {
             $params['columns'] = [];
@@ -147,12 +150,12 @@ class ReportController extends BaseController
 
     public function loadEmailReport($startDate, $endDate)
     {
-        $data = dispatch_sync(new LoadPostmarkStats($startDate, $endDate));
+        $data = dispatch_now(new LoadPostmarkStats($startDate, $endDate));
 
         return response()->json($data);
     }
 
-    private function schedule(array $params, array $options): void
+    private function schedule($params, $options)
     {
         $validator = Validator::make(request()->all(), [
             'frequency' => 'required|in:daily,weekly,biweekly,monthly',
@@ -180,7 +183,7 @@ class ReportController extends BaseController
         }
     }
 
-    private function cancelSchdule(): void
+    private function cancelSchdule()
     {
         ScheduledReport::scope()
             ->whereUserId(auth()->user()->id)

@@ -10,7 +10,9 @@ use App\Models\User;
 class BankAccountPolicy extends EntityPolicy
 {
     /**
+     * @param User $user
      * @param      $item
+     *
      * @return bool
      */
     public static function edit(User $user, $item)
@@ -19,7 +21,9 @@ class BankAccountPolicy extends EntityPolicy
     }
 
     /**
+     * @param User  $user
      * @param mixed $item
+     *
      * @return bool
      */
     public static function create(User $user, $item)

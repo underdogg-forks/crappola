@@ -26,20 +26,18 @@ class EntityRequest extends Request
         if ( ! empty($this->{$field})) {
             $publicId = $this->{$field};
         }
-
         if ( ! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
             if ( ! empty($this->{$field})) {
                 $publicId = $this->{$field};
             }
         }
-
         if ( ! $publicId) {
-            $publicId = \Illuminate\Support\Facades\Request::input('public_id') ?: \Illuminate\Support\Facades\Request::input('id');
+            $publicId = \Request::input('public_id') ?: \Request::input('id');
         }
 
         if ( ! $publicId) {
-            return null;
+            return;
         }
 
         if (method_exists($class, 'trashed')) {
@@ -51,23 +49,25 @@ class EntityRequest extends Request
         return $this->entity;
     }
 
-    public function setEntity($entity): void
+    public function setEntity($entity)
     {
         $this->entity = $entity;
     }
 
-    public function authorize(): bool
+    public function authorize()
     {
-        if ($this->entity() && $this->user()->can('view', $this->entity())) {
-            HistoryUtils::trackViewed($this->entity());
+        if ($this->entity()) {
+            if ($this->user()->can('view', $this->entity())) {
+                HistoryUtils::trackViewed($this->entity());
 
-            return true;
+                return true;
+            }
+        } else {
+            return $this->user()->can('create', $this->entityType);
         }
-
-        return $this->user()->can('create', $this->entityType);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [];
     }

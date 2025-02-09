@@ -7,7 +7,7 @@ namespace App\Models\Traits;
  */
 trait ChargesFees
 {
-    public function calcGatewayFee($gatewayTypeId = false, $includeTax = false): false|float
+    public function calcGatewayFee($gatewayTypeId = false, $includeTax = false)
     {
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);

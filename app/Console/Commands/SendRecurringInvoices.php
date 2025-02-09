@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Jobs\SendInvoiceEmail;
 use App\Libraries\Utils;
 use App\Models\Account;
@@ -22,11 +21,6 @@ use Symfony\Component\Console\Input\InputOption;
 class SendRecurringInvoices extends Command
 {
     /**
-     * @var RecurringExpenseRepository
-     */
-    public $recurringExpenseRepo;
-
-    /**
      * @var string
      */
     protected $name = 'ninja:send-invoices';
@@ -36,10 +30,15 @@ class SendRecurringInvoices extends Command
      */
     protected $description = 'Send recurring invoices';
 
-    protected InvoiceRepository $invoiceRepo;
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
 
     /**
      * SendRecurringInvoices constructor.
+     *
+     * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo, RecurringExpenseRepository $recurringExpenseRepo)
     {
@@ -49,9 +48,9 @@ class SendRecurringInvoices extends Command
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        $this->info(Carbon::now()->format('r') . ' Running SendRecurringInvoices...');
+        $this->info(date('r') . ' Running SendRecurringInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -61,14 +60,22 @@ class SendRecurringInvoices extends Command
         $this->createInvoices();
         $this->createExpenses();
 
-        $this->info(Carbon::now()->format('r') . ' Done');
+        $this->info(date('r') . ' Done');
+
+        return 0;
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
         return [
@@ -76,28 +83,28 @@ class SendRecurringInvoices extends Command
         ];
     }
 
-    private function resetCounters(): void
+    private function resetCounters()
     {
         $accounts = Account::where('reset_counter_frequency_id', '>', 0)
             ->orderBy('id', 'asc')
             ->get();
 
         foreach ($accounts as $account) {
-            if ( ! $account->account_email_settings->is_disabled) {
+            if( ! $account->account_email_settings->is_disabled) {
                 $account->checkCounterReset();
             }
         }
     }
 
-    private function createInvoices(): void
+    private function createInvoices()
     {
-        $today = Carbon::now();
+        $today = new DateTime();
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->cursor();
-        $this->info(Carbon::now()->format('r ') . ' Recurring invoice(s) found');
+        $this->info(date('r ') . ' Recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
@@ -106,11 +113,11 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $this->info(Carbon::now()->format('r') . ' Processing Invoice: ' . $recurInvoice->id);
+            $this->info(date('r') . ' Processing Invoice: ' . $recurInvoice->id);
 
             $account = $recurInvoice->account;
 
-            if ($account->account_email_settings->is_disabled) {
+            if($account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -120,13 +127,13 @@ class SendRecurringInvoices extends Command
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
                 if ($invoice && ! $invoice->isPaid() && $account->auto_email_invoice) {
-                    $this->info(Carbon::now()->format('r') . ' Not billed - Sending Invoice');
+                    $this->info(date('r') . ' Not billed - Sending Invoice');
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
                 } elseif ($invoice) {
-                    $this->info(Carbon::now()->format('r') . ' Successfully billed invoice');
+                    $this->info(date('r') . ' Successfully billed invoice');
                 }
             } catch (Exception $exception) {
-                $this->info(Carbon::now()->format('r') . ' Error: ' . $exception->getMessage());
+                $this->info(date('r') . ' Error: ' . $exception->getMessage());
                 Utils::logError($exception);
             }
 
@@ -134,27 +141,24 @@ class SendRecurringInvoices extends Command
         }
     }
 
-    private function createExpenses(): void
+    private function createExpenses()
     {
-        $today = Carbon::now();
+        $today = new DateTime();
 
         $expenses = RecurringExpense::with('client')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
-        $this->info(Carbon::now()->format('r ') . $expenses->count() . ' recurring expenses(s) found');
+        $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
-            if ( ! $shouldSendToday) {
+
+            if ( ! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 
-            if ($expense->account->account_email_settings->is_disabled) {
-                continue;
-            }
-
-            $this->info(Carbon::now()->format('r') . ' Processing Expense: ' . $expense->id);
+            $this->info(date('r') . ' Processing Expense: ' . $expense->id);
             $this->recurringExpenseRepo->createRecurringExpense($expense);
         }
     }

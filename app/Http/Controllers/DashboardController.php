@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 
@@ -15,11 +15,6 @@ use Illuminate\Support\Facades\View;
  */
 class DashboardController extends BaseController
 {
-    /**
-     * @var DashboardRepository
-     */
-    public $dashboardRepo;
-
     public function __construct(DashboardRepository $dashboardRepo)
     {
         $this->dashboardRepo = $dashboardRepo;
@@ -125,7 +120,7 @@ class DashboardController extends BaseController
         return json_encode($data);
     }
 
-    private function getCurrencyCodes(): array
+    private function getCurrencyCodes()
     {
         $account = Auth::user()->account;
         $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
@@ -137,7 +132,7 @@ class DashboardController extends BaseController
             ->get(['currency_id'])
             ->toArray();
 
-        array_map(function (array $item) use (&$currencyIds): void {
+        array_map(function ($item) use (&$currencyIds) {
             $currencyId = (int) ($item['currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;
@@ -151,7 +146,7 @@ class DashboardController extends BaseController
             ->get(['expense_currency_id'])
             ->toArray();
 
-        array_map(function (array $item) use (&$currencyIds): void {
+        array_map(function ($item) use (&$currencyIds) {
             $currencyId = (int) ($item['expense_currency_id']);
             if ($currencyId && ! in_array($currencyId, $currencyIds)) {
                 $currencyIds[] = $currencyId;

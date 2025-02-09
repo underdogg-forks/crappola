@@ -18,7 +18,7 @@ class ProductTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
-    public function transform(Product $product): array
+    public function transform(Product $product)
     {
         return array_merge($this->getDefaults($product), [
             'id'            => (int) $product->public_id,

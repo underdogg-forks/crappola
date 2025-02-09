@@ -6,18 +6,22 @@ use App\Models\Client;
 
 class CreateInvoiceRequest extends InvoiceRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         if (request()->input('is_quote')) {
             return $this->user()->can('create', ENTITY_QUOTE);
         }
 
-        $standardOrRecurringInvoice = request()->input('is_recurring') ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
+        if(request()->input('is_recurring')) {
+            $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
+        } else {
+            $standardOrRecurringInvoice = ENTITY_INVOICE;
+        }
 
         return $this->user()->can('create', $standardOrRecurringInvoice);
     }
 
-    public function rules(): array
+    public function rules()
     {
         $rules = [
             'client'         => 'required',

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Services\BankAccountService;
 use Illuminate\Console\Command;
 
@@ -21,10 +20,15 @@ class TestOFX extends Command
      */
     protected $description = 'Test OFX';
 
-    protected BankAccountService $bankAccountService;
+    /**
+     * @var BankAccountService
+     */
+    protected $bankAccountService;
 
     /**
      * TestOFX constructor.
+     *
+     * @param BankAccountService $bankAccountService
      */
     public function __construct(BankAccountService $bankAccountService)
     {
@@ -33,8 +37,10 @@ class TestOFX extends Command
         $this->bankAccountService = $bankAccountService;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        $this->info(Carbon::now()->format('r') . ' Running TestOFX...');
+        $this->info(date('r') . ' Running TestOFX...');
+
+        return 0;
     }
 }

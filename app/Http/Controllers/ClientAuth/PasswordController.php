@@ -5,7 +5,6 @@ namespace App\Http\Controllers\ClientAuth;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Redirect;
 
@@ -16,9 +15,11 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param string|null $key
-     * @param string|null $token
-     * @return Response
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
+     *
+     * @return \Illuminate\Http\Response
      */
     public function showResetForm(Request $request, $token = null)
     {
@@ -43,9 +44,11 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param string|null $key
-     * @param string|null $token
-     * @return Response
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
+     *
+     * @return \Illuminate\Http\Response
      */
     public function getReset(Request $request, $token = null)
     {
@@ -55,8 +58,9 @@ class PasswordController extends Controller
     /**
      * Reset the given user's password.
      *
+     * @param \Illuminate\Http\Request $request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
     {
@@ -80,20 +84,25 @@ class PasswordController extends Controller
 
         $broker = $this->getBroker();
 
-        $response = Password::broker($broker)->reset($credentials, function ($user, $password): void {
+        $response = Password::broker($broker)->reset($credentials, function ($user, $password) {
             $this->resetPassword($user, $password);
         });
 
-        return match ($response) {
-            Password::PASSWORD_RESET => $this->getResetSuccessResponse($response),
-            default                  => $this->getResetFailureResponse($request, $response),
-        };
+        switch ($response) {
+            case Password::PASSWORD_RESET:
+                return $this->getResetSuccessResponse($response);
+
+            default:
+                return $this->getResetFailureResponse($request, $response);
+        }
     }
 
     /**
      * Get the password reset validation rules.
+     *
+     * @return array
      */
-    protected function getResetValidationRules(): array
+    protected function getResetValidationRules()
     {
         return [
             'token'    => 'required',

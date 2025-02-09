@@ -8,12 +8,12 @@ class UpdateUserRequest extends EntityRequest
 {
     // Expenses
 
-    public function authorize(): bool
+    public function authorize()
     {
         return Auth::user()->is_admin || $this->user()->id == Auth::user()->id;
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'email'      => 'email|required|unique:users,email,' . Auth::user()->id . ',id',

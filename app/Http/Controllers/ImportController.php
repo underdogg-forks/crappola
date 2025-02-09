@@ -2,25 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Jobs\ImportData;
 use App\Libraries\Utils;
 use App\Services\ImportService;
 use Exception;
+use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ImportController extends BaseController
 {
-    /**
-     * @var ImportService
-     */
-    public $importService;
-
     public function __construct(ImportService $importService)
     {
         $this->importService = $importService;
@@ -32,9 +26,9 @@ class ImportController extends BaseController
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
         }
 
-        $source = \Illuminate\Support\Facades\Request::input('source');
+        $source = \Request::input('source');
         $files = [];
-        $timestamp = Carbon::now()->timestamp;
+        $timestamp = time();
 
         foreach (ImportService::$entityTypes as $entityType) {
             $fileName = $entityType;
@@ -44,15 +38,17 @@ class ImportController extends BaseController
                 $extension = mb_strtolower($file->getClientOriginalExtension());
 
                 if ($source === IMPORT_CSV) {
-                    if ($extension !== 'csv') {
+                    if ($extension != 'csv') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
                 } elseif ($source === IMPORT_JSON) {
-                    if ($extension !== 'json') {
+                    if ($extension != 'json') {
                         return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
                     }
-                } elseif ( ! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
-                    return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                } else {
+                    if ( ! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
                 }
 
                 $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
@@ -61,7 +57,7 @@ class ImportController extends BaseController
             }
         }
 
-        if ($files === []) {
+        if ( ! count($files)) {
             Session::flash('error', trans('texts.select_file'));
 
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
@@ -76,10 +72,9 @@ class ImportController extends BaseController
                     'timestamp' => $timestamp,
                 ]);
             }
-
             if ($source === IMPORT_JSON) {
-                $includeData = filter_var(\Illuminate\Support\Facades\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
-                $includeSettings = filter_var(\Illuminate\Support\Facades\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
+                $includeData = filter_var(\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
+                $includeSettings = filter_var(\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
                 if (config('queue.default') === 'sync') {
                     $results = $this->importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
                     $message = $this->importService->presentResults($results, $includeSettings);
@@ -92,16 +87,18 @@ class ImportController extends BaseController
                     $this->dispatch(new ImportData(Auth::user(), IMPORT_JSON, $settings));
                     $message = trans('texts.import_started');
                 }
-            } elseif (config('queue.default') === 'sync') {
-                $results = $this->importService->importFiles($source, $files);
-                $message = $this->importService->presentResults($results);
             } else {
-                $settings = [
-                    'files'  => $files,
-                    'source' => $source,
-                ];
-                $this->dispatch(new ImportData(Auth::user(), false, $settings));
-                $message = trans('texts.import_started');
+                if (config('queue.default') === 'sync') {
+                    $results = $this->importService->importFiles($source, $files);
+                    $message = $this->importService->presentResults($results);
+                } else {
+                    $settings = [
+                        'files'  => $files,
+                        'source' => $source,
+                    ];
+                    $this->dispatch(new ImportData(Auth::user(), false, $settings));
+                    $message = trans('texts.import_started');
+                }
             }
 
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);
@@ -116,9 +113,9 @@ class ImportController extends BaseController
     public function doImportCSV()
     {
         try {
-            $map = \Illuminate\Support\Facades\Request::input('map');
-            $headers = \Illuminate\Support\Facades\Request::input('headers');
-            $timestamp = \Illuminate\Support\Facades\Request::input('timestamp');
+            $map = \Request::input('map');
+            $headers = \Request::input('headers');
+            $timestamp = \Request::input('timestamp');
 
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);

@@ -20,11 +20,11 @@ use Illuminate\Support\Facades\View;
 
 class VendorController extends BaseController
 {
-    public $entityType = ENTITY_VENDOR;
+    protected $vendorService;
 
-    protected VendorService $vendorService;
+    protected $vendorRepo;
 
-    protected VendorRepository $vendorRepo;
+    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -95,6 +95,11 @@ class VendorController extends BaseController
         return View::make('vendors.show', $data);
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return Response
+     */
     public function create(VendorRequest $request)
     {
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
@@ -108,12 +113,19 @@ class VendorController extends BaseController
             'title'  => trans('texts.new_vendor'),
         ];
 
-        $data = array_merge($data, $this->getViewModel());
+        $data = array_merge($data, self::getViewModel());
 
         return View::make('vendors.edit', $data);
     }
 
-    public function edit(VendorRequest $request): \Illuminate\Contracts\View\View
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function edit(VendorRequest $request)
     {
         $vendor = $request->entity();
 
@@ -124,16 +136,24 @@ class VendorController extends BaseController
             'title'  => trans('texts.edit_vendor'),
         ];
 
-        $data = array_merge($data, $this->getViewModel());
+        $data = array_merge($data, self::getViewModel());
 
-        $client = null;
-        if (Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client?->public_id)->first())) {
-            $data['planDetails'] = $account->getPlanDetails(false, false);
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($vendor->public_id)->first()) {
+                $data['planDetails'] = $account->getPlanDetails(false, false);
+            }
         }
 
         return View::make('vendors.edit', $data);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
     public function update(UpdateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input(), $request->entity());
@@ -146,7 +166,7 @@ class VendorController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
@@ -155,7 +175,7 @@ class VendorController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private function getViewModel(): array
+    private static function getViewModel()
     {
         return [
             'data'    => Request::old('data'),

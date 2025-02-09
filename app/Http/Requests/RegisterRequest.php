@@ -11,18 +11,20 @@ class RegisterRequest extends Request
         $this->req = $req;
     }
 
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules()
     {
-        return [
+        $rules = [
             'email'      => 'email|required|unique:users',
             'first_name' => 'required',
             'last_name'  => 'required',
             'password'   => 'required',
         ];
+
+        return $rules;
     }
 }

@@ -20,7 +20,10 @@ class AccountPresenter extends Presenter
         return $this->entity->name ?: trans('texts.untitled_account');
     }
 
-    public function address(): string
+    /**
+     * @return string
+     */
+    public function address()
     {
         $account = $this->entity;
 
@@ -39,14 +42,20 @@ class AccountPresenter extends Presenter
         return $str . $account->getCityState();
     }
 
-    public function website(): string
+    /**
+     * @return string
+     */
+    public function website()
     {
         return Utils::addHttp($this->entity->website);
     }
 
-    public function taskRate(): string
+    /**
+     * @return string
+     */
+    public function taskRate()
     {
-        if ((float) ($this->entity->task_rate) !== 0.0) {
+        if ((float) ($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 
@@ -61,13 +70,13 @@ class AccountPresenter extends Presenter
         return $currency->code;
     }
 
-    public function clientPortalLink($subdomain = false): array|string
+    public function clientPortalLink($subdomain = false)
     {
         $account = $this->entity;
         $url = Domain::getLinkFromId($account->domain_id);
 
         if ($subdomain && $account->subdomain) {
-            return Utils::replaceSubdomain($url, $account->subdomain);
+            $url = Utils::replaceSubdomain($url, $account->subdomain);
         }
 
         return $url;
@@ -83,14 +92,13 @@ class AccountPresenter extends Presenter
         return $this->entity->size ? $this->entity->size->name : '';
     }
 
-    public function paymentTerms(): string
+    public function paymentTerms()
     {
         $terms = $this->entity->payment_terms;
 
         if ($terms == 0) {
             return '';
         }
-
         if ($terms == -1) {
             $terms = 0;
         }
@@ -109,7 +117,7 @@ class AccountPresenter extends Presenter
         return $date ? Utils::fromSqlDate($date) : ' ';
     }
 
-    public function rBits(): array
+    public function rBits()
     {
         $account = $this->entity;
         $user = $account->users()->first();
@@ -124,19 +132,19 @@ class AccountPresenter extends Presenter
         $data[] = $this->createRBit('email', 'user', ['email' => $user->email]);
         $data[] = $this->createRBit('phone', 'user', ['phone' => $user->phone]);
         $data[] = $this->createRBit('website_uri', 'user', ['uri' => $account->website]);
-        $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => \Carbon\Carbon::now()->timestamp]);
+        $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
 
         return $data;
     }
 
-    public function dateRangeOptions(): string
+    public function dateRangeOptions()
     {
-        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: \Carbon\Carbon::now()->format('Y') . '-01-01');
+        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
         $month = $yearStart->month - 1;
         $year = $yearStart->year;
         $lastYear = $year - 1;
 
-        return '{
+        $str = '{
             "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
             "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
             "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
@@ -144,9 +152,11 @@ class AccountPresenter extends Presenter
             "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
             "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
         }';
+
+        return $str;
     }
 
-    public function taxRateOptions(): array
+    public function taxRateOptions()
     {
         $rates = TaxRate::scope()->orderBy('name')->get();
         $options = [];
@@ -156,17 +166,13 @@ class AccountPresenter extends Presenter
             if ($rate->is_inclusive) {
                 $name .= ' - ' . trans('texts.inclusive');
             }
-
             $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = e($name);
         }
 
         return $options;
     }
 
-    /**
-     * @return array<mixed, array<'name'|'value', 'custom_client2'|'custom_contact1'|'custom_contact2'|'custom_invoice1'|'custom_invoice2'|'custom_product1'|'custom_product2'>>
-     */
-    public function customTextFields(): array
+    public function customTextFields()
     {
         $fields = [
             'client1'       => 'custom_client1',
@@ -192,7 +198,7 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function customDesigns(): array
+    public function customDesigns()
     {
         $account = $this->entity;
         $data = [];
@@ -212,7 +218,7 @@ class AccountPresenter extends Presenter
         return $data;
     }
 
-    public function clientLoginUrl(): string
+    public function clientLoginUrl()
     {
         $account = $this->entity;
 
@@ -230,8 +236,10 @@ class AccountPresenter extends Presenter
             if ( ! $account->subdomain) {
                 $url .= '?account_key=' . $account->account_key;
             }
-        } elseif (Account::count() > 1) {
-            $url .= '?account_key=' . $account->account_key;
+        } else {
+            if (Account::count() > 1) {
+                $url .= '?account_key=' . $account->account_key;
+            }
         }
 
         return $url;
@@ -242,10 +250,10 @@ class AccountPresenter extends Presenter
         return Utils::getCustomLabel($this->entity->customLabel($field));
     }
 
-    private function createRBit(string $type, string $source, array $properties): stdClass
+    private function createRBit($type, $source, $properties)
     {
         $data = new stdClass();
-        $data->receive_time = \Carbon\Carbon::now()->timestamp;
+        $data->receive_time = time();
         $data->type = $type;
         $data->source = $source;
         $data->properties = new stdClass();

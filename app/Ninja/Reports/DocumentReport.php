@@ -2,14 +2,13 @@
 
 namespace App\Ninja\Reports;
 
-use Carbon\Carbon;
 use App\Models\Expense;
 use App\Models\Invoice;
 use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'document'           => [],
@@ -19,11 +18,12 @@ class DocumentReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        auth()->user()->account;
+        $account = auth()->user()->account;
         $filter = $this->options['document_filter'];
         $exportFormat = $this->options['export_format'];
+        $subgroup = $this->options['subgroup'];
         $records = false;
 
         if ( ! $filter || $filter == ENTITY_INVOICE) {
@@ -43,7 +43,11 @@ class DocumentReport extends AbstractReport
                 ->where('expense_date', '<=', $this->endDate)
                 ->get();
 
-            $records = $records ? $records->merge($expenses) : $expenses;
+            if ($records) {
+                $records = $records->merge($expenses);
+            } else {
+                $records = $expenses;
+            }
         }
 
         if ($this->isExport && $exportFormat == 'zip') {
@@ -51,7 +55,7 @@ class DocumentReport extends AbstractReport
                 die(trans('texts.gmp_required'));
             }
 
-            $zip = Archive::instance_by_useragent(Carbon::now()->format('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
+            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
             foreach ($records as $record) {
                 foreach ($record->documents as $document) {
                     $name = sprintf('%s_%s_%s', $document->created_at->format('Y-m-d'), $record->present()->titledName, $document->name);
@@ -60,7 +64,6 @@ class DocumentReport extends AbstractReport
                     $zip->add_file($name, $document->getRaw());
                 }
             }
-
             $zip->finish();
             exit;
         }

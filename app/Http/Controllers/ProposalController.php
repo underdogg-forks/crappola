@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
@@ -14,19 +13,20 @@ use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ProposalController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL;
+    protected $proposalRepo;
 
-    protected ProposalRepository $proposalRepo;
+    protected $proposalService;
 
-    protected ProposalService $proposalService;
+    protected $contactMailer;
 
-    protected ContactMailer $contactMailer;
+    protected $entityType = ENTITY_PROPOSAL;
 
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {
@@ -77,7 +77,7 @@ class ProposalController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/%s/edit', $publicId));
+        return redirect("proposals/{$publicId}/edit");
     }
 
     public function edit(ProposalRequest $request)
@@ -140,24 +140,24 @@ class ProposalController extends BaseController
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal' : $action . 'd_proposals';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal" : "{$action}d_proposals";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals');
     }
 
-    public function download(ProposalRequest $request): void
+    public function download(ProposalRequest $request)
     {
         $proposal = $request->entity();
 
-        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    private function getViewmodel($proposal = false): array
+    private function getViewmodel($proposal = false)
     {
         $account = auth()->user()->account;
         $templates = ProposalTemplate::whereAccountId($account->id)->withActiveOrSelected($proposal ? $proposal->proposal_template_id : false)->orderBy('name')->get();
@@ -166,9 +166,11 @@ class ProposalController extends BaseController
             $templates = ProposalTemplate::whereNull('account_id')->orderBy('name')->get();
         }
 
-        return [
+        $data = [
             'templates' => $templates,
             'account'   => $account,
         ];
+
+        return $data;
     }
 }

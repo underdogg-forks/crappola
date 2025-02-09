@@ -7,15 +7,15 @@ use App\Events\ClientWasUpdated;
 use App\Jobs\PurgeClientData;
 use App\Models\Client;
 use App\Models\Contact;
+use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class ClientRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Client::class;
+        return 'App\Models\Client';
     }
 
     public function all()
@@ -60,7 +60,7 @@ class ClientRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('clients.id_number', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
@@ -76,9 +76,9 @@ class ClientRepository extends BaseRepository
         return $query;
     }
 
-    public function purge($client): void
+    public function purge($client)
     {
-        dispatch_sync(new PurgeClientData($client));
+        dispatch(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)
@@ -105,7 +105,9 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = mb_strtolower($data['currency_code']);
-            $currency = Cache::get('currencies')->filter(fn ($item): bool => mb_strtolower($item->code) === $currencyCode)->first();
+            $currency = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
+                return mb_strtolower($item->code) == $currencyCode;
+            })->first();
             if ($currency) {
                 $data['currency_id'] = $currency->id;
             }
@@ -114,7 +116,9 @@ class ClientRepository extends BaseRepository
         // convert country code to id
         if (isset($data['country_code'])) {
             $countryCode = mb_strtolower($data['country_code']);
-            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
+            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+                return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
+            })->first();
             if ($country) {
                 $data['country_id'] = $country->id;
             }
@@ -123,7 +127,9 @@ class ClientRepository extends BaseRepository
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
             $countryCode = mb_strtolower($data['shipping_country_code']);
-            $country = Cache::get('countries')->filter(fn ($item): bool => mb_strtolower($item->iso_3166_2) === $countryCode || mb_strtolower($item->iso_3166_3) === $countryCode)->first();
+            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+                return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
+            })->first();
             if ($country) {
                 $data['shipping_country_id'] = $country->id;
             }
@@ -148,7 +154,7 @@ class ClientRepository extends BaseRepository
         $contactIds = [];
 
         // If the primary is set ensure it's listed first
-        usort($contacts, function ($left, $right): int|float {
+        usort($contacts, function ($left, $right) {
             if (isset($right['is_primary'], $left['is_primary'])) {
                 return $right['is_primary'] - $left['is_primary'];
             }
@@ -207,11 +213,7 @@ class ClientRepository extends BaseRepository
         $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
-            if ( ! $contact->getFullName()) {
-                continue;
-            }
-
-            if ( ! isset($map[$contact->client_id])) {
+            if ( ! $contact->getFullName() || ! isset($map[$contact->client_id])) {
                 continue;
             }
 

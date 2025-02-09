@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Repositories;
 
-use Carbon\Carbon;
 use App\Events\InvoiceItemsWereCreated;
 use App\Events\InvoiceItemsWereUpdated;
 use App\Events\QuoteItemsWereCreated;
@@ -12,35 +11,21 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Document;
-use App\Models\EntityModel;
 use App\Models\Expense;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
-use App\Ninja\Mailers\ContactMailer;
 use App\Services\PaymentService;
-use Chumper\Datatable\Facades\DatatableFacade as Datatable;
-use Illuminate\Support\Arr;
+use Datatable;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class InvoiceRepository extends BaseRepository
 {
-    /**
-     * @var PaymentService
-     */
-    public $paymentService;
-
-    /**
-     * @var PaymentRepository
-     */
-    public $paymentRepo;
-
-    protected DocumentRepository $documentRepo;
+    protected $documentRepo;
 
     public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo, PaymentRepository $paymentRepo)
     {
@@ -49,9 +34,9 @@ class InvoiceRepository extends BaseRepository
         $this->paymentRepo = $paymentRepo;
     }
 
-    public function getClassName(): string
+    public function getClassName()
     {
-        return Invoice::class;
+        return 'App\Models\Invoice';
     }
 
     public function all()
@@ -64,7 +49,7 @@ class InvoiceRepository extends BaseRepository
             ->get();
     }
 
-    public function getInvoices($accountId, $clientPublicId = false, string $entityType = ENTITY_INVOICE, $filter = false)
+    public function getInvoices($accountId, $clientPublicId = false, $entityType = ENTITY_INVOICE, $filter = false)
     {
         $query = DB::table('invoices')
             ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -114,26 +99,23 @@ class InvoiceRepository extends BaseRepository
 
         if ($statuses = session('entity_status_filter:' . $entityType)) {
             $statuses = explode(',', $statuses);
-            $query->where(function ($query) use ($statuses): void {
+            $query->where(function ($query) use ($statuses) {
                 foreach ($statuses as $status) {
-                    if (in_array($status, EntityModel::$statuses)) {
+                    if (in_array($status, \App\Models\EntityModel::$statuses)) {
                         continue;
                     }
-
                     $query->orWhere('invoice_status_id', '=', $status);
                 }
-
                 if (in_array(INVOICE_STATUS_UNPAID, $statuses)) {
-                    $query->orWhere(function ($query): void {
+                    $query->orWhere(function ($query) {
                         $query->where('invoices.balance', '>', 0)
                             ->where('invoices.is_public', '=', true);
                     });
                 }
-
                 if (in_array(INVOICE_STATUS_OVERDUE, $statuses)) {
-                    $query->orWhere(function ($query): void {
+                    $query->orWhere(function ($query) {
                         $query->where('invoices.balance', '>', 0)
-                            ->where('invoices.due_date', '<', Carbon::now()->format('Y-m-d'))
+                            ->where('invoices.due_date', '<', date('Y-m-d'))
                             ->where('invoices.is_public', '=', true);
                     });
                 }
@@ -147,7 +129,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
@@ -212,7 +194,7 @@ class InvoiceRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_RECURRING_INVOICE, ENTITY_INVOICE);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
@@ -264,18 +246,22 @@ class InvoiceRepository extends BaseRepository
 
                 return trans('texts.freq_' . $frequency);
             })
-            ->addColumn('start_date', fn ($model) => Utils::fromSqlDate($model->start_date))
-            ->addColumn('end_date', fn ($model) => Utils::fromSqlDate($model->end_date))
-            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id))
+            ->addColumn('start_date', function ($model) {
+                return Utils::fromSqlDate($model->start_date);
+            })
+            ->addColumn('end_date', function ($model) {
+                return Utils::fromSqlDate($model->end_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
             ->addColumn('client_enable_auto_bill', function ($model) {
                 if ($model->auto_bill == AUTO_BILL_OFF) {
                     return trans('texts.disabled');
                 }
-
                 if ($model->auto_bill == AUTO_BILL_ALWAYS) {
                     return trans('texts.enabled');
                 }
-
                 if ($model->client_enable_auto_bill) {
                     return trans('texts.enabled') . ' - <a href="javascript:setAutoBill(' . $model->public_id . ',false)">' . trans('texts.disable') . '</a>';
                 }
@@ -325,21 +311,31 @@ class InvoiceRepository extends BaseRepository
             );
 
         $table = Datatable::query($query)
-            ->addColumn('invoice_number', fn ($model) => link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml())
-            ->addColumn('invoice_date', fn ($model) => Utils::fromSqlDate($model->invoice_date))
-            ->addColumn('amount', fn ($model) => Utils::formatMoney($model->amount, $model->currency_id, $model->country_id));
+            ->addColumn('invoice_number', function ($model) {
+                return link_to('/view/' . $model->invitation_key, $model->invoice_number)->toHtml();
+            })
+            ->addColumn('invoice_date', function ($model) {
+                return Utils::fromSqlDate($model->invoice_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            });
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', fn ($model) => $model->partial > 0 ?
-                trans('texts.partial_remaining', [
-                    'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                    'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
-                ]) :
-                Utils::formatMoney($model->balance, $model->currency_id, $model->country_id));
+            $table->addColumn('balance', function ($model) {
+                return $model->partial > 0 ?
+                    trans('texts.partial_remaining', [
+                        'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                        'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
+                    ]) :
+                    Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            });
         }
 
-        return $table->addColumn('due_date', fn ($model) => Utils::fromSqlDate($model->due_date))
-            ->addColumn('invoice_status_id', function ($model) use ($entityType): string {
+        return $table->addColumn('due_date', function ($model) {
+            return Utils::fromSqlDate($model->due_date);
+        })
+            ->addColumn('invoice_status_id', function ($model) use ($entityType) {
                 if ($model->invoice_status_id == INVOICE_STATUS_PAID) {
                     $label = trans('texts.status_paid');
                     $class = 'success';
@@ -351,28 +347,39 @@ class InvoiceRepository extends BaseRepository
                     $class = 'success';
                 } elseif (Invoice::calcIsOverdue($model->balance, $model->due_date)) {
                     $class = 'danger';
-                    $label = $entityType == ENTITY_INVOICE ? trans('texts.past_due') : trans('texts.expired');
+                    if ($entityType == ENTITY_INVOICE) {
+                        $label = trans('texts.past_due');
+                    } else {
+                        $label = trans('texts.expired');
+                    }
                 } else {
                     $class = 'default';
-                    $label = $entityType == ENTITY_INVOICE ? trans('texts.unpaid') : trans('texts.pending');
+                    if ($entityType == ENTITY_INVOICE) {
+                        $label = trans('texts.unpaid');
+                    } else {
+                        $label = trans('texts.pending');
+                    }
                 }
 
-                return sprintf('<h4><div class="label label-%s">%s</div></h4>', $class, $label);
+                return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
             })
             ->make();
     }
 
     /**
+     * @param array        $data
+     * @param Invoice|null $invoice
+     *
      * @return Invoice|mixed
      */
     public function save(array $data, ?Invoice $invoice = null)
     {
         /** @var Account $account */
-        $account = $invoice instanceof Invoice ? $invoice->account : Auth::user()->account;
+        $account = $invoice ? $invoice->account : Auth::user()->account;
         $publicId = $data['public_id'] ?? false;
         $isNew = ! $publicId || (int) $publicId < 0;
 
-        if ($invoice instanceof Invoice) {
+        if ($invoice) {
             // do nothing
             $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
@@ -382,14 +389,13 @@ class InvoiceRepository extends BaseRepository
             } elseif (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_QUOTE;
             }
-
             $invoice = $account->createInvoice($entityType, $data['client_id']);
             $invoice->invoice_date = date_create()->format('Y-m-d');
             $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
 
             // set the default due date
-            if ($entityType === ENTITY_INVOICE && empty($data['partial_due_date'])) {
+            if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
@@ -403,7 +409,6 @@ class InvoiceRepository extends BaseRepository
         if ($invoice->is_deleted) {
             return $invoice;
         }
-
         if ($invoice->isLocked()) {
             return $invoice;
         }
@@ -411,7 +416,6 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
             $invoice->has_tasks = true;
         }
-
         if (isset($data['has_expenses']) && filter_var($data['has_expenses'], FILTER_VALIDATE_BOOLEAN)) {
             $invoice->has_expenses = true;
         }
@@ -432,13 +436,11 @@ class InvoiceRepository extends BaseRepository
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
             if (isset($data['set_default_terms']) && $data['set_default_terms']) {
-                $account->{$invoice->getEntityType() . '_terms'} = trim($data['terms']);
+                $account->{"{$invoice->getEntityType()}_terms"} = trim($data['terms']);
             }
-
             if (isset($data['set_default_footer']) && $data['set_default_footer']) {
                 $account->invoice_footer = trim($data['invoice_footer']);
             }
-
             $account->save();
         }
 
@@ -449,9 +451,8 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['discount'])) {
             $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         }
-
         if (isset($data['is_amount_discount'])) {
-            $invoice->is_amount_discount = (bool) $data['is_amount_discount'];
+            $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         }
 
         if (isset($data['invoice_date_sql'])) {
@@ -474,11 +475,11 @@ class InvoiceRepository extends BaseRepository
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = Arr::get($data, 'frequency_id', FREQUENCY_MONTHLY);
-            $invoice->start_date = Utils::toSqlDate(Arr::get($data, 'start_date'));
-            $invoice->end_date = Utils::toSqlDate(Arr::get($data, 'end_date'));
-            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'];
-            $invoice->auto_bill = Arr::get($data, 'auto_bill_id') ?: Arr::get($data, 'auto_bill', AUTO_BILL_OFF);
+            $invoice->frequency_id = array_get($data, 'frequency_id', FREQUENCY_MONTHLY);
+            $invoice->start_date = Utils::toSqlDate(array_get($data, 'start_date'));
+            $invoice->end_date = Utils::toSqlDate(array_get($data, 'end_date'));
+            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
+            $invoice->auto_bill = array_get($data, 'auto_bill_id') ?: array_get($data, 'auto_bill', AUTO_BILL_OFF);
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS) {
                 $invoice->auto_bill = AUTO_BILL_OFF;
@@ -495,7 +496,6 @@ class InvoiceRepository extends BaseRepository
             } elseif (isset($data['due_date']) || isset($data['due_date_sql'])) {
                 $invoice->due_date = $data['due_date_sql'] ?? Utils::toSqlDate($data['due_date']);
             }
-
             $invoice->frequency_id = 0;
             $invoice->start_date = null;
             $invoice->end_date = null;
@@ -503,8 +503,8 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['terms']) && trim($data['terms'])) {
             $invoice->terms = trim($data['terms']);
-        } elseif ($isNew && ! $invoice->is_recurring && $account->{$entityType . '_terms'}) {
-            $invoice->terms = $account->{$entityType . '_terms'};
+        } elseif ($isNew && ! $invoice->is_recurring && $account->{"{$entityType}_terms"}) {
+            $invoice->terms = $account->{"{$entityType}_terms"};
         } else {
             $invoice->terms = '';
         }
@@ -593,7 +593,6 @@ class InvoiceRepository extends BaseRepository
                     $itemTax += round($lineTotal * $taxRate1 / 100, 2);
                 }
             }
-
             if (isset($item['tax_rate2'])) {
                 $taxRate2 = Utils::parseFloat($item['tax_rate2']);
                 if ($taxRate2 != 0) {
@@ -614,7 +613,6 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['custom_value1'])) {
             $invoice->custom_value1 = round($data['custom_value1'], 2);
         }
-
         if (isset($data['custom_value2'])) {
             $invoice->custom_value2 = round($data['custom_value2'], 2);
         }
@@ -622,7 +620,6 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['custom_text_value1'])) {
             $invoice->custom_text_value1 = trim($data['custom_text_value1']);
         }
-
         if (isset($data['custom_text_value2'])) {
             $invoice->custom_text_value2 = trim($data['custom_text_value2']);
         }
@@ -631,14 +628,13 @@ class InvoiceRepository extends BaseRepository
         if ($invoice->custom_value1 && $invoice->custom_taxes1) {
             $total += $invoice->custom_value1;
         }
-
         if ($invoice->custom_value2 && $invoice->custom_taxes2) {
             $total += $invoice->custom_value2;
         }
 
         if ( ! $account->inclusive_taxes) {
-            $taxAmount1 = round($total * ($invoice->tax_rate1 ?: 0) / 100, 2);
-            $taxAmount2 = round($total * ($invoice->tax_rate2 ?: 0) / 100, 2);
+            $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
+            $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
             $total = round($total + $taxAmount1 + $taxAmount2, 2);
             $total += $itemTax;
         }
@@ -647,12 +643,15 @@ class InvoiceRepository extends BaseRepository
         if ($invoice->custom_value1 && ! $invoice->custom_taxes1) {
             $total += $invoice->custom_value1;
         }
-
         if ($invoice->custom_value2 && ! $invoice->custom_taxes2) {
             $total += $invoice->custom_value2;
         }
 
-        $invoice->balance = $publicId ? round($total - ($invoice->amount - $invoice->balance), 2) : $total;
+        if ($publicId) {
+            $invoice->balance = round($total - ($invoice->amount - $invoice->balance), 2);
+        } else {
+            $invoice->balance = $total;
+        }
 
         if (isset($data['partial'])) {
             $invoice->partial = max(0, min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
@@ -692,18 +691,14 @@ class InvoiceRepository extends BaseRepository
 
             if ( ! $invoice->wasRecentlyCreated) {
                 foreach ($invoice->documents as $document) {
-                    if (in_array($document->public_id, $document_ids)) {
-                        continue;
+                    if ( ! in_array($document->public_id, $document_ids)) {
+                        // Removed
+                        // Not checking permissions; deleting a document is just editing the invoice
+                        if ($document->invoice_id == $invoice->id) {
+                            // Make sure the document isn't on a clone
+                            $document->delete();
+                        }
                     }
-
-                    // Removed
-                    // Not checking permissions; deleting a document is just editing the invoice
-                    if ($document->invoice_id != $invoice->id) {
-                        continue;
-                    }
-
-                    // Make sure the document isn't on a clone
-                    $document->delete();
                 }
             }
         }
@@ -734,33 +729,36 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            if (Auth::check() && ($productKey = trim($item['product_key'])) && ($account->update_products
-                && ! $invoice->has_tasks
-                && ! $invoice->has_expenses
-                && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item'])))) {
-                $product = Product::findProductByKey($productKey);
-                if ( ! $product) {
-                    if (Auth::user()->can('create', ENTITY_PRODUCT)) {
-                        $product = Product::createNew();
-                        $product->product_key = trim($item['product_key']);
-                    } else {
-                        $product = null;
+            if (Auth::check()) {
+                if ($productKey = trim($item['product_key'])) {
+                    if ($account->update_products
+                        && ! $invoice->has_tasks
+                        && ! $invoice->has_expenses
+                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
+                    ) {
+                        $product = Product::findProductByKey($productKey);
+                        if ( ! $product) {
+                            if (Auth::user()->can('create', ENTITY_PRODUCT)) {
+                                $product = Product::createNew();
+                                $product->product_key = trim($item['product_key']);
+                            } else {
+                                $product = null;
+                            }
+                        }
+                        if ($product && (Auth::user()->can('edit', $product))) {
+                            $product->notes = ($task || $expense) ? '' : $item['notes'];
+                            if ( ! $account->convert_products) {
+                                $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
+                            }
+                            $product->tax_name1 = $item['tax_name1'] ?? null;
+                            $product->tax_rate1 = $item['tax_rate1'] ?? 0;
+                            $product->tax_name2 = $item['tax_name2'] ?? null;
+                            $product->tax_rate2 = $item['tax_rate2'] ?? 0;
+                            $product->custom_value1 = $item['custom_value1'] ?? null;
+                            $product->custom_value2 = $item['custom_value2'] ?? null;
+                            $product->save();
+                        }
                     }
-                }
-
-                if ($product && (Auth::user()->can('edit', $product))) {
-                    $product->notes = ($task || $expense) ? '' : $item['notes'];
-                    if ( ! $account->convert_products) {
-                        $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
-                    }
-
-                    $product->tax_name1 = $item['tax_name1'] ?? null;
-                    $product->tax_rate1 = $item['tax_rate1'] ?? 0;
-                    $product->tax_name2 = $item['tax_name2'] ?? null;
-                    $product->tax_rate2 = $item['tax_rate2'] ?? 0;
-                    $product->custom_value1 = $item['custom_value1'] ?? null;
-                    $product->custom_value2 = $item['custom_value2'] ?? null;
-                    $product->save();
                 }
             }
 
@@ -775,7 +773,6 @@ class InvoiceRepository extends BaseRepository
             if (isset($item['custom_value1'])) {
                 $invoiceItem->custom_value1 = $item['custom_value1'];
             }
-
             if (isset($item['custom_value2'])) {
                 $invoiceItem->custom_value2 = $item['custom_value2'];
             }
@@ -808,6 +805,9 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
+     * @param Invoice $invoice
+     * @param null    $quoteId
+     *
      * @return mixed
      */
     public function cloneInvoice(Invoice $invoice, $quoteId = null)
@@ -825,7 +825,6 @@ class InvoiceRepository extends BaseRepository
             if ($account->quote_number_prefix && str_starts_with($invoiceNumber, $account->quote_number_prefix)) {
                 $invoiceNumber = mb_substr($invoiceNumber, mb_strlen($account->quote_number_prefix));
             }
-
             $invoiceNumber = $account->invoice_number_prefix . $invoiceNumber;
             if (Invoice::scope(false, $account->id)
                 ->withTrashed()
@@ -877,7 +876,6 @@ class InvoiceRepository extends BaseRepository
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
             }
-
             if ( ! auth()->check()) {
                 $clone->is_public = true;
                 $clone->invoice_status_id = INVOICE_STATUS_SENT;
@@ -925,7 +923,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
-            $cloneInvitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $cloneInvitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $clone->invitations()->save($cloneInvitation);
         }
 
@@ -934,25 +932,34 @@ class InvoiceRepository extends BaseRepository
         return $clone;
     }
 
-    public function emailInvoice(Invoice $invoice): void
+    /**
+     * @param Invoice $invoice
+     */
+    public function emailInvoice(Invoice $invoice)
     {
         // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
         if (config('queue.default') === 'sync') {
-            app(ContactMailer::class)->sendInvoice($invoice);
+            app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
         } else {
             dispatch(new SendInvoiceEmail($invoice));
         }
     }
 
-    public function markSent(Invoice $invoice): void
+    /**
+     * @param Invoice $invoice
+     */
+    public function markSent(Invoice $invoice)
     {
         $invoice->markSent();
     }
 
+    /**
+     * @param Invoice $invoice
+     */
     public function markPaid(Invoice $invoice)
     {
         if ( ! $invoice->canBePaid()) {
-            return null;
+            return;
         }
 
         $invoice->markSentIfUnsent();
@@ -974,10 +981,10 @@ class InvoiceRepository extends BaseRepository
     public function findInvoiceByInvitation($invitationKey)
     {
         // check for extra params at end of value (from website feature)
-        [$invitationKey] = explode('&', $invitationKey);
+        list($invitationKey) = explode('&', $invitationKey);
         $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var Invitation $invitation */
+        /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
         if ( ! $invitation) {
@@ -1020,6 +1027,8 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
+     * @param Invoice $recurInvoice
+     *
      * @return mixed
      */
     public function createRecurringInvoice(Invoice $recurInvoice)
@@ -1093,18 +1102,20 @@ class InvoiceRepository extends BaseRepository
         foreach ($recurInvoice->invitations as $recurInvitation) {
             $invitation = Invitation::createNew($recurInvitation);
             $invitation->contact_id = $recurInvitation->contact_id;
-            $invitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+            $invitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $invoice->invitations()->save($invitation);
         }
 
-        $recurInvoice->last_sent_date = Carbon::now()->format('Y-m-d');
+        $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        // autoBillInvoice will check for ACH, so we're not checking here
-        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date && $this->paymentService->autoBillInvoice($invoice)) {
-            // update the invoice reference to match its actual state
-            // this is to ensure a 'payment received' email is sent
-            $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date) {
+            // autoBillInvoice will check for ACH, so we're not checking here
+            if ($this->paymentService->autoBillInvoice($invoice)) {
+                // update the invoice reference to match its actual state
+                // this is to ensure a 'payment received' email is sent
+                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+            }
         }
 
         $this->dispatchEvents($invoice);
@@ -1113,6 +1124,8 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
+     * @param Account $account
+     *
      * @return mixed
      */
     public function findNeedingReminding(Account $account, $filterEnabled = true)
@@ -1121,23 +1134,22 @@ class InvoiceRepository extends BaseRepository
 
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $account->getReminderDate($i, $filterEnabled)) {
-                if ($account->{'field_reminder' . $i} == REMINDER_FIELD_DUE_DATE) {
-                    $dates[] = sprintf("(due_date = '%s' OR partial_due_date = '%s')", $date, $date);
+                if ($account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                    $dates[] = "(due_date = '{$date}' OR partial_due_date = '{$date}')";
                 } else {
-                    $dates[] = sprintf("invoice_date = '%s'", $date);
+                    $dates[] = "invoice_date = '{$date}'";
                 }
             }
         }
 
-        if ($dates === []) {
+        if ( ! count($dates)) {
             return collect();
         }
 
         $sql = implode(' OR ', $dates);
-
-        return Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
             ->with('client', 'invoice_items')
-            ->whereHas('client', function ($query): void {
+            ->whereHas('client', function ($query) {
                 $query->whereSendReminders(true);
             })
             ->whereAccountId($account->id)
@@ -1146,6 +1158,8 @@ class InvoiceRepository extends BaseRepository
             ->whereIsPublic(true)
             ->whereRaw('(' . $sql . ')')
             ->get();
+
+        return $invoices;
     }
 
     public function findNeedingEndlessReminding(Account $account)
@@ -1163,7 +1177,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
             ->with('client', 'invoice_items')
-            ->whereHas('client', function ($query): void {
+            ->whereHas('client', function ($query) {
                 $query->whereSendReminders(true);
             })
             ->whereAccountId($account->id)
@@ -1173,24 +1187,24 @@ class InvoiceRepository extends BaseRepository
             ->where('last_sent_date', '<', $lastSentDate);
 
         for ($i = 1; $i <= 3; $i++) {
-            if ( ! $account->{'enable_reminder' . $i}) {
+            if ( ! $account->{"enable_reminder{$i}"}) {
                 continue;
             }
-
-            $field = $account->{'field_reminder' . $i} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+            $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
             $date = date_create();
-            if ($account->{'direction_reminder' . $i} == REMINDER_DIRECTION_AFTER) {
-                $date->sub(date_interval_create_from_date_string($account->{'num_days_reminder' . $i} . ' days'));
+            if ($account->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
+                $date->sub(date_interval_create_from_date_string($account->{"num_days_reminder{$i}"} . ' days'));
             }
-
             $invoices->where($field, '<', $date);
         }
 
         return $invoices->get();
     }
 
-    public function clearGatewayFee($invoice): void
+    public function clearGatewayFee($invoice)
     {
+        $account = $invoice->account;
+
         if ( ! $invoice->relationLoaded('invoice_items')) {
             $invoice->load('invoice_items');
         }
@@ -1229,10 +1243,9 @@ class InvoiceRepository extends BaseRepository
         $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
-        return null;
     }
 
-    public function setGatewayFee($invoice, $gatewayTypeId): void
+    public function setGatewayFee($invoice, $gatewayTypeId)
     {
         $account = $invoice->account;
 
@@ -1308,7 +1321,6 @@ class InvoiceRepository extends BaseRepository
     {
         $client = $invoice->client;
         $client->load('contacts');
-
         $sendInvoiceIds = [];
 
         if ( ! $client->contacts->count()) {
@@ -1322,7 +1334,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         // if no contacts are selected auto-select the first to ensure there's an invitation
-        if ($sendInvoiceIds === []) {
+        if ( ! count($sendInvoiceIds)) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }
 
@@ -1332,7 +1344,7 @@ class InvoiceRepository extends BaseRepository
                 $invitation = Invitation::createNew($invoice);
                 $invitation->invoice_id = $invoice->id;
                 $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = mb_strtolower(Str::random(RANDOM_KEY_LENGTH));
+                $invitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
                 $invitation->save();
             } elseif ( ! in_array($contact->id, $sendInvoiceIds) && $invitation) {
                 $invitation->delete();
@@ -1346,7 +1358,7 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    private function dispatchEvents($invoice): void
+    private function dispatchEvents($invoice)
     {
         if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
             if ($invoice->wasRecentlyCreated) {
@@ -1354,10 +1366,12 @@ class InvoiceRepository extends BaseRepository
             } else {
                 event(new QuoteItemsWereUpdated($invoice));
             }
-        } elseif ($invoice->wasRecentlyCreated) {
-            event(new InvoiceItemsWereCreated($invoice));
         } else {
-            event(new InvoiceItemsWereUpdated($invoice));
+            if ($invoice->wasRecentlyCreated) {
+                event(new InvoiceItemsWereCreated($invoice));
+            } else {
+                event(new InvoiceItemsWereUpdated($invoice));
+            }
         }
     }
 }

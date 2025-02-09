@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
 
 class ConstantsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Theme::create(['name' => 'amelia']);
         Theme::create(['name' => 'cerulean']);

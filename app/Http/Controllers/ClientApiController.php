@@ -8,13 +8,12 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Request;
-use Response;
 
 class ClientApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_CLIENT;
+    protected $clientRepo;
 
-    protected ClientRepository $clientRepo;
+    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo)
     {
@@ -50,7 +49,7 @@ class ClientApiController extends BaseAPIController
             ->withTrashed();
 
         if ($email = Request::input('email')) {
-            $clients = $clients->whereHas('contacts', function ($query) use ($email): void {
+            $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
         } elseif ($idNumber = Request::input('id_number')) {

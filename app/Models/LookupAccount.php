@@ -2,39 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 
 /**
  * Class ExpenseCategory.
- *
- * @property int                $id
- * @property int                $lookup_company_id
- * @property string             $account_key
- * @property string|null        $subdomain
- * @property LookupAccount|null $lookupAccount
- * @property LookupCompany      $lookupCompany
- *
- * @method static Builder|LookupAccount newModelQuery()
- * @method static Builder|LookupAccount newQuery()
- * @method static Builder|LookupAccount query()
- * @method static Builder|LookupAccount whereAccountKey($value)
- * @method static Builder|LookupAccount whereId($value)
- * @method static Builder|LookupAccount whereLookupCompanyId($value)
- * @method static Builder|LookupAccount whereSubdomain($value)
- *
- * @mixin \Eloquent
  */
 class LookupAccount extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'lookup_company_id',
         'account_key',
     ];
 
-    public static function createAccount($accountKey, $companyId): void
+    public static function createAccount($accountKey, $companyId)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -62,7 +42,7 @@ class LookupAccount extends LookupModel
         static::setDbServer($current);
     }
 
-    public static function updateAccount($accountKey, $account): void
+    public static function updateAccount($accountKey, $account)
     {
         if ( ! env('MULTI_DB_ENABLED')) {
             return;
@@ -92,7 +72,11 @@ class LookupAccount extends LookupModel
 
         $lookupAccount = self::where($field, '=', $value)->first();
 
-        $isValid = $account ? ! $lookupAccount || ($lookupAccount->account_key == $account->account_key) : ! $lookupAccount;
+        if ($account) {
+            $isValid = ! $lookupAccount || ($lookupAccount->account_key == $account->account_key);
+        } else {
+            $isValid = ! $lookupAccount;
+        }
 
         config(['database.default' => $current]);
 
@@ -101,11 +85,16 @@ class LookupAccount extends LookupModel
 
     public function lookupCompany()
     {
-        return $this->belongsTo(LookupCompany::class);
+        return $this->belongsTo('App\Models\LookupCompany');
     }
 
     public function getDbServer()
     {
         return $this->lookupCompany->dbServer->name;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

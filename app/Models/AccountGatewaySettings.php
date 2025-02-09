@@ -3,55 +3,15 @@
 namespace App\Models;
 
 use App\Libraries\Utils;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
+use DateTimeInterface;
 
 /**
  * Class AccountGatewaySettings.
- *
- * @property int              $id
- * @property int              $account_id
- * @property int              $user_id
- * @property int|null         $gateway_type_id
- * @property Carbon|null      $updated_at
- * @property int|null         $min_limit
- * @property int|null         $max_limit
- * @property string|null      $fee_amount
- * @property string|null      $fee_percent
- * @property string|null      $fee_tax_name1
- * @property string|null      $fee_tax_name2
- * @property string|null      $fee_tax_rate1
- * @property string|null      $fee_tax_rate2
- * @property GatewayType|null $gatewayType
- * @property mixed            $created_at
- *
- * @method static Builder|AccountGatewaySettings newModelQuery()
- * @method static Builder|AccountGatewaySettings newQuery()
- * @method static Builder|AccountGatewaySettings query()
- * @method static Builder|AccountGatewaySettings scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|AccountGatewaySettings whereAccountId($value)
- * @method static Builder|AccountGatewaySettings whereFeeAmount($value)
- * @method static Builder|AccountGatewaySettings whereFeePercent($value)
- * @method static Builder|AccountGatewaySettings whereFeeTaxName1($value)
- * @method static Builder|AccountGatewaySettings whereFeeTaxName2($value)
- * @method static Builder|AccountGatewaySettings whereFeeTaxRate1($value)
- * @method static Builder|AccountGatewaySettings whereFeeTaxRate2($value)
- * @method static Builder|AccountGatewaySettings whereGatewayTypeId($value)
- * @method static Builder|AccountGatewaySettings whereId($value)
- * @method static Builder|AccountGatewaySettings whereMaxLimit($value)
- * @method static Builder|AccountGatewaySettings whereMinLimit($value)
- * @method static Builder|AccountGatewaySettings whereUpdatedAt($value)
- * @method static Builder|AccountGatewaySettings whereUserId($value)
- * @method static Builder|AccountGatewaySettings withActiveOrSelected($id = false)
- * @method static Builder|AccountGatewaySettings withArchived()
- *
- * @mixin \Eloquent
  */
 class AccountGatewaySettings extends EntityModel
 {
-    /**
-     * @var array
-     */
+    protected $dates = ['updated_at'];
+
     protected $fillable = [
         'fee_amount',
         'fee_percent',
@@ -61,34 +21,32 @@ class AccountGatewaySettings extends EntityModel
         'fee_tax_rate2',
     ];
 
-    /**
-     * @var bool
-     */
     protected static $hasPublicId = false;
 
-    protected $casts = ['updated_at' => 'datetime'];
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function gatewayType()
     {
-        return $this->belongsTo(GatewayType::class);
+        return $this->belongsTo('App\Models\GatewayType');
     }
 
-    public function setCreatedAtAttribute($value): void
+    public function setCreatedAtAttribute($value)
     {
         // to Disable created_at
     }
 
-    public function areFeesEnabled(): bool
+    public function areFeesEnabled()
     {
         return (float) ($this->fee_amount) || (float) ($this->fee_percent);
     }
 
-    public function hasTaxes(): bool
+    public function hasTaxes()
     {
         return (float) ($this->fee_tax_rate1) || (float) ($this->fee_tax_rate2);
     }
 
-    public function feesToString(): string
+    public function feesToString()
     {
         $parts = [];
 
@@ -100,6 +58,11 @@ class AccountGatewaySettings extends EntityModel
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
 
-        return implode(' + ', $parts);
+        return join(' + ', $parts);
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

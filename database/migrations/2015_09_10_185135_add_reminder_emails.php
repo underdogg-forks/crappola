@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddReminderEmails extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('email_subject_invoice')->nullable();
             $table->string('email_subject_quote')->nullable();
             $table->string('email_subject_payment')->nullable();
@@ -33,14 +29,9 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             if (Schema::hasColumn('accounts', 'email_subject_invoice')) {
                 $table->dropColumn('email_subject_invoice');
                 $table->dropColumn('email_subject_quote');
@@ -64,4 +55,4 @@ return new class () extends Migration {
             $table->dropColumn('num_days_reminder3');
         });
     }
-};
+}

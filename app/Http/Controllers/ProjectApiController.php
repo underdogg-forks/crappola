@@ -15,16 +15,25 @@ use App\Services\ProjectService;
 class ProjectApiController extends BaseAPIController
 {
     /**
+     * @var ProjectRepository
+     */
+    protected $projectRepo;
+
+    /**
+     * @var ProjectService
+     */
+    protected $projectService;
+
+    /**
      * @var string
      */
-    public $entityType = ENTITY_PROJECT;
-
-    protected ProjectRepository $projectRepo;
-
-    protected ProjectService $projectService;
+    protected $entityType = ENTITY_PROJECT;
 
     /**
      * ProjectApiController constructor.
+     *
+     * @param ProjectRepository $projectRepo
+     * @param ProjectService    $projectService
      */
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {

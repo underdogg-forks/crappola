@@ -13,7 +13,8 @@ class EntityPolicy
     use HandlesAuthorization;
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
@@ -29,7 +30,8 @@ class EntityPolicy
     }
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
@@ -40,15 +42,13 @@ class EntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
-        if ($user->hasPermission('edit_' . $entityType)) {
-            return true;
-        }
 
-        return $user->owns($item);
+        return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
     }
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
@@ -59,28 +59,29 @@ class EntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
-        if ($user->hasPermission('view_' . $entityType)) {
-            return true;
-        }
 
-        return $user->owns($item);
+        return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
     /**
-     * @param $ownerUserId
+     * @param User $user
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('view', $ENTITY_TYPE)
      *
      * $ENTITY_TYPE can be either the constant ie ENTITY_INVOICE, or the entity $object
+     *
+     * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId): bool
+    public static function viewByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
 
     /**
-     * @param $ownerUserId
+     * @param User $user
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('edit', $ENTITY_TYPE)
@@ -89,13 +90,14 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId): mixed
+    public static function editByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */

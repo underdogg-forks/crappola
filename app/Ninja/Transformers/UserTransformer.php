@@ -30,7 +30,7 @@ class UserTransformer extends EntityTransformer
      * @SWG\Property(property="is_admin", type="boolean", example=false)
      * @SWG\Property(property="permissions", type="integer", example=1)
      */
-    public function transform(User $user): array
+    public function transform(User $user)
     {
         return [
             'id'          => (int) ($user->public_id + 1),

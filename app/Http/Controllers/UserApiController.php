@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
@@ -13,11 +12,11 @@ use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_USER;
+    protected $userService;
 
-    protected UserService $userService;
+    protected $userRepo;
 
-    protected UserRepository $userRepo;
+    protected $entityType = ENTITY_USER;
 
     public function __construct(UserService $userService, UserRepository $userRepo)
     {
@@ -115,7 +114,7 @@ class UserApiController extends BaseAPIController
      *   )
      * )
      */
-    public function store(CreateUserRequest $request)
+    public function store(UserRequest $request)
     {
         return $this->save($request);
     }

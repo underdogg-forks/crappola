@@ -13,7 +13,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 {
     public $canRefundPayments = true;
 
-    public function gatewayTypes(): array
+    public function gatewayTypes()
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
@@ -27,17 +27,17 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $types;
     }
 
-    public function tokenize(): bool
+    public function tokenize()
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules()
     {
         $rules = parent::rules();
 
         if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-            return array_merge($rules, [
+            $rules = array_merge($rules, [
                 'authorize_ach' => 'required',
                 'tos_agree'     => 'required',
             ]);
@@ -101,7 +101,7 @@ class WePayPaymentDriver extends BasePaymentDriver
     }
     */
 
-    public function createPayment($ref = false, $paymentMethod = null): void
+    public function createPayment($ref = false, $paymentMethod = null)
     {
         parent::createPayment($ref, $paymentMethod);
 
@@ -111,7 +111,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function removePaymentMethod($paymentMethod): bool
+    public function removePaymentMethod($paymentMethod)
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -125,17 +125,16 @@ class WePayPaymentDriver extends BasePaymentDriver
         if ($response->state == 'deleted') {
             return true;
         }
-
         throw new Exception(trans('texts.failed_remove_payment_method'));
     }
 
-    public function handleWebHook($input): string
+    public function handleWebHook($input)
     {
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
 
         foreach (array_keys($input) as $key) {
-            if ('_id' === mb_substr($key, -3)) {
+            if ('_id' == mb_substr($key, -3)) {
                 $objectType = mb_substr($key, 0, -3);
                 $objectId = $input[$key];
                 break;
@@ -146,7 +145,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             throw new Exception('Could not find object id parameter');
         }
 
-        if ($objectType === 'credit_card') {
+        if ($objectType == 'credit_card') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
 
             if ( ! $paymentMethod) {
@@ -163,13 +162,11 @@ class WePayPaymentDriver extends BasePaymentDriver
             if ($source->state == 'deleted') {
                 $paymentMethod->delete();
             }
-
             //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
 
             return 'Processed successfully';
         }
-
-        if ($objectType === 'account') {
+        if ($objectType == 'account') {
             $config = $accountGateway->getConfig();
             if ($config->accountId != $objectId) {
                 throw new Exception('Unknown account');
@@ -190,8 +187,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             return ['message' => 'Processed successfully'];
         }
-
-        if ($objectType === 'checkout') {
+        if ($objectType == 'checkout') {
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
 
             if ( ! $payment) {
@@ -229,12 +225,12 @@ class WePayPaymentDriver extends BasePaymentDriver
         return 'Ignoring event';
     }
 
-    protected function checkCustomerExists($customer): bool
+    protected function checkCustomerExists($customer)
     {
         return true;
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -286,7 +282,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function refundDetails($payment, $amount): array
+    protected function refundDetails($payment, $amount)
     {
         $data = parent::refundDetails($payment, $amount);
 
@@ -302,7 +298,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount): bool
+    protected function attemptVoidPayment($response, $payment, $amount)
     {
         if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;

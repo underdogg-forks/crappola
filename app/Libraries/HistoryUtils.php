@@ -2,7 +2,6 @@
 
 namespace App\Libraries;
 
-use Carbon\Carbon;
 use App\Models\Activity;
 use App\Models\EntityModel;
 use Illuminate\Support\Facades\Session;
@@ -10,7 +9,7 @@ use stdClass;
 
 class HistoryUtils
 {
-    public static function loadHistory($users): void
+    public static function loadHistory($users)
     {
         $userIds = [];
         session([RECENTLY_VIEWED => false]);
@@ -58,7 +57,6 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
 
                 if ($entity->project) {
@@ -71,14 +69,12 @@ class HistoryUtils
                 if ( ! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
                 if ( ! $entity) {
                     continue;
                 }
-
                 $entity->setRelation('client', $activity->client);
             }
 
@@ -86,14 +82,13 @@ class HistoryUtils
         }
     }
 
-    public static function deleteHistory(EntityModel $entity): void
+    public static function deleteHistory(EntityModel $entity)
     {
         $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $remove = [];
-        $counter = count($accountHistory);
 
-        for ($i = 0; $i < $counter; $i++) {
+        for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
             if ($entity->equalTo($item)) {
                 $remove[] = $i;
@@ -109,7 +104,7 @@ class HistoryUtils
         Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function trackViewed(EntityModel $entity): void
+    public static function trackViewed(EntityModel $entity)
     {
         $entityType = $entity->getEntityType();
         $trackedTypes = [
@@ -135,18 +130,16 @@ class HistoryUtils
         $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
         $data = [];
-        // Add to the list and make sure to only show each item once
-        $counter = count($accountHistory);
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i < $counter; $i++) {
+        for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
                 continue;
             }
 
-            $data[] = $item;
+            array_push($data, $item);
 
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
@@ -166,7 +159,7 @@ class HistoryUtils
         Session::put(RECENTLY_VIEWED, $history);
     }
 
-    public static function renderHtml($accountId): string
+    public static function renderHtml($accountId)
     {
         $lastClientId = false;
         $clientMap = [];
@@ -198,7 +191,7 @@ class HistoryUtils
                     $button = '';
                 }
 
-                $padding = $str !== '' && $str !== '0' ? 16 : 0;
+                $padding = $str ? 16 : 0;
                 $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }
@@ -214,7 +207,7 @@ class HistoryUtils
         return $str;
     }
 
-    private static function convertToObject(EntityModel $entity): stdClass
+    private static function convertToObject($entity)
     {
         $object = new stdClass();
         $object->id = $entity->id;
@@ -222,7 +215,7 @@ class HistoryUtils
         $object->url = $entity->present()->url;
         $object->entityType = $entity->subEntityType();
         $object->name = $entity->present()->titledName;
-        $object->timestamp = Carbon::now()->timestamp;
+        $object->timestamp = time();
 
         if ($entity->isEntityType(ENTITY_CLIENT)) {
             $object->client_id = $entity->public_id;

@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\View;
 
 class ExpenseCategoryController extends BaseController
 {
-    public $entityType = ENTITY_EXPENSE_CATEGORY;
+    protected $categoryRepo;
 
-    protected ExpenseCategoryRepository $categoryRepo;
+    protected $categoryService;
 
-    protected ExpenseCategoryService $categoryService;
+    protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
     {
@@ -92,12 +92,12 @@ class ExpenseCategoryController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_expense_category' : $action . 'd_expense_categories';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_expense_category" : "{$action}d_expense_categories";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 

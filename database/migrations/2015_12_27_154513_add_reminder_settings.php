@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddReminderSettings extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->smallInteger('direction_reminder1')->default(1);
             $table->smallInteger('direction_reminder2')->default(1);
             $table->smallInteger('direction_reminder3')->default(1);
@@ -21,14 +17,9 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('direction_reminder1');
             $table->dropColumn('direction_reminder2');
             $table->dropColumn('direction_reminder3');
@@ -38,4 +29,4 @@ return new class () extends Migration {
             $table->dropColumn('field_reminder3');
         });
     }
-};
+}

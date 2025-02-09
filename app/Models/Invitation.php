@@ -4,99 +4,48 @@ namespace App\Models;
 
 use App\Libraries\Utils;
 use App\Models\Traits\Inviteable;
-use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * Class Invitation.
- *
- * @property int          $id
- * @property int          $account_id
- * @property int          $user_id
- * @property int          $contact_id
- * @property int          $invoice_id
- * @property string       $invitation_key
- * @property Carbon|null  $created_at
- * @property Carbon|null  $updated_at
- * @property Carbon|null  $deleted_at
- * @property string|null  $transaction_reference
- * @property string|null  $sent_date
- * @property string|null  $viewed_date
- * @property int          $public_id
- * @property string|null  $opened_date
- * @property string|null  $message_id
- * @property string|null  $email_error
- * @property string|null  $signature_base64
- * @property string|null  $signature_date
- * @property Account|null $account
- * @property Contact      $contact
- * @property Invoice      $invoice
- * @property User         $user
- *
- * @method static Builder|Invitation newModelQuery()
- * @method static Builder|Invitation newQuery()
- * @method static Builder|Invitation onlyTrashed()
- * @method static Builder|Invitation query()
- * @method static Builder|Invitation scope(bool $publicId = false, bool $accountId = false)
- * @method static Builder|Invitation whereAccountId($value)
- * @method static Builder|Invitation whereContactId($value)
- * @method static Builder|Invitation whereCreatedAt($value)
- * @method static Builder|Invitation whereDeletedAt($value)
- * @method static Builder|Invitation whereEmailError($value)
- * @method static Builder|Invitation whereId($value)
- * @method static Builder|Invitation whereInvitationKey($value)
- * @method static Builder|Invitation whereInvoiceId($value)
- * @method static Builder|Invitation whereMessageId($value)
- * @method static Builder|Invitation whereOpenedDate($value)
- * @method static Builder|Invitation wherePublicId($value)
- * @method static Builder|Invitation whereSentDate($value)
- * @method static Builder|Invitation whereSignatureBase64($value)
- * @method static Builder|Invitation whereSignatureDate($value)
- * @method static Builder|Invitation whereTransactionReference($value)
- * @method static Builder|Invitation whereUpdatedAt($value)
- * @method static Builder|Invitation whereUserId($value)
- * @method static Builder|Invitation whereViewedDate($value)
- * @method static Builder|Invitation withActiveOrSelected($id = false)
- * @method static Builder|Invitation withArchived()
- * @method static Builder|Invitation withTrashed()
- * @method static Builder|Invitation withoutTrashed()
- *
- * @mixin \Eloquent
  */
 class Invitation extends EntityModel
 {
     use Inviteable;
     use SoftDeletes;
 
-    protected $casts = ['deleted_at' => 'datetime'];
+    protected $dates = ['deleted_at'];
 
-    public function getEntityType(): string
+    public function getEntityType()
     {
         return ENTITY_INVITATION;
     }
 
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function contact()
     {
-        return $this->belongsTo(Contact::class)->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo('App\Models\Account');
     }
 
-    public function signatureDiv(): false|string
+    public function signatureDiv()
     {
         if ( ! $this->signature_base64) {
             return false;
@@ -104,22 +53,27 @@ class Invitation extends EntityModel
 
         return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, trans('texts.signed'), Utils::fromSqlDateTime($this->signature_date));
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
 
-Invitation::creating(function ($invitation): void {
+Invitation::creating(function ($invitation) {
     LookupInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
 
-Invitation::updating(function ($invitation): void {
+Invitation::updating(function ($invitation) {
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
         LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
     }
 });
 
-Invitation::deleted(function ($invitation): void {
+Invitation::deleted(function ($invitation) {
     if ($invitation->forceDeleting) {
         LookupInvitation::deleteWhere([
             'invitation_key' => $invitation->invitation_key,

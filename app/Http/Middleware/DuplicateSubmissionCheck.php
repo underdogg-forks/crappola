@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 class DuplicateSubmissionCheck
 {
     /**
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */

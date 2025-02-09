@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\View;
 
 class ProjectController extends BaseController
 {
-    public $entityType = ENTITY_PROJECT;
+    protected $projectRepo;
 
-    protected ProjectRepository $projectRepo;
+    protected $projectService;
 
-    protected ProjectService $projectService;
+    protected $entityType = ENTITY_PROJECT;
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
@@ -54,16 +54,16 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
-        auth()->user()->account;
+        $account = auth()->user()->account;
         $project = $request->entity();
-        //$chartData = dispatch_now(new GenerateProjectChartData($project));
+        $chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
             'account'         => auth()->user()->account,
             'project'         => $project,
             'title'           => trans('texts.view_project'),
             'showBreadcrumbs' => false,
-            'chartData'       => null,
+            'chartData'       => $chartData,
         ];
 
         return View::make('projects.show', $data);
@@ -127,7 +127,7 @@ class ProjectController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'invoice') {
             $data = [];
@@ -135,7 +135,7 @@ class ProjectController extends BaseController
             $lastClientId = false;
             $lastProjectId = false;
             $projects = Project::scope($ids)
-                ->with(['client', 'tasks' => function ($query): void {
+                ->with(['client', 'tasks' => function ($query) {
                     $query->whereNull('invoice_id');
                 }])
                 ->get();
@@ -143,18 +143,15 @@ class ProjectController extends BaseController
                 if ( ! $clientPublicId) {
                     $clientPublicId = $project->client->public_id;
                 }
-
                 if ($lastClientId && $lastClientId != $project->client_id) {
                     return redirect('projects')->withError(trans('texts.project_error_multiple_clients'));
                 }
-
                 $lastClientId = $project->client_id;
 
                 foreach ($project->tasks as $task) {
                     if ($task->is_running) {
                         return redirect('projects')->withError(trans('texts.task_error_running'));
                     }
-
                     $showProject = $lastProjectId != $task->project_id;
                     $data[] = [
                         'publicId'    => $task->public_id,
@@ -166,14 +163,13 @@ class ProjectController extends BaseController
                 }
             }
 
-            return redirect('invoices/create/' . $clientPublicId)->with('tasks', $data);
+            return redirect("invoices/create/{$clientPublicId}")->with('tasks', $data);
         }
-
         $count = $this->projectService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_project' : $action . 'd_projects';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 

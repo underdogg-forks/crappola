@@ -2,15 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddInvoiceNumberSettings extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('invoice_number_prefix')->nullable();
             $table->integer('invoice_number_counter')->default(1)->nullable();
 
@@ -36,14 +32,9 @@ return new class () extends Migration {
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('invoice_number_prefix');
             $table->dropColumn('invoice_number_counter');
 
@@ -53,4 +44,4 @@ return new class () extends Migration {
             $table->dropColumn('share_counter');
         });
     }
-};
+}

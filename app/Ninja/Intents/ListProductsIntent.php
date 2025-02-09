@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ListProductsIntent extends ProductIntent
 {
-    public function process(): string|bool
+    public function process()
     {
         $account = Auth::user()->account;
         $products = Product::scope()

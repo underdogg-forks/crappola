@@ -2,49 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class UserAccount.
- *
- * @property int      $id
- * @property int|null $user_id1
- * @property int|null $user_id2
- * @property int|null $user_id3
- * @property int|null $user_id4
- * @property int|null $user_id5
- *
- * @method static Builder|UserAccount newModelQuery()
- * @method static Builder|UserAccount newQuery()
- * @method static Builder|UserAccount query()
- * @method static Builder|UserAccount whereId($value)
- * @method static Builder|UserAccount whereUserId1($value)
- * @method static Builder|UserAccount whereUserId2($value)
- * @method static Builder|UserAccount whereUserId3($value)
- * @method static Builder|UserAccount whereUserId4($value)
- * @method static Builder|UserAccount whereUserId5($value)
- *
- * @mixin \Eloquent
  */
-class UserAccount extends Model
+class UserAccount extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     /**
      * @param $userId
+     *
+     * @return bool
      */
-    public function hasUserId($userId): bool
+    public function hasUserId($userId)
     {
         if ( ! $userId) {
             return false;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = 'user_id' . $i;
+            $field = "user_id{$i}";
             if ($this->{$field} && $this->{$field} == $userId) {
                 return true;
             }
@@ -56,14 +35,14 @@ class UserAccount extends Model
     /**
      * @param $userId
      */
-    public function setUserId($userId): void
+    public function setUserId($userId)
     {
         if (self::hasUserId($userId)) {
             return;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = 'user_id' . $i;
+            $field = "user_id{$i}";
             if ( ! $this->{$field}) {
                 $this->{$field} = $userId;
                 break;
@@ -74,14 +53,14 @@ class UserAccount extends Model
     /**
      * @param $userId
      */
-    public function removeUserId($userId): void
+    public function removeUserId($userId)
     {
         if ( ! $userId || ! self::hasUserId($userId)) {
             return;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $field = 'user_id' . $i;
+            $field = "user_id{$i}";
             if ($this->{$field} && $this->{$field} == $userId) {
                 $this->{$field} = null;
             }

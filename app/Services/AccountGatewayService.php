@@ -4,19 +4,27 @@ namespace App\Services;
 
 use App\Ninja\Datatables\AccountGatewayDatatable;
 use App\Ninja\Repositories\AccountGatewayRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class AccountGatewayService.
  */
 class AccountGatewayService extends BaseService
 {
-    protected AccountGatewayRepository $accountGatewayRepo;
+    /**
+     * @var AccountGatewayRepository
+     */
+    protected $accountGatewayRepo;
 
-    protected DatatableService $datatableService;
+    /**
+     * @var DatatableService
+     */
+    protected $datatableService;
 
     /**
      * AccountGatewayService constructor.
+     *
+     * @param AccountGatewayRepository $accountGatewayRepo
+     * @param DatatableService         $datatableService
      */
     public function __construct(AccountGatewayRepository $accountGatewayRepo, DatatableService $datatableService)
     {
@@ -27,7 +35,7 @@ class AccountGatewayService extends BaseService
     /**
      * @param $accountId
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId)
     {
@@ -36,7 +44,10 @@ class AccountGatewayService extends BaseService
         return $this->datatableService->createDatatable(new AccountGatewayDatatable(false), $query);
     }
 
-    protected function getRepo(): AccountGatewayRepository
+    /**
+     * @return AccountGatewayRepository
+     */
+    protected function getRepo()
     {
         return $this->accountGatewayRepo;
     }

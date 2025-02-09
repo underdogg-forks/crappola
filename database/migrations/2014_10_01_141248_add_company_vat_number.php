@@ -2,36 +2,27 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddCompanyVatNumber extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->string('vat_number')->nullable();
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->string('vat_number')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('vat_number');
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->dropColumn('vat_number');
         });
     }
-};
+}

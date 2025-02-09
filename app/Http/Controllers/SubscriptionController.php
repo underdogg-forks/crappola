@@ -4,24 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
-use Redirect;
+use Validator;
 
 /**
  * Class SubscriptionController.
  */
 class SubscriptionController extends BaseController
 {
-    protected SubscriptionService $subscriptionService;
+    /**
+     * @var SubscriptionService
+     */
+    protected $subscriptionService;
 
     /**
      * SubscriptionController constructor.
+     *
+     * @param SubscriptionService $subscriptionService
      */
     public function __construct(SubscriptionService $subscriptionService)
     {
@@ -31,15 +34,15 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
-     * @return JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable()
     {
@@ -51,7 +54,7 @@ class SubscriptionController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(string $publicId)
+    public function edit($publicId)
     {
         $subscription = Subscription::scope($publicId)->firstOrFail();
 
@@ -68,7 +71,7 @@ class SubscriptionController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
     {
@@ -76,7 +79,7 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store()
     {
@@ -99,24 +102,24 @@ class SubscriptionController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function bulk()
     {
         $action = Request::input('bulk_action');
         $ids = Request::input('bulk_public_id');
 
-        $this->subscriptionService->bulk($ids, $action);
+        $count = $this->subscriptionService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_subscription'));
 
-        return \Illuminate\Support\Facades\Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
      * @param bool $subscriptionPublicId
      *
-     * @return $this|RedirectResponse
+     * @return $this|\Illuminate\Http\RedirectResponse
      */
     public function save($subscriptionPublicId = false)
     {
@@ -136,13 +139,17 @@ class SubscriptionController extends BaseController
             $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
-                return \Illuminate\Support\Facades\Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
+                return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);
             }
 
             $subscription->fill(request()->all());
             $subscription->save();
 
-            $message = $subscriptionPublicId ? trans('texts.updated_subscription') : trans('texts.created_subscription');
+            if ($subscriptionPublicId) {
+                $message = trans('texts.updated_subscription');
+            } else {
+                $message = trans('texts.created_subscription');
+            }
 
             Session::flash('message', $message);
         }

@@ -13,10 +13,6 @@ use stdClass;
  */
 class CreateLuisData extends Command
 {
-    public $faker;
-
-    public $fakerField;
-
     /**
      * @var string
      */
@@ -37,7 +33,10 @@ class CreateLuisData extends Command
         $this->faker = Factory::create();
     }
 
-    public function handle(): void
+    /**
+     * @return bool
+     */
+    public function handle()
     {
         $this->fakerField = $this->argument('faker_field');
 
@@ -59,38 +58,47 @@ class CreateLuisData extends Command
             $intents = array_merge($intents, $this->createIntents($entityType));
         }
 
-        $intents = array_merge($intents, $this->getNavigateToIntents());
+        $intents = array_merge($intents, $this->getNavigateToIntents($entityType));
 
         $this->info(json_encode($intents));
+
+        return 0;
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
         return [];
     }
 
-    private function createIntents(string $entityType): array
+    private function createIntents($entityType)
     {
         $intents = [];
 
         $intents = array_merge($intents, $this->getCreateEntityIntents($entityType));
         $intents = array_merge($intents, $this->getFindEntityIntents($entityType));
+        $intents = array_merge($intents, $this->getListEntityIntents($entityType));
 
-        return array_merge($intents, $this->getListEntityIntents($entityType));
+        return $intents;
     }
 
-    private function getCreateEntityIntents($entityType): array
+    private function getCreateEntityIntents($entityType)
     {
         $intents = [];
         $phrases = [
-            'create new ' . $entityType,
-            'new ' . $entityType,
-            'make a ' . $entityType,
+            "create new {$entityType}",
+            "new {$entityType}",
+            "make a {$entityType}",
         ];
 
         foreach ($phrases as $phrase) {
@@ -99,7 +107,7 @@ class CreateLuisData extends Command
             ]);
             if ($entityType != ENTITY_CLIENT) {
                 $client = $this->faker->{$this->fakerField};
-                $phrase .= ' for ' . $client;
+                $phrase .= " for {$client}";
                 $intents[] = $this->createIntent('CreateEntity', $phrase, [
                     $entityType => 'EntityType',
                     $client     => 'Name',
@@ -110,19 +118,19 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getFindEntityIntents($entityType): array
+    private function getFindEntityIntents($entityType)
     {
         $intents = [];
 
         if (in_array($entityType, [ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_QUOTE])) {
             $name = $entityType === ENTITY_CLIENT ? $this->faker->{$this->fakerField} : $this->faker->randomNumber(4);
-            $intents[] = $this->createIntent('FindEntity', sprintf('find %s %s', $entityType, $name), [
+            $intents[] = $this->createIntent('FindEntity', "find {$entityType} {$name}", [
                 $entityType => 'EntityType',
                 $name       => 'Name',
             ]);
             if ($entityType === ENTITY_CLIENT) {
                 $name = $this->faker->{$this->fakerField};
-                $intents[] = $this->createIntent('FindEntity', 'find ' . $name, [
+                $intents[] = $this->createIntent('FindEntity', "find {$name}", [
                     $name => 'Name',
                 ]);
             }
@@ -131,23 +139,23 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getListEntityIntents($entityType): array
+    private function getListEntityIntents($entityType)
     {
         $intents = [];
         $entityTypePlural = Utils::pluralizeEntityType($entityType);
 
-        $intents[] = $this->createIntent('ListEntity', 'show me ' . $entityTypePlural, [
+        $intents[] = $this->createIntent('ListEntity', "show me {$entityTypePlural}", [
             $entityTypePlural => 'EntityType',
         ]);
-        $intents[] = $this->createIntent('ListEntity', 'list ' . $entityTypePlural, [
+        $intents[] = $this->createIntent('ListEntity', "list {$entityTypePlural}", [
             $entityTypePlural => 'EntityType',
         ]);
 
-        $intents[] = $this->createIntent('ListEntity', 'show me active ' . $entityTypePlural, [
+        $intents[] = $this->createIntent('ListEntity', "show me active {$entityTypePlural}", [
             $entityTypePlural => 'EntityType',
             'active'          => 'Filter',
         ]);
-        $intents[] = $this->createIntent('ListEntity', 'list archived and deleted ' . $entityTypePlural, [
+        $intents[] = $this->createIntent('ListEntity', "list archived and deleted {$entityTypePlural}", [
             $entityTypePlural => 'EntityType',
             'archived'        => 'Filter',
             'deleted'         => 'Filter',
@@ -155,17 +163,17 @@ class CreateLuisData extends Command
 
         if ($entityType != ENTITY_CLIENT) {
             $client = $this->faker->{$this->fakerField};
-            $intents[] = $this->createIntent('ListEntity', sprintf('list %s for %s', $entityTypePlural, $client), [
+            $intents[] = $this->createIntent('ListEntity', "list {$entityTypePlural} for {$client}", [
                 $entityTypePlural => 'EntityType',
                 $client           => 'Name',
             ]);
-            $intents[] = $this->createIntent('ListEntity', sprintf("show me %s's %s", $client, $entityTypePlural), [
+            $intents[] = $this->createIntent('ListEntity', "show me {$client}'s {$entityTypePlural}", [
                 $entityTypePlural => 'EntityType',
-                $client . "'s"    => 'Name',
+                $client . '\'s'   => 'Name',
             ]);
-            $intents[] = $this->createIntent('ListEntity', sprintf("show me %s's active %s", $client, $entityTypePlural), [
+            $intents[] = $this->createIntent('ListEntity', "show me {$client}'s active {$entityTypePlural}", [
                 $entityTypePlural => 'EntityType',
-                $client . "'s"    => 'Name',
+                $client . '\'s'   => 'Name',
                 'active'          => 'Filter',
             ]);
         }
@@ -173,16 +181,17 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function getNavigateToIntents(): array
+    private function getNavigateToIntents($entityType)
     {
         $intents = [];
         $locations = array_merge(Account::$basicSettings, Account::$advancedSettings);
+
         foreach ($locations as $location) {
             $location = str_replace('_', ' ', $location);
-            $intents[] = $this->createIntent('NavigateTo', 'go to ' . $location, [
+            $intents[] = $this->createIntent('NavigateTo', "go to {$location}", [
                 $location => 'Location',
             ]);
-            $intents[] = $this->createIntent('NavigateTo', 'show me ' . $location, [
+            $intents[] = $this->createIntent('NavigateTo', "show me {$location}", [
                 $location => 'Location',
             ]);
         }
@@ -190,20 +199,18 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function createIntent(string $name, string $text, $entities): stdClass
+    private function createIntent($name, $text, $entities)
     {
         $intent = new stdClass();
         $intent->intent = $name;
-
         $intent->text = $text;
         $intent->entities = [];
 
         foreach ($entities as $value => $entity) {
             $startPos = mb_strpos($text, (string) $value);
             if ( ! $startPos) {
-                dd(sprintf('Failed to find %s in %s', $value, $text));
+                dd("Failed to find {$value} in {$text}");
             }
-
             $entityClass = new stdClass();
             $entityClass->entity = $entity;
             $entityClass->startPos = $startPos;

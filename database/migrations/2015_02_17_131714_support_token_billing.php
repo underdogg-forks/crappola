@@ -1,20 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class SupportTokenBilling extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->smallInteger('token_billing_type_id')->default(TOKEN_BILLING_ALWAYS);
         });
 
-        Schema::create('account_gateway_tokens', function ($table): void {
+        Schema::create('account_gateway_tokens', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('contact_id');
@@ -34,17 +31,12 @@ return new class () extends Migration {
         DB::table('accounts')->update(['token_billing_type_id' => TOKEN_BILLING_ALWAYS]);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('token_billing_type_id');
         });
 
         Schema::drop('account_gateway_tokens');
     }
-};
+}

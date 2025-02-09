@@ -3,8 +3,7 @@
 namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
-use Carbon\Carbon;
-use Log;
+
 use SimpleXMLElement;
 
 class OFX
@@ -25,14 +24,14 @@ class OFX
         $this->request = $request;
     }
 
-    public static function closeTags($x): string|array|null
+    public static function closeTags($x)
     {
         $x = preg_replace('/\s+/', '', $x);
 
         return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
     }
 
-    public function go(): void
+    public function go()
     {
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL, $this->bank->url);
@@ -55,12 +54,13 @@ class OFX
         $this->responseBody = '<OFX>' . $tmp[1];
     }
 
-    public function xml(): SimpleXMLElement
+    public function xml()
     {
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
+        $x = new SimpleXMLElement($xml);
 
-        return new SimpleXMLElement($xml);
+        return $x;
     }
 }
 
@@ -111,7 +111,7 @@ class Login
         $this->pass = $pass;
     }
 
-    public function setup(): void
+    public function setup()
     {
         $ofxRequest =
         "OFXHEADER:100\n" .
@@ -142,7 +142,7 @@ class Login
             "</SIGNONMSGSRQV1>\n" .
             "<SIGNUPMSGSRQV1>\n" .
                 "<ACCTINFOTRNRQ>\n" .
-                    '<TRNUID>' . md5(Carbon::now()->timestamp . $this->bank->url . $this->id) . "\n" .
+                    '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
                     "<ACCTINFORQ>\n" .
                         "<DTACCTUP>19900101\n" .
                     "</ACCTINFORQ>\n" .
@@ -151,12 +151,10 @@ class Login
         "</OFX>\n";
         $o = new OFX($this->bank, $ofxRequest);
         $o->go();
-
         $x = $o->xml();
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/BANKACCTINFO/BANKACCTFROM') as $a) {
             $this->accounts[] = new Account($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
         }
-
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/CCACCTINFO/CCACCTFROM') as $a) {
             $this->accounts[] = new Account($this, (string) $a->ACCTID, 'CC');
         }
@@ -190,7 +188,7 @@ class Account
         $this->bankId = $bankId;
     }
 
-    public function setup($includeTransactions = true): void
+    public function setup($includeTransactions = true)
     {
         $ofxRequest =
             "OFXHEADER:100\n" .
@@ -222,7 +220,7 @@ class Account
             $ofxRequest .=
                 "	<BANKMSGSRQV1>\n" .
                 "		<STMTTRNRQ>\n" .
-                '			<TRNUID>' . md5(Carbon::now()->timestamp . $this->login->bank->url . $this->id) . "\n" .
+                '			<TRNUID>' . md5(time() . $this->login->bank->url . $this->id) . "\n" .
                 "			<STMTRQ>\n" .
                 "				<BANKACCTFROM>\n" .
                 '					<BANKID>' . $this->bankId . "\n" .
@@ -240,7 +238,7 @@ class Account
             $ofxRequest .=
                 "	<CREDITCARDMSGSRQV1>\n" .
                 "		<CCSTMTTRNRQ>\n" .
-                '			<TRNUID>' . md5(Carbon::now()->timestamp . $this->login->bank->url . $this->id) . "\n" .
+                '			<TRNUID>' . md5(time() . $this->login->bank->url . $this->id) . "\n" .
                 "			<CCSTMTRQ>\n" .
                 "				<CCACCTFROM>\n" .
                 '					<ACCTID>' . $this->id . "\n" .
@@ -253,12 +251,10 @@ class Account
                 "		</CCSTMTTRNRQ>\n" .
                 "	</CREDITCARDMSGSRQV1>\n";
         }
-
         $ofxRequest .=
             '</OFX>';
         $o = new OFX($this->login->bank, $ofxRequest);
         $o->go();
-
         $this->response = $o->response;
         $x = $o->xml();
         $a = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');

@@ -7,15 +7,14 @@ use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Libraries\Utils;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Bootstrapper\Facades\DropdownButton;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use DropdownButton;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Request;
@@ -27,16 +26,29 @@ class PaymentController extends BaseController
     /**
      * @var string
      */
-    public $entityType = ENTITY_PAYMENT;
+    protected $entityType = ENTITY_PAYMENT;
 
-    protected PaymentRepository $paymentRepo;
+    /**
+     * @var PaymentRepository
+     */
+    protected $paymentRepo;
 
-    protected ContactMailer $contactMailer;
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
 
-    protected PaymentService $paymentService;
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
 
     /**
      * PaymentController constructor.
+     *
+     * @param PaymentRepository $paymentRepo
+     * @param ContactMailer     $contactMailer
+     * @param PaymentService    $paymentService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
@@ -61,7 +73,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return JsonResponse
+     * @param null $clientPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId = null)
     {
@@ -69,6 +83,8 @@ class PaymentController extends BaseController
     }
 
     /**
+     * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function create(PaymentRequest $request)
@@ -82,8 +98,8 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = Request::old('client') ?: ($request->client_id ?: 0);
-        $invoicePublicId = Request::old('invoice') ?: ($request->invoice_id ?: 0);
+        $clientPublicId = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
+        $invoicePublicId = Request::old('invoice') ? Request::old('invoice') : ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
@@ -113,16 +129,18 @@ class PaymentController extends BaseController
     /**
      * @param $publicId
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function show($publicId)
     {
         Session::reflash();
 
-        return redirect()->to(sprintf('payments/%s/edit', $publicId));
+        return redirect()->to("payments/{$publicId}/edit");
     }
 
     /**
+     * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit(PaymentRequest $request)
@@ -132,15 +150,15 @@ class PaymentController extends BaseController
 
         $actions = [];
         if ($payment->invoiceJsonBackup()) {
-            $actions[] = ['url' => url(sprintf('/invoices/invoice_history/%s?payment_id=%s', $payment->invoice->public_id, $payment->public_id)), 'label' => trans('texts.view_invoice')];
+            $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
         }
 
-        $actions[] = ['url' => url(sprintf('/invoices/%s/edit', $payment->invoice->public_id)), 'label' => trans('texts.edit_invoice')];
+        $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
         $actions[] = DropdownButton::DIVIDER;
         $actions[] = ['url' => 'javascript:submitAction("email")', 'label' => trans('texts.email_payment')];
 
         if ($payment->canBeRefunded()) {
-            $actions[] = ['url' => sprintf('javascript:showRefundModal(%s, "%s", "%s", "%s")', $payment->public_id, $payment->getCompletedAmount(), $payment->present()->completedAmount, $payment->present()->currencySymbol), 'label' => trans('texts.refund_payment')];
+            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->completedAmount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
         }
 
         $actions[] = DropdownButton::DIVIDER;
@@ -174,7 +192,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @param CreatePaymentRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreatePaymentRequest $request)
     {
@@ -202,7 +222,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @param UpdatePaymentRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdatePaymentRequest $request)
     {
@@ -220,7 +242,7 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();

@@ -37,7 +37,7 @@ trait GeneratesNumbers
             if ($this->hasNumberPattern($entityType)) {
                 $number = $this->applyNumberPattern($entity, $counter);
             } else {
-                $number = $prefix . mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+                $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             }
 
             if ($entity->recurring_invoice_id) {
@@ -49,7 +49,6 @@ trait GeneratesNumbers
             } else {
                 $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             }
-
             $counter++;
             $counterOffset++;
 
@@ -57,7 +56,6 @@ trait GeneratesNumbers
             if ($number == $lastNumber) {
                 return '';
             }
-
             $lastNumber = $number;
         } while ($check);
 
@@ -99,7 +97,7 @@ trait GeneratesNumbers
             return '';
         }
 
-        $field = $entityType . '_number_prefix';
+        $field = "{$entityType}_number_prefix";
 
         return $this->{$field} ?: '';
     }
@@ -115,17 +113,19 @@ trait GeneratesNumbers
             return false;
         }
 
-        $field = $entityType . '_number_pattern';
+        $field = "{$entityType}_number_pattern";
 
         return $this->{$field};
     }
 
     /**
      * @param $entityType
+     *
+     * @return bool
      */
-    public function hasNumberPattern($entityType): bool
+    public function hasNumberPattern($entityType)
     {
-        return (bool) $this->getNumberPattern($entityType);
+        return $this->getNumberPattern($entityType) ? true : false;
     }
 
     /**
@@ -162,15 +162,15 @@ trait GeneratesNumbers
         }
 
         $search = ['{$year}'];
-        $replace = [\Carbon\Carbon::now()->format('Y')];
+        $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = mb_str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+        $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (mb_strstr($pattern, '{$userId}')) {
             $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
             $search[] = '{$userId}';
-            $replace[] = mb_str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
+            $replace[] = str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
@@ -184,8 +184,9 @@ trait GeneratesNumbers
         }
 
         $pattern = str_replace($search, $replace, $pattern);
+        $pattern = $this->getClientInvoiceNumber($pattern, $entity);
 
-        return $this->getClientInvoiceNumber($pattern, $entity);
+        return $pattern;
     }
 
     /**
@@ -198,11 +199,9 @@ trait GeneratesNumbers
         if ($entityType == ENTITY_CLIENT) {
             return $this->client_number_counter;
         }
-
         if ($entityType == ENTITY_CREDIT) {
             return $this->credit_number_counter;
         }
-
         if ($entityType == ENTITY_QUOTE && ! $this->share_counter) {
             return $this->quote_number_counter;
         }
@@ -217,7 +216,7 @@ trait GeneratesNumbers
      */
     public function previewNextInvoiceNumber($entityType = ENTITY_INVOICE)
     {
-        $client = Client::scope()->first();
+        $client = \App\Models\Client::scope()->first();
 
         $invoice = $this->createInvoice($entityType, $client ? $client->id : 0);
 
@@ -227,23 +226,20 @@ trait GeneratesNumbers
     /**
      * @param $entity
      */
-    public function incrementCounter($entity): void
+    public function incrementCounter($entity)
     {
         if ($entity->isEntityType(ENTITY_CLIENT)) {
             if ($this->client_number_counter > 0) {
                 $this->client_number_counter += 1;
             }
-
             $this->save();
 
             return;
         }
-
         if ($entity->isEntityType(ENTITY_CREDIT)) {
             if ($this->credit_number_counter > 0) {
                 $this->credit_number_counter += 1;
             }
-
             $this->save();
 
             return;
@@ -255,7 +251,6 @@ trait GeneratesNumbers
             } else {
                 $entity->client->invoice_number_counter += 1;
             }
-
             $entity->client->save();
         }
 
@@ -265,31 +260,26 @@ trait GeneratesNumbers
             } else {
                 $this->invoice_number_counter += 1;
             }
-
             $this->save();
         }
     }
 
     public function usesInvoiceCounter()
     {
-        if ( ! $this->hasNumberPattern(ENTITY_INVOICE)) {
-            return true;
-        }
-
-        return str_contains($this->invoice_number_pattern, '{$counter}');
+        return ! $this->hasNumberPattern(ENTITY_INVOICE) || str_contains($this->invoice_number_pattern, '{$counter}');
     }
 
-    public function usesClientInvoiceCounter(): bool
+    public function usesClientInvoiceCounter()
     {
         return str_contains($this->invoice_number_pattern, '{$clientCounter}');
     }
 
-    public function clientNumbersEnabled(): bool
+    public function clientNumbersEnabled()
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter > 0;
     }
 
-    public function creditNumbersEnabled(): bool
+    public function creditNumbersEnabled()
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->credit_number_counter > 0;
     }
@@ -345,7 +335,6 @@ trait GeneratesNumbers
         $this->quote_number_counter = 1;
         $this->credit_number_counter = $this->credit_number_counter > 0 ? 1 : 0;
         $this->save();
-        return null;
     }
 
     /**
@@ -380,7 +369,7 @@ trait GeneratesNumbers
             $client->custom_value1, // backwards compatibility
             $client->custom_value2,
             $client->id_number,
-            mb_str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
+            str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
         ];
 
         return str_replace($search, $replace, $pattern);
