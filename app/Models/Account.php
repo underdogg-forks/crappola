@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\UserSettingsChanged;
+use App\Libraries\Utils;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\HasCustomMessages;
 use App\Models\Traits\HasLogo;
@@ -21,7 +22,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Account.

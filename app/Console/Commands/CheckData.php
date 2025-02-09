@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /*
 

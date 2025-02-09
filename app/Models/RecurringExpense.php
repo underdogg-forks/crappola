@@ -4,13 +4,13 @@ namespace App\Models;
 
 //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
+use App\Libraries\Utils;
 use App\Models\Traits\HasRecurrence;
 use App\Ninja\Presenters\ExpensePresenter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Expense.

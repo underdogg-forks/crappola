@@ -4,12 +4,12 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use App\Libraries\Utils;
 use App\Ninja\Presenters\TaskPresenter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Task.

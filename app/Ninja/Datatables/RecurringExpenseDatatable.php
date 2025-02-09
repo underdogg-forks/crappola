@@ -2,10 +2,8 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Models\Expense;
-use Auth;
+use App\Libraries\Utils;
 use Illuminate\Support\Facades\URL;
-use Utils;
 
 class RecurringExpenseDatatable extends EntityDatatable
 {

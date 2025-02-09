@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateOnlinePaymentRequest;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\GatewayType;
@@ -26,7 +27,6 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\DomCrawler\Crawler;
-use Utils;
 
 /**
  * Class OnlinePaymentController.

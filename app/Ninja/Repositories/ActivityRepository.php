@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
-use Utils;
 
 class ActivityRepository
 {

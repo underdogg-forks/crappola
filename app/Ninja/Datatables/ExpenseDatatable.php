@@ -2,10 +2,10 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
-use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {

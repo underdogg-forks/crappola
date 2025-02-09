@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Laracasts\Presenter\Presenter;
-use Utils;
 
 class ActivityPresenter extends Presenter
 {

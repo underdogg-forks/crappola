@@ -5,6 +5,7 @@ namespace App\Ninja\Mailers;
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
 use App\Jobs\ConvertInvoiceToUbl;
+use App\Libraries\Utils;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -13,7 +14,6 @@ use HTMLUtils;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Laracasts\Presenter\Exceptions\PresenterException;
-use Utils;
 
 class ContactMailer extends Mailer
 {

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use App\Models\Language;
 use Closure;
 use Illuminate\Http\Request;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
-use Utils;
 
 class StartupCheck
 {

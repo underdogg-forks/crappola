@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Module;
-use Utils;
 
 /**
  * Class EntityModel.

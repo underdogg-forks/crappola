@@ -4,10 +4,10 @@ namespace App\Ninja\Repositories;
 
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
+use App\Libraries\Utils;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Utils;
 
 class ProductRepository extends BaseRepository
 {

@@ -2,12 +2,12 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Utils;
 
 class RecurringExpenseRepository extends BaseRepository
 {

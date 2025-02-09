@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
@@ -25,7 +26,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Session;
 use stdClass;
-use Utils;
 
 class AccountRepository
 {

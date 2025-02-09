@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
@@ -16,7 +17,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class VendorController extends BaseController
 {

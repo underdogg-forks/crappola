@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\Utils;
 use App\Models\AccountToken;
 use Closure;
 use Illuminate\Support\Arr;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 use Request;
-use Utils;
 
 /**
  * Class ApiCheck.

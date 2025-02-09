@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Ninja\Datatables\ProjectTaskDatatable;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\TaskRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class TaskService.

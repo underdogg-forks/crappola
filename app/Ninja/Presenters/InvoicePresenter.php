@@ -3,11 +3,11 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
+use App\Libraries\Utils;
+use Bootstrapper\Facades\DropdownButton;
 use Carbon;
-use DropdownButton;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
-use Utils;
 
 class InvoicePresenter extends EntityPresenter
 {

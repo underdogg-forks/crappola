@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use DateTime;
-use Utils;
 
 /**
  * Class CreditPresenter.

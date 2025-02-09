@@ -6,6 +6,7 @@ use App\Http\Requests\CreateInvoiceRequest;
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
 use App\Jobs\SendInvoiceEmail;
+use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Expense;
@@ -28,7 +29,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class InvoiceController extends BaseController
 {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use stdClass;
-use Utils;
 use WePay;
 use WePayException;
 

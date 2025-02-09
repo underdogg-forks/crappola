@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class CreditService.

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Mailers;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
 use Exception;
 use Illuminate\Support\Facades\App;
@@ -11,7 +12,6 @@ use Postmark\Models\PostmarkAttachment;
 use Postmark\Models\PostmarkException;
 use Postmark\PostmarkClient;
 use Swift_Mailer;
-use Utils;
 
 /**
  * Class Mailer.

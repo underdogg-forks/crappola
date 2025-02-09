@@ -7,6 +7,7 @@ use App\Events\InvoiceItemsWereUpdated;
 use App\Events\QuoteItemsWereCreated;
 use App\Events\QuoteItemsWereUpdated;
 use App\Jobs\SendInvoiceEmail;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Document;
@@ -25,7 +26,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Utils;
 
 class InvoiceRepository extends BaseRepository
 {

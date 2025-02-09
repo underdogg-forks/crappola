@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 class PaymentReport extends AbstractReport
 {

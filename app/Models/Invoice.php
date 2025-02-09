@@ -9,6 +9,7 @@ use App\Events\QuoteInvitationWasEmailed;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
 use App\Ninja\Presenters\InvoicePresenter;
@@ -24,7 +25,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Invoice.

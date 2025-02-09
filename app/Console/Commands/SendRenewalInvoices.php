@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /**
  * Class SendRenewalInvoices.

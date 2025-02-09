@@ -2,19 +2,16 @@
 
 namespace App\Ninja\Import;
 
+use App\Libraries\Utils;
 use Carbon;
 use Exception;
 use League\Fractal\TransformerAbstract;
-use Utils;
 
 /**
  * Class BaseTransformer.
  */
 class BaseTransformer extends TransformerAbstract
 {
-    /**
-     * @var
-     */
     protected $maps;
 
     /**

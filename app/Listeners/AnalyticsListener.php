@@ -3,8 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\PaymentWasCreated;
+use App\Libraries\Utils;
 use Illuminate\Support\Facades\App;
-use Utils;
 
 /**
  * Class AnalyticsListener.

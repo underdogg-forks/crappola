@@ -3,9 +3,9 @@
 namespace App\Jobs;
 
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use Exception;
 use Illuminate\Support\Str;
-use Utils;
 
 class ConvertProposalToPdf extends Job
 {

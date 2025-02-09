@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use Excel;
 use Exception;
-use Utils;
 
 class ExportReportResults extends Job
 {

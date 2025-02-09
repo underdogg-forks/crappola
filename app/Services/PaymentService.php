@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
@@ -17,7 +18,6 @@ use DateTime;
 use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 class PaymentService extends BaseService
 {

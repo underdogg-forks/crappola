@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\OAuth\OAuth;
@@ -17,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
-use Utils;
 
 class AccountApiController extends BaseAPIController
 {

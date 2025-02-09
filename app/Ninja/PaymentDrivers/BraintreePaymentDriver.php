@@ -2,6 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use App\Libraries\Utils;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Braintree\Customer;
@@ -9,7 +10,6 @@ use Braintree\Result\Error;
 use Exception;
 use Illuminate\Support\Arr;
 use Session;
-use Utils;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {

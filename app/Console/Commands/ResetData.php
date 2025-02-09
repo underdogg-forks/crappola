@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /**
  * Class ResetData.

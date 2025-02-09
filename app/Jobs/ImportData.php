@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use App\Services\ImportService;
@@ -11,7 +12,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class SendInvoiceEmail.

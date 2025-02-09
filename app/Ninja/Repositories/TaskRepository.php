@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
@@ -9,7 +10,6 @@ use App\Models\TaskStatus;
 use Datatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Utils;
 
 class TaskRepository extends BaseRepository
 {

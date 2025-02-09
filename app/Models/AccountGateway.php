@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Services\TemplateService;
 use HTMLUtils;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,7 +11,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class AccountGateway.

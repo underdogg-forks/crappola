@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Client;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
-use Utils;
 
 class GenerateStatementData
 {

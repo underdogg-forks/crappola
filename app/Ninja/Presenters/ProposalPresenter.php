@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use DropdownButton;
+use Bootstrapper\Facades\DropdownButton;
 
 /**
  * Class ProposalPresenter.

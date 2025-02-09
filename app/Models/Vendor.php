@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use App\Libraries\Utils;
 use App\Ninja\Presenters\VendorPresenter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Vendor.

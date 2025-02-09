@@ -6,10 +6,10 @@ use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\DeleteVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
+use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
 use Response;
-use Utils;
 
 class VendorApiController extends BaseAPIController
 {

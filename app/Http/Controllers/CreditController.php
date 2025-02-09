@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateCreditRequest;
 use App\Http\Requests\CreditRequest;
 use App\Http\Requests\UpdateCreditRequest;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class CreditController extends BaseController
 {

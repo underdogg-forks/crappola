@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Carbon;
 use stdClass;
-use Utils;
 
 class PaymentPresenter extends EntityPresenter
 {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\TaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
@@ -13,7 +14,7 @@ use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\TaskService;
-use DropdownButton;
+use Bootstrapper\Facades\DropdownButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -22,16 +23,12 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 /**
  * Class TaskController.
  */
 class TaskController extends BaseController
 {
-    /**
-     * @var
-     */
     public $entityType = ENTITY_TASK;
 
     protected TaskRepository $taskRepo;

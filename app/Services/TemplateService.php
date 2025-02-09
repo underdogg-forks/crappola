@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Gateway;
@@ -9,7 +10,6 @@ use App\Models\GatewayType;
 use App\Models\Invitation;
 use Form;
 use HTML;
-use Utils;
 
 class TemplateService
 {

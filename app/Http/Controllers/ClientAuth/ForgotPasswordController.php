@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Traits\SendsEmails;
@@ -16,7 +17,6 @@ use Illuminate\Http\Response;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
-use Utils;
 
 class ForgotPasswordController extends Controller
 {

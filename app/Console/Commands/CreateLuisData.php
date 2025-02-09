@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use stdClass;
-use Utils;
 
 /**
  * Class CreateLuisData.

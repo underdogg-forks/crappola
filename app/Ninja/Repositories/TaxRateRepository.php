@@ -2,10 +2,10 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\TaxRate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Utils;
 
 class TaxRateRepository extends BaseRepository
 {

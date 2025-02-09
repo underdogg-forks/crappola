@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -14,7 +15,6 @@ use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Utils;
 
 /**
  * Class Contact.

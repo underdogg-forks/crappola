@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\ExpenseCategory;
 use App\Models\Project;
 use App\Models\TaxRate;
@@ -16,7 +17,6 @@ use App\Ninja\Repositories\VendorRepository;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class CreateTestData.
@@ -77,9 +77,6 @@ class CreateTestData extends Command
      */
     protected $signature = 'ninja:create-test-data {count=1} {create_account=false} {--database}';
 
-    /**
-     * @var
-     */
     protected $token;
 
     /**
@@ -154,12 +151,12 @@ class CreateTestData extends Command
         return true;
     }
 
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [];
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [];
     }

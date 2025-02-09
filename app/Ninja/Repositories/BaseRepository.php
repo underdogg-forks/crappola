@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class BaseRepository.

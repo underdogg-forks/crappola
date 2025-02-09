@@ -2,6 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\AccountGatewaySettings;
 use App\Models\AccountGatewayToken;
@@ -19,7 +20,6 @@ use Omnipay;
 use Omnipay\Common\Item;
 use Session;
 use URL;
-use Utils;
 
 class BasePaymentDriver
 {

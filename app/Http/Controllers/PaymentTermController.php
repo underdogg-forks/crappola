@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
+use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class PaymentTermController extends BaseController
 {

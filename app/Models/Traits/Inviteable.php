@@ -2,8 +2,8 @@
 
 namespace App\Models\Traits;
 
+use App\Libraries\Utils;
 use Carbon;
-use Utils;
 
 /**
  * Class SendsEmails.

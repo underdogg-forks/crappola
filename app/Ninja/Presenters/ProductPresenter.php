@@ -3,7 +3,7 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\HeroCard;
-use DropdownButton;
+use Bootstrapper\Facades\DropdownButton;
 
 class ProductPresenter extends EntityPresenter
 {

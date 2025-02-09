@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Libraries\Finance;
 use App\Libraries\Login;
+use App\Libraries\Utils;
 use App\Models\BankSubaccount;
 use App\Models\Expense;
 use App\Models\Vendor;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use OfxParser\Parser;
 use stdClass;
-use Utils;
 
 /**
  * Class BankAccountService.

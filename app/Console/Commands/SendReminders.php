@@ -6,6 +6,7 @@ use App\Jobs\ExportReportResults;
 use App\Jobs\RunReport;
 use App\Jobs\SendInvoiceEmail;
 use App\Libraries\CurlUtils;
+use App\Libraries\Utils;
 use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\ScheduledReport;
@@ -20,7 +21,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /**
  * Class SendReminders.

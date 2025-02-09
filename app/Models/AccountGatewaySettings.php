@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Utils;
 
 /**
  * Class AccountGatewaySettings.

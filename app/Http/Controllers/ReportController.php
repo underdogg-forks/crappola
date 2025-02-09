@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\ExportReportResults;
 use App\Jobs\LoadPostmarkStats;
 use App\Jobs\RunReport;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\ScheduledReport;
 use Carbon;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 /**
  * Class ReportController.

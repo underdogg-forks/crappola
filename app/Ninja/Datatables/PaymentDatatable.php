@@ -2,11 +2,11 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
-use Utils;
 
 class PaymentDatatable extends EntityDatatable
 {

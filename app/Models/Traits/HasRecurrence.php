@@ -2,13 +2,13 @@
 
 namespace App\Models\Traits;
 
+use App\Libraries\Utils;
 use Carbon;
 use DateTime;
 use Recurr\RecurrenceCollection;
 use Recurr\Rule;
 use Recurr\Transformer\ArrayTransformer;
 use Recurr\Transformer\ArrayTransformerConfig;
-use Utils;
 
 /**
  * Class HasRecurrence.

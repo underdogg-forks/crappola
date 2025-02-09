@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Omnipay;
-use Utils;
 
 /**
  * Class Gateway.

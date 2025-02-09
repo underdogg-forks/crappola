@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Jobs\Client\GenerateStatementData;
 use App\Jobs\LoadPostmarkHistory;
 use App\Jobs\ReactivatePostmarkEmail;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Expense;
@@ -16,15 +17,13 @@ use App\Models\Task;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
-use Auth;
-use DropdownButton;
+use Bootstrapper\Facades\DropdownButton;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class ClientController extends BaseController
 {
@@ -79,14 +78,7 @@ class ClientController extends BaseController
         return redirect()->to($client->getRoute());
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function show(ClientRequest $request): Response
+    public function show(ClientRequest $request)
     {
         $client = $request->entity();
         $user = \Illuminate\Support\Facades\Auth::user();

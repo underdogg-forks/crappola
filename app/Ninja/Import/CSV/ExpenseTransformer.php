@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Import\CSV;
 
+use App\Libraries\Utils;
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
-use Utils;
 
 /**
  * Class InvoiceTransformer.

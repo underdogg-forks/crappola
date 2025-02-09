@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Ninja\Presenters\CompanyPresenter;
 use App\Ninja\Repositories\AccountRepository;
 use Carbon;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Company.

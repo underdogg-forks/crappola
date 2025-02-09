@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Libraries\Utils;
 use Form;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobProcessing;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Module;
 use Request;
-use Utils;
 
 /**
  * Class AppServiceProvider.

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SendInvoiceEmail;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\RecurringExpense;
@@ -13,7 +14,6 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /**
  * Class SendRecurringInvoices.

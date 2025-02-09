@@ -11,6 +11,7 @@ use App\Http\Requests\SaveEmailSettings;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Jobs\PurgeAccountData;
 use App\Jobs\PurgeClientData;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
@@ -53,7 +54,6 @@ use Illuminate\Support\Str;
 use Image;
 use Nwidart\Modules\Facades\Module;
 use stdClass;
-use Utils;
 
 /**
  * Class AccountController.

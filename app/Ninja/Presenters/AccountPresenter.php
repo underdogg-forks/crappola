@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\TaxRate;
 use Carbon;
 use Domain;
 use Laracasts\Presenter\Presenter;
 use stdClass;
-use Utils;
 
 /**
  * Class AccountPresenter.

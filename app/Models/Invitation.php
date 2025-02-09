@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Models\Traits\Inviteable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Utils;
 
 /**
  * Class Invitation.

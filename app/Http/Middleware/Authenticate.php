@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invitation;
@@ -12,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
-use Utils;
 
 /**
  * Class Authenticate.

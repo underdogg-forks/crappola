@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class RecurringExpenseService.

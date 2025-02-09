@@ -2,11 +2,11 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
-use Utils;
 use WePayException;
 
 class AccountGatewayDatatable extends EntityDatatable

@@ -6,7 +6,6 @@ namespace App\Libraries;
 
 use Log;
 use SimpleXMLElement;
-use Utils;
 
 class OFX
 {

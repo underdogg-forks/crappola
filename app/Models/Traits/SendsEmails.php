@@ -4,7 +4,7 @@ namespace App\Models\Traits;
 
 use App\Constants\Domain;
 use App\Libraries\HTMLUtils;
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class SendsEmails.

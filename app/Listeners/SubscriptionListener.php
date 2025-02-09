@@ -23,6 +23,7 @@ use App\Events\TaskWasUpdated;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
@@ -33,7 +34,6 @@ use App\Ninja\Transformers\TaskTransformer;
 use App\Ninja\Transformers\VendorTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use Utils;
 
 /**
  * Class SubscriptionListener.

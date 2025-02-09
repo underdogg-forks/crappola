@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
+use App\Libraries\Utils;
 use App\Models\EntityModel;
-use Utils;
 
 class EntityRequest extends Request
 {

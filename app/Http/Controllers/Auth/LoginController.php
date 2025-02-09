@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidateTwoFactorRequest;
+use App\Libraries\Utils;
 use App\Models\User;
 use App\Ninja\Repositories\AccountRepository;
 use Cache;
@@ -18,7 +19,6 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
-use Utils;
 
 class LoginController extends Controller
 {

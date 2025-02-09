@@ -12,11 +12,11 @@ use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
+use App\Libraries\Utils;
 use App\Models\Activity;
 use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class InvoiceListener.

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use CleverIt\UBL\Invoice\Address;
 use CleverIt\UBL\Invoice\Contact;
 use CleverIt\UBL\Invoice\Country;
@@ -16,7 +17,6 @@ use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
 use Exception;
-use Utils;
 
 class ConvertInvoiceToUbl extends Job
 {

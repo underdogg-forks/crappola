@@ -21,9 +21,9 @@ use App\Console\Commands\SendRenewalInvoices;
 use App\Console\Commands\SyncAccounts;
 use App\Console\Commands\TestOFX;
 use App\Console\Commands\UpdateKey;
+use App\Libraries\Utils;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Utils;
 
 class Kernel extends ConsoleKernel
 {

@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use Utils;
+use App\Libraries\Utils;
 
 class ActivityDatatable extends EntityDatatable
 {

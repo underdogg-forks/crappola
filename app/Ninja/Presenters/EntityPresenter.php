@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Laracasts\Presenter\Presenter;
 use stdClass;
-use Utils;
 
 class EntityPresenter extends Presenter
 {

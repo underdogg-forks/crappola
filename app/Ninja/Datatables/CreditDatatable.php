@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
-use Utils;
 
 class CreditDatatable extends EntityDatatable
 {

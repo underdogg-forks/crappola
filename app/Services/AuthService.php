@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\UserLoggedIn;
+use App\Libraries\Utils;
 use App\Models\LookupUser;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\RedirectResponse;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Socialite;
-use Utils;
 
 /**
  * Class AuthService.

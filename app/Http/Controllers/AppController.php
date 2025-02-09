@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Models\Invoice;
@@ -9,7 +10,6 @@ use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\EmailService;
 use Artisan;
-use Auth;
 use Cache;
 use Config;
 use DB;
@@ -20,7 +20,6 @@ use Illuminate\Support\Str;
 use Request;
 use Response;
 use Session;
-use Utils;
 
 class AppController extends BaseController
 {

@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 /**
  * Class VendorService.

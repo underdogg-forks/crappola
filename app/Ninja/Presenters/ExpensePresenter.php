@@ -2,10 +2,10 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Carbon;
 use DateTime;
 use stdClass;
-use Utils;
 
 /**
  * Class ExpensePresenter.

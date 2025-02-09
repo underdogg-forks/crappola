@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
@@ -9,7 +10,6 @@ use App\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Utils;
 
 class ExpenseRepository extends BaseRepository
 {

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 /**
  * Class DashboardController.

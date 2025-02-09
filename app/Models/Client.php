@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Models\Traits\HasCustomMessages;
 use App\Ninja\Presenters\ClientPresenter;
 use Carbon;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Client.

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\QuoteRequest;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -21,7 +22,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class QuoteController extends BaseController
 {

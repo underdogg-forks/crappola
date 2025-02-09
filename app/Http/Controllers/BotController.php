@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Libraries\CurlUtils;
 use App\Libraries\Skype\SkypeResponse;
+use App\Libraries\Utils;
 use App\Models\SecurityCode;
 use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
-use Utils;
 
 class BotController extends Controller
 {

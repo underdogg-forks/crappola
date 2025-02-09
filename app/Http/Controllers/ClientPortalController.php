@@ -6,6 +6,7 @@ use App\Events\ClientWasUpdated;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Jobs\Client\GenerateStatementData;
+use App\Libraries\Utils;
 use App\Models\Contact;
 use App\Models\Document;
 use App\Models\Invitation;
@@ -28,7 +29,6 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class ClientPortalController extends BaseController
 {

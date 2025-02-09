@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateBankAccountRequest;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
@@ -16,7 +17,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Utils;
 
 class BankAccountController extends BaseController
 {

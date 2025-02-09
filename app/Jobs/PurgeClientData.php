@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Libraries\HistoryUtils;
-use Utils;
+use App\Libraries\Utils;
 
 class PurgeClientData extends Job
 {

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\QuoteInvitationWasApproved;
 use App\Jobs\DownloadInvoices;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -12,7 +13,6 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Utils;
 
 class InvoiceService extends BaseService
 {

@@ -7,6 +7,7 @@ use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Jobs\SendInvoiceEmail;
 use App\Jobs\SendPaymentEmail;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -21,7 +22,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 use Response;
-use Utils;
 
 class InvoiceApiController extends BaseAPIController
 {
