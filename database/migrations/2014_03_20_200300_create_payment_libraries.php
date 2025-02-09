@@ -19,14 +19,11 @@ class CreatePaymentLibraries extends Migration
         });
 
         Schema::table('gateways', function ($table) {
-            $table->unsignedInteger('payment_library_id')->default(1);
+            $table->unsignedInteger('payment_library_id')->after('id')->default(1);
+            //$table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
-
-        Schema::table('gateways', function ($table) {
-            $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
-        });
     }
 
     public function down()

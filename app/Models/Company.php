@@ -7,8 +7,8 @@ use Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
-use Log;
 
 /**
  * Class Company.

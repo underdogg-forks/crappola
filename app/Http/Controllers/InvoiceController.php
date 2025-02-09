@@ -24,10 +24,10 @@ use App\Services\RecurringInvoiceService;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Redirect;
 
 class InvoiceController extends BaseController
 {
@@ -252,6 +252,8 @@ class InvoiceController extends BaseController
     public function store(CreateInvoiceRequest $request)
     {
         $data = $request->input();
+        dd($data);
+
         $data['documents'] = $request->file('documents');
 
         $action = Request::input('action');

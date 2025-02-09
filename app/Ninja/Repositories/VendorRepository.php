@@ -6,7 +6,7 @@ use App\Libraries\Utils;
 use App\Models\Vendor;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 // vendor
 class VendorRepository extends BaseRepository

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
-use Redirect;
+use Illuminate\Support\Facades\Redirect;
 
 class SelfUpdateController extends BaseController
 {

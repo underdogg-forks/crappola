@@ -12,7 +12,7 @@ use App\Models\LookupUser;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 class InitLookup extends Command

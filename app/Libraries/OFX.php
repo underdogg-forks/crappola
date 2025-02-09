@@ -4,7 +4,6 @@ namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
 
-use Log;
 use SimpleXMLElement;
 
 class OFX

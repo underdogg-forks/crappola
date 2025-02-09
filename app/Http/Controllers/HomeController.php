@@ -6,12 +6,12 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Mail;
-use Redirect;
 
 /**
  * Class HomeController.

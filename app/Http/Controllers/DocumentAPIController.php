@@ -7,7 +7,7 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Redirect;
+use Illuminate\Support\Facades\Redirect;
 
 /**
  * Class DocumentAPIController.

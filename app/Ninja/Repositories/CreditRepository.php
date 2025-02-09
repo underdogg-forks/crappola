@@ -8,7 +8,7 @@ use App\Models\Credit;
 use Datatable;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class CreditRepository extends BaseRepository
 {

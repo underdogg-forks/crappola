@@ -9,8 +9,8 @@ use App\Models\Invitation;
 use App\Models\ProposalInvitation;
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
-use Redirect;
 
 /**
  * Class Authenticate.

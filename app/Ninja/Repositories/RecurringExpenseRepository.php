@@ -7,7 +7,7 @@ use App\Models\Expense;
 use App\Models\RecurringExpense;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RecurringExpenseRepository extends BaseRepository
 {

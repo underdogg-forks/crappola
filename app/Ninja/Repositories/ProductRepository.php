@@ -7,7 +7,7 @@ use App\Events\ProductWasUpdated;
 use App\Libraries\Utils;
 use App\Models\Product;
 use DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ProductRepository extends BaseRepository
 {

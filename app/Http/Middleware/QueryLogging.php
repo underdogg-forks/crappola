@@ -6,7 +6,7 @@ use App\Libraries\Utils;
 use Closure;
 use DB;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class QueryLogging.

@@ -9,15 +9,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
-use Redirect;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
-/**
- * Class Handler.
- */
 class Handler extends ExceptionHandler
 {
     /**
@@ -60,6 +57,8 @@ class Handler extends ExceptionHandler
         if ( ! $this->shouldReport($e)) {
             return false;
         }
+
+        dd($e->getMessage());
 
         // if these classes don't exist the install is broken, maybe due to permissions
         if ( ! class_exists('Utils')) {

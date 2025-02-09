@@ -7,7 +7,7 @@ use App\Models\Credit;
 use App\Models\Payment;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class PaymentRepository extends BaseRepository
 {

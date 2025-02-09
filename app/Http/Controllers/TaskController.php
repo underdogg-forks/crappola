@@ -16,10 +16,10 @@ use App\Ninja\Repositories\TaskRepository;
 use App\Services\TaskService;
 use DropdownButton;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Redirect;
 use URL;
 
 /**

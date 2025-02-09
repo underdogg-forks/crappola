@@ -4,10 +4,9 @@ namespace App\Ninja\Mailers;
 
 use App;
 use App\Libraries\Utils;
-use App\Models\Invoice;
 use Exception;
-use Log;
-use Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Postmark\Models\PostmarkAttachment;
 use Postmark\Models\PostmarkException;
 use Postmark\PostmarkClient;

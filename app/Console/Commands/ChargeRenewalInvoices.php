@@ -9,7 +9,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Carbon;
 use Illuminate\Console\Command;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /**

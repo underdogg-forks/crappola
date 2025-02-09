@@ -11,10 +11,10 @@ use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use App\Services\CreditService;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Redirect;
 
 class CreditController extends BaseController
 {

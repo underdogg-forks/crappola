@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Redirect;
+use Illuminate\Support\Facades\Redirect;
 
 class PasswordController extends Controller
 {

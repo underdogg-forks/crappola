@@ -11,7 +11,7 @@ use App\Models\Payment;
 use App\Services\TemplateService;
 use HTMLUtils;
 use Illuminate\Support\Facades\Cache;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 
 class ContactMailer extends Mailer
 {
