@@ -2,24 +2,24 @@
 
 namespace App\Jobs;
 
+use App;
+use App\Libraries\Utils;
+use App\Models\User;
+use App\Ninja\Mailers\UserMailer;
+use App\Services\ImportService;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Monolog\Logger;
-use App\Services\ImportService;
-use App\Ninja\Mailers\UserMailer;
-use App\Models\User;
-use Auth;
-use App;
-use Utils;
-use Exception;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SendInvoiceEmail.
  */
 class ImportData extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue;
+    use SerializesModels;
 
     /**
      * @var User
@@ -44,15 +44,15 @@ class ImportData extends Job implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param mixed   $files
-     * @param mixed   $settings
+     * @param mixed $files
+     * @param mixed $settings
      */
     public function __construct(User $user, $type, $settings)
     {
-        $this->user = $user;
-        $this->type = $type;
+        $this->user     = $user;
+        $this->type     = $type;
         $this->settings = $settings;
-        $this->server = config('database.default');
+        $this->server   = config('database.default');
     }
 
     /**
@@ -60,7 +60,7 @@ class ImportData extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ImportService $importService, UserMailer $userMailer)
+    public function handle(ImportService $importService, UserMailer $userMailer): void
     {
         $includeSettings = false;
 
@@ -71,18 +71,18 @@ class ImportData extends Job implements ShouldQueue
 
         try {
             if ($this->type === IMPORT_JSON) {
-                $includeData = $this->settings['include_data'];
+                $includeData     = $this->settings['include_data'];
                 $includeSettings = $this->settings['include_settings'];
-                $files = $this->settings['files'];
-                $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
+                $files           = $this->settings['files'];
+                $results         = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
             } elseif ($this->type === IMPORT_CSV) {
-                $map = $this->settings['map'];
-                $headers = $this->settings['headers'];
+                $map       = $this->settings['map'];
+                $headers   = $this->settings['headers'];
                 $timestamp = $this->settings['timestamp'];
-                $results = $importService->importCSV($map, $headers, $timestamp);
+                $results   = $importService->importCSV($map, $headers, $timestamp);
             } else {
-                $source = $this->settings['source'];
-                $files = $this->settings['files'];
+                $source  = $this->settings['source'];
+                $files   = $this->settings['files'];
                 $results = $importService->importFiles($source, $files);
             }
 

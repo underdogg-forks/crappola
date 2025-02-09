@@ -9,9 +9,9 @@ class AddSupportThreeDecimalTaxes extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('tax_rates', function ($table) {
+        Schema::table('tax_rates', function ($table): void {
             if (Schema::hasColumn('tax_rates', 'rate')) {
                 $table->decimal('rate', 13, 3)->change();
             }
@@ -23,9 +23,9 @@ class AddSupportThreeDecimalTaxes extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('tax_rates', function ($table) {
+        Schema::table('tax_rates', function ($table): void {
             $table->decimal('rate', 13, 2)->change();
         });
     }

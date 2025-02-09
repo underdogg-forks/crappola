@@ -1,20 +1,19 @@
 <?php
 
-use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class DiscountCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $I): void
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function lineItemDiscounts(AcceptanceTester $I)
+    public function lineItemDiscounts(AcceptanceTester $I): void
     {
         $I->wantTo('test line item discounts');
 
@@ -31,7 +30,7 @@ class DiscountCest
         $itemDiscount = rand(1, 1000) / 10;
         $discount = rand(1, 1000) / 10;
         $itemAmount = rand(1, 10000) / 10;
-        $quantity = rand(1,20);
+        $quantity = rand(1, 20);
 
         $I->amOnPage('/settings/invoice_design#product_fields');
         $I->selectOption('#product_fields_select', 'product.discount');

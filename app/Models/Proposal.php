@@ -11,13 +11,14 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Proposal extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
@@ -124,9 +125,9 @@ class Proposal extends EntityModel
     {
         if ($this->invoice->quote_invoice_id) {
             return CUSTOM_MESSAGE_APPROVED_PROPOSAL;
-        } else {
-            return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
         }
+
+        return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
     }
 
     protected function serializeDate(DateTimeInterface $date)
@@ -135,10 +136,10 @@ class Proposal extends EntityModel
     }
 }
 
-Proposal::creating(function ($project) {
+Proposal::creating(function ($project): void {
     $project->setNullValues();
 });
 
-Proposal::updating(function ($project) {
+Proposal::updating(function ($project): void {
     $project->setNullValues();
 });

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankSubaccount extends EntityModel
 {
     use SoftDeletes;
+
     /**
      * @var array
      */

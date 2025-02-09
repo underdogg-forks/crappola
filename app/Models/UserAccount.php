@@ -21,13 +21,13 @@ class UserAccount extends Eloquent
      */
     public function hasUserId($userId)
     {
-        if (! $userId) {
+        if ( ! $userId) {
             return false;
         }
 
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if ($this->$field && $this->$field == $userId) {
+            if ($this->{$field} && $this->{$field} == $userId) {
                 return true;
             }
         }
@@ -38,7 +38,7 @@ class UserAccount extends Eloquent
     /**
      * @param $userId
      */
-    public function setUserId($userId)
+    public function setUserId($userId): void
     {
         if (self::hasUserId($userId)) {
             return;
@@ -46,8 +46,8 @@ class UserAccount extends Eloquent
 
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if (! $this->$field) {
-                $this->$field = $userId;
+            if ( ! $this->{$field}) {
+                $this->{$field} = $userId;
                 break;
             }
         }
@@ -56,16 +56,16 @@ class UserAccount extends Eloquent
     /**
      * @param $userId
      */
-    public function removeUserId($userId)
+    public function removeUserId($userId): void
     {
-        if (! $userId || ! self::hasUserId($userId)) {
+        if ( ! $userId || ! self::hasUserId($userId)) {
             return;
         }
 
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if ($this->$field && $this->$field == $userId) {
-                $this->$field = null;
+            if ($this->{$field} && $this->{$field} == $userId) {
+                $this->{$field} = null;
             }
         }
     }

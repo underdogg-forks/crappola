@@ -9,9 +9,9 @@ class AddBankAccounts extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('banks', function ($table) {
+        Schema::create('banks', function ($table): void {
             $table->increments('id');
             $table->string('name');
             $table->string('remote_id');
@@ -19,7 +19,7 @@ class AddBankAccounts extends Migration
             $table->text('config');
         });
 
-        Schema::create('bank_accounts', function ($table) {
+        Schema::create('bank_accounts', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('bank_id');
@@ -43,7 +43,7 @@ class AddBankAccounts extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('bank_accounts');
         Schema::drop('banks');

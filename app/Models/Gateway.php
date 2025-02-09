@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Omnipay;
-use App\Libraries\Utils;
 
 /**
  * Class Gateway.
@@ -16,13 +16,6 @@ class Gateway extends Model
      * @var bool
      */
     public $timestamps = true;
-
-    protected $fillable = [
-        'name',
-        'provider',
-        'is_offsite',
-        'sort_order',
-    ];
 
     /**
      * @var array
@@ -105,23 +98,12 @@ class Gateway extends Model
         'secretWord',
     ];
 
-    /**
-     * @return string
-     */
-    public function getLogoUrl()
-    {
-        return '/images/gateways/logo_'.$this->provider.'.png';
-    }
-
-    /**
-     * @param $gatewayId
-     *
-     * @return bool
-     */
-    public function isGateway($gatewayId)
-    {
-        return $this->id == $gatewayId;
-    }
+    protected $fillable = [
+        'name',
+        'provider',
+        'is_offsite',
+        'sort_order',
+    ];
 
     /**
      * @param $type
@@ -130,7 +112,7 @@ class Gateway extends Model
      */
     public static function getPaymentTypeName($type)
     {
-        return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+        return Utils::toCamelCase(mb_strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
 
     /**
@@ -146,16 +128,34 @@ class Gateway extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getLogoUrl()
+    {
+        return '/images/gateways/logo_' . $this->provider . '.png';
+    }
+
+    /**
+     * @param $gatewayId
+     *
+     * @return bool
+     */
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
+
+    /**
      * @param $query
      * @param $accountGatewaysIds
      */
-    public function scopePrimary($query, $accountGatewaysIds)
+    public function scopePrimary($query, $accountGatewaysIds): void
     {
         $query->where('payment_library_id', '=', 1)
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
 
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             $query->where('id', '!=', GATEWAY_WEPAY);
         }
     }
@@ -164,7 +164,7 @@ class Gateway extends Model
      * @param $query
      * @param $accountGatewaysIds
      */
-    public function scopeSecondary($query, $accountGatewaysIds)
+    public function scopeSecondary($query, $accountGatewaysIds): void
     {
         $query->where('payment_library_id', '=', 1)
             ->whereNotIn('id', static::$preferred)
@@ -196,9 +196,9 @@ class Gateway extends Model
             $link = url('/gateways/create?wepay=true');
         }
 
-        $key = 'texts.gateway_help_'.$this->id;
+        $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
-            'link' => "<a href='$link' >Click here</a>",
+            'link'          => "<a href='{$link}' >Click here</a>",
             'complete_link' => url('/complete'),
         ]);
 
@@ -215,9 +215,9 @@ class Gateway extends Model
                 'name' => '',
                 'text' => '',
             ];
-        } else {
-            return Omnipay::create($this->provider)->getDefaultParameters();
         }
+
+        return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
     public function isCustom()

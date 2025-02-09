@@ -46,7 +46,7 @@ class BankAccount extends EntityModel
     /**
      * @param $config
      */
-    public function setUsername($value)
+    public function setUsername($value): void
     {
         $this->username = Crypt::encrypt($value);
     }

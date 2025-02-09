@@ -10,28 +10,30 @@ use stdClass;
 class BaseIntent
 {
     protected $state;
+
     protected $parameters;
+
     protected $fieldMap = [];
 
     public function __construct($state, $data)
     {
         //if (true) {
-        if (! $state || is_string($state)) {
+        if ( ! $state || is_string($state)) {
             $state = new stdClass();
             foreach (['current', 'previous'] as $reference) {
-                $state->$reference = new stdClass();
-                $state->$reference->entityType = false;
+                $state->{$reference}             = new stdClass();
+                $state->{$reference}->entityType = false;
                 foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
-                    $state->$reference->$entityType = [];
+                    $state->{$reference}->{$entityType} = [];
                 }
             }
         }
 
         $this->state = $state;
-        $this->data = $data;
+        $this->data  = $data;
 
         // If they're viewing a client set it as the current state
-        if (! $this->hasField('Filter', 'all')) {
+        if ( ! $this->hasField('Filter', 'all')) {
             $url = url()->previous();
             preg_match('/clients\/(\d*)/', $url, $matches);
             if (count($matches) >= 2) {
@@ -46,11 +48,11 @@ class BaseIntent
 
     public static function createIntent($platform, $state, $data)
     {
-        if (! count($data->intents)) {
+        if ( ! count($data->intents)) {
             throw new Exception(trans('texts.intent_not_found'));
         }
 
-        $intent = $data->intents[0]->intent;
+        $intent     = $data->intents[0]->intent;
         $entityType = false;
 
         foreach ($data->entities as $entity) {
@@ -64,7 +66,7 @@ class BaseIntent
             $entityType = $state->current->entityType;
         }
         $entityType = $entityType ?: 'client';
-        $entityType = ucwords(strtolower($entityType));
+        $entityType = ucwords(mb_strtolower($entityType));
         if ($entityType == 'Recurring') {
             $entityType = 'RecurringInvoice';
         }
@@ -76,11 +78,67 @@ class BaseIntent
             $className = "App\\Ninja\\Intents\\{$intent}Intent";
         }
 
-        if (! class_exists($className)) {
+        if ( ! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
         return new $className($state, $data);
+    }
+
+    public function process(): void
+    {
+        throw new Exception(trans('texts.intent_not_supported'));
+    }
+
+    public function setStateEntities($entityType, $entities): void
+    {
+        if ( ! is_array($entities)) {
+            $entities = [$entities];
+        }
+
+        $state = $this->state;
+
+        $state->previous->{$entityType} = $state->current->{$entityType};
+        $state->current->{$entityType}  = $entities;
+    }
+
+    public function setStateEntityType($entityType): void
+    {
+        $state = $this->state;
+
+        if ($state->current->entityType == $entityType) {
+            return;
+        }
+
+        $state->previous->entityType = $state->current->entityType;
+        $state->current->entityType  = $entityType;
+    }
+
+    public function stateEntities($entityType)
+    {
+        return $this->state->current->{$entityType};
+    }
+
+    public function stateEntity($entityType)
+    {
+        $entities = $this->state->current->{$entityType};
+
+        return count($entities) ? $entities[0] : false;
+    }
+
+    public function previousStateEntities($entityType)
+    {
+        return $this->state->previous->{$entityType};
+    }
+
+    public function stateEntityType()
+    {
+        return $this->state->current->entityType;
+    }
+
+    public function getState()
+    {
+        return $this->state;
     }
 
     protected function getField($field)
@@ -107,9 +165,9 @@ class BaseIntent
         return $data;
     }
 
-    protected function loadStates($entityType)
+    protected function loadStates($entityType): void
     {
-        $states = array_filter($this->getFields('Filter'), function($state) {
+        $states = array_filter($this->getFields('Filter'), function ($state) {
             return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
         });
 
@@ -124,80 +182,24 @@ class BaseIntent
 
         if ($value) {
             return $fieldValue && $fieldValue == $value;
-        } else {
-            return $fieldValue ? true : false;
-        }
-    }
-
-    public function process()
-    {
-        throw new Exception(trans('texts.intent_not_supported'));
-    }
-
-    public function setStateEntities($entityType, $entities)
-    {
-        if (! is_array($entities)) {
-            $entities = [$entities];
         }
 
-        $state = $this->state;
-
-        $state->previous->$entityType = $state->current->$entityType;
-        $state->current->$entityType = $entities;
-    }
-
-    public function setStateEntityType($entityType)
-    {
-        $state = $this->state;
-
-        if ($state->current->entityType == $entityType) {
-            return;
-        }
-
-        $state->previous->entityType = $state->current->entityType;
-        $state->current->entityType = $entityType;
-    }
-
-    public function stateEntities($entityType)
-    {
-        return $this->state->current->$entityType;
-    }
-
-    public function stateEntity($entityType)
-    {
-        $entities = $this->state->current->$entityType;
-
-        return count($entities) ? $entities[0] : false;
-    }
-
-    public function previousStateEntities($entityType)
-    {
-        return $this->state->previous->$entityType;
-    }
-
-    public function stateEntityType()
-    {
-        return $this->state->current->entityType;
-    }
-
-    public function getState()
-    {
-        return $this->state;
+        return $fieldValue ? true : false;
     }
 
     protected function requestClient()
     {
         $clientRepo = app('App\Ninja\Repositories\ClientRepository');
-        $client = false;
+        $client     = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'Name') {
                 $param->type = rtrim($param->type, ' \' s');
-                $client = $clientRepo->findPhonetically($param->entity);
+                $client      = $clientRepo->findPhonetically($param->entity);
             }
         }
 
-        if (! $client) {
+        if ( ! $client) {
             $client = $this->state->current->client;
         }
 
@@ -207,7 +209,7 @@ class BaseIntent
     protected function requestInvoice()
     {
         $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
-        $invoice = false;
+        $invoice     = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'builtin.number') {
@@ -222,7 +224,7 @@ class BaseIntent
     {
         $data = [];
 
-        if (! isset($this->data->compositeEntities)) {
+        if ( ! isset($this->data->compositeEntities)) {
             return [];
         }
 
@@ -313,7 +315,7 @@ class BaseIntent
         } else {
             if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
                 // do nothing
-            } elseif (! is_array($content)) {
+            } elseif ( ! is_array($content)) {
                 $content = [$content];
             }
 

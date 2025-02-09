@@ -9,9 +9,9 @@ class EnableResumingTasks extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->boolean('is_running')->default(false);
             $table->integer('break_duration')->nullable();
             $table->timestamp('resume_time')->nullable();
@@ -19,15 +19,14 @@ class EnableResumingTasks extends Migration
         });
 
         $tasks = DB::table('tasks')
-                    ->where('duration', '=', -1)
-                    ->select('id', 'duration', 'start_time')
-                    ->get();
+            ->where('duration', '=', -1)
+            ->select('id', 'duration', 'start_time')
+            ->get();
 
         foreach ($tasks as $task) {
             $data = [
                 'is_running' => true,
-                'duration' => 0,
-                
+                'duration'   => 0,
             ];
 
             DB::table('tasks')
@@ -41,9 +40,9 @@ class EnableResumingTasks extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->dropColumn('is_running');
             $table->dropColumn('resume_time');
             $table->dropColumn('break_duration');

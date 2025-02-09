@@ -9,14 +9,14 @@ class GatewayFeesCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $I): void
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function checkLineItemFee(AcceptanceTester $I)
+    public function checkLineItemFee(AcceptanceTester $I): void
     {
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->word();
@@ -66,7 +66,7 @@ class GatewayFeesCest
         $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
-    private function configureGatewayFeeTax($I, $taxName = '', $taxRate = '')
+    private function configureGatewayFeeTax($I, $taxName = '', $taxRate = ''): void
     {
         if ($taxName && $taxRate) {
             $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
@@ -86,7 +86,7 @@ class GatewayFeesCest
         $I->click('#modalSave');
     }
 
-    private function configureLineItemTaxRates($I, $taxName, $taxRate)
+    private function configureLineItemTaxRates($I, $taxName, $taxRate): void
     {
         $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
         $I->createTaxRate($I, $taxName, $taxRate);
@@ -101,7 +101,7 @@ class GatewayFeesCest
         //$I->click('Save');
     }
 
-    private function configureFees($I, $feeAmount, $feePercent)
+    private function configureFees($I, $feeAmount, $feePercent): void
     {
         $I->createGateway($I);
 
@@ -145,7 +145,7 @@ class GatewayFeesCest
         return $invitationKey;
     }
 
-    private function createPayment($I, $invitationKey, $amount, $balance, $fee)
+    private function createPayment($I, $invitationKey, $amount, $balance, $fee): void
     {
         $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
 
@@ -153,30 +153,30 @@ class GatewayFeesCest
         $I->amOnPage('/payment/' . $invitationKey . '/credit_card');
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id' => $invoiceId,
+            'id'     => $invoiceId,
             'amount' => ($amount + $fee),
         ]);
 
         $I->amOnPage('/payment/' . $invitationKey . '/bank_transfer');
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id' => $invoiceId,
+            'id'     => $invoiceId,
             'amount' => ($amount + $fee * 2),
         ]);
 
         $I->amOnPage('/view/' . $invitationKey);
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id' => $invoiceId,
+            'id'     => $invoiceId,
             'amount' => ($amount + $fee * 2),
         ]);
 
         $I->createOnlinePayment($I, $invitationKey);
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id' => $invoiceId,
-            'amount' => ($amount + $fee),
-            'balance' => $balance
+            'id'      => $invoiceId,
+            'amount'  => ($amount + $fee),
+            'balance' => $balance,
         ]);
     }
 }

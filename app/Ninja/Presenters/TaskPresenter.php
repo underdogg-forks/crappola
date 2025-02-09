@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class TaskPresenter.
@@ -27,7 +27,7 @@ class TaskPresenter extends EntityPresenter
 
     public function description()
     {
-        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+        return mb_substr($this->entity->description, 0, 40) . (mb_strlen($this->entity->description) > 40 ? '...' : '');
     }
 
     public function project()
@@ -36,7 +36,7 @@ class TaskPresenter extends EntityPresenter
     }
 
     /**
-     * @param $account
+     * @param       $account
      * @param mixed $showProject
      *
      * @return mixed
@@ -64,8 +64,8 @@ class TaskPresenter extends EntityPresenter
                 $end = $part[1];
             }
 
-            $start = $account->formatDateTime('@' . intval($start));
-            $end = $account->formatTime('@' . intval($end));
+            $start = $account->formatDateTime('@' . (int) $start);
+            $end   = $account->formatTime('@' . (int) $end);
 
             $times[] = "### {$start} - {$end}";
         }
@@ -75,10 +75,10 @@ class TaskPresenter extends EntityPresenter
 
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
-        $task = $this->entity;
+        $data    = parent::calendarEvent();
+        $task    = $this->entity;
         $account = $task->account;
-        $date = $account->getDateTime();
+        $date    = $account->getDateTime();
 
         $data->title = trans('texts.task');
         if ($project = $this->project()) {
@@ -103,7 +103,7 @@ class TaskPresenter extends EntityPresenter
             $data->start = $date->format('Y-m-d H:i:m');
 
             $last = $parts[count($parts) - 1];
-            $end = count($last) == 2 ? $last[1] : $last[0];
+            $end  = count($last) == 2 ? $last[1] : $last[0];
             $date->setTimestamp($end);
             $data->end = $date->format('Y-m-d H:i:m');
         }

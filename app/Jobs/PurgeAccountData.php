@@ -2,13 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Models\Document;
 use App\Models\LookupAccount;
-use Auth;
+use App\Ninja\Mailers\UserMailer;
 use DB;
 use Exception;
-use App\Ninja\Mailers\UserMailer;
+use Illuminate\Support\Facades\Auth;
 
 class PurgeAccountData extends Job
 {
@@ -17,17 +16,17 @@ class PurgeAccountData extends Job
      *
      * @return void
      */
-    public function handle(UserMailer $userMailer)
+    public function handle(UserMailer $userMailer): void
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $user->account;
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             throw new Exception(trans('texts.forbidden'));
         }
 
         // delete the documents from cloud storage
-        Document::scope()->each(function ($item, $key) {
+        Document::scope()->each(function ($item, $key): void {
             $item->delete();
         });
 
@@ -63,9 +62,9 @@ class PurgeAccountData extends Job
         }
 
         $account->invoice_number_counter = 1;
-        $account->quote_number_counter = 1;
-        $account->credit_number_counter = $account->credit_number_counter > 0 ? 1 : 0;
-        $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
+        $account->quote_number_counter   = 1;
+        $account->credit_number_counter  = $account->credit_number_counter > 0 ? 1 : 0;
+        $account->client_number_counter  = $account->client_number_counter > 0 ? 1 : 0;
         $account->save();
 
         session([RECENTLY_VIEWED => false]);

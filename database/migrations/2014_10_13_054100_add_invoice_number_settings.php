@@ -9,9 +9,9 @@ class AddInvoiceNumberSettings extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('invoice_number_prefix')->nullable();
             $table->integer('invoice_number_counter')->default(1)->nullable();
 
@@ -22,15 +22,15 @@ class AddInvoiceNumberSettings extends Migration
         });
 
         // set initial counter value for accounts with invoices
-    $accounts = DB::table('accounts')->pluck('id');
+        $accounts = DB::table('accounts')->pluck('id');
 
         foreach ($accounts as $accountId) {
             $invoiceNumbers = DB::table('invoices')->where('account_id', $accountId)->pluck('invoice_number');
-            $max = 0;
+            $max            = 0;
 
             foreach ($invoiceNumbers as $invoiceNumber) {
-                $number = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
-                $max = max($max, $number);
+                $number = (int) (preg_replace('/[^0-9]/', '', $invoiceNumber));
+                $max    = max($max, $number);
             }
 
             DB::table('accounts')->where('id', $accountId)->update(['invoice_number_counter' => ++$max]);
@@ -42,9 +42,9 @@ class AddInvoiceNumberSettings extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('invoice_number_prefix');
             $table->dropColumn('invoice_number_counter');
 

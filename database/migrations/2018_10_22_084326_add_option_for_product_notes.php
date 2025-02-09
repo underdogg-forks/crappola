@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddOptionForProductNotes extends Migration
 {
@@ -11,9 +10,9 @@ class AddOptionForProductNotes extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('show_product_notes')->default(false);
         });
     }
@@ -23,8 +22,5 @@ class AddOptionForProductNotes extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        //
-    }
+    public function down(): void {}
 }

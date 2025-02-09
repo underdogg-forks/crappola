@@ -3,29 +3,29 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
-use Barracuda\ArchiveStream\Archive;
 use App\Models\TaxRate;
+use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client' => [],
-            'invoice_number' => [],
-            'invoice_date' => [],
-            'amount' => [],
-            'status' => [],
-            'payment_date' => [],
-            'paid' => [],
-            'method' => [],
-            'due_date' => ['columnSelector-false'],
-            'po_number' => ['columnSelector-false'],
-            'private_notes' => ['columnSelector-false'],
-            'vat_number' => ['columnSelector-false'],
-            'user' => ['columnSelector-false'],
-            'billing_address' => ['columnSelector-false'],
+            'client'           => [],
+            'invoice_number'   => [],
+            'invoice_date'     => [],
+            'amount'           => [],
+            'status'           => [],
+            'payment_date'     => [],
+            'paid'             => [],
+            'method'           => [],
+            'due_date'         => ['columnSelector-false'],
+            'po_number'        => ['columnSelector-false'],
+            'private_notes'    => ['columnSelector-false'],
+            'vat_number'       => ['columnSelector-false'],
+            'user'             => ['columnSelector-false'],
+            'billing_address'  => ['columnSelector-false'],
             'shipping_address' => ['columnSelector-false'],
         ];
 
@@ -45,38 +45,37 @@ class InvoiceReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
-        if (!Auth::user()) {
+        if ( ! Auth::user()) {
             return;
         }
 
-        $account = Auth::user()->account;
-        $statusIds = $this->options['status_ids'];
+        $account      = Auth::user()->account;
+        $statusIds    = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
-        $hasTaxRates = TaxRate::scope()->count();
+        $subgroup     = $this->options['subgroup'];
+        $hasTaxRates  = TaxRate::scope()->count();
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts', 'user')
-                        ->with(['invoices' => function ($query) use ($statusIds) {
-                            $query->invoices()
-                                  ->withArchived()
-                                  ->statusIds($statusIds)
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['payments' => function ($query) {
-                                      $query->withArchived()
-                                              ->excludeFailed()
-                                              ->with('payment_type', 'account_gateway.gateway');
-                                  }, 'invoice_items', 'invoice_status']);
-                        }]);
-
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts', 'user')
+            ->with(['invoices' => function ($query) use ($statusIds): void {
+                $query->invoices()
+                    ->withArchived()
+                    ->statusIds($statusIds)
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['payments' => function ($query): void {
+                        $query->withArchived()
+                            ->excludeFailed()
+                            ->with('payment_type', 'account_gateway.gateway');
+                    }, 'invoice_items', 'invoice_status']);
+            }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
@@ -94,14 +93,14 @@ class InvoiceReport extends AbstractReport
         }
 
         if ($this->isExport && $exportFormat == 'zip-invoices') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
-                      $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
+                    $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
                 }
             }
             $zip->finish();
@@ -110,7 +109,7 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $isFirst = true;
+                $isFirst  = true;
                 $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $row = [

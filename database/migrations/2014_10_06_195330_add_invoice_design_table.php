@@ -9,13 +9,13 @@ class AddInvoiceDesignTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('invoice_designs', function ($table) {
+        Schema::table('invoice_designs', function ($table): void {
             $table->mediumText('javascript')->nullable();
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->text('invoice_design')->nullable();
         });
 
@@ -261,10 +261,10 @@ class AddInvoiceDesignTable extends Migration
 			  var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
 			  SetPdfColor('SomeGreen', doc, 'secondary');
 			  doc.text(AmountX, y, AmountText);",
-            ]);
+        ]);
 
         DB::table('invoice_designs')->where('id', 3)->update([
-                'javascript' => "    var client = invoice.client;
+            'javascript' => "    var client = invoice.client;
 	    var account = invoice.account;
 	    var currencyId = client.currency_id;
 
@@ -489,7 +489,6 @@ class AddInvoiceDesignTable extends Migration
 		    doc.setFontType('normal');
 		    doc.text(layout.marginLeft, 790, 'Created by InvoiceNinja.com');
 		  }",
-          
         ]);
     }
 
@@ -498,13 +497,13 @@ class AddInvoiceDesignTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('invoice_designs', function ($table) {
+        Schema::table('invoice_designs', function ($table): void {
             $table->dropColumn('javascript');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('invoice_design');
         });
     }

@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use App\Models\Invoice;
 use App\Models\Expense;
+use App\Models\Invoice;
 use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
@@ -11,38 +11,37 @@ class DocumentReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'document' => [],
-            'client' => [],
+            'document'           => [],
+            'client'             => [],
             'invoice_or_expense' => [],
-            'date' => [],
+            'date'               => [],
         ];
     }
 
-
-    public function run()
+    public function run(): void
     {
-        $account = auth()->user()->account;
-        $filter = $this->options['document_filter'];
+        $account      = auth()->user()->account;
+        $filter       = $this->options['document_filter'];
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
-        $records = false;
+        $subgroup     = $this->options['subgroup'];
+        $records      = false;
 
-        if (! $filter || $filter == ENTITY_INVOICE) {
+        if ( ! $filter || $filter == ENTITY_INVOICE) {
             $records = Invoice::scope()
-                            ->withArchived()
-                            ->with(['documents'])
-                            ->where('invoice_date', '>=', $this->startDate)
-                            ->where('invoice_date', '<=', $this->endDate)
-                            ->get();
+                ->withArchived()
+                ->with(['documents'])
+                ->where('invoice_date', '>=', $this->startDate)
+                ->where('invoice_date', '<=', $this->endDate)
+                ->get();
         }
 
-        if (! $filter || $filter == ENTITY_EXPENSE){
+        if ( ! $filter || $filter == ENTITY_EXPENSE) {
             $expenses = Expense::scope()
-                            ->withArchived()
-                            ->with(['documents'])
-                            ->where('expense_date', '>=', $this->startDate)
-                            ->where('expense_date', '<=', $this->endDate)
-                            ->get();
+                ->withArchived()
+                ->with(['documents'])
+                ->where('expense_date', '>=', $this->startDate)
+                ->where('expense_date', '<=', $this->endDate)
+                ->get();
 
             if ($records) {
                 $records = $records->merge($expenses);
@@ -52,7 +51,7 @@ class DocumentReport extends AbstractReport
         }
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
@@ -71,7 +70,7 @@ class DocumentReport extends AbstractReport
 
         foreach ($records as $record) {
             foreach ($record->documents as $document) {
-                $date = $record->getEntityType() == ENTITY_INVOICE ? $record->invoice_date : $record->expense_date;
+                $date         = $record->getEntityType() == ENTITY_INVOICE ? $record->invoice_date : $record->expense_date;
                 $this->data[] = [
                     $this->isExport ? $document->name : link_to($document->getUrl(), $document->name),
                     $record->client ? ($this->isExport ? $record->client->getDisplayName() : $record->client->present()->link) : '',

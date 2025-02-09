@@ -7,6 +7,7 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
+use Request;
 use Response;
 
 class ClientApiController extends BaseAPIController
@@ -28,11 +29,14 @@ class ClientApiController extends BaseAPIController
      *   summary="List clients",
      *   operationId="listClients",
      *   tags={"client"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of clients",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Client"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -45,11 +49,11 @@ class ClientApiController extends BaseAPIController
             ->orderBy('updated_at', 'desc')
             ->withTrashed();
 
-        if ($email = \Request::input('email')) {
-            $clients = $clients->whereHas('contacts', function ($query) use ($email) {
+        if ($email = Request::input('email')) {
+            $clients = $clients->whereHas('contacts', function ($query) use ($email): void {
                 $query->where('email', $email);
             });
-        } elseif ($idNumber = \Request::input('id_number')) {
+        } elseif ($idNumber = Request::input('id_number')) {
             $clients = $clients->whereIdNumber($idNumber);
         }
 
@@ -62,17 +66,21 @@ class ClientApiController extends BaseAPIController
      *   summary="Retrieve a client",
      *   operationId="getClient",
      *   tags={"client"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="client_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single client",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -83,7 +91,7 @@ class ClientApiController extends BaseAPIController
     {
         $client = $request->entity();
 
-        if (strpos(request()->include, 'activities') !== false) {
+        if (str_contains(request()->include, 'activities')) {
             $client->load('activities.client.contacts', 'activities.user', 'activities.invoice', 'activities.payment', 'activities.credit', 'activities.account', 'activities.task', 'activities.expense', 'activities.contact');
         }
 
@@ -96,16 +104,21 @@ class ClientApiController extends BaseAPIController
      *   summary="Create a client",
      *   operationId="createClient",
      *   tags={"client"},
+     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="client",
+     *
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="New client",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -125,6 +138,7 @@ class ClientApiController extends BaseAPIController
      *   summary="Update a client",
      *   operationId="updateClient",
      *   tags={"client"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="client_id",
@@ -134,13 +148,17 @@ class ClientApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="client",
+     *
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated client",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -155,9 +173,9 @@ class ClientApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $client = $this->clientRepo->save($data, $request->entity());
+        $client            = $this->clientRepo->save($data, $request->entity());
 
         $client->load(['contacts']);
 
@@ -170,17 +188,21 @@ class ClientApiController extends BaseAPIController
      *   summary="Delete a client",
      *   operationId="deleteClient",
      *   tags={"client"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="client_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted client",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

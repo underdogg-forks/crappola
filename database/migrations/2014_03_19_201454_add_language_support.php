@@ -9,30 +9,30 @@ class AddLanguageSupport extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('languages', function ($table) {
+        Schema::create('languages', function ($table): void {
             $table->increments('id');
             $table->string('name');
             $table->string('locale');
         });
 
-    //DB::table('languages')->insert(['name' => 'English', 'locale' => 'en']);
-    //DB::table('languages')->insert(['name' => 'Italian', 'locale' => 'it']);
-    //DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
-    //DB::table('languages')->insert(['name' => 'French', 'locale' => 'fr']);
-    //DB::table('languages')->insert(['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR']);
-    //DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
-    //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
-    //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
+        //DB::table('languages')->insert(['name' => 'English', 'locale' => 'en']);
+        //DB::table('languages')->insert(['name' => 'Italian', 'locale' => 'it']);
+        //DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
+        //DB::table('languages')->insert(['name' => 'French', 'locale' => 'fr']);
+        //DB::table('languages')->insert(['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR']);
+        //DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
+        //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
+        //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->unsignedInteger('language_id')->default(1);
         });
 
         DB::table('accounts')->update(['language_id' => 1]);
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->foreign('language_id')->references('id')->on('languages');
         });
     }
@@ -42,9 +42,9 @@ class AddLanguageSupport extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropForeign('accounts_language_id_foreign');
             $table->dropColumn('language_id');
         });

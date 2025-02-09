@@ -25,24 +25,16 @@ class ProposalTemplateService extends BaseService
      * CreditService constructor.
      *
      * @param ProposalTemplateRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService           $datatableService
      */
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, DatatableService $datatableService)
     {
         $this->proposalTemplateRepo = $proposalTemplateRepo;
-        $this->datatableService = $datatableService;
+        $this->datatableService     = $datatableService;
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalTemplateRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $proposalTemplate
      *
      * @return mixed|null
@@ -53,8 +45,8 @@ class ProposalTemplateService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -67,5 +59,13 @@ class ProposalTemplateService extends BaseService
         $query = $this->proposalTemplateRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->proposalTemplateRepo;
     }
 }

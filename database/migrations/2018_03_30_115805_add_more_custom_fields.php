@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Account;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreCustomFields extends Migration
 {
@@ -12,9 +11,9 @@ class AddMoreCustomFields extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->mediumText('custom_fields')->nullable();
         });
 
@@ -34,26 +33,26 @@ class AddMoreCustomFields extends Migration
             ->get();
 
         $fields = [
-            'account1' => 'custom_label1',
-            'account2' => 'custom_label2',
-            'client1' => 'custom_client_label1',
-            'client2' => 'custom_client_label2',
-            'contact1' => 'custom_contact_label1',
-            'contact2' => 'custom_contact_label2',
-            'invoice1' => 'custom_invoice_label1',
-            'invoice2' => 'custom_invoice_label2',
+            'account1'      => 'custom_label1',
+            'account2'      => 'custom_label2',
+            'client1'       => 'custom_client_label1',
+            'client2'       => 'custom_client_label2',
+            'contact1'      => 'custom_contact_label1',
+            'contact2'      => 'custom_contact_label2',
+            'invoice1'      => 'custom_invoice_label1',
+            'invoice2'      => 'custom_invoice_label2',
             'invoice_text1' => 'custom_invoice_text_label1',
             'invoice_text2' => 'custom_invoice_text_label2',
-            'product1' => 'custom_invoice_item_label1',
-            'product2' => 'custom_invoice_item_label2',
+            'product1'      => 'custom_invoice_item_label1',
+            'product2'      => 'custom_invoice_item_label2',
         ];
 
         foreach ($accounts as $account) {
             $config = [];
 
             foreach ($fields as $key => $field) {
-                if ($account->$field) {
-                    $config[$key] = $account->$field;
+                if ($account->{$field}) {
+                    $config[$key] = $account->{$field};
                 }
             }
 
@@ -63,7 +62,7 @@ class AddMoreCustomFields extends Migration
             }
         }
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('custom_label1');
             $table->dropColumn('custom_label2');
             $table->dropColumn('custom_client_label1');
@@ -78,61 +77,61 @@ class AddMoreCustomFields extends Migration
             $table->dropColumn('custom_invoice_item_label2');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->unsignedInteger('background_image_id')->nullable();
             $table->mediumText('custom_messages')->nullable();
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->mediumText('custom_messages')->nullable();
         });
 
-        Schema::table('tasks', function ($table) {
+        Schema::table('tasks', function ($table): void {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();
         });
 
-        Schema::table('projects', function ($table) {
+        Schema::table('projects', function ($table): void {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();
         });
 
-        Schema::table('expenses', function ($table) {
+        Schema::table('expenses', function ($table): void {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();
         });
 
-        Schema::table('vendors', function ($table) {
+        Schema::table('vendors', function ($table): void {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();
         });
 
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->text('custom_value1')->nullable()->change();
             $table->text('custom_value2')->nullable()->change();
         });
 
-        Schema::table('clients', function ($table) {
+        Schema::table('clients', function ($table): void {
             $table->text('custom_value1')->nullable()->change();
             $table->text('custom_value2')->nullable()->change();
         });
 
-        Schema::table('contacts', function ($table) {
+        Schema::table('contacts', function ($table): void {
             $table->text('custom_value1')->nullable()->change();
             $table->text('custom_value2')->nullable()->change();
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->text('custom_text_value1')->nullable()->change();
             $table->text('custom_text_value2')->nullable()->change();
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->text('custom_value1')->nullable()->change();
             $table->text('custom_value2')->nullable()->change();
         });
 
-        Schema::table('scheduled_reports', function ($table) {
+        Schema::table('scheduled_reports', function ($table): void {
             $table->string('ip')->nullable();
         });
 
@@ -146,8 +145,5 @@ class AddMoreCustomFields extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        //
-    }
+    public function down(): void {}
 }

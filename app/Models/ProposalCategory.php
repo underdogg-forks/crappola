@@ -11,8 +11,8 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalCategory extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var array

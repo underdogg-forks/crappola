@@ -1,17 +1,28 @@
 <?php
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Migrations\Migration;
+
 use App\Models\User;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
+
 class AddJsonPermissions extends Migration
 {
+    /**
+     * @var array
+     */
+    public static $all_permissions = [
+        'create_all' => 0b0001,
+        'view_all'   => 0b0010,
+        'edit_all'   => 0b0100,
+    ];
+
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->longtext('permissionsV2');
         });
         $users = User::where('permissions', '!=', 0)->get();
@@ -20,35 +31,36 @@ class AddJsonPermissions extends Migration
             $user->save();
         }
 
-
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('permissions');
         });
 
-        Schema::table('users', function($table)
-        {
+        Schema::table('users', function ($table): void {
             $table->renameColumn('permissionsV2', 'permissions');
         });
     }
+
     /**
      * Reverse the migrations.
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('permissionsV2');
         });
     }
+
     /**
-     * Transform permissions
+     * Transform permissions.
      *
      * @return json_array
      */
-    public function returnFormattedPermissions($userPermission) {
-        $viewPermissionEntities = [];
-        $editPermissionEntities = [];
+    public function returnFormattedPermissions($userPermission)
+    {
+        $viewPermissionEntities   = [];
+        $editPermissionEntities   = [];
         $createPermissionEntities = [];
 
         $permissionEntities = [
@@ -68,20 +80,23 @@ class AddJsonPermissions extends Migration
             'reports',
         ];
         foreach($permissionEntities as $entity) {
-            array_push($viewPermissionEntities, 'view_'.$entity);
-            array_push($editPermissionEntities, 'edit_'.$entity);
-            array_push($createPermissionEntities, 'create_'.$entity);
+            array_push($viewPermissionEntities, 'view_' . $entity);
+            array_push($editPermissionEntities, 'edit_' . $entity);
+            array_push($createPermissionEntities, 'create_' . $entity);
         }
         $returnPermissions = [];
-        if(array_key_exists('create_all', self::getPermissions($userPermission)))
+        if(array_key_exists('create_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $createPermissionEntities);
-        if(array_key_exists('edit_all',  self::getPermissions($userPermission)))
+        }
+        if(array_key_exists('edit_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $editPermissionEntities);
-        if(array_key_exists('view_all',  self::getPermissions($userPermission)))
+        }
+        if(array_key_exists('view_all', self::getPermissions($userPermission))) {
             $returnPermissions = array_merge($returnPermissions, $viewPermissionEntities);
+        }
+
         return json_encode($returnPermissions);
     }
-
 
     /**
      * Expands the value of the permissions attribute.
@@ -101,14 +116,4 @@ class AddJsonPermissions extends Migration
 
         return $permissions;
     }
-
-    /**
-     * @var array
-     */
-    public static $all_permissions = [
-        'create_all' => 0b0001,
-        'view_all' => 0b0010,
-        'edit_all' => 0b0100,
-    ];
-
 }

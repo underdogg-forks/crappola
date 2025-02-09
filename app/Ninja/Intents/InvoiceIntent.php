@@ -4,14 +4,14 @@ namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
 use App\Models\InvoiceStatus;
-use Auth;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceIntent extends BaseIntent
 {
     protected $fieldMap = [
         'deposit' => 'partial',
-        'due' => 'due_date',
+        'due'     => 'due_date',
     ];
 
     public function __construct($state, $data)
@@ -25,17 +25,17 @@ class InvoiceIntent extends BaseIntent
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
-        if (! $invoiceId) {
+        if ( ! $invoiceId) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
         $invoice = Invoice::scope($invoiceId)->first();
 
-        if (! $invoice) {
+        if ( ! $invoice) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        if (! Auth::user()->can('view', $invoice)) {
+        if ( ! Auth::user()->can('view', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
@@ -47,41 +47,41 @@ class InvoiceIntent extends BaseIntent
         $productRepo = app('App\Ninja\Repositories\ProductRepository');
 
         $invoiceItems = [];
-        $offset = 0;
+        $offset       = 0;
 
-        if (! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
+        if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
         }
 
         foreach ($this->data->compositeEntities as $entity) {
             if ($entity->parentType == 'InvoiceItem') {
                 $product = false;
-                $qty = 1;
+                $qty     = 1;
                 foreach ($entity->children as $child) {
                     if ($child->type == 'Product') {
                         // check additional words in product name
                         // https://social.msdn.microsoft.com/Forums/azure/en-US/a508e039-0f76-4280-8156-4a017bcfc6dd/none-of-your-composite-entities-contain-all-of-the-highlighted-entities?forum=LUIS
-                        $query = $this->data->query;
-                        $startIndex = strpos($query, $child->value, $offset);
-                        $endIndex = strlen($query);
-                        $offset = $startIndex + 1;
+                        $query      = $this->data->query;
+                        $startIndex = mb_strpos($query, $child->value, $offset);
+                        $endIndex   = mb_strlen($query);
+                        $offset     = $startIndex + 1;
                         foreach ($this->data->entities as $indexChild) {
                             if ($indexChild->startIndex > $startIndex) {
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
-                        $productName = substr($query, $startIndex, ($endIndex - $startIndex));
-                        $product = $productRepo->findPhonetically($productName);
+                        $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
+                        $product     = $productRepo->findPhonetically($productName);
                     } else {
                         $qty = $child->value;
                     }
                 }
 
                 if ($product) {
-                    $item['qty'] = $qty;
+                    $item['qty']         = $qty;
                     $item['product_key'] = $product->product_key;
-                    $item['cost'] = $product->cost;
-                    $item['notes'] = $product->notes;
+                    $item['cost']        = $product->cost;
+                    $item['notes']       = $product->notes;
 
                     /*
                     if ($taxRate = $product->default_tax_rate) {
@@ -89,7 +89,7 @@ class InvoiceIntent extends BaseIntent
                         $item['tax_rate1'] = $taxRate->rate;
                     }
                     */
-                    
+
                     $invoiceItems[] = $item;
                 }
             }
@@ -108,10 +108,10 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
-    protected function loadStatuses($entityType)
+    protected function loadStatuses($entityType): void
     {
         $statusIds = [];
-        $statuses = $this->getFields('Filter');
+        $statuses  = $this->getFields('Filter');
 
         foreach ($statuses as $status) {
             if ($statusId = InvoiceStatus::getIdFromAlias($status)) {

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
 
 /**
  * Class ExpenseCategory.

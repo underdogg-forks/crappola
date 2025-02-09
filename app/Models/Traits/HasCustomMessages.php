@@ -10,11 +10,11 @@ trait HasCustomMessages
     /**
      * @param $value
      */
-    public function setCustomMessagesAttribute($data)
+    public function setCustomMessagesAttribute($data): void
     {
         $fields = [];
 
-        if (! is_array($data)) {
+        if ( ! is_array($data)) {
             $data = json_decode($data);
         }
 
@@ -36,14 +36,14 @@ trait HasCustomMessages
     {
         $messages = $this->custom_messages;
 
-        if (! empty($messages->$type)) {
-            return $messages->$type;
+        if ( ! empty($messages->{$type})) {
+            return $messages->{$type};
         }
 
         if ($this->account) {
             return $this->account->customMessage($type);
-        } else {
-            return '';
         }
+
+        return '';
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddCustomProductFields extends Migration
@@ -10,14 +9,14 @@ class AddCustomProductFields extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
         });
 
-        Schema::table('account_gateway_settings', function ($table) {
+        Schema::table('account_gateway_settings', function ($table): void {
             $table->decimal('fee_amount', 13, 2)->nullable();
             $table->decimal('fee_percent', 13, 3)->nullable();
             $table->string('fee_tax_name1')->nullable();
@@ -26,11 +25,11 @@ class AddCustomProductFields extends Migration
             $table->decimal('fee_tax_rate2', 13, 3)->nullable();
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->smallInteger('invoice_item_type_id')->default(1);
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->smallInteger('reset_counter_frequency_id')->nullable();
             $table->smallInteger('payment_type_id')->nullable();
         });
@@ -52,14 +51,14 @@ class AddCustomProductFields extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('products', function ($table) {
+        Schema::table('products', function ($table): void {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
 
-        Schema::table('account_gateway_settings', function ($table) {
+        Schema::table('account_gateway_settings', function ($table): void {
             $table->dropColumn('fee_amount');
             $table->dropColumn('fee_percent');
             $table->dropColumn('fee_tax_rate1');
@@ -68,11 +67,11 @@ class AddCustomProductFields extends Migration
             $table->dropColumn('fee_tax_name2');
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->dropColumn('invoice_item_type_id');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('reset_counter_frequency_id');
             $table->dropColumn('payment_type_id');
         });

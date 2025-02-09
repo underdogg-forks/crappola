@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddSubscriptionFormat extends Migration
 {
@@ -11,35 +10,35 @@ class AddSubscriptionFormat extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('subscriptions', function ($table) {
+        Schema::table('subscriptions', function ($table): void {
             $table->enum('format', ['JSON', 'UBL'])->default('JSON');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('ubl_email_attachment')->default(false);
         });
 
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->string('email_subject_proposal')->nullable();
             $table->text('email_template_proposal')->nullable();
         });
 
-        Schema::table('documents', function ($table) {
+        Schema::table('documents', function ($table): void {
             $table->boolean('is_proposal')->default(false);
             $table->string('document_key')->nullable()->unique();
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->decimal('discount', 13, 2)->change();
         });
 
-        Schema::table('invoice_items', function ($table) {
+        Schema::table('invoice_items', function ($table): void {
             $table->decimal('discount', 13, 2)->change();
         });
 
-        Schema::create('proposal_categories', function ($table) {
+        Schema::create('proposal_categories', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -56,7 +55,7 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('proposal_snippets', function ($table) {
+        Schema::create('proposal_snippets', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -79,7 +78,7 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('proposal_templates', function ($table) {
+        Schema::create('proposal_templates', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
@@ -99,7 +98,7 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('proposals', function ($table) {
+        Schema::create('proposals', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -122,7 +121,7 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('proposal_invitations', function ($table) {
+        Schema::create('proposal_invitations', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -146,7 +145,7 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::create('lookup_proposal_invitations', function ($table) {
+        Schema::create('lookup_proposal_invitations', function ($table): void {
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('invitation_key')->unique();
@@ -163,22 +162,22 @@ class AddSubscriptionFormat extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('subscriptions', function ($table) {
+        Schema::table('subscriptions', function ($table): void {
             $table->dropColumn('format');
         });
 
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('ubl_email_attachment');
         });
 
-        Schema::table('account_email_settings', function ($table) {
+        Schema::table('account_email_settings', function ($table): void {
             $table->dropColumn('email_subject_proposal');
             $table->dropColumn('email_template_proposal');
         });
 
-        Schema::table('documents', function ($table) {
+        Schema::table('documents', function ($table): void {
             $table->dropColumn('is_proposal');
             $table->dropColumn('document_key');
         });

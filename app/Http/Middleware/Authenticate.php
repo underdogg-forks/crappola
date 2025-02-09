@@ -2,13 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\ProposalInvitation;
-use Auth;
-use Utils;
 use Closure;
+use Illuminate\Support\Facades\Auth;
+use Redirect;
 use Session;
 
 /**
@@ -20,7 +21,7 @@ class Authenticate
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
+     * @param Closure                  $next
      * @param string                   $guard
      *
      * @return mixed
@@ -31,15 +32,15 @@ class Authenticate
         $invitationKey = $request->invitation_key ?: $request->proposal_invitation_key;
 
         if ($guard == 'client') {
-            if (! empty($request->invitation_key) || ! empty($request->proposal_invitation_key)) {
+            if ( ! empty($request->invitation_key) || ! empty($request->proposal_invitation_key)) {
                 $contact_key = session('contact_key');
                 if ($contact_key) {
-                    $contact = $this->getContact($contact_key);
+                    $contact    = $this->getContact($contact_key);
                     $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key));
 
-                    if (! $invitation) {
+                    if ( ! $invitation) {
                         return response()->view('error', [
-                            'error' => trans('texts.invoice_not_found'),
+                            'error'      => trans('texts.invoice_not_found'),
                             'hideHeader' => true,
                         ]);
                     }
@@ -53,7 +54,7 @@ class Authenticate
                 }
             }
 
-            if (! empty($request->contact_key)) {
+            if ( ! empty($request->contact_key)) {
                 $contact_key = $request->contact_key;
                 Session::put('contact_key', $contact_key);
             } else {
@@ -67,8 +68,8 @@ class Authenticate
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
             }
-            if (! $contact) {
-                return \Redirect::to('client/login');
+            if ( ! $contact) {
+                return Redirect::to('client/login');
             }
 
             $account = $contact->account;
@@ -79,11 +80,11 @@ class Authenticate
             }
 
             // Does this account require portal passwords?
-            if ($account && (! $account->enable_portal_password || ! $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))) {
+            if ($account && ( ! $account->enable_portal_password || ! $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))) {
                 $authenticated = true;
             }
 
-            if (! $authenticated && $contact && ! $contact->password) {
+            if ( ! $authenticated && $contact && ! $contact->password) {
                 $authenticated = true;
             }
 
@@ -97,26 +98,26 @@ class Authenticate
             }
         }
 
-        if (! $authenticated) {
+        if ( ! $authenticated) {
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
-            } else {
-                if ($guard == 'client') {
-                    $url = '/client/login';
-                    if (Utils::isNinjaProd()) {
-                        if ($account && Utils::getSubdomain() == 'app') {
-                            $url .= '?account_key=' . $account->account_key;
-                        }
-                    } else {
-                        if ($account && Account::count() > 1) {
-                            $url .= '?account_key=' . $account->account_key;
-                        }
+            }
+            if ($guard == 'client') {
+                $url = '/client/login';
+                if (Utils::isNinjaProd()) {
+                    if ($account && Utils::getSubdomain() == 'app') {
+                        $url .= '?account_key=' . $account->account_key;
                     }
                 } else {
-                    $url = '/login';
+                    if ($account && Account::count() > 1) {
+                        $url .= '?account_key=' . $account->account_key;
+                    }
                 }
-                return redirect()->guest($url);
+            } else {
+                $url = '/login';
             }
+
+            return redirect()->guest($url);
         }
 
         return $next($request);
@@ -129,13 +130,13 @@ class Authenticate
      */
     protected function getInvitation($key, $isProposal = false)
     {
-        if (! $key) {
+        if ( ! $key) {
             return false;
         }
 
         // check for extra params at end of value (from website feature)
         list($key) = explode('&', $key);
-        $key = substr($key, 0, RANDOM_KEY_LENGTH);
+        $key       = mb_substr($key, 0, RANDOM_KEY_LENGTH);
 
         if ($isProposal) {
             $invitation = ProposalInvitation::withTrashed()->where('invitation_key', '=', $key)->first();
@@ -145,8 +146,6 @@ class Authenticate
 
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;
-        } else {
-            return null;
         }
     }
 
@@ -160,8 +159,6 @@ class Authenticate
         $contact = Contact::withTrashed()->where('contact_key', '=', $key)->first();
         if ($contact && ! $contact->is_deleted) {
             return $contact;
-        } else {
-            return null;
         }
     }
 }

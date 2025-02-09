@@ -9,7 +9,7 @@ class CreatePasswordResetsTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::rename('password_reminders', 'password_resets');
     }
@@ -19,7 +19,7 @@ class CreatePasswordResetsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::rename('password_resets', 'password_reminders');
     }

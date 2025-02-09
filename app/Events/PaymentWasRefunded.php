@@ -23,11 +23,11 @@ class PaymentWasRefunded extends Event
      * Create a new event instance.
      *
      * @param Payment $payment
-     * @param $refundAmount
+     * @param         $refundAmount
      */
     public function __construct(Payment $payment, $refundAmount)
     {
-        $this->payment = $payment;
+        $this->payment      = $payment;
         $this->refundAmount = $refundAmount;
     }
 }

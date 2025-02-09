@@ -2,9 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Laracasts\Presenter\Presenter;
-use URL;
-use Utils;
 use stdClass;
 
 class EntityPresenter extends Presenter
@@ -20,7 +19,7 @@ class EntityPresenter extends Presenter
     public function path()
     {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
-        $id = $this->entity->public_id;
+        $id   = $this->entity->public_id;
 
         return sprintf('/%s/%s', $type, $id);
     }
@@ -34,9 +33,10 @@ class EntityPresenter extends Presenter
     {
         $class = $text = '';
 
-        if (! $this->entity->id) {
+        if ( ! $this->entity->id) {
             return '';
-        } elseif ($this->entity->is_deleted) {
+        }
+        if ($this->entity->is_deleted) {
             $class = 'danger';
             $label = trans('texts.deleted');
         } elseif ($this->entity->trashed()) {
@@ -81,7 +81,7 @@ class EntityPresenter extends Presenter
 
     public function titledName()
     {
-        $entity = $this->entity;
+        $entity     = $this->entity;
         $entityType = $entity->getEntityType();
 
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
@@ -91,12 +91,11 @@ class EntityPresenter extends Presenter
     {
         $entity = $this->entity;
 
-        $data = new stdClass();
-        $data->id = $entity->getEntityType() . ':' . $entity->public_id;
+        $data         = new stdClass();
+        $data->id     = $entity->getEntityType() . ':' . $entity->public_id;
         $data->allDay = true;
-        $data->url = $this->url();
+        $data->url    = $this->url();
 
         return $data;
     }
-
 }

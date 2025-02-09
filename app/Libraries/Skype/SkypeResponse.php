@@ -6,7 +6,7 @@ class SkypeResponse
 {
     public function __construct($type)
     {
-        $this->type = $type;
+        $this->type        = $type;
         $this->attachments = [];
     }
 
@@ -18,12 +18,12 @@ class SkypeResponse
         return json_encode($instance);
     }
 
-    public function setText($text)
+    public function setText($text): void
     {
         $this->text = $text;
     }
 
-    public function addAttachment($attachment)
+    public function addAttachment($attachment): void
     {
         $this->attachments[] = $attachment;
     }

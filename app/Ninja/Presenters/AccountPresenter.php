@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
+use App\Models\Account;
+use App\Models\TaxRate;
 use Carbon;
 use Domain;
-use App\Models\TaxRate;
-use App\Models\Account;
 use Laracasts\Presenter\Presenter;
 use stdClass;
-use Utils;
 
 /**
  * Class AccountPresenter.
@@ -58,11 +58,11 @@ class AccountPresenter extends Presenter
      */
     public function taskRate()
     {
-        if (floatval($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
-        } else {
-            return '';
         }
+
+        return '';
     }
 
     /**
@@ -71,7 +71,7 @@ class AccountPresenter extends Presenter
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();
-        $currency = Utils::getFromCache($currencyId, 'currencies');
+        $currency   = Utils::getFromCache($currencyId, 'currencies');
 
         return $currency->code;
     }
@@ -79,7 +79,7 @@ class AccountPresenter extends Presenter
     public function clientPortalLink($subdomain = false)
     {
         $account = $this->entity;
-        $url = Domain::getLinkFromId($account->domain_id);
+        $url     = Domain::getLinkFromId($account->domain_id);
 
         if ($subdomain && $account->subdomain) {
             $url = Utils::replaceSubdomain($url, $account->subdomain);
@@ -104,7 +104,8 @@ class AccountPresenter extends Presenter
 
         if ($terms == 0) {
             return '';
-        } elseif ($terms == -1) {
+        }
+        if ($terms == -1) {
             $terms = 0;
         }
 
@@ -122,26 +123,11 @@ class AccountPresenter extends Presenter
         return $date ? Utils::fromSqlDate($date) : ' ';
     }
 
-    private function createRBit($type, $source, $properties)
-    {
-        $data = new stdClass();
-        $data->receive_time = time();
-        $data->type = $type;
-        $data->source = $source;
-        $data->properties = new stdClass();
-
-        foreach ($properties as $key => $val) {
-            $data->properties->$key = $val;
-        }
-
-        return $data;
-    }
-
     public function rBits()
     {
         $account = $this->entity;
-        $user = $account->users()->first();
-        $data = [];
+        $user    = $account->users()->first();
+        $data    = [];
 
         $data[] = $this->createRBit('business_name', 'user', ['business_name' => $account->name]);
         $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $account->present()->industry]);
@@ -160,9 +146,9 @@ class AccountPresenter extends Presenter
     public function dateRangeOptions()
     {
         $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
-        $month = $yearStart->month - 1;
-        $year = $yearStart->year;
-        $lastYear = $year - 1;
+        $month     = $yearStart->month - 1;
+        $year      = $yearStart->year;
+        $lastYear  = $year - 1;
 
         $str = '{
             "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
@@ -178,7 +164,7 @@ class AccountPresenter extends Presenter
 
     public function taxRateOptions()
     {
-        $rates = TaxRate::scope()->orderBy('name')->get();
+        $rates   = TaxRate::scope()->orderBy('name')->get();
         $options = [];
 
         foreach ($rates as $rate) {
@@ -195,14 +181,14 @@ class AccountPresenter extends Presenter
     public function customTextFields()
     {
         $fields = [
-            'client1' => 'custom_client1',
-            'client1' => 'custom_client2',
-            'contact1' => 'custom_contact1',
-            'contact2' => 'custom_contact2',
+            'client1'       => 'custom_client1',
+            'client1'       => 'custom_client2',
+            'contact1'      => 'custom_contact1',
+            'contact2'      => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',
             'invoice_text2' => 'custom_invoice2',
-            'product1' => 'custom_product1',
-            'product2' => 'custom_product2',
+            'product1'      => 'custom_product1',
+            'product2'      => 'custom_product2',
         ];
         $data = [];
 
@@ -210,7 +196,7 @@ class AccountPresenter extends Presenter
             if ($label = $this->customLabel($key)) {
                 $data[Utils::getCustomLabel($label)] = [
                     'value' => $val,
-                    'name' => $val,
+                    'name'  => $val,
                 ];
             }
         }
@@ -221,17 +207,17 @@ class AccountPresenter extends Presenter
     public function customDesigns()
     {
         $account = $this->entity;
-        $data = [];
+        $data    = [];
 
-        for ($i=1; $i<=3; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             $label = trans('texts.custom_design' . $i);
-            if (! $account->{'custom_design' . $i}) {
+            if ( ! $account->{'custom_design' . $i}) {
                 $label .= ' - ' . trans('texts.empty');
             }
 
             $data[] = [
-                'url' => url('/settings/customize_design?design_id=') . ($i + 10),
-                'label' => $label
+                'url'   => url('/settings/customize_design?design_id=') . ($i + 10),
+                'label' => $label,
             ];
         }
 
@@ -253,7 +239,7 @@ class AccountPresenter extends Presenter
         $url .= '/client/login';
 
         if (Utils::isNinja()) {
-            if (! $account->subdomain) {
+            if ( ! $account->subdomain) {
                 $url .= '?account_key=' . $account->account_key;
             }
         } else {
@@ -268,5 +254,20 @@ class AccountPresenter extends Presenter
     public function customLabel($field)
     {
         return Utils::getCustomLabel($this->entity->customLabel($field));
+    }
+
+    private function createRBit($type, $source, $properties)
+    {
+        $data               = new stdClass();
+        $data->receive_time = time();
+        $data->type         = $type;
+        $data->source       = $source;
+        $data->properties   = new stdClass();
+
+        foreach ($properties as $key => $val) {
+            $data->properties->{$key} = $val;
+        }
+
+        return $data;
     }
 }

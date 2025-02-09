@@ -13,7 +13,7 @@ class AppLanguageComposer
      *
      * @return void
      */
-    public function compose(View $view)
+    public function compose(View $view): void
     {
         $view->with('appLanguage', $this->getLanguage());
     }
@@ -29,7 +29,7 @@ class AppLanguageComposer
 
         if (preg_match('/_/', $code)) {
             $codes = explode('_', $code);
-            $code = $codes[0];
+            $code  = $codes[0];
         }
 
         return $code;

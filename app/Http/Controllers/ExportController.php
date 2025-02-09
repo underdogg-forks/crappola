@@ -14,9 +14,9 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
-use Auth;
 use Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 
@@ -33,7 +33,7 @@ class ExportController extends BaseController
     public function doExport(Request $request)
     {
         $format = $request->input('format');
-        $date = date('Y-m-d');
+        $date   = date('Y-m-d');
 
         // set the filename based on the entity types selected
         if ($request->include == 'all') {
@@ -41,22 +41,21 @@ class ExportController extends BaseController
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
-                if (! in_array($key, ['format', 'include', '_token'])) {
+                if ( ! in_array($key, ['format', 'include', '_token'])) {
                     return $key;
-                } else {
-                    return null;
                 }
             }, array_keys($fields), $fields));
-            $fileName = $date. '-invoiceninja-' . implode('-', $fields);
+            $fileName = $date . '-invoiceninja-' . implode('-', $fields);
         }
 
         if ($format === 'JSON') {
             return $this->returnJSON($request, $fileName);
-        } elseif ($format === 'CSV') {
-            return $this->returnCSV($request, $fileName);
-        } else {
-            return $this->returnXLS($request, $fileName);
         }
+        if ($format === 'CSV') {
+            return $this->returnCSV($request, $fileName);
+        }
+
+        return $this->returnXLS($request, $fileName);
     }
 
     /**
@@ -67,7 +66,7 @@ class ExportController extends BaseController
      */
     private function returnJSON($request, $fileName)
     {
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+        $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
         header("Content-Disposition:attachment;filename={$fileName}.json");
 
@@ -76,20 +75,20 @@ class ExportController extends BaseController
 
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['clients' => function ($query) {
+        $account->load(['clients' => function ($query): void {
             $query->withArchived()
-                  ->with(['contacts', 'invoices' => function ($query) {
-                      $query->withArchived()
-                            ->with(['invoice_items', 'payments' => function ($query) {
-                                $query->withArchived();
-                            }]);
-                  }]);
+                ->with(['contacts', 'invoices' => function ($query): void {
+                    $query->withArchived()
+                        ->with(['invoice_items', 'payments' => function ($query): void {
+                            $query->withArchived();
+                        }]);
+                }]);
         }]);
 
         $resource = new Item($account, new AccountTransformer());
-        $data = $manager->parseIncludes('clients.invoices.payments')
-                    ->createData($resource)
-                    ->toArray();
+        $data     = $manager->parseIncludes('clients.invoices.payments')
+            ->createData($resource)
+            ->toArray();
 
         return response()->json($data);
     }
@@ -104,8 +103,8 @@ class ExportController extends BaseController
     {
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function ($excel) use ($data) {
-            $excel->sheet('', function ($sheet) use ($data) {
+        return Excel::create($fileName, function ($excel) use ($data): void {
+            $excel->sheet('', function ($sheet) use ($data): void {
                 $sheet->loadView('export', $data);
             });
         })->download('csv');
@@ -122,16 +121,16 @@ class ExportController extends BaseController
         $user = Auth::user();
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function ($excel) use ($user, $data) {
+        return Excel::create($fileName, function ($excel) use ($user, $data): void {
             $excel->setTitle($data['title'])
-                  ->setCreator($user->getDisplayName())
-                  ->setLastModifiedBy($user->getDisplayName())
-                  ->setDescription('')
-                  ->setSubject('')
-                  ->setKeywords('')
-                  ->setCategory('')
-                  ->setManager('')
-                  ->setCompany($user->account->getDisplayName());
+                ->setCreator($user->getDisplayName())
+                ->setLastModifiedBy($user->getDisplayName())
+                ->setDescription('')
+                ->setSubject('')
+                ->setKeywords('')
+                ->setCategory('')
+                ->setManager('')
+                ->setCompany($user->account->getDisplayName());
 
             foreach ($data as $key => $val) {
                 if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
@@ -141,11 +140,11 @@ class ExportController extends BaseController
                     $key = 'recurring_invoices';
                 }
                 $label = trans("texts.{$key}");
-                $excel->sheet($label, function ($sheet) use ($key, $data) {
+                $excel->sheet($label, function ($sheet) use ($key, $data): void {
                     if ($key === 'quotes') {
-                        $key = 'invoices';
+                        $key                = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
-                        $data['invoices'] = $data['quotes'];
+                        $data['invoices']   = $data['quotes'];
                     }
                     $sheet->loadView("export.{$key}", $data);
                 });
@@ -163,8 +162,8 @@ class ExportController extends BaseController
         $account = Auth::user()->account;
 
         $data = [
-            'account' => $account,
-            'title' => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
+            'account'   => $account,
+            'title'     => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
             'multiUser' => $account->users->count() > 1,
         ];
 

@@ -21,7 +21,7 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

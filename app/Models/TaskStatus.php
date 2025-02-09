@@ -30,7 +30,6 @@ class TaskStatus extends EntityModel
         'sort_order',
     ];
 
-
     /**
      * @return mixed
      */

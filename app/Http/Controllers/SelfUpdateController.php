@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
 use Redirect;
-use Utils;
 
 class SelfUpdateController extends BaseController
 {
@@ -35,14 +35,14 @@ class SelfUpdateController extends BaseController
     public function index()
     {
         $versionInstalled = $this->updater->source()->getVersionInstalled('v');
-        $updateAvailable = $this->updater->source()->isNewVersionAvailable($versionInstalled);
+        $updateAvailable  = $this->updater->source()->isNewVersionAvailable($versionInstalled);
 
         return view(
             'vendor.self-update.self-update',
             [
                 'versionInstalled' => $versionInstalled,
                 'versionAvailable' => $this->updater->source()->getVersionAvailable(),
-                'updateAvailable' => $updateAvailable,
+                'updateAvailable'  => $updateAvailable,
             ]
         );
     }
@@ -59,7 +59,7 @@ class SelfUpdateController extends BaseController
         return Redirect::to('/');
     }
 
-    public function download()
+    public function download(): void
     {
         $this->updater->source()->fetch();
     }

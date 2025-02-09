@@ -4,26 +4,27 @@ namespace App\Models;
 
 //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
+use App\Libraries\Utils;
 use App\Models\Traits\HasRecurrence;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Expense.
  */
 class RecurringExpense extends EntityModel
 {
+    use HasRecurrence;
+    use PresentableTrait;
     // Expenses
     use SoftDeletes;
-    use PresentableTrait;
-    use HasRecurrence;
 
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
@@ -99,9 +100,9 @@ class RecurringExpense extends EntityModel
     {
         if ($this->public_notes) {
             return Utils::truncateString($this->public_notes, 16);
-        } else {
-            return '#' . $this->public_id;
         }
+
+        return '#' . $this->public_id;
     }
 
     /**
@@ -139,22 +140,22 @@ class RecurringExpense extends EntityModel
     }
 }
 
-RecurringExpense::creating(function ($expense) {
+RecurringExpense::creating(function ($expense): void {
     $expense->setNullValues();
 });
 
-RecurringExpense::created(function ($expense) {
+RecurringExpense::created(function ($expense): void {
     //event(new ExpenseWasCreated($expense));
 });
 
-RecurringExpense::updating(function ($expense) {
+RecurringExpense::updating(function ($expense): void {
     $expense->setNullValues();
 });
 
-RecurringExpense::updated(function ($expense) {
+RecurringExpense::updated(function ($expense): void {
     //event(new ExpenseWasUpdated($expense));
 });
 
-RecurringExpense::deleting(function ($expense) {
+RecurringExpense::deleting(function ($expense): void {
     $expense->setNullValues();
 });

@@ -3,38 +3,38 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class CreditReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client' => [],
-            'amount' => [],
+            'client'  => [],
+            'amount'  => [],
             'balance' => [],
-            'user' => ['columnSelector-false'],
+            'user'    => ['columnSelector-false'],
         ];
 
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
-        $account = Auth::user()->account;
+        $account  = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with(['contacts', 'user', 'credits' => function ($query) {
-                            $query->where('credit_date', '>=', $this->startDate)
-                                  ->where('credit_date', '<=', $this->endDate)
-                                  ->withArchived();
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with(['contacts', 'user', 'credits' => function ($query): void {
+                $query->where('credit_date', '>=', $this->startDate)
+                    ->where('credit_date', '<=', $this->endDate)
+                    ->withArchived();
+            }]);
 
         foreach ($clients->get() as $client) {
-            $amount = 0;
+            $amount  = 0;
             $balance = 0;
 
             foreach ($client->credits as $credit) {
@@ -45,7 +45,7 @@ class CreditReport extends AbstractReport
                 $this->addChartData($dimension, $credit->credit_date, $credit->amount);
             }
 
-            if (! $amount && ! $balance) {
+            if ( ! $amount && ! $balance) {
                 continue;
             }
 

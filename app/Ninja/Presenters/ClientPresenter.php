@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
+use App\Libraries\Utils;
 
 class ClientPresenter extends EntityPresenter
 {
@@ -18,7 +18,7 @@ class ClientPresenter extends EntityPresenter
 
     public function balance()
     {
-        $client = $this->entity;
+        $client  = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->balance, $client);
@@ -28,19 +28,19 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->website) {
+        if ( ! $client->website) {
             return '';
         }
 
         $website = e($client->website);
-        $link = Utils::addHttp($website);
+        $link    = Utils::addHttp($website);
 
         return link_to($link, $website, ['target' => '_blank']);
     }
 
     public function paid_to_date()
     {
-        $client = $this->entity;
+        $client  = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->paid_to_date, $client);
@@ -50,7 +50,7 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->payment_terms) {
+        if ( ! $client->payment_terms) {
             return '';
         }
 
@@ -59,7 +59,7 @@ class ClientPresenter extends EntityPresenter
 
     public function address($addressType = ADDRESS_BILLING, $showHeader = false)
     {
-        $str = '';
+        $str    = '';
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
         $client = $this->entity;
 
@@ -90,30 +90,29 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
-        $swap = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
+        $swap   = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
 
-        $city = e($client->{$prefix . 'city'});
-        $state = e($client->{$prefix . 'state'});
+        $city       = e($client->{$prefix . 'city'});
+        $state      = e($client->{$prefix . 'state'});
         $postalCode = e($client->{$prefix . 'postal_code'});
 
         if ($city || $state || $postalCode) {
             return Utils::cityStateZip($city, $state, $postalCode, $swap);
-        } else {
-            return false;
         }
-    }
 
+        return false;
+    }
 
     /**
      * @return string
      */
     public function taskRate()
     {
-      if (floatval($this->entity->task_rate)) {
-          return Utils::roundSignificant($this->entity->task_rate);
-      } else {
-          return '';
-      }
+        if ((float) ($this->entity->task_rate)) {
+            return Utils::roundSignificant($this->entity->task_rate);
+        }
+
+        return '';
     }
 
     /**
@@ -121,11 +120,10 @@ class ClientPresenter extends EntityPresenter
      */
     public function defaultTaskRate()
     {
-      if ($rate = $this->taskRate()) {
-          return $rate;
-      } else {
-          return $this->entity->account->present()->taskRate;
-      }
-    }
+        if ($rate = $this->taskRate()) {
+            return $rate;
+        }
 
+        return $this->entity->account->present()->taskRate;
+    }
 }

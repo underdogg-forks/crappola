@@ -1,10 +1,6 @@
 <?php
 
-use App\Libraries\Utils;
-use Illuminate\Support\Facades\Facade;
-
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -155,10 +151,7 @@ return [
     */
 
     'providers' => [
-
-        /*
-         * Laravel Framework Service Providers...
-         */
+        // Laravel Framework Service Providers...
         'Illuminate\Auth\AuthServiceProvider',
         'Collective\Html\HtmlServiceProvider',
         'Illuminate\Bus\BusServiceProvider',
@@ -183,9 +176,7 @@ return [
         'Illuminate\Broadcasting\BroadcastServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
 
-        /*
-         * Additional Providers
-         */
+        // Additional Providers
         'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
@@ -201,9 +192,7 @@ return [
         'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
 
-        /*
-         * Application Service Providers...
-         */
+        // Application Service Providers...
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
         'App\Providers\ComposerServiceProvider',
@@ -226,41 +215,41 @@ return [
     */
 
     'aliases' => [
-        'App'             => 'Illuminate\Support\Facades\App',
-        'Artisan'         => 'Illuminate\Support\Facades\Artisan',
-        'Auth'            => 'Illuminate\Support\Facades\Auth',
-        'Blade'           => 'Illuminate\Support\Facades\Blade',
-        'Cache'           => 'Illuminate\Support\Facades\Cache',
-        'ClassLoader'     => 'Illuminate\Support\ClassLoader',
-        'Config'          => 'Illuminate\Support\Facades\Config',
-        'Controller'      => 'Illuminate\Routing\Controller',
-        'Cookie'          => 'Illuminate\Support\Facades\Cookie',
-        'Crypt'           => 'Illuminate\Support\Facades\Crypt',
-        'DB'              => 'Illuminate\Support\Facades\DB',
-        'Eloquent'       => 'Illuminate\Database\Eloquent\Model',
-        'Event'          => 'Illuminate\Support\Facades\Event',
-        'File'           => 'Illuminate\Support\Facades\File',
-        'Gate'           => 'Illuminate\Support\Facades\Gate',
-        'Hash'           => 'Illuminate\Support\Facades\Hash',
-        'Input'          => 'Illuminate\Support\Facades\Input',
-        'Lang'           => 'Illuminate\Support\Facades\Lang',
-        'Log'            => 'Illuminate\Support\Facades\Log',
-        'Mail'           => 'Illuminate\Support\Facades\Mail',
-        'Password'       => 'Illuminate\Support\Facades\Password',
-        'Queue'          => 'Illuminate\Support\Facades\Queue',
-        'Redirect'       => 'Illuminate\Support\Facades\Redirect',
-        'Redis'          => 'Illuminate\Support\Facades\Redis',
-        'Request'        => 'Illuminate\Support\Facades\Request',
-        'Response'       => 'Illuminate\Support\Facades\Response',
-        'Route'          => 'Illuminate\Support\Facades\Route',
-        'Schema'         => 'Illuminate\Support\Facades\Schema',
-        'Seeder'         => 'Illuminate\Database\Seeder',
-        'Session'        => 'Illuminate\Support\Facades\Session',
-        'Storage'        => 'Illuminate\Support\Facades\Storage',
-        'Str'            => 'Illuminate\Support\Str',
-        'URL'            => 'Illuminate\Support\Facades\URL',
-        'Validator'      => 'Illuminate\Support\Facades\Validator',
-        'View'           => 'Illuminate\Support\Facades\View',
+        'App'         => 'Illuminate\Support\Facades\App',
+        'Artisan'     => 'Illuminate\Support\Facades\Artisan',
+        'Auth'        => 'Illuminate\Support\Facades\Auth',
+        'Blade'       => 'Illuminate\Support\Facades\Blade',
+        'Cache'       => 'Illuminate\Support\Facades\Cache',
+        'ClassLoader' => 'Illuminate\Support\ClassLoader',
+        'Config'      => 'Illuminate\Support\Facades\Config',
+        'Controller'  => 'Illuminate\Routing\Controller',
+        'Cookie'      => 'Illuminate\Support\Facades\Cookie',
+        'Crypt'       => 'Illuminate\Support\Facades\Crypt',
+        'DB'          => 'Illuminate\Support\Facades\DB',
+        'Eloquent'    => 'Illuminate\Database\Eloquent\Model',
+        'Event'       => 'Illuminate\Support\Facades\Event',
+        'File'        => 'Illuminate\Support\Facades\File',
+        'Gate'        => 'Illuminate\Support\Facades\Gate',
+        'Hash'        => 'Illuminate\Support\Facades\Hash',
+        'Input'       => 'Illuminate\Support\Facades\Input',
+        'Lang'        => 'Illuminate\Support\Facades\Lang',
+        'Log'         => 'Illuminate\Support\Facades\Log',
+        'Mail'        => 'Illuminate\Support\Facades\Mail',
+        'Password'    => 'Illuminate\Support\Facades\Password',
+        'Queue'       => 'Illuminate\Support\Facades\Queue',
+        'Redirect'    => 'Illuminate\Support\Facades\Redirect',
+        'Redis'       => 'Illuminate\Support\Facades\Redis',
+        'Request'     => 'Illuminate\Support\Facades\Request',
+        'Response'    => 'Illuminate\Support\Facades\Response',
+        'Route'       => 'Illuminate\Support\Facades\Route',
+        'Schema'      => 'Illuminate\Support\Facades\Schema',
+        'Seeder'      => 'Illuminate\Database\Seeder',
+        'Session'     => 'Illuminate\Support\Facades\Session',
+        'Storage'     => 'Illuminate\Support\Facades\Storage',
+        'Str'         => 'Illuminate\Support\Str',
+        'URL'         => 'Illuminate\Support\Facades\URL',
+        'Validator'   => 'Illuminate\Support\Facades\Validator',
+        'View'        => 'Illuminate\Support\Facades\View',
 
         // Added Class Aliases
         'Form'           => 'Collective\Html\FormFacade',

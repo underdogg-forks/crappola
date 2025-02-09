@@ -2,28 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateProjectChartData;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Jobs\GenerateProjectChartData;
 use App\Models\Client;
 use App\Models\Project;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Request;
 use Session;
 use View;
 
 class ProjectController extends BaseController
 {
     protected $projectRepo;
+
     protected $projectService;
+
     protected $entityType = ENTITY_PROJECT;
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
-        $this->projectRepo = $projectRepo;
+        $this->projectRepo    = $projectRepo;
         $this->projectService = $projectService;
     }
 
@@ -36,14 +39,14 @@ class ProjectController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => ENTITY_PROJECT,
-            'datatable' => new ProjectDatatable(),
-            'title' => trans('texts.projects'),
+            'datatable'  => new ProjectDatatable(),
+            'title'      => trans('texts.projects'),
         ]);
     }
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = \Request::input('sSearch');
+        $search = Request::input('sSearch');
         $userId = Auth::user()->filterIdByEntity(ENTITY_PROJECT);
 
         return $this->projectService->getDatatable($search, $userId);
@@ -51,16 +54,16 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
-        $account = auth()->user()->account;
-        $project = $request->entity();
+        $account   = auth()->user()->account;
+        $project   = $request->entity();
         $chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
-            'account' => auth()->user()->account,
-            'project' => $project,
-            'title' => trans('texts.view_project'),
+            'account'         => auth()->user()->account,
+            'project'         => $project,
+            'title'           => trans('texts.view_project'),
             'showBreadcrumbs' => false,
-            'chartData' => $chartData,
+            'chartData'       => $chartData,
         ];
 
         return View::make('projects.show', $data);
@@ -69,12 +72,12 @@ class ProjectController extends BaseController
     public function create(ProjectRequest $request)
     {
         $data = [
-            'account' => auth()->user()->account,
-            'project' => null,
-            'method' => 'POST',
-            'url' => 'projects',
-            'title' => trans('texts.new_project'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'account'        => auth()->user()->account,
+            'project'        => null,
+            'method'         => 'POST',
+            'url'            => 'projects',
+            'title'          => trans('texts.new_project'),
+            'clients'        => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
         ];
 
@@ -86,12 +89,12 @@ class ProjectController extends BaseController
         $project = $request->entity();
 
         $data = [
-            'account' => auth()->user()->account,
-            'project' => $project,
-            'method' => 'PUT',
-            'url' => 'projects/' . $project->public_id,
-            'title' => trans('texts.edit_project'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'account'        => auth()->user()->account,
+            'project'        => $project,
+            'method'         => 'PUT',
+            'url'            => 'projects/' . $project->public_id,
+            'title'          => trans('texts.edit_project'),
+            'clients'        => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $project->client ? $project->client->public_id : null,
         ];
 
@@ -113,7 +116,7 @@ class ProjectController extends BaseController
 
         Session::flash('message', trans('texts.updated_project'));
 
-        $action = \Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
             return self::bulk();
         }
@@ -123,21 +126,21 @@ class ProjectController extends BaseController
 
     public function bulk()
     {
-        $action = \Request::input('action');
-        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
+        $action = Request::input('action');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'invoice') {
-            $data = [];
+            $data           = [];
             $clientPublicId = false;
-            $lastClientId = false;
-            $lastProjectId = false;
-            $projects = Project::scope($ids)
-                ->with(['client', 'tasks' => function ($query) {
+            $lastClientId   = false;
+            $lastProjectId  = false;
+            $projects       = Project::scope($ids)
+                ->with(['client', 'tasks' => function ($query): void {
                     $query->whereNull('invoice_id');
                 }])
                 ->get();
             foreach ($projects as $project) {
-                if (! $clientPublicId) {
+                if ( ! $clientPublicId) {
                     $clientPublicId = $project->client->public_id;
                 }
                 if ($lastClientId && $lastClientId != $project->client_id) {
@@ -150,26 +153,26 @@ class ProjectController extends BaseController
                         return redirect('projects')->withError(trans('texts.task_error_running'));
                     }
                     $showProject = $lastProjectId != $task->project_id;
-                    $data[] = [
-                        'publicId' => $task->public_id,
+                    $data[]      = [
+                        'publicId'    => $task->public_id,
                         'description' => $task->present()->invoiceDescription(auth()->user()->account, $showProject),
-                        'duration' => $task->getHours(),
-                        'cost' => $task->getRate(),
+                        'duration'    => $task->getHours(),
+                        'cost'        => $task->getRate(),
                     ];
                     $lastProjectId = $task->project_id;
                 }
             }
+
             return redirect("invoices/create/{$clientPublicId}")->with('tasks', $data);
-        } else {
-            $count = $this->projectService->bulk($ids, $action);
-
-            if ($count > 0) {
-                $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
-                $message = trans("texts.$field", ['count' => $count]);
-                Session::flash('message', $message);
-            }
-
-            return redirect()->to('/projects');
         }
+        $count = $this->projectService->bulk($ids, $action);
+
+        if ($count > 0) {
+            $field   = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
+            $message = trans("texts.{$field}", ['count' => $count]);
+            Session::flash('message', $message);
+        }
+
+        return redirect()->to('/projects');
     }
 }

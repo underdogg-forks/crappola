@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Auth;
 use DateTimeInterface;
 use Eloquent;
+use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -15,14 +15,14 @@ class Activity extends Eloquent
     use PresentableTrait;
 
     /**
-     * @var string
-     */
-    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
-
-    /**
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
 
     /**
      * @param $query
@@ -111,30 +111,30 @@ class Activity extends Eloquent
     public function getMessage()
     {
         $activityTypeId = $this->activity_type_id;
-        $account = $this->account;
-        $client = $this->client;
-        $user = $this->user;
-        $invoice = $this->invoice;
-        $contactId = $this->contact_id;
-        $contact = $this->contact;
-        $payment = $this->payment;
-        $credit = $this->credit;
-        $expense = $this->expense;
-        $isSystem = $this->is_system;
-        $task = $this->task;
+        $account        = $this->account;
+        $client         = $this->client;
+        $user           = $this->user;
+        $invoice        = $this->invoice;
+        $contactId      = $this->contact_id;
+        $contact        = $this->contact;
+        $payment        = $this->payment;
+        $credit         = $this->credit;
+        $expense        = $this->expense;
+        $isSystem       = $this->is_system;
+        $task           = $this->task;
 
         $data = [
-            'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
-            'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
-            'invoice' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
-            'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
-            'contact' => $contactId ? link_to($client->getRoute(), $contact->getDisplayName()) : e($user->getDisplayName()),
-            'payment' => $payment ? e($payment->transaction_reference) : null,
+            'client'         => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
+            'user'           => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
+            'invoice'        => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
+            'quote'          => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
+            'contact'        => $contactId ? link_to($client->getRoute(), $contact->getDisplayName()) : e($user->getDisplayName()),
+            'payment'        => $payment ? e($payment->transaction_reference) : null,
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
-            'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
-            'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
-            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
-            'expense' => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30).'...') : null,
+            'adjustment'     => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
+            'credit'         => $credit ? $account->formatMoney($credit->amount, $client) : null,
+            'task'           => $task ? link_to($task->getRoute(), mb_substr($task->description, 0, 30) . '...') : null,
+            'expense'        => $expense ? link_to($expense->getRoute(), mb_substr($expense->public_notes, 0, 30) . '...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

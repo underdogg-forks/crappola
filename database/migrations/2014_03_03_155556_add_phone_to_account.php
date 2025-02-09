@@ -9,9 +9,9 @@ class AddPhoneToAccount extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->string('work_phone')->nullable();
             $table->string('work_email')->nullable();
         });
@@ -22,9 +22,9 @@ class AddPhoneToAccount extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('work_phone');
             $table->dropColumn('work_email');
         });

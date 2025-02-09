@@ -3,23 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateBankAccountRequest;
-use App\Models\Account;
+use App\Libraries\Utils;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
-use Auth;
 use Cache;
 use Crypt;
+use Exception;
 use File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Redirect;
 use Session;
-use Utils;
 use View;
 
 class BankAccountController extends BaseController
 {
     protected $bankAccountService;
+
     protected $bankAccountRepo;
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
@@ -27,7 +28,7 @@ class BankAccountController extends BaseController
         //parent::__construct();
 
         $this->bankAccountService = $bankAccountService;
-        $this->bankAccountRepo = $bankAccountRepo;
+        $this->bankAccountRepo    = $bankAccountRepo;
     }
 
     public function index()
@@ -45,8 +46,8 @@ class BankAccountController extends BaseController
         $bankAccount = BankAccount::scope($publicId)->firstOrFail();
 
         $data = [
-            'title' => trans('texts.edit_bank_account'),
-            'banks' => Cache::get('banks'),
+            'title'       => trans('texts.edit_bank_account'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => $bankAccount,
         ];
 
@@ -64,7 +65,7 @@ class BankAccountController extends BaseController
     public function create()
     {
         $data = [
-            'banks' => Cache::get('banks'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => null,
         ];
 
@@ -74,8 +75,8 @@ class BankAccountController extends BaseController
     public function bulk()
     {
         $action = \Request::input('bulk_action');
-        $ids = \Request::input('bulk_public_id');
-        $count = $this->bankAccountService->bulk($ids, $action);
+        $ids    = \Request::input('bulk_public_id');
+        $count  = $this->bankAccountService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_bank_account'));
 
@@ -98,7 +99,7 @@ class BankAccountController extends BaseController
             }
             $bankId = $bankAccount->bank_id;
         } else {
-            $bankAccount = new BankAccount;
+            $bankAccount          = new BankAccount();
             $bankAccount->bank_id = \Request::input('bank_id');
         }
 
@@ -116,7 +117,7 @@ class BankAccountController extends BaseController
     {
         $bankAccount = $this->bankAccountRepo->save(Request::all());
 
-        $bankId = \Request::input('bank_id');
+        $bankId   = \Request::input('bank_id');
         $username = trim(\Request::input('bank_username'));
         $password = trim(\Request::input('bank_password'));
 
@@ -139,7 +140,7 @@ class BankAccountController extends BaseController
 
         try {
             $data = $this->bankAccountService->parseOFX($file);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Session::now('error', trans('texts.ofx_parse_failed'));
             Utils::logError($e);
 
@@ -147,8 +148,8 @@ class BankAccountController extends BaseController
         }
 
         $data = [
-            'banks' => null,
-            'bankAccount' => null,
+            'banks'        => null,
+            'bankAccount'  => null,
             'transactions' => json_encode([$data]),
         ];
 

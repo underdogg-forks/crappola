@@ -21,7 +21,7 @@ class UpdateProposalCategoryRequest extends ProposalCategoryRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 

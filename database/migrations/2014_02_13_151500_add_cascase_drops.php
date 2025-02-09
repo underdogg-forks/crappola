@@ -9,9 +9,9 @@ class AddCascaseDrops extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->dropForeign('invoices_account_id_foreign');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -22,7 +22,5 @@ class AddCascaseDrops extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-    }
+    public function down(): void {}
 }

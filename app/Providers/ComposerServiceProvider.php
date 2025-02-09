@@ -11,7 +11,7 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         view()->composer(
             [
@@ -29,18 +29,18 @@ class ComposerServiceProvider extends ServiceProvider
         );
 
         view()->composer(
-             [
-                 'header',
-                 'tasks.edit',
-             ],
-             'App\Http\ViewComposers\AppLanguageComposer'
+            [
+                'header',
+                'tasks.edit',
+            ],
+            'App\Http\ViewComposers\AppLanguageComposer'
         );
 
         view()->composer(
-             [
-                 'public.header',
-             ],
-             'App\Http\ViewComposers\ClientPortalHeaderComposer'
+            [
+                'public.header',
+            ],
+            'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
 
         view()->composer(
@@ -49,7 +49,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'proposals.templates.edit',
                 'proposals.snippets.edit',
             ],
-             'App\Http\ViewComposers\ProposalComposer'
+            'App\Http\ViewComposers\ProposalComposer'
         );
     }
 
@@ -58,7 +58,5 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-    }
+    public function register(): void {}
 }

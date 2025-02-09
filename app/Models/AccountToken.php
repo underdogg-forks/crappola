@@ -4,7 +4,6 @@ namespace App\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\LookupAccountToken;
 
 /**
  * Class AccountToken.
@@ -12,6 +11,7 @@ use App\Models\LookupAccountToken;
 class AccountToken extends EntityModel
 {
     use SoftDeletes;
+
     /**
      * @var array
      */
@@ -47,18 +47,16 @@ class AccountToken extends EntityModel
     }
 }
 
-AccountToken::creating(function ($token)
-{
+AccountToken::creating(function ($token): void {
     LookupAccountToken::createNew($token->account->account_key, [
         'token' => $token->token,
     ]);
 });
 
-AccountToken::deleted(function ($token)
-{
+AccountToken::deleted(function ($token): void {
     if ($token->forceDeleting) {
         LookupAccountToken::deleteWhere([
-            'token' => $token->token
+            'token' => $token->token,
         ]);
     }
 });

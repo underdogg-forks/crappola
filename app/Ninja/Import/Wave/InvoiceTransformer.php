@@ -17,7 +17,7 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->customer)) {
+        if ( ! $this->getClientId($data->customer)) {
             return false;
         }
 
@@ -27,18 +27,18 @@ class InvoiceTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'client_id' => $this->getClientId($data->customer),
-                'invoice_number' => $this->getInvoiceNumber($data->invoice_num),
-                'po_number' => $this->getString($data, 'po_so'),
+                'client_id'        => $this->getClientId($data->customer),
+                'invoice_number'   => $this->getInvoiceNumber($data->invoice_num),
+                'po_number'        => $this->getString($data, 'po_so'),
                 'invoice_date_sql' => $this->getDate($data, 'invoice_date'),
-                'due_date_sql' => $this->getDate($data, 'due_date'),
-                'paid' => 0,
-                'invoice_items' => [
+                'due_date_sql'     => $this->getDate($data, 'due_date'),
+                'paid'             => 0,
+                'invoice_items'    => [
                     [
                         'product_key' => $this->getString($data, 'product'),
-                        'notes' => $this->getString($data, 'description'),
-                        'cost' => (float) $data->amount,
-                        'qty' => (float) $data->quantity,
+                        'notes'       => $this->getString($data, 'description'),
+                        'cost'        => (float) $data->amount,
+                        'qty'         => (float) $data->quantity,
                     ],
                 ],
             ];

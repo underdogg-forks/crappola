@@ -9,10 +9,10 @@ class EncryptTokens extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $gateways = DB::table('account_gateways')
-                        ->get(['id', 'config']);
+            ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)
@@ -25,10 +25,10 @@ class EncryptTokens extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $gateways = DB::table('account_gateways')
-                        ->get(['id', 'config']);
+            ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
             DB::table('account_gateways')
                 ->where('id', $gateway->id)

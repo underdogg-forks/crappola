@@ -2,8 +2,8 @@
 
 namespace App\Services\Migration;
 
-use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
+
 // use Unirest\Request;
 
 class CompleteService
@@ -41,62 +41,59 @@ class CompleteService
 
     public function start()
     {
-        
         $files = [];
 
         foreach ($this->data as $companyKey => $companyData) {
-
             $data = [
                 'company_index' => $companyKey,
-                'company_key' => $companyData['data']['company']['company_key'],
-                'force' => $companyData['force'],
-                'contents' => 'name',
-                'name' => $companyKey, 
+                'company_key'   => $companyData['data']['company']['company_key'],
+                'force'         => $companyData['force'],
+                'contents'      => 'name',
+                'name'          => $companyKey,
             ];
 
             $payload[$companyKey] = [
                 'contents' => json_encode($data),
-                'name' => $companyData['data']['company']['company_key'],
+                'name'     => $companyData['data']['company']['company_key'],
             ];
 
             $files[] = [
-                'name' => $companyKey, 
+                'name'          => $companyKey,
                 'company_index' => $companyKey,
-                'company_key' => $companyData['data']['company']['company_key'],
-                'force' => $companyData['force'],
-                'contents' => file_get_contents($companyData['file']),
-                'filename' => basename($companyData['file']),
-                'Content-Type' => 'application/zip'
+                'company_key'   => $companyData['data']['company']['company_key'],
+                'force'         => $companyData['force'],
+                'contents'      => file_get_contents($companyData['file']),
+                'filename'      => basename($companyData['file']),
+                'Content-Type'  => 'application/zip',
             ];
         }
 
-        $client =  new \GuzzleHttp\Client(
-        [
-            'headers' => $this->getHeaders(),
-        ]);
+        $client = new \GuzzleHttp\Client(
+            [
+                'headers' => $this->getHeaders(),
+            ]
+        );
 
         $payload_data = [
-                'multipart'=> array_merge($files, $payload),
-             ];
+            'multipart' => array_merge($files, $payload),
+        ];
 
         // info(print_r($payload_data,1));
-        $response = $client->request("POST", $this->getUrl(),$payload_data);
+        $response = $client->request('POST', $this->getUrl(), $payload_data);
 
-        if($response->getStatusCode() == 200){
-
+        if($response->getStatusCode() == 200) {
             $this->isSuccessful = true;
-            return json_decode($response->getBody(),true);
-        }else {
-            // info($response->raw_body);
 
-            $this->isSuccessful = false;
-            $this->errors = [
-                'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
-            ];
+            return json_decode($response->getBody(), true);
         }
+        // info($response->raw_body);
+
+        $this->isSuccessful = false;
+        $this->errors       = [
+            'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+        ];
 
         return $this;
-
     }
 
     public function isSuccessful()
@@ -109,12 +106,17 @@ class CompleteService
         return $this->errors;
     }
 
+    public function deleteFile(string $path): void
+    {
+        Storage::delete($path);
+    }
+
     private function getHeaders()
     {
-        $headers =  [
+        $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
-            'X-Api-Token' => $this->token,
-            'Content-Type' => 'multipart/form-data',
+            'X-Api-Token'      => $this->token,
+            'Content-Type'     => 'multipart/form-data',
         ];
 
         if (session('MIGRATION_API_SECRET')) {
@@ -127,10 +129,5 @@ class CompleteService
     private function getUrl()
     {
         return "{$this->endpoint}/{$this->uri}";
-    }
-
-    public function deleteFile(string $path)
-    {
-        Storage::delete($path);
     }
 }

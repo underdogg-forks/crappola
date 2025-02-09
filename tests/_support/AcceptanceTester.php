@@ -3,28 +3,29 @@
 use Codeception\Util\Fixtures;
 
 /**
- * Inherited Methods
- * @method void wantToTest($text)
- * @method void wantTo($text)
- * @method void execute($callable)
- * @method void expectTo($prediction)
- * @method void expect($prediction)
- * @method void amGoingTo($argumentation)
- * @method void am($role)
- * @method void lookForwardTo($achieveValue)
- * @method void comment($description)
+ * Inherited Methods.
+ *
+ * @method void                    wantToTest($text)
+ * @method void                    wantTo($text)
+ * @method void                    execute($callable)
+ * @method void                    expectTo($prediction)
+ * @method void                    expect($prediction)
+ * @method void                    amGoingTo($argumentation)
+ * @method void                    am($role)
+ * @method void                    lookForwardTo($achieveValue)
+ * @method void                    comment($description)
  * @method \Codeception\Lib\Friend haveFriend($name, $actorClass = null)
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
 
-   /**
-    * Define custom actions here
-    */
-    function checkIfLogin(\AcceptanceTester $I)
+    /**
+     * Define custom actions here.
+     */
+    public function checkIfLogin(self $I): void
     {
         $I->amOnPage('/login?lang=en');
         $I->see('Login');
@@ -33,44 +34,44 @@ class AcceptanceTester extends \Codeception\Actor
         $I->click('Login');
     }
 
-    function selectDataPicker(\AcceptanceTester $I, $element, $date = 'now')
+    public function selectDataPicker(self $I, $element, $date = 'now'): void
     {
         $date = strtotime($date) * 1000;
         $I->executeJS(sprintf('$(\'%s\').datepicker(\'update\', new Date(%s))', $element, $date));
     }
 
-    function selectDropdown(\AcceptanceTester $I, $option, $dropdownSelector)
+    public function selectDropdown(self $I, $option, $dropdownSelector): void
     {
         $I->click($dropdownSelector);
         $I->click(sprintf('ul.typeahead li[data-value*="%s"]', $option));
     }
 
-    function selectDropdownCreate(\AcceptanceTester $I, $entityType, $value, $entityTypeShort = false)
+    public function selectDropdownCreate(self $I, $entityType, $value, $entityTypeShort = false): void
     {
         $entityTypeShort = $entityTypeShort ?: $entityType;
         $I->fillField("#{$entityType}_name", $value);
         $I->click(sprintf('ul.typeahead li[data-value*="%s"]', "Create {$entityTypeShort}: \$name"));
     }
 
-    function selectDropdownRow(\AcceptanceTester $I, $option, $dropdownSelector)
+    public function selectDropdownRow(self $I, $option, $dropdownSelector): void
     {
-        $I->click("$dropdownSelector span.dropdown-toggle");
-        $I->click("$dropdownSelector ul li:nth-child($option)");
+        $I->click("{$dropdownSelector} span.dropdown-toggle");
+        $I->click("{$dropdownSelector} ul li:nth-child({$option})");
     }
 
-    function createGateway(\AcceptanceTester $I)
+    public function createGateway(self $I): void
     {
         if ( ! $I->grabFromDatabase('account_gateways', 'id', ['id' => 1])) {
             $I->wantTo('create a gateway');
             $I->amOnPage('/gateways/create');
-            $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
-            $I->fillField(['name' =>'publishable_key'], '');
+            $I->fillField(['name' => '23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
+            $I->fillField(['name' => 'publishable_key'], '');
             $I->click('Save');
             $I->see('Successfully created gateway');
         }
     }
 
-    function createClient(\AcceptanceTester $I, $email)
+    public function createClient(self $I, $email): void
     {
         $I->amOnPage('/clients/create');
         $I->fillField(['name' => 'contacts[0][email]'], $email);
@@ -78,7 +79,7 @@ class AcceptanceTester extends \Codeception\Actor
         $I->see($email);
     }
 
-    function createProduct(\AcceptanceTester $I, $productKey, $cost, $taxName = '', $taxRate = '')
+    public function createProduct(self $I, $productKey, $cost, $taxName = '', $taxRate = ''): void
     {
         $I->amOnPage('/products/create');
         $I->fillField(['name' => 'product_key'], $productKey);
@@ -94,7 +95,7 @@ class AcceptanceTester extends \Codeception\Actor
         //$I->see($productKey);
     }
 
-    function createTaxRate(\AcceptanceTester $I, $name, $rate)
+    public function createTaxRate(self $I, $name, $rate): void
     {
         $I->amOnPage('/tax_rates/create');
         $I->fillField(['name' => 'name'], $name);
@@ -104,7 +105,7 @@ class AcceptanceTester extends \Codeception\Actor
         $I->see($rate);
     }
 
-    function fillInvoice(\AcceptanceTester $I, $clientEmail, $productKey)
+    public function fillInvoice(self $I, $clientEmail, $productKey)
     {
         $I->amOnPage('/invoices/create');
         $invoiceNumber = $I->grabValueFrom('#invoice_number');
@@ -116,10 +117,10 @@ class AcceptanceTester extends \Codeception\Actor
         return $invoiceNumber;
     }
 
-    function createOnlinePayment(\AcceptanceTester $I, $invitationKey)
+    public function createOnlinePayment(self $I, $invitationKey): void
     {
         $clientSession = $I->haveFriend('client');
-        $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
+        $clientSession->does(function (AcceptanceTester $I) use ($invitationKey): void {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Pay Now');
             $I->click('Credit Card');
@@ -133,18 +134,17 @@ class AcceptanceTester extends \Codeception\Actor
         });
     }
 
-    function checkSettingOption(\AcceptanceTester $I, $url, $option)
+    public function checkSettingOption(self $I, $url, $option): void
     {
         $I->amOnPage('/settings/' . $url);
         $I->checkOption('#' . $option);
         $I->click('Save');
     }
 
-    function uncheckSettingOption(\AcceptanceTester $I, $url, $option)
+    public function uncheckSettingOption(self $I, $url, $option): void
     {
         $I->amOnPage('/settings/' . $url);
         $I->uncheckOption('#' . $option);
         $I->click('Save');
     }
-
 }

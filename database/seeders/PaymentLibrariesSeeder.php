@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         Model::unguard();
 

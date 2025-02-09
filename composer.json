@@ -71,7 +71,7 @@
         "codeception/codeception": "*",
         "filp/whoops": "*",
         "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.0",
+        "laravel/pint": "dev-feat/blade",
         "mockery/mockery": "^1.4.4",
         "laravel/tinker": "*",
         "nunomaduro/collision": "^6.1",
@@ -126,7 +126,7 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
-        ],
+        ]
     },
     "replace": {
         "alfaproject/omnipay-skrill": "*"

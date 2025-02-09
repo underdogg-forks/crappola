@@ -9,7 +9,7 @@ class AddSvLanguage extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         //DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
         //DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
@@ -22,7 +22,7 @@ class AddSvLanguage extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if ($language = \App\Models\Language::whereLocale('sv')->first()) {
             $language->delete();

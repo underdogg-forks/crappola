@@ -9,9 +9,9 @@ class SupportHidingQuantity extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->boolean('hide_quantity')->default(0);
             $table->boolean('hide_paid_to_date')->default(0);
 
@@ -22,7 +22,7 @@ class SupportHidingQuantity extends Migration
             $table->boolean('custom_invoice_taxes2')->nullable();
         });
 
-        Schema::table('invoices', function ($table) {
+        Schema::table('invoices', function ($table): void {
             $table->decimal('custom_value1', 13, 2)->default(0);
             $table->decimal('custom_value2', 13, 2)->default(0);
 
@@ -36,9 +36,9 @@ class SupportHidingQuantity extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function ($table) {
+        Schema::table('accounts', function ($table): void {
             $table->dropColumn('hide_quantity');
             $table->dropColumn('hide_paid_to_date');
 
@@ -48,8 +48,8 @@ class SupportHidingQuantity extends Migration
             $table->dropColumn('custom_invoice_taxes1');
             $table->dropColumn('custom_invoice_taxes2');
         });
-        
-        Schema::table('invoices', function ($table) {
+
+        Schema::table('invoices', function ($table): void {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
 

@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use Postmark\PostmarkClient;
 use stdClass;
 
@@ -10,7 +9,7 @@ class LoadPostmarkHistory extends Job
 {
     public function __construct($email)
     {
-        $this->email = $email;
+        $this->email    = $email;
         $this->bounceId = false;
     }
 
@@ -24,30 +23,31 @@ class LoadPostmarkHistory extends Job
         $str = '';
 
         if (config('services.postmark')) {
-            $this->account = auth()->user()->account;
+            $this->account  = auth()->user()->account;
             $this->postmark = new PostmarkClient(config('services.postmark'));
 
             $str .= $this->loadBounceEvents();
             $str .= $this->loadEmailEvents();
         }
 
-        if (! $str) {
+        if ( ! $str) {
             $str = trans('texts.no_messages_found');
         }
 
-        $response = new stdClass;
-        $response->str = $str;
+        $response            = new stdClass();
+        $response->str       = $str;
         $response->bounce_id = $this->bounceId;
 
         return $response;
     }
 
-    private function loadBounceEvents() {
-        $str = '';
+    private function loadBounceEvents()
+    {
+        $str      = '';
         $response = $this->postmark->getBounces(5, 0, null, null, $this->email, $this->account->account_key);
 
         foreach ($response['bounces'] as $bounce) {
-            if (! $bounce['inactive'] || ! $bounce['canactivate']) {
+            if ( ! $bounce['inactive'] || ! $bounce['canactivate']) {
                 continue;
             }
 
@@ -61,8 +61,9 @@ class LoadPostmarkHistory extends Job
         return $str;
     }
 
-    private function loadEmailEvents() {
-        $str = '';
+    private function loadEmailEvents()
+    {
+        $str      = '';
         $response = $this->postmark->getOutboundMessages(5, 0, $this->email, null, $this->account->account_key);
 
         foreach ($response['messages'] as $message) {

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Image Driver
@@ -37,6 +36,6 @@ return [
     'options' => [
         'autoOrientation' => true,
         'decodeAnimation' => true,
-        'blendingColor' => 'ffffff',
-    ]
+        'blendingColor'   => 'ffffff',
+    ],
 ];

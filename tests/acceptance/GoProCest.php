@@ -1,18 +1,17 @@
 <?php
 
-use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class GoProCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $I): void
     {
         $this->faker = Factory::create();
     }
 
-    public function signUpAndGoPro(AcceptanceTester $I)
+    public function signUpAndGoPro(AcceptanceTester $I): void
     {
         $userEmail = $this->faker->safeEmail;
         $userPassword = $this->faker->password;
@@ -24,10 +23,10 @@ class GoProCest
         $I->wait(1);
 
         $I->checkOption('#terms_checkbox');
-        $I->fillField(['name' =>'new_first_name'], $this->faker->firstName);
-        $I->fillField(['name' =>'new_last_name'], $this->faker->lastName);
-        $I->fillField(['name' =>'new_email'], $userEmail);
-        $I->fillField(['name' =>'new_password'], $userPassword);
+        $I->fillField(['name' => 'new_first_name'], $this->faker->firstName);
+        $I->fillField(['name' => 'new_last_name'], $this->faker->lastName);
+        $I->fillField(['name' => 'new_email'], $userEmail);
+        $I->fillField(['name' => 'new_password'], $userPassword);
         $I->click('Save');
         $I->wait(1);
 
@@ -58,5 +57,5 @@ class GoProCest
 
         $I->amOnPage('/dashboard');
         $I->dontSee('Go Pro');
-   }
+    }
 }

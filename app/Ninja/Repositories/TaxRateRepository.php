@@ -2,9 +2,10 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\TaxRate;
 use DB;
-use Utils;
+use Log;
 
 class TaxRateRepository extends BaseRepository
 {
@@ -21,15 +22,15 @@ class TaxRateRepository extends BaseRepository
     public function find($accountId)
     {
         return DB::table('tax_rates')
-                ->where('tax_rates.account_id', '=', $accountId)
-                ->where('tax_rates.deleted_at', '=', null)
-                ->select(
-                    'tax_rates.public_id',
-                    'tax_rates.name',
-                    'tax_rates.rate',
-                    'tax_rates.deleted_at',
-                    'tax_rates.is_inclusive'
-                );
+            ->where('tax_rates.account_id', '=', $accountId)
+            ->where('tax_rates.deleted_at', '=', null)
+            ->select(
+                'tax_rates.public_id',
+                'tax_rates.name',
+                'tax_rates.rate',
+                'tax_rates.deleted_at',
+                'tax_rates.is_inclusive'
+            );
     }
 
     public function save($data, $taxRate = null)
@@ -38,7 +39,7 @@ class TaxRateRepository extends BaseRepository
             // do nothing
         } elseif (isset($data['public_id'])) {
             $taxRate = TaxRate::scope($data['public_id'])->firstOrFail();
-            \Log::warning('Entity not set in tax rate repo save');
+            Log::warning('Entity not set in tax rate repo save');
         } else {
             $taxRate = TaxRate::createNew();
         }

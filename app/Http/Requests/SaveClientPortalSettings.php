@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Libraries\Utils;
 use HTMLUtils;
-use Utils;
 
 class SaveClientPortalSettings extends Request
 {
@@ -43,14 +43,14 @@ class SaveClientPortalSettings extends Request
 
         if (Utils::isNinja()) {
             if ($this->custom_link == 'subdomain') {
-                $subdomain = substr(strtolower($input['subdomain']), 0, MAX_SUBDOMAIN_LENGTH);
-                $input['subdomain'] = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', $subdomain);
+                $subdomain           = mb_substr(mb_strtolower($input['subdomain']), 0, MAX_SUBDOMAIN_LENGTH);
+                $input['subdomain']  = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', $subdomain);
                 $input['iframe_url'] = null;
             } else {
-                $iframeURL = substr(strtolower($input['iframe_url']), 0, MAX_IFRAME_URL_LENGTH);
-                $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', $iframeURL);
+                $iframeURL           = mb_substr(mb_strtolower($input['iframe_url']), 0, MAX_IFRAME_URL_LENGTH);
+                $iframeURL           = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', $iframeURL);
                 $input['iframe_url'] = $iframeURL;
-                $input['subdomain'] = null;
+                $input['subdomain']  = null;
             }
         }
 

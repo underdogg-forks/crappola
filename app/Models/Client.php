@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
+use App\Models\Traits\HasCustomMessages;
 use Carbon;
 use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use App\Models\Traits\HasCustomMessages;
-use Utils;
 
 /**
  * Class Client.
  */
 class Client extends EntityModel
 {
+    use HasCustomMessages;
     use PresentableTrait;
     use SoftDeletes;
-    use HasCustomMessages;
 
     /**
      * @var string
@@ -67,9 +67,6 @@ class Client extends EntityModel
         'custom_messages',
     ];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns()
     {
         return [
@@ -98,30 +95,27 @@ class Client extends EntityModel
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap()
     {
         return [
-            'first' => 'contact_first_name',
-            'last^last4' => 'contact_last_name',
-            'email' => 'contact_email',
-            'work|office' => 'work_phone',
-            'mobile|phone' => 'contact_phone',
+            'first'                              => 'contact_first_name',
+            'last^last4'                         => 'contact_last_name',
+            'email'                              => 'contact_email',
+            'work|office'                        => 'work_phone',
+            'mobile|phone'                       => 'contact_phone',
             'name|organization|description^card' => 'name',
-            'apt|street2|address2|line2' => 'address2',
-            'street|address1|line1^avs' => 'address1',
-            'city' => 'city',
-            'state|province' => 'state',
-            'zip|postal|code^avs' => 'postal_code',
-            'country' => 'country',
-            'public' => 'public_notes',
-            'private|note' => 'private_notes',
-            'site|website' => 'website',
-            'currency' => 'currency',
-            'vat' => 'vat_number',
-            'number' => 'id_number',
+            'apt|street2|address2|line2'         => 'address2',
+            'street|address1|line1^avs'          => 'address1',
+            'city'                               => 'city',
+            'state|province'                     => 'state',
+            'zip|postal|code^avs'                => 'postal_code',
+            'country'                            => 'country',
+            'public'                             => 'public_notes',
+            'private|note'                       => 'private_notes',
+            'site|website'                       => 'website',
+            'currency'                           => 'currency',
+            'vat'                                => 'vat_number',
+            'number'                             => 'id_number',
         ];
     }
 
@@ -262,18 +256,18 @@ class Client extends EntityModel
     }
 
     /**
-     * @param $data
+     * @param      $data
      * @param bool $isPrimary
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function addContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
+        $publicId = $data['public_id'] ?? ($data['id'] ?? false);
 
         // check if this client wasRecentlyCreated to ensure a new contact is
         // always created even if the request includes a contact id
-        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
+        if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = Contact::scope($publicId)->whereClientId($this->id)->firstOrFail();
         } else {
             $contact = Contact::createNew();
@@ -282,12 +276,12 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
         }
 
         if ($this->account->isClientPortalPasswordEnabled()) {
-            if (! empty($data['password']) && $data['password'] != '-%unchanged%-') {
+            if ( ! empty($data['password']) && $data['password'] != '-%unchanged%-') {
                 $contact->password = bcrypt($data['password']);
             } elseif (empty($data['password'])) {
                 $contact->password = null;
@@ -305,7 +299,7 @@ class Client extends EntityModel
      * @param $balanceAdjustment
      * @param $paidToDateAdjustment
      */
-    public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
+    public function updateBalances($balanceAdjustment, $paidToDateAdjustment): void
     {
         if ($balanceAdjustment == 0 && $paidToDateAdjustment == 0) {
             return;
@@ -331,9 +325,9 @@ class Client extends EntityModel
     public function getTotalCredit()
     {
         return DB::table('credits')
-                ->where('client_id', '=', $this->id)
-                ->whereNull('deleted_at')
-                ->sum('balance');
+            ->where('client_id', '=', $this->id)
+            ->whereNull('deleted_at')
+            ->sum('balance');
     }
 
     /**
@@ -349,7 +343,7 @@ class Client extends EntityModel
      */
     public function getPrimaryContact()
     {
-        if (! $this->relationLoaded('contacts')) {
+        if ( ! $this->relationLoaded('contacts')) {
             $this->load('contacts');
         }
 
@@ -369,7 +363,8 @@ class Client extends EntityModel
     {
         if ($this->name) {
             return $this->name;
-        } else if ($contact = $this->getPrimaryContact()) {
+        }
+        if ($contact = $this->getPrimaryContact()) {
             return $contact->getDisplayName();
         }
     }
@@ -415,7 +410,7 @@ class Client extends EntityModel
         ];
 
         foreach ($fields as $field) {
-            if ($this->$field != $this->{'shipping_' . $field}) {
+            if ($this->{$field} != $this->{'shipping_' . $field}) {
                 return false;
             }
         }
@@ -441,7 +436,7 @@ class Client extends EntityModel
             if ($shipping) {
                 $field = 'shipping_' . $field;
             }
-            if ($this->$field) {
+            if ($this->{$field}) {
                 return true;
             }
         }
@@ -456,9 +451,9 @@ class Client extends EntityModel
     {
         if ($this->created_at == '0000-00-00 00:00:00') {
             return '---';
-        } else {
-            return $this->created_at->format('m/d/y h:i a');
         }
+
+        return $this->created_at->format('m/d/y h:i a');
     }
 
     /**
@@ -468,7 +463,7 @@ class Client extends EntityModel
     {
         $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
 
-        if (! $accountGateway) {
+        if ( ! $accountGateway) {
             return false;
         }
 
@@ -520,7 +515,7 @@ class Client extends EntityModel
             return $this->currency_id;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -536,7 +531,7 @@ class Client extends EntityModel
             return $this->currency->code;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -549,13 +544,12 @@ class Client extends EntityModel
             return $country->iso_3166_2;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
         return $this->account->country ? $this->account->country->iso_3166_2 : 'US';
     }
-
 
     /**
      * @param $isQuote
@@ -567,7 +561,7 @@ class Client extends EntityModel
         return $isQuote ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
-    public function markLoggedIn()
+    public function markLoggedIn(): void
     {
         $this->last_login = Carbon::now()->toDateTimeString();
         $this->save();
@@ -609,11 +603,11 @@ class Client extends EntityModel
     }
 }
 
-Client::creating(function ($client) {
+Client::creating(function ($client): void {
     $client->setNullValues();
     $client->account->incrementCounter($client);
 });
 
-Client::updating(function ($client) {
+Client::updating(function ($client): void {
     $client->setNullValues();
 });

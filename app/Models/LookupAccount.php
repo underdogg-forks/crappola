@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
 
 /**
  * Class ExpenseCategory.
@@ -18,55 +17,45 @@ class LookupAccount extends LookupModel
         'account_key',
     ];
 
-    public function lookupCompany()
+    public static function createAccount($accountKey, $companyId): void
     {
-        return $this->belongsTo('App\Models\LookupCompany');
-    }
-
-    public static function createAccount($accountKey, $companyId)
-    {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $server = DbServer::whereName($current)->firstOrFail();
+        $server        = DbServer::whereName($current)->firstOrFail();
         $lookupCompany = LookupCompany::whereDbServerId($server->id)
-                            ->whereCompanyId($companyId)->first();
+            ->whereCompanyId($companyId)->first();
 
-        if (! $lookupCompany) {
+        if ( ! $lookupCompany) {
             $lookupCompany = LookupCompany::create([
                 'db_server_id' => $server->id,
-                'company_id' => $companyId,
+                'company_id'   => $companyId,
             ]);
         }
 
-        LookupAccount::create([
+        self::create([
             'lookup_company_id' => $lookupCompany->id,
-            'account_key' => $accountKey,
+            'account_key'       => $accountKey,
         ]);
 
         static::setDbServer($current);
     }
 
-    public function getDbServer()
+    public static function updateAccount($accountKey, $account): void
     {
-        return $this->lookupCompany->dbServer->name;
-    }
-
-    public static function updateAccount($accountKey, $account)
-    {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-                            ->firstOrFail();
+        $lookupAccount = self::whereAccountKey($accountKey)
+            ->firstOrFail();
 
         $lookupAccount->subdomain = $account->subdomain ?: null;
         $lookupAccount->save();
@@ -76,7 +65,7 @@ class LookupAccount extends LookupModel
 
     public static function validateField($field, $value, $account = false)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
@@ -84,7 +73,7 @@ class LookupAccount extends LookupModel
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::where($field, '=', $value)->first();
+        $lookupAccount = self::where($field, '=', $value)->first();
 
         if ($account) {
             $isValid = ! $lookupAccount || ($lookupAccount->account_key == $account->account_key);
@@ -95,6 +84,16 @@ class LookupAccount extends LookupModel
         config(['database.default' => $current]);
 
         return $isValid;
+    }
+
+    public function lookupCompany()
+    {
+        return $this->belongsTo('App\Models\LookupCompany');
+    }
+
+    public function getDbServer()
+    {
+        return $this->lookupCompany->dbServer->name;
     }
 
     protected function serializeDate(DateTimeInterface $date)

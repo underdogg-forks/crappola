@@ -11,13 +11,14 @@ use Eloquent;
 class PaymentLibrary extends Eloquent
 {
     /**
-     * @var string
-     */
-    protected $table = 'payment_libraries';
-    /**
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var string
+     */
+    protected $table = 'payment_libraries';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

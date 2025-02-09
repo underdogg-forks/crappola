@@ -11,17 +11,17 @@ class EnterprisePlan extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
             $timeout = 600;
         }
-        $timeout = max($timeout - 10, $timeout * .9);
+        $timeout   = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (! Schema::hasTable('companies')) {
-            Schema::create('companies', function ($table) {
+        if ( ! Schema::hasTable('companies')) {
+            Schema::create('companies', function ($table): void {
                 $table->increments('id');
 
                 $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
@@ -42,22 +42,22 @@ class EnterprisePlan extends Migration
                 $table->softDeletes();
             });
 
-            Schema::table('companies', function ($table) {
+            Schema::table('companies', function ($table): void {
                 $table->foreign('payment_id')->references('id')->on('payments');
             });
         }
 
-        if (! Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table) {
+        if ( ! Schema::hasColumn('accounts', 'company_id')) {
+            Schema::table('accounts', function ($table): void {
                 $table->unsignedInteger('company_id')->nullable();
             });
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
         }
 
         $single_account_ids = \DB::table('users')
-            ->leftJoin('user_accounts', function ($join) {
+            ->leftJoin('user_accounts', function ($join): void {
                 $join->on('user_accounts.user_id1', '=', 'users.id');
                 $join->orOn('user_accounts.user_id2', '=', 'users.id');
                 $join->orOn('user_accounts.user_id3', '=', 'users.id');
@@ -67,7 +67,7 @@ class EnterprisePlan extends Migration
             ->leftJoin('accounts', 'accounts.id', '=', 'users.account_id')
             ->whereNull('user_accounts.id')
             ->whereNull('accounts.company_id')
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->whereNull('users.public_id');
                 $query->orWhere('users.public_id', '=', 0);
             })
@@ -96,7 +96,8 @@ class EnterprisePlan extends Migration
             OR (a2.id IS NOT NULL AND a2.company_id IS NULL)
             OR (a3.id IS NOT NULL AND a3.company_id IS NULL)
             OR (a4.id IS NOT NULL AND a4.company_id IS NULL)
-            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)');
+            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)'
+        );
 
         if (count($group_accounts)) {
             foreach ($group_accounts as $group_account) {
@@ -106,75 +107,10 @@ class EnterprisePlan extends Migration
         }
 
         if (Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 $table->dropColumn('pro_plan_paid');
                 $table->dropColumn('pro_plan_trial');
             });
-        }
-    }
-
-    private function upAccounts($primaryAccount, $otherAccounts = [])
-    {
-        if (! $primaryAccount) {
-            $primaryAccount = $otherAccounts->first();
-        }
-
-        if (empty($primaryAccount)) {
-            return;
-        }
-
-        $company = Company::create();
-        if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
-            $company->plan = 'pro';
-            $company->plan_term = 'year';
-            $company->plan_started = $primaryAccount->pro_plan_paid;
-            $company->plan_paid = $primaryAccount->pro_plan_paid;
-
-            $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
-            $expires->modify('+1 year');
-            $expires = $expires->format('Y-m-d');
-
-            // check for self host white label licenses
-            if (! Utils::isNinjaProd()) {
-                if ($company->plan_paid) {
-                    $company->plan = 'white_label';
-                    // old ones were unlimited, new ones are yearly
-                    if ($company->plan_paid == NINJA_DATE) {
-                        $company->plan_term = null;
-                    } else {
-                        $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_expires = $expires;
-                    }
-                }
-            } elseif ($company->plan_paid != NINJA_DATE) {
-                $company->plan_expires = $expires;
-            }
-        }
-
-        if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {
-            $company->trial_started = $primaryAccount->pro_plan_trial;
-            $company->trial_plan = 'pro';
-        }
-
-        $company->save();
-
-        $primaryAccount->company_id = $company->id;
-        $primaryAccount->save();
-
-        if (! empty($otherAccounts)) {
-            foreach ($otherAccounts as $account) {
-                if ($account && $account->id != $primaryAccount->id) {
-                    $account->company_id = $company->id;
-                    $account->save();
-                }
-            }
-        }
-    }
-
-    protected function checkTimeout($timeout, $startTime)
-    {
-        if (time() - $startTime >= $timeout) {
-            exit('Migration reached time limit; please run again to continue');
         }
     }
 
@@ -183,17 +119,17 @@ class EnterprisePlan extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
             $timeout = 600;
         }
-        $timeout = max($timeout - 10, $timeout * .9);
+        $timeout   = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (! Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table) {
+        if ( ! Schema::hasColumn('accounts', 'pro_plan_paid')) {
+            Schema::table('accounts', function ($table): void {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();
             });
@@ -203,7 +139,7 @@ class EnterprisePlan extends Migration
             ->leftJoin('accounts', 'accounts.company_id', '=', 'companies.id')
             ->whereNull('accounts.pro_plan_paid')
             ->whereNull('accounts.pro_plan_trial')
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->whereNotNull('companies.plan_paid');
                 $query->orWhereNotNull('companies.trial_started');
             })
@@ -214,7 +150,7 @@ class EnterprisePlan extends Migration
         if (count($company_ids)) {
             foreach (Company::find($company_ids) as $company) {
                 foreach ($company->accounts as $account) {
-                    $account->pro_plan_paid = $company->plan_paid;
+                    $account->pro_plan_paid  = $company->plan_paid;
                     $account->pro_plan_trial = $company->trial_started;
                     $account->save();
                 }
@@ -223,12 +159,77 @@ class EnterprisePlan extends Migration
         }
 
         if (Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table) {
+            Schema::table('accounts', function ($table): void {
                 $table->dropForeign('accounts_company_id_foreign');
                 $table->dropColumn('company_id');
             });
         }
 
         Schema::dropIfExists('companies');
+    }
+
+    protected function checkTimeout($timeout, $startTime): void
+    {
+        if (time() - $startTime >= $timeout) {
+            exit('Migration reached time limit; please run again to continue');
+        }
+    }
+
+    private function upAccounts($primaryAccount, $otherAccounts = []): void
+    {
+        if ( ! $primaryAccount) {
+            $primaryAccount = $otherAccounts->first();
+        }
+
+        if (empty($primaryAccount)) {
+            return;
+        }
+
+        $company = Company::create();
+        if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
+            $company->plan         = 'pro';
+            $company->plan_term    = 'year';
+            $company->plan_started = $primaryAccount->pro_plan_paid;
+            $company->plan_paid    = $primaryAccount->pro_plan_paid;
+
+            $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
+            $expires->modify('+1 year');
+            $expires = $expires->format('Y-m-d');
+
+            // check for self host white label licenses
+            if ( ! Utils::isNinjaProd()) {
+                if ($company->plan_paid) {
+                    $company->plan = 'white_label';
+                    // old ones were unlimited, new ones are yearly
+                    if ($company->plan_paid == NINJA_DATE) {
+                        $company->plan_term = null;
+                    } else {
+                        $company->plan_term    = PLAN_TERM_YEARLY;
+                        $company->plan_expires = $expires;
+                    }
+                }
+            } elseif ($company->plan_paid != NINJA_DATE) {
+                $company->plan_expires = $expires;
+            }
+        }
+
+        if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {
+            $company->trial_started = $primaryAccount->pro_plan_trial;
+            $company->trial_plan    = 'pro';
+        }
+
+        $company->save();
+
+        $primaryAccount->company_id = $company->id;
+        $primaryAccount->save();
+
+        if ( ! empty($otherAccounts)) {
+            foreach ($otherAccounts as $account) {
+                if ($account && $account->id != $primaryAccount->id) {
+                    $account->company_id = $company->id;
+                    $account->save();
+                }
+            }
+        }
     }
 }

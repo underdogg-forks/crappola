@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
-use Utils;
+use Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -50,7 +51,7 @@ class SendRenewalInvoices extends Command
 
     public function handle()
     {
-        $this->info(date('r').' Running SendRenewalInvoices...');
+        $this->info(date('r') . ' Running SendRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -58,12 +59,12 @@ class SendRenewalInvoices extends Command
 
         // get all accounts with plans expiring in 10 days
         $companies = Company::whereRaw("datediff(plan_expires, curdate()) = 10 and (plan = 'pro' or plan = 'enterprise')")
-                        ->orderBy('id')
-                        ->get();
+            ->orderBy('id')
+            ->get();
         $this->info($companies->count() . ' companies found renewing in 10 days');
 
         foreach ($companies as $company) {
-            if (! $company->accounts->count()) {
+            if ( ! $company->accounts->count()) {
                 continue;
             }
 
@@ -100,26 +101,21 @@ class SendRenewalInvoices extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
+            Mail::raw('EOM', function ($message) use ($errorEmail, $database): void {
                 $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
+                    ->from(CONTACT_EMAIL)
+                    ->subject("SendRenewalInvoices [{$database}]: Finished successfully");
             });
         }
+
         return 0;
     }
 
-    /**
-     * @return array
-     */
     protected function getArguments()
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     protected function getOptions()
     {
         return [

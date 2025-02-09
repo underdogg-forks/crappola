@@ -23,26 +23,26 @@ class UpdateInvoiceRequest extends InvoiceRequest
      */
     public function rules()
     {
-        if (! $this->entity()) {
+        if ( ! $this->entity()) {
             return [];
         }
 
         $invoiceId = $this->entity()->id;
 
         $rules = [
-            'client' => 'required',
-            'invoice_items' => 'valid_invoice_items',
+            'client'         => 'required',
+            'invoice_items'  => 'valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
-            'discount' => 'positive',
-            'invoice_date' => 'required',
+            'discount'       => 'positive',
+            'invoice_date'   => 'required',
             //'due_date' => 'date',
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
 
         if ($this->user()->account->client_number_counter) {
-            $clientId = Client::getPrivateId(request()->input('client')['public_id']);
-            $rules['client.id_number'] = 'unique:clients,id_number,'.$clientId.',id,account_id,' . $this->user()->account_id;
+            $clientId                  = Client::getPrivateId(request()->input('client')['public_id']);
+            $rules['client.id_number'] = 'unique:clients,id_number,' . $clientId . ',id,account_id,' . $this->user()->account_id;
         }
 
         /* There's a problem parsing the dates

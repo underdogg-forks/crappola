@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
+use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Redirect;
+use Request;
 use Session;
-use URL;
-use Utils;
 use View;
 
 class PaymentTermController extends BaseController
@@ -58,10 +58,10 @@ class PaymentTermController extends BaseController
     public function edit($publicId)
     {
         $data = [
-          'paymentTerm' => PaymentTerm::scope($publicId)->firstOrFail(),
-          'method' => 'PUT',
-          'url' => 'payment_terms/'.$publicId,
-          'title' => trans('texts.edit_payment_term'),
+            'paymentTerm' => PaymentTerm::scope($publicId)->firstOrFail(),
+            'method'      => 'PUT',
+            'url'         => 'payment_terms/' . $publicId,
+            'title'       => trans('texts.edit_payment_term'),
         ];
 
         return View::make('accounts.payment_term', $data);
@@ -73,10 +73,10 @@ class PaymentTermController extends BaseController
     public function create()
     {
         $data = [
-          'paymentTerm' => null,
-          'method' => 'POST',
-          'url' => 'payment_terms',
-          'title' => trans('texts.create_payment_term'),
+            'paymentTerm' => null,
+            'method'      => 'POST',
+            'url'         => 'payment_terms',
+            'title'       => trans('texts.create_payment_term'),
         ];
 
         return View::make('accounts.payment_term', $data);
@@ -101,6 +101,20 @@ class PaymentTermController extends BaseController
     }
 
     /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function bulk()
+    {
+        $action = Request::input('bulk_action');
+        $ids    = Request::input('bulk_public_id');
+        $count  = $this->paymentTermService->bulk($ids, $action);
+
+        Session::flash('message', trans('texts.archived_payment_term'));
+
+        return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
+    }
+
+    /**
      * @param bool $publicId
      *
      * @return \Illuminate\Http\RedirectResponse
@@ -113,26 +127,12 @@ class PaymentTermController extends BaseController
             $paymentTerm = PaymentTerm::createNew();
         }
 
-        $paymentTerm->num_days = Utils::parseInt(\Request::input('num_days'));
-        $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
+        $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
+        $paymentTerm->name     = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 
         $message = $publicId ? trans('texts.updated_payment_term') : trans('texts.created_payment_term');
         Session::flash('message', $message);
-
-        return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function bulk()
-    {
-        $action = \Request::input('bulk_action');
-        $ids = \Request::input('bulk_public_id');
-        $count = $this->paymentTermService->bulk($ids, $action);
-
-        Session::flash('message', trans('texts.archived_payment_term'));
 
         return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }

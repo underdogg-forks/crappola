@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Repositories;
 
-use Auth;
-use Utils;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BaseRepository.
@@ -13,36 +13,12 @@ class BaseRepository
     /**
      * @return null
      */
-    public function getClassName()
-    {
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    /**
-     * @param $entity
-     * @param $type
-     *
-     * @return string
-     */
-    private function getEventClass($entity, $type)
-    {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
-    }
+    public function getClassName() {}
 
     /**
      * @param $entity
      */
-    public function archive($entity)
+    public function archive($entity): void
     {
         if ($entity->trashed()) {
             return;
@@ -60,9 +36,9 @@ class BaseRepository
     /**
      * @param $entity
      */
-    public function restore($entity)
+    public function restore($entity): void
     {
-        if (! $entity->trashed()) {
+        if ( ! $entity->trashed()) {
             return;
         }
 
@@ -70,7 +46,7 @@ class BaseRepository
         $entity->restore();
 
         if ($entity->is_deleted) {
-            $fromDeleted = true;
+            $fromDeleted        = true;
             $entity->is_deleted = false;
             $entity->save();
         }
@@ -85,7 +61,7 @@ class BaseRepository
     /**
      * @param $entity
      */
-    public function delete($entity)
+    public function delete($entity): void
     {
         if ($entity->is_deleted) {
             return;
@@ -111,7 +87,7 @@ class BaseRepository
      */
     public function bulk($ids, $action)
     {
-        if (! $ids) {
+        if ( ! $ids) {
             return 0;
         }
 
@@ -119,7 +95,7 @@ class BaseRepository
 
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
-                $this->$action($entity);
+                $this->{$action}($entity);
             }
         }
 
@@ -152,30 +128,51 @@ class BaseRepository
 
         if ($filter = session('entity_state_filter:' . $entityType, STATUS_ACTIVE)) {
             $filters = explode(',', $filter);
-            $query->where(function ($query) use ($filters, $table) {
+            $query->where(function ($query) use ($filters, $table): void {
                 $query->whereNull($table . '.id');
 
                 if (in_array(STATUS_ACTIVE, $filters)) {
                     $query->orWhereNull($table . '.deleted_at');
                 }
                 if (in_array(STATUS_ARCHIVED, $filters)) {
-                    $query->orWhere(function ($query) use ($table) {
+                    $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if (! in_array($table, ['users'])) {
+                        if ( ! in_array($table, ['users'])) {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
                 }
                 if (in_array(STATUS_DELETED, $filters)) {
-                    $query->orWhere(function ($query) use ($table) {
+                    $query->orWhere(function ($query) use ($table): void {
                         $query->whereNotNull($table . '.deleted_at')
-                              ->where($table . '.is_deleted', '=', 1);
+                            ->where($table . '.is_deleted', '=', 1);
                     });
                 }
             });
         }
 
         return $query;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getInstance()
+    {
+        $className = $this->getClassName();
+
+        return new $className();
+    }
+
+    /**
+     * @param $entity
+     * @param $type
+     *
+     * @return string
+     */
+    private function getEventClass($entity, $type)
+    {
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 }

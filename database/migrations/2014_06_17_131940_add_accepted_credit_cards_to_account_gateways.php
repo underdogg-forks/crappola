@@ -9,9 +9,9 @@ class AddAcceptedCreditCardsToAccountGateways extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('account_gateways', function ($table) {
+        Schema::table('account_gateways', function ($table): void {
             $table->unsignedInteger('accepted_credit_cards')->nullable();
         });
     }
@@ -21,9 +21,9 @@ class AddAcceptedCreditCardsToAccountGateways extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('account_gateways', function ($table) {
+        Schema::table('account_gateways', function ($table): void {
             $table->dropColumn('accepted_credit_cards');
         });
     }

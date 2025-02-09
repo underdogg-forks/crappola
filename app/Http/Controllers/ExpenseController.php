@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\ExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -14,20 +15,21 @@ use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\ExpenseService;
-use Auth;
-use Cache;
+use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use Redirect;
 use Request;
 use Session;
 use URL;
-use Utils;
 use View;
 
 class ExpenseController extends BaseController
 {
     // Expenses
     protected $expenseRepo;
+
     protected $expenseService;
+
     protected $entityType = ENTITY_EXPENSE;
 
     /**
@@ -39,9 +41,9 @@ class ExpenseController extends BaseController
     {
         // parent::__construct();
 
-        $this->expenseRepo = $expenseRepo;
+        $this->expenseRepo    = $expenseRepo;
         $this->expenseService = $expenseService;
-        $this->invoiceRepo = $invoiceRepo;
+        $this->invoiceRepo    = $invoiceRepo;
     }
 
     /**
@@ -53,14 +55,14 @@ class ExpenseController extends BaseController
     {
         return View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE,
-            'datatable' => new ExpenseDatatable(),
-            'title' => trans('texts.expenses'),
+            'datatable'  => new ExpenseDatatable(),
+            'title'      => trans('texts.expenses'),
         ]);
     }
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->expenseService->getDatatable(\Request::input('sSearch'));
+        return $this->expenseService->getDatatable(Request::input('sSearch'));
     }
 
     public function getDatatableVendor($vendorPublicId = null)
@@ -82,13 +84,13 @@ class ExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId' => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
-            'expense' => null,
-            'method' => 'POST',
-            'url' => 'expenses',
-            'title' => trans('texts.new_expense'),
-            'vendor' => $vendor,
-            'clientPublicId' => $request->client_id,
+            'vendorPublicId'   => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
+            'expense'          => null,
+            'method'           => 'POST',
+            'url'              => 'expenses',
+            'title'            => trans('texts.new_expense'),
+            'vendor'           => $vendor,
+            'clientPublicId'   => $request->client_id,
             'categoryPublicId' => $request->category_id,
         ];
 
@@ -108,8 +110,8 @@ class ExpenseController extends BaseController
 
         $actions = [];
 
-        if (! $clone) {
-            $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans("texts.clone_expense")];
+        if ( ! $clone) {
+            $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_expense')];
         }
         if ($expense->invoice) {
             $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
@@ -120,7 +122,7 @@ class ExpenseController extends BaseController
             $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id) : [];
 
             foreach ($invoices as $invoice) {
-                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", ' . $invoice->public_id . ')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
             }
         }
 
@@ -128,8 +130,8 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => URL::to("recurring_expenses/{$expense->recurring_expense->public_id}/edit"), 'label' => trans('texts.view_recurring_expense')];
         }
 
-        $actions[] = \DropdownButton::DIVIDER;
-        if (! $expense->trashed()) {
+        $actions[] = DropdownButton::DIVIDER;
+        if ( ! $expense->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_expense')];
         } else {
@@ -137,34 +139,34 @@ class ExpenseController extends BaseController
         }
 
         if ($clone) {
-            $expense->id = null;
-            $expense->public_id = null;
-            $expense->expense_date = date_create()->format('Y-m-d');
-            $expense->deleted_at = null;
-            $expense->invoice_id = null;
-            $expense->payment_date = null;
-            $expense->payment_type_id = null;
+            $expense->id                    = null;
+            $expense->public_id             = null;
+            $expense->expense_date          = date_create()->format('Y-m-d');
+            $expense->deleted_at            = null;
+            $expense->invoice_id            = null;
+            $expense->payment_date          = null;
+            $expense->payment_type_id       = null;
             $expense->transaction_reference = null;
             while ($expense->documents->count()) {
                 $expense->documents->pop();
             }
             $method = 'POST';
-            $url = 'expenses';
+            $url    = 'expenses';
         } else {
             $method = 'PUT';
-            $url = 'expenses/' . $expense->public_id;
+            $url    = 'expenses/' . $expense->public_id;
         }
 
         $data = [
-            'vendor' => null,
-            'expense' => $expense,
-            'entity' => $expense,
-            'method' => $method,
-            'url' => $url,
-            'title' => 'Edit Expense',
-            'actions' => $actions,
-            'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
-            'clientPublicId' => $expense->client ? $expense->client->public_id : null,
+            'vendor'           => null,
+            'expense'          => $expense,
+            'entity'           => $expense,
+            'method'           => $method,
+            'url'              => $url,
+            'title'            => 'Edit Expense',
+            'actions'          => $actions,
+            'vendorPublicId'   => $expense->vendor ? $expense->vendor->public_id : null,
+            'clientPublicId'   => $expense->client ? $expense->client->public_id : null,
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
@@ -182,39 +184,41 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $data = $request->input();
+        $data              = $request->input();
         $data['documents'] = $request->file('documents');
 
         $expense = $this->expenseService->save($data, $request->entity());
 
         Session::flash('message', trans('texts.updated_expense'));
 
-        $action = \Request::input('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
 
         if ($action == 'clone') {
             return redirect()->to(sprintf('expenses/%s/clone', $expense->public_id));
-        } else {
-            return redirect()->to("expenses/{$expense->public_id}/edit");
         }
+
+        return redirect()->to("expenses/{$expense->public_id}/edit");
     }
 
     public function store(CreateExpenseRequest $request)
     {
-        $data = $request->input();
+        $data              = $request->input();
         $data['documents'] = $request->file('documents');
 
         // check for possible duplicate expense
         $duplcate = Expense::scope()
-                    ->whereAmount($request->amount)
-                    ->whereExpenseDate(Utils::toSqlDate($request->expense_date))
-                    ->orderBy('created_at')
-                    ->first();
+            ->whereAmount($request->amount)
+            ->whereExpenseDate(Utils::toSqlDate($request->expense_date))
+            ->orderBy('created_at')
+            ->first();
         if ($duplcate) {
-            Session::flash('warning', trans('texts.duplicate_expense_warning',
-                ['link' => link_to($duplcate->present()->url, trans('texts.expense_link'), ['target' => '_blank'])]));
+            Session::flash('warning', trans(
+                'texts.duplicate_expense_warning',
+                ['link' => link_to($duplcate->present()->url, trans('texts.expense_link'), ['target' => '_blank'])]
+            ));
         }
 
         $expense = $this->expenseService->save($data);
@@ -226,16 +230,16 @@ class ExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = \Request::input('action');
-        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
+        $action  = Request::input('action');
+        $ids     = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $referer = Request::server('HTTP_REFERER');
 
         switch ($action) {
             case 'invoice':
             case 'add_to_invoice':
-                $expenses = Expense::scope($ids)->with('client')->get();
+                $expenses       = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
-                $currencyId = null;
+                $currencyId     = null;
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense) {
@@ -244,14 +248,14 @@ class ExpenseController extends BaseController
                             return redirect($referer)->withError(trans('texts.client_must_be_active'));
                         }
 
-                        if (! $clientPublicId) {
+                        if ( ! $clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
                         } elseif ($clientPublicId != $expense->client->public_id) {
                             return redirect($referer)->withError(trans('texts.expense_error_multiple_clients'));
                         }
                     }
 
-                    if (! $currencyId) {
+                    if ( ! $currencyId) {
                         $currencyId = $expense->invoice_currency_id;
                     } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
                         return redirect($referer)->withError(trans('texts.expense_error_multiple_currencies'));
@@ -264,15 +268,15 @@ class ExpenseController extends BaseController
 
                 if ($action == 'invoice') {
                     return Redirect::to("invoices/create/{$clientPublicId}")
-                            ->with('expenseCurrencyId', $currencyId)
-                            ->with('expenses', $ids);
-                } else {
-                    $invoiceId = \Request::input('invoice_id');
-
-                    return Redirect::to("invoices/{$invoiceId}/edit")
-                            ->with('expenseCurrencyId', $currencyId)
-                            ->with('expenses', $ids);
+                        ->with('expenseCurrencyId', $currencyId)
+                        ->with('expenses', $ids);
                 }
+                $invoiceId = Request::input('invoice_id');
+
+                return Redirect::to("invoices/{$invoiceId}/edit")
+                    ->with('expenseCurrencyId', $currencyId)
+                    ->with('expenses', $ids);
+
                 break;
 
             default:
@@ -280,24 +284,11 @@ class ExpenseController extends BaseController
         }
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_expense', $count);
+            $message = Utils::pluralize($action . 'd_expense', $count);
             Session::flash('message', $message);
         }
 
         return $this->returnBulk($this->entityType, $action, $ids);
-    }
-
-    private static function getViewModel($expense = false)
-    {
-        return [
-            'data' => Request::old('data'),
-            'account' => Auth::user()->account,
-            'vendors' => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
-            'clients' => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),
-            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withActiveOrSelected($expense ? $expense->expense_category_id : false)->orderBy('name')->get(),
-            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
-            'isRecurring' => false,
-        ];
     }
 
     public function show($publicId)
@@ -305,5 +296,18 @@ class ExpenseController extends BaseController
         Session::reflash();
 
         return Redirect::to("expenses/{$publicId}/edit");
+    }
+
+    private static function getViewModel($expense = false)
+    {
+        return [
+            'data'        => Request::old('data'),
+            'account'     => Auth::user()->account,
+            'vendors'     => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
+            'clients'     => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),
+            'categories'  => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withActiveOrSelected($expense ? $expense->expense_category_id : false)->orderBy('name')->get(),
+            'taxRates'    => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
+            'isRecurring' => false,
+        ];
     }
 }

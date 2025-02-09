@@ -3,7 +3,6 @@
 use Illuminate\Support\Str;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Cache Store
@@ -31,46 +30,44 @@ return [
     |
     */
 
-	'stores' => [
+    'stores' => [
+        'apc' => [
+            'driver' => 'apc',
+        ],
 
-		'apc' => [
-			'driver' => 'apc'
-		],
-
-		'array' => [
-			'driver' => 'array',
+        'array' => [
+            'driver'    => 'array',
             'serialize' => false,
-		],
+        ],
 
-		'database' => [
-			'driver' => 'database',
-			'table'  => 'cache',
-			'connection' => null,
+        'database' => [
+            'driver'          => 'database',
+            'table'           => 'cache',
+            'connection'      => null,
             'lock_connection' => null,
-		],
+        ],
 
-		'file' => [
-			'driver' => 'file',
-            'path' => storage_path('framework/cache/data'),
-		],
+        'file' => [
+            'driver' => 'file',
+            'path'   => storage_path('framework/cache/data'),
+        ],
 
-		'memcached' => [
-			'driver'  => 'memcached',
-			'servers' => [
-				[
+        'memcached' => [
+            'driver'  => 'memcached',
+            'servers' => [
+                [
                     'host' => env('CACHE_HOST', '127.0.0.1'), 'port' => env('CACHE_PORT1', 11211), 'weight' => 100,
-                    'host' => env('CACHE_HOST', '127.0.0.1'), 'port' => env('CACHE_PORT2', 11211), 'weight' => 100
-				],
-			],
-		],
+                    'host' => env('CACHE_HOST', '127.0.0.1'), 'port' => env('CACHE_PORT2', 11211), 'weight' => 100,
+                ],
+            ],
+        ],
 
-		'redis' => [
-			'driver' => 'redis',
-			'connection' => 'default',
+        'redis' => [
+            'driver'          => 'redis',
+            'connection'      => 'default',
             'lock_connection' => 'default',
-		],
-
-	],
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -83,6 +80,5 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
-
+    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_cache_'),
 ];

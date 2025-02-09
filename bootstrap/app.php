@@ -60,7 +60,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'PhantomJS') && Utils::isNinjaDev()) {
 
 // Capture real IP if using cloudflare
 if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
-	$_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+    $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
 }
 */
 

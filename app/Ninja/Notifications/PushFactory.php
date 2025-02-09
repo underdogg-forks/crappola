@@ -3,6 +3,7 @@
 namespace App\Ninja\Notifications;
 
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -13,9 +14,7 @@ class PushFactory
     /**
      * PushFactory constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * customMessage function.
@@ -23,14 +22,14 @@ class PushFactory
      * Send a message with a nested custom payload to perform additional trickery within application
      *
      *
-     * @param $token
-     * @param $message
-     * @param $messageArray
-     * @param string $device - Type of device the message is being pushed to.
+     * @param        $token
+     * @param        $message
+     * @param        $messageArray
+     * @param string $device       - Type of device the message is being pushed to
      *
      * @return void
      */
-    public function customMessage($token, $message, $messageArray, $device)
+    public function customMessage($token, $message, $messageArray, $device): void
     {
         $customMessage = PushNotification::Message($message, $messageArray);
 
@@ -43,19 +42,19 @@ class PushFactory
      * Send a plain text only message to a single device.
      *
      *
-     * @param $token - device token
-     * @param $message - user specific message
+     * @param       $token   - device token
+     * @param       $message - user specific message
      * @param mixed $device
      *
      * @return void
      */
-    public function message($token, $message, $device)
+    public function message($token, $message, $device): void
     {
         try {
             PushNotification::app($device)
                 ->to($token)
                 ->send($message);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error($e->getMessage());
         }
     }
@@ -70,7 +69,7 @@ class PushFactory
      *
      * @param string $token   - A valid token (can be any valid token)
      * @param string $message - Nil value for message
-     * @param string $device  - Type of device the message is being pushed to.
+     * @param string $device  - Type of device the message is being pushed to
      *
      * @return array
      */

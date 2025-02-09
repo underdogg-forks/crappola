@@ -14,7 +14,7 @@ return [
     |
     */
     'supports_credentials' => false,
-    'allowed_origins' => ['*'],
+    'allowed_origins'      => ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -25,6 +25,4 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => false,
-
 ];
-

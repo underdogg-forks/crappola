@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         Model::unguard();
 
@@ -35,7 +35,7 @@ class DateFormatsSeeder extends Seeder
             if ($record) {
                 $record->picker_format = $format['picker_format'];
                 $record->format_moment = $format['format_moment'];
-                $record->format_dart = $format['format_dart'];
+                $record->format_dart   = $format['format_dart'];
                 $record->save();
             } else {
                 DateFormat::create($format);
@@ -63,7 +63,7 @@ class DateFormatsSeeder extends Seeder
             $record = DatetimeFormat::whereRaw('BINARY `format`= ?', [$format['format']])->first();
             if ($record) {
                 $record->format_moment = $format['format_moment'];
-                $record->format_dart = $format['format_dart'];
+                $record->format_dart   = $format['format_dart'];
                 $record->save();
             } else {
                 DatetimeFormat::create($format);

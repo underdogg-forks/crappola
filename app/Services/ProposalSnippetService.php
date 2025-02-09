@@ -25,24 +25,16 @@ class ProposalSnippetService extends BaseService
      * CreditService constructor.
      *
      * @param ProposalSnippetRepository $creditRepo
-     * @param DatatableService  $datatableService
+     * @param DatatableService          $datatableService
      */
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, DatatableService $datatableService)
     {
         $this->proposalSnippetRepo = $proposalSnippetRepo;
-        $this->datatableService = $datatableService;
+        $this->datatableService    = $datatableService;
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalSnippetRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $proposalSnippet
      *
      * @return mixed|null
@@ -53,8 +45,8 @@ class ProposalSnippetService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -67,5 +59,13 @@ class ProposalSnippetService extends BaseService
         $query = $this->proposalSnippetRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->proposalSnippetRepo;
     }
 }

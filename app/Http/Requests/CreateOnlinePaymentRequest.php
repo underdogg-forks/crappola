@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Invitation;
 use App\Models\GatewayType;
+use App\Models\Invitation;
 
 class CreateOnlinePaymentRequest extends Request
 {

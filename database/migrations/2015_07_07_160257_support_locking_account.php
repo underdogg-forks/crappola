@@ -9,13 +9,13 @@ class SupportLockingAccount extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->smallInteger('failed_logins')->nullable();
         });
 
-        Schema::table('account_gateways', function ($table) {
+        Schema::table('account_gateways', function ($table): void {
             $table->boolean('show_address')->default(true)->nullable();
             $table->boolean('update_address')->default(true)->nullable();
         });
@@ -26,13 +26,13 @@ class SupportLockingAccount extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function ($table) {
+        Schema::table('users', function ($table): void {
             $table->dropColumn('failed_logins');
         });
 
-        Schema::table('account_gateways', function ($table) {
+        Schema::table('account_gateways', function ($table): void {
             $table->dropColumn('show_address');
             $table->dropColumn('update_address');
         });

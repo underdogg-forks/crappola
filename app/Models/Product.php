@@ -13,6 +13,7 @@ class Product extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
+
     /**
      * @var array
      */
@@ -39,9 +40,6 @@ class Product extends EntityModel
         'custom_value2',
     ];
 
-    /**
-     * @return array
-     */
     public static function getImportColumns()
     {
         return [
@@ -53,26 +51,15 @@ class Product extends EntityModel
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getImportMap()
     {
         return [
-            'product|item' => 'product_key',
+            'product|item'              => 'product_key',
             'notes|description|details' => 'notes',
-            'cost|amount|price' => 'cost',
-            'custom_value1' => 'custom_value1',
-            'custom_value2' => 'custom_value2',
+            'cost|amount|price'         => 'cost',
+            'custom_value1'             => 'custom_value1',
+            'custom_value2'             => 'custom_value2',
         ];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PRODUCT;
     }
 
     /**
@@ -83,6 +70,14 @@ class Product extends EntityModel
     public static function findProductByKey($key)
     {
         return self::scope()->where('product_key', '=', $key)->first();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_PRODUCT;
     }
 
     /**

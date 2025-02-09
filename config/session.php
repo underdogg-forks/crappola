@@ -3,7 +3,6 @@
 use Illuminate\Support\Str;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Session Driver
@@ -31,9 +30,9 @@ return [
     |
     */
 
-	'lifetime' => env('SESSION_LIFETIME', (60 * 8)),
+    'lifetime' => env('SESSION_LIFETIME', (60 * 8)),
 
-	'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', true),
+    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -128,7 +127,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'ninja'), '_').'_session'
+        Str::slug(env('APP_NAME', 'ninja'), '_') . '_session'
     ),
 
     /*
@@ -197,5 +196,4 @@ return [
     */
 
     'same_site' => 'lax',
-
 ];

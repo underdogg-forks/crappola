@@ -2,17 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Cache;
 use Crypt;
 use Google2FA;
-use App\Models\User;
-use App\Http\Requests\Request;
 use Illuminate\Validation\Factory as ValidatonFactory;
 
 class ValidateTwoFactorRequest extends Request
 {
     /**
-     *
      * @var \App\User
      */
     private $user;
@@ -21,6 +19,7 @@ class ValidateTwoFactorRequest extends Request
      * Create a new FormRequest instance.
      *
      * @param \Illuminate\Validation\Factory $factory
+     *
      * @return void
      */
     public function __construct(ValidatonFactory $factory)
@@ -40,7 +39,7 @@ class ValidateTwoFactorRequest extends Request
             function ($attribute, $value, $parameters, $validator) {
                 $key = $this->user->id . ':' . $value;
 
-                return !Cache::has($key);
+                return ! Cache::has($key);
             },
             trans('texts.invalid_code')
         );

@@ -2,25 +2,25 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Task;
-use Utils;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class TaskReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'client' => [],
-            'start_date' => [],
-            'project' => [],
+            'client'      => [],
+            'start_date'  => [],
+            'project'     => [],
             'description' => [],
-            'duration' => [],
-            'amount' => [],
-            'user' => ['columnSelector-false'],
+            'duration'    => [],
+            'amount'      => [],
+            'user'        => ['columnSelector-false'],
         ];
 
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('task1')) {
@@ -33,22 +33,22 @@ class TaskReport extends AbstractReport
         return $columns;
     }
 
-    public function run()
+    public function run(): void
     {
-        $account = Auth::user()->account;
+        $account   = Auth::user()->account;
         $startDate = date_create($this->startDate);
-        $endDate = date_create($this->endDate);
-        $subgroup = $this->options['subgroup'];
+        $endDate   = date_create($this->endDate);
+        $subgroup  = $this->options['subgroup'];
 
         $tasks = Task::scope()
-                    ->orderBy('created_at', 'desc')
-                    ->with('client.contacts', 'project', 'account', 'user')
-                    ->withArchived()
-                    ->dateRange($startDate, $endDate);
+            ->orderBy('created_at', 'desc')
+            ->with('client.contacts', 'project', 'account', 'user')
+            ->withArchived()
+            ->dateRange($startDate, $endDate);
 
         foreach ($tasks->get() as $task) {
             $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));
-            $amount = $task->getRate() * ($duration / 60 / 60);
+            $amount   = $task->getRate() * ($duration / 60 / 60);
             if ($task->client && $task->client->currency_id) {
                 $currencyId = $task->client->currency_id;
             } else {

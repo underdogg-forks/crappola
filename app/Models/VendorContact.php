@@ -13,10 +13,32 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class VendorContact extends EntityModel
 {
     use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    public static $fieldFirstName = 'first_name';
+
+    /**
+     * @var string
+     */
+    public static $fieldLastName = 'last_name';
+
+    /**
+     * @var string
+     */
+    public static $fieldEmail = 'email';
+
+    /**
+     * @var string
+     */
+    public static $fieldPhone = 'phone';
+
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
@@ -32,23 +54,6 @@ class VendorContact extends EntityModel
         'phone',
         'send_invoice',
     ];
-
-    /**
-     * @var string
-     */
-    public static $fieldFirstName = 'first_name';
-    /**
-     * @var string
-     */
-    public static $fieldLastName = 'last_name';
-    /**
-     * @var string
-     */
-    public static $fieldEmail = 'email';
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'phone';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -97,9 +102,9 @@ class VendorContact extends EntityModel
     {
         if ($this->getFullName()) {
             return $this->getFullName();
-        } else {
-            return $this->email;
         }
+
+        return $this->email;
     }
 
     /**
@@ -108,10 +113,10 @@ class VendorContact extends EntityModel
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
-        } else {
-            return '';
+            return $this->first_name . ' ' . $this->last_name;
         }
+
+        return '';
     }
 
     protected function serializeDate(DateTimeInterface $date)

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Mail;
 use Redirect;
 use Request;
@@ -42,13 +42,14 @@ class HomeController extends BaseController
     {
         Session::reflash();
 
-        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
+        if ( ! Utils::isNinja() && ( ! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
-        } elseif (Auth::check()) {
-            return Redirect::to('/dashboard');
-        } else {
-            return Redirect::to('/login');
         }
+        if (Auth::check()) {
+            return Redirect::to('/dashboard');
+        }
+
+        return Redirect::to('/login');
     }
 
     /**
@@ -67,7 +68,7 @@ class HomeController extends BaseController
         $url = 'https://invoicing.co';
 
         if (Request::has('rc')) {
-            $url = $url . '?rc=' . \Request::input('rc');
+            $url = $url . '?rc=' . Request::input('rc');
         }
 
         return Redirect::to($url);
@@ -108,7 +109,7 @@ class HomeController extends BaseController
         if (Auth::check() && Session::has('news_feed_id')) {
             $newsFeedId = Session::get('news_feed_id');
             if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > Auth::user()->news_feed_id) {
-                $user = Auth::user();
+                $user               = Auth::user();
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
@@ -124,7 +125,7 @@ class HomeController extends BaseController
      */
     public function logError()
     {
-        return Utils::logError(\Request::input('error'), 'JavaScript');
+        return Utils::logError(Request::input('error'), 'JavaScript');
     }
 
     /**
@@ -154,7 +155,7 @@ class HomeController extends BaseController
             $message .= "\n\n" . join("\n", Utils::getErrors());
         }
 
-        Mail::raw($message, function ($message) {
+        Mail::raw($message, function ($message): void {
             $subject = 'Customer Message [';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-ninja-', '', config('database.default'));
@@ -164,9 +165,9 @@ class HomeController extends BaseController
             }
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
-                    ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
-                    ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
-                    ->subject($subject);
+                ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
+                ->subject($subject);
         });
 
         return RESULT_SUCCESS;

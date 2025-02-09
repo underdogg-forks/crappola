@@ -11,16 +11,16 @@ class AddQuoteToInvoiceOption extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->boolean('auto_convert_quote')->default(true);
         });
-        
+
         // we need to create the last status to resolve a foreign key constraint
         if (DB::table('invoice_statuses')->count() == 5) {
             DB::table('invoice_statuses')->insert([
-                'id' => 6,
+                'id'   => 6,
                 'name' => 'Paid',
             ]);
         }
@@ -35,9 +35,9 @@ class AddQuoteToInvoiceOption extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->dropColumn('auto_convert_quote');
         });
 
