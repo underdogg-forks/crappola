@@ -32,15 +32,15 @@ return RectorConfig::configure()
         ReturnTypeFromStrictTypedPropertyRector::class,
     ])
     ->withSets([
-        //LevelSetList::UP_TO_PHP_81,
-        //SetList::TYPE_DECLARATION,
-        //SetList::EARLY_RETURN,
-        //SetList::CARBON,
+        //SetList::DEAD_CODE,
         //SetList::CODE_QUALITY,
         //SetList::CODING_STYLE,
-        //SetList::DEAD_CODE,
-        //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
-        //LaravelLevelSetList::UP_TO_LARAVEL_100,
+        //SetList::EARLY_RETURN,
+        //SetList::TYPE_DECLARATION,
+        //SetList::CARBON,
         //LaravelSetList::LARAVEL_CODE_QUALITY,
         //LaravelSetList::LARAVEL_COLLECTION,
+        //LaravelSetList::LARAVEL_FACADE_ALIASES_TO_FULL_NAMES,
+        //LaravelLevelSetList::UP_TO_LARAVEL_100,
+        //LevelSetList::UP_TO_PHP_81,
     ]);
