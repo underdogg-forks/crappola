@@ -8,7 +8,6 @@ class UpdateUserRequest extends EntityRequest
 {
     // Expenses
 
-
     public function authorize()
     {
         return Auth::user()->is_admin || $this->user()->id == Auth::user()->id;

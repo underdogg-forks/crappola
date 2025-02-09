@@ -931,7 +931,6 @@ trait GenerateMigrationResources
                 'last_login'        => $contact->last_login,
                 'password'          => $contact->password ?: '',
                 'is_locked'         => false,
-                'confirmed'         => true,
                 'created_at'        => $contact->created_at ? Carbon::parse($contact->created_at)->toDateString() : null,
                 'updated_at'        => $contact->updated_at ? Carbon::parse($contact->updated_at)->toDateString() : null,
                 'deleted_at'        => $contact->deleted_at ? Carbon::parse($contact->deleted_at)->toDateString() : null,

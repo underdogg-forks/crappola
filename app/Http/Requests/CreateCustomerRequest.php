@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class CreateCustomerRequest extends CustomerRequest
 {
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_CUSTOMER);

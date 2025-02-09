@@ -7,7 +7,6 @@ use HTMLUtils;
 
 class SaveClientPortalSettings extends Request
 {
-
     public function authorize()
     {
         return $this->user()->is_admin && $this->user()->isPro();

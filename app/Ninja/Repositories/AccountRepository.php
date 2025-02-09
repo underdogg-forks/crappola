@@ -14,7 +14,6 @@ use App\Models\Credit;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use App\Models\Language;
 use App\Models\LookupUser;
 use App\Models\User;
 use App\Models\UserAccount;
@@ -621,7 +620,7 @@ class AccountRepository
         })->count();
 
         if ($count >= 15) {
-            abort();
+            abort('500', '', []);
         }
     }
 

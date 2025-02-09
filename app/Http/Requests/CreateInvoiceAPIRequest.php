@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class CreateInvoiceAPIRequest extends InvoiceRequest
 {
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_INVOICE);

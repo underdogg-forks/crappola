@@ -16,6 +16,7 @@ use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use Auth;
 use Exception;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
@@ -110,7 +111,7 @@ class StepsController extends BaseController
                 ->withInput();
         }
 
-        $account_settings = \Auth::user()->account->account_email_settings;
+        $account_settings = Auth::user()->account->account_email_settings;
 
         if(mb_strlen($request->input('url')) == 0) {
             $account_settings->is_disabled = false;
@@ -126,7 +127,7 @@ class StepsController extends BaseController
 
     public function disableForwarding()
     {
-        $account = \Auth::user()->account;
+        $account = Auth::user()->account;
 
         $account_settings = $account->account_email_settings;
         $account_settings->forward_url_for_v5 = '';
@@ -366,7 +367,7 @@ class StepsController extends BaseController
             'Content-Type'        => 'application/json',
         ];
 
-        $account = \Auth::user()->account;
+        $account = Auth::user()->account;
         $gateway_reference = '';
 
         $ninja_client = Client::where('public_id', $account->id)->first();

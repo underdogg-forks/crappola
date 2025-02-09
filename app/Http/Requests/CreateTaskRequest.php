@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class CreateTaskRequest extends TaskRequest
 {
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_TASK);

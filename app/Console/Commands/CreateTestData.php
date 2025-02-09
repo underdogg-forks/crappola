@@ -18,9 +18,6 @@ use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * Class CreateTestData.
- */
 class CreateTestData extends Command
 {
     /**

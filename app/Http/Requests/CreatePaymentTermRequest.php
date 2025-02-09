@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class CreatePaymentTermRequest extends PaymentTermRequest
 {
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_PAYMENT_TERM);

@@ -20,7 +20,9 @@ class ReferralRepository
         }
 
         $current = config('database.default');
-        $databases = env('MULTI_DB_ENABLED') ? DbServer::all()->pluck('name')->toArray() : [$current];
+        $databases = env('MULTI_DB_ENABLED')
+            ? DbServer::pluck('name')->all()
+            : [$current];
 
         foreach ($databases as $database) {
             config(['database.default' => $database]);

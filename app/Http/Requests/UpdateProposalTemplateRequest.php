@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class UpdateProposalTemplateRequest extends ProposalTemplateRequest
 {
-
     public function authorize()
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());

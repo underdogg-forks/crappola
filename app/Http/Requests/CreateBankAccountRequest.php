@@ -6,7 +6,6 @@ class CreateBankAccountRequest extends Request
 {
     // Expenses
 
-
     public function authorize()
     {
         return true;

@@ -6,7 +6,6 @@ use Illuminate\Http\Request as InputRequest;
 
 class RegisterRequest extends Request
 {
-
     public function __construct(InputRequest $req)
     {
         $this->req = $req;

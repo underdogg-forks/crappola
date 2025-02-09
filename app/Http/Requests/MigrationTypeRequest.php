@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class MigrationTypeRequest extends FormRequest
 {
-
     public function authorize()
     {
         return true;

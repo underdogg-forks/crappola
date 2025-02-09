@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class CreateProposalCategoryRequest extends ProposalCategoryRequest
 {
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_PROPOSAL_CATEGORY);

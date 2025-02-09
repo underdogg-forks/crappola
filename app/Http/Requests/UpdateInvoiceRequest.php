@@ -6,7 +6,6 @@ use App\Models\Client;
 
 class UpdateInvoiceRequest extends InvoiceRequest
 {
-
     public function authorize()
     {
         return $this->entity() && $this->user()->can('edit', $this->entity());

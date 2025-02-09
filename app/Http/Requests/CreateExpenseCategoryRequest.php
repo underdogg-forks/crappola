@@ -6,7 +6,6 @@ class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
     // Expenses
 
-
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_EXPENSE_CATEGORY);

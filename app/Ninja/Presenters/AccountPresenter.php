@@ -176,7 +176,7 @@ class AccountPresenter extends Presenter
     {
         $fields = [
             'client1'       => 'custom_client1',
-            'client1'       => 'custom_client2',
+            'client2'       => 'custom_client2',
             'contact1'      => 'custom_contact1',
             'contact2'      => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',

@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 class UpdateAccountRequest extends Request
 {
-
     public function authorize()
     {
         return true;
