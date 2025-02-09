@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
@@ -52,7 +53,7 @@ class ProposalController extends BaseController
     {
         $search = Request::input('sSearch');
         //$userId = Auth::user()->filterId();
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
+        $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
         return $this->proposalService->getDatatable($search, $userId);
     }

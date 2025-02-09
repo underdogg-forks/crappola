@@ -101,7 +101,7 @@ class Handler extends ExceptionHandler
 
         if ($e instanceof ModelNotFoundException) {
             if (isset($value) && mb_strlen($value) > 1) {
-                $headers = \App\Libraries\Utils::getApiHeaders();
+                $headers = Utils::getApiHeaders();
                 $response = json_encode(['message' => 'record does not exist'], JSON_PRETTY_PRINT);
 
                 return Response::make($response, 404, $headers);

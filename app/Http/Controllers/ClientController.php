@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -59,7 +60,7 @@ class ClientController extends BaseController
     public function getDatatable()
     {
         $search = Request::input('sSearch');
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_CLIENT);
+        $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
     }
@@ -81,7 +82,7 @@ class ClientController extends BaseController
     public function show(ClientRequest $request)
     {
         $client = $request->entity();
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $account = $user->account;
 
         //$user->can('view', [ENTITY_CLIENT, $client]);
@@ -148,8 +149,8 @@ class ClientController extends BaseController
     {
         //Auth::user()->can('create', ENTITY_CLIENT);
 
-        if (Client::scope()->withTrashed()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . \Illuminate\Support\Facades\Auth::user()->getMaxNumClients() . ' clients']);
+        if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . ' clients']);
         }
 
         $data = [
@@ -177,7 +178,7 @@ class ClientController extends BaseController
 
         $data = array_merge($data, $this->getViewModel());
 
-        if (\Illuminate\Support\Facades\Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
+        if (Auth::user()->account->isNinjaAccount() && ($account = Account::whereId($client->public_id)->first())) {
             $data['planDetails'] = $account->getPlanDetails(false, false);
         }
 
@@ -219,7 +220,7 @@ class ClientController extends BaseController
         $statusId = request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
-        $account = \Illuminate\Support\Facades\Auth::user()->account;
+        $account = Auth::user()->account;
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
 
         if ( ! $startDate) {
@@ -260,10 +261,10 @@ class ClientController extends BaseController
     {
         return [
             'data'         => Request::old('data'),
-            'account'      => \Illuminate\Support\Facades\Auth::user()->account,
+            'account'      => Auth::user()->account,
             'sizes'        => Cache::get('sizes'),
-            'customLabel1' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client1'),
-            'customLabel2' => \Illuminate\Support\Facades\Auth::user()->account->customLabel('client2'),
+            'customLabel1' => Auth::user()->account->customLabel('client1'),
+            'customLabel2' => Auth::user()->account->customLabel('client2'),
         ];
     }
 }

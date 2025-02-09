@@ -223,7 +223,7 @@ class ImportService
                 }
             }
 
-            $account = \Illuminate\Support\Facades\Auth::user()->account;
+            $account = Auth::user()->account;
             $account->fill($settings);
             $account->save();
 
@@ -377,8 +377,8 @@ class ImportService
 
             $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
 
-            if ($entityType === ENTITY_CLIENT && count($data[$entityType]['data']) + Client::scope()->count() > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
-                throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
+            if ($entityType === ENTITY_CLIENT && count($data[$entityType]['data']) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
+                throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
             }
         }
 
@@ -678,8 +678,8 @@ class ImportService
     private function checkClientCount(int $count): void
     {
         $totalClients = $count + Client::scope()->withTrashed()->count();
-        if ($totalClients > \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()) {
-            throw new Exception(trans('texts.limit_clients', ['count' => \Illuminate\Support\Facades\Auth::user()->getMaxNumClients()]));
+        if ($totalClients > Auth::user()->getMaxNumClients()) {
+            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
         }
     }
 
@@ -792,7 +792,7 @@ class ImportService
         $source = IMPORT_CSV;
 
         $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
-        $fileName = sprintf('%s/%s_%s_%s.csv', $path, \Illuminate\Support\Facades\Auth::user()->account_id, $timestamp, $entityType);
+        $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, $timestamp, $entityType);
         $data = $this->getCsvData($fileName);
         $this->checkData($entityType, count($data));
         $this->initMaps();

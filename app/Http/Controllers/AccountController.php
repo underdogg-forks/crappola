@@ -283,7 +283,7 @@ class AccountController extends BaseController
         }
 
         if ($section == ACCOUNT_IMPORT_EXPORT) {
-            return \Illuminate\Support\Facades\View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
+            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         }
 
         if ($section == ACCOUNT_MANAGEMENT) {
@@ -329,7 +329,7 @@ class AccountController extends BaseController
             'section' => $section,
         ];
 
-        return \Illuminate\Support\Facades\View::make($view, $data);
+        return View::make($view, $data);
     }
 
     /**
@@ -355,7 +355,7 @@ class AccountController extends BaseController
             'referralCounts'    => $this->referralRepository->getCounts(Auth::user()->referral_code),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.user_details', $data);
+        return View::make('accounts.user_details', $data);
     }
 
     public function doSection($section): RedirectResponse
@@ -889,7 +889,7 @@ class AccountController extends BaseController
             'section' => ACCOUNT_SYSTEM_SETTINGS,
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.system_settings', $data);
+        return View::make('accounts.system_settings', $data);
     }
 
     /**
@@ -912,7 +912,7 @@ class AccountController extends BaseController
             'recurringHours' => $recurringHours,
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.invoice_settings', $data);
+        return View::make('accounts.invoice_settings', $data);
     }
 
     /**
@@ -932,7 +932,7 @@ class AccountController extends BaseController
             'title'   => trans('texts.company_details'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.details', $data);
+        return View::make('accounts.details', $data);
     }
 
     /**
@@ -958,7 +958,7 @@ class AccountController extends BaseController
             'title'       => trans('texts.account_management'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.management', $data);
+        return View::make('accounts.management', $data);
     }
 
     /**
@@ -976,7 +976,7 @@ class AccountController extends BaseController
             'months'          => Utils::getMonthOptions(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.localization', $data);
+        return View::make('accounts.localization', $data);
     }
 
     /**
@@ -986,7 +986,7 @@ class AccountController extends BaseController
     {
         $account = auth()->user()->account;
 
-        return \Illuminate\Support\Facades\View::make('accounts.banks', [
+        return View::make('accounts.banks', [
             'title'              => trans('texts.bank_accounts'),
             'advanced'           => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
             'warnPaymentGateway' => ! $account->account_gateways->count(),
@@ -1013,7 +1013,7 @@ class AccountController extends BaseController
             $tokenBillingOptions[$i] = trans('texts.token_billing_' . $i);
         }
 
-        return \Illuminate\Support\Facades\View::make('accounts.payments', [
+        return View::make('accounts.payments', [
             'showAdd'             => $count < count(Gateway::$alternate) + 1,
             'title'               => trans('texts.online_payments'),
             'tokenBillingOptions' => $tokenBillingOptions,
@@ -1033,7 +1033,7 @@ class AccountController extends BaseController
             'title'   => trans('texts.product_library'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.products', $data);
+        return View::make('accounts.products', $data);
     }
 
     /**
@@ -1049,7 +1049,7 @@ class AccountController extends BaseController
             'hasInclusiveTaxRates' => (bool) TaxRate::scope()->whereIsInclusive(true)->count(),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.tax_rates', $data);
+        return View::make('accounts.tax_rates', $data);
     }
 
     /**
@@ -1062,7 +1062,7 @@ class AccountController extends BaseController
             'title'   => trans('texts.payment_terms'),
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.payment_terms', $data);
+        return View::make('accounts.payment_terms', $data);
     }
 
     /**
@@ -1171,7 +1171,7 @@ class AccountController extends BaseController
             $data['customDesign'] = ($custom = $account->getCustomDesign(request()->design_id)) ? $custom : $design;
         }
 
-        return \Illuminate\Support\Facades\View::make('accounts.' . $section, $data);
+        return View::make('accounts.' . $section, $data);
     }
 
     /**
@@ -1217,7 +1217,7 @@ class AccountController extends BaseController
             'gateway_types'          => $options,
         ];
 
-        return \Illuminate\Support\Facades\View::make('accounts.client_portal', $data);
+        return View::make('accounts.client_portal', $data);
     }
 
     /**
@@ -1242,7 +1242,7 @@ class AccountController extends BaseController
 
         $data['title'] = trans('texts.email_templates');
 
-        return \Illuminate\Support\Facades\View::make('accounts.templates_and_reminders', $data);
+        return View::make('accounts.templates_and_reminders', $data);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
@@ -43,7 +45,7 @@ class HomeController extends BaseController
             return \Illuminate\Support\Facades\Redirect::to('/setup');
         }
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
+        if (Auth::check()) {
             return \Illuminate\Support\Facades\Redirect::to('/dashboard');
         }
 
@@ -55,7 +57,7 @@ class HomeController extends BaseController
      */
     public function viewLogo()
     {
-        return \Illuminate\Support\Facades\View::make('public.logo');
+        return View::make('public.logo');
     }
 
     /**
@@ -101,10 +103,10 @@ class HomeController extends BaseController
 
     public function hideMessage(): string
     {
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
+        if (Auth::check() && \Illuminate\Support\Facades\Session::has('news_feed_id')) {
             $newsFeedId = \Illuminate\Support\Facades\Session::get('news_feed_id');
-            if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > \Illuminate\Support\Facades\Auth::user()->news_feed_id) {
-                $user = \Illuminate\Support\Facades\Auth::user();
+            if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > Auth::user()->news_feed_id) {
+                $user = Auth::user();
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
@@ -142,15 +144,15 @@ class HomeController extends BaseController
             $subject = 'Customer Message [';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-ninja-', '', config('database.default'));
-                $subject .= \Illuminate\Support\Facades\Auth::user()->present()->statusCode . '] ';
+                $subject .= Auth::user()->present()->statusCode . '] ';
             } else {
                 $subject .= 'Self-Host] | ';
             }
 
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
-                ->from(CONTACT_EMAIL, \Illuminate\Support\Facades\Auth::user()->present()->fullName)
-                ->replyTo(\Illuminate\Support\Facades\Auth::user()->email, \Illuminate\Support\Facades\Auth::user()->present()->fullName)
+                ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
                 ->subject($subject);
         });
 

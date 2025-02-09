@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Industry;
@@ -152,7 +154,7 @@ class AppController extends BaseController
             exit('Error: app is already configured, backup then delete the .env file to re-run the setup');
         }
 
-        return \Illuminate\Support\Facades\View::make('setup');
+        return View::make('setup');
     }
 
     public function updateSetup()
@@ -165,7 +167,7 @@ class AppController extends BaseController
 
         dd('here?');
 
-        if ( ! \Illuminate\Support\Facades\Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
+        if ( ! Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
             return Redirect::to('/');
         }
 
