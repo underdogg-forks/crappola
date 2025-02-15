@@ -58,8 +58,6 @@ class Handler extends ExceptionHandler
             return false;
         }
 
-        dd($e->getMessage());
-
         // if these classes don't exist the install is broken, maybe due to permissions
         if ( ! class_exists('Utils')) {
             return parent::report($e);
@@ -112,7 +110,7 @@ class Handler extends ExceptionHandler
 
         if ($e instanceof ModelNotFoundException) {
             if (isset($value) && mb_strlen($value) > 1) {
-                $headers = \App\Libraries\Utils::getApiHeaders();
+                $headers  = \App\Libraries\Utils::getApiHeaders();
                 $response = json_encode(['message' => 'record does not exist'], JSON_PRETTY_PRINT);
 
                 return Response::make($response, 404, $headers);
@@ -140,8 +138,8 @@ class Handler extends ExceptionHandler
                         //API request which has hit a route which does not exist
 
                         $error['error'] = ['message' => 'Route does not exist'];
-                        $error = json_encode($error, JSON_PRETTY_PRINT);
-                        $headers = Utils::getApiHeaders();
+                        $error          = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers        = Utils::getApiHeaders();
 
                         return response()->make($error, 404, $headers);
                     }
@@ -153,8 +151,8 @@ class Handler extends ExceptionHandler
                         //API request which produces 500 error
 
                         $error['error'] = ['message' => 'Internal Server Error'];
-                        $error = json_encode($error, JSON_PRETTY_PRINT);
-                        $headers = Utils::getApiHeaders();
+                        $error          = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers        = Utils::getApiHeaders();
 
                         return response()->make($error, 500, $headers);
                     }

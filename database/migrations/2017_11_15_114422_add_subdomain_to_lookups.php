@@ -49,6 +49,8 @@ class AddSubdomainToLookups extends Migration
             $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly']);
             $table->date('send_date');
 
+            $table->string('ip')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 

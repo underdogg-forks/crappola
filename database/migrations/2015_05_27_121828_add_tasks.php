@@ -22,6 +22,10 @@ class AddTasks extends Migration
             $table->timestamp('resume_time')->nullable();
             $table->text('time_log')->nullable();
             $table->string('description')->nullable();
+
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
+
             $table->boolean('is_deleted')->default(false);
 
             $table->timestamps();

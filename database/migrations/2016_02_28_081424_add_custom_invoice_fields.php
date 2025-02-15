@@ -7,19 +7,9 @@ class AddCustomInvoiceFields extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->string('custom_invoice_item_label1')->nullable();
-            $table->string('custom_invoice_item_label2')->nullable();
-            $table->string('recurring_invoice_number_prefix')->default('R');
-            $table->boolean('enable_client_portal')->default(true);
-            $table->text('invoice_fields')->nullable();
-            $table->text('devices')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('invoice_items', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
-        });
+        Schema::table('invoice_items', function ($table) {});
     }
 
     public function down()

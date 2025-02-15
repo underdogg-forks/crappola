@@ -50,6 +50,7 @@ class ConfideSetupUsersTable extends Migration
             $table->string('region_code', 3)->default('');
             $table->string('sub_region_code', 3)->default('');
             $table->boolean('eea')->default(0);
+            $table->boolean('swap_postal_code')->default(0);
             $table->boolean('swap_currency_symbol')->default(0);
             $table->string('thousand_separator')->nullable();
             $table->string('decimal_separator')->nullable();
@@ -88,6 +89,7 @@ class ConfideSetupUsersTable extends Migration
             $t->increments('id');
             $t->string('format');
             $t->string('picker_format');
+            $t->string('format_dart');
             $t->string('label');
         });
 
@@ -95,6 +97,7 @@ class ConfideSetupUsersTable extends Migration
             $t->increments('id');
             $t->string('format');
             $t->string('format_moment');
+            $t->string('format_dart');
             $t->string('label');
         });
 
@@ -169,6 +172,9 @@ class ConfideSetupUsersTable extends Migration
             $t->string('quote_number_prefix')->nullable();
             $t->integer('quote_number_counter')->default(1)->nullable();
 
+            $t->smallInteger('reset_counter_frequency_id')->nullable();
+            $t->smallInteger('payment_type_id')->nullable();
+
             $t->text('invoice_footer')->nullable();
             $t->text('invoice_labels')->nullable();
 
@@ -184,8 +190,6 @@ class ConfideSetupUsersTable extends Migration
             $t->unsignedInteger('body_font_id')->default(1);
 
             $t->smallInteger('font_size')->default(DEFAULT_FONT_SIZE);
-            $t->integer('invoice_number_counter')->default(1)->nullable();
-            $t->integer('quote_number_counter')->default(1)->nullable();
             $t->boolean('show_item_taxes')->default(0);
 
             $t->string('email_subject_invoice')->nullable();
@@ -231,6 +235,8 @@ class ConfideSetupUsersTable extends Migration
             $t->mediumText('custom_design2')->nullable();
             $t->mediumText('custom_design3')->nullable();
 
+            $t->mediumText('custom_fields')->nullable();
+
             $t->string('custom_label1')->nullable();
             $t->string('custom_value1')->nullable();
 
@@ -240,11 +246,28 @@ class ConfideSetupUsersTable extends Migration
             $t->string('custom_client_label1')->nullable();
             $t->string('custom_client_label2')->nullable();
 
+            $t->string('custom_contact_label1')->nullable();
+            $t->string('custom_contact_label2')->nullable();
+
+            $t->string('custom_invoice_label1')->nullable();
+            $t->string('custom_invoice_label2')->nullable();
+
             $t->string('custom_invoice_text_label1')->nullable();
             $t->string('custom_invoice_text_label2')->nullable();
 
+            $t->string('custom_invoice_item_label1')->nullable();
+            $t->string('custom_invoice_item_label2')->nullable();
+
             $t->boolean('hide_quantity')->default(0);
             $t->boolean('hide_paid_to_date')->default(0);
+
+            $t->unsignedInteger('background_image_id')->nullable();
+            $t->mediumText('custom_messages')->nullable();
+
+            $t->string('recurring_invoice_number_prefix')->default('R');
+            $t->boolean('enable_client_portal')->default(true);
+            $t->text('invoice_fields')->nullable();
+            $t->text('devices')->nullable();
 
             $t->string('analytics_key')->nullable();
 
@@ -367,10 +390,13 @@ class ConfideSetupUsersTable extends Migration
             $t->string('primary_color')->nullable();
             $t->string('secondary_color')->nullable();
 
-            $t->string('custom_value1')->nullable();
-            $t->string('custom_value2')->nullable();
+            $t->mediumText('custom_messages')->nullable();
+
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
+
+            $t->text('custom_value1')->nullable();
+            $t->text('custom_value2')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -401,6 +427,8 @@ class ConfideSetupUsersTable extends Migration
             $t->string('email')->nullable();
             $t->string('phone')->nullable();
             $t->timestamp('last_login')->nullable();
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
 
             $t->timestamps();
             $t->softDeletes();
@@ -541,6 +569,9 @@ class ConfideSetupUsersTable extends Migration
 
             $t->unsignedInteger('default_tax_rate_id')->nullable();
 
+            $t->text('custom_value1')->nullable();
+            $t->text('custom_value2')->nullable();
+
             $t->timestamps();
             $t->softDeletes();
 
@@ -555,6 +586,7 @@ class ConfideSetupUsersTable extends Migration
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('product_id')->nullable();
+            $t->smallInteger('invoice_item_type_id')->default(1);
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('public_id');
 
@@ -592,6 +624,17 @@ class ConfideSetupUsersTable extends Migration
             $t->date('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
+
+            $t->decimal('refunded', 13, 2);
+            $t->unsignedInteger('routing_number')->nullable();
+            $t->smallInteger('last4')->unsigned()->nullable();
+            $t->date('expiration')->nullable();
+            $t->text('gateway_error')->nullable();
+            $t->string('email')->nullable();
+
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+
             $t->text('private_notes')->nullable();
             $t->boolean('is_deleted')->default(false);
 

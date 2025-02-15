@@ -17,6 +17,9 @@ class AddTimesheets extends Migration
             $t->string('name');
             $t->string('description');
 
+            $t->text('custom_value1')->nullable();
+            $t->text('custom_value2')->nullable();
+
             $t->boolean('is_deleted')->default(false);
 
             $t->timestamps();

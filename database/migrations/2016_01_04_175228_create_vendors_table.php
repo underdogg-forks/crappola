@@ -31,6 +31,9 @@ class CreateVendorsTable extends Migration
 
             $table->string('transaction_name')->nullable();
 
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
+
             $table->boolean('is_deleted')->default(0);
 
             $table->timestamps();
@@ -73,6 +76,7 @@ class CreateVendorsTable extends Migration
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_currency_id')->nullable(false);
+            $table->unsignedInteger('payment_type_id')->nullable();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('public_id')->index();
 
@@ -83,7 +87,11 @@ class CreateVendorsTable extends Migration
             $table->boolean('should_be_invoiced')->default(true);
 
             $table->string('transaction_id')->nullable();
+            $table->string('transaction_reference')->nullable();
             $table->unsignedInteger('bank_id')->nullable();
+
+            $table->date('payment_date')->nullable();
+            $table->boolean('invoice_documents')->default(true);
 
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
@@ -93,6 +101,9 @@ class CreateVendorsTable extends Migration
             $table->text('private_notes');
             $table->text('public_notes');
 
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
+
             $table->boolean('is_deleted')->default(false);
 
             $table->timestamps();
@@ -101,6 +112,7 @@ class CreateVendorsTable extends Migration
             // Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
 
             // Indexes
             $table->unique(['account_id', 'public_id']);
