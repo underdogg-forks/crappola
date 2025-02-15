@@ -3,8 +3,8 @@
 namespace App\Ninja\Import;
 
 use App\Libraries\Utils;
-use Carbon;
 use Exception;
+use Illuminate\Support\Carbon;
 use League\Fractal\TransformerAbstract;
 
 /**

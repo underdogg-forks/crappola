@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use Carbon;
+use Illuminate\Support\Carbon;
 use Str;
 
 class RunReport extends Job

@@ -4,10 +4,10 @@ namespace App\Models;
 
 use App\Libraries\Utils;
 use App\Models\Traits\HasCustomMessages;
-use Carbon;
 use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
 
 /**

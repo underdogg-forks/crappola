@@ -15,7 +15,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
-use Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;

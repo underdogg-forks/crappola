@@ -3,7 +3,7 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Utils;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 class PaymentPresenter extends EntityPresenter
 {

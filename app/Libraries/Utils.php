@@ -3,10 +3,10 @@
 namespace App\Libraries;
 
 use App;
-use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

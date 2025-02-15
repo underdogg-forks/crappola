@@ -4,7 +4,7 @@ namespace App\Models\Traits;
 
 use App\Models\Client;
 use App\Models\Invoice;
-use Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class Scheduled Report.

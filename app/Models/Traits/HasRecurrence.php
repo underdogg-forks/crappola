@@ -3,8 +3,8 @@
 namespace App\Models\Traits;
 
 use App\Libraries\Utils;
-use Carbon;
 use DateTime;
+use Illuminate\Support\Carbon;
 
 /**
  * Class HasRecurrence.

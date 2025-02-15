@@ -8,7 +8,7 @@ use App\Libraries\HistoryUtils;
 use App\Libraries\Utils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
-use Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -44,7 +44,7 @@ class HandleUserLoggedIn
         $user = auth()->user();
         $account = $user->account;
 
-        if ( ! Utils::isNinja() && empty($account->last_login)) {
+        if (!Utils::isNinja() && empty($account->last_login)) {
             event(new UserSignedUp());
         }
 
@@ -71,28 +71,28 @@ class HandleUserLoggedIn
 
         // if they're using Stripe make sure they're using Stripe.js
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
-        if ($accountGateway && ! $accountGateway->getPublishableKey()) {
+        if ($accountGateway && !$accountGateway->getPublishableKey()) {
             Session::flash('warning', trans('texts.missing_publishable_key'));
         } elseif ($account->isLogoTooLarge()) {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
-        if ( ! Utils::isNinja()) {
+        if (!Utils::isNinja()) {
             // check custom gateway id is correct
             $gateway = Gateway::find(GATEWAY_CUSTOM1);
-            if ( ! $gateway || $gateway->name !== 'Custom') {
+            if (!$gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
 
             // make sure APP_KEY and APP_CIPHER are in the .env file
             $appKey = env('APP_KEY');
             $appCipher = env('APP_CIPHER');
-            if ( ! $appKey || ! $appCipher) {
+            if (!$appKey || !$appCipher) {
                 $fp = fopen(base_path() . '/.env', 'a');
-                if ( ! $appKey) {
+                if (!$appKey) {
                     fwrite($fp, "\nAPP_KEY=" . config('app.key'));
                 }
-                if ( ! $appCipher) {
+                if (!$appCipher) {
                     fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
                 }
                 fclose($fp);

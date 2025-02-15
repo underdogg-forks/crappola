@@ -4,7 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
 use App\Models\Invoice;
-use Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use URL;
 
