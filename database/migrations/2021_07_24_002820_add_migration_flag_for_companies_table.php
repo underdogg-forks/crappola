@@ -4,8 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Schema;
 
 class AddMigrationFlagForCompaniesTable extends Migration
 {

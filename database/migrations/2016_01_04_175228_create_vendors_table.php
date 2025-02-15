@@ -29,6 +29,8 @@ class CreateVendorsTable extends Migration
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
 
+            $table->string('transaction_name')->nullable();
+
             $table->boolean('is_deleted')->default(0);
 
             $table->timestamps();
@@ -78,6 +80,10 @@ class CreateVendorsTable extends Migration
             $table->decimal('foreign_amount', 13, 2);
             $table->decimal('exchange_rate', 13, 4);
             $table->date('expense_date')->nullable();
+            $table->boolean('should_be_invoiced')->default(true);
+
+            $table->string('transaction_id')->nullable();
+            $table->unsignedInteger('bank_id')->nullable();
 
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
@@ -87,7 +93,6 @@ class CreateVendorsTable extends Migration
             $table->text('private_notes');
             $table->text('public_notes');
 
-            $table->boolean('should_be_invoiced')->default(true);
             $table->boolean('is_deleted')->default(false);
 
             $table->timestamps();

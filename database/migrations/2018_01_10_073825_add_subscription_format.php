@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Schema;
 
 class AddSubscriptionFormat extends Migration
 {

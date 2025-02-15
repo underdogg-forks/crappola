@@ -2,8 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Schema;
 
 class AddBankSubaccounts extends Migration
 {
@@ -29,14 +27,9 @@ class AddBankSubaccounts extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('expenses', function ($table) {
-            $table->string('transaction_id')->nullable();
-            $table->unsignedInteger('bank_id')->nullable();
-        });
+        Schema::table('expenses', function ($table) {});
 
-        Schema::table('vendors', function ($table) {
-            $table->string('transaction_name')->nullable();
-        });
+        Schema::table('vendors', function ($table) {});
     }
 
     public function down()
