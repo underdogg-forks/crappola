@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
-use App\Http\Controllers\Controller;
-use App\Libraries\Utils;
-use App\Models\Account;
-use App\Models\Contact;
-use Config;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Illuminate\Http\Request;
-use Illuminate\Mail\Message;
 use Password;
+use Config;
+use Utils;
+use App\Models\Contact;
+use App\Models\Account;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 
 class ForgotPasswordController extends Controller
 {
@@ -40,13 +39,13 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function showLinkRequestForm()
     {
         $data = [
-            'clientauth' => true,
-        ];
+        	'clientauth' => true,
+		];
 
         return view('clientauth.passwords.email')->with($data);
     }
@@ -56,13 +55,13 @@ class ForgotPasswordController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @return \Illuminate\Http\Response
      */
     public function sendResetLinkEmail(Request $request)
     {
         // resolve the email to a contact/account
         $account = false;
-        if ( ! Utils::isNinja() && Account::count() == 1) {
+        if (! Utils::isNinja() && Account::count() == 1) {
             $account = Account::first();
         } elseif ($accountKey = request()->account_key) {
             $account = Account::whereAccountKey($accountKey)->first();
@@ -73,7 +72,7 @@ class ForgotPasswordController extends Controller
             }
         }
 
-        if ( ! $account || ! request()->email) {
+        if (! $account || ! request()->email) {
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
@@ -92,7 +91,7 @@ class ForgotPasswordController extends Controller
         });
 
         return $response == Password::RESET_LINK_SENT
-                    ? $this->sendResetLinkResponse($request, $response)
+                    ? $this->sendResetLinkResponse($response)
                     : $this->sendResetLinkFailedResponse($request, $response);
     }
 

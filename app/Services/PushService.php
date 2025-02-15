@@ -26,12 +26,12 @@ class PushService
 
     /**
      * @param Invoice $invoice
-     * @param         $type
+     * @param $type
      */
     public function sendNotification(Invoice $invoice, $type)
     {
         //check user has registered for push notifications
-        if ( ! $this->checkDeviceExists($invoice->account)) {
+        if (! $this->checkDeviceExists($invoice->account)) {
             return;
         }
 
@@ -53,9 +53,9 @@ class PushService
      * method to dispatch iOS notifications
      *
      * @param Invoice $invoice
-     * @param         $token
-     * @param         $type
-     * @param mixed   $device
+     * @param $token
+     * @param $type
+     * @param mixed $device
      */
     private function pushMessage(Invoice $invoice, $token, $type, $device)
     {
@@ -75,7 +75,11 @@ class PushService
     {
         $devices = json_decode($account->devices, true);
 
-        return (bool) (count((array) $devices) >= 1);
+        if (count((array) $devices) >= 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -84,7 +88,7 @@ class PushService
      * method which formats an appropriate message depending on message type
      *
      * @param Invoice $invoice
-     * @param         $type
+     * @param $type
      *
      * @return string
      */
@@ -118,9 +122,9 @@ class PushService
     {
         if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
             return trans('texts.notification_quote_sent_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
+        } else {
+            return trans('texts.notification_invoice_sent_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         }
-
-        return trans('texts.notification_invoice_sent_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
     }
 
     /**
@@ -152,8 +156,8 @@ class PushService
     {
         if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
             return trans('texts.notification_quote_viewed_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
+        } else {
+            return trans('texts.notification_invoice_viewed_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         }
-
-        return trans('texts.notification_invoice_viewed_subject', ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
     }
 }

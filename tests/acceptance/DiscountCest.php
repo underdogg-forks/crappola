@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class DiscountCest
@@ -30,7 +31,7 @@ class DiscountCest
         $itemDiscount = rand(1, 1000) / 10;
         $discount = rand(1, 1000) / 10;
         $itemAmount = rand(1, 10000) / 10;
-        $quantity = rand(1, 20);
+        $quantity = rand(1,20);
 
         $I->amOnPage('/settings/invoice_design#product_fields');
         $I->selectOption('#product_fields_select', 'product.discount');

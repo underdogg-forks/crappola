@@ -2,13 +2,13 @@
 
 namespace App\Ninja\Datatables;
 
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use URL;
+use Utils;
 
 class ProposalSnippetDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROPOSAL_SNIPPET;
-
     public $sortCol = 1;
 
     public function columns()
@@ -19,21 +19,22 @@ class ProposalSnippetDatatable extends EntityDatatable
                 function ($model) {
                     $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
 
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]))
                         return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
-                    }
+                    else
+                        return $icon . $model->name;
 
-                    return $icon . $model->name;
+
                 },
             ],
             [
                 'category',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]))
                         return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category ?: ' ')->toHtml();
-                    }
+                    else
+                        return $model->category;
 
-                    return $model->category;
                 },
             ],
             [
@@ -59,8 +60,8 @@ class ProposalSnippetDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("proposals/snippets/{$model->public_id}/edit");
                 },
-                function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
+                function ($model) {$model->entityType = ENTITY_PROPOSAL;
+                    return Auth::user()->can('viewModel', $model) ;
                 },
             ],
         ];

@@ -2,19 +2,22 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
-use App\Models\Account;
-use App\Models\TaxRate;
+use Carbon;
 use Domain;
-use Illuminate\Support\Carbon;
+use App\Models\TaxRate;
+use App\Models\Account;
 use Laracasts\Presenter\Presenter;
 use stdClass;
+use Utils;
 
 /**
  * Class AccountPresenter.
  */
 class AccountPresenter extends Presenter
 {
+    /**
+     * @return mixed
+     */
     public function name()
     {
         return $this->entity->name ?: trans('texts.untitled_account');
@@ -55,13 +58,16 @@ class AccountPresenter extends Presenter
      */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
+        if (floatval($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
+        } else {
+            return '';
         }
-
-        return '';
     }
 
+    /**
+     * @return mixed
+     */
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();
@@ -98,8 +104,7 @@ class AccountPresenter extends Presenter
 
         if ($terms == 0) {
             return '';
-        }
-        if ($terms == -1) {
+        } elseif ($terms == -1) {
             $terms = 0;
         }
 
@@ -115,6 +120,21 @@ class AccountPresenter extends Presenter
         $date = $this->entity->defaultDueDate();
 
         return $date ? Utils::fromSqlDate($date) : ' ';
+    }
+
+    private function createRBit($type, $source, $properties)
+    {
+        $data = new stdClass();
+        $data->receive_time = time();
+        $data->type = $type;
+        $data->source = $source;
+        $data->properties = new stdClass();
+
+        foreach ($properties as $key => $val) {
+            $data->properties->$key = $val;
+        }
+
+        return $data;
     }
 
     public function rBits()
@@ -149,6 +169,8 @@ class AccountPresenter extends Presenter
             "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
             "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
             "' . trans('texts.last_month') . '": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+            "' . trans('texts.current_quarter') . '": [moment().quarter(chartQuarter).startOf("quarter"), moment().quarter(chartQuarter).endOf("quarter")],
+            "' . trans('texts.last_quarter') . '": [moment().subtract(1, "quarter").startOf("quarter"), moment().subtract(1, "quarter").endOf("quarter")],
             "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
             "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
         }';
@@ -175,14 +197,14 @@ class AccountPresenter extends Presenter
     public function customTextFields()
     {
         $fields = [
-            'client1'       => 'custom_client1',
-            'client2'       => 'custom_client2',
-            'contact1'      => 'custom_contact1',
-            'contact2'      => 'custom_contact2',
+            'client1' => 'custom_client1',
+            'client1' => 'custom_client2',
+            'contact1' => 'custom_contact1',
+            'contact2' => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',
             'invoice_text2' => 'custom_invoice2',
-            'product1'      => 'custom_product1',
-            'product2'      => 'custom_product2',
+            'product1' => 'custom_product1',
+            'product2' => 'custom_product2',
         ];
         $data = [];
 
@@ -190,7 +212,7 @@ class AccountPresenter extends Presenter
             if ($label = $this->customLabel($key)) {
                 $data[Utils::getCustomLabel($label)] = [
                     'value' => $val,
-                    'name'  => $val,
+                    'name' => $val,
                 ];
             }
         }
@@ -203,15 +225,15 @@ class AccountPresenter extends Presenter
         $account = $this->entity;
         $data = [];
 
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i=1; $i<=3; $i++) {
             $label = trans('texts.custom_design' . $i);
-            if ( ! $account->{'custom_design' . $i}) {
+            if (! $account->{'custom_design' . $i}) {
                 $label .= ' - ' . trans('texts.empty');
             }
 
             $data[] = [
-                'url'   => url('/settings/customize_design?design_id=') . ($i + 10),
-                'label' => $label,
+                'url' => url('/settings/customize_design?design_id=') . ($i + 10),
+                'label' => $label
             ];
         }
 
@@ -233,7 +255,7 @@ class AccountPresenter extends Presenter
         $url .= '/client/login';
 
         if (Utils::isNinja()) {
-            if ( ! $account->subdomain) {
+            if (! $account->subdomain) {
                 $url .= '?account_key=' . $account->account_key;
             }
         } else {
@@ -248,20 +270,5 @@ class AccountPresenter extends Presenter
     public function customLabel($field)
     {
         return Utils::getCustomLabel($this->entity->customLabel($field));
-    }
-
-    private function createRBit($type, $source, $properties)
-    {
-        $data = new stdClass();
-        $data->receive_time = time();
-        $data->type = $type;
-        $data->source = $source;
-        $data->properties = new stdClass();
-
-        foreach ($properties as $key => $val) {
-            $data->properties->{$key} = $val;
-        }
-
-        return $data;
     }
 }

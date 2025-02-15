@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Eloquent;
+use App\Models\User;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupUser extends LookupModel
 {
+    /**
+     * @var array
+     */
     protected $fillable = [
         'lookup_account_id',
         'email',
@@ -20,7 +24,7 @@ class LookupUser extends LookupModel
 
     public static function updateUser($accountKey, $user)
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -28,11 +32,11 @@ class LookupUser extends LookupModel
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-            ->firstOrFail();
+                            ->firstOrFail();
 
-        $lookupUser = self::whereLookupAccountId($lookupAccount->id)
-            ->whereUserId($user->id)
-            ->firstOrFail();
+        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)
+                            ->whereUserId($user->id)
+                            ->firstOrFail();
 
         $lookupUser->email = $user->email;
         $lookupUser->confirmation_code = $user->confirmation_code ?: null;
@@ -45,7 +49,7 @@ class LookupUser extends LookupModel
 
     public static function validateField($field, $value, $user = false)
     {
-        if ( ! env('MULTI_DB_ENABLED')) {
+        if (! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
@@ -54,7 +58,7 @@ class LookupUser extends LookupModel
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupUser = self::where($field, '=', $value)->first();
+        $lookupUser = LookupUser::where($field, '=', $value)->first();
 
         if ($user) {
             $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
@@ -68,8 +72,4 @@ class LookupUser extends LookupModel
         return $isValid;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }
