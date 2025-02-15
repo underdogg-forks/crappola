@@ -1,15 +1,26 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddProPlan extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {});
+        Schema::table('accounts', function ($table) {
+            $table->date('pro_plan_paid')->nullable();
+        });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

@@ -4,14 +4,15 @@ namespace App\Ninja\Mailers;
 
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
-use App\Jobs\ConvertInvoiceToUbl;
-use App\Libraries\Utils;
 use App\Models\Invoice;
+use App\Models\Proposal;
 use App\Models\Payment;
 use App\Services\TemplateService;
-use HTMLUtils;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
+use App\Jobs\ConvertInvoiceToUbl;
+use Event;
+use Utils;
+use Cache;
+use Mail;
 
 class ContactMailer extends Mailer
 {
@@ -57,14 +58,13 @@ class ContactMailer extends Mailer
 
         if ($client->trashed()) {
             return trans('texts.email_error_inactive_client');
-        }
-        if ($invoice->trashed()) {
+        } elseif ($invoice->trashed()) {
             return trans('texts.email_error_inactive_invoice');
         }
 
         $account->loadLocalizationSettings($client);
-        $emailTemplate = ! empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = ! empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate = !empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
         $pdfString = false;
@@ -101,10 +101,10 @@ class ContactMailer extends Mailer
                 $pdfString = $invoice->getPDFString($invitation);
             }
             $data = [
-                'pdfString'       => $pdfString,
+                'pdfString' => $pdfString,
                 'documentStrings' => $documentStrings,
-                'ublString'       => $ublString,
-                'proposal'        => $proposal,
+                'ublString' => $ublString,
+                'proposal' => $proposal,
             ];
             $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst, $data);
             $isFirst = false;
@@ -127,6 +127,142 @@ class ContactMailer extends Mailer
     }
 
     /**
+     * @param Invitation $invitation
+     * @param Invoice    $invoice
+     * @param $body
+     * @param $subject
+     * @param $pdfString
+     * @param $documentStrings
+     * @param mixed $reminder
+     *
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     *
+     * @return bool|string
+     */
+    private function sendInvitation(
+        $invitation,
+        Invoice $invoice,
+        $body,
+        $subject,
+        $reminder,
+        $isFirst,
+        $extra
+    ) {
+        $client = $invoice->client;
+        $account = $invoice->account;
+        $user = $invitation->user;
+        $proposal = $extra['proposal'];
+
+        if ($user->trashed()) {
+            $user = $account->users()->orderBy('id')->first();
+        }
+
+        if (! $user->email || ! $user->registered) {
+            return trans('texts.email_error_user_unregistered');
+        } elseif (! $user->confirmed || $this->isThrottled($account)) {
+            return trans('texts.email_error_user_unconfirmed');
+        } elseif (! $invitation->contact->email) {
+            return trans('texts.email_error_invalid_contact_email');
+        } elseif ($invitation->contact->trashed()) {
+            return trans('texts.email_error_inactive_contact');
+        }
+
+        $variables = [
+            'account' => $account,
+            'client' => $client,
+            'invitation' => $invitation,
+            'amount' => $invoice->getRequestedAmount(),
+        ];
+
+        if (! $proposal) {
+            // Let the client know they'll be billed later
+            if ($client->autoBillLater()) {
+                $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
+            }
+
+            if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
+                // The contact needs a password
+                $variables['password'] = $password = $this->generatePassword();
+                $invitation->contact->password = bcrypt($password);
+                $invitation->contact->save();
+            }
+        }
+
+        $body = $this->templateService->processVariables($body, $variables);
+
+        if (Utils::isNinja()) {
+            $body = \HTMLUtils::sanitizeHTML($body);
+        }
+
+        $data = [
+            'body' => $body,
+            'link' => $invitation->getLink(),
+            'entityType' => $proposal ? ENTITY_PROPOSAL : $invoice->getEntityType(),
+            'invoiceId' => $invoice->id,
+            'invitation' => $invitation,
+            'account' => $account,
+            'client' => $client,
+            'invoice' => $invoice,
+            'documents' => $extra['documentStrings'],
+            'notes' => $reminder,
+            'bccEmail' => $isFirst ? $account->getBccEmail() : false,
+            'fromEmail' => $account->getFromEmail(),
+            'proposal' => $proposal,
+            'tag' => $account->account_key,
+        ];
+
+        if (! $proposal) {
+            if ($account->attachPDF()) {
+                $data['pdfString'] = $extra['pdfString'];
+                $data['pdfFileName'] = $invoice->getFileName();
+            }
+            if ($account->attachUBL()) {
+                $data['ublString'] = $extra['ublString'];
+                $data['ublFileName'] = $invoice->getFileName('xml');
+            }
+        }
+
+        $subject = $this->templateService->processVariables($subject, $variables);
+        $fromEmail = $account->getReplyToEmail() ?: $user->email;
+        $view = $account->getTemplateView(ENTITY_INVOICE);
+
+        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
+
+        if ($response === true) {
+            return true;
+        } else {
+            return $response;
+        }
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
+    protected function generatePassword($length = 9)
+    {
+        $sets = [
+            'abcdefghjkmnpqrstuvwxyz',
+            'ABCDEFGHJKMNPQRSTUVWXYZ',
+            '23456789',
+        ];
+        $all = '';
+        $password = '';
+        foreach ($sets as $set) {
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+        $all = str_split($all);
+        for ($i = 0; $i < $length - count($sets); $i++) {
+            $password .= $all[array_rand($all)];
+        }
+        $password = str_shuffle($password);
+
+        return $password;
+    }
+
+    /**
      * @param Payment $payment
      */
     public function sendPaymentConfirmation(Payment $payment, $refunded = 0)
@@ -142,7 +278,7 @@ class ContactMailer extends Mailer
         if ($refunded > 0) {
             $emailSubject = trans('texts.refund_subject');
             $emailTemplate = trans('texts.refund_body', [
-                'amount'         => $account->formatMoney($refunded, $client),
+                'amount' => $account->formatMoney($refunded, $client),
                 'invoice_number' => $invoice->invoice_number,
             ]);
         } else {
@@ -159,27 +295,27 @@ class ContactMailer extends Mailer
         }
 
         $variables = [
-            'account'    => $account,
-            'client'     => $client,
+            'account' => $account,
+            'client' => $client,
             'invitation' => $invitation,
-            'amount'     => $payment->amount,
+            'amount' => $payment->amount,
         ];
 
         $data = [
-            'body'       => $this->templateService->processVariables($emailTemplate, $variables),
-            'link'       => $invitation->getLink(),
-            'invoice'    => $invoice,
-            'client'     => $client,
-            'account'    => $account,
-            'payment'    => $payment,
+            'body' => $this->templateService->processVariables($emailTemplate, $variables),
+            'link' => $invitation->getLink(),
+            'invoice' => $invoice,
+            'client' => $client,
+            'account' => $account,
+            'payment' => $payment,
             'entityType' => ENTITY_INVOICE,
-            'bccEmail'   => $account->getBccEmail(),
-            'fromEmail'  => $account->getFromEmail(),
-            'isRefund'   => $refunded > 0,
-            'tag'        => $account->account_key,
+            'bccEmail' => $account->getBccEmail(),
+            'fromEmail' => $account->getFromEmail(),
+            'isRefund' => $refunded > 0,
+            'tag' => $account->account_key,
         ];
 
-        if ( ! $refunded && $account->attachPDF()) {
+        if (! $refunded && $account->attachPDF()) {
             $data['pdfString'] = $invoice->getPDFString();
             $data['pdfFileName'] = $invoice->getFileName();
         }
@@ -210,16 +346,16 @@ class ContactMailer extends Mailer
         $subject = trans('texts.payment_subject');
 
         if ($productId == PRODUCT_ONE_CLICK_INSTALL) {
-            $license = "Softaculous install license: {$license}";
+            $license = "Softaculous install license: $license";
         } elseif ($productId == PRODUCT_INVOICE_DESIGNS) {
-            $license = "Invoice designs license: {$license}";
+            $license = "Invoice designs license: $license";
         } elseif ($productId == PRODUCT_WHITE_LABEL) {
-            $license = "White label license: {$license}";
+            $license = "White label license: $license";
         }
 
         $data = [
-            'client'  => $name,
-            'amount'  => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
+            'client' => $name,
+            'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
             'license' => $license,
         ];
 
@@ -228,7 +364,7 @@ class ContactMailer extends Mailer
 
     public function sendPasswordReset($contact, $token)
     {
-        if ( ! $contact->email) {
+        if (! $contact->email) {
             return;
         }
 
@@ -239,145 +375,6 @@ class ContactMailer extends Mailer
         ];
 
         $this->sendTo($contact->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
-    }
-
-    /**
-     * @param int $length
-     *
-     * @return string
-     */
-    protected function generatePassword($length = 9)
-    {
-        $sets = [
-            'abcdefghjkmnpqrstuvwxyz',
-            'ABCDEFGHJKMNPQRSTUVWXYZ',
-            '23456789',
-        ];
-        $all = '';
-        $password = '';
-        foreach ($sets as $set) {
-            $password .= $set[array_rand(mb_str_split($set))];
-            $all .= $set;
-        }
-        $all = mb_str_split($all);
-        for ($i = 0; $i < $length - count($sets); $i++) {
-            $password .= $all[array_rand($all)];
-        }
-        $password = str_shuffle($password);
-
-        return $password;
-    }
-
-    /**
-     * @param Invitation $invitation
-     * @param Invoice    $invoice
-     * @param            $body
-     * @param            $subject
-     * @param            $pdfString
-     * @param            $documentStrings
-     * @param mixed      $reminder
-     *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     *
-     * @return bool|string
-     */
-    private function sendInvitation(
-        $invitation,
-        Invoice $invoice,
-        $body,
-        $subject,
-        $reminder,
-        $isFirst,
-        $extra
-    ) {
-        $client = $invoice->client;
-        $account = $invoice->account;
-        $user = $invitation->user;
-        $proposal = $extra['proposal'];
-
-        if ($user->trashed()) {
-            $user = $account->users()->orderBy('id')->first();
-        }
-
-        if ( ! $user->email || ! $user->registered) {
-            return trans('texts.email_error_user_unregistered');
-        }
-        if ( ! $user->confirmed || $this->isThrottled($account)) {
-            return trans('texts.email_error_user_unconfirmed');
-        }
-        if ( ! $invitation->contact->email) {
-            return trans('texts.email_error_invalid_contact_email');
-        }
-        if ($invitation->contact->trashed()) {
-            return trans('texts.email_error_inactive_contact');
-        }
-
-        $variables = [
-            'account'    => $account,
-            'client'     => $client,
-            'invitation' => $invitation,
-            'amount'     => $invoice->getRequestedAmount(),
-        ];
-
-        if ( ! $proposal) {
-            // Let the client know they'll be billed later
-            if ($client->autoBillLater()) {
-                $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
-            }
-
-            if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
-                // The contact needs a password
-                $variables['password'] = $password = $this->generatePassword();
-                $invitation->contact->password = bcrypt($password);
-                $invitation->contact->save();
-            }
-        }
-
-        $body = $this->templateService->processVariables($body, $variables);
-
-        if (Utils::isNinja()) {
-            $body = HTMLUtils::sanitizeHTML($body);
-        }
-
-        $data = [
-            'body'       => $body,
-            'link'       => $invitation->getLink(),
-            'entityType' => $proposal ? ENTITY_PROPOSAL : $invoice->getEntityType(),
-            'invoiceId'  => $invoice->id,
-            'invitation' => $invitation,
-            'account'    => $account,
-            'client'     => $client,
-            'invoice'    => $invoice,
-            'documents'  => $extra['documentStrings'],
-            'notes'      => $reminder,
-            'bccEmail'   => $isFirst ? $account->getBccEmail() : false,
-            'fromEmail'  => $account->getFromEmail(),
-            'proposal'   => $proposal,
-            'tag'        => $account->account_key,
-        ];
-
-        if ( ! $proposal) {
-            if ($account->attachPDF()) {
-                $data['pdfString'] = $extra['pdfString'];
-                $data['pdfFileName'] = $invoice->getFileName();
-            }
-            if ($account->attachUBL()) {
-                $data['ublString'] = $extra['ublString'];
-                $data['ublFileName'] = $invoice->getFileName('xml');
-            }
-        }
-
-        $subject = $this->templateService->processVariables($subject, $variables);
-        $fromEmail = $account->getReplyToEmail() ?: $user->email;
-        $view = $account->getTemplateView(ENTITY_INVOICE);
-
-        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
-
-        if ($response === true) {
-            return true;
-        }
-
-        return $response;
     }
 
     private function isThrottled($account)
@@ -395,7 +392,7 @@ class ContactMailer extends Mailer
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;
 
-        if (null === $day_throttle) {
+        if (is_null($day_throttle)) {
             $new_day_throttle = 0;
         } else {
             $new_day_throttle = $day_throttle - $last_api_diff;
@@ -405,20 +402,19 @@ class ContactMailer extends Mailer
             $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
         }
 
-        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60 * 60);
-        Cache::put("last_email_request:{$key}", time(), 60 * 60);
+        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60);
+        Cache::put("last_email_request:{$key}", time(), 60);
 
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
             if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
                 Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account) {
                     $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject('Email throttle triggered for account ' . $account->id);
+                            ->from(CONTACT_EMAIL)
+                            ->subject("Email throttle triggered for account " . $account->id);
                 });
             }
-            Cache::put("throttle_notified:{$key}", true, 60 * 24 * 60);
-
+            Cache::put("throttle_notified:{$key}", true, 60 * 24);
             return true;
         }
 

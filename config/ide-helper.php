@@ -1,6 +1,7 @@
-<?php
+<?php 
 
-return [
+return array(
+
     /*
     |--------------------------------------------------------------------------
     | Filename & Format
@@ -10,8 +11,8 @@ return [
     |
     */
 
-    'filename' => '_ide_helper',
-    'format'   => 'php',
+    'filename'  => '_ide_helper',
+    'format'    => 'php',
 
     /*
     |--------------------------------------------------------------------------
@@ -25,9 +26,9 @@ return [
 
     'include_helpers' => false,
 
-    'helper_files' => [
-        base_path() . '/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
-    ],
+    'helper_files' => array(
+        base_path().'/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
+    ),
 
     /*
     |--------------------------------------------------------------------------
@@ -39,9 +40,10 @@ return [
     |
     */
 
-    'model_locations' => [
+    'model_locations' => array(
         'app',
-    ],
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -52,13 +54,13 @@ return [
     |
     */
 
-    'extra' => [
-        'Eloquent' => ['Illuminate\Database\Eloquent\Builder', 'Illuminate\Database\Query\Builder'],
-        'Session'  => ['Illuminate\Session\Store'],
-    ],
+    'extra' => array(
+        'Eloquent' => array('Illuminate\Database\Eloquent\Builder', 'Illuminate\Database\Query\Builder'),
+        'Session' => array('Illuminate\Session\Store'),
+    ),
 
-    'magic' => [
-        'Log' => [
+    'magic' => array(
+        'Log' => array(
             'debug'     => 'Monolog\Logger::addDebug',
             'info'      => 'Monolog\Logger::addInfo',
             'notice'    => 'Monolog\Logger::addNotice',
@@ -67,9 +69,9 @@ return [
             'critical'  => 'Monolog\Logger::addCritical',
             'alert'     => 'Monolog\Logger::addAlert',
             'emergency' => 'Monolog\Logger::addEmergency',
-        ],
-    ],
-
+        )
+    ),
+    
     /*
     |--------------------------------------------------------------------------
     | Interface implementations
@@ -79,8 +81,9 @@ return [
     | are detected by the helpers, others can be listed below.
     |
     */
-
-    'interfaces' => [
+    
+    'interfaces' => array(
         '\Illuminate\Contracts\Auth\Authenticatable' => config('auth.model', 'App\User'),
-    ],
-];
+    )
+
+);

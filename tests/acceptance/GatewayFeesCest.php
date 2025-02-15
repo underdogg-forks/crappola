@@ -153,30 +153,30 @@ class GatewayFeesCest
         $I->amOnPage('/payment/' . $invitationKey . '/credit_card');
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id'     => $invoiceId,
+            'id' => $invoiceId,
             'amount' => ($amount + $fee),
         ]);
 
         $I->amOnPage('/payment/' . $invitationKey . '/bank_transfer');
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id'     => $invoiceId,
+            'id' => $invoiceId,
             'amount' => ($amount + $fee * 2),
         ]);
 
         $I->amOnPage('/view/' . $invitationKey);
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id'     => $invoiceId,
+            'id' => $invoiceId,
             'amount' => ($amount + $fee * 2),
         ]);
 
         $I->createOnlinePayment($I, $invitationKey);
         $I->wait(3);
         $I->seeInDatabase('invoices', [
-            'id'      => $invoiceId,
-            'amount'  => ($amount + $fee),
-            'balance' => $balance,
+            'id' => $invoiceId,
+            'amount' => ($amount + $fee),
+            'balance' => $balance
         ]);
     }
 }

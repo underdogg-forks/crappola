@@ -47,7 +47,7 @@ class PaymentCest
         $I->see($clientEmail);
 
         $I->amOnPage('/payments/create');
-        $I->selectDropdown($I, $clientEmail, '.client-select .dropdown-toggle');
+        $I->selectDropdown($I,  $clientEmail, '.client-select .dropdown-toggle');
         $I->selectDropdownRow($I, 1, '.invoice-select .combobox-container');
         $I->fillField(['name' => 'amount'], $amount);
         $I->selectDropdown($I, 'Cash', '.payment-type-select .dropdown-toggle');

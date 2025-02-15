@@ -2,14 +2,13 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use URL;
+use Utils;
 
 class VendorDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_VENDOR;
-
     public $sortCol = 4;
 
     public function columns()
@@ -19,7 +18,6 @@ class VendorDatatable extends EntityDatatable
                 'name',
                 function ($model) {
                     $str = link_to("vendors/{$model->public_id}", $model->name ?: '')->toHtml();
-
                     return $this->addNote($str, $model->private_notes);
                 },
             ],
@@ -67,8 +65,9 @@ class VendorDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
+
             ],
             [
                 trans('texts.enter_expense'),
@@ -76,7 +75,7 @@ class VendorDatatable extends EntityDatatable
                     return URL::to("expenses/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
             ],
         ];
