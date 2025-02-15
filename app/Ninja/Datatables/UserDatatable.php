@@ -14,7 +14,7 @@ class UserDatatable extends EntityDatatable
             [
                 'first_name',
                 function ($model) {
-                    return $model->public_id ? link_to('users/' . $model->public_id . '/edit', $model->first_name . ' ' . $model->last_name)->toHtml() : e($model->first_name . ' ' . $model->last_name);
+                    return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name)->toHtml() : e($model->first_name.' '.$model->last_name);
                 },
             ],
             [
@@ -26,21 +26,19 @@ class UserDatatable extends EntityDatatable
             [
                 'confirmed',
                 function ($model) {
-                    if ( ! $model->public_id) {
+                    if (! $model->public_id) {
                         return self::getStatusLabel(USER_STATE_OWNER);
-                    }
-                    if ($model->deleted_at) {
+                    } elseif ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
-                    }
-                    if ($model->confirmed) {
+                    } elseif ($model->confirmed) {
                         if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
+                        } else {
+                            return self::getStatusLabel(USER_STATE_ACTIVE);
                         }
-
-                        return self::getStatusLabel(USER_STATE_ACTIVE);
+                    } else {
+                        return self::getStatusLabel(USER_STATE_PENDING);
                     }
-
-                    return self::getStatusLabel(USER_STATE_PENDING);
                 },
             ],
         ];
@@ -92,6 +90,6 @@ class UserDatatable extends EntityDatatable
                 break;
         }
 
-        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

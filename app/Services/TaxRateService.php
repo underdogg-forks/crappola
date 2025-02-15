@@ -33,6 +33,14 @@ class TaxRateService extends BaseService
     }
 
     /**
+     * @return TaxRateRepository
+     */
+    protected function getRepo()
+    {
+        return $this->taxRateRepo;
+    }
+
+    /**
      * @param $accountId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -43,13 +51,5 @@ class TaxRateService extends BaseService
         $query = $this->taxRateRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return TaxRateRepository
-     */
-    protected function getRepo()
-    {
-        return $this->taxRateRepo;
     }
 }

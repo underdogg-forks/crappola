@@ -3,7 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class ListProductsIntent extends ProductIntent
 {

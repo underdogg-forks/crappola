@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Support\Facades\Cache;
+use Cache;
+use Eloquent;
 use Str;
 
 /**
@@ -11,8 +11,14 @@ use Str;
  */
 class Frequency extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'name',
     ];

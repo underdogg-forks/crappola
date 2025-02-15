@@ -4,9 +4,12 @@ namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\Invitation;
+use Config;
+use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Redirect;
 
 class PasswordController extends Controller
 {
@@ -23,17 +26,17 @@ class PasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        if (null === $token) {
+        if (is_null($token)) {
             return $this->getEmail();
         }
 
-        $data = [
-            'token'      => $token,
-            'clientauth' => true,
-        ];
+        $data = array(
+        	'token' => $token,
+			'clientauth' => true,
+		);
 
-        if ( ! session('contact_key')) {
-            return Redirect::to('/client/session_expired');
+        if (! session('contact_key')) {
+            return \Redirect::to('/client/session_expired');
         }
 
         return view('clientauth.reset')->with($data);
@@ -67,9 +70,7 @@ class PasswordController extends Controller
         $this->validate($request, $this->getResetValidationRules());
 
         $credentials = $request->only(
-            'password',
-            'password_confirmation',
-            'token'
+            'password', 'password_confirmation', 'token'
         );
 
         $credentials['id'] = null;
@@ -105,7 +106,7 @@ class PasswordController extends Controller
     protected function getResetValidationRules()
     {
         return [
-            'token'    => 'required',
+            'token' => 'required',
             'password' => 'required|confirmed|min:6',
         ];
     }
