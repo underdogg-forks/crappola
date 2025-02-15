@@ -9,9 +9,6 @@ use App\Models\Account;
  */
 class AccountTransformer extends EntityTransformer
 {
-    /**
-     * @var array
-     */
     protected array $defaultIncludes = [
         'users',
         'products',
@@ -21,9 +18,6 @@ class AccountTransformer extends EntityTransformer
         'account_email_settings',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
         'clients',
         'invoices',

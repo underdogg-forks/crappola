@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Currency;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class CurrenciesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         // http://www.localeplanet.com/icu/currency.html
         $currencies = [

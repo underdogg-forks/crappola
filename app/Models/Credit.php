@@ -12,21 +12,16 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Credit extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'public_notes',
         'private_notes',
@@ -40,25 +35,16 @@ class Credit extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
@@ -80,9 +66,6 @@ class Credit extends EntityModel
         return "/credits/{$this->public_id}";
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_CREDIT;
@@ -114,9 +97,8 @@ class Credit extends EntityModel
     }
 }
 
-Credit::creating(function ($credit): void {
-});
+Credit::creating(function ($credit) {});
 
-Credit::created(function ($credit): void {
+Credit::created(function ($credit) {
     event(new CreditWasCreated($credit));
 });

@@ -3,17 +3,16 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Webpatser\Countries\CountriesFacade as Countries;
 
 class CountriesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run(): void
+    public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $countries = Countries::getList();
         foreach ($countries as $countryId => $country) {

@@ -7,14 +7,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default filesystem disk that should be used
-    | by the framework. A "local" driver, as well as a variety of cloud
-    | based drivers are available for your choosing. Just store away!
-    |
-    | Supported: "local", "s3", "rackspace"
+    | by the framework. The "local" disk, as well as a variety of cloud
+    | based disks are available to your application. Just store away!
     |
     */
 
-    'default' => 'local',
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -36,14 +34,17 @@ return [
     |
     | Here you may configure as many filesystem "disks" as you wish, and you
     | may even configure multiple disks of the same driver. Defaults have
-    | been setup for each driver as an example of the required options.
+    | been set up for each driver as an example of the required values.
+    |
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
     |
     */
 
     'disks' => [
         'local' => [
             'driver' => 'local',
-            'root'   => storage_path() . '/app',
+            'root'   => storage_path('app'),
+            'throw'  => false,
         ],
 
         'logos' => [
@@ -57,11 +58,15 @@ return [
         ],
 
         's3' => [
-            'driver' => 's3',
-            'key'    => env('S3_KEY', ''),
-            'secret' => env('S3_SECRET', ''),
-            'region' => env('S3_REGION', 'us-east-1'),
-            'bucket' => env('S3_BUCKET', ''),
+            'driver'                  => 's3',
+            'key'                     => env('S3_KEY', ''),
+            'secret'                  => env('S3_SECRET', ''),
+            'region'                  => env('S3_REGION', 'us-east-1'),
+            'bucket'                  => env('S3_BUCKET', ''),
+            'url'                     => env('AWS_URL'),
+            'endpoint'                => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw'                   => false,
         ],
 
         'rackspace' => [
@@ -80,8 +85,8 @@ return [
             //'service_account'                      => env('GCS_USERNAME', ''),
             //'service_account_certificate'          => storage_path() . '/credentials.p12',
             //'service_account_certificate_password' => env('GCS_PASSWORD', ''),
-            'project_id'  => env('GCS_PROJECT_ID'),
-            'credentials' => storage_path() . '/gcs-credentials.json',
+            'project_id' => env('GCS_PROJECT_ID'),
+            'key_file'   => storage_path() . '/gcs-credentials.json',
         ],
     ],
 ];

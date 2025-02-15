@@ -19,7 +19,7 @@ class InvoiceTransformer extends BaseTransformer
     {
         $clientId = $this->getClientId($data->email) ?: $this->getClientId($data->name);
 
-        if (! $clientId) {
+        if ( ! $clientId) {
             return false;
         }
 

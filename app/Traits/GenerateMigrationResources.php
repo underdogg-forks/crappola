@@ -2,10 +2,12 @@
 
 namespace App\Traits;
 
+use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\AccountGatewayToken;
 use App\Models\AccountToken;
+use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Document;
@@ -17,13 +19,16 @@ use App\Models\PaymentMethod;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\RecurringExpense;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use stdClass;
 
 trait GenerateMigrationResources
 {
@@ -31,16 +36,409 @@ trait GenerateMigrationResources
 
     protected $token;
 
+    public function getCompanySettings()
+    {
+        info('get co settings');
+
+        $timezone_id = $this->account->timezone_id ? $this->account->timezone_id : 15;
+
+        if($timezone_id > 57) {
+            $timezone_id = (string) ($timezone_id - 1);
+        }
+
+        return [
+            'entity_send_time'                => 6,
+            'auto_bill_date'                  => $this->account->auto_bill_on_due_date ? 'on_due_date' : 'on_send_date',
+            'auto_bill'                       => $this->transformAutoBill($this->account->token_billing_id),
+            'payment_terms'                   => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
+            'timezone_id'                     => $timezone_id,
+            'date_format_id'                  => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
+            'currency_id'                     => $this->account->currency_id ? (string) $this->account->currency_id : '1',
+            'name'                            => $this->account->name ?: trans('texts.untitled'),
+            'address1'                        => $this->account->address1 ?: '',
+            'address2'                        => $this->account->address2 ?: '',
+            'city'                            => $this->account->city ?: '',
+            'state'                           => $this->account->state ?: '',
+            'postal_code'                     => $this->account->postal_code ?: '',
+            'country_id'                      => $this->account->country_id ? (string) $this->account->country_id : '840',
+            'invoice_terms'                   => $this->account->invoice_terms ?: '',
+            'enabled_item_tax_rates'          => $this->account->invoice_item_taxes ? 2 : 0,
+            'invoice_design_id'               => $this->account->invoice_design_id ?: (string) $this->account->invoice_design_id ?: '1',
+            'phone'                           => $this->account->work_phone ?: '',
+            'email'                           => $this->account->work_email ?: '',
+            'language_id'                     => $this->account->language_id ? (string) $this->account->language_id : '1',
+            'custom_value1'                   => $this->account->custom_value1 ? (string) $this->account->custom_value1 : '',
+            'custom_value2'                   => $this->account->custom_value2 ? (string) $this->account->custom_value2 : '',
+            'custom_value3'                   => '',
+            'custom_value4'                   => '',
+            'hide_paid_to_date'               => $this->account->hide_paid_to_date ? (bool) $this->account->hide_paid_to_date : false,
+            'vat_number'                      => $this->account->vat_number ?: '',
+            'shared_invoice_quote_counter'    => $this->account->share_counter ? (bool) $this->account->share_counter : true,
+            'id_number'                       => $this->account->id_number ?: '',
+            'invoice_footer'                  => $this->account->invoice_footer ?: '',
+            'pdf_email_attachment'            => $this->account->pdf_email_attachment ? (bool) $this->account->pdf_email_attachment : false,
+            'font_size'                       => $this->account->font_size ?: 9,
+            'invoice_labels'                  => $this->account->invoice_labels ?: '',
+            'military_time'                   => $this->account->military_time ? (bool) $this->account->military_time : false,
+            'invoice_number_counter'          => $this->account->invoice_number_counter ?: 0,
+            'invoice_number_pattern'          => $this->account->invoice_number_pattern ?: '',
+            'quote_number_pattern'            => $this->account->quote_number_pattern ?: '',
+            'quote_terms'                     => $this->account->quote_terms ?: '',
+            'website'                         => $this->account->website ?: '',
+            'auto_convert_quote'              => $this->account->auto_convert_quote ? (bool) $this->account->auto_convert_quote : false,
+            'all_pages_footer'                => $this->account->all_pages_footer ? (bool) $this->account->all_pages_footer : true,
+            'all_pages_header'                => $this->account->all_pages_header ? (bool) $this->account->all_pages_header : true,
+            'show_currency_code'              => $this->account->show_currency_code ? (bool) $this->account->show_currency_code : false,
+            'enable_client_portal_password'   => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : false,
+            'send_portal_password'            => $this->account->send_portal_password ? (bool) $this->account->send_portal_password : false,
+            'recurring_number_prefix'         => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
+            'enable_client_portal'            => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
+            'invoice_fields'                  => $this->account->invoice_fields ?: '',
+            'company_logo'                    => $this->account->getLogoURL() ?: '',
+            'embed_documents'                 => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
+            'document_email_attachment'       => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
+            'enable_client_portal_dashboard'  => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
+            'page_size'                       => $this->account->page_size ?: 'A4',
+            'show_accept_invoice_terms'       => $this->account->show_accept_invoice_terms ? (bool) $this->account->show_accept_invoice_terms : false,
+            'show_accept_quote_terms'         => $this->account->show_accept_quote_terms ? (bool) $this->account->show_accept_quote_terms : false,
+            'require_invoice_signature'       => $this->account->require_invoice_signature ? (bool) $this->account->require_invoice_signature : false,
+            'require_quote_signature'         => $this->account->require_quote_signature ? (bool) $this->account->require_quote_signature : false,
+            'client_number_counter'           => $this->account->client_number_counter ?: 0,
+            'client_number_pattern'           => $this->account->client_number_pattern ?: '',
+            'payment_number_pattern'          => '',
+            'payment_number_counter'          => 0,
+            'reset_counter_frequency_id'      => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId($this->account->reset_counter_frequency_id) : '0',
+            'payment_type_id'                 => $this->account->payment_type_id ? (string) $this->transformPaymentType($this->account->payment_type_id) : '1',
+            'reset_counter_date'              => $this->account->reset_counter_date ?: '',
+            'tax_name1'                       => $this->account->tax_name1 ?: '',
+            'tax_rate1'                       => $this->account->tax_rate1 ?: 0,
+            'tax_name2'                       => $this->account->tax_name2 ?: '',
+            'tax_rate2'                       => $this->account->tax_rate2 ?: 0,
+            'tax_name3'                       => '',
+            'tax_rate3'                       => 0,
+            'quote_design_id'                 => $this->account->quote_design_id ? (string) $this->account->quote_design_id : '1',
+            'credit_number_counter'           => $this->account->credit_number_counter ?: 0,
+            'credit_number_pattern'           => $this->account->credit_number_pattern ?: '',
+            'default_task_rate'               => $this->account->task_rate ?: 0,
+            'inclusive_taxes'                 => $this->account->inclusive_taxes ? (bool) $this->account->inclusive_taxes : false,
+            'signature_on_pdf'                => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
+            'ubl_email_attachment'            => $this->account->ubl_email_attachment ? (bool) $this->account->ubl_email_attachment : false,
+            'auto_archive_invoice'            => $this->account->auto_archive_invoice ? (bool) $this->account->auto_archive_invoice : false,
+            'auto_archive_quote'              => $this->account->auto_archive_quote ? (bool) $this->account->auto_archive_quote : false,
+            'auto_email_invoice'              => $this->account->auto_email_invoice ? (bool) $this->account->auto_email_invoice : false,
+            'counter_padding'                 => $this->account->invoice_number_padding ?: 4,
+            'reply_to_email'                  => $this->account->account_email_settings->reply_to_email ?: '',
+            'bcc_email'                       => $this->account->account_email_settings->bcc_email ?: '',
+            'email_subject_invoice'           => $this->account->account_email_settings->email_subject_invoice ?: '',
+            'email_subject_quote'             => $this->account->account_email_settings->email_subject_quote ?: '',
+            'email_subject_payment'           => $this->account->account_email_settings->email_subject_payment ?: '',
+            'email_template_invoice'          => $this->account->account_email_settings->email_template_invoice ?: '',
+            'email_template_quote'            => $this->account->account_email_settings->email_template_quote ?: '',
+            'email_template_payment'          => $this->account->account_email_settings->email_template_payment ?: '',
+            'email_subject_reminder1'         => $this->account->account_email_settings->email_subject_reminder1 ?: '',
+            'email_subject_reminder2'         => $this->account->account_email_settings->email_subject_reminder2 ?: '',
+            'email_subject_reminder3'         => $this->account->account_email_settings->email_subject_reminder3 ?: '',
+            'email_subject_reminder_endless'  => $this->account->account_email_settings->email_subject_reminder4 ?: '',
+            'email_template_reminder1'        => $this->account->account_email_settings->email_template_reminder1 ?: '',
+            'email_template_reminder2'        => $this->account->account_email_settings->email_template_reminder2 ?: '',
+            'email_template_reminder3'        => $this->account->account_email_settings->email_template_reminder3 ?: '',
+            'email_template_reminder_endless' => $this->account->account_email_settings->email_template_reminder4 ?: '',
+            'late_fee_amount1'                => $this->account->account_email_settings->late_fee1_amount ?: 0,
+            'late_fee_amount2'                => $this->account->account_email_settings->late_fee2_amount ?: 0,
+            'late_fee_amount3'                => $this->account->account_email_settings->late_fee3_amount ?: 0,
+            'late_fee_percent1'               => $this->account->account_email_settings->late_fee1_percent ?: 0,
+            'late_fee_percent2'               => $this->account->account_email_settings->late_fee2_percent ?: 0,
+            'late_fee_percent3'               => $this->account->account_email_settings->late_fee3_percent ?: 0,
+            'enable_reminder1'                => $this->account->enable_reminder1 ? true : false,
+            'enable_reminder2'                => $this->account->enable_reminder2 ? true : false,
+            'enable_reminder3'                => $this->account->enable_reminder3 ? true : false,
+            'enable_reminder_endless'         => $this->account->enable_reminder4 ? true : false,
+            'num_days_reminder1'              => $this->account->num_days_reminder1 ?: 0,
+            'num_days_reminder2'              => $this->account->num_days_reminder2 ?: 0,
+            'num_days_reminder3'              => $this->account->num_days_reminder3 ?: 0,
+            'schedule_reminder1'              => $this->buildReminderString($this->account->direction_reminder1, $this->account->field_reminder1),
+            'schedule_reminder2'              => $this->buildReminderString($this->account->direction_reminder2, $this->account->field_reminder2),
+            'schedule_reminder3'              => $this->buildReminderString($this->account->direction_reminder3, $this->account->field_reminder3),
+            'endless_reminder_frequency_id'   => $this->account->account_email_settings->reset_counter_frequency_id ? $this->transformFrequencyId($this->account->account_email_settings->reset_counter_frequency_id) : 0,
+            'email_signature'                 => $this->account->email_footer ?: '',
+            'email_style'                     => $this->getEmailStyle($this->account->email_design_id),
+            'custom_message_dashboard'        => $this->account->customMessage('dashboard'),
+            'custom_message_unpaid_invoice'   => $this->account->customMessage('unpaid_invoice'),
+            'custom_message_paid_invoice'     => $this->account->customMessage('paid_invoice'),
+            'custom_message_unapproved_quote' => $this->account->customMessage('unapproved_quote'),
+        ];
+    }
+
+    public function getTaxRates()
+    {
+        $rates = TaxRate::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        info('get tax rates => ' . $rates->count());
+
+        $transformed = [];
+
+        foreach ($rates as $rate) {
+            $transformed[] = [
+                'name'       => $rate->name,
+                'rate'       => $rate->rate,
+                'company_id' => $rate->account_id,
+                'user_id'    => $rate->user_id,
+                'created_at' => $rate->created_at ? Carbon::parse($rate->created_at)->toDateString() : null,
+                'updated_at' => $rate->updated_at ? Carbon::parse($rate->updated_at)->toDateString() : null,
+                'deleted_at' => $rate->deleted_at ? Carbon::parse($rate->deleted_at)->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    public function getUsers()
+    {
+        $users = User::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        info('get users ' . $users->count());
+
+        $transformed = [];
+
+        foreach ($users as $user) {
+            $transformed[] = [
+                'id'                => $user->id,
+                'first_name'        => $user->first_name ?: '',
+                'last_name'         => $user->last_name ?: '',
+                'phone'             => $user->phone ?: '',
+                'email'             => str_contains($user->username, '@') ? $user->username : $user->email,
+                'confirmation_code' => $user->confirmation_code,
+                'failed_logins'     => $user->failed_logins,
+                'referral_code'     => $user->referral_code,
+                // 'oauth_user_id' => $user->oauth_user_id,
+                // 'oauth_provider_id' => $user->oauth_provider_id,
+                'google_2fa_secret'      => '',
+                'accepted_terms_version' => $user->accepted_terms_version,
+                'password'               => $user->password,
+                'remember_token'         => $user->remember_token,
+                'created_at'             => $user->created_at ? Carbon::parse($user->created_at)->toDateString() : null,
+                'updated_at'             => $user->updated_at ? Carbon::parse($user->updated_at)->toDateString() : null,
+                'deleted_at'             => $user->deleted_at ? Carbon::parse($user->deleted_at)->toDateString() : null,
+                'company_user'           => [],
+            ];
+        }
+
+        return $transformed;
+    }
+
+    public function getResourceInvitations($items, $resourceKeyId)
+    {
+        // info("get resource {$resourceKeyId} invitations");
+
+        $transformed = [];
+
+        foreach ($items as $invitation) {
+            $transformed[] = [
+                'id'                    => $invitation->id,
+                'company_id'            => $invitation->account_id,
+                'user_id'               => $invitation->user_id,
+                'client_contact_id'     => $invitation->contact_id,
+                $resourceKeyId          => $invitation->invoice_id,
+                'key'                   => $invitation->invitation_key,
+                'transaction_reference' => $invitation->transaction_reference,
+                'message_id'            => $invitation->message_id,
+                'email_error'           => $invitation->email_error ?: '',
+                'signature_base64'      => $invitation->signature_base64,
+                'signature_date'        => $invitation->signature_date,
+                'sent_date'             => $invitation->sent_date,
+                'viewed_date'           => $invitation->viewed_date,
+                'opened_date'           => $invitation->opened_date,
+                'created_at'            => $invitation->created_at ? Carbon::parse($invitation->created_at)->toDateString() : null,
+                'updated_at'            => $invitation->updated_at ? Carbon::parse($invitation->updated_at)->toDateString() : null,
+                'deleted_at'            => $invitation->deleted_at ? Carbon::parse($invitation->deleted_at)->toDateString() : null,
+                'email_status'          => '',
+            ];
+        }
+
+        return $transformed;
+    }
+
+    public function getCreditItems($balance)
+    {
+        info('get credit items');
+
+        $transformed = [];
+
+        $transformed[] = [
+            'id'            => '',
+            'quantity'      => (float) 1,
+            'cost'          => (float) $balance,
+            'product_key'   => trans('texts.balance'),
+            'notes'         => trans('texts.credit_balance'),
+            'discount'      => 0,
+            'tax_name1'     => '',
+            'tax_rate1'     => 0,
+            'tax_name2'     => '',
+            'tax_rate2'     => 0,
+            'tax_name3'     => '',
+            'tax_rate3'     => 0,
+            'date'          => '',
+            'custom_value1' => '',
+            'custom_value2' => '',
+            'custom_value3' => '',
+            'custom_value4' => '',
+            'type_id'       => '1',
+        ];
+
+        return $transformed;
+    }
+
+    public function getInvoiceItems($items)
+    {
+        // info("get invoice items");
+
+        $transformed = [];
+
+        foreach ($items as $item) {
+            $transformed[] = [
+                'id'            => $item->id,
+                'quantity'      => (float) $item->qty,
+                'cost'          => (float) $item->cost,
+                'product_key'   => $item->product_key,
+                'notes'         => $item->notes,
+                'discount'      => (float) $item->discount,
+                'tax_name1'     => (string) $item->tax_name1,
+                'tax_rate1'     => (float) $item->tax_rate1,
+                'tax_name2'     => (string) $item->tax_name2,
+                'tax_rate2'     => (float) $item->tax_rate2,
+                'tax_name3'     => (string) '',
+                'tax_rate3'     => (float) 0,
+                'date'          => Carbon::parse($item->created_at)->toDateString(),
+                'custom_value1' => $item->custom_value1 ?: '',
+                'custom_value2' => $item->custom_value2 ?: '',
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'type_id'       => (string) $item->invoice_item_type_id,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    public function getQuotes()
+    {
+        $transformed = [];
+
+        $quotes = Invoice::where('account_id', $this->account->id)
+            ->where('invoice_type_id', INVOICE_TYPE_QUOTE)
+            ->withTrashed()
+            ->get();
+
+        info('get quotes => ' . $quotes->count());
+
+        foreach ($quotes as $quote) {
+            $transformed[] = [
+                'id'                    => $quote->id,
+                'client_id'             => $quote->client_id,
+                'user_id'               => $quote->user_id,
+                'company_id'            => $quote->account_id,
+                'status_id'             => $this->transformQuoteStatusId($quote),
+                'design_id'             => $this->getDesignId($quote->invoice_design_id),
+                'number'                => $quote->invoice_number,
+                'discount'              => $quote->discount,
+                'is_amount_discount'    => $quote->is_amount_discount ?: false,
+                'po_number'             => $quote->po_number ?: '',
+                'date'                  => $quote->invoice_date,
+                'last_sent_date'        => $quote->last_sent_date,
+                'due_date'              => $quote->due_date,
+                'uses_inclusive_taxes'  => $this->account->inclusive_taxes,
+                'is_deleted'            => (bool) $quote->is_deleted,
+                'footer'                => $quote->invoice_footer ?: '',
+                'public_notes'          => $quote->public_notes ?: '',
+                'private_notes'         => $quote->private_notes ?: '',
+                'terms'                 => $quote->terms ?: '',
+                'tax_name1'             => $quote->tax_name1,
+                'tax_name2'             => $quote->tax_name2,
+                'tax_rate1'             => $quote->tax_rate1,
+                'tax_rate2'             => $quote->tax_rate2,
+                'invoice_id'            => Invoice::getPrivateId($quote->quote_invoice_id),
+                'custom_surcharge1'     => $quote->custom_value1 ?: '',
+                'custom_surcharge2'     => $quote->custom_value2 ?: '',
+                'custom_value1'         => $quote->custom_text_value1 ?: '',
+                'custom_value2'         => $quote->custom_text_value2 ?: '',
+                'custom_surcharge_tax1' => $quote->custom_taxes1 ?: '',
+                'custom_surcharge_tax2' => $quote->custom_taxes2 ?: '',
+                'next_send_date'        => null,
+                'amount'                => $quote->amount ?: 0,
+                'balance'               => $quote->balance ?: 0,
+                'partial'               => $quote->partial ?: 0,
+                'partial_due_date'      => $quote->partial_due_date,
+                'line_items'            => $this->getInvoiceItems($quote->invoice_items),
+                'created_at'            => $quote->created_at ? Carbon::parse($quote->created_at)->toDateString() : null,
+                'updated_at'            => $quote->updated_at ? Carbon::parse($quote->updated_at)->toDateString() : null,
+                'deleted_at'            => $quote->deleted_at ? Carbon::parse($quote->deleted_at)->toDateString() : null,
+                'invitations'           => $this->getResourceInvitations($quote->invitations, 'quote_id'),
+            ];
+        }
+
+        return $transformed;
+    }
+
+    public function getPayments()
+    {
+        $transformed = [];
+
+        $payments = Payment::where('account_id', $this->account->id)
+            ->where('payment_status_id', '!=', PAYMENT_STATUS_VOIDED)
+            ->withTrashed()
+            ->get();
+
+        info('get payments => ' . $payments->count());
+
+        foreach ($payments as $payment) {
+            $transformed[] = [
+                'id'       => $payment->id,
+                'invoices' => [
+                    ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
+                ],
+                'invoice_id'            => $payment->invoice_id,
+                'company_id'            => $payment->account_id,
+                'client_id'             => $payment->client_id,
+                'user_id'               => $payment->user_id,
+                'client_contact_id'     => $payment->contact_id,
+                'invitation_id'         => $payment->invitation_id,
+                'company_gateway_id'    => $payment->account_gateway_id,
+                'type_id'               => $this->transformPaymentType($payment->payment_type_id),
+                'status_id'             => $this->transformPaymentStatus($payment),
+                'amount'                => $payment->amount ?: 0,
+                'applied'               => $payment->amount ?: 0,
+                'refunded'              => $payment->refunded ?: 0,
+                'date'                  => $payment->payment_date,
+                'transaction_reference' => $payment->transaction_reference ?: '',
+                'private_notes'         => $payment->private_notes ?: '',
+                'payer_id'              => $payment->payer_id,
+                'is_deleted'            => (bool) $payment->is_deleted,
+                'exchange_rate'         => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
+                'exchange_currency_id'  => $payment->exchange_currency_id,
+                'currency_id'           => $payment->client->currency->id ?? $this->account->currency_id,
+                'updated_at'            => $payment->updated_at ? Carbon::parse($payment->updated_at)->toDateString() : null,
+                'created_at'            => $payment->created_at ? Carbon::parse($payment->created_at)->toDateString() : null,
+                'deleted_at'            => $payment->deleted_at ? Carbon::parse($payment->deleted_at)->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+    }
+
     protected function getAccount()
     {
         info('get account');
 
-        if ($this->account->account_tokens()->exists()) {
+        if($this->account->account_tokens()->exists()) {
             $this->token = $this->account->account_tokens->first()->token;
         } else {
             $mtoken = AccountToken::createNew();
             $mtoken->name = 'Migration Token';
-            $mtoken->token = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $mtoken->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $mtoken->save();
 
             $this->token = $mtoken->token;
@@ -69,9 +467,17 @@ trait GenerateMigrationResources
     {
         info('get company');
 
+        $financial_year_start = null;
+        if($this->account->financial_year_start) {
+            //2000-02-01 format
+            $exploded_date = explode('-', $this->account->financial_year_start);
+
+            $financial_year_start = (int) $exploded_date[1];
+        }
+
         return [
             'first_day_of_week'       => $this->account->start_of_week,
-            'first_month_of_year'     => $this->account->financial_year_start,
+            'first_month_of_year'     => $financial_year_start,
             'version'                 => NINJA_VERSION,
             'referral_code'           => $this->account->referral_code ?: '',
             'account_id'              => $this->account->id,
@@ -86,6 +492,7 @@ trait GenerateMigrationResources
             'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1,
             'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2,
             'subdomain'               => $this->account->subdomain,
+            'portal_mode'             => 'subdomain',
             'size_id'                 => $this->account->size_id,
             'enable_modules'          => $this->account->enabled_modules,
             'custom_fields'           => $this->account->custom_fields,
@@ -95,119 +502,11 @@ trait GenerateMigrationResources
         ];
     }
 
-    public function getCompanySettings()
-    {
-        info('get co settings');
-
-        return [
-            'timezone_id'                    => $this->account->timezone_id ? (string) $this->account->timezone_id : '15',
-            'date_format_id'                 => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
-            'currency_id'                    => $this->account->currency_id ? (string) $this->account->currency_id : '1',
-            'name'                           => $this->account->name ?: trans('texts.untitled'),
-            'address1'                       => $this->account->address1 ?: '',
-            'address2'                       => $this->account->address2 ?: '',
-            'city'                           => $this->account->city ?: '',
-            'state'                          => $this->account->state ?: '',
-            'postal_code'                    => $this->account->postal_code ?: '',
-            'country_id'                     => $this->account->country_id ? (string) $this->account->country_id : '840',
-            'invoice_terms'                  => $this->account->invoice_terms ?: '',
-            'enabled_item_tax_rates'         => $this->account->invoice_item_taxes ? 2 : 0,
-            'invoice_design_id'              => $this->account->invoice_design_id ?: (string) $this->account->invoice_design_id ?: '1',
-            'phone'                          => $this->account->work_phone ?: '',
-            'email'                          => $this->account->work_email ?: '',
-            'language_id'                    => $this->account->language_id ? (string) $this->account->language_id : '1',
-            'custom_value1'                  => $this->account->custom_value1 ? (string) $this->account->custom_value1 : '',
-            'custom_value2'                  => $this->account->custom_value2 ? (string) $this->account->custom_value2 : '',
-            'custom_value3'                  => '',
-            'custom_value4'                  => '',
-            'hide_paid_to_date'              => $this->account->hide_paid_to_date ? (bool) $this->account->hide_paid_to_date : false,
-            'vat_number'                     => $this->account->vat_number ?: '',
-            'shared_invoice_quote_counter'   => $this->account->share_counter ? (bool) $this->account->share_counter : true,
-            'id_number'                      => $this->account->id_number ?: '',
-            'invoice_footer'                 => $this->account->invoice_footer ?: '',
-            'pdf_email_attachment'           => $this->account->pdf_email_attachment ? (bool) $this->account->pdf_email_attachment : false,
-            'font_size'                      => $this->account->font_size ?: 9,
-            'invoice_labels'                 => $this->account->invoice_labels ?: '',
-            'military_time'                  => $this->account->military_time ? (bool) $this->account->military_time : false,
-            'invoice_number_pattern'         => $this->account->invoice_number_pattern ?: '',
-            'quote_number_pattern'           => $this->account->quote_number_pattern ?: '',
-            'quote_terms'                    => $this->account->quote_terms ?: '',
-            'website'                        => $this->account->website ?: '',
-            'auto_convert_quote'             => $this->account->auto_convert_quote ? (bool) $this->account->auto_convert_quote : false,
-            'all_pages_footer'               => $this->account->all_pages_footer ? (bool) $this->account->all_pages_footer : true,
-            'all_pages_header'               => $this->account->all_pages_header ? (bool) $this->account->all_pages_header : true,
-            'show_currency_code'             => $this->account->show_currency_code ? (bool) $this->account->show_currency_code : false,
-            'enable_client_portal_password'  => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : true,
-            'send_portal_password'           => $this->account->send_portal_password ? (bool) $this->account->send_portal_password : false,
-            'recurring_number_prefix'        => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
-            'enable_client_portal'           => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
-            'invoice_fields'                 => $this->account->invoice_fields ?: '',
-            'company_logo'                   => $this->account->getLogoURL() ?: '',
-            'embed_documents'                => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
-            'document_email_attachment'      => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
-            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
-            'page_size'                      => $this->account->page_size ?: 'A4',
-            'show_accept_invoice_terms'      => $this->account->show_accept_invoice_terms ? (bool) $this->account->show_accept_invoice_terms : false,
-            'show_accept_quote_terms'        => $this->account->show_accept_quote_terms ? (bool) $this->account->show_accept_quote_terms : false,
-            'require_invoice_signature'      => $this->account->require_invoice_signature ? (bool) $this->account->require_invoice_signature : false,
-            'require_quote_signature'        => $this->account->require_quote_signature ? (bool) $this->account->require_quote_signature : false,
-            'client_number_counter'          => $this->account->client_number_counter ?: 0,
-            'client_number_pattern'          => $this->account->client_number_pattern ?: '',
-            'payment_number_pattern'         => '',
-            'payment_number_counter'         => 0,
-            'payment_terms'                  => $this->account->payment_terms ?: '',
-            'reset_counter_frequency_id'     => $this->account->reset_counter_frequency_id ? (string) $this->account->reset_counter_frequency_id : '0',
-            'payment_type_id'                => $this->account->payment_type_id ? (string) $this->account->payment_type_id : '1',
-            'reset_counter_date'             => $this->account->reset_counter_date ?: '',
-            'tax_name1'                      => $this->account->tax_name1 ?: '',
-            'tax_rate1'                      => $this->account->tax_rate1 ?: 0,
-            'tax_name2'                      => $this->account->tax_name2 ?: '',
-            'tax_rate2'                      => $this->account->tax_rate2 ?: 0,
-            'tax_name3'                      => '',
-            'tax_rate3'                      => 0,
-            'quote_design_id'                => $this->account->quote_design_id ? (string) $this->account->quote_design_id : '1',
-            'credit_number_counter'          => $this->account->credit_number_counter ?: 0,
-            'credit_number_pattern'          => $this->account->credit_number_pattern ?: '',
-            'default_task_rate'              => $this->account->task_rate ?: 0,
-            'inclusive_taxes'                => $this->account->inclusive_taxes ? (bool) $this->account->inclusive_taxes : false,
-            'signature_on_pdf'               => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
-            'ubl_email_attachment'           => $this->account->ubl_email_attachment ? (bool) $this->account->ubl_email_attachment : false,
-            'auto_archive_invoice'           => $this->account->auto_archive_invoice ? (bool) $this->account->auto_archive_invoice : false,
-            'auto_archive_quote'             => $this->account->auto_archive_quote ? (bool) $this->account->auto_archive_quote : false,
-            'auto_email_invoice'             => $this->account->auto_email_invoice ? (bool) $this->account->auto_email_invoice : false,
-            'counter_padding'                => $this->account->invoice_number_padding ?: 4,
-        ];
-    }
-
-    public function getTaxRates()
-    {
-        info('get tax rates');
-
-        $rates = TaxRate::where('account_id', $this->account->id)
-            ->withTrashed()
-            ->get();
-
-        $transformed = [];
-
-        foreach ($rates as $rate) {
-            $transformed[] = [
-                'name'       => $rate->name,
-                'rate'       => $rate->rate,
-                'company_id' => $rate->account_id,
-                'user_id'    => $rate->user_id,
-                'created_at' => $rate->created_at ? Carbon::parse($rate->created_at)->toDateString() : null,
-                'updated_at' => $rate->updated_at ? Carbon::parse($rate->updated_at)->toDateString() : null,
-                'deleted_at' => $rate->deleted_at ? Carbon::parse($rate->deleted_at)->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
     protected function getClients()
     {
-        info('get clients');
         $clients = [];
+
+        info('get clients => ' . $this->account->clients()->count());
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
             $number = $client->id_number;
@@ -225,7 +524,7 @@ trait GenerateMigrationResources
                 'city'                 => $client->city,
                 'state'                => $client->state,
                 'postal_code'          => $client->postal_code,
-                'country_id'           => $client->country_id,
+                'country_id'           => $client->country_id ? (string) $client->country_id : (string) $this->account->country_id,
                 'phone'                => $client->work_phone,
                 'private_notes'        => $client->private_notes,
                 'website'              => $client->website,
@@ -254,27 +553,13 @@ trait GenerateMigrationResources
         return $clients;
     }
 
-    private function getClientSettings($client)
-    {
-        info('get client settings');
-
-        $settings = new \stdClass();
-        $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
-
-        if ($client->language_id) {
-            $settings->language_id = (string) $client->language_id;
-        }
-
-        return $settings;
-    }
-
     protected function getClientContacts($client)
     {
-        info('get client contacts');
-
         $contacts = Contact::where('client_id', $client->id)->withTrashed()->get();
 
         $transformed = [];
+
+        info('Importing contacts => ' . $contacts->count());
 
         foreach ($contacts as $contact) {
             $transformed[] = [
@@ -291,7 +576,7 @@ trait GenerateMigrationResources
                 'is_primary'        => (bool) $contact->is_primary,
                 'send_email'        => (bool) $contact->send_invoice,
                 'confirmed'         => $contact->confirmation_token ? true : false,
-                'email_verified_at' => $contact->created_at->toDateTimeString(),
+                'email_verified_at' => $contact->created_at ? Carbon::parse($contact->created_at)->toDateTimeString() : null,
                 'last_login'        => $contact->last_login,
                 'password'          => $contact->password,
                 'remember_token'    => $contact->remember_token,
@@ -305,13 +590,71 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
+    protected function getNinjaToken()
+    {
+        $transformed = [];
+
+        if( ! Utils::isNinja()) {
+            return $transformed;
+        }
+
+        $db = DB_NINJA_1;
+        $account_id = 20432;
+
+        if($this->account->id > 1000000) {
+            $db = DB_NINJA_2;
+            $account_id = 1000002;
+        }
+
+        $ninja_client = Client::on($db)->where('public_id', $this->account->id)->where('account_id', $account_id)->first();
+
+        if( ! $ninja_client) {
+            return $transformed;
+        }
+
+        $agts = AccountGatewayToken::on($db)->where('client_id', $ninja_client->id)->get();
+        $is_default = true;
+
+        if(count($agts) == 0) {
+            $transformed[] = [
+                'client' => $ninja_client->toArray(),
+            ];
+        }
+
+        foreach($agts as $agt) {
+            $payment_method = $agt->default_payment_method;
+
+            if( ! $payment_method) {
+                continue;
+            }
+
+            $contact = Contact::on($db)->where('id', $payment_method->contact_id)->withTrashed()->first();
+
+            $transformed[] = [
+                'id'                         => $payment_method->id,
+                'company_id'                 => $this->account->id,
+                'client_id'                  => $contact->client_id,
+                'token'                      => $payment_method->source_reference,
+                'company_gateway_id'         => $agt->account_gateway_id,
+                'gateway_customer_reference' => $agt->token,
+                'gateway_type_id'            => $payment_method->payment_type->gateway_type_id,
+                'is_default'                 => $is_default,
+                'meta'                       => $this->convertMeta($payment_method),
+                'client'                     => $ninja_client->toArray(),
+                'contacts'                   => $contact->client->contacts->toArray(),
+            ];
+        }
+
+        return $transformed;
+    }
+
     protected function getProducts()
     {
-        info('get products');
-
         $products = Product::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
+
+        info('get products ' . $products->count());
 
         $transformed = [];
 
@@ -323,6 +666,7 @@ trait GenerateMigrationResources
                 'custom_value2' => $product->custom_value2 ?: '',
                 'product_key'   => $product->product_key ?: '',
                 'notes'         => $product->notes ?: '',
+                'price'         => $product->cost ?: 0,
                 'cost'          => $product->cost ?: 0,
                 'quantity'      => $product->qty ?: 0,
                 'tax_name1'     => $product->tax_name1,
@@ -338,110 +682,18 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
-    public function getUsers()
-    {
-        info('get users');
-
-        $users = User::where('account_id', $this->account->id)
-            ->withTrashed()
-            ->get();
-
-        $transformed = [];
-
-        foreach ($users as $user) {
-            $transformed[] = [
-                'id'                     => $user->id,
-                'first_name'             => $user->first_name ?: '',
-                'last_name'              => $user->last_name ?: '',
-                'phone'                  => $user->phone ?: '',
-                'email'                  => $user->username,
-                'confirmation_code'      => $user->confirmation_code,
-                'failed_logins'          => $user->failed_logins,
-                'referral_code'          => $user->referral_code,
-                'oauth_user_id'          => $user->oauth_user_id,
-                'oauth_provider_id'      => $user->oauth_provider_id,
-                'google_2fa_secret'      => $user->google_2fa_secret,
-                'accepted_terms_version' => $user->accepted_terms_version,
-                'password'               => $user->password,
-                'remember_token'         => $user->remember_token,
-                'created_at'             => $user->created_at ? Carbon::parse($user->created_at)->toDateString() : null,
-                'updated_at'             => $user->updated_at ? Carbon::parse($user->updated_at)->toDateString() : null,
-                'deleted_at'             => $user->deleted_at ? Carbon::parse($user->deleted_at)->toDateString() : null,
-                'company_user'           => [],
-            ];
-        }
-
-        return $transformed;
-    }
-
-    private function getCreditsNotes()
-    {
-        info('get credit notes');
-
-        $credits = [];
-
-        $export_credits = Invoice::where('account_id', $this->account->id)
-            ->where('balance', '<', '0')
-            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-            ->where('is_public', true)
-            ->withTrashed()
-            ->get();
-
-        foreach ($export_credits as $credit) {
-            $credits[] = [
-                'id'                   => $credit->id,
-                'client_id'            => $credit->client_id,
-                'user_id'              => $credit->user_id,
-                'company_id'           => $credit->account_id,
-                'status_id'            => $credit->invoice_status_id,
-                'design_id'            => $this->getDesignId($credit->invoice_design_id),
-                'number'               => $credit->invoice_number,
-                'discount'             => $credit->discount ? $credit->discount * -1: 0,
-                'is_amount_discount'   => $credit->is_amount_discount ?: false,
-                'po_number'            => $credit->po_number ?: '',
-                'date'                 => $credit->invoice_date,
-                'last_sent_date'       => $credit->last_sent_date,
-                'due_date'             => $credit->due_date,
-                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
-                'is_deleted'           => $credit->is_deleted,
-                'footer'               => $credit->invoice_footer ?: '',
-                'public_notes'         => $credit->public_notes ?: '',
-                'private_notes'        => $credit->private_notes ?: '',
-                'terms'                => $credit->terms ?: '',
-                'tax_name1'            => $credit->tax_name1,
-                'tax_name2'            => $credit->tax_name2,
-                'tax_rate1'            => $credit->tax_rate1,
-                'tax_rate2'            => $credit->tax_rate2,
-                'tax_name3'            => '',
-                'tax_rate3'            => 0,
-                'custom_value1'        => $credit->custom_value1 ?: '',
-                'custom_value2'        => $credit->custom_value2 ?: '',
-                'next_send_date'       => null,
-                'amount'               => $credit->amount ? $credit->amount * -1: 0,
-                'balance'              => $credit->balance ? $credit->balance * -1 : 0,
-                'partial'              => $credit->partial ? $credit->partial * -1 : 0,
-                'partial_due_date'     => $credit->partial_due_date,
-                'line_items'           => $this->getCreditItems($credit->invoice_items),
-                'created_at'           => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
-                'updated_at'           => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
-                'deleted_at'           => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
-            ];
-        }
-
-        return $credits;
-    }
-
     protected function getInvoices()
     {
-        info('get invoices');
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', 0)
+            // ->where('amount', '>=', 0)
             ->where('invoice_type_id', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', false)
             ->withTrashed()
             ->get();
+
+        info('get invoices -> ' . $export_invoices->count());
 
         foreach ($export_invoices as $invoice) {
             $invoices[] = [
@@ -463,43 +715,86 @@ trait GenerateMigrationResources
                 'footer'               => $invoice->invoice_footer ?: '',
                 'public_notes'         => $invoice->public_notes ?: '',
                 'private_notes'        => $invoice->private_notes ?: '',
-                'terms'                => $invoice->terms ?: '',
-                'tax_name1'            => $invoice->tax_name1,
-                'tax_name2'            => $invoice->tax_name2,
-                'tax_rate1'            => $invoice->tax_rate1,
-                'tax_rate2'            => $invoice->tax_rate2,
-                'custom_value1'        => $invoice->custom_value1 ?: '',
-                'custom_value2'        => $invoice->custom_value2 ?: '',
-                'next_send_date'       => null,
-                'amount'               => $invoice->amount ?: 0,
-                'balance'              => $invoice->balance ?: 0,
-                'partial'              => $invoice->partial ?: 0,
-                'partial_due_date'     => $invoice->partial_due_date,
-                'line_items'           => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at'           => $invoice->created_at ? Carbon::parse($invoice->created_at)->toDateString() : null,
-                'updated_at'           => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
-                'deleted_at'           => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
-                'invitations'          => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+                // 'has_tasks' => $invoice->has_tasks,
+                // 'has_expenses' => $invoice->has_expenses,
+                'terms'                 => $invoice->terms ?: '',
+                'tax_name1'             => $invoice->tax_name1,
+                'tax_name2'             => $invoice->tax_name2,
+                'tax_rate1'             => $invoice->tax_rate1,
+                'tax_rate2'             => $invoice->tax_rate2,
+                'custom_surcharge1'     => $invoice->custom_value1 ?: '',
+                'custom_surcharge2'     => $invoice->custom_value2 ?: '',
+                'custom_value1'         => $invoice->custom_text_value1 ?: '',
+                'custom_value2'         => $invoice->custom_text_value2 ?: '',
+                'custom_surcharge_tax1' => $invoice->custom_taxes1 ?: '',
+                'custom_surcharge_tax2' => $invoice->custom_taxes2 ?: '',
+                'next_send_date'        => null,
+                'amount'                => $invoice->amount ?: 0,
+                'balance'               => $invoice->balance ?: 0,
+                'partial'               => $invoice->partial ?: 0,
+                'partial_due_date'      => $invoice->partial_due_date,
+                'line_items'            => $this->getInvoiceItems($invoice->invoice_items),
+                'created_at'            => $invoice->created_at ? Carbon::parse($invoice->created_at)->toDateString() : null,
+                'updated_at'            => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
+                'deleted_at'            => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
+                'invitations'           => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+                'auto_bill_enabled'     => $invoice->auto_bill,
+                'recurring_id'          => $invoice->recurring_invoice_id,
             ];
         }
 
         return $invoices;
     }
 
-    // We cant migrate custom designs
-    private function getDesignId($design_id)
+    protected function getRecurringExpenses()
     {
-        if ($design_id >= 11) {
-            return 1;
+        $expenses = [];
+
+        $export_expenses = RecurringExpense::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        info('get recurring Expenses => ' . $export_expenses->count());
+
+        foreach ($export_expenses as $expense) {
+            $expenses[] = [
+                'id'                  => $expense->id,
+                'amount'              => $expense->amount,
+                'company_id'          => $this->account->id,
+                'client_id'           => $expense->client_id,
+                'user_id'             => $expense->user_id,
+                'custom_value1'       => '',
+                'custom_value2'       => '',
+                'custom_value3'       => '',
+                'custom_value4'       => '',
+                'category_id'         => $expense->expense_category_id,
+                'currency_id'         => $expense->expense_currency_id,
+                'frequency_id'        => $this->transformFrequencyId($expense->frequency_id),
+                'invoice_currency_id' => $expense->invoice_currency_id,
+                'private_notes'       => $expense->private_notes,
+                'public_notes'        => $expense->public_notes,
+                'should_be_invoiced'  => $expense->should_be_invoiced,
+                'tax_name1'           => $expense->tax_name1,
+                'tax_name2'           => $expense->tax_name2,
+                'tax_name3'           => '',
+                'tax_rate1'           => $expense->tax_rate1,
+                'tax_rate2'           => $expense->tax_rate2,
+                'tax_rate3'           => 0,
+                'vendor_id'           => $expense->vendor_id,
+                'is_deleted'          => $expense->is_deleted,
+                'next_send_date'      => $this->getNextSendDateForMigration($expense),
+                'remaining_cycles'    => $this->getRemainingCycles($expense),
+                'created_at'          => $expense->created_at ? Carbon::parse($expense->created_at)->toDateString() : null,
+                'updated_at'          => $expense->updated_at ? Carbon::parse($expense->updated_at)->toDateString() : null,
+                'deleted_at'          => $expense->deleted_at ? Carbon::parse($expense->deleted_at)->toDateString() : null,
+            ];
         }
 
-        return $design_id;
+        return $expenses;
     }
 
     protected function getRecurringInvoices()
     {
-        info('get recurring invoices');
-
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
@@ -507,6 +802,8 @@ trait GenerateMigrationResources
             ->where('is_recurring', true)
             ->withTrashed()
             ->get();
+
+        info('get recurring invoices => ' . $export_invoices->count());
 
         foreach ($export_invoices as $invoice) {
             $invoices[] = [
@@ -548,19 +845,282 @@ trait GenerateMigrationResources
                 'updated_at'           => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
                 'deleted_at'           => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 'next_send_date'       => $this->getNextSendDateForMigration($invoice),
-                'frequency_id'         => $this->transformFrequencyId($invoice),
+                'frequency_id'         => $this->transformFrequencyId($invoice->frequency_id),
                 'due_date_days'        => $this->transformDueDate($invoice),
                 'remaining_cycles'     => $this->getRemainingCycles($invoice),
                 'invitations'          => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
+                'auto_bill_enabled'    => $this->calcAutoBill($invoice),
+                'auto_bill'            => $this->calcAutoBillEnabled($invoice),
             ];
         }
 
         return $invoices;
     }
 
+    protected function getVendors()
+    {
+        $vendor_query = Vendor::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get vendors => ' . $vendor_query->count());
+
+        $vendors = [];
+
+        foreach ($vendor_query as $vendor) {
+            $vendors[] = [
+                'id'          => $vendor->id,
+                'company_id'  => $vendor->account_id,
+                'user_id'     => $vendor->user_id,
+                'name'        => $vendor->name,
+                'currency_id' => $vendor->currency_id ? (string) $vendor->currency_id : (string) $this->account->currency_id,
+                //'balance' => $vendor->balance ?: 0,
+                //'paid_to_date' => $vendor->paid_to_date ?: 0,
+                'address1'      => $vendor->address1,
+                'address2'      => $vendor->address2,
+                'city'          => $vendor->city,
+                'state'         => $vendor->state,
+                'postal_code'   => $vendor->postal_code,
+                'country_id'    => $vendor->country_id,
+                'phone'         => $vendor->work_phone,
+                'private_notes' => $vendor->private_notes,
+                'website'       => $vendor->website,
+                //'industry_id' => $vendor->industry_id,
+                //'size_id' => $vendor->size_id,
+                'is_deleted'       => $vendor->is_deleted,
+                'vat_number'       => $vendor->vat_number,
+                'id_number'        => null,
+                'number'           => $vendor->id_number,
+                'custom_value1'    => $vendor->custom_value1,
+                'custom_value2'    => $vendor->custom_value2,
+                'custom_value3'    => '',
+                'custom_value4'    => '',
+                'transaction_name' => '',
+                'contacts'         => $this->getVendorContacts($vendor->vendor_contacts),
+                'created_at'       => $vendor->created_at ? Carbon::parse($vendor->created_at)->toDateString() : null,
+                'updated_at'       => $vendor->updated_at ? Carbon::parse($vendor->updated_at)->toDateString() : null,
+                'deleted_at'       => $vendor->deleted_at ? Carbon::parse($vendor->deleted_at)->toDateString() : null,
+            ];
+        }
+
+        return $vendors;
+    }
+
+    protected function getVendorContacts($contacts)
+    {
+        info('get vendor contacts => ' . $contacts->count());
+
+        $transformed = [];
+
+        foreach ($contacts as $contact) {
+            $transformed[] = [
+                'id'                => $contact->id,
+                'company_id'        => $contact->account_id,
+                'user_id'           => $contact->user_id,
+                'vendor_id'         => $contact->vendor_id,
+                'first_name'        => $contact->first_name ?: '',
+                'last_name'         => $contact->last_name ?: '',
+                'phone'             => $contact->phone ?: '',
+                'custom_value1'     => $contact->custom_value1 ?: '',
+                'custom_value2'     => $contact->custom_value2 ?: '',
+                'custom_value3'     => '',
+                'custom_value4'     => '',
+                'email'             => $contact->email,
+                'is_primary'        => (bool) $contact->is_primary,
+                'send_email'        => (bool) $contact->send_invoice ?: true,
+                'confirmed'         => $contact->confirmation_token ? true : false,
+                'email_verified_at' => $contact->created_at->toDateTimeString(),
+                'last_login'        => $contact->last_login,
+                'password'          => $contact->password ?: '',
+                'is_locked'         => false,
+                'created_at'        => $contact->created_at ? Carbon::parse($contact->created_at)->toDateString() : null,
+                'updated_at'        => $contact->updated_at ? Carbon::parse($contact->updated_at)->toDateString() : null,
+                'deleted_at'        => $contact->deleted_at ? Carbon::parse($contact->deleted_at)->toDateString() : null,
+                // 'remember_token' => $contact->remember_token,
+                // 'contact_key' => $contact->contact_key,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    /**
+     *     define('TOKEN_BILLING_DISABLED', 1);
+     *     define('TOKEN_BILLING_OPT_IN', 2);
+     *     define('TOKEN_BILLING_OPT_OUT', 3);
+     *     define('TOKEN_BILLING_ALWAYS', 4);.
+     *
+     *     off,always,optin,optout
+     */
+    private function transformAutoBill($token_billing_id)
+    {
+        switch ($token_billing_id) {
+            case TOKEN_BILLING_DISABLED:
+                return 'off';
+            case TOKEN_BILLING_OPT_IN:
+                return 'optin';
+            case TOKEN_BILLING_OPT_OUT:
+                return 'optout';
+            case TOKEN_BILLING_ALWAYS:
+                return 'always';
+
+            default:
+                return 'off';
+        }
+    }
+
+    private function getEmailStyle($id)
+    {
+        switch ($id) {
+            case 1:
+                return 'plain';
+                break;
+            case 2:
+                return 'light';
+                break;
+            case 3:
+                return 'dark';
+                break;
+
+            default:
+                return 'light';
+
+                break;
+        }
+    }
+
+    private function buildReminderString($direction, $field)
+    {
+        $direction_string = $direction == 1 ? 'after_' : 'before_';
+        $field_string = $field == 1 ? 'due_date' : 'invoice_date';
+
+        return $direction_string . $field_string;
+    }
+
+    private function getClientSettings($client)
+    {
+        $settings = new stdClass();
+        $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
+
+        if($client->task_rate && $client->task_rate > 0) {
+            $settings->default_task_rate = (float) $client->task_rate;
+        }
+
+        if ($client->language_id) {
+            $settings->language_id = (string) $client->language_id;
+        }
+
+        return $settings;
+    }
+
+    private function getCreditsNotes()
+    {
+        $credits = [];
+        $export_credits = collect([]);
+
+        $export_credits = Credit::where('account_id', $this->account->id)->where('amount', '>', 0)->whereIsDeleted(false)
+            ->withTrashed()
+            ->get();
+
+        info('get credit notes => ' . $export_credits->count());
+
+        foreach ($export_credits as $credit) {
+            $credits[] = [
+                'id'                   => $credit->id,
+                'client_id'            => $credit->client_id,
+                'user_id'              => $credit->user_id,
+                'company_id'           => $credit->account_id,
+                'status_id'            => 2,
+                'design_id'            => 2,
+                'number'               => $credit->credit_number ?: null,
+                'discount'             => 0,
+                'is_amount_discount'   => 0,
+                'po_number'            => '',
+                'date'                 => $credit->date,
+                'last_sent_date'       => null,
+                'due_date'             => null,
+                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
+                'is_deleted'           => $credit->is_deleted,
+                'footer'               => '',
+                'public_notes'         => $credit->public_notes,
+                'private_notes'        => $credit->private_notes,
+                'terms'                => '',
+                'tax_name1'            => '',
+                'tax_name2'            => '',
+                'tax_rate1'            => 0,
+                'tax_rate2'            => 0,
+                'tax_name3'            => '',
+                'tax_rate3'            => 0,
+                'custom_value1'        => '',
+                'custom_value2'        => '',
+                'next_send_date'       => null,
+                'amount'               => $credit->amount ? $credit->amount * -1 : 0,
+                'balance'              => $credit->balance ? $credit->balance * -1 : 0,
+                'partial'              => 0,
+                'partial_due_date'     => null,
+                'line_items'           => $this->getCreditItems($credit->balance),
+                'created_at'           => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
+                'updated_at'           => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
+                'deleted_at'           => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
+            ];
+        }
+
+        return $credits;
+    }
+
+    // We cant migrate custom designs
+    private function getDesignId($design_id)
+    {
+        if($design_id >= 11) {
+            return 2;
+        }
+        if($design_id == 1) {
+            return 2;
+        }
+        if($design_id == 2) {
+            return 3;
+        }
+        if($design_id == 3) {
+            return 4;
+        }
+        if($design_id == 4) {
+            return 1;
+        }
+        if($design_id == 10) {
+            return 2;
+        }
+
+        return $design_id;
+    }
+
+    private function calcAutoBillEnabled($invoice)
+    {
+        if($invoice->auto_bill === 1) {
+            return 'off';
+        }
+        if($invoice->auto_bill === 2) {
+            return 'optin';
+        }
+        if($invoice->auto_bill === 3) {
+            return 'optout';
+        }
+        if($invoice->auto_bill === 4) {
+            return 'always';
+        }
+
+        return 'off';
+    }
+
+    private function calcAutoBill($invoice)
+    {
+        if($invoice->auto_bill == 4) {
+            return 1;
+        }
+
+        return $invoice->client_enable_auto_bill;
+    }
+
     private function getNextSendDateForMigration($invoice)
     {
-        if ($next_send_date = $invoice->getNextSendDate()) {
+        if($next_send_date = $invoice->getNextSendDate()) {
             return $next_send_date->format('Y-m-d');
         }
     }
@@ -568,7 +1128,7 @@ trait GenerateMigrationResources
     // Determine the number of remaining cycles
     private function getRemainingCycles($invoice)
     {
-        if (empty($invoice->end_date) || !$invoice->end_date) {
+        if(empty($invoice->end_date) || ! $invoice->end_date) {
             return -1;
         }
 
@@ -629,13 +1189,17 @@ trait GenerateMigrationResources
     private function transformDueDate($invoice)
     {
         //weekly recurring invoice get the payment terms
-        if ($invoice->frequency_id == 1) {
+        if($invoice->frequency_id == 1) {
             return 'terms';
         }
 
         $due_date_parts = explode('-', $invoice->due_date);
 
-        if (is_array($due_date_parts) && count($due_date_parts) >= 3) {
+        if(is_array($due_date_parts) && count($due_date_parts) >= 3) {
+            if($due_date_parts[2] == '00') {
+                return '0';
+            }
+
             return (string) $due_date_parts[2];
         }
 
@@ -668,9 +1232,9 @@ trait GenerateMigrationResources
     // const FREQUENCY_TWO_YEARS = 11;
     // const FREQUENCY_THREE_YEARS = 12;
 
-    private function transformFrequencyId($invoice)
+    private function transformFrequencyId($frequency_id)
     {
-        switch ($invoice->frequency_id) {
+        switch ($frequency_id) {
             case 1:
                 return 2;
                 break;
@@ -703,7 +1267,7 @@ trait GenerateMigrationResources
                 break;
 
             default:
-               return 5;
+                return 5;
                 break;
         }
     }
@@ -718,7 +1282,7 @@ trait GenerateMigrationResources
      */
     private function transformRecurringStatusId($invoice)
     {
-        if ($invoice->is_deleted == false &&
+        if($invoice->is_deleted == false &&
            $invoice->deleted_at == null &&
            $invoice->is_recurring == true &&
            $invoice->is_public == true &&
@@ -728,23 +1292,32 @@ trait GenerateMigrationResources
             return 2;
         }
 
-        if ($invoice->is_public == 0) {
+        if($invoice->is_public == 0) {
             return 1;
         }
 
-        if ($invoice->end_date < now()) {
+        if($invoice->end_date && $invoice->end_date < now()) {
             return 4;
         }
+
+        return 1;
     }
 
+    /**
+     * const STATUS_DRAFT = 1;
+     * const STATUS_SENT = 2;
+     * const STATUS_APPROVED = 3;
+     * const STATUS_CONVERTED = 4;
+     * const STATUS_EXPIRED = -1;.
+     */
     private function transformQuoteStatusId($quote)
     {
-        if (!$quote->is_public) {
-            return 1;
+        if($quote->quote_invoice_id) {
+            return 4;
         }
 
-        if ($quote->quote_invoice_id) {
-            return 4;
+        if( ! $quote->is_public) {
+            return 1;
         }
 
         switch ($quote->invoice_status_id) {
@@ -758,7 +1331,7 @@ trait GenerateMigrationResources
                 return 2;
                 break;
             case 4:
-              return 3;
+                return 3;
                 break;
 
             default:
@@ -786,13 +1359,13 @@ trait GenerateMigrationResources
      */
     private function transformStatusId($status, $is_public)
     {
-        if (!$is_public) {
+        if( ! $is_public) {
             return 1;
         }
 
         switch ($status) {
             case 1:
-                return 2;
+                return 1;
                 break;
             case 2:
                 return 2;
@@ -801,7 +1374,7 @@ trait GenerateMigrationResources
                 return 2;
                 break;
             case 4:
-              return 2;
+                return 2;
                 break;
             case 5:
                 return 3;
@@ -813,163 +1386,6 @@ trait GenerateMigrationResources
                 return 2;
                 break;
         }
-    }
-
-    public function getResourceInvitations($items, $resourceKeyId)
-    {
-        info("get resource {$resourceKeyId} invitations");
-
-        $transformed = [];
-
-        foreach ($items as $invitation) {
-            $transformed[] = [
-                'id'                    => $invitation->id,
-                'company_id'            => $invitation->account_id,
-                'user_id'               => $invitation->user_id,
-                'client_contact_id'     => $invitation->contact_id,
-                $resourceKeyId          => $invitation->invoice_id,
-                'key'                   => $invitation->invitation_key,
-                'transaction_reference' => $invitation->transaction_reference,
-                'message_id'            => $invitation->message_id,
-                'email_error'           => $invitation->email_error,
-                'signature_base64'      => $invitation->signature_base64,
-                'signature_date'        => $invitation->signature_date,
-                'sent_date'             => $invitation->sent_date,
-                'viewed_date'           => $invitation->viewed_date,
-                'opened_date'           => $invitation->opened_date,
-                'created_at'            => $invitation->created_at ? Carbon::parse($invitation->created_at)->toDateString() : null,
-                'updated_at'            => $invitation->updated_at ? Carbon::parse($invitation->updated_at)->toDateString() : null,
-                'deleted_at'            => $invitation->deleted_at ? Carbon::parse($invitation->deleted_at)->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    public function getCreditItems($items)
-    {
-        info('get credit items');
-
-        $transformed = [];
-
-        foreach ($items as $item) {
-            // if($item->cost < 0)
-            //     $item->cost = $item->cost * -1;
-
-            $item->qty = $item->qty * -1;
-
-            // if($item->discount < 0)
-            //     $item->discount = $item->discount * -1;
-
-            $transformed[] = [
-                'id'            => $item->id,
-                'quantity'      => (float) $item->qty,
-                'cost'          => (float) $item->cost,
-                'product_key'   => $item->product_key,
-                'notes'         => $item->notes,
-                'discount'      => (float) $item->discount,
-                'tax_name1'     => (string) $item->tax_name1,
-                'tax_rate1'     => (float) $item->tax_rate1,
-                'tax_name2'     => (string) $item->tax_name2,
-                'tax_rate2'     => (float) $item->tax_rate2,
-                'tax_name3'     => (string) '',
-                'tax_rate3'     => (float) 0,
-                'date'          => Carbon::parse($item->created_at)->toDateString(),
-                'custom_value1' => $item->custom_value1,
-                'custom_value2' => $item->custom_value2,
-                'custom_value3' => '',
-                'custom_value4' => '',
-                'type_id'       => (string) $item->invoice_item_type_id,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    public function getInvoiceItems($items)
-    {
-        info('get invoice items');
-
-        $transformed = [];
-
-        foreach ($items as $item) {
-            $transformed[] = [
-                'id'            => $item->id,
-                'quantity'      => (float) $item->qty,
-                'cost'          => (float) $item->cost,
-                'product_key'   => $item->product_key,
-                'notes'         => $item->notes,
-                'discount'      => (float) $item->discount,
-                'tax_name1'     => (string) $item->tax_name1,
-                'tax_rate1'     => (float) $item->tax_rate1,
-                'tax_name2'     => (string) $item->tax_name2,
-                'tax_rate2'     => (float) $item->tax_rate2,
-                'tax_name3'     => (string) '',
-                'tax_rate3'     => (float) 0,
-                'date'          => Carbon::parse($item->created_at)->toDateString(),
-                'custom_value1' => $item->custom_value1,
-                'custom_value2' => $item->custom_value2,
-                'custom_value3' => '',
-                'custom_value4' => '',
-                'type_id'       => (string) $item->invoice_item_type_id,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    public function getQuotes()
-    {
-        info('get quotes');
-
-        $transformed = [];
-
-        $quotes = Invoice::where('account_id', $this->account->id)
-            ->where('invoice_type_id', INVOICE_TYPE_QUOTE)
-            ->withTrashed()
-            ->get();
-
-        foreach ($quotes as $quote) {
-            $transformed[] = [
-                'id'                   => $quote->id,
-                'client_id'            => $quote->client_id,
-                'user_id'              => $quote->user_id,
-                'company_id'           => $quote->account_id,
-                'status_id'            => $this->transformQuoteStatusId($quote),
-                'design_id'            => $this->getDesignId($quote->invoice_design_id),
-                'number'               => $quote->invoice_number,
-                'discount'             => $quote->discount,
-                'is_amount_discount'   => $quote->is_amount_discount ?: false,
-                'po_number'            => $quote->po_number ?: '',
-                'date'                 => $quote->invoice_date,
-                'last_sent_date'       => $quote->last_sent_date,
-                'due_date'             => $quote->due_date,
-                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
-                'is_deleted'           => (bool) $quote->is_deleted,
-                'footer'               => $quote->invoice_footer ?: '',
-                'public_notes'         => $quote->public_notes ?: '',
-                'private_notes'        => $quote->private_notes ?: '',
-                'terms'                => $quote->terms ?: '',
-                'tax_name1'            => $quote->tax_name1,
-                'tax_name2'            => $quote->tax_name2,
-                'tax_rate1'            => $quote->tax_rate1,
-                'tax_rate2'            => $quote->tax_rate2,
-                'custom_value1'        => $quote->custom_value1 ?: '',
-                'custom_value2'        => $quote->custom_value2 ?: '',
-                'next_send_date'       => null,
-                'amount'               => $quote->amount ?: 0,
-                'balance'              => $quote->balance ?: 0,
-                'partial'              => $quote->partial ?: 0,
-                'partial_due_date'     => $quote->partial_due_date,
-                'line_items'           => $this->getInvoiceItems($quote->invoice_items),
-                'created_at'           => $quote->created_at ? Carbon::parse($quote->created_at)->toDateString() : null,
-                'updated_at'           => $quote->updated_at ? Carbon::parse($quote->updated_at)->toDateString() : null,
-                'deleted_at'           => $quote->deleted_at ? Carbon::parse($quote->deleted_at)->toDateString() : null,
-                'invitations'          => $this->getResourceInvitations($quote->invitations, 'quote_id'),
-            ];
-        }
-
-        return $transformed;
     }
 
     /*
@@ -997,51 +1413,6 @@ trait GenerateMigrationResources
         }
     }
 
-    public function getPayments()
-    {
-        info('get payments');
-
-        $transformed = [];
-
-        $payments = Payment::where('account_id', $this->account->id)
-            ->where('payment_status_id', '!=', PAYMENT_STATUS_VOIDED)
-            ->withTrashed()
-            ->get();
-
-        foreach ($payments as $payment) {
-            $transformed[] = [
-                'id'       => $payment->id,
-                'invoices' => [
-                    ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
-                ],
-                'invoice_id'            => $payment->invoice_id,
-                'company_id'            => $payment->account_id,
-                'client_id'             => $payment->client_id,
-                'user_id'               => $payment->user_id,
-                'client_contact_id'     => $payment->contact_id,
-                'invitation_id'         => $payment->invitation_id,
-                'company_gateway_id'    => $payment->account_gateway_id,
-                'type_id'               => $this->transformPaymentType($payment->payment_type_id),
-                'status_id'             => $this->transformPaymentStatus($payment),
-                'amount'                => $payment->amount ?: 0,
-                'applied'               => $payment->amount ?: 0,
-                'refunded'              => $payment->refunded ?: 0,
-                'date'                  => $payment->payment_date,
-                'transaction_reference' => $payment->transaction_reference ?: '',
-                'payer_id'              => $payment->payer_id,
-                'is_deleted'            => (bool) $payment->is_deleted,
-                'exchange_rate'         => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
-                'exchange_currency_id'  => $payment->exchange_currency_id,
-                'currency_id'           => isset($payment->client->currency->id) ? $payment->client->currency->id : $this->account->currency_id,
-                'updated_at'            => $payment->updated_at ? Carbon::parse($payment->updated_at)->toDateString() : null,
-                'created_at'            => $payment->created_at ? Carbon::parse($payment->created_at)->toDateString() : null,
-                'deleted_at'            => $payment->deleted_at ? Carbon::parse($payment->deleted_at)->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
     /*
     v5
     const CREDIT = 1;
@@ -1067,12 +1438,28 @@ trait GenerateMigrationResources
     const SEPA = 29;
     const GOCARDLESS = 30;
     const CRYPTO = 31;
+
+    const MOLLIE_BANK_TRANSFER = 34;
+    const KBC = 35;
+    const BANCONTACT = 36;
+    const IDEAL = 37;
+    const HOSTED_PAGE = 38;
+    const GIROPAY = 39;
+    const PRZELEWY24 = 40;
+    const EPS = 41;
+    const DIRECT_DEBIT = 42;
+    const BECS = 43;
+    const ACSS = 44;
+    const INSTANT_BANK_PAY = 45;
+    const FPX = 46;
     */
     private function transformPaymentType($payment_type_id)
     {
         switch ($payment_type_id) {
+            case 4:
+                return 42;
             case PAYMENT_TYPE_CREDIT:
-                return 1;
+                return 32;
             case PAYMENT_TYPE_ACH:
                 return 4;
             case PAYMENT_TYPE_VISA:
@@ -1093,6 +1480,8 @@ trait GenerateMigrationResources
                 return 12;
             case PAYMENT_TYPE_PAYPAL:
                 return 13;
+            case 16:
+                return 15;
             case PAYMENT_TYPE_CARTE_BLANCHE:
                 return 16;
             case PAYMENT_TYPE_UNIONPAY:
@@ -1117,6 +1506,10 @@ trait GenerateMigrationResources
                 return 30;
             case PAYMENT_TYPE_BITCOIN:
                 return 31;
+            case 2:
+                return 1;
+            case 3:
+                return 2;
 
             default:
                 return $payment_type_id;
@@ -1125,7 +1518,7 @@ trait GenerateMigrationResources
 
     private function transformPaymentStatus($payment)
     {
-        if ($payment->is_deleted && $payment->payment_status_id == 4) {
+        if($payment->is_deleted && $payment->payment_status_id == 4) {
             return 2;
         }
 
@@ -1134,11 +1527,11 @@ trait GenerateMigrationResources
 
     private function getCredits()
     {
-        info('get credits');
-
         $credits = Credit::where('account_id', $this->account->id)->where('balance', '>', 0)->whereIsDeleted(false)
             ->withTrashed()
             ->get();
+
+        info('get credits => ' . $credits->count());
 
         $transformed = [];
 
@@ -1164,9 +1557,9 @@ trait GenerateMigrationResources
 
     private function getDocuments()
     {
-        info('get documents');
-
         $documents = Document::where('account_id', $this->account->id)->get();
+
+        info('get documents => ' . $documents->count());
 
         $transformed = [];
 
@@ -1197,21 +1590,16 @@ trait GenerateMigrationResources
 
     private function buildFeesAndLimits($gateway_types)
     {
-        $fees = new \stdClass();
+        $fees = new stdClass();
 
-        foreach ($gateway_types as $gateway_type) {
-            if ($gateway_type == 'token') {
+        foreach($gateway_types as $gateway_type) {
+            if($gateway_type == 'token') {
                 continue;
             }
 
             $fees_and_limits = $this->transformFeesAndLimits($gateway_type);
 
-            info('generated fees and limits = ');
-            info(print_r($fees_and_limits, 1));
-
             $translated_gateway_type = $this->translateGatewayTypeId($gateway_type);
-
-            info("translated gateway_type = {$translated_gateway_type}");
 
             $fees->{$translated_gateway_type} = $fees_and_limits;
         }
@@ -1221,37 +1609,48 @@ trait GenerateMigrationResources
 
     private function getCompanyGateways()
     {
-        info('get get company gateways');
-
         $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get get company gateways => ' . $account_gateways->count());
 
         $transformed = [];
 
         foreach ($account_gateways as $account_gateway) {
-            if ($this->translateGatewaysId($account_gateway->gateway_id) == 0) {
+            if($this->translateGatewaysId($account_gateway->gateway_id) == 0) {
                 continue;
             }
 
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
+            $config = 'If you see this message - we were not able to decrypt your config';
+
+            try {
+                $config = Crypt::decrypt($account_gateway->config);
+            } catch(Exception $e) {
+                // info($config);
+            }
+
             // foreach ($gateway_types as $gateway_type_id) {
             $transformed[] = [
-                    'id' => $account_gateway->id,
-                    //'id' => $this->translateGatewaysId($account_gateway->id),
-                    'user_id'                  => $account_gateway->user_id,
-                    'gateway_key'              => $this->getGatewayKeyById($this->translateGatewaysId($account_gateway->gateway_id)),
-                    'accepted_credit_cards'    => $account_gateway->accepted_credit_cards,
-                    'require_cvv'              => $account_gateway->require_cvv,
-                    'require_billing_address'  => $account_gateway->show_billing_address,
-                    'require_shipping_address' => $account_gateway->show_shipping_address,
-                    'update_details'           => $account_gateway->update_details,
-                    'config'                   => Crypt::decrypt($account_gateway->config),
-                    'fees_and_limits'          => $this->buildFeesAndLimits($gateway_types),
-                    'custom_value1'            => '',
-                    'custom_value2'            => '',
-                    'custom_value3'            => '',
-                    'custom_value4'            => '',
-                ];
+                'id' => $account_gateway->id,
+                //'id' => $this->translateGatewaysId($account_gateway->id),
+                'user_id'                  => $account_gateway->user_id,
+                'gateway_key'              => $this->getGatewayKeyById($this->translateGatewaysId($account_gateway->gateway_id)),
+                'accepted_credit_cards'    => $account_gateway->accepted_credit_cards,
+                'require_cvv'              => $account_gateway->require_cvv,
+                'require_billing_address'  => $account_gateway->show_billing_address,
+                'require_shipping_address' => $account_gateway->show_shipping_address,
+                'update_details'           => $account_gateway->update_details,
+                'config'                   => $config,
+                'fees_and_limits'          => $this->buildFeesAndLimits($gateway_types),
+                'custom_value1'            => '',
+                'custom_value2'            => '',
+                'custom_value3'            => '',
+                'custom_value4'            => '',
+                'created_at'               => $account_gateway->created_at ? Carbon::parse($account_gateway->created_at)->toDateString() : null,
+                'updated_at'               => $account_gateway->updated_at ? Carbon::parse($account_gateway->updated_at)->toDateString() : null,
+                'deleted_at'               => $account_gateway->deleted_at ? Carbon::parse($account_gateway->deleted_at)->toDateString() : null,
+            ];
             // }
         }
 
@@ -1304,7 +1703,7 @@ trait GenerateMigrationResources
             case 20:
                 return 18;
             case 21:
-                return 0; //
+                return 0;
             case 22:
                 return 19;
             case 23:
@@ -1321,7 +1720,7 @@ trait GenerateMigrationResources
                 return 25;
             case 29:
             case 30:
-                return 0; //
+                return 0;
             case 31:
                 return 26;
             case 32:
@@ -1333,7 +1732,7 @@ trait GenerateMigrationResources
             case 35:
                 return 30;
             case 36:
-                return 0; //
+                return 0;
             case 37:
                 return 31;
             case 38:
@@ -1404,9 +1803,9 @@ trait GenerateMigrationResources
 
     private function getClientGatewayTokens()
     {
-        info('get client gateway tokens');
-
         $payment_methods = PaymentMethod::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get client gateway tokens => ' . $payment_methods->count());
 
         $transformed = [];
 
@@ -1415,6 +1814,10 @@ trait GenerateMigrationResources
         foreach ($payment_methods as $payment_method) {
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
             $agt = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
+
+            if( ! $contact && ! $agt) {
+                continue;
+            }
 
             $transformed[] = [
                 'id'                         => $payment_method->id,
@@ -1426,6 +1829,9 @@ trait GenerateMigrationResources
                 'gateway_type_id'            => $payment_method->payment_type->gateway_type_id,
                 'is_default'                 => $is_default,
                 'meta'                       => $this->convertMeta($payment_method),
+                'created_at'                 => $payment_method->created_at ? Carbon::parse($payment_method->created_at)->toDateString() : null,
+                'updated_at'                 => $payment_method->updated_at ? Carbon::parse($payment_method->updated_at)->toDateString() : null,
+                'deleted_at'                 => $payment_method->deleted_at ? Carbon::parse($payment_method->deleted_at)->toDateString() : null,
             ];
 
             $is_default = false;
@@ -1436,14 +1842,14 @@ trait GenerateMigrationResources
 
     private function getPaymentTerms()
     {
-        info('get payment terms');
-
         $payment_terms = PaymentTerm::where('account_id', 0)->orWhere('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get payment terms => ' . $payment_terms->count());
 
         $transformed = [];
 
-        foreach ($payment_terms as $payment_term) {
-            if ($payment_term->num_days == -1) {
+        foreach($payment_terms as $payment_term) {
+            if($payment_term->num_days == -1) {
                 $payment_term->num_days = 0;
             }
 
@@ -1463,11 +1869,11 @@ trait GenerateMigrationResources
 
     private function getTaskStatuses()
     {
-        info('get task statuses');
-
         $task_statuses = TaskStatus::where('account_id', $this->account->id)->withTrashed()->get();
 
-        if ($task_statuses->count() == 0) {
+        info('get task statuses => ' . $task_statuses->count());
+
+        if($task_statuses->count() == 0) {
             $defaults = [
                 'backlog',
                 'ready_to_do',
@@ -1486,7 +1892,7 @@ trait GenerateMigrationResources
 
         $transformed = [];
 
-        foreach ($task_statuses as $task_status) {
+        foreach($task_statuses as $task_status) {
             $transformed[] = [
                 'name'         => $task_status->name ?: '',
                 'id'           => $task_status->id,
@@ -1505,9 +1911,9 @@ trait GenerateMigrationResources
 
     private function getExpenseCategories()
     {
-        info('get expense categories');
-
         $expense_categories = ExpenseCategory::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get expense categories => ' . $expense_categories->count());
 
         $transformed = [];
 
@@ -1529,9 +1935,9 @@ trait GenerateMigrationResources
 
     private function getExpenses()
     {
-        info('get expenses');
-
         $expenses = Expense::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info('get expenses => ' . $expenses->count());
 
         $transformed = [];
 
@@ -1556,7 +1962,7 @@ trait GenerateMigrationResources
                 'invoice_documents'     => $expense->invoice_documents,
                 'invoice_id'            => $expense->invoice_id,
                 'payment_date'          => $expense->payment_date,
-                'payment_type_id'       => $expense->payment_type_id,
+                'payment_type_id'       => $this->transformPaymentType($expense->payment_type_id),
                 'private_notes'         => $expense->private_notes,
                 'public_notes'          => $expense->public_notes,
                 'recurring_expense_id'  => $expense->recurring_expense_id,
@@ -1582,11 +1988,11 @@ trait GenerateMigrationResources
 
     private function getTasks()
     {
-        info('get tasks');
-
         $tasks = Task::where('account_id', $this->account->id)
-                        ->withTrashed()
-                        ->get();
+            ->withTrashed()
+            ->get();
+
+        info('get tasks => ' . $tasks->count());
 
         $transformed = [];
 
@@ -1622,11 +2028,11 @@ trait GenerateMigrationResources
 
     private function getProjects()
     {
-        info('get projects');
-
         $projects = Project::where('account_id', $this->account->id)
-                             ->withTrashed()
-                             ->get();
+            ->withTrashed()
+            ->get();
+
+        info('get projects => ' . $projects);
 
         $transformed = [];
 
@@ -1659,91 +2065,6 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
-    protected function getVendors()
-    {
-        info('get vendors');
-
-        $vendor_query = Vendor::where('account_id', $this->account->id)->withTrashed()->get();
-
-        $vendors = [];
-
-        foreach ($vendor_query as $vendor) {
-            $vendors[] = [
-                'id'         => $vendor->id,
-                'company_id' => $vendor->account_id,
-                'user_id'    => $vendor->user_id,
-                'name'       => $vendor->name,
-                //'balance' => $vendor->balance ?: 0,
-                //'paid_to_date' => $vendor->paid_to_date ?: 0,
-                'address1'      => $vendor->address1,
-                'address2'      => $vendor->address2,
-                'city'          => $vendor->city,
-                'state'         => $vendor->state,
-                'postal_code'   => $vendor->postal_code,
-                'country_id'    => $vendor->country_id,
-                'phone'         => $vendor->work_phone,
-                'private_notes' => $vendor->private_notes,
-                'website'       => $vendor->website,
-                //'industry_id' => $vendor->industry_id,
-                //'size_id' => $vendor->size_id,
-                'is_deleted'       => $vendor->is_deleted,
-                'vat_number'       => $vendor->vat_number,
-                'id_number'        => null,
-                'number'           => $vendor->id_number,
-                'custom_value1'    => $vendor->custom_value1,
-                'custom_value2'    => $vendor->custom_value2,
-                'custom_value3'    => '',
-                'custom_value4'    => '',
-                'transaction_name' => '',
-                'contacts'         => $this->getVendorContacts($vendor->vendor_contacts),
-                'created_at'       => $vendor->created_at ? Carbon::parse($vendor->created_at)->toDateString() : null,
-                'updated_at'       => $vendor->updated_at ? Carbon::parse($vendor->updated_at)->toDateString() : null,
-                'deleted_at'       => $vendor->deleted_at ? Carbon::parse($vendor->deleted_at)->toDateString() : null,
-            ];
-        }
-
-        return $vendors;
-    }
-
-    protected function getVendorContacts($contacts)
-    {
-        info('get vendor contacts');
-
-        $transformed = [];
-
-        foreach ($contacts as $contact) {
-            $transformed[] = [
-                'id'                => $contact->id,
-                'company_id'        => $contact->account_id,
-                'user_id'           => $contact->user_id,
-                'vendor_id'         => $contact->vendor_id,
-                'first_name'        => $contact->first_name ?: '',
-                'last_name'         => $contact->last_name ?: '',
-                'phone'             => $contact->phone ?: '',
-                'custom_value1'     => $contact->custom_value1 ?: '',
-                'custom_value2'     => $contact->custom_value2 ?: '',
-                'custom_value3'     => '',
-                'custom_value4'     => '',
-                'email'             => $contact->email,
-                'is_primary'        => (bool) $contact->is_primary,
-                'send_email'        => (bool) $contact->send_invoice ?: false,
-                'confirmed'         => $contact->confirmation_token ? true : false,
-                'email_verified_at' => $contact->created_at->toDateTimeString(),
-                'last_login'        => $contact->last_login,
-                'password'          => $contact->password ?: '',
-                'is_locked'         => false,
-                'confirmed'         => true,
-                'created_at'        => $contact->created_at ? Carbon::parse($contact->created_at)->toDateString() : null,
-                'updated_at'        => $contact->updated_at ? Carbon::parse($contact->updated_at)->toDateString() : null,
-                'deleted_at'        => $contact->deleted_at ? Carbon::parse($contact->deleted_at)->toDateString() : null,
-               // 'remember_token' => $contact->remember_token,
-               // 'contact_key' => $contact->contact_key,
-            ];
-        }
-
-        return $transformed;
-    }
-
     private function convertMeta($payment_method)
     {
         info('get converting payment method meta');
@@ -1758,11 +2079,11 @@ trait GenerateMigrationResources
             $exp_year = '';
         }
 
-        $meta = new \stdClass();
+        $meta = new stdClass();
         $meta->exp_month = (string) $exp_month;
         $meta->exp_year = (string) $exp_year;
         $meta->brand = (string) $payment_method->payment_type->name;
-        $meta->last4 = (string) str_replace(',', '', ($payment_method->expiration));
+        $meta->last4 = (string) str_replace(',', '', ($payment_method->last4));
         $meta->type = $payment_method->payment_type->gateway_type_id;
 
         return $meta;
@@ -1776,13 +2097,13 @@ trait GenerateMigrationResources
             ->where('gateway_type_id', $gateway_type_id)
             ->first();
 
-        if (! $ags) {
-            return new \stdClass();
+        if ( ! $ags) {
+            return new stdClass();
         }
 
-        $fees_and_limits = new \stdClass();
-        $fees_and_limits->min_limit = $ags->min_limit;
-        $fees_and_limits->max_limit = $ags->max_limit;
+        $fees_and_limits = new stdClass();
+        $fees_and_limits->min_limit = $ags->min_limit > 0 ? $ags->min_limit : -1;
+        $fees_and_limits->max_limit = $ags->max_limit > 0 ? $ags->max_limit : -1;
         $fees_and_limits->fee_amount = $ags->fee_amount;
         $fees_and_limits->fee_percent = $ags->fee_percent;
         $fees_and_limits->fee_tax_name1 = $ags->tax_name1;
@@ -1795,8 +2116,8 @@ trait GenerateMigrationResources
 
         return $fees_and_limits;
         // $data = [];
-       // $data[1] = $fees_and_limits;
-       // return $data;
+        // $data[1] = $fees_and_limits;
+        // return $data;
     }
 
     /*

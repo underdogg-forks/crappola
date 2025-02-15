@@ -11,14 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankSubaccount extends EntityModel
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_BANK_SUBACCOUNT;

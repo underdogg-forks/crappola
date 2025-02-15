@@ -4,13 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         // Date formats
         $formats = [

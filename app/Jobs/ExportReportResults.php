@@ -2,15 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use Excel;
-use Utils;
+use Exception;
 
 class ExportReportResults extends Job
 {
     public function __construct($user, $format, $reportType, $params)
     {
         $this->user = $user;
-        $this->format = strtolower($format);
+        $this->format = mb_strtolower($format);
         $this->reportType = $reportType;
         $this->params = $params;
     }
@@ -22,7 +23,7 @@ class ExportReportResults extends Job
      */
     public function handle()
     {
-        if (! $this->user->hasPermission('view_reports')) {
+        if ( ! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
@@ -35,11 +36,11 @@ class ExportReportResults extends Job
         $totals = $params['reportTotals'];
         $report = $params['report'];
 
-        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . strtolower(Utils::normalizeChars(trans("texts.$reportType"))) . '-report';
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . mb_strtolower(Utils::normalizeChars(trans("texts.{$reportType}"))) . '-report';
 
         $formats = ['csv', 'pdf', 'xlsx', 'zip'];
-        if (! in_array($format, $formats)) {
-            throw new \Exception('Invalid format request to export report');
+        if ( ! in_array($format, $formats)) {
+            throw new Exception('Invalid format request to export report');
         }
 
         //Get labeled header
@@ -76,8 +77,8 @@ class ExportReportResults extends Job
             }
         }
 
-        return Excel::create($filename, function ($excel) use ($report, $data, $reportType, $format, $summary): void {
-            $excel->sheet(trans("texts.$reportType"), function ($sheet) use ($report, $data, $format, $summary): void {
+        return Excel::create($filename, function ($excel) use ($data, $reportType, $format, $summary) {
+            $excel->sheet(trans("texts.{$reportType}"), function ($sheet) use ($data, $format, $summary) {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
                 if ($format == 'pdf') {
@@ -91,7 +92,7 @@ class ExportReportResults extends Job
                 }
 
                 // Styling header
-                $sheet->cells('A1:' . Utils::num2alpha(count($data[0]) - 1) . '1', function ($cells): void {
+                $sheet->cells('A1:' . Utils::num2alpha(count($data[0]) - 1) . '1', function ($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
                     $cells->setFontSize(13);
@@ -102,7 +103,7 @@ class ExportReportResults extends Job
             });
 
             if (count($summary)) {
-                $excel->sheet(trans('texts.totals'), function ($sheet) use ($report, $summary, $format): void {
+                $excel->sheet(trans('texts.totals'), function ($sheet) use ($summary, $format) {
                     $sheet->setOrientation('landscape');
                     $sheet->freezeFirstRow();
 
@@ -112,7 +113,7 @@ class ExportReportResults extends Job
                     $sheet->rows($summary);
 
                     // Styling header
-                    $sheet->cells('A1:' . Utils::num2alpha(count($summary[0]) - 1) . '1', function ($cells): void {
+                    $sheet->cells('A1:' . Utils::num2alpha(count($summary[0]) - 1) . '1', function ($cells) {
                         $cells->setBackground('#777777');
                         $cells->setFontColor('#FFFFFF');
                         $cells->setFontSize(13);

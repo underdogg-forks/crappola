@@ -2,11 +2,11 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseReport extends AbstractReport
 {
@@ -47,7 +47,7 @@ class ExpenseReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
@@ -60,14 +60,14 @@ class ExpenseReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->withArchived()
-                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
+            ->orderBy('expense_date', 'desc')
+            ->withArchived()
+            ->with('client.contacts', 'vendor', 'expense_category', 'user')
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 

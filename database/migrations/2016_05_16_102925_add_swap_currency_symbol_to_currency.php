@@ -2,51 +2,33 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSwapCurrencySymbolToCurrency extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('currencies', function (Blueprint $table): void {
-            $table->boolean('swap_currency_symbol')->default(false);
-        });
+        Schema::table('currencies', function (Blueprint $table) {});
 
-        Schema::table('expenses', function (Blueprint $table): void {
-            $table->string('tax_name1')->nullable();
-            $table->decimal('tax_rate1', 13, 3);
-            $table->string('tax_name2')->nullable();
-            $table->decimal('tax_rate2', 13, 3);
-        });
+        Schema::table('expenses', function (Blueprint $table) {});
 
-        Schema::table('account_gateways', function (Blueprint $table): void {
-            $table->boolean('require_cvv')->default(true)->nullable();
-        });
+        Schema::table('account_gateways', function (Blueprint $table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('currencies', function (Blueprint $table): void {
+        Schema::table('currencies', function (Blueprint $table) {
             $table->dropColumn('swap_currency_symbol');
         });
 
-        Schema::table('expenses', function (Blueprint $table): void {
+        Schema::table('expenses', function (Blueprint $table) {
             $table->dropColumn('tax_name1');
             $table->dropColumn('tax_rate1');
             $table->dropColumn('tax_name2');
             $table->dropColumn('tax_rate2');
         });
 
-        Schema::table('account_gateways', function (Blueprint $table): void {
+        Schema::table('account_gateways', function (Blueprint $table) {
             $table->dropColumn('require_cvv');
         });
     }

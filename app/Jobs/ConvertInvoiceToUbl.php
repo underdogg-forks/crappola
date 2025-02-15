@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use CleverIt\UBL\Invoice\Address;
 use CleverIt\UBL\Invoice\Contact;
 use CleverIt\UBL\Invoice\Country;
@@ -16,12 +17,12 @@ use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
 use Exception;
-use Utils;
 
 class ConvertInvoiceToUbl extends Job
 {
-    const INVOICE_TYPE_STANDARD = 380;
-    const INVOICE_TYPE_CREDIT = 381;
+    public const INVOICE_TYPE_STANDARD = 380;
+
+    public const INVOICE_TYPE_CREDIT = 381;
 
     public function __construct($invoice)
     {
@@ -62,7 +63,7 @@ class ConvertInvoiceToUbl extends Job
         $taxAmount1 = $taxAmount2 = 0;
 
         $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
-        if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
+        if ($invoice->tax_name2 || (float) ($invoice->tax_rate2)) {
             $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
         }
 
@@ -124,7 +125,7 @@ class ConvertInvoiceToUbl extends Job
         $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
         $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
-        if ($item->tax_name2 || floatval($item->tax_rate2)) {
+        if ($item->tax_name2 || (float) ($item->tax_rate2)) {
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 
@@ -141,13 +142,13 @@ class ConvertInvoiceToUbl extends Job
         $taxScheme = ((new TaxScheme()))->setId($taxName);
 
         $taxtotal->addTaxSubTotal((new TaxSubTotal())
-                ->setTaxAmount($taxAmount)
-                ->setTaxableAmount($taxable)
-                ->setTaxCategory((new TaxCategory())
-                    ->setId($taxName)
-                    ->setName($taxName)
-                    ->setTaxScheme($taxScheme)
-                    ->setPercent($taxRate)));
+            ->setTaxAmount($taxAmount)
+            ->setTaxableAmount($taxable)
+            ->setTaxCategory((new TaxCategory())
+                ->setId($taxName)
+                ->setName($taxName)
+                ->setTaxScheme($taxScheme)
+                ->setPercent($taxRate)));
 
         return $taxAmount;
     }

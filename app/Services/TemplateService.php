@@ -2,16 +2,16 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Gateway;
 use App\Models\GatewayType;
 use Form;
 use HTML;
-use Utils;
 
 class TemplateService
 {
     /**
-     * @param $template
+     * @param       $template
      * @param array $data
      *
      * @return mixed|string
@@ -102,12 +102,12 @@ class TemplateService
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$snakeCase}");
         }
 
-        $includesPasswordPlaceholder = strpos($template, '$password') !== false;
+        $includesPasswordPlaceholder = str_contains($template, '$password');
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);
 
-        if (! $includesPasswordPlaceholder && $passwordHTML) {
-            $pos = strrpos($str, '$password');
+        if ( ! $includesPasswordPlaceholder && $passwordHTML) {
+            $pos = mb_strrpos($str, '$password');
             if ($pos !== false) {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }

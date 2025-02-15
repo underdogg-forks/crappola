@@ -52,9 +52,6 @@ class ClientTransformer extends EntityTransformer
         'contacts',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
         'invoices',
         'credits',

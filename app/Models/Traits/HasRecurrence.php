@@ -2,9 +2,9 @@
 
 namespace App\Models\Traits;
 
-use Carbon;
+use App\Libraries\Utils;
 use DateTime;
-use Utils;
+use Illuminate\Support\Carbon;
 
 /**
  * Class HasRecurrence.
@@ -28,14 +28,19 @@ trait HasRecurrence
      */
     public function shouldSendTodayOld()
     {
-        if (! $this->user->confirmed) {
+        if ( ! $this->user->confirmed) {
             return false;
         }
 
         $account = $this->account;
+
+        if ( ! $account) {
+            return false;
+        }
+
         $timezone = $account->getTimezone();
 
-        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
+        if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
             return false;
         }
 
@@ -44,7 +49,7 @@ trait HasRecurrence
             return false;
         }
 
-        if (! $this->last_sent_date) {
+        if ( ! $this->last_sent_date) {
             return true;
         }
         $date1 = new DateTime($this->last_sent_date);
@@ -93,14 +98,14 @@ trait HasRecurrence
 
     public function shouldSendTodayNew()
     {
-        if (! $this->user->confirmed) {
+        if ( ! $this->user->confirmed) {
             return false;
         }
 
         $account = $this->account;
         $timezone = $account->getTimezone();
 
-        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
+        if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
             return false;
         }
 
@@ -108,7 +113,7 @@ trait HasRecurrence
             return false;
         }
 
-        if (! $this->last_sent_date) {
+        if ( ! $this->last_sent_date) {
             return true;
         }
         // check we don't send a few hours early due to timezone difference
@@ -118,7 +123,7 @@ trait HasRecurrence
 
         $nextSendDate = $this->getNextSendDate();
 
-        if (! $nextSendDate) {
+        if ( ! $nextSendDate) {
             return false;
         }
 
@@ -132,7 +137,7 @@ trait HasRecurrence
      */
     public function getSchedule()
     {
-        if (! $this->start_date || ! $this->frequency_id) {
+        if ( ! $this->start_date || ! $this->frequency_id) {
             return false;
         }
 
@@ -174,7 +179,7 @@ trait HasRecurrence
             return $this->account->getDateTime($startDate);
         }
 
-        if (! $schedule = $this->getSchedule()) {
+        if ( ! $schedule = $this->getSchedule()) {
             return;
         }
 

@@ -23,6 +23,7 @@ use App\Events\TaskWasUpdated;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
@@ -33,7 +34,6 @@ use App\Ninja\Transformers\TaskTransformer;
 use App\Ninja\Transformers\VendorTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use Utils;
 
 /**
  * Class SubscriptionListener.
@@ -43,7 +43,7 @@ class SubscriptionListener
     /**
      * @param ClientWasCreated $event
      */
-    public function createdClient(ClientWasCreated $event): void
+    public function createdClient(ClientWasCreated $event)
     {
         $transformer = new ClientTransformer($event->client->account);
         $this->checkSubscriptions(EVENT_CREATE_CLIENT, $event->client, $transformer);
@@ -52,7 +52,7 @@ class SubscriptionListener
     /**
      * @param ClientWasUpdated $event
      */
-    public function updatedClient(ClientWasUpdated $event): void
+    public function updatedClient(ClientWasUpdated $event)
     {
         $transformer = new ClientTransformer($event->client->account);
         $this->checkSubscriptions(EVENT_UPDATE_CLIENT, $event->client, $transformer);
@@ -61,7 +61,7 @@ class SubscriptionListener
     /**
      * @param ClientWasDeleted $event
      */
-    public function deletedClient(ClientWasDeleted $event): void
+    public function deletedClient(ClientWasDeleted $event)
     {
         $transformer = new ClientTransformer($event->client->account);
         $this->checkSubscriptions(EVENT_DELETE_CLIENT, $event->client, $transformer);
@@ -70,7 +70,7 @@ class SubscriptionListener
     /**
      * @param PaymentWasCreated $event
      */
-    public function createdPayment(PaymentWasCreated $event): void
+    public function createdPayment(PaymentWasCreated $event)
     {
         $transformer = new PaymentTransformer($event->payment->account);
         $this->checkSubscriptions(EVENT_CREATE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
@@ -79,7 +79,7 @@ class SubscriptionListener
     /**
      * @param PaymentWasDeleted $event
      */
-    public function deletedPayment(PaymentWasDeleted $event): void
+    public function deletedPayment(PaymentWasDeleted $event)
     {
         $transformer = new PaymentTransformer($event->payment->account);
         $this->checkSubscriptions(EVENT_DELETE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
@@ -88,7 +88,7 @@ class SubscriptionListener
     /**
      * @param InvoiceWasCreated $event
      */
-    public function createdInvoice(InvoiceItemsWereCreated $event): void
+    public function createdInvoice(InvoiceItemsWereCreated $event)
     {
         $transformer = new InvoiceTransformer($event->invoice->account);
         $this->checkSubscriptions(EVENT_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
@@ -97,7 +97,7 @@ class SubscriptionListener
     /**
      * @param InvoiceWasUpdated $event
      */
-    public function updatedInvoice(InvoiceItemsWereUpdated $event): void
+    public function updatedInvoice(InvoiceItemsWereUpdated $event)
     {
         $transformer = new InvoiceTransformer($event->invoice->account);
         $this->checkSubscriptions(EVENT_UPDATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
@@ -106,7 +106,7 @@ class SubscriptionListener
     /**
      * @param InvoiceWasDeleted $event
      */
-    public function deletedInvoice(InvoiceWasDeleted $event): void
+    public function deletedInvoice(InvoiceWasDeleted $event)
     {
         $transformer = new InvoiceTransformer($event->invoice->account);
         $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
@@ -115,7 +115,7 @@ class SubscriptionListener
     /**
      * @param QuoteWasCreated $event
      */
-    public function createdQuote(QuoteItemsWereCreated $event): void
+    public function createdQuote(QuoteItemsWereCreated $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
@@ -124,7 +124,7 @@ class SubscriptionListener
     /**
      * @param QuoteWasUpdated $event
      */
-    public function updatedQuote(QuoteItemsWereUpdated $event): void
+    public function updatedQuote(QuoteItemsWereUpdated $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_UPDATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
@@ -133,7 +133,7 @@ class SubscriptionListener
     /**
      * @param QuoteInvitationWasApproved $event
      */
-    public function approvedQuote(QuoteInvitationWasApproved $event): void
+    public function approvedQuote(QuoteInvitationWasApproved $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_APPROVE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
@@ -142,7 +142,7 @@ class SubscriptionListener
     /**
      * @param InvoiceWasDeleted $event
      */
-    public function deletedQuote(QuoteWasDeleted $event): void
+    public function deletedQuote(QuoteWasDeleted $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_DELETE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
@@ -151,7 +151,7 @@ class SubscriptionListener
     /**
      * @param VendorWasCreated $event
      */
-    public function createdVendor(VendorWasCreated $event): void
+    public function createdVendor(VendorWasCreated $event)
     {
         $transformer = new VendorTransformer($event->vendor->account);
         $this->checkSubscriptions(EVENT_CREATE_VENDOR, $event->vendor, $transformer);
@@ -160,7 +160,7 @@ class SubscriptionListener
     /**
      * @param VendorWasUpdated $event
      */
-    public function updatedVendor(VendorWasUpdated $event): void
+    public function updatedVendor(VendorWasUpdated $event)
     {
         $transformer = new VendorTransformer($event->vendor->account);
         $this->checkSubscriptions(EVENT_UPDATE_VENDOR, $event->vendor, $transformer);
@@ -169,7 +169,7 @@ class SubscriptionListener
     /**
      * @param VendorWasDeleted $event
      */
-    public function deletedVendor(VendorWasDeleted $event): void
+    public function deletedVendor(VendorWasDeleted $event)
     {
         $transformer = new VendorTransformer($event->vendor->account);
         $this->checkSubscriptions(EVENT_DELETE_VENDOR, $event->vendor, $transformer);
@@ -178,7 +178,7 @@ class SubscriptionListener
     /**
      * @param ExpenseWasCreated $event
      */
-    public function createdExpense(ExpenseWasCreated $event): void
+    public function createdExpense(ExpenseWasCreated $event)
     {
         $transformer = new ExpenseTransformer($event->expense->account);
         $this->checkSubscriptions(EVENT_CREATE_EXPENSE, $event->expense, $transformer);
@@ -187,7 +187,7 @@ class SubscriptionListener
     /**
      * @param ExpenseWasUpdated $event
      */
-    public function updatedExpense(ExpenseWasUpdated $event): void
+    public function updatedExpense(ExpenseWasUpdated $event)
     {
         $transformer = new ExpenseTransformer($event->expense->account);
         $this->checkSubscriptions(EVENT_UPDATE_EXPENSE, $event->expense, $transformer);
@@ -196,7 +196,7 @@ class SubscriptionListener
     /**
      * @param ExpenseWasDeleted $event
      */
-    public function deletedExpense(ExpenseWasDeleted $event): void
+    public function deletedExpense(ExpenseWasDeleted $event)
     {
         $transformer = new ExpenseTransformer($event->expense->account);
         $this->checkSubscriptions(EVENT_DELETE_EXPENSE, $event->expense, $transformer);
@@ -205,7 +205,7 @@ class SubscriptionListener
     /**
      * @param TaskWasCreated $event
      */
-    public function createdTask(TaskWasCreated $event): void
+    public function createdTask(TaskWasCreated $event)
     {
         $transformer = new TaskTransformer($event->task->account);
         $this->checkSubscriptions(EVENT_CREATE_TASK, $event->task, $transformer);
@@ -214,7 +214,7 @@ class SubscriptionListener
     /**
      * @param TaskWasUpdated $event
      */
-    public function updatedTask(TaskWasUpdated $event): void
+    public function updatedTask(TaskWasUpdated $event)
     {
         $transformer = new TaskTransformer($event->task->account);
         $this->checkSubscriptions(EVENT_UPDATE_TASK, $event->task, $transformer);
@@ -223,27 +223,58 @@ class SubscriptionListener
     /**
      * @param TaskWasDeleted $event
      */
-    public function deletedTask(TaskWasDeleted $event): void
+    public function deletedTask(TaskWasDeleted $event)
     {
         $transformer = new TaskTransformer($event->task->account);
         $this->checkSubscriptions(EVENT_DELETE_TASK, $event->task, $transformer);
     }
 
+    private static function notifySubscription($subscription, $data)
+    {
+        $curl = curl_init();
+        $jsonEncodedData = json_encode($data);
+        $url = $subscription->target_url;
+
+        if ( ! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
+            $url .= '?secret=' . $secret;
+        }
+
+        $opts = [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POST           => 1,
+            CURLOPT_POSTFIELDS     => $jsonEncodedData,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Content-Length: ' . mb_strlen($jsonEncodedData)],
+        ];
+
+        curl_setopt_array($curl, $opts);
+
+        $result = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        if ($status == 410) {
+            $subscription->delete();
+        }
+    }
+
     /**
-     * @param $eventId
-     * @param $entity
-     * @param $transformer
+     * @param        $eventId
+     * @param        $entity
+     * @param        $transformer
      * @param string $include
      */
-    private function checkSubscriptions($eventId, $entity, $transformer, $include = ''): void
+    private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
-        if (! EntityModel::$notifySubscriptions) {
+        if ( ! EntityModel::$notifySubscriptions) {
             return;
         }
 
         $subscriptions = $entity->account->getSubscriptions($eventId);
 
-        if (! $subscriptions->count()) {
+        if ( ! $subscriptions->count()) {
             return;
         }
 
@@ -270,37 +301,6 @@ class SubscriptionListener
                     break;
             }
             self::notifySubscription($subscription, $data);
-        }
-    }
-
-    private static function notifySubscription($subscription, $data): void
-    {
-        $curl = curl_init();
-        $jsonEncodedData = json_encode($data);
-        $url = $subscription->target_url;
-
-        if (! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
-            $url .= '?secret=' . $secret;
-        }
-
-        $opts = [
-            CURLOPT_URL            => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST  => 'POST',
-            CURLOPT_POST           => 1,
-            CURLOPT_POSTFIELDS     => $jsonEncodedData,
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Content-Length: ' . strlen($jsonEncodedData)],
-        ];
-
-        curl_setopt_array($curl, $opts);
-
-        $result = curl_exec($curl);
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        curl_close($curl);
-
-        if ($status == 410) {
-            $subscription->delete();
         }
     }
 }

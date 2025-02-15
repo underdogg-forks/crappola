@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Frequency;
 use App\Models\PaymentLibrary;
 use App\Models\PaymentTerm;
 use App\Models\Size;
@@ -12,7 +11,7 @@ use Illuminate\Database\Seeder;
 
 class ConstantsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         Theme::create(['name' => 'amelia']);
         Theme::create(['name' => 'cerulean']);

@@ -7,11 +7,11 @@ use App\Models\Account;
 
 class Cloudflare
 {
-    public static function addDNSRecord(Account $account): void
+    public static function addDNSRecord(Account $account)
     {
         $zones = json_decode(env('CLOUDFLARE_ZONE_IDS', ''), true);
-        foreach ($zones as $zone) {
-            if ($account->subdomain != '') {
+        foreach($zones as $zone) {
+            if($account->subdomain != '') {
                 $jsonEncodedData = json_encode(['type' => 'A', 'name' => $account->subdomain, 'content' => env('CLOUDFLARE_TARGET_IP_ADDRESS', ''), 'proxied' => true]);
                 $requestType = 'POST';
                 $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records';
@@ -23,14 +23,14 @@ class Cloudflare
         }
     }
 
-    public static function removeDNSRecord(Account $account): void
+    public static function removeDNSRecord(Account $account)
     {
         $zones = json_decode(env('CLOUDFLARE_ZONE_IDS', ''), true);
-        foreach ($zones as $zone) {
-            if ($account->subdomain != '') {
+        foreach($zones as $zone) {
+            if($account->subdomain != '') {
                 $dnsRecordId = self::getDNSRecord($zone, $account->subdomain);
                 //test record exists
-                if ($dnsRecordId == 0) {
+                if($dnsRecordId == 0) {
                     return;
                 }
                 $jsonEncodedData = json_encode([]);
@@ -61,7 +61,7 @@ class Cloudflare
         if ($response['status'] != 200) {
             Utils::logError('Unable to get the record ID for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
         }
-        if (isset($response['result']['result'][0])) {
+        if(isset($response['result']['result'][0])) {
             return $response['result']['result'][0]['id'];
         }
 
@@ -78,7 +78,7 @@ class Cloudflare
             CURLOPT_POST           => 1,
             CURLOPT_POSTFIELDS     => $jsonEncodedData,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json',
-                'Content-Length: ' . strlen($jsonEncodedData),
+                'Content-Length: ' . mb_strlen($jsonEncodedData),
                 'X-Auth-Email: ' . env('CLOUDFLARE_EMAIL', ''),
                 'X-Auth-Key: ' . env('CLOUDFLARE_API_KEY', ''),
             ],

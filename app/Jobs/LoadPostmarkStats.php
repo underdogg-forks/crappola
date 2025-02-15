@@ -25,7 +25,7 @@ class LoadPostmarkStats extends Job
      */
     public function handle()
     {
-        if (! auth()->user()->hasPermission('view_reports')) {
+        if ( ! auth()->user()->hasPermission('view_reports')) {
             return $this->response;
         }
 
@@ -37,7 +37,7 @@ class LoadPostmarkStats extends Job
         return $this->response;
     }
 
-    private function loadOverallStats(): void
+    private function loadOverallStats()
     {
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
@@ -65,7 +65,7 @@ class LoadPostmarkStats extends Job
 
             foreach ($period as $day) {
                 $date = $day->format('Y-m-d');
-                $records[] = isset($data[$date]) ? $data[$date] : 0;
+                $records[] = $data[$date] ?? 0;
 
                 if ($eventType == 'sent') {
                     $labels[] = $day->format('m/d/Y');
@@ -96,7 +96,7 @@ class LoadPostmarkStats extends Job
         $this->response->data = $data;
     }
 
-    private function loadSentStats(): void
+    private function loadSentStats()
     {
         $account = $this->account;
         $data = $this->postmark->getOutboundOverviewStatistics($this->account->account_key, request()->start_date, request()->end_date);
@@ -109,7 +109,7 @@ class LoadPostmarkStats extends Job
         ];
     }
 
-    private function loadPlatformStats(): void
+    private function loadPlatformStats()
     {
         $data = $this->postmark->getOutboundPlatformStatistics($this->account->account_key, request()->start_date, request()->end_date);
         $account = $this->account;
@@ -126,7 +126,7 @@ class LoadPostmarkStats extends Job
         $this->response->platforms = $str;
     }
 
-    private function loadEmailClientStats(): void
+    private function loadEmailClientStats()
     {
         $data = $this->postmark->getOutboundEmailClientStatistics($this->account->account_key, request()->start_date, request()->end_date);
         $account = $this->account;

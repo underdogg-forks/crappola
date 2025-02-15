@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
+
     public $sortCol = 1;
 
     public function columns()
@@ -53,7 +54,7 @@ class ProjectDatatable extends EntityDatatable
             [
                 'task_rate',
                 function ($model) {
-                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
+                    return (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
                 },
             ],
         ];

@@ -3,8 +3,8 @@
 namespace App\Models\Traits;
 
 use App\Constants\Domain;
+use App\Libraries\Utils;
 use HTMLUtils;
-use Utils;
 
 /**
  * Class SendsEmails.
@@ -18,7 +18,7 @@ trait SendsEmails
      */
     public function getDefaultEmailSubject($entityType)
     {
-        if (strpos($entityType, 'reminder') !== false) {
+        if (str_contains($entityType, 'reminder')) {
             $entityType = 'reminder';
         }
 
@@ -39,7 +39,7 @@ trait SendsEmails
     {
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_subject_{$entityType}";
-            $value = $this->account_email_settings->$field;
+            $value = $this->account_email_settings->{$field};
 
             if ($value) {
                 $value = preg_replace("/\r\n|\r|\n/", ' ', $value);
@@ -52,14 +52,14 @@ trait SendsEmails
     }
 
     /**
-     * @param $entityType
+     * @param      $entityType
      * @param bool $message
      *
      * @return string
      */
     public function getDefaultEmailTemplate($entityType, $message = false)
     {
-        if (strpos($entityType, 'reminder') !== false) {
+        if (str_contains($entityType, 'reminder')) {
             $entityType = ENTITY_INVOICE;
         }
 
@@ -74,14 +74,14 @@ trait SendsEmails
         }
 
         if ($message) {
-            $template .= "$message<p/>";
+            $template .= "{$message}<p/>";
         }
 
         return $template . '$emailSignature';
     }
 
     /**
-     * @param $entityType
+     * @param      $entityType
      * @param bool $message
      *
      * @return mixed
@@ -92,10 +92,10 @@ trait SendsEmails
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_template_{$entityType}";
-            $template = $this->account_email_settings->$field;
+            $template = $this->account_email_settings->{$field};
         }
 
-        if (! $template) {
+        if ( ! $template) {
             $template = $this->getDefaultEmailTemplate($entityType, $message);
         }
 
@@ -117,9 +117,6 @@ trait SendsEmails
         return $this->getEmailDesignId() == EMAIL_DESIGN_PLAIN ? $view : 'design' . $this->getEmailDesignId();
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getEmailFooter()
     {
         if ($this->isPro() && $this->email_footer) {
@@ -144,7 +141,7 @@ trait SendsEmails
         $numDays = $this->{"num_days_reminder{$reminder}"};
         $plusMinus = $this->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
 
-        return date('Y-m-d', strtotime("$plusMinus $numDays days"));
+        return date('Y-m-d', strtotime("{$plusMinus} {$numDays} days"));
     }
 
     /**
@@ -172,7 +169,7 @@ trait SendsEmails
         return false;
     }
 
-    public function setTemplateDefaults($type, $subject, $body): void
+    public function setTemplateDefaults($type, $subject, $body)
     {
         $settings = $this->account_email_settings;
 
@@ -199,7 +196,7 @@ trait SendsEmails
 
     public function getFromEmail()
     {
-        if (! $this->isPro() || ! Utils::isNinja() || Utils::isReseller()) {
+        if ( ! $this->isPro() || ! Utils::isNinja() || Utils::isReseller()) {
             return false;
         }
 

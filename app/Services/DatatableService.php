@@ -2,11 +2,12 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Ninja\Datatables\EntityDatatable;
-use Auth;
 use Chumper\Datatable\Table;
 use Datatable;
-use Utils;
+use Exception;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class DatatableService.
@@ -15,9 +16,9 @@ class DatatableService
 {
     /**
      * @param EntityDatatable $datatable
-     * @param $query
+     * @param                 $query
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -59,7 +60,7 @@ class DatatableService
      * @param EntityDatatable $datatable
      * @param Table           $table
      */
-    private function createDropdown(EntityDatatable $datatable, $table): void
+    private function createDropdown(EntityDatatable $datatable, $table)
     {
         $table->addColumn('dropdown', function ($model) use ($datatable) {
             $hasAction = false;
@@ -78,7 +79,7 @@ class DatatableService
             $dropdown_contents = '';
 
             $lastIsDivider = false;
-            if (! property_exists($model, 'is_deleted') || ! $model->is_deleted) {
+            if ( ! property_exists($model, 'is_deleted') || ! $model->is_deleted) {
                 foreach ($datatable->actions() as $action) {
                     if (count($action)) {
                         // if show function isn't set default to true
@@ -96,22 +97,22 @@ class DatatableService
                                 $urlVal = $url($model);
                                 $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
                                 $attributes = '';
-                                if (! empty($urlVal['attributes'])) {
+                                if ( ! empty($urlVal['attributes'])) {
                                     $attributes = ' ' . $urlVal['attributes'];
                                 }
 
-                                $dropdown_contents .= "<li><a href=\"$urlStr\"{$attributes}>{$value}</a></li>";
+                                $dropdown_contents .= "<li><a href=\"{$urlStr}\"{$attributes}>{$value}</a></li>";
                                 $hasAction = true;
                                 $lastIsDivider = false;
                             }
                         }
-                    } elseif (! $lastIsDivider) {
+                    } elseif ( ! $lastIsDivider) {
                         $dropdown_contents .= '<li class="divider"></li>';
                         $lastIsDivider = true;
                     }
                 }
 
-                if (! $hasAction) {
+                if ( ! $hasAction) {
                     return '';
                 }
 
@@ -119,7 +120,7 @@ class DatatableService
                     $dropdown_contents .= '<li class="divider"></li>';
                 }
 
-                if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
+                if ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') {
                     if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
                         $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
                                 . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
@@ -137,7 +138,7 @@ class DatatableService
                         . mtrans($datatable->entityType, "delete_{$datatable->entityType}") . '</a></li>';
             }
 
-            if (! empty($dropdown_contents)) {
+            if ( ! empty($dropdown_contents)) {
                 $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         ' . trans('texts.select') . ' <span class="caret"></span>

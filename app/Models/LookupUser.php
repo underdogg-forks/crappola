@@ -3,17 +3,12 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
-use App\Models\User;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupUser extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'lookup_account_id',
         'email',
@@ -23,21 +18,21 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($accountKey, $user): void
+    public static function updateUser($accountKey, $user)
     {
-        /* if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
-        } */
+        }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-                            ->firstOrFail();
+            ->firstOrFail();
 
         $lookupUser = self::whereLookupAccountId($lookupAccount->id)
-                            ->whereUserId($user->id)
-                            ->firstOrFail();
+            ->whereUserId($user->id)
+            ->firstOrFail();
 
         $lookupUser->email = $user->email;
         $lookupUser->confirmation_code = $user->confirmation_code ?: null;
@@ -50,9 +45,9 @@ class LookupUser extends LookupModel
 
     public static function validateField($field, $value, $user = false)
     {
-        /* if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return true;
-        } */
+        }
 
         $current = config('database.default');
         $accountKey = $user ? $user->account->account_key : false;

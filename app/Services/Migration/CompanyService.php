@@ -3,10 +3,12 @@
 namespace App\Services\Migration;
 
 use App\Models\Account;
+use Exception;
 
 class CompanyService
 {
     protected $isSuccessful;
+
     protected $companies = [];
 
     public function start()
@@ -33,7 +35,7 @@ class CompanyService
             }
 
             $this->isSuccessful = true;
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             $this->isSuccessful = false;
             $this->errors = [];
         }

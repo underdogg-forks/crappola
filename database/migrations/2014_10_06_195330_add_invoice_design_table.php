@@ -1,23 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceDesignTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoice_designs', function ($table): void {
-            $table->mediumText('javascript')->nullable();
-        });
+        Schema::table('invoice_designs', function ($table) {});
 
-        Schema::table('accounts', function ($table): void {
-            $table->text('invoice_design')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
         DB::table('invoice_designs')->where('id', 1)->update([
             'javascript' => "var GlobalY=0;//Y position of line at current page
@@ -261,10 +254,10 @@ class AddInvoiceDesignTable extends Migration
 			  var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
 			  SetPdfColor('SomeGreen', doc, 'secondary');
 			  doc.text(AmountX, y, AmountText);",
-            ]);
+        ]);
 
         DB::table('invoice_designs')->where('id', 3)->update([
-                'javascript' => "    var client = invoice.client;
+            'javascript' => "    var client = invoice.client;
 	    var account = invoice.account;
 	    var currencyId = client.currency_id;
 
@@ -492,18 +485,13 @@ class AddInvoiceDesignTable extends Migration
         ]);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('invoice_designs', function ($table): void {
+        Schema::table('invoice_designs', function ($table) {
             $table->dropColumn('javascript');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('invoice_design');
         });
     }

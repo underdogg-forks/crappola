@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class TaskPresenter.
@@ -17,9 +17,6 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->entity->user->getDisplayName();
@@ -27,7 +24,7 @@ class TaskPresenter extends EntityPresenter
 
     public function description()
     {
-        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+        return mb_substr($this->entity->description, 0, 40) . (mb_strlen($this->entity->description) > 40 ? '...' : '');
     }
 
     public function project()
@@ -36,7 +33,7 @@ class TaskPresenter extends EntityPresenter
     }
 
     /**
-     * @param $account
+     * @param       $account
      * @param mixed $showProject
      *
      * @return mixed
@@ -64,8 +61,8 @@ class TaskPresenter extends EntityPresenter
                 $end = $part[1];
             }
 
-            $start = $account->formatDateTime('@' . intval($start));
-            $end = $account->formatTime('@' . intval($end));
+            $start = $account->formatDateTime('@' . (int) $start);
+            $end = $account->formatTime('@' . (int) $end);
 
             $times[] = "### {$start} - {$end}";
         }

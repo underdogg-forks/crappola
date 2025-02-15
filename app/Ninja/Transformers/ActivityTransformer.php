@@ -23,12 +23,8 @@ class ActivityTransformer extends EntityTransformer
      * @SWG\Property(property="contact_id", type="integer", example=1)
      * @SWG\Property(property="task_id", type="integer", example=1)
      */
-
     protected array $defaultIncludes = [];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [];
 
     /**

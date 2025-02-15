@@ -4,7 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Expense;
 use App\Models\Payment;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
@@ -20,18 +20,18 @@ class ProfitAndLossReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
-                        ->orderBy('payment_date', 'desc')
-                        ->with('client.contacts', 'invoice', 'user')
-                        ->withArchived()
-                        ->excludeFailed()
-                        ->where('payment_date', '>=', $this->startDate)
-                        ->where('payment_date', '<=', $this->endDate);
+            ->orderBy('payment_date', 'desc')
+            ->with('client.contacts', 'invoice', 'user')
+            ->withArchived()
+            ->excludeFailed()
+            ->where('payment_date', '>=', $this->startDate)
+            ->where('payment_date', '<=', $this->endDate);
 
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
@@ -61,11 +61,11 @@ class ProfitAndLossReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->with('client.contacts', 'vendor')
-                        ->withArchived()
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
+            ->orderBy('expense_date', 'desc')
+            ->with('client.contacts', 'vendor')
+            ->withArchived()
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
 
         foreach ($expenses->get() as $expense) {
             $client = $expense->client;

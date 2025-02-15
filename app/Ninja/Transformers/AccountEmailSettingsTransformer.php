@@ -9,14 +9,8 @@ use App\Models\AccountEmailSettings;
  */
 class AccountEmailSettingsTransformer extends EntityTransformer
 {
-    /**
-     * @var array
-     */
     protected array $defaultIncludes = [];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [];
 
     /**

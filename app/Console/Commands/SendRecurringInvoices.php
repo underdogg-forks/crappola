@@ -3,17 +3,17 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SendInvoiceEmail;
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\RecurringExpense;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\RecurringExpenseRepository;
-use Auth;
 use DateTime;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /**
  * Class SendRecurringInvoices.
@@ -48,7 +48,7 @@ class SendRecurringInvoices extends Command
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running SendRecurringInvoices...');
 
@@ -61,21 +61,42 @@ class SendRecurringInvoices extends Command
         $this->createExpenses();
 
         $this->info(date('r') . ' Done');
+
         return 0;
     }
 
-    private function resetCounters(): void
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
+    }
+
+    private function resetCounters()
     {
         $accounts = Account::where('reset_counter_frequency_id', '>', 0)
             ->orderBy('id', 'asc')
             ->get();
 
         foreach ($accounts as $account) {
-            $account->checkCounterReset();
+            if( ! $account->account_email_settings->is_disabled) {
+                $account->checkCounterReset();
+            }
         }
     }
 
-    private function createInvoices(): void
+    private function createInvoices()
     {
         $today = new DateTime();
 
@@ -88,13 +109,18 @@ class SendRecurringInvoices extends Command
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
 
-            if (! $shouldSendToday) {
+            if ( ! $shouldSendToday) {
                 continue;
             }
 
             $this->info(date('r') . ' Processing Invoice: ' . $recurInvoice->id);
 
             $account = $recurInvoice->account;
+
+            if($account->account_email_settings->is_disabled) {
+                continue;
+            }
+
             $account->loadLocalizationSettings($recurInvoice->client);
             Auth::loginUsingId($recurInvoice->activeUser()->id);
 
@@ -115,43 +141,25 @@ class SendRecurringInvoices extends Command
         }
     }
 
-    private function createExpenses(): void
+    private function createExpenses()
     {
         $today = new DateTime();
 
         $expenses = RecurringExpense::with('client')
-                        ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
-                        ->orderBy('id', 'asc')
-                        ->get();
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
+            ->orderBy('id', 'asc')
+            ->get();
         $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
 
-            if (! $shouldSendToday) {
+            if ( ! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 
             $this->info(date('r') . ' Processing Expense: ' . $expense->id);
             $this->recurringExpenseRepo->createRecurringExpense($expense);
         }
-    }
-
-    /**
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
-        ];
     }
 }

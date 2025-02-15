@@ -3,7 +3,8 @@
 namespace App\Services\Migration;
 
 use Illuminate\Support\Facades\Storage;
-use Unirest\Request;
+
+// use Unirest\Request;
 
 class CompleteService
 {
@@ -43,33 +44,54 @@ class CompleteService
         $files = [];
 
         foreach ($this->data as $companyKey => $companyData) {
-            $data[] = [
+            $data = [
                 'company_index' => $companyKey,
                 'company_key'   => $companyData['data']['company']['company_key'],
                 'force'         => $companyData['force'],
+                'contents'      => 'name',
+                'name'          => $companyKey,
             ];
 
-            $files[$companyKey] = $companyData['file'];
+            $payload[$companyKey] = [
+                'contents' => json_encode($data),
+                'name'     => $companyData['data']['company']['company_key'],
+            ];
+
+            $files[] = [
+                'name'          => $companyKey,
+                'company_index' => $companyKey,
+                'company_key'   => $companyData['data']['company']['company_key'],
+                'force'         => $companyData['force'],
+                'contents'      => file_get_contents($companyData['file']),
+                'filename'      => basename($companyData['file']),
+                'Content-Type'  => 'application/zip',
+            ];
         }
 
-        $body = \Unirest\Request\Body::multipart(['companies' => json_encode($data)], $files);
+        $client = new \GuzzleHttp\Client(
+            [
+                'headers' => $this->getHeaders(),
+            ]
+        );
 
-        try {
-            $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
-        } catch (\Exception $e) {
-            info($e->getMessage());
-        }
+        $payload_data = [
+            'multipart' => array_merge($files, $payload),
+        ];
 
-        if ($response->code == 200) {
+        // info(print_r($payload_data,1));
+        $response = $client->request('POST', $this->getUrl(), $payload_data);
+
+        if($response->getStatusCode() == 200) {
             $this->isSuccessful = true;
-        }
 
-        if (in_array($response->code, [401, 422, 500])) {
-            $this->isSuccessful = false;
-            $this->errors = [
-                'Oops, something went wrong. Migration can\'t be processed at the moment.',
-            ];
+            return json_decode($response->getBody(), true);
         }
+        // info($response->raw_body);
+
+        $this->isSuccessful = false;
+        $this->errors = [
+            'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+        ];
 
         return $this;
     }
@@ -82,6 +104,11 @@ class CompleteService
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function deleteFile(string $path)
+    {
+        Storage::delete($path);
     }
 
     private function getHeaders()
@@ -102,10 +129,5 @@ class CompleteService
     private function getUrl()
     {
         return "{$this->endpoint}/{$this->uri}";
-    }
-
-    public function deleteFile(string $path): void
-    {
-        Storage::delete($path);
     }
 }

@@ -9,6 +9,7 @@ use URL;
 class PaymentTermService extends BaseService
 {
     protected $paymentTermRepo;
+
     protected $datatableService;
 
     /**
@@ -21,14 +22,6 @@ class PaymentTermService extends BaseService
     {
         $this->paymentTermRepo = $paymentTermRepo;
         $this->datatableService = $datatableService;
-    }
-
-    /**
-     * @return PaymentTermRepository
-     */
-    protected function getRepo()
-    {
-        return $this->paymentTermRepo;
     }
 
     /**
@@ -73,5 +66,13 @@ class PaymentTermService extends BaseService
                 },
             ],
         ];
+    }
+
+    /**
+     * @return PaymentTermRepository
+     */
+    protected function getRepo()
+    {
+        return $this->paymentTermRepo;
     }
 }

@@ -1,32 +1,28 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddBankAccounts extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('banks', function ($table): void {
+        Schema::create('banks', function ($table) {
             $table->increments('id');
-            $table->string('name', 100);
-            $table->string('remote_id');
             $table->integer('bank_library_id')->default(BANK_LIBRARY_OFX);
+            $table->string('name');
+            $table->string('remote_id');
             $table->text('config');
         });
 
-        Schema::create('bank_accounts', function ($table): void {
+        Schema::create('bank_accounts', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('bank_id');
             $table->unsignedInteger('user_id');
-            $table->string('username');
-
             $table->unsignedInteger('public_id')->index();
+
+            $table->string('username');
 
             $table->timestamps();
             $table->softDeletes();
@@ -39,12 +35,7 @@ class AddBankAccounts extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         Schema::drop('bank_accounts');
         Schema::drop('banks');

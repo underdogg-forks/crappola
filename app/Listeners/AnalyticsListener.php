@@ -2,8 +2,9 @@
 
 namespace App\Listeners;
 
+use App;
 use App\Events\PaymentWasCreated;
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class AnalyticsListener.
@@ -13,7 +14,7 @@ class AnalyticsListener
     /**
      * @param PaymentWasCreated $event
      */
-    public function trackRevenue(PaymentWasCreated $event): void
+    public function trackRevenue(PaymentWasCreated $event)
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
@@ -31,7 +32,7 @@ class AnalyticsListener
             }
         }
 
-        if (! $analyticsId) {
+        if ( ! $analyticsId) {
             return;
         }
 
@@ -40,7 +41,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($account->isNinjaAccount() && \App::runningInConsole()) {
+        if ($account->isNinjaAccount() && App::runningInConsole()) {
             $item .= ' [R]';
         }
 
@@ -56,7 +57,7 @@ class AnalyticsListener
     /**
      * @param $data
      */
-    private function sendAnalytics($data): void
+    private function sendAnalytics($data)
     {
         $data = utf8_encode($data);
         $curl = curl_init();

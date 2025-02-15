@@ -2,22 +2,19 @@
 
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use App\Models\TaxRate;
-use Carbon;
 use Domain;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\Presenter;
 use stdClass;
-use Utils;
 
 /**
  * Class AccountPresenter.
  */
 class AccountPresenter extends Presenter
 {
-    /**
-     * @return mixed
-     */
     public function name()
     {
         return $this->entity->name ?: trans('texts.untitled_account');
@@ -58,16 +55,13 @@ class AccountPresenter extends Presenter
      */
     public function taskRate()
     {
-        if (floatval($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 
         return '';
     }
 
-    /**
-     * @return mixed
-     */
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();
@@ -104,7 +98,8 @@ class AccountPresenter extends Presenter
 
         if ($terms == 0) {
             return '';
-        } elseif ($terms == -1) {
+        }
+        if ($terms == -1) {
             $terms = 0;
         }
 
@@ -120,21 +115,6 @@ class AccountPresenter extends Presenter
         $date = $this->entity->defaultDueDate();
 
         return $date ? Utils::fromSqlDate($date) : ' ';
-    }
-
-    private function createRBit($type, $source, $properties)
-    {
-        $data = new stdClass();
-        $data->receive_time = time();
-        $data->type = $type;
-        $data->source = $source;
-        $data->properties = new stdClass();
-
-        foreach ($properties as $key => $val) {
-            $data->properties->$key = $val;
-        }
-
-        return $data;
     }
 
     public function rBits()
@@ -196,7 +176,7 @@ class AccountPresenter extends Presenter
     {
         $fields = [
             'client1'       => 'custom_client1',
-            'client1'       => 'custom_client2',
+            'client2'       => 'custom_client2',
             'contact1'      => 'custom_contact1',
             'contact2'      => 'custom_contact2',
             'invoice_text1' => 'custom_invoice1',
@@ -225,7 +205,7 @@ class AccountPresenter extends Presenter
 
         for ($i = 1; $i <= 3; $i++) {
             $label = trans('texts.custom_design' . $i);
-            if (! $account->{'custom_design' . $i}) {
+            if ( ! $account->{'custom_design' . $i}) {
                 $label .= ' - ' . trans('texts.empty');
             }
 
@@ -253,7 +233,7 @@ class AccountPresenter extends Presenter
         $url .= '/client/login';
 
         if (Utils::isNinja()) {
-            if (! $account->subdomain) {
+            if ( ! $account->subdomain) {
                 $url .= '?account_key=' . $account->account_key;
             }
         } else {
@@ -268,5 +248,20 @@ class AccountPresenter extends Presenter
     public function customLabel($field)
     {
         return Utils::getCustomLabel($this->entity->customLabel($field));
+    }
+
+    private function createRBit($type, $source, $properties)
+    {
+        $data = new stdClass();
+        $data->receive_time = time();
+        $data->type = $type;
+        $data->source = $source;
+        $data->properties = new stdClass();
+
+        foreach ($properties as $key => $val) {
+            $data->properties->{$key} = $val;
+        }
+
+        return $data;
     }
 }

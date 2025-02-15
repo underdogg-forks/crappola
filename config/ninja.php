@@ -44,4 +44,8 @@ return [
         'app_id'           => env('MSBOT_LUIS_APP_ID', 'ea1cda29-5994-47c4-8c25-2b58ae7ae7a8'),
         'subscription_key' => env('MSBOT_LUIS_SUBSCRIPTION_KEY'),
     ],
+
+    'ninja_hosted_secret'  => env('NINJA_HOSTED_SECRET', false),
+    'migration_user_start' => env('MIGRATION_USER_START', 1),
+    'migration_user_end'   => env('MIGRATION_USER_END', 1000),
 ];

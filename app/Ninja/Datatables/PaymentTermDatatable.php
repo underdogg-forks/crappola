@@ -7,6 +7,7 @@ use URL;
 class PaymentTermDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT_TERM;
+
     public $sortCol = 1;
 
     public function columns()

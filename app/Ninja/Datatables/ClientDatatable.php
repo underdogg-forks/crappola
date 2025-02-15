@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ClientDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CLIENT;
+
     public $sortCol = 4;
 
     public function columns()
@@ -68,9 +69,10 @@ class ClientDatatable extends EntityDatatable
             [
                 trans('texts.edit_client'),
                 function ($model) {
-                    if (Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
                         return URL::to("clients/{$model->public_id}/edit");
-                    } elseif (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    }
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return URL::to("clients/{$model->public_id}");
                     }
                 },

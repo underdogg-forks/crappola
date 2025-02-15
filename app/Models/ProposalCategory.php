@@ -11,17 +11,11 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalCategory extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];
@@ -31,9 +25,6 @@ class ProposalCategory extends EntityModel
      */
     //protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_CATEGORY;

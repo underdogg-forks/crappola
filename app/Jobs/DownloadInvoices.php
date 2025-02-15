@@ -5,9 +5,6 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Barracuda\ArchiveStream\Archive;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 /**
  * Class SendInvoiceEmail.
@@ -22,9 +19,6 @@ class DownloadInvoices extends Job
      */
     protected $user;
 
-    /**
-     * @var array
-     */
     protected $invoices;
 
     /**
@@ -44,9 +38,9 @@ class DownloadInvoices extends Job
      *
      * @param ContactMailer $mailer
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
-        if (! extension_loaded('GMP')) {
+        if ( ! extension_loaded('GMP')) {
             die(trans('texts.gmp_required'));
         }
 

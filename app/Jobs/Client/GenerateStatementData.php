@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Client;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
-use Utils;
 
 class GenerateStatementData
 {
@@ -48,7 +48,7 @@ class GenerateStatementData
 
     private function getInvoices()
     {
-        $statusId = intval($this->options['status_id']);
+        $statusId = (int) ($this->options['status_id']);
 
         $invoices = Invoice::with(['client'])
             ->invoices()
@@ -65,11 +65,11 @@ class GenerateStatementData
 
         if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
             $invoices->where('invoice_date', '>=', $this->options['start_date'])
-                    ->where('invoice_date', '<=', $this->options['end_date']);
+                ->where('invoice_date', '<=', $this->options['end_date']);
         }
 
         if ($this->contact) {
-            $invoices->whereHas('invitations', function ($query): void {
+            $invoices->whereHas('invitations', function ($query) {
                 $query->where('contact_id', $this->contact->id);
             });
         }

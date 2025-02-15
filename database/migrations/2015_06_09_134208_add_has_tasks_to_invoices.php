@@ -1,24 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddHasTasksToInvoices extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoices', function ($table): void {
-            $table->boolean('has_tasks')->default(false);
-        });
+        Schema::table('invoices', function ($table) {});
 
         $invoices = DB::table('invoices')
-                    ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
-                    ->selectRaw('DISTINCT invoices.id')
-                    ->get();
+            ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
+            ->selectRaw('DISTINCT invoices.id')
+            ->get();
 
         foreach ($invoices as $invoice) {
             DB::table('invoices')
@@ -27,14 +22,9 @@ class AddHasTasksToInvoices extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropColumn('has_tasks');
         });
     }

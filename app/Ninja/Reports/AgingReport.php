@@ -3,7 +3,7 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class AgingReport extends AbstractReport
 {
@@ -20,24 +20,24 @@ class AgingReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function ($query): void {
-                            $query->invoices()
-                                  ->whereIsPublic(true)
-                                  ->withArchived()
-                                  ->where('balance', '>', 0)
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts')
+            ->with(['invoices' => function ($query) {
+                $query->invoices()
+                    ->whereIsPublic(true)
+                    ->withArchived()
+                    ->where('balance', '>', 0)
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['invoice_items']);
+            }]);
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {

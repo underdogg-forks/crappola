@@ -10,6 +10,7 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteWasEmailed;
 use App\Jobs\SendNotificationEmail;
 use App\Jobs\SendPaymentEmail;
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Notifications\PaymentCreated;
@@ -24,10 +25,12 @@ class NotificationListener
      * @var UserMailer
      */
     protected $userMailer;
+
     /**
      * @var ContactMailer
      */
     protected $contactMailer;
+
     /**
      * @var PushService
      */
@@ -48,27 +51,9 @@ class NotificationListener
     }
 
     /**
-     * @param $invoice
-     * @param $type
-     * @param null $payment
-     */
-    private function sendNotifications($invoice, $type, $payment = null, $notes = false): void
-    {
-        foreach ($invoice->account->users as $user) {
-            if ($user->{"notify_{$type}"}) {
-                dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
-            }
-
-            if ($payment && $user->slack_webhook_url) {
-                $user->notify(new PaymentCreated($payment, $invoice));
-            }
-        }
-    }
-
-    /**
      * @param InvoiceWasEmailed $event
      */
-    public function emailedInvoice(InvoiceWasEmailed $event): void
+    public function emailedInvoice(InvoiceWasEmailed $event)
     {
         $this->sendNotifications($event->invoice, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->invoice, 'sent');
@@ -77,7 +62,7 @@ class NotificationListener
     /**
      * @param QuoteWasEmailed $event
      */
-    public function emailedQuote(QuoteWasEmailed $event): void
+    public function emailedQuote(QuoteWasEmailed $event)
     {
         $this->sendNotifications($event->quote, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->quote, 'sent');
@@ -86,9 +71,9 @@ class NotificationListener
     /**
      * @param InvoiceInvitationWasViewed $event
      */
-    public function viewedInvoice(InvoiceInvitationWasViewed $event): void
+    public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
-        if (! floatval($event->invoice->balance)) {
+        if ( ! (float) ($event->invoice->balance)) {
             return;
         }
 
@@ -99,7 +84,7 @@ class NotificationListener
     /**
      * @param QuoteInvitationWasViewed $event
      */
-    public function viewedQuote(QuoteInvitationWasViewed $event): void
+    public function viewedQuote(QuoteInvitationWasViewed $event)
     {
         if ($event->quote->quote_invoice_id) {
             return;
@@ -112,7 +97,7 @@ class NotificationListener
     /**
      * @param QuoteInvitationWasApproved $event
      */
-    public function approvedQuote(QuoteInvitationWasApproved $event): void
+    public function approvedQuote(QuoteInvitationWasApproved $event)
     {
         $this->sendNotifications($event->quote, 'approved');
         $this->pushService->sendNotification($event->quote, 'approved');
@@ -121,10 +106,10 @@ class NotificationListener
     /**
      * @param PaymentWasCreated $event
      */
-    public function createdPayment(PaymentWasCreated $event): void
+    public function createdPayment(PaymentWasCreated $event)
     {
         // only send emails for online payments
-        if (! $event->payment->account_gateway_id) {
+        if ( ! $event->payment->account_gateway_id) {
             return;
         }
 
@@ -132,5 +117,23 @@ class NotificationListener
         $this->sendNotifications($event->payment->invoice, 'paid', $event->payment);
 
         $this->pushService->sendNotification($event->payment->invoice, 'paid');
+    }
+
+    /**
+     * @param      $invoice
+     * @param      $type
+     * @param null $payment
+     */
+    private function sendNotifications(Invoice $invoice, $type, $payment = null, $notes = false)
+    {
+        foreach ($invoice->account->users as $user) {
+            if ($user->{"notify_{$type}"}) {
+                dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
+            }
+
+            if ($payment && $user->slack_webhook_url) {
+                $user->notify(new PaymentCreated($payment, $invoice));
+            }
+        }
     }
 }

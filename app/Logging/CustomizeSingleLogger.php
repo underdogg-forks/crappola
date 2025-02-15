@@ -2,9 +2,6 @@
 
 namespace App\Logging;
 
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-
 class CustomizeSingleLogger
 {
     /**
@@ -14,21 +11,21 @@ class CustomizeSingleLogger
      *
      * @return void
      */
-    public function __invoke($logger): void
+    public function __invoke($logger)
     {
-        $logger->pushHandler(new StreamHandler(
+        $logger->pushHandler(new \Monolog\Handler\StreamHandler(
             storage_path() . '/logs/laravel-info.log',
-            Logger::INFO,
+            \Monolog\Logger::INFO,
             false
         ));
-        $logger->pushHandler(new StreamHandler(
+        $logger->pushHandler(new \Monolog\Handler\StreamHandler(
             storage_path() . '/logs/laravel-warning.log',
-            Logger::WARNING,
+            \Monolog\Logger::WARNING,
             false
         ));
-        $logger->pushHandler(new StreamHandler(
+        $logger->pushHandler(new \Monolog\Handler\StreamHandler(
             storage_path() . '/logs/laravel-error.log',
-            Logger::ERROR,
+            \Monolog\Logger::ERROR,
             false
         ));
     }

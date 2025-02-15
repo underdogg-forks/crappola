@@ -6,11 +6,11 @@ use App\Models\Account;
 
 class NinjaRepository
 {
-    public function updatePlanDetails($clientPublicId, $data): void
+    public function updatePlanDetails($clientPublicId, $data)
     {
         $account = Account::whereId($clientPublicId)->first();
 
-        if (! $account) {
+        if ( ! $account) {
             return;
         }
 

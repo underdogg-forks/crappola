@@ -5,9 +5,9 @@ namespace App\Jobs;
 use App\Models\Document;
 use App\Models\LookupAccount;
 use App\Ninja\Mailers\UserMailer;
-use Auth;
 use DB;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class PurgeAccountData extends Job
 {
@@ -16,17 +16,17 @@ class PurgeAccountData extends Job
      *
      * @return void
      */
-    public function handle(UserMailer $userMailer): void
+    public function handle(UserMailer $userMailer)
     {
         $user = Auth::user();
         $account = $user->account;
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             throw new Exception(trans('texts.forbidden'));
         }
 
         // delete the documents from cloud storage
-        Document::scope()->each(function ($item, $key): void {
+        Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 
@@ -69,7 +69,7 @@ class PurgeAccountData extends Job
 
         session([RECENTLY_VIEWED => false]);
 
-        /* if (env('MULTI_DB_ENABLED')) {
+        if (env('MULTI_DB_ENABLED')) {
             $current = config('database.default');
             config(['database.default' => DB_NINJA_LOOKUP]);
 
@@ -79,7 +79,7 @@ class PurgeAccountData extends Job
             DB::table('lookup_proposal_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
 
             config(['database.default' => $current]);
-        } */
+        }
 
         $subject = trans('texts.purge_successful');
         $message = trans('texts.purge_details', ['account' => $user->account->getDisplayName()]);

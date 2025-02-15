@@ -13,9 +13,7 @@ class Product extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
     /**
@@ -23,9 +21,6 @@ class Product extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'product_key',
         'notes',
@@ -68,14 +63,6 @@ class Product extends EntityModel
     }
 
     /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PRODUCT;
-    }
-
-    /**
      * @param $key
      *
      * @return mixed
@@ -85,9 +72,11 @@ class Product extends EntityModel
         return self::scope()->where('product_key', '=', $key)->first();
     }
 
-    /**
-     * @return mixed
-     */
+    public function getEntityType()
+    {
+        return ENTITY_PRODUCT;
+    }
+
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();

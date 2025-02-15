@@ -4,8 +4,8 @@ namespace App\Ninja\Reports;
 
 use App\Models\Client;
 use App\Models\TaxRate;
-use Auth;
 use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class QuoteReport extends AbstractReport
 {
@@ -39,7 +39,7 @@ class QuoteReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
@@ -48,20 +48,20 @@ class QuoteReport extends AbstractReport
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts', 'user')
-                        ->with(['invoices' => function ($query) use ($statusIds): void {
-                            $query->quotes()
-                                  ->withArchived()
-                                  ->statusIds($statusIds)
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items', 'invoice_status']);
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts', 'user')
+            ->with(['invoices' => function ($query) use ($statusIds) {
+                $query->quotes()
+                    ->withArchived()
+                    ->statusIds($statusIds)
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['invoice_items', 'invoice_status']);
+            }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 

@@ -2,24 +2,24 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\Utils;
 use App\Models\LookupAccount;
 use App\Models\LookupAccountToken;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupProposalInvitation;
 use App\Models\LookupUser;
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
 class DatabaseLookup
 {
     public function handle(Request $request, Closure $next, $guard = 'user')
     {
-        /* if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return $next($request);
-        } */
+        }
 
         if ($guard == 'user') {
             if ($code = $request->confirmation_code) {
@@ -29,7 +29,7 @@ class DatabaseLookup
                     Auth::logout();
                 }
                 // do nothing
-            } elseif (! Auth::check() && $email = $request->email) {
+            } elseif ( ! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
                 Auth::logout();

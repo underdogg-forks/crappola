@@ -1,6 +1,9 @@
 <?php
 
 // Application setup
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Route;
+
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
 Route::get('/install', 'AppController@install');
@@ -20,7 +23,7 @@ Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\L
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
 Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
 
-Route::group(['middleware' => ['lookup:contact']], function (): void {
+Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
     Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
@@ -28,7 +31,7 @@ Route::group(['middleware' => ['lookup:contact']], function (): void {
 });
 
 // Client visible pages
-Route::group(['middleware' => ['lookup:contact', 'auth:client']], function (): void {
+Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
     Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalProposalController@downloadProposal');
     Route::get('proposal/{proposal_invitation_key}', 'ClientPortalProposalController@viewProposal');
@@ -72,7 +75,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function (): v
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 
-Route::group(['middleware' => 'lookup:license'], function (): void {
+Route::group(['middleware' => 'lookup:license'], function () {
     Route::get('license', 'NinjaController@show_license_payment');
     Route::post('license', 'NinjaController@do_license_payment');
     Route::get('claim_license', 'NinjaController@claim_license');
@@ -82,12 +85,12 @@ Route::group(['middleware' => 'lookup:license'], function (): void {
     }
 });
 
-Route::group(['middleware' => 'lookup:postmark'], function (): void {
+Route::group(['middleware' => 'lookup:postmark'], function () {
     Route::post('/hook/email_bounced', 'AppController@emailBounced');
     Route::post('/hook/email_opened', 'AppController@emailOpened');
 });
 
-Route::group(['middleware' => 'lookup:account'], function (): void {
+Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
     Route::get('validate_two_factor/{account_key}', 'Auth\LoginController@getValidateToken');
@@ -104,7 +107,7 @@ Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswor
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@showResetForm']);
 Route::get('/auth/{provider}', 'Auth\AuthController@oauthLogin');
 
-Route::group(['middleware' => ['lookup:user']], function (): void {
+Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
     Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@postLoginWrapper']);
     Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
@@ -123,7 +126,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
+Route::group(['middleware' => ['lookup:user', 'auth:user', 'migration_channel:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
@@ -159,6 +162,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
     Route::get('migration/companies', 'Migration\StepsController@companies');
     Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
     Route::get('migration/completed', 'Migration\StepsController@completed');
+    Route::post('migration/forward', 'Migration\StepsController@forwardUrl');
+    Route::get('migration/disable_forward', 'Migration\StepsController@disableForwarding');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 
@@ -315,7 +320,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
 Route::group([
     'middleware'  => ['lookup:user', 'auth:user', 'permissions.required'],
     'permissions' => 'admin',
-], function (): void {
+], function () {
     Route::get('api/users', 'UserController@getDatatable');
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
@@ -383,7 +388,7 @@ Route::group([
     //Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
 });
 

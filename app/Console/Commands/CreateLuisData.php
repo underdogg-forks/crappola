@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\Account;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use stdClass;
-use Utils;
 
 /**
  * Class CreateLuisData.
@@ -61,7 +61,24 @@ class CreateLuisData extends Command
         $intents = array_merge($intents, $this->getNavigateToIntents($entityType));
 
         $this->info(json_encode($intents));
+
         return 0;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
     }
 
     private function createIntents($entityType)
@@ -190,33 +207,17 @@ class CreateLuisData extends Command
         $intent->entities = [];
 
         foreach ($entities as $value => $entity) {
-            $startPos = strpos($text, (string) $value);
-            if (! $startPos) {
+            $startPos = mb_strpos($text, (string) $value);
+            if ( ! $startPos) {
                 dd("Failed to find {$value} in {$text}");
             }
             $entityClass = new stdClass();
             $entityClass->entity = $entity;
             $entityClass->startPos = $startPos;
-            $entityClass->endPos = $entityClass->startPos + strlen($value) - 1;
+            $entityClass->endPos = $entityClass->startPos + mb_strlen($value) - 1;
             $intent->entities[] = $entityClass;
         }
 
         return $intent;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [];
     }
 }

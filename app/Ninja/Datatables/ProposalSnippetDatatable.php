@@ -2,12 +2,13 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class ProposalSnippetDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROPOSAL_SNIPPET;
+
     public $sortCol = 1;
 
     public function columns()

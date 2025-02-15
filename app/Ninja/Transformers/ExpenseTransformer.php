@@ -34,7 +34,6 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="vendor_id", type="integer", example=1)
      */
-
     protected array $availableIncludes = [
         'documents',
     ];
@@ -50,7 +49,7 @@ class ExpenseTransformer extends EntityTransformer
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
 
-        $expense->documents->each(function ($document) use ($expense): void {
+        $expense->documents->each(function ($document) use ($expense) {
             $document->setRelation('expense', $expense);
             $document->setRelation('invoice', $expense->invoice);
         });
@@ -84,9 +83,9 @@ class ExpenseTransformer extends EntityTransformer
             'tax_name2'             => $expense->tax_name2 ?: '',
             'tax_rate1'             => (float) ($expense->tax_rate1 ?: 0),
             'tax_rate2'             => (float) ($expense->tax_rate2 ?: 0),
-            'client_id'             => (int) ($this->client ? $this->client->public_id : (isset($expense->client->public_id) ? $expense->client->public_id : 0)),
-            'invoice_id'            => (int) (isset($expense->invoice->public_id) ? $expense->invoice->public_id : 0),
-            'vendor_id'             => (int) (isset($expense->vendor->public_id) ? $expense->vendor->public_id : 0),
+            'client_id'             => (int) ($this->client ? $this->client->public_id : ($expense->client->public_id ?? 0)),
+            'invoice_id'            => (int) ($expense->invoice->public_id ?? 0),
+            'vendor_id'             => (int) ($expense->vendor->public_id ?? 0),
             'custom_value1'         => $expense->custom_value1 ?: '',
             'custom_value2'         => $expense->custom_value2 ?: '',
         ]);

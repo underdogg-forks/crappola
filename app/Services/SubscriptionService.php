@@ -33,14 +33,6 @@ class SubscriptionService extends BaseService
     }
 
     /**
-     * @return SubscriptionRepository
-     */
-    protected function getRepo()
-    {
-        return $this->subscriptionRepo;
-    }
-
-    /**
      * @param $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -51,5 +43,13 @@ class SubscriptionService extends BaseService
         $query = $this->subscriptionRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return SubscriptionRepository
+     */
+    protected function getRepo()
+    {
+        return $this->subscriptionRepo;
     }
 }

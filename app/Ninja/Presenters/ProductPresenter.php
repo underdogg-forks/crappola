@@ -29,7 +29,7 @@ class ProductPresenter extends EntityPresenter
         $product = $this->entity;
         $actions = [];
 
-        if (! $product->trashed()) {
+        if ( ! $product->trashed()) {
             if (auth()->user()->can('create', ENTITY_PRODUCT)) {
                 $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_product')];
             }
@@ -43,7 +43,7 @@ class ProductPresenter extends EntityPresenter
         } else {
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_product')];
         }
-        if (! $product->is_deleted) {
+        if ( ! $product->is_deleted) {
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_product')];
         }
 

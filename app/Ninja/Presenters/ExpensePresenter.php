@@ -2,8 +2,9 @@
 
 namespace App\Ninja\Presenters;
 
-use Carbon;
-use Utils;
+use App\Libraries\Utils;
+use DateTime;
+use Illuminate\Support\Carbon;
 
 /**
  * Class ExpensePresenter.
@@ -19,7 +20,7 @@ class ExpensePresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function expense_date()
     {
@@ -27,7 +28,7 @@ class ExpensePresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function payment_date()
     {
@@ -61,7 +62,7 @@ class ExpensePresenter extends EntityPresenter
 
     public function payment_type()
     {
-        if (! $this->payment_type_id) {
+        if ( ! $this->payment_type_id) {
             return '';
         }
 

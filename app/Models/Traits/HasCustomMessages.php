@@ -7,14 +7,11 @@ namespace App\Models\Traits;
  */
 trait HasCustomMessages
 {
-    /**
-     * @param $value
-     */
-    public function setCustomMessagesAttribute($data): void
+    public function setCustomMessagesAttribute($data)
     {
         $fields = [];
 
-        if (! is_array($data)) {
+        if ( ! is_array($data)) {
             $data = json_decode($data);
         }
 
@@ -36,8 +33,8 @@ trait HasCustomMessages
     {
         $messages = $this->custom_messages;
 
-        if (! empty($messages->$type)) {
-            return $messages->$type;
+        if ( ! empty($messages->{$type})) {
+            return $messages->{$type};
         }
 
         if ($this->account) {

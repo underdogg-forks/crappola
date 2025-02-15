@@ -37,9 +37,10 @@ class TestOFX extends Command
         $this->bankAccountService = $bankAccountService;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        $this->info(date('r').' Running TestOFX...');
+        $this->info(date('r') . ' Running TestOFX...');
+
         return 0;
     }
 }

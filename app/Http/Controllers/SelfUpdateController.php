@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
-use Redirect;
-use Utils;
+use Illuminate\Support\Facades\Redirect;
 
 class SelfUpdateController extends BaseController
 {
@@ -42,7 +42,7 @@ class SelfUpdateController extends BaseController
             [
                 'versionInstalled' => $versionInstalled,
                 'versionAvailable' => $this->updater->source()->getVersionAvailable(),
-                'updateAvailable' => $updateAvailable,
+                'updateAvailable'  => $updateAvailable,
             ]
         );
     }

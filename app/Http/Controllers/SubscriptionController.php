@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
-use Auth;
-use Input;
-use Redirect;
-use Session;
-use URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Validator;
-use View;
 
 /**
  * Class SubscriptionController.
@@ -61,9 +60,9 @@ class SubscriptionController extends BaseController
 
         $data = [
             'subscription' => $subscription,
-            'method' => 'PUT',
-            'url' => 'subscriptions/' . $publicId,
-            'title' => trans('texts.edit_subscription'),
+            'method'       => 'PUT',
+            'url'          => 'subscriptions/' . $publicId,
+            'title'        => trans('texts.edit_subscription'),
         ];
 
         return View::make('accounts.subscription', $data);
@@ -93,10 +92,10 @@ class SubscriptionController extends BaseController
     public function create()
     {
         $data = [
-          'subscription' => null,
-          'method' => 'POST',
-          'url' => 'subscriptions',
-          'title' => trans('texts.add_subscription'),
+            'subscription' => null,
+            'method'       => 'POST',
+            'url'          => 'subscriptions',
+            'title'        => trans('texts.add_subscription'),
         ];
 
         return View::make('accounts.subscription', $data);
@@ -107,8 +106,8 @@ class SubscriptionController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
@@ -126,7 +125,7 @@ class SubscriptionController extends BaseController
     {
         if (Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
-                'event_id' => 'required',
+                'event_id'   => 'required',
                 'target_url' => 'required|url',
             ];
 
@@ -137,7 +136,7 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);

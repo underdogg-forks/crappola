@@ -13,10 +13,10 @@ class DwollaPaymentDriver extends BasePaymentDriver
     {
         $gateway = parent::gateway();
 
-        if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
+        if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY'], $_ENV['DWOLLA_SANSBOX_SECRET'])) {
             $gateway->setKey($_ENV['DWOLLA_SANDBOX_KEY']);
             $gateway->setSecret($_ENV['DWOLLA_SANSBOX_SECRET']);
-        } elseif (isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
+        } elseif (isset($_ENV['DWOLLA_KEY'], $_ENV['DWOLLA_SECRET'])) {
             $gateway->setKey($_ENV['DWOLLA_KEY']);
             $gateway->setSecret($_ENV['DWOLLA_SECRET']);
         }

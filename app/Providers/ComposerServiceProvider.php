@@ -11,7 +11,7 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         view()->composer(
             [
@@ -30,16 +30,16 @@ class ComposerServiceProvider extends ServiceProvider
 
         view()->composer(
             [
-                 'header',
-                 'tasks.edit',
-             ],
+                'header',
+                'tasks.edit',
+            ],
             'App\Http\ViewComposers\AppLanguageComposer'
         );
 
         view()->composer(
             [
-                 'public.header',
-             ],
+                'public.header',
+            ],
             'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
 
@@ -58,7 +58,5 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register(): void
-    {
-    }
+    public function register() {}
 }

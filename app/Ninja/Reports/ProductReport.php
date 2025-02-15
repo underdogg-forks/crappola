@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Client;
-use Auth;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
 class ProductReport extends AbstractReport
 {
@@ -42,24 +42,24 @@ class ProductReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-                        ->orderBy('name')
-                        ->withArchived()
-                        ->with('contacts', 'user')
-                        ->with(['invoices' => function ($query) use ($statusIds): void {
-                            $query->invoices()
-                                  ->withArchived()
-                                  ->statusIds($statusIds)
-                                  ->where('invoice_date', '>=', $this->startDate)
-                                  ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
-                        }]);
+            ->orderBy('name')
+            ->withArchived()
+            ->with('contacts', 'user')
+            ->with(['invoices' => function ($query) use ($statusIds) {
+                $query->invoices()
+                    ->withArchived()
+                    ->statusIds($statusIds)
+                    ->where('invoice_date', '>=', $this->startDate)
+                    ->where('invoice_date', '<=', $this->endDate)
+                    ->with(['invoice_items']);
+            }]);
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {

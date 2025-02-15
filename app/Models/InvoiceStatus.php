@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Str;
 
 /**
@@ -10,9 +10,6 @@ use Str;
  */
 class InvoiceStatus extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     public static function getIdFromAlias($status)
@@ -37,9 +34,6 @@ class InvoiceStatus extends Eloquent
         }
     }
 
-    /**
-     * @return mixed
-     */
     public function getTranslatedName()
     {
         return trans('texts.status_' . Str::slug($this->name, '_'));

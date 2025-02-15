@@ -34,15 +34,7 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalCategoryRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $proposalCategory
      *
      * @return mixed|null
@@ -53,8 +45,8 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -67,5 +59,13 @@ class ProposalCategoryService extends BaseService
         $query = $this->proposalCategoryRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->proposalCategoryRepo;
     }
 }

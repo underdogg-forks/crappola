@@ -9,14 +9,14 @@ class GatewayFeesCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function checkLineItemFee(AcceptanceTester $I): void
+    public function checkLineItemFee(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->word();
@@ -66,7 +66,7 @@ class GatewayFeesCest
         $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
-    private function configureGatewayFeeTax($I, $taxName = '', $taxRate = ''): void
+    private function configureGatewayFeeTax($I, $taxName = '', $taxRate = '')
     {
         if ($taxName && $taxRate) {
             $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
@@ -86,7 +86,7 @@ class GatewayFeesCest
         $I->click('#modalSave');
     }
 
-    private function configureLineItemTaxRates($I, $taxName, $taxRate): void
+    private function configureLineItemTaxRates($I, $taxName, $taxRate)
     {
         $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
         $I->createTaxRate($I, $taxName, $taxRate);
@@ -101,7 +101,7 @@ class GatewayFeesCest
         //$I->click('Save');
     }
 
-    private function configureFees($I, $feeAmount, $feePercent): void
+    private function configureFees($I, $feeAmount, $feePercent)
     {
         $I->createGateway($I);
 
@@ -145,7 +145,7 @@ class GatewayFeesCest
         return $invitationKey;
     }
 
-    private function createPayment($I, $invitationKey, $amount, $balance, $fee): void
+    private function createPayment($I, $invitationKey, $amount, $balance, $fee)
     {
         $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
 

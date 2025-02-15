@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Cache;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,27 +12,9 @@ class PaymentTerm extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var bool
-     */
     public $timestamps = true;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PAYMENT_TERM;
-    }
-
-    public function getNumDays()
-    {
-        return $this->num_days == -1 ? 0 : $this->num_days;
-    }
 
     public static function getSelectOptions()
     {
@@ -48,6 +29,16 @@ class PaymentTerm extends EntityModel
         }
 
         return $terms->sortBy('num_days');
+    }
+
+    public function getEntityType()
+    {
+        return ENTITY_PAYMENT_TERM;
+    }
+
+    public function getNumDays()
+    {
+        return $this->num_days == -1 ? 0 : $this->num_days;
     }
 
     protected function serializeDate(DateTimeInterface $date)

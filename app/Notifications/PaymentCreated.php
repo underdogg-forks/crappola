@@ -12,6 +12,7 @@ class PaymentCreated extends Notification implements ShouldQueue
     use Queueable;
 
     protected $payment;
+
     protected $invoice;
 
     /**
@@ -34,7 +35,7 @@ class PaymentCreated extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['slack'];
+        return [];
     }
 
     /**
@@ -49,18 +50,18 @@ class PaymentCreated extends Notification implements ShouldQueue
         $url = 'http://www.ninja.test/subscriptions/create';
 
         return (new SlackMessage())
-                    ->from(APP_NAME)
-                    ->image('https://app.invoiceninja.com/favicon-v2.png')
-                    ->content(trans('texts.received_new_payment'))
-                    ->attachment(function ($attachment): void {
-                        $invoiceName = $this->invoice->present()->titledName;
-                        $invoiceLink = $this->invoice->present()->multiAccountLink;
-                        $attachment->title($invoiceName, $invoiceLink)
-                                   ->fields([
-                                        trans('texts.client') => $this->invoice->client->getDisplayName(),
-                                        trans('texts.amount') => $this->payment->present()->amount,
-                                    ]);
-                    });
+            ->from(APP_NAME)
+            ->image('https://app.invoiceninja.com/favicon-v2.png')
+            ->content(trans('texts.received_new_payment'))
+            ->attachment(function ($attachment) {
+                $invoiceName = $this->invoice->present()->titledName;
+                $invoiceLink = $this->invoice->present()->multiAccountLink;
+                $attachment->title($invoiceName, $invoiceLink)
+                    ->fields([
+                        trans('texts.client') => $this->invoice->client->getDisplayName(),
+                        trans('texts.amount') => $this->payment->present()->amount,
+                    ]);
+            });
     }
 
     /**
@@ -73,7 +74,6 @@ class PaymentCreated extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            //
         ];
     }
 }

@@ -2,12 +2,13 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class ExpenseCategoryDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE_CATEGORY;
+
     public $sortCol = 1;
 
     public function columns()

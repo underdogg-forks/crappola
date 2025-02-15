@@ -6,7 +6,7 @@ class CompanyPresenter extends EntityPresenter
 {
     public function promoMessage()
     {
-        if (! $this->entity->hasActivePromo()) {
+        if ( ! $this->entity->hasActivePromo()) {
             return '';
         }
 
@@ -18,7 +18,7 @@ class CompanyPresenter extends EntityPresenter
 
     public function discountMessage()
     {
-        if (! $this->entity->hasActiveDiscount()) {
+        if ( ! $this->entity->hasActiveDiscount()) {
             return '';
         }
 

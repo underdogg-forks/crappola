@@ -2,14 +2,16 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
-use Auth;
+use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class InvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_INVOICE;
+
     public $sortCol = 3;
 
     public function columns()
@@ -20,7 +22,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if (Auth::user()->viewModel($model, $entityType)) {
+                    if(Auth::user()->viewModel($model, $entityType)) {
                         $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
 
                         return $this->addNote($str, $model->private_notes);
@@ -32,7 +34,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     }
 
@@ -59,8 +61,8 @@ class InvoiceDatatable extends EntityDatatable
                         trans(
                             'texts.partial_remaining',
                             [
-                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
+                                'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                                'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id), ]
                         ) :
                         Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 },
@@ -82,7 +84,7 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'status',
-                function ($model) use ($entityType) {
+                function ($model) {
                     return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
                 },
             ],
@@ -120,7 +122,7 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 trans('texts.delivery_note'),
-                function ($model) use ($entityType) {
+                function ($model) {
                     return url("invoices/delivery_note/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
@@ -192,14 +194,6 @@ class InvoiceDatatable extends EntityDatatable
         ];
     }
 
-    private function getStatusLabel($model)
-    {
-        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->partial_due_date ?: $model->due_date_sql, $model->is_recurring);
-        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
-
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-
     public function bulkActions()
     {
         $actions = [];
@@ -215,7 +209,7 @@ class InvoiceDatatable extends EntityDatatable
                     'url'   => 'javascript:submitForm_' . $this->entityType . '("emailInvoice")',
                 ];
             }
-            $actions[] = \DropdownButton::DIVIDER;
+            $actions[] = DropdownButton::DIVIDER;
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
                 'url'   => 'javascript:submitForm_' . $this->entityType . '("markSent")',
@@ -229,9 +223,17 @@ class InvoiceDatatable extends EntityDatatable
             ];
         }
 
-        $actions[] = \DropdownButton::DIVIDER;
+        $actions[] = DropdownButton::DIVIDER;
         $actions = array_merge($actions, parent::bulkActions());
 
         return $actions;
+    }
+
+    private function getStatusLabel($model)
+    {
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->partial_due_date ?: $model->due_date_sql, $model->is_recurring);
+        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
+
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

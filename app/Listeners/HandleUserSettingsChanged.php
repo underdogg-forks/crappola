@@ -5,8 +5,8 @@ namespace App\Listeners;
 use App\Events\UserSettingsChanged;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
-use Auth;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Class HandleUserSettingsChanged.
@@ -32,9 +32,9 @@ class HandleUserSettingsChanged
      *
      * @return void
      */
-    public function handle(UserSettingsChanged $event): void
+    public function handle(UserSettingsChanged $event)
     {
-        if (! Auth::check()) {
+        if ( ! Auth::check()) {
             return;
         }
 

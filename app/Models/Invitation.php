@@ -2,53 +2,36 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
+use App\Models\Traits\Inviteable;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\LookupInvitation;
-use App\Models\Traits\Inviteable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Utils;
 
 /**
  * Class Invitation.
  */
 class Invitation extends EntityModel
 {
-    use SoftDeletes;
     use Inviteable;
+    use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_INVITATION;
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function contact()
     {
         return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -64,7 +47,7 @@ class Invitation extends EntityModel
 
     public function signatureDiv()
     {
-        if (! $this->signature_base64) {
+        if ( ! $this->signature_base64) {
             return false;
         }
 
@@ -77,20 +60,20 @@ class Invitation extends EntityModel
     }
 }
 
-Invitation::creating(function ($invitation): void {
+Invitation::creating(function ($invitation) {
     LookupInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
 
-Invitation::updating(function ($invitation): void {
+Invitation::updating(function ($invitation) {
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
         LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
     }
 });
 
-Invitation::deleted(function ($invitation): void {
+Invitation::deleted(function ($invitation) {
     if ($invitation->forceDeleting) {
         LookupInvitation::deleteWhere([
             'invitation_key' => $invitation->invitation_key,

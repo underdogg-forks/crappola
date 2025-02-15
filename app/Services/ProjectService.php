@@ -34,15 +34,7 @@ class ProjectService extends BaseService
     }
 
     /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->projectRepo;
-    }
-
-    /**
-     * @param $data
+     * @param       $data
      * @param mixed $project
      *
      * @return mixed|null
@@ -57,8 +49,8 @@ class ProjectService extends BaseService
     }
 
     /**
-     * @param $clientPublicId
-     * @param $search
+     * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -71,5 +63,13 @@ class ProjectService extends BaseService
         $query = $this->projectRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->projectRepo;
     }
 }

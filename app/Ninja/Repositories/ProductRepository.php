@@ -4,9 +4,10 @@ namespace App\Ninja\Repositories;
 
 use App\Events\ProductWasCreated;
 use App\Events\ProductWasUpdated;
+use App\Libraries\Utils;
 use App\Models\Product;
 use DB;
-use Utils;
+use Illuminate\Support\Facades\Log;
 
 class ProductRepository extends BaseRepository
 {
@@ -18,34 +19,34 @@ class ProductRepository extends BaseRepository
     public function all()
     {
         return Product::scope()
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
-                ->get();
+            ->withTrashed()
+            ->where('is_deleted', '=', false)
+            ->get();
     }
 
     public function find($accountId, $filter = null)
     {
         $query = DB::table('products')
-                ->where('products.account_id', '=', $accountId)
-                ->select(
-                    'products.public_id',
-                    'products.product_key',
-                    'products.notes',
-                    'products.cost',
-                    'products.tax_name1 as tax_name',
-                    'products.tax_rate1 as tax_rate',
-                    'products.deleted_at',
-                    'products.is_deleted',
-                    'products.custom_value1',
-                    'products.custom_value2'
-                );
+            ->where('products.account_id', '=', $accountId)
+            ->select(
+                'products.public_id',
+                'products.product_key',
+                'products.notes',
+                'products.cost',
+                'products.tax_name1 as tax_name',
+                'products.tax_rate1 as tax_rate',
+                'products.deleted_at',
+                'products.is_deleted',
+                'products.custom_value1',
+                'products.custom_value2'
+            );
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('products.product_key', 'like', '%' . $filter . '%')
-                      ->orWhere('products.notes', 'like', '%' . $filter . '%')
-                      ->orWhere('products.custom_value1', 'like', '%' . $filter . '%')
-                      ->orWhere('products.custom_value2', 'like', '%' . $filter . '%');
+                    ->orWhere('products.notes', 'like', '%' . $filter . '%')
+                    ->orWhere('products.custom_value1', 'like', '%' . $filter . '%')
+                    ->orWhere('products.custom_value2', 'like', '%' . $filter . '%');
             });
         }
 
@@ -56,13 +57,13 @@ class ProductRepository extends BaseRepository
 
     public function save($data, $product = null)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
 
         if ($product) {
             // do nothing
         } elseif ($publicId) {
             $product = Product::scope($publicId)->withArchived()->firstOrFail();
-            \Log::warning('Entity not set in product repo save');
+            Log::warning('Entity not set in product repo save');
         } else {
             $product = Product::createNew();
         }
@@ -94,7 +95,7 @@ class ProductRepository extends BaseRepository
         $products = Product::scope()->get();
 
         foreach ($products as $product) {
-            if (! $product->product_key) {
+            if ( ! $product->product_key) {
                 continue;
             }
 

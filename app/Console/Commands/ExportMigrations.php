@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ExportMigrations extends Command
 {
@@ -17,7 +19,7 @@ class ExportMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:export {--user=} {--random=}';
+    protected $signature = 'migrations:export {--user=} {--email=} {--random=}';
 
     /**
      * The console command description.
@@ -45,14 +47,44 @@ class ExportMigrations extends Command
     {
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
 
-        if ($this->option('user')) {
-            $record = User::findOrFail($this->option('user'));
+        if($this->option('user')) {
+            $record = User::on(DB_NINJA_1)->find($this->option('user'));
 
-            return $this->export($record);
+            if($record) {
+                return $this->export($record);
+            }
+
+            $record = User::on(DB_NINJA_2)->find($this->option('user'));
+
+            if($record) {
+                return $this->export($record);
+            }
+
+            $this->info('I could not find that user - sorry');
+
+            return;
         }
 
-        if ($this->option('random')) {
-            User::all()->random(200)->each(function ($user): void {
+        if($this->option('email')) {
+            $record = User::on(DB_NINJA_1)->where('email', $this->option('email'))->first();
+
+            if($record) {
+                return $this->export($record);
+            }
+
+            $record = User::on(DB_NINJA_2)->where('email', $this->option('email'))->first();
+
+            if($record) {
+                return $this->export($record);
+            }
+
+            $this->info('I could not find that user by email - sorry');
+
+            return;
+        }
+
+        if($this->option('random')) {
+            User::all()->random(200)->each(function ($user) {
                 $this->export($user);
             });
 
@@ -61,21 +93,23 @@ class ExportMigrations extends Command
 
         $users = User::all();
 
-        foreach ($users as $user) {
+        foreach($users as $user) {
             Auth::login($user);
             $this->export($user);
         }
+
         return 0;
     }
 
-    private function export($user): void
+    private function export($user)
     {
         $this->account = $user->account;
+        Auth::login($user);
 
         $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+        $output = fopen('php://output', 'w') || Utils::fatalError();
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
@@ -93,21 +127,23 @@ class ExportMigrations extends Command
             'products'              => $this->getProducts(),
             'credits'               => $this->getCreditsNotes(),
             'invoices'              => $this->getInvoices(),
+            'recurring_expenses'    => $this->getRecurringExpenses(),
             'recurring_invoices'    => $this->getRecurringInvoices(),
             'quotes'                => $this->getQuotes(),
-            'payments'              => array_merge($this->getPayments(), $this->getCredits()),
+            'payments'              => $this->getPayments(),
             'documents'             => $this->getDocuments(),
             'expense_categories'    => $this->getExpenseCategories(),
             'task_statuses'         => $this->getTaskStatuses(),
             'expenses'              => $this->getExpenses(),
             'tasks'                 => $this->getTasks(),
-            'documents'             => $this->getDocuments(),
+            'ninja_tokens'          => $this->getNinjaToken(),
         ];
 
+        Storage::makeDirectory('migrations');
         $file = storage_path("migrations/{$fileName}.zip");
 
-        $zip = new \ZipArchive();
-        $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip = new ZipArchive();
+        $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
         $zip->close();
 

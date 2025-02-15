@@ -2,36 +2,30 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use App\Models\Traits\HasCustomMessages;
-use Carbon;
 use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Client.
  */
 class Client extends EntityModel
 {
+    use HasCustomMessages;
     use PresentableTrait;
     use SoftDeletes;
-    use HasCustomMessages;
 
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\ClientPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'id_number',
@@ -133,9 +127,6 @@ class Client extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -245,35 +236,29 @@ class Client extends EntityModel
         return $this->hasMany('App\Models\Credit')->where('balance', '>', 0);
     }
 
-    /**
-     * @return mixed
-     */
     public function expenses()
     {
         return $this->hasMany('App\Models\Expense', 'client_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function activities()
     {
         return $this->hasMany('App\Models\Activity', 'client_id', 'id')->orderBy('id', 'desc');
     }
 
     /**
-     * @param $data
+     * @param      $data
      * @param bool $isPrimary
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function addContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
+        $publicId = $data['public_id'] ?? ($data['id'] ?? false);
 
         // check if this client wasRecentlyCreated to ensure a new contact is
         // always created even if the request includes a contact id
-        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
+        if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = Contact::scope($publicId)->whereClientId($this->id)->firstOrFail();
         } else {
             $contact = Contact::createNew();
@@ -282,12 +267,12 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
         }
 
         if ($this->account->isClientPortalPasswordEnabled()) {
-            if (! empty($data['password']) && $data['password'] != '-%unchanged%-') {
+            if ( ! empty($data['password']) && $data['password'] != '-%unchanged%-') {
                 $contact->password = bcrypt($data['password']);
             } elseif (empty($data['password'])) {
                 $contact->password = null;
@@ -305,7 +290,7 @@ class Client extends EntityModel
      * @param $balanceAdjustment
      * @param $paidToDateAdjustment
      */
-    public function updateBalances($balanceAdjustment, $paidToDateAdjustment): void
+    public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
     {
         if ($balanceAdjustment == 0 && $paidToDateAdjustment == 0) {
             return;
@@ -331,25 +316,19 @@ class Client extends EntityModel
     public function getTotalCredit()
     {
         return DB::table('credits')
-                ->where('client_id', '=', $this->id)
-                ->whereNull('deleted_at')
-                ->sum('balance');
+            ->where('client_id', '=', $this->id)
+            ->whereNull('deleted_at')
+            ->sum('balance');
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getPrimaryContact()
     {
-        if (! $this->relationLoaded('contacts')) {
+        if ( ! $this->relationLoaded('contacts')) {
             $this->load('contacts');
         }
 
@@ -362,14 +341,12 @@ class Client extends EntityModel
         return false;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getDisplayName()
     {
         if ($this->name) {
             return $this->name;
-        } elseif ($contact = $this->getPrimaryContact()) {
+        }
+        if ($contact = $this->getPrimaryContact()) {
             return $contact->getDisplayName();
         }
     }
@@ -384,9 +361,6 @@ class Client extends EntityModel
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_CLIENT;
@@ -415,7 +389,7 @@ class Client extends EntityModel
         ];
 
         foreach ($fields as $field) {
-            if ($this->$field != $this->{'shipping_' . $field}) {
+            if ($this->{$field} != $this->{'shipping_' . $field}) {
                 return false;
             }
         }
@@ -441,7 +415,7 @@ class Client extends EntityModel
             if ($shipping) {
                 $field = 'shipping_' . $field;
             }
-            if ($this->$field) {
+            if ($this->{$field}) {
                 return true;
             }
         }
@@ -468,7 +442,7 @@ class Client extends EntityModel
     {
         $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
 
-        if (! $accountGateway) {
+        if ( ! $accountGateway) {
             return false;
         }
 
@@ -503,24 +477,18 @@ class Client extends EntityModel
         return false;
     }
 
-    /**
-     * @return mixed
-     */
     public function getAmount()
     {
         return $this->balance + $this->paid_to_date;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCurrencyId()
     {
         if ($this->currency_id) {
             return $this->currency_id;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -536,7 +504,7 @@ class Client extends EntityModel
             return $this->currency->code;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -549,7 +517,7 @@ class Client extends EntityModel
             return $country->iso_3166_2;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -566,7 +534,7 @@ class Client extends EntityModel
         return $isQuote ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
-    public function markLoggedIn(): void
+    public function markLoggedIn()
     {
         $this->last_login = Carbon::now()->toDateTimeString();
         $this->save();
@@ -608,11 +576,11 @@ class Client extends EntityModel
     }
 }
 
-Client::creating(function ($client): void {
+Client::creating(function ($client) {
     $client->setNullValues();
     $client->account->incrementCounter($client);
 });
 
-Client::updating(function ($client): void {
+Client::updating(function ($client) {
     $client->setNullValues();
 });

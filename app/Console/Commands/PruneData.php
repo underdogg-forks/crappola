@@ -21,7 +21,7 @@ class PruneData extends Command
      */
     protected $description = 'Delete inactive accounts';
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running PruneData...');
 
@@ -62,6 +62,7 @@ class PruneData extends Command
         }
 
         $this->info('Done');
+
         return 0;
     }
 

@@ -14,13 +14,13 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */
     public static function create(User $user, $item)
     {
-        if (! static::checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -31,13 +31,13 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */
     public static function edit(User $user, $item)
     {
-        if (! static::checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -48,13 +48,13 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */
     public static function view(User $user, $item)
     {
-        if (! static::checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -65,7 +65,7 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $ownerUserId
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('view', $ENTITY_TYPE)
@@ -81,7 +81,7 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $ownerUserId
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('edit', $ENTITY_TYPE)
@@ -97,7 +97,7 @@ class EntityPolicy
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */

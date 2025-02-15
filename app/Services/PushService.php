@@ -26,12 +26,12 @@ class PushService
 
     /**
      * @param Invoice $invoice
-     * @param $type
+     * @param         $type
      */
-    public function sendNotification(Invoice $invoice, $type): void
+    public function sendNotification(Invoice $invoice, $type)
     {
         //check user has registered for push notifications
-        if (! $this->checkDeviceExists($invoice->account)) {
+        if ( ! $this->checkDeviceExists($invoice->account)) {
             return;
         }
 
@@ -53,11 +53,11 @@ class PushService
      * method to dispatch iOS notifications
      *
      * @param Invoice $invoice
-     * @param $token
-     * @param $type
-     * @param mixed $device
+     * @param         $token
+     * @param         $type
+     * @param mixed   $device
      */
-    private function pushMessage(Invoice $invoice, $token, $type, $device): void
+    private function pushMessage(Invoice $invoice, $token, $type, $device)
     {
         $this->pushFactory->message($token, $this->messageType($invoice, $type), $device);
     }
@@ -75,11 +75,7 @@ class PushService
     {
         $devices = json_decode($account->devices, true);
 
-        if (count((array) $devices) >= 1) {
-            return true;
-        }
-
-        return false;
+        return (bool) (count((array) $devices) >= 1);
     }
 
     /**
@@ -88,7 +84,7 @@ class PushService
      * method which formats an appropriate message depending on message type
      *
      * @param Invoice $invoice
-     * @param $type
+     * @param         $type
      *
      * @return string
      */

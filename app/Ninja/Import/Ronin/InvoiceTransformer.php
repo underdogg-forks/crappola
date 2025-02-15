@@ -17,7 +17,7 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->client)) {
+        if ( ! $this->getClientId($data->client)) {
             return false;
         }
 

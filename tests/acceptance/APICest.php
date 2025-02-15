@@ -10,7 +10,7 @@ class APICest
 
     private $token;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $this->faker = Factory::create();
 
@@ -32,7 +32,7 @@ class APICest
         Debug::debug("Token: {$this->token}");
     }
 
-    public function testAPI(AcceptanceTester $I): void
+    public function testAPI(AcceptanceTester $I)
     {
         $I->wantTo('test the API');
 

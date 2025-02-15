@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class CreditDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CREDIT;
+
     public $sortCol = 4;
 
     public function columns()
@@ -28,7 +29,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                     }
                 },
@@ -36,7 +37,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'balance',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                     }
                 },

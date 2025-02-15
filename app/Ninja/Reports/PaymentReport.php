@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\Utils;
 use App\Models\Payment;
-use Auth;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentReport extends AbstractReport
 {
@@ -23,7 +23,7 @@ class PaymentReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
@@ -31,18 +31,18 @@ class PaymentReport extends AbstractReport
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
-                        ->orderBy('payment_date', 'desc')
-                        ->withArchived()
-                        ->excludeFailed()
-                        ->whereHas('client', function ($query): void {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->whereHas('invoice', function ($query): void {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
-                        ->where('payment_date', '>=', $this->startDate)
-                        ->where('payment_date', '<=', $this->endDate);
+            ->orderBy('payment_date', 'desc')
+            ->withArchived()
+            ->excludeFailed()
+            ->whereHas('client', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->whereHas('invoice', function ($query) {
+                $query->where('is_deleted', '=', false);
+            })
+            ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
+            ->where('payment_date', '>=', $this->startDate)
+            ->where('payment_date', '<=', $this->endDate);
 
         $lastInvoiceId = 0;
         foreach ($payments->get() as $payment) {
@@ -71,7 +71,7 @@ class PaymentReport extends AbstractReport
                 $payment->user->getDisplayName(),
             ];
 
-            if (! isset($invoiceMap[$invoice->id])) {
+            if ( ! isset($invoiceMap[$invoice->id])) {
                 $invoiceMap[$invoice->id] = true;
 
                 if ($currencyType == 'converted') {

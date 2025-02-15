@@ -3,6 +3,7 @@
 namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
+use Exception;
 use Omnipay;
 
 class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
@@ -17,6 +18,73 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         ];
 
         return $types;
+    }
+
+    public function completeOffsitePurchase($input)
+    {
+        $details = $this->paymentDetails();
+        $this->purchaseResponse = $response = $this->gateway()->completePurchase($details)->send();
+
+        if ( ! $response->isSuccessful()) {
+            return false;
+        }
+
+        $paymentMethod = $this->createToken();
+        $payment = $this->completeOnsitePurchase(false, $paymentMethod);
+
+        return $payment;
+    }
+
+    public function handleWebHook($input)
+    {
+        $accountGateway = $this->accountGateway;
+        $accountId = $accountGateway->account_id;
+
+        $token = $accountGateway->getConfigField('webhookSecret');
+        $rawPayload = file_get_contents('php://input');
+        $providedSignature = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
+        $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
+
+        if ( ! hash_equals($providedSignature, $calculatedSignature)) {
+            throw new Exception('Signature does not match');
+        }
+
+        foreach ($input['events'] as $event) {
+            $type = $event['resource_type'];
+            $action = $event['action'];
+
+            $supported = [
+                'paid_out',
+                'failed',
+                'charged_back',
+            ];
+
+            if ($type != 'payments' || ! in_array($action, $supported)) {
+                continue;
+            }
+
+            $sourceRef = $event['links']['payment'] ?? false;
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
+
+            if ( ! $payment) {
+                continue;
+            }
+
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+                continue;
+            }
+
+            if ($action == 'failed' || $action == 'charged_back') {
+                if ( ! $payment->isFailed()) {
+                    $payment->markFailed($event['details']['description']);
+
+                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+                }
+            } elseif ($action == 'paid_out') {
+                $payment->markComplete();
+            }
+        }
     }
 
     // Workaround for access_token/accessToken issue
@@ -60,21 +128,6 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    public function completeOffsitePurchase($input)
-    {
-        $details = $this->paymentDetails();
-        $this->purchaseResponse = $response = $this->gateway()->completePurchase($details)->send();
-
-        if (! $response->isSuccessful()) {
-            return false;
-        }
-
-        $paymentMethod = $this->createToken();
-        $payment = $this->completeOnsitePurchase(false, $paymentMethod);
-
-        return $payment;
-    }
-
     protected function creatingCustomer($customer)
     {
         $customer->token = $this->purchaseResponse->getCustomerId();
@@ -96,57 +149,5 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         $payment->payment_status_id = PAYMENT_STATUS_PENDING;
 
         return $payment;
-    }
-
-    public function handleWebHook($input): void
-    {
-        $accountGateway = $this->accountGateway;
-        $accountId = $accountGateway->account_id;
-
-        $token = $accountGateway->getConfigField('webhookSecret');
-        $rawPayload = file_get_contents('php://input');
-        $providedSignature = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
-        $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
-
-        if (! hash_equals($providedSignature, $calculatedSignature)) {
-            throw new \Exception('Signature does not match');
-        }
-
-        foreach ($input['events'] as $event) {
-            $type = $event['resource_type'];
-            $action = $event['action'];
-
-            $supported = [
-                'paid_out',
-                'failed',
-                'charged_back',
-            ];
-
-            if ($type != 'payments' || ! in_array($action, $supported)) {
-                continue;
-            }
-
-            $sourceRef = isset($event['links']['payment']) ? $event['links']['payment'] : false;
-            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
-
-            if (! $payment) {
-                continue;
-            }
-
-            if ($payment->is_deleted || $payment->invoice->is_deleted) {
-                continue;
-            }
-
-            if ($action == 'failed' || $action == 'charged_back') {
-                if (! $payment->isFailed()) {
-                    $payment->markFailed($event['details']['description']);
-
-                    $userMailer = app('App\Ninja\Mailers\UserMailer');
-                    $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
-                }
-            } elseif ($action == 'paid_out') {
-                $payment->markComplete();
-            }
-        }
     }
 }

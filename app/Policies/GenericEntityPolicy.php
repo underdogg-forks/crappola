@@ -2,10 +2,11 @@
 
 namespace App\Policies;
 
+use App\Libraries\Utils;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Str;
-use Utils;
+use Module;
 
 /**
  * Class GenericEntityPolicy.
@@ -16,8 +17,8 @@ class GenericEntityPolicy
 
     /**
      * @param User $user
-     * @param $entityType
-     * @param $ownerUserId
+     * @param      $entityType
+     * @param      $ownerUserId
      *
      * @return bool|mixed
      */
@@ -32,9 +33,9 @@ class GenericEntityPolicy
     }
 
     /**
-     * @param User $user
-     * @param $entityTypee
-     * @param $ownerUserId
+     * @param User  $user
+     * @param       $entityTypee
+     * @param       $ownerUserId
      * @param mixed $entityType
      *
      * @return bool|mixed
@@ -51,7 +52,7 @@ class GenericEntityPolicy
 
     /**
      * @param User $user
-     * @param $entityType
+     * @param      $entityType
      *
      * @return bool|mixed
      */
@@ -65,16 +66,12 @@ class GenericEntityPolicy
 
         return false;
         */
-        if ($user->hasPermission('create_' . $entityType)) {
-            return true;
-        }
-
-        return false;
+        return (bool) ($user->hasPermission('create_' . $entityType));
     }
 
     /**
      * @param User $user
-     * @param $entityType
+     * @param      $entityType
      *
      * @return bool|mixed
      */
@@ -88,22 +85,18 @@ class GenericEntityPolicy
 
         return false;*/
 
-        if ($user->hasPermission('view_' . $entityType)) {
-            return true;
-        }
-
-        return false;
+        return (bool) ($user->hasPermission('view_' . $entityType));
     }
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */
     public static function edit(User $user, $item)
     {
-        if (! static::checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -114,7 +107,7 @@ class GenericEntityPolicy
 
     /**
      * @param User $user
-     * @param $item - entity name or object
+     * @param      $item - entity name or object
      *
      * @return bool
      */
@@ -127,8 +120,8 @@ class GenericEntityPolicy
 
     private static function className($entityType)
     {
-        if (! Utils::isNinjaProd()) {
-            if ($module = \Module::find($entityType)) {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Policies\\{$module->getName()}Policy";
             }
         }

@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ProposalDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROPOSAL;
+
     public $sortCol = 1;
 
     public function columns()
@@ -37,7 +38,7 @@ class ProposalDatatable extends EntityDatatable
             [
                 'template',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
                         return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template ?: ' ')->toHtml();
                     }
 

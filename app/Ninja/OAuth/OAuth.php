@@ -7,17 +7,19 @@ use App\Models\User;
 
 class OAuth
 {
-    const SOCIAL_GOOGLE = 1;
-    const SOCIAL_FACEBOOK = 2;
-    const SOCIAL_GITHUB = 3;
-    const SOCIAL_LINKEDIN = 4;
+    public const SOCIAL_GOOGLE = 1;
+
+    public const SOCIAL_FACEBOOK = 2;
+
+    public const SOCIAL_GITHUB = 3;
+
+    public const SOCIAL_LINKEDIN = 4;
 
     private $providerInstance;
+
     private $providerId;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function getProvider($provider)
     {
@@ -43,7 +45,7 @@ class OAuth
 
         LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);
 
-        if ($this->providerInstance) {
+        if($this->providerInstance) {
             $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->providerId)->first();
         }
 

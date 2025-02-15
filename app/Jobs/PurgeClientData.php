@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Libraries\HistoryUtils;
-use Utils;
+use App\Libraries\Utils;
 
 class PurgeClientData extends Job
 {
@@ -17,13 +17,13 @@ class PurgeClientData extends Job
      *
      * @return void
      */
-    public function handle(): void
+    public function handle()
     {
         $user = auth()->user();
         $client = $this->client;
         $contact = $client->getPrimaryContact();
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             return;
         }
 

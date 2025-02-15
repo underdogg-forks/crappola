@@ -2,14 +2,15 @@
 
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\Expense;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
+
     public $sortCol = 3;
 
     public function columns()
@@ -73,7 +74,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
                     if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
                         return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
                     }
@@ -132,7 +133,7 @@ class ExpenseDatatable extends EntityDatatable
                     return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];
@@ -143,6 +144,6 @@ class ExpenseDatatable extends EntityDatatable
         $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
         $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

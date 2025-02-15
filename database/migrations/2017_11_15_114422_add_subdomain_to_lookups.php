@@ -6,27 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 class AddSubdomainToLookups extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('lookup_accounts', function ($table): void {
+        Schema::table('lookup_accounts', function ($table) {
             $table->string('subdomain')->nullable()->unique();
         });
 
-        Schema::table('payments', function ($table): void {
+        Schema::table('payments', function ($table) {
             $table->decimal('exchange_rate', 13, 4)->default(1);
             $table->unsignedInteger('exchange_currency_id')->nullable(false);
         });
 
-        /* Schema::table('expenses', function ($table): void {
+        Schema::table('expenses', function ($table) {
             $table->decimal('exchange_rate', 13, 4)->default(1)->change();
-        }); */
+        });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->string('shipping_address1')->nullable();
             $table->string('shipping_address2')->nullable();
             $table->string('shipping_city')->nullable();
@@ -37,25 +32,24 @@ class AddSubdomainToLookups extends Migration
             $table->boolean('send_reminders')->default(1);
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->foreign('shipping_country_id')->references('id')->on('countries');
         });
 
-        Schema::table('account_gateways', function ($table): void {
-            $table->boolean('show_shipping_address')->default(false)->nullable();
-        });
+        Schema::table('account_gateways', function ($table) {});
 
         Schema::dropIfExists('scheduled_reports');
-        Schema::create('scheduled_reports', function ($table): void {
+        Schema::create('scheduled_reports', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
-
+            $table->unsignedInteger('user_id');
             $table->unsignedInteger('public_id')->nullable();
 
             $table->text('config');
             $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly']);
             $table->date('send_date');
+
+            $table->string('ip')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -66,7 +60,7 @@ class AddSubdomainToLookups extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('subscriptions', function ($table): void {
+        Schema::table('subscriptions', function ($table) {
             $table->unsignedInteger('public_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
         });
@@ -81,46 +75,41 @@ class AddSubdomainToLookups extends Migration
                 $publicId = $accountPublicIds[$accountId];
                 $accountPublicIds[$accountId]++;
             } else {
-                $publicId = 1;
+                $publicId                     = 1;
                 $accountPublicIds[$accountId] = 2;
             }
             $subscription->public_id = $publicId;
-            $subscription->user_id = $subscription->account->users[0]->id;
+            $subscription->user_id   = $subscription->account->users[0]->id;
             $subscription->save();
         }
 
-        Schema::table('subscriptions', function ($table): void {
+        Schema::table('subscriptions', function ($table) {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->boolean('inclusive_taxes')->default(0);
         });
 
         if (Utils::isNinja()) {
-            Schema::table('activities', function ($table): void {
+            Schema::table('activities', function ($table) {
                 $table->index('user_id');
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('lookup_accounts', function ($table): void {
+        Schema::table('lookup_accounts', function ($table) {
             $table->dropColumn('subdomain');
         });
 
-        Schema::table('payments', function ($table): void {
+        Schema::table('payments', function ($table) {
             $table->dropColumn('exchange_rate');
             $table->dropColumn('exchange_currency_id');
         });
 
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             $table->dropForeign('clients_shipping_country_id_foreign');
             $table->dropColumn('shipping_address1');
             $table->dropColumn('shipping_address2');
@@ -132,22 +121,22 @@ class AddSubdomainToLookups extends Migration
             $table->dropColumn('send_reminders');
         });
 
-        Schema::table('account_gateways', function ($table): void {
+        Schema::table('account_gateways', function ($table) {
             $table->dropColumn('show_shipping_address');
         });
 
         Schema::dropIfExists('scheduled_reports');
 
-        Schema::table('subscriptions', function ($table): void {
+        Schema::table('subscriptions', function ($table) {
             $table->dropUnique('subscriptions_account_id_public_id_unique');
         });
 
-        Schema::table('subscriptions', function ($table): void {
+        Schema::table('subscriptions', function ($table) {
             $table->dropColumn('public_id');
             $table->dropColumn('user_id');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('inclusive_taxes');
         });
     }

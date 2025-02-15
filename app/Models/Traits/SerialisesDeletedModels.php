@@ -18,7 +18,7 @@ trait SerialisesDeletedModels
      */
     protected function getRestoredPropertyValue($value)
     {
-        if (!$value instanceof ModelIdentifier) {
+        if ( ! $value instanceof ModelIdentifier) {
             return $value;
         }
 

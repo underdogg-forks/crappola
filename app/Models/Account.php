@@ -4,183 +4,36 @@ namespace App\Models;
 
 use App;
 use App\Events\UserSettingsChanged;
+use App\Libraries\Utils;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\HasCustomMessages;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
-use Cache;
-use Carbon;
 use DateTime;
 use DateTimeInterface;
-use Eloquent;
-use Event;
+use DateTimeZone;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
 use Laracasts\Presenter\PresentableTrait;
-use Session;
-use Utils;
 
 /**
  * Class Account.
  */
 class Account extends Eloquent
 {
-    use PresentableTrait;
-    use SoftDeletes;
-    use PresentsInvoice;
     use GeneratesNumbers;
-    use SendsEmails;
-    use HasLogo;
     use HasCustomMessages;
+    use HasLogo;
+    use PresentableTrait;
+    use PresentsInvoice;
+    use SendsEmails;
+    use SoftDeletes;
 
-    /**
-     * @var string
-     */
-    protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
-
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @var array
-     */
-    protected $hidden = ['ip'];
-
-    /**
-     * @var array
-     */
-    protected $fillable = [
-        'timezone_id',
-        'date_format_id',
-        'datetime_format_id',
-        'currency_id',
-        'name',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postal_code',
-        'country_id',
-        'invoice_terms',
-        'email_footer',
-        'industry_id',
-        'size_id',
-        'invoice_taxes',
-        'invoice_item_taxes',
-        'invoice_design_id',
-        'quote_design_id',
-        'work_phone',
-        'work_email',
-        'language_id',
-        'fill_products',
-        'update_products',
-        'primary_color',
-        'secondary_color',
-        'hide_quantity',
-        'hide_paid_to_date',
-        'vat_number',
-        'invoice_number_prefix',
-        'invoice_number_counter',
-        'quote_number_prefix',
-        'quote_number_counter',
-        'share_counter',
-        'id_number',
-        'token_billing_type_id',
-        'invoice_footer',
-        'pdf_email_attachment',
-        'font_size',
-        'invoice_labels',
-        'custom_design1',
-        'custom_design2',
-        'custom_design3',
-        'show_item_taxes',
-        'military_time',
-        'enable_reminder1',
-        'enable_reminder2',
-        'enable_reminder3',
-        'enable_reminder4',
-        'num_days_reminder1',
-        'num_days_reminder2',
-        'num_days_reminder3',
-        'tax_name1',
-        'tax_rate1',
-        'tax_name2',
-        'tax_rate2',
-        'recurring_hour',
-        'invoice_number_pattern',
-        'quote_number_pattern',
-        'quote_terms',
-        'email_design_id',
-        'enable_email_markup',
-        'website',
-        'direction_reminder1',
-        'direction_reminder2',
-        'direction_reminder3',
-        'field_reminder1',
-        'field_reminder2',
-        'field_reminder3',
-        'header_font_id',
-        'body_font_id',
-        'auto_convert_quote',
-        'auto_archive_quote',
-        'auto_archive_invoice',
-        'auto_email_invoice',
-        'all_pages_footer',
-        'all_pages_header',
-        'show_currency_code',
-        'enable_portal_password',
-        'send_portal_password',
-        'recurring_invoice_number_prefix',
-        'enable_client_portal',
-        'invoice_fields',
-        'invoice_embed_documents',
-        'document_email_attachment',
-        'ubl_email_attachment',
-        'enable_client_portal_dashboard',
-        'page_size',
-        'live_preview',
-        'invoice_number_padding',
-        'enable_second_tax_rate',
-        'auto_bill_on_due_date',
-        'start_of_week',
-        'enable_buy_now_buttons',
-        'include_item_taxes_inline',
-        'financial_year_start',
-        'enabled_modules',
-        'enabled_dashboard_sections',
-        'show_accept_invoice_terms',
-        'show_accept_quote_terms',
-        'require_invoice_signature',
-        'require_quote_signature',
-        'client_number_prefix',
-        'client_number_counter',
-        'client_number_pattern',
-        'payment_terms',
-        'reset_counter_frequency_id',
-        'payment_type_id',
-        'gateway_fee_enabled',
-        'send_item_details',
-        'reset_counter_date',
-        'domain_id',
-        'analytics_key',
-        'credit_number_counter',
-        'credit_number_prefix',
-        'credit_number_pattern',
-        'task_rate',
-        'inclusive_taxes',
-        'convert_products',
-        'signature_on_pdf',
-        'custom_fields',
-        'custom_value1',
-        'custom_value2',
-        'custom_messages',
-    ];
-
-    /**
-     * @var array
-     */
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
         ACCOUNT_USER_DETAILS,
@@ -193,9 +46,6 @@ class Account extends Eloquent
         ACCOUNT_MANAGEMENT,
     ];
 
-    /**
-     * @var array
-     */
     public static $advancedSettings = [
         ACCOUNT_INVOICE_SETTINGS,
         ACCOUNT_INVOICE_DESIGN,
@@ -340,6 +190,142 @@ class Account extends Eloquent
         //CUSTOM_MESSAGE_APPROVED_QUOTE,
         //CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL,
         //CUSTOM_MESSAGE_APPROVED_PROPOSAL,
+    ];
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
+
+    protected $dates = ['deleted_at'];
+
+    protected $hidden = ['ip'];
+
+    protected $fillable = [
+        'timezone_id',
+        'date_format_id',
+        'datetime_format_id',
+        'currency_id',
+        'name',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'invoice_terms',
+        'email_footer',
+        'industry_id',
+        'size_id',
+        'invoice_taxes',
+        'invoice_item_taxes',
+        'invoice_design_id',
+        'quote_design_id',
+        'work_phone',
+        'work_email',
+        'language_id',
+        'fill_products',
+        'update_products',
+        'primary_color',
+        'secondary_color',
+        'hide_quantity',
+        'hide_paid_to_date',
+        'vat_number',
+        'invoice_number_prefix',
+        'invoice_number_counter',
+        'quote_number_prefix',
+        'quote_number_counter',
+        'share_counter',
+        'id_number',
+        'token_billing_type_id',
+        'invoice_footer',
+        'pdf_email_attachment',
+        'font_size',
+        'invoice_labels',
+        'custom_design1',
+        'custom_design2',
+        'custom_design3',
+        'show_item_taxes',
+        'military_time',
+        'enable_reminder1',
+        'enable_reminder2',
+        'enable_reminder3',
+        'enable_reminder4',
+        'num_days_reminder1',
+        'num_days_reminder2',
+        'num_days_reminder3',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
+        'recurring_hour',
+        'invoice_number_pattern',
+        'quote_number_pattern',
+        'quote_terms',
+        'email_design_id',
+        'enable_email_markup',
+        'website',
+        'direction_reminder1',
+        'direction_reminder2',
+        'direction_reminder3',
+        'field_reminder1',
+        'field_reminder2',
+        'field_reminder3',
+        'header_font_id',
+        'body_font_id',
+        'auto_convert_quote',
+        'auto_archive_quote',
+        'auto_archive_invoice',
+        'auto_email_invoice',
+        'all_pages_footer',
+        'all_pages_header',
+        'show_currency_code',
+        'enable_portal_password',
+        'send_portal_password',
+        'recurring_invoice_number_prefix',
+        'enable_client_portal',
+        'invoice_fields',
+        'invoice_embed_documents',
+        'document_email_attachment',
+        'ubl_email_attachment',
+        'enable_client_portal_dashboard',
+        'page_size',
+        'live_preview',
+        'invoice_number_padding',
+        'enable_second_tax_rate',
+        'auto_bill_on_due_date',
+        'start_of_week',
+        'enable_buy_now_buttons',
+        'include_item_taxes_inline',
+        'financial_year_start',
+        'enabled_modules',
+        'enabled_dashboard_sections',
+        'show_accept_invoice_terms',
+        'show_accept_quote_terms',
+        'require_invoice_signature',
+        'require_quote_signature',
+        'client_number_prefix',
+        'client_number_counter',
+        'client_number_pattern',
+        'payment_terms',
+        'reset_counter_frequency_id',
+        'payment_type_id',
+        'gateway_fee_enabled',
+        'send_item_details',
+        'reset_counter_date',
+        'domain_id',
+        'analytics_key',
+        'credit_number_counter',
+        'credit_number_prefix',
+        'credit_number_pattern',
+        'task_rate',
+        'inclusive_taxes',
+        'convert_products',
+        'signature_on_pdf',
+        'custom_fields',
+        'custom_value1',
+        'custom_value2',
+        'custom_messages',
     ];
 
     /**
@@ -523,17 +509,11 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\PaymentType');
     }
 
-    /**
-     * @return mixed
-     */
     public function expenses()
     {
         return $this->hasMany('App\Models\Expense', 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function payments()
     {
         return $this->hasMany('App\Models\Payment', 'account_id', 'id')->withTrashed();
@@ -547,17 +527,11 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\Company');
     }
 
-    /**
-     * @return mixed
-     */
     public function expense_categories()
     {
         return $this->hasMany('App\Models\ExpenseCategory', 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function projects()
     {
         return $this->hasMany('App\Models\Project', 'account_id', 'id')->withTrashed();
@@ -571,38 +545,26 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\PaymentTerm', 'account_id', 'id')->withTrashed();
     }
 
-    /**
-     * @param $value
-     */
-    public function setIndustryIdAttribute($value): void
+    public function setIndustryIdAttribute($value)
     {
         $this->attributes['industry_id'] = $value ?: null;
     }
 
-    /**
-     * @param $value
-     */
-    public function setCountryIdAttribute($value): void
+    public function setCountryIdAttribute($value)
     {
         $this->attributes['country_id'] = $value ?: null;
     }
 
-    /**
-     * @param $value
-     */
-    public function setSizeIdAttribute($value): void
+    public function setSizeIdAttribute($value)
     {
         $this->attributes['size_id'] = $value ?: null;
     }
 
-    /**
-     * @param $value
-     */
-    public function setCustomFieldsAttribute($data): void
+    public function setCustomFieldsAttribute($data)
     {
         $fields = [];
 
-        if (! is_array($data)) {
+        if ( ! is_array($data)) {
             $data = json_decode($data);
         }
 
@@ -624,7 +586,7 @@ class Account extends Eloquent
     {
         $labels = $this->custom_fields;
 
-        return ! empty($labels->$field) ? $labels->$field : '';
+        return ! empty($labels->{$field}) ? $labels->{$field} : '';
     }
 
     /**
@@ -634,7 +596,7 @@ class Account extends Eloquent
      */
     public function isGatewayConfigured($gatewayId = 0)
     {
-        if (! $this->relationLoaded('account_gateways')) {
+        if ( ! $this->relationLoaded('account_gateways')) {
             $this->load('account_gateways');
         }
 
@@ -658,16 +620,13 @@ class Account extends Eloquent
      */
     public function hasInvoicePrefix()
     {
-        if (! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
+        if ( ! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
             return false;
         }
 
         return $this->invoice_number_prefix != $this->quote_number_prefix;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         if ($this->name) {
@@ -682,7 +641,7 @@ class Account extends Eloquent
 
     public function getGatewaySettings($gatewayTypeId)
     {
-        if (! $this->relationLoaded('account_gateway_settings')) {
+        if ( ! $this->relationLoaded('account_gateway_settings')) {
             $this->load('account_gateway_settings');
         }
 
@@ -705,9 +664,6 @@ class Account extends Eloquent
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    /**
-     * @return mixed
-     */
     public function getMomentDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
@@ -745,10 +701,11 @@ class Account extends Eloquent
 
     public function getDate($date = 'now')
     {
-        if (! $date) {
+        if ( ! $date) {
             return;
-        } elseif (! $date instanceof \DateTime) {
-            $date = new \DateTime($date);
+        }
+        if ( ! $date instanceof DateTime) {
+            $date = new DateTime($date);
         }
 
         return $date;
@@ -762,14 +719,11 @@ class Account extends Eloquent
     public function getDateTime($date = 'now', $formatted = false)
     {
         $date = $this->getDate($date);
-        $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
+        $date->setTimeZone(new DateTimeZone($this->getTimezone()));
 
         return $formatted ? $date->format($this->getCustomDateTimeFormat()) : $date;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCustomDateFormat()
     {
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
@@ -785,7 +739,7 @@ class Account extends Eloquent
     }
 
     /**
-     * @param $amount
+     * @param       $amount
      * @param null  $client
      * @param bool  $hideSymbol
      * @param mixed $decorator
@@ -810,7 +764,7 @@ class Account extends Eloquent
             $countryId = false;
         }
 
-        if (! $decorator) {
+        if ( ! $decorator) {
             $decorator = $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL;
         }
 
@@ -828,17 +782,11 @@ class Account extends Eloquent
         return Utils::formatNumber($amount, $currencyId, $precision);
     }
 
-    /**
-     * @return mixed
-     */
     public function getCurrencyId()
     {
         return $this->currency_id ?: DEFAULT_CURRENCY;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCountryId()
     {
         return $this->country_id ?: DEFAULT_COUNTRY;
@@ -853,7 +801,7 @@ class Account extends Eloquent
     {
         $date = $this->getDate($date);
 
-        if (! $date) {
+        if ( ! $date) {
             return;
         }
 
@@ -869,7 +817,7 @@ class Account extends Eloquent
     {
         $date = $this->getDateTime($date);
 
-        if (! $date) {
+        if ( ! $date) {
             return;
         }
 
@@ -885,7 +833,7 @@ class Account extends Eloquent
     {
         $date = $this->getDateTime($date);
 
-        if (! $date) {
+        if ( ! $date) {
             return;
         }
 
@@ -900,9 +848,6 @@ class Account extends Eloquent
         return $this->military_time ? 'H:i' : 'g:i a';
     }
 
-    /**
-     * @return mixed
-     */
     public function getCustomDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
@@ -931,13 +876,13 @@ class Account extends Eloquent
      */
     public function getGatewayByType($type = false)
     {
-        if (! $this->relationLoaded('account_gateways')) {
+        if ( ! $this->relationLoaded('account_gateways')) {
             $this->load('account_gateways');
         }
 
         /** @var AccountGateway $accountGateway */
         foreach ($this->account_gateways as $accountGateway) {
-            if (! $type) {
+            if ( ! $type) {
                 return $accountGateway;
             }
 
@@ -956,7 +901,7 @@ class Account extends Eloquent
      */
     public function availableGatewaysIds()
     {
-        if (! $this->relationLoaded('account_gateways')) {
+        if ( ! $this->relationLoaded('account_gateways')) {
             $this->load('account_gateways');
         }
 
@@ -1005,9 +950,6 @@ class Account extends Eloquent
         return false;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayIds()
     {
         return $this->account_gateways()->pluck('gateway_id')->toArray();
@@ -1039,14 +981,11 @@ class Account extends Eloquent
         return false;
     }
 
-    /**
-     * @return mixed
-     */
     public function getPrimaryUser()
     {
         return $this->users()
-                    ->orderBy('id')
-                    ->first();
+            ->orderBy('id')
+            ->first();
     }
 
     /**
@@ -1065,7 +1004,7 @@ class Account extends Eloquent
     }
 
     /**
-     * @param $entityType
+     * @param      $entityType
      * @param null $clientId
      *
      * @return mixed
@@ -1094,12 +1033,12 @@ class Account extends Eloquent
 
             if ($this->hasClientNumberPattern($invoice) && ! $clientId) {
                 // do nothing, we don't yet know the value
-            } elseif (! $invoice->invoice_number) {
+            } elseif ( ! $invoice->invoice_number) {
                 $invoice->invoice_number = $this->getNextNumber($invoice);
             }
         }
 
-        if (! $clientId) {
+        if ( ! $clientId) {
             $invoice->client = Client::createNew();
             $invoice->client->public_id = 0;
         }
@@ -1110,7 +1049,7 @@ class Account extends Eloquent
     /**
      * @param bool $client
      */
-    public function loadLocalizationSettings($client = false): void
+    public function loadLocalizationSettings($client = false)
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
@@ -1120,12 +1059,12 @@ class Account extends Eloquent
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 
+        //php 7.3
+        // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
+        //php 7.4
         $currencyId = ($client && $client->currency_id) ? $client->currency_id : ($this->currency_id ?: DEFAULT_CURRENCY);
 
-        /* Use either `(a ? b : c) ?: d` or `a ? b
-        : (c ?: d)`
-        //Unparenthesized `a ? b : c ?: d` is deprecated.
-        */
+        // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
 
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
@@ -1149,7 +1088,7 @@ class Account extends Eloquent
      */
     public function isNinjaAccount()
     {
-        return strpos($this->account_key, 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx7') === 0;
+        return str_starts_with($this->account_key, 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx7');
     }
 
     /**
@@ -1163,9 +1102,9 @@ class Account extends Eloquent
     /**
      * @param $plan
      */
-    public function startTrial($plan): void
+    public function startTrial($plan)
     {
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             return;
         }
 
@@ -1180,7 +1119,7 @@ class Account extends Eloquent
 
     public function hasReminders()
     {
-        if (! $this->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+        if ( ! $this->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
             return false;
         }
 
@@ -1201,7 +1140,7 @@ class Account extends Eloquent
         $planDetails = $this->getPlanDetails();
         $selfHost = ! Utils::isNinjaProd();
 
-        if (! $selfHost && function_exists('ninja_account_features')) {
+        if ( ! $selfHost && function_exists('ninja_account_features')) {
             $result = ninja_account_features($this, $feature);
 
             if ($result != null) {
@@ -1230,13 +1169,13 @@ class Account extends Eloquent
             case FEATURE_CUSTOM_URL:
                 return $selfHost || ! empty($planDetails);
 
-            // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
+                // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
             case FEATURE_MORE_CLIENTS:
-                return $selfHost || ! empty($planDetails) && (! $planDetails['trial'] || ! empty($this->getPlanDetails(false, false)));
+                return $selfHost || ! empty($planDetails) && ( ! $planDetails['trial'] || ! empty($this->getPlanDetails(false, false)));
 
-            // White Label
+                // White Label
             case FEATURE_WHITE_LABEL:
-                if ($this->isNinjaAccount() || (! $selfHost && $planDetails && ! $planDetails['expires'])) {
+                if ($this->isNinjaAccount() || ( ! $selfHost && $planDetails && ! $planDetails['expires'])) {
                     return false;
                 }
                 // Fallthrough
@@ -1244,7 +1183,7 @@ class Account extends Eloquent
             case FEATURE_REMOVE_CREATED_BY:
                 return ! empty($planDetails); // A plan is required even for self-hosted users
 
-            // Enterprise; No Trial allowed; grandfathered for old pro users
+                // Enterprise; No Trial allowed; grandfathered for old pro users
             case FEATURE_USERS:// Grandfathered for old Pro users
                 if ($planDetails && $planDetails['trial']) {
                     // Do they have a non-trial plan?
@@ -1253,7 +1192,7 @@ class Account extends Eloquent
 
                 return $selfHost || ! empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
 
-            // Enterprise; No Trial allowed
+                // Enterprise; No Trial allowed
             case FEATURE_DOCUMENTS:
             case FEATURE_USER_PERMISSIONS:
                 return $selfHost || ! empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && ! $planDetails['trial'];
@@ -1275,7 +1214,7 @@ class Account extends Eloquent
      */
     public function isPro(&$plan_details = null)
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
         }
 
@@ -1288,9 +1227,6 @@ class Account extends Eloquent
         return ! empty($plan_details);
     }
 
-    /**
-     * @return mixed
-     */
     public function hasActivePromo()
     {
         return $this->company->hasActivePromo();
@@ -1303,7 +1239,7 @@ class Account extends Eloquent
      */
     public function isEnterprise(&$plan_details = null)
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
         }
 
@@ -1324,7 +1260,7 @@ class Account extends Eloquent
      */
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
-        if (! $this->company) {
+        if ( ! $this->company) {
             return;
         }
 
@@ -1332,7 +1268,7 @@ class Account extends Eloquent
         $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
-        if ((! $plan || $plan == PLAN_FREE) && (! $trial_plan || ! $include_trial)) {
+        if (( ! $plan || $plan == PLAN_FREE) && ( ! $trial_plan || ! $include_trial)) {
             return;
         }
 
@@ -1360,22 +1296,22 @@ class Account extends Eloquent
             }
         }
 
-        if (! $include_inactive && ! $plan_active && ! $trial_active) {
+        if ( ! $include_inactive && ! $plan_active && ! $trial_active) {
             return;
         }
 
         // Should we show plan details or trial details?
         if (($plan && ! $trial_plan) || ! $include_trial) {
             $use_plan = true;
-        } elseif (! $plan && $trial_plan) {
+        } elseif ( ! $plan && $trial_plan) {
             $use_plan = false;
         } else {
             // There is both a plan and a trial
-            if (! empty($plan_active) && empty($trial_active)) {
+            if ( ! empty($plan_active) && empty($trial_active)) {
                 $use_plan = true;
             } elseif (empty($plan_active) && ! empty($trial_active)) {
                 $use_plan = false;
-            } elseif (! empty($plan_active) && ! empty($trial_active)) {
+            } elseif ( ! empty($plan_active) && ! empty($trial_active)) {
                 // Both are active; use whichever is a better plan
                 if ($plan == PLAN_ENTERPRISE) {
                     $use_plan = true;
@@ -1407,15 +1343,15 @@ class Account extends Eloquent
         }
 
         return [
-                'company_id' => $this->company->id,
-                'num_users'  => 1,
-                'plan_price' => 0,
-                'trial'      => true,
-                'plan'       => $trial_plan,
-                'started'    => $trial_started,
-                'expires'    => $trial_expires,
-                'active'     => $trial_active,
-            ];
+            'company_id' => $this->company->id,
+            'num_users'  => 1,
+            'plan_price' => 0,
+            'trial'      => true,
+            'plan'       => $trial_plan,
+            'started'    => $trial_started,
+            'expires'    => $trial_expires,
+            'active'     => $trial_active,
+        ];
     }
 
     /**
@@ -1423,7 +1359,7 @@ class Account extends Eloquent
      */
     public function isTrial()
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return false;
         }
 
@@ -1432,14 +1368,11 @@ class Account extends Eloquent
         return $plan_details && $plan_details['trial'];
     }
 
-    /**
-     * @return int
-     */
     public function getCountTrialDaysLeft()
     {
         $planDetails = $this->getPlanDetails(true);
 
-        if (! $planDetails || ! $planDetails['trial']) {
+        if ( ! $planDetails || ! $planDetails['trial']) {
             return 0;
         }
 
@@ -1449,9 +1382,6 @@ class Account extends Eloquent
         return $interval ? $interval->d : 0;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRenewalDate()
     {
         $planDetails = $this->getPlanDetails();
@@ -1537,7 +1467,7 @@ class Account extends Eloquent
      */
     public function showTokenCheckbox(&$storage_gateway = null)
     {
-        if (! ($storage_gateway = $this->getTokenGatewayId())) {
+        if ( ! ($storage_gateway = $this->getTokenGatewayId())) {
             return false;
         }
 
@@ -1552,9 +1482,11 @@ class Account extends Eloquent
     {
         if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
             return GATEWAY_STRIPE;
-        } elseif ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
+        }
+        if ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
             return GATEWAY_BRAINTREE;
-        } elseif ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
+        }
+        if ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
             return GATEWAY_WEPAY;
         }
 
@@ -1567,7 +1499,7 @@ class Account extends Eloquent
     public function getTokenGateway()
     {
         $gatewayId = $this->getTokenGatewayId();
-        if (! $gatewayId) {
+        if ( ! $gatewayId) {
             return;
         }
 
@@ -1597,7 +1529,8 @@ class Account extends Eloquent
 
         if ($iframe_url) {
             return "{$iframe_url}/?";
-        } elseif ($this->subdomain) {
+        }
+        if ($this->subdomain) {
             $url = Utils::replaceSubdomain($url, $this->subdomain);
         }
 
@@ -1611,18 +1544,14 @@ class Account extends Eloquent
      */
     public function checkSubdomain($host)
     {
-        if (! $this->subdomain) {
+        if ( ! $this->subdomain) {
             return true;
         }
 
         $server = explode('.', $host);
         $subdomain = $server[0];
 
-        if (! in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
-            return false;
-        }
-
-        return true;
+        return ! ( ! in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain);
     }
 
     /**
@@ -1641,9 +1570,6 @@ class Account extends Eloquent
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;
     }
 
-    /**
-     * @return mixed
-     */
     public function getEmailDesignId()
     {
         return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
@@ -1692,17 +1618,11 @@ class Account extends Eloquent
         return ($protocol ? $protocol . ':' : '') . '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts);
     }
 
-    /**
-     * @return mixed
-     */
     public function getHeaderFontId()
     {
         return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
     }
 
-    /**
-     * @return mixed
-     */
     public function getBodyFontId()
     {
         return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
@@ -1792,7 +1712,7 @@ class Account extends Eloquent
 
     public function isModuleEnabled($entityType)
     {
-        if (! in_array($entityType, [
+        if ( ! in_array($entityType, [
             ENTITY_RECURRING_INVOICE,
             ENTITY_CREDIT,
             ENTITY_QUOTE,
@@ -1824,7 +1744,7 @@ class Account extends Eloquent
 
     public function showAcceptTerms($invoice)
     {
-        if (! $this->isPro()) {
+        if ( ! $this->isPro()) {
             return false;
         }
 
@@ -1833,7 +1753,7 @@ class Account extends Eloquent
 
     public function showSignature($invoice)
     {
-        if (! $this->isPro()) {
+        if ( ! $this->isPro()) {
             return false;
         }
 
@@ -1842,7 +1762,7 @@ class Account extends Eloquent
 
     public function emailMarkupEnabled()
     {
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             return false;
         }
 
@@ -1888,7 +1808,7 @@ class Account extends Eloquent
 
     public function financialYearStartMonth()
     {
-        if (! $this->financial_year_start) {
+        if ( ! $this->financial_year_start) {
             return 1;
         }
 
@@ -1899,7 +1819,7 @@ class Account extends Eloquent
 
     public function financialYearStart()
     {
-        if (! $this->financial_year_start) {
+        if ( ! $this->financial_year_start) {
             return false;
         }
 
@@ -1953,18 +1873,18 @@ class Account extends Eloquent
     }
 }
 
-Account::creating(function ($account): void {
+Account::creating(function ($account) {
     LookupAccount::createAccount($account->account_key, $account->company_id);
 });
 
-Account::updating(function ($account): void {
+Account::updating(function ($account) {
     $dirty = $account->getDirty();
     if (array_key_exists('subdomain', $dirty)) {
         LookupAccount::updateAccount($account->account_key, $account);
     }
 });
 
-Account::updated(function ($account): void {
+Account::updated(function ($account) {
     // prevent firing event if the invoice/quote counter was changed
     // TODO: remove once counters are moved to separate table
     $dirty = $account->getDirty();
@@ -1972,10 +1892,10 @@ Account::updated(function ($account): void {
         return;
     }
 
-    Event::fire(new UserSettingsChanged());
+    Event::dispatch(new UserSettingsChanged());
 });
 
-Account::deleted(function ($account): void {
+Account::deleted(function ($account) {
     LookupAccount::deleteWhere([
         'account_key' => $account->account_key,
     ]);

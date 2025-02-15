@@ -26,11 +26,13 @@ class UserDatatable extends EntityDatatable
             [
                 'confirmed',
                 function ($model) {
-                    if (! $model->public_id) {
+                    if ( ! $model->public_id) {
                         return self::getStatusLabel(USER_STATE_OWNER);
-                    } elseif ($model->deleted_at) {
+                    }
+                    if ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
-                    } elseif ($model->confirmed) {
+                    }
+                    if ($model->confirmed) {
                         if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
                         }
@@ -90,6 +92,6 @@ class UserDatatable extends EntityDatatable
                 break;
         }
 
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

@@ -13,9 +13,9 @@ class UserMailer extends Mailer
      * @param User      $user
      * @param User|null $invitor
      */
-    public function sendConfirmation(User $user, User $invitor = null): void
+    public function sendConfirmation(User $user, ?User $invitor = null)
     {
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 
@@ -42,12 +42,12 @@ class UserMailer extends Mailer
      * @param User      $user
      * @param User|null $invitor
      */
-    public function sendEmailChanged(User $user): void
+    public function sendEmailChanged(User $user)
     {
         $oldEmail = $user->getOriginal('email');
         $newEmail = $user->email;
 
-        if (! $oldEmail || ! $newEmail) {
+        if ( ! $oldEmail || ! $newEmail) {
             return;
         }
 
@@ -64,19 +64,19 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User    $user
-     * @param Invoice $invoice
-     * @param $notificationType
+     * @param User         $user
+     * @param Invoice      $invoice
+     * @param              $notificationType
      * @param Payment|null $payment
      */
     public function sendNotification(
         User $user,
         Invoice $invoice,
         $notificationType,
-        Payment $payment = null,
+        ?Payment $payment,
         $notes = false
-    ): void {
-        if (! $user->shouldNotify($invoice)) {
+    ) {
+        if ( ! $user->shouldNotify($invoice)) {
             return;
         }
 
@@ -117,14 +117,14 @@ class UserMailer extends Mailer
     /**
      * @param Invitation $invitation
      */
-    public function sendEmailBounced(Invitation $invitation): void
+    public function sendEmailBounced(Invitation $invitation)
     {
         $user = $invitation->user;
         $account = $user->account;
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 
@@ -144,9 +144,9 @@ class UserMailer extends Mailer
     /**
      * @param Invitation $invitation
      */
-    public function sendMessage($user, $subject, $message, $data = false): void
+    public function sendMessage($user, $subject, $message, $data = false)
     {
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 
@@ -164,9 +164,9 @@ class UserMailer extends Mailer
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    public function sendSecurityCode($user, $code): void
+    public function sendSecurityCode($user, $code)
     {
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 
@@ -180,9 +180,9 @@ class UserMailer extends Mailer
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    public function sendPasswordReset($user, $token): void
+    public function sendPasswordReset($user, $token)
     {
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 
@@ -195,12 +195,12 @@ class UserMailer extends Mailer
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    public function sendScheduledReport($scheduledReport, $file): void
+    public function sendScheduledReport($scheduledReport, $file)
     {
         $user = $scheduledReport->user;
         $config = json_decode($scheduledReport->config);
 
-        if (! $user->email) {
+        if ( ! $user->email) {
             return;
         }
 

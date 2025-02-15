@@ -2,16 +2,16 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Utils;
+use App\Libraries\Utils;
 
 class SkrillPaymentDriver extends BasePaymentDriver
 {
     protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
-        $locale = strtoupper(Utils::getLocaleRegion());
+        $locale = mb_strtoupper(Utils::getLocaleRegion());
 
-        if (! in_array($locale, ['EN', 'DE', 'ES', 'FR', 'IT', 'PL', 'GR', 'RO', 'RU', 'TR', 'CN', 'CZ', 'NL', 'DA', 'SV', 'FI'])) {
+        if ( ! in_array($locale, ['EN', 'DE', 'ES', 'FR', 'IT', 'PL', 'GR', 'RO', 'RU', 'TR', 'CN', 'CZ', 'NL', 'DA', 'SV', 'FI'])) {
             $locale = 'EN';
         }
 

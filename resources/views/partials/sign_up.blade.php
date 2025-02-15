@@ -20,7 +20,7 @@ $(function() {
     @if (Auth::check() && !Utils::isNinja() && ! Auth::user()->registered)
     $('#closeSignUpButton').hide();
     showSignUp();
-    @elseif(Session::get('sign_up') || Input::get('sign_up'))
+    @elseif(Session::get('sign_up') || \Request::input('sign_up'))
     showSignUp();
     @endif
 
@@ -168,7 +168,6 @@ function handleSignedUp() {
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">{{ Auth::user()->registered ? trans('texts.add_company') : trans('texts.sign_up') }}</h4>
       </div>
-
       <div class="container" style="width: 100%; padding-bottom: 0px !important">
       <div class="panel panel-default">
       <div class="panel-body">

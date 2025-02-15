@@ -2,12 +2,11 @@
 
 namespace App\Constants;
 
-use App\Libraries\Utils;
-
 class Domain
 {
-    const INVOICENINJA_COM = 1;
-    const INVOICE_SERVICES = 2;
+    public const INVOICENINJA_COM = 1;
+
+    public const INVOICE_SERVICES = 2;
 
     public static function getDomainFromId($id)
     {

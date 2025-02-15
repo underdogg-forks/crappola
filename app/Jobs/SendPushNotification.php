@@ -13,7 +13,8 @@ use Illuminate\Queue\SerializesModels;
  */
 class SendPushNotification extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue;
+    use SerializesModels;
 
     /**
      * @var Invoice
@@ -32,7 +33,6 @@ class SendPushNotification extends Job implements ShouldQueue
 
     /**
      * Create a new job instance.
-
      *
      * @param Invoice $invoice
      * @param mixed   $type
@@ -49,7 +49,7 @@ class SendPushNotification extends Job implements ShouldQueue
      *
      * @param PushService $pushService
      */
-    public function handle(PushService $pushService): void
+    public function handle(PushService $pushService)
     {
         if (config('queue.default') !== 'sync') {
             $this->invoice->account->loadLocalizationSettings();

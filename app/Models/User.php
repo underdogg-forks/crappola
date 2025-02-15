@@ -5,49 +5,26 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
-use DateTimeInterface;
-use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Session;
 use Laracasts\Presenter\PresentableTrait;
-use Session;
 
-/**
- * Class User.
- */
 class User extends Authenticatable
 {
+    use Notifiable;
     use PresentableTrait;
     use SoftDeletes;
-    use Notifiable;
 
-    /**
-     * @var string
-     */
-    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
-
-    /**
-     * @var array
-     */
     public static $all_permissions = [
         'create_all' => 0b0001,
         'view_all'   => 0b0010,
         'edit_all'   => 0b0100,
     ];
 
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'users';
+    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'first_name',
         'last_name',
@@ -56,11 +33,6 @@ class User extends Authenticatable
         'phone',
     ];
 
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -73,10 +45,36 @@ class User extends Authenticatable
         'slack_webhook_url',
     ];
 
-    /**
-     * @var array
-     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
     protected $dates = ['deleted_at'];
+
+    public static function onUpdatingUser($user)
+    {
+        if ($user->password != $user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+
+        // if the user changes their email then they need to reconfirm it
+        if ($user->isEmailBeingChanged()) {
+            $user->confirmed = 0;
+            $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        }
+    }
+
+    public static function onUpdatedUser($user)
+    {
+        if ( ! $user->getOriginal('email')
+            || $user->getOriginal('email') == TEST_USERNAME
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
+            event(new UserSignedUp());
+        }
+
+        event(new UserSettingsChanged($user));
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -94,25 +92,16 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Theme');
     }
 
-    /**
-     * @param $value
-     */
-    public function setEmailAttribute($value): void
+    public function setEmailAttribute($value)
     {
         $this->attributes['email'] = $this->attributes['username'] = $value;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getName()
     {
         return $this->getDisplayName();
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersonType()
     {
         return PERSON_USER;
@@ -128,25 +117,16 @@ class User extends Authenticatable
         return $this->email;
     }
 
-    /**
-     * @return mixed
-     */
     public function isPro()
     {
         return $this->account->isPro();
     }
 
-    /**
-     * @return mixed
-     */
     public function isEnterprise()
     {
         return $this->account->isEnterprise();
     }
 
-    /**
-     * @return mixed
-     */
     public function isTrusted()
     {
         if (Utils::isSelfHost()) {
@@ -155,9 +135,6 @@ class User extends Authenticatable
         return $this->account->isPro() && ! $this->account->isTrial();
     }
 
-    /**
-     * @return mixed
-     */
     public function hasActivePromo()
     {
         return $this->account->hasActivePromo();
@@ -173,30 +150,22 @@ class User extends Authenticatable
         return $this->account->hasFeature($feature);
     }
 
-    /**
-     * @return mixed
-     */
     public function isTrial()
     {
         return $this->account->isTrial();
     }
 
-    /**
-     * @return int
-     */
     public function maxInvoiceDesignId()
     {
         return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 13 : COUNT_FREE_DESIGNS;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getDisplayName()
     {
         if ($this->getFullName()) {
             return $this->getFullName();
-        } elseif ($this->email) {
+        }
+        if ($this->email) {
             return $this->email;
         }
 
@@ -223,9 +192,6 @@ class User extends Authenticatable
         return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRequestsCount()
     {
         return Session::get(SESSION_COUNTER, 0);
@@ -246,9 +212,6 @@ class User extends Authenticatable
         return true;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMaxNumClients()
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
@@ -262,9 +225,6 @@ class User extends Authenticatable
         return MAX_NUM_CLIENTS;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMaxNumVendors()
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
@@ -274,7 +234,7 @@ class User extends Authenticatable
         return MAX_NUM_VENDORS;
     }
 
-    public function clearSession(): void
+    public function clearSession()
     {
         $keys = [
             SESSION_USER_ACCOUNTS,
@@ -289,37 +249,6 @@ class User extends Authenticatable
         foreach ($keys as $key) {
             Session::forget($key);
         }
-    }
-
-    /**
-     * @param $user
-     */
-    public static function onUpdatingUser($user): void
-    {
-        if ($user->password != $user->getOriginal('password')) {
-            $user->failed_logins = 0;
-        }
-
-        // if the user changes their email then they need to reconfirm it
-        if ($user->isEmailBeingChanged()) {
-            $user->confirmed = 0;
-            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
-        }
-    }
-
-    /**
-     * @param $user
-     */
-    public static function onUpdatedUser($user): void
-    {
-        if (! $user->getOriginal('email')
-            || $user->getOriginal('email') == TEST_USERNAME
-            || $user->getOriginal('username') == TEST_USERNAME
-            || $user->getOriginal('email') == 'tests@bitrock.com') {
-            event(new UserSignedUp());
-        }
-
-        event(new UserSettingsChanged($user));
     }
 
     /**
@@ -342,8 +271,9 @@ class User extends Authenticatable
     {
         if ($this->is_admin) {
             return true;
-        } elseif (is_string($permission)) {
-            if (is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
+        }
+        if (is_string($permission)) {
+            if(is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
                 return true;
             }
         } elseif (is_array($permission)) {
@@ -359,13 +289,11 @@ class User extends Authenticatable
 
     public function viewModel($model, $entityType)
     {
-        if ($this->hasPermission('view_' . $entityType)) {
-            return true;
-        } elseif ($model->user_id == $this->id) {
+        if($this->hasPermission('view_' . $entityType)) {
             return true;
         }
 
-        return false;
+        return (bool) ($model->user_id == $this->id);
     }
 
     /**
@@ -393,9 +321,10 @@ class User extends Authenticatable
 
     public function caddAddUsers()
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
-        } elseif (! $this->hasFeature(FEATURE_USERS)) {
+        }
+        if ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -413,7 +342,7 @@ class User extends Authenticatable
     public function canCreateOrEdit($entityType, $entity = false)
     {
         return ($entity && $this->can('edit', $entity))
-            || (! $entity && $this->can('create', $entityType));
+            || ( ! $entity && $this->can('create', $entityType));
     }
 
     public function primaryAccount()
@@ -421,7 +350,7 @@ class User extends Authenticatable
         return $this->account->company->accounts->sortBy('id')->first();
     }
 
-    public function sendPasswordResetNotification($token): void
+    public function sendPasswordResetNotification($token)
     {
         //$this->notify(new ResetPasswordNotification($token));
         app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
@@ -434,7 +363,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if (! NINJA_TERMS_VERSION) {
+        if ( ! NINJA_TERMS_VERSION) {
             return true;
         }
 
@@ -457,7 +386,7 @@ class User extends Authenticatable
 
     public function shouldNotify($invoice)
     {
-        if (! $this->email || ! $this->confirmed) {
+        if ( ! $this->email || ! $this->confirmed) {
             return false;
         }
 
@@ -465,11 +394,7 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->only_notify_owned && ! $this->ownsEntity($invoice)) {
-            return false;
-        }
-
-        return true;
+        return ! ($this->only_notify_owned && ! $this->ownsEntity($invoice));
     }
 
     public function permissionsMap()
@@ -477,7 +402,7 @@ class User extends Authenticatable
         $data = [];
         $permissions = json_decode($this->permissions);
 
-        if (! $permissions) {
+        if ( ! $permissions) {
             return $data;
         }
 
@@ -489,21 +414,11 @@ class User extends Authenticatable
 
     public function eligibleForMigration()
     {
-        // Not ready to show to hosted users
-        if (Utils::isNinjaProd()) {
-            return false;
-        }
-
-        return is_null($this->public_id) || $this->public_id == 0;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
+        return null === $this->public_id || $this->public_id == 0;
     }
 }
 
-User::created(function ($user): void {
+User::created(function ($user) {
     LookupUser::createNew($user->account->account_key, [
         'email'             => $user->email,
         'user_id'           => $user->id,
@@ -511,7 +426,7 @@ User::created(function ($user): void {
     ]);
 });
 
-User::updating(function ($user): void {
+User::updating(function ($user) {
     User::onUpdatingUser($user);
 
     $dirty = $user->getDirty();
@@ -524,12 +439,12 @@ User::updating(function ($user): void {
     }
 });
 
-User::updated(function ($user): void {
+User::updated(function ($user) {
     User::onUpdatedUser($user);
 });
 
-User::deleted(function ($user): void {
-    if (! $user->email) {
+User::deleted(function ($user) {
+    if ( ! $user->email) {
         return;
     }
 

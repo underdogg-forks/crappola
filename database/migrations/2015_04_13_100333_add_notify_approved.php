@@ -1,29 +1,18 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddNotifyApproved extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function ($table): void {
-            $table->boolean('notify_approved')->default(true);
-        });
+        Schema::table('users', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->dropColumn('notify_approved');
         });
     }

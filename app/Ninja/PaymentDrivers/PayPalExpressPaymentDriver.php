@@ -41,7 +41,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $url;
     }
 
-    protected function updateClientFromOffsite($transRef, $paymentRef): void
+    protected function updateClientFromOffsite($transRef, $paymentRef)
     {
         $response = $this->gateway()->fetchCheckout([
             'token' => $transRef,
@@ -61,7 +61,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
         if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
-            return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));
+            return mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE']));
         })->first()) {
             $client->shipping_country_id = $country->id;
         } else {

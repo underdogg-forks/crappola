@@ -12,7 +12,8 @@ use App\Models\LookupUser;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
-use Mail;
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Console\Input\InputOption;
 
 class InitLookup extends Command
 {
@@ -31,6 +32,7 @@ class InitLookup extends Command
     protected $description = 'Initialize lookup tables';
 
     protected $log = '';
+
     protected $isValid = true;
 
     /**
@@ -67,8 +69,8 @@ class InitLookup extends Command
             config(['database.default' => $this->option('database')]);
 
             $count = DB::table('companies')
-                        ->where('id', '>=', $this->option('company_id') ?: 1)
-                        ->count();
+                ->where('id', '>=', $this->option('company_id') ?: 1)
+                ->count();
 
             for ($i = 0; $i < $count; $i += (int) $this->option('page_size')) {
                 $this->initCompanies($dbServer->id, $i);
@@ -79,28 +81,41 @@ class InitLookup extends Command
 
         if ($this->option('validate')) {
             if ($errorEmail = env('ERROR_EMAIL')) {
-                Mail::raw($this->log, function ($message) use ($errorEmail, $database): void {
+                Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                     $message->to($errorEmail)
-                            ->from(CONTACT_EMAIL)
-                            ->subject("Check-Lookups [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+                        ->from(CONTACT_EMAIL)
+                        ->subject("Check-Lookups [{$database}]: " . mb_strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
                 });
-            } elseif (! $this->isValid) {
+            } elseif ( ! $this->isValid) {
                 throw new Exception('Check lookups failed!!');
             }
         }
+
         return 0;
     }
 
-    private function popuplateSubdomains(): void
+    protected function getOptions()
+    {
+        return [
+            ['subdomain', null, InputOption::VALUE_OPTIONAL, 'Subdomain', null],
+            ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
+            ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
+            ['page_size', null, InputOption::VALUE_OPTIONAL, 'Page Size', null],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+            ['validate', null, InputOption::VALUE_OPTIONAL, 'Validate', null],
+        ];
+    }
+
+    private function popuplateSubdomains()
     {
         $data = [];
 
         config(['database.default' => $this->option('database')]);
 
         $accounts = DB::table('accounts')
-                        ->orderBy('id')
-                        ->where('subdomain', '!=', '')
-                        ->get(['account_key', 'subdomain']);
+            ->orderBy('id')
+            ->where('subdomain', '!=', '')
+            ->get(['account_key', 'subdomain']);
         foreach ($accounts as $account) {
             $data[$account->account_key] = $account->subdomain;
         }
@@ -115,18 +130,18 @@ class InitLookup extends Command
         }
     }
 
-    private function initCompanies($dbServerId, $offset = 0): void
+    private function initCompanies($dbServerId, $offset = 0)
     {
         $data = [];
 
         config(['database.default' => $this->option('database')]);
 
         $companies = DB::table('companies')
-                        ->offset($offset)
-                        ->limit((int) $this->option('page_size'))
-                        ->orderBy('id')
-                        ->where('id', '>=', $this->option('company_id') ?: 1)
-                        ->get(['id']);
+            ->offset($offset)
+            ->limit((int) $this->option('page_size'))
+            ->orderBy('id')
+            ->where('id', '>=', $this->option('company_id') ?: 1)
+            ->get(['id']);
         foreach ($companies as $company) {
             $data[$company->id] = $this->parseCompany($company->id);
         }
@@ -145,7 +160,7 @@ class InitLookup extends Command
                 $this->logError("LookupCompany - dbServerId: {$dbServerId}, companyId: {$companyId} | Not found!");
                 continue;
             }
-            if (! $lookupCompany) {
+            if ( ! $lookupCompany) {
                 $lookupCompany = LookupCompany::create([
                     'db_server_id' => $dbServerId,
                     'company_id'   => $companyId,
@@ -161,7 +176,7 @@ class InitLookup extends Command
                     $this->logError("LookupAccount - lookupCompanyId: {$lookupCompany->id}, accountKey {$accountKey} | Not found!");
                     continue;
                 }
-                if (! $lookupAccount) {
+                if ( ! $lookupAccount) {
                     $lookupAccount = LookupAccount::create([
                         'lookup_company_id' => $lookupCompany->id,
                         'account_key'       => $accountKey,
@@ -174,10 +189,11 @@ class InitLookup extends Command
                         $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)->whereUserId($user['user_id'])->first();
                     }
                     if ($validate) {
-                        if (! $lookupUser) {
+                        if ( ! $lookupUser) {
                             $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Not found!");
                             continue;
-                        } elseif ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
+                        }
+                        if ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
                             $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Out of date!");
                             continue;
                         }
@@ -189,7 +205,7 @@ class InitLookup extends Command
                             $lookupUser->referral_code = $user['referral_code'];
                             $lookupUser->save();
                         }
-                    } elseif (! $lookupUser) {
+                    } elseif ( ! $lookupUser) {
                         LookupUser::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'email'             => $user['email'] ?: null,
@@ -209,7 +225,7 @@ class InitLookup extends Command
                         $this->logError("LookupContact - lookupAccountId: {$lookupAccount->id}, contactKey: {$contact['contact_key']} | Not found!");
                         continue;
                     }
-                    if (! $lookupContact) {
+                    if ( ! $lookupContact) {
                         LookupContact::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'contact_key'       => $contact['contact_key'],
@@ -223,10 +239,11 @@ class InitLookup extends Command
                         $lookupInvitation = LookupInvitation::whereLookupAccountId($lookupAccount->id)->whereInvitationKey($invitation['invitation_key'])->first();
                     }
                     if ($validate) {
-                        if (! $lookupInvitation) {
+                        if ( ! $lookupInvitation) {
                             $this->logError("LookupInvitation - lookupAccountId: {$lookupAccount->id}, invitationKey: {$invitation['invitation_key']} | Not found!");
                             continue;
-                        } elseif ($invitation['message_id'] && $lookupInvitation->message_id != $invitation['message_id']) {
+                        }
+                        if ($invitation['message_id'] && $lookupInvitation->message_id != $invitation['message_id']) {
                             $this->logError("LookupInvitation - lookupAccountId: {$lookupAccount->id}, invitationKey: {$invitation['invitation_key']} | Not the same!");
                             continue;
                         }
@@ -236,7 +253,7 @@ class InitLookup extends Command
                             $lookupInvitation->message_id = $invitation['message_id'];
                             $lookupInvitation->save();
                         }
-                    } elseif (! $lookupInvitation) {
+                    } elseif ( ! $lookupInvitation) {
                         LookupInvitation::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'invitation_key'    => $invitation['invitation_key'],
@@ -254,7 +271,7 @@ class InitLookup extends Command
                         $this->logError("LookupAccountToken - lookupAccountId: {$lookupAccount->id}, token: {$token['token']} | Not found!");
                         continue;
                     }
-                    if (! $lookupToken) {
+                    if ( ! $lookupToken) {
                         LookupAccountToken::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'token'             => $token['token'],
@@ -338,20 +355,20 @@ class InitLookup extends Command
         return $data;
     }
 
-    private function logMessage($str): void
+    private function logMessage($str)
     {
         $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }
 
-    private function logError($str): void
+    private function logError($str)
     {
         $this->isValid = false;
         $this->logMessage($str);
     }
 
-    private function truncateTables(): void
+    private function truncateTables()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
         DB::statement('truncate lookup_companies');
@@ -362,17 +379,5 @@ class InitLookup extends Command
         DB::statement('truncate lookup_proposal_invitations');
         DB::statement('truncate lookup_account_tokens');
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
-    }
-
-    protected function getOptions()
-    {
-        return [
-            ['subdomain', null, InputOption::VALUE_OPTIONAL, 'Subdomain', null],
-            ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
-            ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
-            ['page_size', null, InputOption::VALUE_OPTIONAL, 'Page Size', null],
-            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
-            ['validate', null, InputOption::VALUE_OPTIONAL, 'Validate', null],
-        ];
     }
 }

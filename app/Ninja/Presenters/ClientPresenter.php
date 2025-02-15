@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
+use App\Libraries\Utils;
 
 class ClientPresenter extends EntityPresenter
 {
@@ -28,7 +28,7 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->website) {
+        if ( ! $client->website) {
             return '';
         }
 
@@ -50,7 +50,7 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
 
-        if (! $client->payment_terms) {
+        if ( ! $client->payment_terms) {
             return '';
         }
 
@@ -108,7 +108,7 @@ class ClientPresenter extends EntityPresenter
      */
     public function taskRate()
     {
-        if (floatval($this->entity->task_rate)) {
+        if ((float) ($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
         }
 

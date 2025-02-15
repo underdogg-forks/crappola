@@ -5,8 +5,11 @@ namespace App\Ninja\Datatables;
 class EntityDatatable
 {
     public $entityType;
+
     public $isBulkEdit;
+
     public $hideClient;
+
     public $sortCol = 1;
 
     public function __construct($isBulkEdit = true, $hideClient = false, $entityType = false)
@@ -55,7 +58,7 @@ class EntityDatatable
         foreach ($columns as $column) {
             if (count($column) == 3) {
                 // third column is optionally used to determine visibility
-                if (! $column[2]) {
+                if ( ! $column[2]) {
                     continue;
                 }
             }
@@ -93,7 +96,7 @@ class EntityDatatable
 
     public function addNote($str, $note)
     {
-        if (! $note) {
+        if ( ! $note) {
             return $str;
         }
 
@@ -104,7 +107,7 @@ class EntityDatatable
     {
         $str = e($str);
 
-        if (strlen($str) > $max) {
+        if (mb_strlen($str) > $max) {
             return '<span data-toggle="tooltip" data-placement="bottom" title="' . mb_substr($str, 0, 500) . '">' . trim(mb_substr($str, 0, $max)) . '...' . '</span>';
         }
 

@@ -12,7 +12,7 @@ trait PresentsInvoice
         if ($this->invoice_fields) {
             $fields = json_decode($this->invoice_fields, true);
 
-            if (! isset($fields['product_fields'])) {
+            if ( ! isset($fields['product_fields'])) {
                 $fields['product_fields'] = [
                     'product.item',
                     'product.description',
@@ -205,27 +205,6 @@ trait PresentsInvoice
         return $this->applyLabels($fields);
     }
 
-    private function applyLabels($fields)
-    {
-        $labels = $this->getInvoiceLabels();
-
-        foreach ($fields as $section => $sectionFields) {
-            foreach ($sectionFields as $index => $field) {
-                list($entityType, $fieldName) = explode('.', $field);
-                if (substr($fieldName, 0, 6) == 'custom') {
-                    $fields[$section][$field] = $labels[$field];
-                } elseif (in_array($field, ['client.phone', 'client.email'])) {
-                    $fields[$section][$field] = trans('texts.contact_' . $fieldName);
-                } else {
-                    $fields[$section][$field] = $labels[$fieldName];
-                }
-                unset($fields[$section][$index]);
-            }
-        }
-
-        return $fields;
-    }
-
     public function hasCustomLabel($field)
     {
         $custom = (array) json_decode($this->invoice_labels);
@@ -244,7 +223,7 @@ trait PresentsInvoice
             $field = $override;
         }
 
-        return $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
+        return $this->isEnglish() ? uctrans("texts.{$field}") : trans("texts.{$field}");
     }
 
     /**
@@ -341,7 +320,7 @@ trait PresentsInvoice
         ];
 
         foreach ($fields as $field) {
-            $translated = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
+            $translated = $this->isEnglish() ? uctrans("texts.{$field}") : trans("texts.{$field}");
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
                 $data[$field . '_orig'] = $translated;
@@ -355,16 +334,16 @@ trait PresentsInvoice
         }
 
         foreach ([
-            'account.custom_value1' => 'account1',
-            'account.custom_value2' => 'account2',
+            'account.custom_value1'      => 'account1',
+            'account.custom_value2'      => 'account2',
             'invoice.custom_text_value1' => 'invoice_text1',
             'invoice.custom_text_value2' => 'invoice_text2',
-            'client.custom_value1' => 'client1',
-            'client.custom_value2' => 'client2',
-            'contact.custom_value1' => 'contact1',
-            'contact.custom_value2' => 'contact2',
-            'product.custom_value1' => 'product1',
-            'product.custom_value2' => 'product2',
+            'client.custom_value1'       => 'client1',
+            'client.custom_value2'       => 'client2',
+            'contact.custom_value1'      => 'contact1',
+            'contact.custom_value2'      => 'contact2',
+            'product.custom_value1'      => 'product1',
+            'product.custom_value2'      => 'product2',
         ] as $field => $property) {
             $data[$field] = e($this->present()->customLabel($property)) ?: trans('texts.custom_field');
         }
@@ -376,9 +355,11 @@ trait PresentsInvoice
     {
         if ($designId == CUSTOM_DESIGN1) {
             return $this->custom_design1;
-        } elseif ($designId == CUSTOM_DESIGN2) {
+        }
+        if ($designId == CUSTOM_DESIGN2) {
             return $this->custom_design2;
-        } elseif ($designId == CUSTOM_DESIGN3) {
+        }
+        if ($designId == CUSTOM_DESIGN3) {
             return $this->custom_design3;
         }
     }
@@ -388,5 +369,26 @@ trait PresentsInvoice
         $fields = $this->getInvoiceFields();
 
         return isset($fields[$type . '_fields'][$field]);
+    }
+
+    private function applyLabels($fields)
+    {
+        $labels = $this->getInvoiceLabels();
+
+        foreach ($fields as $section => $sectionFields) {
+            foreach ($sectionFields as $index => $field) {
+                list($entityType, $fieldName) = explode('.', $field);
+                if (mb_substr($fieldName, 0, 6) == 'custom') {
+                    $fields[$section][$field] = $labels[$field];
+                } elseif (in_array($field, ['client.phone', 'client.email'])) {
+                    $fields[$section][$field] = trans('texts.contact_' . $fieldName);
+                } else {
+                    $fields[$section][$field] = $labels[$fieldName];
+                }
+                unset($fields[$section][$index]);
+            }
+        }
+
+        return $fields;
     }
 }

@@ -6,17 +6,17 @@ class InvoiceDesignCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function _after(AcceptanceTester $I): void {}
+    public function _after(AcceptanceTester $I) {}
 
     // tests
-    public function updateInvoiceDesign(AcceptanceTester $I): void
+    public function updateInvoiceDesign(AcceptanceTester $I)
     {
         $I->wantTo('Design my invoice');
 

@@ -30,8 +30,8 @@ class GenerateCalendarEvents extends Job
         ];
 
         foreach ($data as $type => $source) {
-            if (! count($filter) || in_array($type, $filter)) {
-                $source->where(function ($query) use ($type) {
+            if ( ! count($filter) || in_array($type, $filter)) {
+                $source->where(function ($query) {
                     $start = date_create(request()->start);
                     $end = date_create(request()->end);
 

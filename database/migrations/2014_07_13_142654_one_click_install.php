@@ -1,20 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class OneClickInstall extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('affiliates', function ($table): void {
+        Schema::create('affiliates', function ($table) {
             $table->increments('id');
 
-            $table->string('name', 100);
+            $table->string('name');
             $table->string('affiliate_key')->unique();
 
             $table->text('payment_title');
@@ -24,9 +20,8 @@ class OneClickInstall extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('licenses', function ($table): void {
+        Schema::create('licenses', function ($table) {
             $table->increments('id');
-
             $table->unsignedInteger('affiliate_id');
 
             $table->string('first_name');
@@ -44,12 +39,7 @@ class OneClickInstall extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('licenses');
         Schema::dropIfExists('affiliates');

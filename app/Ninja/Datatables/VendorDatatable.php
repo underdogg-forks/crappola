@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class VendorDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_VENDOR;
+
     public $sortCol = 4;
 
     public function columns()

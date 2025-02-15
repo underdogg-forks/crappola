@@ -12,7 +12,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         $client = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();
 
-        if (! $client) {
+        if ( ! $client) {
             throw new Exception(trans('texts.client_not_found'));
         }
 

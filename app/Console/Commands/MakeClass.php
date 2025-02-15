@@ -30,29 +30,6 @@ class MakeClass extends GeneratorCommand
      */
     protected $description = 'Create class stub';
 
-    protected function getArguments()
-    {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the module.'],
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['class', InputArgument::REQUIRED, 'The name of the class.'],
-            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
-        ];
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
-            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
-        ];
-    }
-
     public function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
@@ -78,6 +55,29 @@ class MakeClass extends GeneratorCommand
         return $path . $seederPath . '/' . $this->getFileName() . '.php';
     }
 
+    protected function getArguments()
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the module.'],
+            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['class', InputArgument::REQUIRED, 'The name of the class.'],
+            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
+        ];
+    }
+
     /**
      * @return string
      */
@@ -97,7 +97,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -119,7 +119,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $parts = explode(':', $field);
@@ -143,7 +143,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -160,11 +160,11 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
-            $str .= "'{$field}' => $" . $module->getLowerName() . "->$field,\n            ";
+            $str .= "'{$field}' => $" . $module->getLowerName() . "->{$field},\n            ";
         }
 
         return rtrim($str);
