@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Factory;
+use Codeception\Util\Fixtures;
 
 class ClientCest
 {
@@ -8,7 +9,7 @@ class ClientCest
      * @var \Faker\Generator
      */
     private $faker;
-
+    
     public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
@@ -78,10 +79,10 @@ class ClientCest
         $name = $this->faker->firstName;
         $I->fillField(['name' => 'name'], $name);
         $I->click('Save');
-
+        
         $I->see($name);
     }
-
+    
     /*
     public function deleteClient(AcceptanceTester $I)
     {

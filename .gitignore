@@ -11,13 +11,11 @@
 /resources/assets/bower
 /storage/*.key
 /storage/documents
-/storage/import
-/storage/migrations
 /bootstrap/compiled.php
 /bootstrap/environment.php
 /vendor
 /node_modules
-.DS_Store
+/.DS_Store
 Thumbs.db
 /.env
 /.env.development.php

@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Eloquent;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupCompany extends LookupModel
 {
+    /**
+     * @var array
+     */
     protected $fillable = [
         'db_server_id',
         'company_id',
@@ -24,8 +27,4 @@ class LookupCompany extends LookupModel
         return $this->dbServer->name;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }

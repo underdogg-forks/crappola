@@ -2,16 +2,20 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Carbon;
+use App;
 use Str;
+use Utils;
+use Carbon;
+use App\Jobs\Job;
 
 class RunReport extends Job
 {
-    public function __construct($user, $reportType, $config, $isExport = false)
+    public function __construct($user, $reportType, $config, $account, $isExport = false)
     {
         $this->user = $user;
         $this->reportType = $reportType;
         $this->config = $config;
+        $this->account = $account;
         $this->isExport = $isExport;
     }
 
@@ -22,7 +26,7 @@ class RunReport extends Job
      */
     public function handle()
     {
-        if ( ! $this->user->hasPermission('view_reports')) {
+        if (! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
@@ -33,7 +37,7 @@ class RunReport extends Job
         $isExport = $this->isExport;
         $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
 
-        if ( ! empty($config['range'])) {
+        if (! empty($config['range'])) {
             switch ($config['range']) {
                 case 'this_month':
                     $startDate = Carbon::now()->firstOfMonth()->toDateString();
@@ -42,6 +46,14 @@ class RunReport extends Job
                 case 'last_month':
                     $startDate = Carbon::now()->subMonth()->firstOfMonth()->toDateString();
                     $endDate = Carbon::now()->subMonth()->lastOfMonth()->toDateString();
+                    break;
+                case 'this_quarter':
+                    $startDate = Carbon::now()->firstOfQuarter()->toDateString();
+                    $endDate = Carbon::now()->lastOfQuarter()->toDateString();
+                    break;
+                case 'last_quarter':
+                    $startDate = Carbon::now()->subMonth(3)->firstOfQuarter()->toDateString();
+                    $endDate = Carbon::now()->subMonth(3)->lastOfQuarter()->toDateString();
                     break;
                 case 'this_year':
                     $startDate = Carbon::now()->firstOfYear()->toDateString();
@@ -52,7 +64,7 @@ class RunReport extends Job
                     $endDate = Carbon::now()->subYear()->lastOfYear()->toDateString();
                     break;
             }
-        } elseif ( ! empty($config['start_date_offset'])) {
+        } elseif (! empty($config['start_date_offset'])) {
             $startDate = Carbon::now()->subDays($config['start_date_offset'])->toDateString();
             $endDate = Carbon::now()->subDays($config['end_date_offset'])->toDateString();
         } else {
@@ -60,13 +72,13 @@ class RunReport extends Job
             $endDate = $config['end_date'];
         }
 
-        $report = new $reportClass($startDate, $endDate, $isExport, $config);
+        $report = new $reportClass($startDate, $endDate, $isExport, $this->account, $config);
         $report->run();
 
         $params = [
             'startDate' => $startDate,
-            'endDate'   => $endDate,
-            'report'    => $report,
+            'endDate' => $endDate,
+            'report' => $report,
         ];
 
         $report->exportParams = array_merge($params, $report->results());

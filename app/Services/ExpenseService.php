@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 /**
  * Class ExpenseService.
@@ -37,7 +37,15 @@ class ExpenseService extends BaseService
     }
 
     /**
-     * @param      $data
+     * @return ExpenseRepository
+     */
+    protected function getRepo()
+    {
+        return $this->expenseRepo;
+    }
+
+    /**
+     * @param $data
      * @param null $expense
      *
      * @return mixed|null
@@ -64,7 +72,7 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->find($search);
 
-        if ( ! Utils::hasPermission('view_expense')) {
+        if (! Utils::hasPermission('view_expense')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -82,7 +90,7 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 
-        if ( ! Utils::hasPermission('view_vendor')) {
+        if (! Utils::hasPermission('view_vendor')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -100,18 +108,10 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findClient($clientPublicId);
 
-        if ( ! Utils::hasPermission('view_client')) {
+        if (! Utils::hasPermission('view_client')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return ExpenseRepository
-     */
-    protected function getRepo()
-    {
-        return $this->expenseRepo;
     }
 }
