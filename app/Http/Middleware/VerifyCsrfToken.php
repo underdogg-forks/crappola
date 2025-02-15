@@ -10,6 +10,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
  */
 class VerifyCsrfToken extends BaseVerifier
 {
+    /**
+     * @var array
+     */
     private $openRoutes = [
         'complete*',
         'signup/register',
@@ -20,6 +23,7 @@ class VerifyCsrfToken extends BaseVerifier
         'payment_hook/*',
         'buy_now*',
         'hook/bot/*',
+        'tickets/inbound',
     ];
 
     /**

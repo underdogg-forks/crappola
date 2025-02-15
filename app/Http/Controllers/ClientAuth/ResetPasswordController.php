@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
-use App\Http\Controllers\Controller;
+use Password;
 use Config;
+use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
-use Password;
 
 class ResetPasswordController extends Controller
 {
@@ -42,14 +42,6 @@ class ResetPasswordController extends Controller
         //Config::set('auth.defaults.passwords', 'client');
     }
 
-    public function showResetForm(Request $request, $token = null)
-    {
-        return view('auth.passwords.reset')->with([
-            'token' => $token,
-            'url'   => '/client/password/reset',
-        ]);
-    }
-
     protected function broker()
     {
         return Password::broker('clients');
@@ -59,4 +51,13 @@ class ResetPasswordController extends Controller
     {
         return auth()->guard('client');
     }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        return view('auth.passwords.reset')->with([
+            'token' => $token,
+            'url' => '/client/password/reset'
+        ]);
+    }
+
 }

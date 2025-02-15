@@ -1,11 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddLanguageSupport extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('languages', function ($table) {
@@ -14,17 +17,17 @@ class AddLanguageSupport extends Migration
             $table->string('locale');
         });
 
-        //DB::table('languages')->insert(['name' => 'English', 'locale' => 'en']);
-        //DB::table('languages')->insert(['name' => 'Italian', 'locale' => 'it']);
-        //DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
-        //DB::table('languages')->insert(['name' => 'French', 'locale' => 'fr']);
-        //DB::table('languages')->insert(['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR']);
-        //DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
-        //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
-        //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
+    //DB::table('languages')->insert(['name' => 'English', 'locale' => 'en']);
+    //DB::table('languages')->insert(['name' => 'Italian', 'locale' => 'it']);
+    //DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
+    //DB::table('languages')->insert(['name' => 'French', 'locale' => 'fr']);
+    //DB::table('languages')->insert(['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR']);
+    //DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
+    //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
+    //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
 
         Schema::table('accounts', function ($table) {
-            $table->unsignedInteger('language_id')->after('work_email')->default(1);
+            $table->unsignedInteger('language_id')->default(1);
         });
 
         DB::table('accounts')->update(['language_id' => 1]);
@@ -34,6 +37,11 @@ class AddLanguageSupport extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

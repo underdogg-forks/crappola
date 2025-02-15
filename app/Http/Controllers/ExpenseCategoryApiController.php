@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ExpenseCategoryRequest;
 use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Models\ExpenseCategory;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
+use Input;
 
 class ExpenseCategoryApiController extends BaseAPIController
 {
     protected $categoryRepo;
-
     protected $categoryService;
-
     protected $entityType = ENTITY_EXPENSE_CATEGORY;
 
     public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseCategoryService $categoryService)
@@ -30,14 +30,11 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   summary="List expense categories",
      *   operationId="listExpenseCategories",
      *   tags={"expense_category"},
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of expense categories",
-     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -59,21 +56,17 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   summary="Retrieve an Expense Category",
      *   operationId="getExpenseCategory",
      *   tags={"expense_category"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_category_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single expense categroy",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -91,21 +84,16 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   summary="Create an expense category",
      *   operationId="createExpenseCategory",
      *   tags={"expense_category"},
-     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="expense_category",
-     *
      *     @SWG\Schema(ref="#/definitions/ExpenseCategory")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="New expense category",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -125,7 +113,6 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   summary="Update an expense category",
      *   operationId="updateExpenseCategory",
      *   tags={"expense_category"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_category_id",
@@ -135,17 +122,13 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="expense_category",
-     *
      *     @SWG\Schema(ref="#/definitions/ExpenseCategory")
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Updated expense category",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -165,21 +148,17 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   summary="Delete an expense category",
      *   operationId="deleteExpenseCategory",
      *   tags={"expense_category"},
-     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_category_id",
      *     type="integer",
      *     required=true
      *   ),
-     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted expense category",
-     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
-     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"

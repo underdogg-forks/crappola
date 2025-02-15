@@ -2,7 +2,6 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Exception;
 use Throwable;
 
 /**
@@ -10,16 +9,17 @@ use Throwable;
  * Allows the calling code to handle the exception by requesting further interaction from the user.
  *
  * Class StripeActionRequiredException
+ * @package App\Ninja\PaymentDrivers
  */
-class PaymentActionRequiredException extends Exception
+class PaymentActionRequiredException extends \Exception
 {
     protected $data;
 
     public function __construct(
         $data,
-        $message = 'Direct user approval required.',
+        $message = "Direct user approval required.",
         $code = 0,
-        ?Throwable $previous = null
+        Throwable $previous = null
     ) {
         $this->data = $data;
         parent::__construct($message, $code, $previous);

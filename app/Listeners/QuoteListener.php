@@ -28,4 +28,5 @@ class QuoteListener
         $quote->last_sent_date = date('Y-m-d');
         $quote->save();
     }
+
 }

@@ -1,15 +1,26 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddDiscountType extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('invoices', function ($table) {});
+        Schema::table('invoices', function ($table) {
+            $table->boolean('is_amount_discount')->nullable();
+        });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('invoices', function ($table) {
