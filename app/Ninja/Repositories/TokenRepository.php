@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class TokenRepository extends BaseRepository
 {

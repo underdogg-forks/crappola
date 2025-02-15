@@ -4,34 +4,41 @@ namespace App\Models\Traits;
 
 use App\Models\Document;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Adapter\Local;
 
 /**
  * Class HasLogo.
  */
 trait HasLogo
 {
-    public function getLogoRaw()
-    {
-        if (! $this->hasLogo()) {
-            return;
-        }
-
-        $disk = $this->getLogoDisk();
-
-        if (! $disk->exists($this->logo)) {
-            return;
-        }
-
-        return $disk->get($this->logo);
-    }
-
     /**
      * @return bool
      */
     public function hasLogo()
     {
         return ! empty($this->logo);
+    }
+
+    public function getLogoDisk()
+    {
+        return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
+    }
+
+    /**
+     * @return null
+     */
+    public function getLogoRaw()
+    {
+        if ( ! $this->hasLogo()) {
+            return;
+        }
+
+        $disk = $this->getLogoDisk();
+
+        if ( ! $disk->exists($this->logo)) {
+            return;
+        }
+
+        return $disk->get($this->logo);
     }
 
     /**
@@ -41,14 +48,14 @@ trait HasLogo
      */
     public function getLogoURL($cachebuster = false)
     {
-        if (! $this->hasLogo()) {
+        if ( ! $this->hasLogo()) {
             return;
         }
 
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof Local) {
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             // Stored locally
             $logoUrl = url('/logo/' . $this->logo);
 
@@ -64,14 +71,14 @@ trait HasLogo
 
     public function getLogoPath()
     {
-        if (! $this->hasLogo()) {
+        if ( ! $this->hasLogo()) {
             return;
         }
 
         $disk = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
-        if ($adapter instanceof Local) {
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             return $adapter->applyPathPrefix($this->logo);
         }
 
@@ -83,7 +90,7 @@ trait HasLogo
      */
     public function getLogoWidth()
     {
-        if (! $this->hasLogo()) {
+        if ( ! $this->hasLogo()) {
             return;
         }
 
@@ -95,7 +102,7 @@ trait HasLogo
      */
     public function getLogoHeight()
     {
-        if (! $this->hasLogo()) {
+        if ( ! $this->hasLogo()) {
             return;
         }
 
@@ -103,11 +110,23 @@ trait HasLogo
     }
 
     /**
+     * @return float|null
+     */
+    public function getLogoSize()
+    {
+        if ( ! $this->hasLogo()) {
+            return;
+        }
+
+        return round($this->logo_size / 1000);
+    }
+
+    /**
      * @return string|null
      */
     public function getLogoName()
     {
-        if (! $this->hasLogo()) {
+        if ( ! $this->hasLogo()) {
             return;
         }
 
@@ -122,19 +141,7 @@ trait HasLogo
         return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
-    /**
-     * @return float|null
-     */
-    public function getLogoSize()
-    {
-        if (! $this->hasLogo()) {
-            return;
-        }
-
-        return round($this->logo_size / 1000);
-    }
-
-    public function clearLogo(): void
+    public function clearLogo()
     {
         $this->logo = '';
         $this->logo_width = 0;
@@ -142,7 +149,7 @@ trait HasLogo
         $this->logo_size = 0;
     }
 
-    protected function calculateLogoDetails(): void
+    protected function calculateLogoDetails()
     {
         $disk = $this->getLogoDisk();
 
@@ -152,7 +159,7 @@ trait HasLogo
             $this->logo = $this->account_key . '.jpg';
         }
 
-        if (! empty($this->logo)) {
+        if ( ! empty($this->logo)) {
             $image = imagecreatefromstring($disk->get($this->logo));
             $this->logo_width = imagesx($image);
             $this->logo_height = imagesy($image);
@@ -161,13 +168,5 @@ trait HasLogo
             $this->logo = null;
         }
         $this->save();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLogoDisk()
-    {
-        return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
     }
 }

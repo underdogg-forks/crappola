@@ -7,20 +7,19 @@ use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Libraries\Utils;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Cache;
-use Bootstrapper\Facades\DropdownButton;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use DropdownButton;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
 
 class PaymentController extends BaseController
 {
@@ -29,14 +28,27 @@ class PaymentController extends BaseController
      */
     protected $entityType = ENTITY_PAYMENT;
 
-    protected PaymentRepository $paymentRepo;
+    /**
+     * @var PaymentRepository
+     */
+    protected $paymentRepo;
 
-    protected ContactMailer $contactMailer;
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
 
-    protected PaymentService $paymentService;
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
 
     /**
      * PaymentController constructor.
+     *
+     * @param PaymentRepository $paymentRepo
+     * @param ContactMailer     $contactMailer
+     * @param PaymentService    $paymentService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
@@ -60,18 +72,25 @@ class PaymentController extends BaseController
         ]);
     }
 
+    /**
+     * @param null $clientPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId = null)
     {
-        return $this->paymentService->getDatatable($clientPublicId, $request->get('sSearch'));
+        return $this->paymentService->getDatatable($clientPublicId, Request::input('sSearch'));
     }
 
     /**
+     * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function create(PaymentRequest $request)
     {
         $user = auth()->user();
-        $company = $user->company;
+        $account = $user->account;
 
         $invoices = Invoice::scope()
             ->invoices()
@@ -79,18 +98,18 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = \Request::old('client') ? \Request::old('client') : ($request->client_id ?: 0);
-        $invoicePublicId = \Request::old('invoice') ? \Request::old('invoice') : ($request->invoice_id ?: 0);
+        $clientPublicId = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
+        $invoicePublicId = Request::old('invoice') ? Request::old('invoice') : ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
-            $totalCredit = $company->formatMoney($client->getTotalCredit(), $client);
+            $totalCredit = $account->formatMoney($client->getTotalCredit(), $client);
         } elseif ($invoicePublicId && $invoice = Invoice::scope($invoicePublicId)->first()) {
-            $totalCredit = $company->formatMoney($invoice->client->getTotalCredit(), $client);
+            $totalCredit = $account->formatMoney($invoice->client->getTotalCredit(), $client);
         }
 
         $data = [
-            'company'         => Auth::user()->company,
+            'account'         => Auth::user()->account,
             'clientPublicId'  => $clientPublicId,
             'invoicePublicId' => $invoicePublicId,
             'invoice'         => null,
@@ -99,7 +118,7 @@ class PaymentController extends BaseController
             'method'          => 'POST',
             'url'             => 'payments',
             'title'           => trans('texts.new_payment'),
-            'paymentTypeId'   => $request->get('paymentTypeId'),
+            'paymentTypeId'   => Request::input('paymentTypeId'),
             'clients'         => Client::scope()->with('contacts')->orderBy('name')->get(),
             'totalCredit'     => $totalCredit,
         ];
@@ -108,7 +127,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @param $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function show($publicId)
     {
@@ -118,6 +139,8 @@ class PaymentController extends BaseController
     }
 
     /**
+     * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit(PaymentRequest $request)
@@ -139,7 +162,7 @@ class PaymentController extends BaseController
         }
 
         $actions[] = DropdownButton::DIVIDER;
-        if (! $payment->trashed()) {
+        if ( ! $payment->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];
         } else {
@@ -147,7 +170,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'company'  => Auth::user()->company,
+            'account'  => Auth::user()->account,
             'client'   => null,
             'invoice'  => null,
             'invoices' => Invoice::scope()
@@ -169,7 +192,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @param CreatePaymentRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreatePaymentRequest $request)
     {
@@ -186,7 +211,7 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentService->save($input, null, $request->invoice);
 
-        if ($request->get('email_receipt')) {
+        if (Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
             Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
         } else {
@@ -197,7 +222,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * @return RedirectResponse
+     * @param UpdatePaymentRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdatePaymentRequest $request)
     {
@@ -212,13 +239,10 @@ class PaymentController extends BaseController
         return redirect()->to($payment->getRoute());
     }
 
-    /**
-     * @return mixed
-     */
     public function bulk()
     {
-        $action = $request->get('action');
-        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();
@@ -226,8 +250,8 @@ class PaymentController extends BaseController
             Session::flash('message', trans('texts.emailed_payment'));
         } else {
             $count = $this->paymentService->bulk($ids, $action, [
-                'refund_amount' => $request->get('refund_amount'),
-                'refund_email'  => $request->get('refund_email'),
+                'refund_amount' => Request::input('refund_amount'),
+                'refund_email'  => Request::input('refund_email'),
             ]);
             if ($count > 0) {
                 $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action . 'd_payment', $count);

@@ -1,29 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddClientViewCss extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
-            $table->text('client_view_css')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('client_view_css');
         });
     }
-};
+}

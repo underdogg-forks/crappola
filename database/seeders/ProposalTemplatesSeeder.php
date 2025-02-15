@@ -3,14 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\ProposalTemplate;
-use Illuminate\Database\Seeder;
-
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class ProposalTemplatesSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Model::unguard();
+
         $designs = [
             'Clean',
             'Bold',
@@ -26,15 +27,15 @@ class ProposalTemplatesSeeder extends Seeder
 
         for ($i = 0; $i < count($designs); $i++) {
             $design = $designs[$i];
-            $baseFileName = storage_path() . '/templates/' . strtolower($design);
+            $baseFileName = storage_path() . '/templates/' . mb_strtolower($design);
             $htmlFileName = $baseFileName . '.html';
             $cssFileName = $baseFileName . '.css';
             if (file_exists($htmlFileName) && file_exists($cssFileName)) {
-                $template = ProposalTemplate::whereName($design)->whereNull('company_id')->first();
+                $template = ProposalTemplate::whereName($design)->whereNull('account_id')->first();
 
-                if (! $template) {
+                if ( ! $template) {
                     $template = new ProposalTemplate();
-                    //$template->public_id = $i + 1;
+                    $template->public_id = $i + 1;
                     $template->name = $design;
                 }
 

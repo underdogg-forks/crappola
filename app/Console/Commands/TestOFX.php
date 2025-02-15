@@ -20,10 +20,15 @@ class TestOFX extends Command
      */
     protected $description = 'Test OFX';
 
-    protected BankAccountService $bankAccountService;
+    /**
+     * @var BankAccountService
+     */
+    protected $bankAccountService;
 
     /**
      * TestOFX constructor.
+     *
+     * @param BankAccountService $bankAccountService
      */
     public function __construct(BankAccountService $bankAccountService)
     {
@@ -32,9 +37,10 @@ class TestOFX extends Command
         $this->bankAccountService = $bankAccountService;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        $this->info(date('r').' Running TestOFX...');
+        $this->info(date('r') . ' Running TestOFX...');
+
         return 0;
     }
 }

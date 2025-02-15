@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class SubscriptionRepository extends BaseRepository
 {
@@ -11,10 +11,10 @@ class SubscriptionRepository extends BaseRepository
         return 'App\Models\Subscription';
     }
 
-    public function find($companyId)
+    public function find($accountId)
     {
         $query = DB::table('subscriptions')
-            ->where('subscriptions.company_id', '=', $companyId)
+            ->where('subscriptions.account_id', '=', $accountId)
             ->whereNull('subscriptions.deleted_at')
             ->select(
                 'subscriptions.public_id',

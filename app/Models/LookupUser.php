@@ -3,17 +3,12 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
-use App\Models\User;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupUser extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'lookup_account_id',
         'email',
@@ -23,16 +18,16 @@ class LookupUser extends LookupModel
         'referral_code',
     ];
 
-    public static function updateUser($companyKey, $user): void
+    public static function updateUser($accountKey, $user)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupAccount = LookupAccount::whereAccountKey($companyKey)
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
             ->firstOrFail();
 
         $lookupUser = self::whereLookupAccountId($lookupAccount->id)
@@ -50,19 +45,19 @@ class LookupUser extends LookupModel
 
     public static function validateField($field, $value, $user = false)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return true;
         }
 
         $current = config('database.default');
-        $companyKey = $user ? $user->company->account_key : false;
+        $accountKey = $user ? $user->account->account_key : false;
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupUser = self::where($field, '=', $value)->first();
 
         if ($user) {
-            $lookupAccount = LookupAccount::whereAccountKey($companyKey)->firstOrFail();
+            $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
             $isValid = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
         } else {
             $isValid = ! $lookupUser;

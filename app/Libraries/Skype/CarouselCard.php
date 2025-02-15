@@ -10,7 +10,7 @@ class CarouselCard
         $this->attachments = [];
     }
 
-    public function addAttachment($attachment): void
+    public function addAttachment($attachment)
     {
         $this->attachments[] = $attachment;
     }

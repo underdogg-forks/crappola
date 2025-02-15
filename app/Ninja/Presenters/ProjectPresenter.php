@@ -26,6 +26,18 @@ class ProjectPresenter extends EntityPresenter
     /**
      * @return string
      */
+    public function taskRate()
+    {
+        if ((float) ($this->entity->task_rate)) {
+            return Utils::roundSignificant($this->entity->task_rate);
+        }
+
+        return '';
+    }
+
+    /**
+     * @return string
+     */
     public function defaultTaskRate()
     {
         if ($rate = $this->taskRate()) {
@@ -33,17 +45,5 @@ class ProjectPresenter extends EntityPresenter
         }
 
         return $this->entity->client->present()->defaultTaskRate;
-    }
-
-    /**
-     * @return string
-     */
-    public function taskRate()
-    {
-        if (floatval($this->entity->task_rate)) {
-            return Utils::roundSignificant($this->entity->task_rate);
-        }
-
-        return '';
     }
 }

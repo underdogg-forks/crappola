@@ -1,19 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class TrackLastSeenMessage extends Migration
+{
+    public function up()
     {
-        Schema::table('users', function ($table): void {
-            $table->unsignedInteger('news_feed_id')->nullable();
-        });
-
+        Schema::table('users', function ($table) {});
         if (DB::table('payment_libraries')->count() > 0) {
             DB::table('gateways')->update(['recommended' => 0]);
             DB::table('gateways')->insert([
@@ -27,15 +22,10 @@ return new class () extends Migration {
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->dropColumn('news_feed_id');
         });
     }
-};
+}

@@ -10,8 +10,6 @@ use Illuminate\Console\Command;
 
 class ForceMigration extends Command
 {
-    public $log;
-
     // define('DB_NINJA_1', 'db-ninja-1');
     // define('DB_NINJA_2', 'db-ninja-2');
 
@@ -45,17 +43,22 @@ class ForceMigration extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
-        if ($this->option('database')) {
+        if($this->option('database')) {
             $this->db = $this->option('database');
         }
 
-        if ($this->option('force')) {
+        if($this->option('force')) {
             $this->force = $this->option('force');
         }
 
-        if ( ! Utils::isNinjaProd()) {
+        if( ! Utils::isNinjaProd()) {
             return;
         }
 
@@ -63,25 +66,26 @@ class ForceMigration extends Command
 
         $company = $this->getCompany();
 
-        if ( ! $company) {
+        if( ! $company) {
             $this->logMessage('Could not find a company with that email address');
             exit;
         }
 
         $this->forceMigrate($company);
+
         return 0;
     }
 
     private function getCompany()
     {
-        if ($this->option('email')) {
+        if($this->option('email')) {
             $user = User::on($this->db)
                 ->where('email', $this->option('email'))
                 ->whereNull('public_id')
                 ->orWhere('public_id', 0)
                 ->first();
 
-            if ( ! $user) {
+            if( ! $user) {
                 $this->logMessage('Could not find an owner user with that email address');
                 exit;
             }
@@ -107,33 +111,33 @@ class ForceMigration extends Command
         // return $company;
     }
 
-    private function logMessage(string $str): void
+    private function logMessage($str)
     {
         $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }
 
-    private function forceMigrate($company): void
+    private function forceMigrate($company)
     {
         $data = [];
 
-        if ( ! $this->user) {
+        if( ! $this->user) {
             $this->user = $company->accounts->first()->users()->whereNull('public_id')->orWhere('public_id', 0)->first();
         }
 
-        if ( ! $this->user) {
+        if( ! $this->user) {
             $this->logMessage('Could not find an owner user with that email address');
             exit;
         }
 
-        if ($company) {
-            foreach ($company->accounts as $key => $account) {
+        if($company) {
+            foreach($company->accounts as $key => $account) {
                 $data['companies'][$key]['id'] = $account->id;
                 $data['companies'][$key]['force'] = $this->force;
             }
 
-            dispatch_sync(new HostedMigration($this->user, $data, $this->db, true));
+            $this->dispatch(new HostedMigration($this->user, $data, $this->db, true));
 
             $company->is_migrated = true;
             $company->save();

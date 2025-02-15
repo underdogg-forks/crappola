@@ -20,9 +20,9 @@ class ProfitAndLossReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
@@ -43,7 +43,7 @@ class ProfitAndLossReport extends AbstractReport
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
                 '',
-                $company->formatMoney($payment->getCompletedAmount(), $client),
+                $account->formatMoney($payment->getCompletedAmount(), $client),
                 $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $payment->present()->method,
             ];
@@ -79,9 +79,9 @@ class ProfitAndLossReport extends AbstractReport
                 $expense->present()->category,
             ];
 
-            $this->addToTotals($expense->invoice_currency_id, 'revenue', 0, $expense->present()->month);
-            $this->addToTotals($expense->invoice_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
-            $this->addToTotals($expense->invoice_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'revenue', 0, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
 
             if ($subgroup == 'type') {
                 $dimension = trans('texts.expense');

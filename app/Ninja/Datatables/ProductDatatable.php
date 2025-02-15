@@ -4,6 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
+use URL;
 
 class ProductDatatable extends EntityDatatable
 {
@@ -11,15 +12,14 @@ class ProductDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public $fieldToSum = 'cost';
-
     public function columns()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
         return [
             [
-                'product_key', function ($model) {
+                'product_key',
+                function ($model) {
                     return link_to('products/' . $model->public_id . '/edit', $model->product_key)->toHtml();
                 },
             ],
@@ -38,23 +38,23 @@ class ProductDatatable extends EntityDatatable
             [
                 'tax_rate',
                 function ($model) {
-                    return $model->tax_rate ? ($model->tax_name . ' ' . ($model->tax_rate + 0) . '%') : '';
+                    return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '';
                 },
-                $company->invoice_item_taxes,
+                $account->invoice_item_taxes,
             ],
             [
                 'custom_value1',
                 function ($model) {
                     return $model->custom_value1;
                 },
-                $company->customLabel('product1'),
+                $account->customLabel('product1'),
             ],
             [
                 'custom_value2',
                 function ($model) {
                     return $model->custom_value2;
                 },
-                $company->customLabel('product2'),
+                $account->customLabel('product2'),
             ],
         ];
     }
@@ -65,16 +65,16 @@ class ProductDatatable extends EntityDatatable
             [
                 uctrans('texts.edit_product'),
                 function ($model) {
-                    return "products/{$model->public_id}/edit";
+                    return URL::to("products/{$model->public_id}/edit");
                 },
             ],
             [
                 trans('texts.clone_product'),
                 function ($model) {
-                    return "products/{$model->public_id}/clone";
+                    return URL::to("products/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_PRODUCT);
+                    return Auth::user()->can('create', ENTITY_PRODUCT);
                 },
             ],
             [
@@ -83,7 +83,7 @@ class ProductDatatable extends EntityDatatable
                     return "javascript:submitForm_product('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('createEntity', ENTITY_INVOICE);
+                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];

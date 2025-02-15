@@ -14,9 +14,7 @@ class PushFactory
     /**
      * PushFactory constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * customMessage function.
@@ -24,9 +22,14 @@ class PushFactory
      * Send a message with a nested custom payload to perform additional trickery within application
      *
      *
-     * @param string $device - Type of device the message is being pushed to
+     * @param        $token
+     * @param        $message
+     * @param        $messageArray
+     * @param string $device       - Type of device the message is being pushed to
+     *
+     * @return void
      */
-    public function customMessage($token, $message, $messageArray, $device): void
+    public function customMessage($token, $message, $messageArray, $device)
     {
         $customMessage = PushNotification::Message($message, $messageArray);
 
@@ -42,8 +45,10 @@ class PushFactory
      * @param       $token   - device token
      * @param       $message - user specific message
      * @param mixed $device
+     *
+     * @return void
      */
-    public function message($token, $message, $device): void
+    public function message($token, $message, $device)
     {
         try {
             PushNotification::app($device)

@@ -21,10 +21,10 @@
             <b>
         @endif
 
-        <div class="account" style="padding-right:90px">{{ Auth::user()->company->name }}</div>
+        <div class="account" style="padding-right:90px">{{ $account_name }}</div>
         <div class="user" style="padding-right:90px">{{ $user_name }}</div>
 
-        @if (isset($selected) && $selected)
+        @if (isset($selected) && $selected)            
             </b>
         @endif
     </a>

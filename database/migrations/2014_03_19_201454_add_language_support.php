@@ -1,16 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddLanguageSupport extends Migration
+{
+    public function up()
     {
-        Schema::create('languages', function ($table): void {
+        Schema::create('languages', function ($table) {
             $table->increments('id');
             $table->string('name');
             $table->string('locale');
@@ -25,29 +23,24 @@ return new class () extends Migration {
         //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
         //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
 
-        Schema::table('accounts', function ($table): void {
-            $table->unsignedInteger('language_id')->default(1);
+        Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('language_id')->after('work_email')->default(1);
         });
 
         DB::table('accounts')->update(['language_id' => 1]);
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->foreign('language_id')->references('id')->on('languages');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropForeign('accounts_language_id_foreign');
             $table->dropColumn('language_id');
         });
 
         Schema::drop('languages');
     }
-};
+}

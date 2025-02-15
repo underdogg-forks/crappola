@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use App\Libraries\Utils;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -16,9 +17,6 @@ class Task extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'client_id',
         'description',
@@ -31,17 +29,56 @@ class Task extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = TaskPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
 
-    public static function getTimeString($timestamp)
+    /**
+     * @param $task
+     *
+     * @return string
+     */
+    public static function calcStartTime($task)
     {
-        return Utils::timestampToDateTimeString($timestamp);
+        $parts = json_decode($task->time_log) ?: [];
+
+        if (count($parts)) {
+            return Utils::timestampToDateTimeString($parts[0][0]);
+        }
+
+        return '';
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @param $task
+     *
+     * @return int
      */
-    public static function getStatuses($entityType = false): array
+    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0)
+    {
+        $duration = 0;
+        $parts = json_decode($task->time_log) ?: [];
+
+        foreach ($parts as $part) {
+            $startTime = $part[0];
+            if (count($part) == 1 || ! $part[1]) {
+                $endTime = time();
+            } else {
+                $endTime = $part[1];
+            }
+
+            if ($startTimeCutoff) {
+                $startTime = max($startTime, $startTimeCutoff);
+            }
+            if ($endTimeCutoff) {
+                $endTime = min($endTime, $endTimeCutoff);
+            }
+
+            $duration += max($endTime - $startTime, 0);
+        }
+
+        return round($duration);
+    }
+
+    public static function getStatuses($entityType = false)
     {
         $statuses = [];
 
@@ -59,68 +96,82 @@ class Task extends EntityModel
         return $statuses;
     }
 
-    /**
-     * @return mixed
-     */
+    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
+    {
+        if ($invoiceNumber) {
+            if ((float) $balance > 0) {
+                $label = trans('texts.invoiced');
+            } else {
+                $label = trans('texts.paid');
+            }
+        } elseif ($taskStatus) {
+            $label = $taskStatus;
+        } else {
+            $label = trans('texts.logged');
+        }
+
+        if ($isRunning) {
+            $label .= ' | ' . trans('texts.running');
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            if ((float) $balance) {
+                return 'default';
+            }
+
+            return 'success';
+        }
+        if ($isRunning) {
+            return 'primary';
+        }
+
+        return 'info';
+    }
+
     public function getEntityType()
     {
         return ENTITY_TASK;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function project()
     {
-        return $this->belongsTo(Project::class)->withTrashed();
+        return $this->belongsTo('App\Models\Project')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function product()
-    {
-        return $this->belongsTo(Product::class)->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
     public function task_status()
     {
-        return $this->belongsTo(TaskStatus::class)->withTrashed();
+        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
     }
 
     /**
@@ -129,20 +180,6 @@ class Task extends EntityModel
     public function getStartTime()
     {
         return self::calcStartTime($this);
-    }
-
-    /**
-     * @return string
-     */
-    public static function calcStartTime($task)
-    {
-        $parts = json_decode($task->time_log) ?: [];
-
-        if (count($parts)) {
-            return Utils::timestampToDateTimeString($parts[0][0]);
-        }
-
-        return '';
     }
 
     public function getLastStartTime()
@@ -158,9 +195,9 @@ class Task extends EntityModel
         return '';
     }
 
-    public function getTimeLog()
+    public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
     {
-        return $this->time_log;
+        return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
     }
 
     /**
@@ -170,79 +207,45 @@ class Task extends EntityModel
     {
         $value = 0;
 
-        if ($this->product && $this->product->cost) {
-            $value = $this->product->cost;
-        } elseif ($this->project && floatval($this->project->task_rate)) {
+        if ($this->project && (float) ($this->project->task_rate)) {
             $value = $this->project->task_rate;
-        } elseif ($this->client && floatval($this->client->task_rate)) {
+        } elseif ($this->client && (float) ($this->client->task_rate)) {
             $value = $this->client->task_rate;
         } else {
-            $value = $this->company->task_rate;
+            $value = $this->account->task_rate;
         }
 
         return Utils::roundSignificant($value);
     }
 
-    /**
-     * @return int
-     */
     public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
         $part = $parts[count($parts) - 1];
-        if (count($part) == 1) {
-            return time() - $part[0];
-        }
-        if (! $part[1]) {
+
+        if (count($part) == 1 || ! $part[1]) {
             return time() - $part[0];
         }
 
         return 0;
     }
 
-    public function hasPreviousDuration(): bool
+    /**
+     * @return bool
+     */
+    public function hasPreviousDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
 
         return count($parts) && (count($parts[0]) && $parts[0][1]);
     }
 
-    public function getHours(): float
+    /**
+     * @return float
+     */
+    public function getHours()
     {
         return round($this->getDuration() / (60 * 60), 2);
-    }
-
-    /**
-     * @return int
-     */
-    public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
-    {
-        return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
-    }
-
-    /**
-     * @return int
-     */
-    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0): float
-    {
-        $duration = 0;
-        $parts = json_decode($task->time_log) ?: [];
-
-        foreach ($parts as $part) {
-            $startTime = $part[0];
-            $endTime = count($part) == 1 || ! $part[1] ? time() : $part[1];
-
-            if ($startTimeCutoff) {
-                $startTime = max($startTime, $startTimeCutoff);
-            }
-            if ($endTimeCutoff) {
-                $endTime = min($endTime, $endTimeCutoff);
-            }
-
-            $duration += max($endTime - $startTime, 0);
-        }
-
-        return round($duration);
     }
 
     /**
@@ -255,7 +258,7 @@ class Task extends EntityModel
         return "/tasks/{$this->public_id}/edit";
     }
 
-    public function getName(): string
+    public function getName()
     {
         return '#' . $this->public_id;
     }
@@ -293,22 +296,6 @@ class Task extends EntityModel
         return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
     }
 
-    public static function calcStatusClass($isRunning, $balance, $invoiceNumber): string
-    {
-        if ($invoiceNumber) {
-            if (floatval($balance)) {
-                return 'default';
-            }
-
-            return 'success';
-        }
-        if ($isRunning) {
-            return 'primary';
-        }
-
-        return 'info';
-    }
-
     public function statusLabel()
     {
         if ($this->invoice) {
@@ -330,10 +317,10 @@ class Task extends EntityModel
     }
 }
 
-Task::created(function ($task): void {
+Task::created(function ($task) {
     event(new TaskWasCreated($task));
 });
 
-Task::updated(function ($task): void {
+Task::updated(function ($task) {
     event(new TaskWasUpdated($task));
 });

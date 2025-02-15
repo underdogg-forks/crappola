@@ -24,7 +24,7 @@
             colWidths: [25, 97, 50, 50, 50, 400, 150, 150, 50,50],
             columns: [
                 { data: "selected", type: 'checkbox' },
-                { data: "date", type: 'date', dateformat: 'yy-mm-dd' },
+                { data: "date", type: 'date', dateFormat: 'yy-mm-dd' },
                 { data: "from" },
                 { data: "to" },
                 { data: "hours", type: 'numeric', format: '0.00' },

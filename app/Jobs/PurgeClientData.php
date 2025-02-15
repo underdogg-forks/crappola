@@ -14,14 +14,16 @@ class PurgeClientData extends Job
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(): void
+    public function handle()
     {
         $user = auth()->user();
         $client = $this->client;
         $contact = $client->getPrimaryContact();
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             return;
         }
 

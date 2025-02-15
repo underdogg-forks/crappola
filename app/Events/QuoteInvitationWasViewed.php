@@ -21,6 +21,9 @@ class QuoteInvitationWasViewed extends Event
 
     /**
      * Create a new event instance.
+     *
+     * @param            $quote
+     * @param Invitation $invitation
      */
     public function __construct($quote, Invitation $invitation)
     {

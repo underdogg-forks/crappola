@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\SendInvoiceEmail;
 use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\RecurringExpense;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -30,10 +30,15 @@ class SendRecurringInvoices extends Command
      */
     protected $description = 'Send recurring invoices';
 
-    protected InvoiceRepository $invoiceRepo;
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
 
     /**
      * SendRecurringInvoices constructor.
+     *
+     * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo, RecurringExpenseRepository $recurringExpenseRepo)
     {
@@ -43,7 +48,7 @@ class SendRecurringInvoices extends Command
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running SendRecurringInvoices...');
 
@@ -56,80 +61,8 @@ class SendRecurringInvoices extends Command
         $this->createExpenses();
 
         $this->info(date('r') . ' Done');
+
         return 0;
-    }
-
-    private function resetCounters(): void
-    {
-        $companys = Company::where('reset_counter_frequency_id', '>', 0)
-            ->orderBy('id', 'asc')
-            ->get();
-
-        foreach ($companys as $company) {
-            $company->checkCounterReset();
-        }
-    }
-
-    private function createInvoices(): void
-    {
-        $today = new DateTime();
-
-        $invoices = Invoice::with('company.timezone', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
-            ->orderBy('id', 'asc')
-            ->get();
-        $this->info(date('r ') . $invoices->count() . ' recurring invoice(s) found');
-
-        foreach ($invoices as $recurInvoice) {
-            $shouldSendToday = $recurInvoice->shouldSendToday();
-
-            if (! $shouldSendToday) {
-                continue;
-            }
-
-            $this->info(date('r') . ' Processing Invoice: ' . $recurInvoice->id);
-
-            $company = $recurInvoice->company;
-            $company->loadLocalizationSettings($recurInvoice->client);
-            Auth::loginUsingId($recurInvoice->activeUser()->id);
-
-            try {
-                $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
-                if ($invoice && ! $invoice->isPaid() && $company->auto_email_invoice) {
-                    $this->info(date('r') . ' Not billed - Sending Invoice');
-                    dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
-                } elseif ($invoice) {
-                    $this->info(date('r') . ' Successfully billed invoice');
-                }
-            } catch (Exception $exception) {
-                $this->info(date('r') . ' Error: ' . $exception->getMessage());
-                Utils::logError($exception);
-            }
-
-            Auth::logout();
-        }
-    }
-
-    private function createExpenses(): void
-    {
-        $today = new DateTime();
-
-        $expenses = RecurringExpense::with('client')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
-            ->orderBy('id', 'asc')
-            ->get();
-        $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
-
-        foreach ($expenses as $expense) {
-            $shouldSendToday = $expense->shouldSendToday();
-
-            if (! $shouldSendToday) {
-                continue;
-            }
-
-            $this->info(date('r') . ' Processing Expense: ' . $expense->id);
-            $this->recurringExpenseRepo->createRecurringExpense($expense);
-        }
     }
 
     /**
@@ -148,5 +81,85 @@ class SendRecurringInvoices extends Command
         return [
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
+    }
+
+    private function resetCounters()
+    {
+        $accounts = Account::where('reset_counter_frequency_id', '>', 0)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        foreach ($accounts as $account) {
+            if( ! $account->account_email_settings->is_disabled) {
+                $account->checkCounterReset();
+            }
+        }
+    }
+
+    private function createInvoices()
+    {
+        $today = new DateTime();
+
+        $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
+            ->orderBy('id', 'asc')
+            ->cursor();
+        $this->info(date('r ') . ' Recurring invoice(s) found');
+
+        foreach ($invoices as $recurInvoice) {
+            $shouldSendToday = $recurInvoice->shouldSendToday();
+
+            if ( ! $shouldSendToday) {
+                continue;
+            }
+
+            $this->info(date('r') . ' Processing Invoice: ' . $recurInvoice->id);
+
+            $account = $recurInvoice->account;
+
+            if($account->account_email_settings->is_disabled) {
+                continue;
+            }
+
+            $account->loadLocalizationSettings($recurInvoice->client);
+            Auth::loginUsingId($recurInvoice->activeUser()->id);
+
+            try {
+                $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
+                if ($invoice && ! $invoice->isPaid() && $account->auto_email_invoice) {
+                    $this->info(date('r') . ' Not billed - Sending Invoice');
+                    dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
+                } elseif ($invoice) {
+                    $this->info(date('r') . ' Successfully billed invoice');
+                }
+            } catch (Exception $exception) {
+                $this->info(date('r') . ' Error: ' . $exception->getMessage());
+                Utils::logError($exception);
+            }
+
+            Auth::logout();
+        }
+    }
+
+    private function createExpenses()
+    {
+        $today = new DateTime();
+
+        $expenses = RecurringExpense::with('client')
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
+            ->orderBy('id', 'asc')
+            ->get();
+        $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
+
+        foreach ($expenses as $expense) {
+            $shouldSendToday = $expense->shouldSendToday();
+
+            if ( ! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
+                continue;
+            }
+
+            $this->info(date('r') . ' Processing Expense: ' . $expense->id);
+            $this->recurringExpenseRepo->createRecurringExpense($expense);
+        }
     }
 }

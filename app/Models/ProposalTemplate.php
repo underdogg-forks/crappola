@@ -14,14 +14,8 @@ class ProposalTemplate extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'private_notes',
@@ -32,11 +26,8 @@ class ProposalTemplate extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = ProposalTemplatePresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProposalTemplatePresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_TEMPLATE;
@@ -51,11 +42,11 @@ class ProposalTemplate extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function getDisplayName()

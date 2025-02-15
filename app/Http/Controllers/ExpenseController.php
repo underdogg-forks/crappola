@@ -15,25 +15,27 @@ use App\Ninja\Datatables\ExpenseDatatable;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\ExpenseService;
-use Bootstrapper\Facades\DropdownButton;
-use Illuminate\Http\Request;
+use DropdownButton;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
 use URL;
 
 class ExpenseController extends BaseController
 {
     // Expenses
-    protected ExpenseRepository $expenseRepo;
+    protected $expenseRepo;
 
-    protected ExpenseService $expenseService;
+    protected $expenseService;
 
     protected $entityType = ENTITY_EXPENSE;
 
-    protected InvoiceRepository $invoiceRepo;
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService, InvoiceRepository $invoiceRepo)
     {
@@ -60,7 +62,7 @@ class ExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->expenseService->getDatatable($request->get('sSearch'));
+        return $this->expenseService->getDatatable(Request::input('sSearch'));
     }
 
     public function getDatatableVendor($vendorPublicId = null)
@@ -75,10 +77,14 @@ class ExpenseController extends BaseController
 
     public function create(ExpenseRequest $request)
     {
-        $vendor = $request->vendor_id != 0 ? Vendor::scope($request->vendor_id)->with('vendor_contacts')->firstOrFail() : null;
+        if ($request->vendor_id != 0) {
+            $vendor = Vendor::scope($request->vendor_id)->with('vendor_contacts')->firstOrFail();
+        } else {
+            $vendor = null;
+        }
 
         $data = [
-            'vendorPublicId'   => \Request::old('vendor') ? \Request::old('vendor') : $request->vendor_id,
+            'vendorPublicId'   => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
             'expense'          => null,
             'method'           => 'POST',
             'url'              => 'expenses',
@@ -93,22 +99,6 @@ class ExpenseController extends BaseController
         return View::make('expenses.edit', $data);
     }
 
-    /**
-     * @return array{data: mixed, company: mixed, vendors: mixed, clients: mixed, categories: mixed, taxRates: mixed, isRecurring: false}
-     */
-    private static function getViewModel($expense = false): array
-    {
-        return [
-            'data'        => \Request::old('data'),
-            'company'     => Auth::user()->company,
-            'vendors'     => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
-            'clients'     => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),
-            'categories'  => ExpenseCategory::whereCompanyPlanId(Auth::user()->company_id)->withActiveOrSelected($expense ? $expense->expense_category_id : false)->orderBy('name')->get(),
-            'taxRates'    => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
-            'isRecurring' => false,
-        ];
-    }
-
     public function cloneExpense(ExpenseRequest $request, $publicId)
     {
         return self::edit($request, $publicId, true);
@@ -120,7 +110,7 @@ class ExpenseController extends BaseController
 
         $actions = [];
 
-        if (! $clone) {
+        if ( ! $clone) {
             $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_expense')];
         }
         if ($expense->invoice) {
@@ -141,7 +131,7 @@ class ExpenseController extends BaseController
         }
 
         $actions[] = DropdownButton::DIVIDER;
-        if (! $expense->trashed()) {
+        if ( ! $expense->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_expense')];
         } else {
@@ -201,7 +191,7 @@ class ExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_expense'));
 
-        $action = $request->get('action');
+        $action = Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
@@ -211,69 +201,6 @@ class ExpenseController extends BaseController
         }
 
         return redirect()->to("expenses/{$expense->public_id}/edit");
-    }
-
-    public function bulk()
-    {
-        $action = $request->get('action');
-        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
-        $referer = request()->server('HTTP_REFERER');
-
-        switch ($action) {
-            case 'invoice':
-            case 'add_to_invoice':
-                $expenses = Expense::scope($ids)->with('client')->get();
-                $clientPublicId = null;
-                $currencyId = null;
-
-                // Validate that either all expenses do not have a client or if there is a client, it is the same client
-                foreach ($expenses as $expense) {
-                    if ($expense->client) {
-                        if ($expense->client->trashed()) {
-                            return redirect($referer)->withError(trans('texts.client_must_be_active'));
-                        }
-
-                        if (! $clientPublicId) {
-                            $clientPublicId = $expense->client->public_id;
-                        } elseif ($clientPublicId != $expense->client->public_id) {
-                            return redirect($referer)->withError(trans('texts.expense_error_multiple_clients'));
-                        }
-                    }
-
-                    if (! $currencyId) {
-                        $currencyId = $expense->invoice_currency_id;
-                    } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
-                        return redirect($referer)->withError(trans('texts.expense_error_multiple_currencies'));
-                    }
-
-                    if ($expense->invoice_id) {
-                        return redirect($referer)->withError(trans('texts.expense_error_invoiced'));
-                    }
-                }
-
-                if ($action == 'invoice') {
-                    return Redirect::to("invoices/create/{$clientPublicId}")
-                        ->with('expenseCurrencyId', $currencyId)
-                        ->with('expenses', $ids);
-                }
-                $invoiceId = $request->get('invoice_id');
-
-                return Redirect::to("invoices/{$invoiceId}/edit")
-                    ->with('expenseCurrencyId', $currencyId)
-                    ->with('expenses', $ids);
-
-                break;
-
-            default:
-                $count = $this->expenseService->bulk($ids, $action);
-        }
-
-        if ($count > 0) {
-            $message = Utils::pluralize($action . 'd_expense', $count);
-            Session::flash('message', $message);
-        }
-
-        return $this->returnBulk($this->entityType, $action, $ids);
     }
 
     public function store(CreateExpenseRequest $request)
@@ -301,10 +228,86 @@ class ExpenseController extends BaseController
         return redirect()->to("expenses/{$expense->public_id}/edit");
     }
 
+    public function bulk()
+    {
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $referer = Request::server('HTTP_REFERER');
+
+        switch ($action) {
+            case 'invoice':
+            case 'add_to_invoice':
+                $expenses = Expense::scope($ids)->with('client')->get();
+                $clientPublicId = null;
+                $currencyId = null;
+
+                // Validate that either all expenses do not have a client or if there is a client, it is the same client
+                foreach ($expenses as $expense) {
+                    if ($expense->client) {
+                        if ($expense->client->trashed()) {
+                            return redirect($referer)->withError(trans('texts.client_must_be_active'));
+                        }
+
+                        if ( ! $clientPublicId) {
+                            $clientPublicId = $expense->client->public_id;
+                        } elseif ($clientPublicId != $expense->client->public_id) {
+                            return redirect($referer)->withError(trans('texts.expense_error_multiple_clients'));
+                        }
+                    }
+
+                    if ( ! $currencyId) {
+                        $currencyId = $expense->invoice_currency_id;
+                    } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
+                        return redirect($referer)->withError(trans('texts.expense_error_multiple_currencies'));
+                    }
+
+                    if ($expense->invoice_id) {
+                        return redirect($referer)->withError(trans('texts.expense_error_invoiced'));
+                    }
+                }
+
+                if ($action == 'invoice') {
+                    return Redirect::to("invoices/create/{$clientPublicId}")
+                        ->with('expenseCurrencyId', $currencyId)
+                        ->with('expenses', $ids);
+                }
+                $invoiceId = Request::input('invoice_id');
+
+                return Redirect::to("invoices/{$invoiceId}/edit")
+                    ->with('expenseCurrencyId', $currencyId)
+                    ->with('expenses', $ids);
+
+                break;
+
+            default:
+                $count = $this->expenseService->bulk($ids, $action);
+        }
+
+        if ($count > 0) {
+            $message = Utils::pluralize($action . 'd_expense', $count);
+            Session::flash('message', $message);
+        }
+
+        return $this->returnBulk($this->entityType, $action, $ids);
+    }
+
     public function show($publicId)
     {
         Session::reflash();
 
         return Redirect::to("expenses/{$publicId}/edit");
+    }
+
+    private static function getViewModel($expense = false)
+    {
+        return [
+            'data'        => Request::old('data'),
+            'account'     => Auth::user()->account,
+            'vendors'     => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
+            'clients'     => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),
+            'categories'  => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withActiveOrSelected($expense ? $expense->expense_category_id : false)->orderBy('name')->get(),
+            'taxRates'    => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
+            'isRecurring' => false,
+        ];
     }
 }

@@ -10,17 +10,15 @@ use URL;
 
 class PaymentDatatable extends EntityDatatable
 {
+    public $entityType = ENTITY_PAYMENT;
+
+    public $sortCol = 7;
+
     protected static $refundableGateways = [
         GATEWAY_STRIPE,
         GATEWAY_BRAINTREE,
         GATEWAY_WEPAY,
     ];
-
-    public $entityType = ENTITY_PAYMENT;
-
-    public $sortCol = 7;
-
-    public $fieldToSum = 'amount';
 
     public function columns()
     {
@@ -38,7 +36,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT])) {
                         return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     }
 
@@ -63,16 +61,18 @@ class PaymentDatatable extends EntityDatatable
             [
                 'source',
                 function ($model) {
-                    $code = str_replace(' ', '', strtolower($model->payment_type));
+                    $code = str_replace(' ', '', mb_strtolower($model->payment_type));
                     $card_type = trans('texts.card_' . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
                         if ($model->last4) {
                             $expiration = Utils::fromSqlDate($model->expiration, false)->format('m/y');
 
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
-                        } elseif ($model->email) {
+                        }
+                        if ($model->email) {
                             return $model->email;
-                        } elseif ($model->payment_type) {
+                        }
+                        if ($model->payment_type) {
                             return trans('texts.payment_type_' . $model->payment_type);
                         }
                     } elseif ($model->last4) {
@@ -84,9 +84,10 @@ class PaymentDatatable extends EntityDatatable
                                 $bankName = $bankData->name;
                             }
                         }
-                        if (! empty($bankName)) {
+                        if ( ! empty($bankName)) {
                             return $bankName . '&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        } elseif ($model->last4) {
+                        }
+                        if ($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
                     }
@@ -121,15 +122,6 @@ class PaymentDatatable extends EntityDatatable
                 },
             ],
         ];
-    }
-
-    private function getStatusLabel($model)
-    {
-        $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
-        $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
-        $class = Payment::calcStatusClass($model->payment_status_id);
-
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
     public function actions()
@@ -170,5 +162,14 @@ class PaymentDatatable extends EntityDatatable
                 },
             ],
         ];
+    }
+
+    private function getStatusLabel($model)
+    {
+        $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
+        $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
+        $class = Payment::calcStatusClass($model->payment_status_id);
+
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

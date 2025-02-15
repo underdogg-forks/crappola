@@ -6,7 +6,7 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = 'refId';
 
-    public function createPayment($ref = false, $paymentMethod = null): void
+    public function createPayment($ref = false, $paymentMethod = null)
     {
         $ref = $this->purchaseResponse['transactionResponse']['transId'] ?: $this->purchaseResponse['refId'];
 

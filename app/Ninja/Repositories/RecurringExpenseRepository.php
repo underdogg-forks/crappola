@@ -5,9 +5,9 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RecurringExpenseRepository extends BaseRepository
 {
@@ -28,24 +28,24 @@ class RecurringExpenseRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $companyid = Auth::user()->company_id;
+        $accountid = Auth::user()->account_id;
         $query = DB::table('recurring_expenses')
-            ->join('companies', 'companies.id', '=', 'recurring_expenses.company_id')
+            ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftjoin('vendors', 'vendors.id', '=', 'recurring_expenses.vendor_id')
             ->join('frequencies', 'frequencies.id', '=', 'recurring_expenses.frequency_id')
             ->leftJoin('expense_categories', 'recurring_expenses.expense_category_id', '=', 'expense_categories.id')
-            ->where('recurring_expenses.company_id', '=', $companyid)
+            ->where('recurring_expenses.account_id', '=', $accountid)
             ->where('contacts.deleted_at', '=', null)
             ->where('vendors.deleted_at', '=', null)
             ->where('clients.deleted_at', '=', null)
-            ->where(function ($query): void { // handle when client isn't set
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
             ->select(
-                'recurring_expenses.company_id',
+                'recurring_expenses.account_id',
                 'recurring_expenses.amount',
                 'recurring_expenses.deleted_at',
                 'recurring_expenses.id',
@@ -55,7 +55,7 @@ class RecurringExpenseRepository extends BaseRepository
                 'recurring_expenses.public_notes',
                 'recurring_expenses.should_be_invoiced',
                 'recurring_expenses.vendor_id',
-                'recurring_expenses.invoice_currency_id',
+                'recurring_expenses.expense_currency_id',
                 'recurring_expenses.invoice_currency_id',
                 'recurring_expenses.user_id',
                 'recurring_expenses.tax_rate1',
@@ -80,7 +80,7 @@ class RecurringExpenseRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_RECURRING_EXPENSE);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('recurring_expenses.public_notes', 'like', '%' . $filter . '%')
                     ->orWhere('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('vendors.name', 'like', '%' . $filter . '%')
@@ -91,58 +91,9 @@ class RecurringExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function createRecurringExpense(RecurringExpense $recurringExpense)
-    {
-        if ($recurringExpense->client && $recurringExpense->client->deleted_at) {
-            return false;
-        }
-
-        if (! $recurringExpense->user->confirmed) {
-            return false;
-        }
-
-        if (! $recurringExpense->shouldSendToday()) {
-            return false;
-        }
-
-        $company = $recurringExpense->company;
-        $expense = Expense::createNew($recurringExpense);
-
-        $fields = [
-            'vendor_id',
-            'client_id',
-            'amount',
-            'public_notes',
-            'private_notes',
-            'invoice_currency_id',
-            'invoice_currency_id',
-            'should_be_invoiced',
-            'expense_category_id',
-            'tax_name1',
-            'tax_rate1',
-            'tax_name2',
-            'tax_rate2',
-        ];
-
-        foreach ($fields as $field) {
-            $expense->$field = $recurringExpense->$field;
-        }
-
-        $expense->expense_date = $company->getDateTime()->format('Y-m-d');
-        $expense->exchange_rate = 1;
-        $expense->invoice_currency_id = $recurringExpense->invoice_currency_id;
-        $expense->recurring_expense_id = $recurringExpense->id;
-        $expense->save();
-
-        $recurringExpense->last_sent_date = $company->getDateTime()->format('Y-m-d');
-        $recurringExpense->save();
-
-        return $expense;
-    }
-
     public function save($input, $expense = null)
     {
-        $publicId = isset($input['public_id']) ? $input['public_id'] : false;
+        $publicId = $input['public_id'] ?? false;
 
         if ($expense) {
             // do nothing
@@ -172,13 +123,13 @@ class RecurringExpenseRepository extends BaseRepository
             $expense->end_date = Utils::toSqlDate($input['end_date']);
         }
 
-        if (! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = Auth::user()->company->getCurrencyId();
+        if ( ! $expense->expense_currency_id) {
+            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
         }
 
         /*
         if (! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = \Auth::user()->company->getCurrencyId();
+            $expense->invoice_currency_id = \Auth::user()->account->getCurrencyId();
         }
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
@@ -188,6 +139,55 @@ class RecurringExpenseRepository extends BaseRepository
         */
 
         $expense->save();
+
+        return $expense;
+    }
+
+    public function createRecurringExpense(RecurringExpense $recurringExpense)
+    {
+        if ($recurringExpense->client && $recurringExpense->client->deleted_at) {
+            return false;
+        }
+
+        if ( ! $recurringExpense->user->confirmed) {
+            return false;
+        }
+
+        if ( ! $recurringExpense->shouldSendToday()) {
+            return false;
+        }
+
+        $account = $recurringExpense->account;
+        $expense = Expense::createNew($recurringExpense);
+
+        $fields = [
+            'vendor_id',
+            'client_id',
+            'amount',
+            'public_notes',
+            'private_notes',
+            'invoice_currency_id',
+            'expense_currency_id',
+            'should_be_invoiced',
+            'expense_category_id',
+            'tax_name1',
+            'tax_rate1',
+            'tax_name2',
+            'tax_rate2',
+        ];
+
+        foreach ($fields as $field) {
+            $expense->{$field} = $recurringExpense->{$field};
+        }
+
+        $expense->expense_date = $account->getDateTime()->format('Y-m-d');
+        $expense->exchange_rate = 1;
+        $expense->invoice_currency_id = $recurringExpense->expense_currency_id;
+        $expense->recurring_expense_id = $recurringExpense->id;
+        $expense->save();
+
+        $recurringExpense->last_sent_date = $account->getDateTime()->format('Y-m-d');
+        $recurringExpense->save();
 
         return $expense;
     }

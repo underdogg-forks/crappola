@@ -8,12 +8,11 @@ use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class TaskApiController extends BaseAPIController
 {
-    protected TaskRepository $taskRepo;
+    protected $taskRepo;
 
     protected $entityType = ENTITY_TASK;
 
@@ -48,7 +47,7 @@ class TaskApiController extends BaseAPIController
     {
         $tasks = Task::scope()
             ->withTrashed()
-            ->with('client', 'invoice', 'project', 'task_status', 'user')
+            ->with('client', 'invoice', 'project', 'task_status')
             ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($tasks);
@@ -115,29 +114,29 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data = \Request::all();
-        $taskId = isset($data['id']) ? $data['id'] : false;
+        $data = Request::all();
+        $taskId = $data['id'] ?? false;
 
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client'] = $data['client_id'];
         }
 
-        if (! empty($data['time_details'])) {
+        if ( ! empty($data['time_details'])) {
             $timeLog = [];
             foreach ($data['time_details'] as $detail) {
                 $startTime = strtotime($detail['start_datetime']);
                 $endTime = false;
-                if (! empty($detail['end_datetime'])) {
+                if ( ! empty($detail['end_datetime'])) {
                     $endTime = strtotime($detail['end_datetime']);
                 } else {
                     $duration = 0;
-                    if (! empty($detail['duration_seconds'])) {
+                    if ( ! empty($detail['duration_seconds'])) {
                         $duration += $detail['duration_seconds'];
                     }
-                    if (! empty($detail['duration_minutes'])) {
+                    if ( ! empty($detail['duration_minutes'])) {
                         $duration += $detail['duration_minutes'] * 60;
                     }
-                    if (! empty($detail['duration_hours'])) {
+                    if ( ! empty($detail['duration_hours'])) {
                         $duration += $detail['duration_hours'] * 60 * 60;
                     }
                     if ($duration) {
@@ -145,7 +144,7 @@ class TaskApiController extends BaseAPIController
                     }
                 }
                 $timeLog[] = [$startTime, $endTime];
-                if (! $endTime) {
+                if ( ! $endTime) {
                     $data['is_running'] = true;
                 }
             }
@@ -155,7 +154,7 @@ class TaskApiController extends BaseAPIController
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
-        $transformer = new TaskTransformer(Auth::user()->company, $request->get('serializer'));
+        $transformer = new TaskTransformer(Auth::user()->account, Request::input('serializer'));
         $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);
@@ -202,7 +201,7 @@ class TaskApiController extends BaseAPIController
 
         $task = $request->entity();
 
-        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\\Request::all());
+        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Request::all());
 
         return $this->itemResponse($task);
     }

@@ -20,7 +20,7 @@ class InvoiceReport extends AbstractReport
             'payment_date'     => [],
             'paid'             => [],
             'method'           => [],
-            'due_at'           => ['columnSelector-false'],
+            'due_date'         => ['columnSelector-false'],
             'po_number'        => ['columnSelector-false'],
             'private_notes'    => ['columnSelector-false'],
             'vat_number'       => ['columnSelector-false'],
@@ -33,21 +33,25 @@ class InvoiceReport extends AbstractReport
             $columns['tax'] = ['columnSelector-false'];
         }
 
-        $company = auth()->user()->company;
+        $account = auth()->user()->account;
 
-        if ($company->customLabel('invoice_text1')) {
-            $columns[$company->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text1')) {
+            $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('invoice_text2')) {
-            $columns[$company->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text2')) {
+            $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        if ( ! Auth::user()) {
+            return;
+        }
+
+        $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $subgroup = $this->options['subgroup'];
@@ -56,14 +60,14 @@ class InvoiceReport extends AbstractReport
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
-            ->with('contacts', 'user', 'country', 'shipping_country')
-            ->with(['invoices' => function ($query) use ($statusIds): void {
+            ->with('contacts', 'user')
+            ->with(['invoices' => function ($query) use ($statusIds) {
                 $query->invoices()
                     ->withArchived()
                     ->statusIds($statusIds)
                     ->where('invoice_date', '>=', $this->startDate)
                     ->where('invoice_date', '<=', $this->endDate)
-                    ->with(['payments' => function ($query): void {
+                    ->with(['payments' => function ($query) {
                         $query->withArchived()
                             ->excludeFailed()
                             ->with('payment_type', 'account_gateway.gateway');
@@ -71,8 +75,8 @@ class InvoiceReport extends AbstractReport
             }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
-                exit(trans('texts.gmp_required'));
+            if ( ! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_documents')));
@@ -89,8 +93,8 @@ class InvoiceReport extends AbstractReport
         }
 
         if ($this->isExport && $exportFormat == 'zip-invoices') {
-            if (! extension_loaded('GMP')) {
-                exit(trans('texts.gmp_required'));
+            if ( ! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
             }
 
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
@@ -112,28 +116,28 @@ class InvoiceReport extends AbstractReport
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                        $isFirst ? $company->formatMoney($invoice->amount, $client) : '',
+                        $isFirst ? $account->formatMoney($invoice->amount, $client) : '',
                         $invoice->statusLabel(),
                         $payment ? ($this->isExport ? $payment->payment_date : $payment->present()->payment_date) : '',
-                        $payment ? $company->formatMoney($payment->getCompletedAmount(), $client) : '',
+                        $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
-                        $this->isExport ? $invoice->due_at : $invoice->present()->due_date,
+                        $this->isExport ? $invoice->due_date : $invoice->present()->due_date,
                         $invoice->po_number,
                         $invoice->private_notes,
                         $client->vat_number,
-                        $client->user->getDisplayName(),
+                        $invoice->user->getDisplayName(),
                         trim(str_replace('<br/>', ', ', $client->present()->address()), ', '),
                         trim(str_replace('<br/>', ', ', $client->present()->address(ADDRESS_SHIPPING)), ', '),
                     ];
 
                     if ($hasTaxRates) {
-                        $row[] = $isFirst ? $company->formatMoney($invoice->getTaxTotal(), $client) : '';
+                        $row[] = $isFirst ? $account->formatMoney($invoice->getTaxTotal(), $client) : '';
                     }
 
-                    if ($company->customLabel('invoice_text1')) {
+                    if ($account->customLabel('invoice_text1')) {
                         $row[] = $invoice->custom_text_value1;
                     }
-                    if ($company->customLabel('invoice_text2')) {
+                    if ($account->customLabel('invoice_text2')) {
                         $row[] = $invoice->custom_text_value2;
                     }
 
@@ -145,7 +149,6 @@ class InvoiceReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $this->addToTotals($client->currency_id, 'balance', $invoice->balance);
-                $this->addToTotals($client->currency_id, 'tax', $invoice->getTaxTotal());
 
                 if ($subgroup == 'status') {
                     $dimension = $invoice->statusLabel();

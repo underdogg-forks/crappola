@@ -6,22 +6,23 @@ use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
 use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Input;
-use URL;
 
 class VendorController extends BaseController
 {
-    protected VendorService $vendorService;
+    protected $vendorService;
 
-    protected VendorRepository $vendorRepo;
+    protected $vendorRepo;
 
     protected $entityType = ENTITY_VENDOR;
 
@@ -49,7 +50,7 @@ class VendorController extends BaseController
 
     public function getDatatable()
     {
-        return $this->vendorService->getDatatable($request->get('sSearch'));
+        return $this->vendorService->getDatatable(Request::input('sSearch'));
     }
 
     /**
@@ -118,17 +119,6 @@ class VendorController extends BaseController
     }
 
     /**
-     * @return array{data: mixed, company: mixed}
-     */
-    private static function getViewModel(): array
-    {
-        return [
-            'data'    => \Request::old('data'),
-            'company' => Auth::user()->company,
-        ];
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param int $id
@@ -148,9 +138,9 @@ class VendorController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        if (Auth::user()->company->isNinjaAccount()) {
-            if ($company = Company::whereId($client->public_id)->first()) {
-                $data['planDetails'] = $company->getPlanDetails(false, false);
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($vendor->public_id)->first()) {
+                $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 
@@ -175,13 +165,21 @@ class VendorController extends BaseController
 
     public function bulk()
     {
-        $action = $request->get('action');
-        $ids = $request->get('public_id') ? $request->get('public_id') : $request->get('ids');
+        $action = Request::input('action');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
         Session::flash('message', $message);
 
         return $this->returnBulk($this->entityType, $action, $ids);
+    }
+
+    private static function getViewModel()
+    {
+        return [
+            'data'    => Request::old('data'),
+            'account' => Auth::user()->account,
+        ];
     }
 }

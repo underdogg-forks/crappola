@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
@@ -13,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends BaseAPIController
 {
-    protected UserService $userService;
+    protected $userService;
 
-    protected UserRepository $userRepo;
+    protected $userRepo;
 
     protected $entityType = ENTITY_USER;
 
@@ -49,7 +48,7 @@ class UserApiController extends BaseAPIController
      */
     public function index()
     {
-        $users = User::whereCompanyPlanId(Auth::user()->company_id)
+        $users = User::whereAccountId(Auth::user()->account_id)
             ->withTrashed()
             ->orderBy('created_at', 'desc');
 
@@ -115,19 +114,9 @@ class UserApiController extends BaseAPIController
      *   )
      * )
      */
-    public function store(CreateUserRequest $request)
+    public function store(UserRequest $request)
     {
         return $this->save($request);
-    }
-
-    private function save($request, $user = false)
-    {
-        $user = $this->userRepo->save($request->input(), $user);
-
-        $transformer = new UserTransformer(Auth::user()->company, $request->serializer);
-        $data = $this->createItem($user, $transformer, 'users');
-
-        return $this->response($data);
     }
 
     /**
@@ -172,7 +161,7 @@ class UserApiController extends BaseAPIController
         if ($request->action == ACTION_ARCHIVE) {
             $this->userRepo->archive($user);
 
-            $transformer = new UserTransformer(Auth::user()->company, $request->serializer);
+            $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
             $data = $this->createItem($user, $transformer, 'users');
 
             return $this->response($data);
@@ -215,5 +204,15 @@ class UserApiController extends BaseAPIController
         $this->userRepo->delete($entity);
 
         return $this->itemResponse($entity);
+    }
+
+    private function save($request, $user = false)
+    {
+        $user = $this->userRepo->save($request->input(), $user);
+
+        $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
+        $data = $this->createItem($user, $transformer, 'users');
+
+        return $this->response($data);
     }
 }

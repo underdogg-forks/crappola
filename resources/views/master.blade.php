@@ -3,6 +3,10 @@
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
+    @if (env('MULTI_DB_ENABLED'))
+    <!-- Authenticated: {{ Auth::check() ? 'Yes' : 'No' }} -->
+    <!-- Server: {{ session(SESSION_DB_SERVER, 'Unset') }} -->
+    @endif
     @if (Session::has('error'))
         <!-- Error: {{ Session::get('error') }} -->
     @endif
@@ -188,6 +192,51 @@
         /* This causes problems with some languages. ie, fr_CA
          var appLocale = '{{App::getLocale()}}';
          */
+
+        @if (env('FACEBOOK_PIXEL'))
+        <!-- Facebook Pixel Code -->
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq)return;
+            n = f.fbq = function () {
+                n.callMethod ?
+                        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq)f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window,
+                document, 'script', '//connect.facebook.net/en_US/fbevents.js');
+
+        fbq('init', '{{ env('FACEBOOK_PIXEL') }}');
+        fbq('track', "PageView");
+
+        (function () {
+            var _fbq = window._fbq || (window._fbq = []);
+            if (!_fbq.loaded) {
+                var fbds = document.createElement('script');
+                fbds.async = true;
+                fbds.src = '//connect.facebook.net/en_US/fbds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(fbds, s);
+                _fbq.loaded = true;
+            }
+        })();
+
+        @else
+        function fbq() {
+            // do nothing
+        };
+        @endif
+
+                window._fbq = window._fbq || [];
+
     </script>
 
     @if (! request()->borderless)

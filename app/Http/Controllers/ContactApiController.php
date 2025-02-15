@@ -8,13 +8,12 @@ use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use App\Ninja\Repositories\ContactRepository;
 use App\Services\ContactService;
-use Illuminate\Support\Facades\Response;
 
 class ContactApiController extends BaseAPIController
 {
-    protected ContactRepository $contactRepo;
+    protected $contactRepo;
 
-    protected ContactService $contactService;
+    protected $contactService;
 
     protected $entityType = ENTITY_CONTACT;
 

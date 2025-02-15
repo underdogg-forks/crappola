@@ -11,25 +11,28 @@ use App\Libraries\Utils;
  */
 class AnalyticsListener
 {
-    public function trackRevenue(PaymentWasCreated $event): void
+    /**
+     * @param PaymentWasCreated $event
+     */
+    public function trackRevenue(PaymentWasCreated $event)
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $company = $payment->company;
+        $account = $payment->account;
 
         $analyticsId = false;
 
-        if ($company->isNinjaAccount() || $company->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
+        if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
             $analyticsId = env('ANALYTICS_KEY');
         } else {
             if (Utils::isNinja()) {
-                $analyticsId = $company->analytics_key;
+                $analyticsId = $account->analytics_key;
             } else {
-                $analyticsId = $company->analytics_key ?: env('ANALYTICS_KEY');
+                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
             }
         }
 
-        if (! $analyticsId) {
+        if ( ! $analyticsId) {
             return;
         }
 
@@ -38,7 +41,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($company->isNinjaAccount() && App::runningInConsole()) {
+        if ($account->isNinjaAccount() && App::runningInConsole()) {
             $item .= ' [R]';
         }
 
@@ -51,7 +54,10 @@ class AnalyticsListener
         $this->sendAnalytics($url);
     }
 
-    private function sendAnalytics(string $data): void
+    /**
+     * @param $data
+     */
+    private function sendAnalytics($data)
     {
         $data = utf8_encode($data);
         $curl = curl_init();

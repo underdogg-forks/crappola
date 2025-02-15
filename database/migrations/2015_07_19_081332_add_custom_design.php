@@ -1,31 +1,20 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddCustomDesign extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
-            $table->mediumText('custom_design')->nullable();
-        });
-
         DB::table('invoice_designs')->insert(['id' => CUSTOM_DESIGN1, 'name' => 'Custom']);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('custom_design');
         });
     }
-};
+}

@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class SetupCountriesTable extends Migration
+{
+    public function up()
     {
         // Creates the users table
         /*
@@ -34,13 +31,8 @@ return new class () extends Migration {
         */
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         //Schema::drop('countries');
     }
-};
+}

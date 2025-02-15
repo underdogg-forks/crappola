@@ -4,24 +4,12 @@ namespace App\Http\Requests;
 
 class UpdateRecurringExpenseRequest extends RecurringExpenseRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public function authorize()
     {
-        if (! $this->entity()) {
-            return false;
-        }
-
-        return (bool) $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array{amount: string}
-     */
-    public function rules(): array
+    public function rules()
     {
         return [
             'amount' => 'numeric',

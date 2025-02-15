@@ -7,16 +7,17 @@ use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Redirect;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class DocumentAPIController.
  */
 class DocumentAPIController extends BaseAPIController
 {
-    protected DocumentRepository $documentRepo;
+    /**
+     * @var DocumentRepository
+     */
+    protected $documentRepo;
 
     /**
      * @var string
@@ -25,6 +26,8 @@ class DocumentAPIController extends BaseAPIController
 
     /**
      * DocumentAPIController constructor.
+     *
+     * @param DocumentRepository $documentRepo
      */
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -61,7 +64,9 @@ class DocumentAPIController extends BaseAPIController
     }
 
     /**
-     * @return Response|Redirect|StreamedResponse
+     * @param DocumentRequest $request
+     *
+     * @return \Illuminate\Http\Response|Redirect|\Symfony\Component\HttpFoundation\StreamedResponse
      *
      * @SWG\Get(
      *   path="/documents/{document_id}",

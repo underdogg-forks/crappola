@@ -17,16 +17,10 @@ class InvoiceItem extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = InvoiceItemPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
@@ -36,49 +30,38 @@ class InvoiceItem extends EntityModel
         'discount',
     ];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_INVOICE_ITEM;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo('App\Models\Product');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    public function amount()
-    {
-        return $this->getPreTaxAmount() + $this->getTaxAmount();
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function getPreTaxAmount()
@@ -112,7 +95,12 @@ class InvoiceItem extends EntityModel
         return $tax;
     }
 
-    public function markFeePaid(): void
+    public function amount()
+    {
+        return $this->getPreTaxAmount() + $this->getTaxAmount();
+    }
+
+    public function markFeePaid()
     {
         if ($this->invoice_item_type_id == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
             $this->invoice_item_type_id = INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
@@ -120,14 +108,12 @@ class InvoiceItem extends EntityModel
         }
     }
 
-    public function hasTaxes(): bool
+    public function hasTaxes()
     {
-        if ($this->tax_name1) {
+        if ($this->tax_name1 || $this->tax_rate1) {
             return true;
         }
-        if ($this->tax_rate1) {
-            return true;
-        }
+
         if ($this->tax_name2 || $this->tax_rate2) {
             return false;
         }

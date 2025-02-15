@@ -19,7 +19,7 @@ class QuoteRequest extends EntityRequest
                 ->withTrashed()
                 ->first();
 
-            if (! $invoice) {
+            if ( ! $invoice) {
                 abort(404);
             }
         }
@@ -30,10 +30,5 @@ class QuoteRequest extends EntityRequest
         }
 
         return $invoice;
-    }
-
-    public function authorize()
-    {
-        return $this->user()->can('createEntity', ENTITY_QUOTE);
     }
 }

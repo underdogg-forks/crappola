@@ -18,10 +18,10 @@ class GenerateProjectChartData extends Job
      *
      * @return void
      */
-    public function handle(): stdClass
+    public function handle()
     {
         $project = $this->project;
-        $company = $project->company;
+        $account = $project->account;
         $taskMap = [];
         $startTimestamp = time();
         $endTimestamp = max(time(), strtotime($project->due_date));
@@ -31,7 +31,7 @@ class GenerateProjectChartData extends Job
         foreach ($project->tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
-            if (! count($parts)) {
+            if ( ! count($parts)) {
                 continue;
             }
 
@@ -41,11 +41,11 @@ class GenerateProjectChartData extends Job
                 $start = $part[0];
                 $end = (count($part) > 1 && $part[1]) ? $part[1] : time();
 
-                $date = $company->getDateTime();
+                $date = $account->getDateTime();
                 $date->setTimestamp($part[0]);
                 $sqlDate = $date->format('Y-m-d');
 
-                if (! isset($taskMap[$sqlDate])) {
+                if ( ! isset($taskMap[$sqlDate])) {
                     $taskMap[$sqlDate] = 0;
                 }
 
@@ -58,8 +58,8 @@ class GenerateProjectChartData extends Job
 
         $labels = [];
         $records = [];
-        $startDate = $company->getDateTime()->setTimestamp($startTimestamp);
-        $endDate = $company->getDateTime()->setTimestamp($endTimestamp);
+        $startDate = $account->getDateTime()->setTimestamp($startTimestamp);
+        $endDate = $account->getDateTime()->setTimestamp($endTimestamp);
 
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($startDate, $interval, $endDate);

@@ -13,31 +13,19 @@ class BankAccount extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'bank_id',
         'app_version',
         'ofx_version',
     ];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_BANK_ACCOUNT;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUsername()
     {
         return Crypt::decrypt($this->username);
@@ -46,25 +34,25 @@ class BankAccount extends EntityModel
     /**
      * @param $config
      */
-    public function setUsername($value): void
+    public function setUsername($value)
     {
         $this->username = Crypt::encrypt($value);
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function bank()
     {
-        return $this->belongsTo(Bank::class);
+        return $this->belongsTo('App\Models\Bank');
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function bank_subaccounts()
     {
-        return $this->hasMany(BankSubaccount::class);
+        return $this->hasMany('App\Models\BankSubaccount');
     }
 
     protected function serializeDate(DateTimeInterface $date)

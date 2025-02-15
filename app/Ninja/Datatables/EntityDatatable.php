@@ -2,8 +2,6 @@
 
 namespace App\Ninja\Datatables;
 
-use Carbon\Carbon;
-
 class EntityDatatable
 {
     public $entityType;
@@ -14,8 +12,6 @@ class EntityDatatable
 
     public $sortCol = 1;
 
-    public $fieldToSum;
-
     public function __construct($isBulkEdit = true, $hideClient = false, $entityType = false)
     {
         $this->isBulkEdit = $isBulkEdit;
@@ -24,6 +20,11 @@ class EntityDatatable
         if ($entityType) {
             $this->entityType = $entityType;
         }
+    }
+
+    public function columns()
+    {
+        return [];
     }
 
     public function actions()
@@ -45,9 +46,38 @@ class EntityDatatable
         ];
     }
 
+    public function columnFields()
+    {
+        $data = [];
+        $columns = $this->columns();
+
+        if ($this->isBulkEdit) {
+            $data[] = 'checkbox';
+        }
+
+        foreach ($columns as $column) {
+            if (count($column) == 3) {
+                // third column is optionally used to determine visibility
+                if ( ! $column[2]) {
+                    continue;
+                }
+            }
+            $data[] = $column[0];
+        }
+
+        $data[] = '';
+
+        return $data;
+    }
+
     public function rightAlignIndices()
     {
         return $this->alignIndices(['amount', 'balance', 'cost']);
+    }
+
+    public function centerAlignIndices()
+    {
+        return $this->alignIndices(['status']);
     }
 
     public function alignIndices($fields)
@@ -64,43 +94,9 @@ class EntityDatatable
         return $indices;
     }
 
-    public function columnFields()
-    {
-        $data = [];
-        $columns = $this->columns();
-
-        if ($this->isBulkEdit) {
-            $data[] = 'checkbox';
-        }
-
-        foreach ($columns as $column) {
-            if (count($column) == 3) {
-                // third column is optionally used to determine visibility
-                if (! $column[2]) {
-                    continue;
-                }
-            }
-            $data[] = $column[0];
-        }
-
-        $data[] = '';
-
-        return $data;
-    }
-
-    public function columns()
-    {
-        return [];
-    }
-
-    public function centerAlignIndices()
-    {
-        return $this->alignIndices(['status']);
-    }
-
     public function addNote($str, $note)
     {
-        if (! $note) {
+        if ( ! $note) {
             return $str;
         }
 
@@ -111,48 +107,10 @@ class EntityDatatable
     {
         $str = e($str);
 
-        if (strlen($str) > $max) {
+        if (mb_strlen($str) > $max) {
             return '<span data-toggle="tooltip" data-placement="bottom" title="' . mb_substr($str, 0, 500) . '">' . trim(mb_substr($str, 0, $max)) . '...' . '</span>';
         }
 
         return $str;
-    }
-
-    public function ticketIcons($model)
-    {
-        $iconOutput = '';
-
-        // Is a agent assigned ?
-        if ($model->agent_id > 0) {
-            $iconOutput .= '<span class="fa fa fa-user" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.assigned_to') . ' ' . $model->agent_name . '"></span>&nbsp';
-        } else {
-            $iconOutput .= '<span class="fa fa-user-plus" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.unassigned') . '"></span>&nbsp';
-        }
-
-        // Is the ticket overdue ?
-        if ($model->due_date != '0000-00-00 00:00:00' && Carbon::parse($model->due_date) < Carbon::now()) {
-            $iconOutput .= '<span class="fa fa-bomb" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.alert_ticket_overdue_agent_id') . '"></span>&nbsp';
-        }
-
-        // Is the ticket awaiting a response?
-        if (strlen($model->lastContactByContactKey) > 0) {
-            $iconOutput .= '<span class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.awaiting_reply') . '"></span>&nbsp';
-        }
-
-        // High priority tickets!
-        if ($model->priority_id == TICKET_PRIORITY_HIGH) {
-            $iconOutput .= '<span class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.priority') . ' : ' . trans('texts.high') . '"></span>&nbsp';
-        }
-
-        if ($model->is_internal) {
-            $iconOutput .= '<span class="fa fa-group" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.internal_ticket') . '"></span>&nbsp';
-        }
-
-        return $iconOutput;
-    }
-
-    public function sumColumn()
-    {
-        return array_search($this->fieldToSum, $this->columnFields());
     }
 }

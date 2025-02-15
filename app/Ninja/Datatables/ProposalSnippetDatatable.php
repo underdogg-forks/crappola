@@ -60,9 +60,7 @@ class ProposalSnippetDatatable extends EntityDatatable
                     return URL::to("proposals/snippets/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    $model->entityType = ENTITY_PROPOSAL;
-
-                    return Auth::user()->can('viewModel', $model);
+                    return Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
                 },
             ],
         ];

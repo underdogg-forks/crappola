@@ -11,6 +11,11 @@ class CurlUtils
         return self::exec('POST', $url, $data, $headers);
     }
 
+    public static function get($url, $headers = false)
+    {
+        return self::exec('GET', $url, null, $headers);
+    }
+
     public static function exec($method, $url, $data, $headers = false)
     {
         $curl = curl_init();
@@ -38,14 +43,9 @@ class CurlUtils
         return $response;
     }
 
-    public static function get($url, $headers = false)
-    {
-        return self::exec('GET', $url, null, $headers);
-    }
-
     public static function phantom($method, $url)
     {
-        if (! $path = env('PHANTOMJS_BIN_PATH')) {
+        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
@@ -70,7 +70,7 @@ class CurlUtils
 
     public static function renderPDF($url, $filename)
     {
-        if (! $path = env('PHANTOMJS_BIN_PATH')) {
+        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 

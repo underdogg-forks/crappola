@@ -26,11 +26,13 @@ class UserDatatable extends EntityDatatable
             [
                 'confirmed',
                 function ($model) {
-                    if (! $model->public_id) {
+                    if ( ! $model->public_id) {
                         return self::getStatusLabel(USER_STATE_OWNER);
-                    } elseif ($model->deleted_at) {
+                    }
+                    if ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
-                    } elseif ($model->confirmed) {
+                    }
+                    if ($model->confirmed) {
                         if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
                         }
@@ -39,6 +41,30 @@ class UserDatatable extends EntityDatatable
                     }
 
                     return self::getStatusLabel(USER_STATE_PENDING);
+                },
+            ],
+        ];
+    }
+
+    public function actions()
+    {
+        return [
+            [
+                uctrans('texts.edit_user'),
+                function ($model) {
+                    return URL::to("users/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return $model->public_id;
+                },
+            ],
+            [
+                uctrans('texts.send_invite'),
+                function ($model) {
+                    return URL::to("send_confirmation/{$model->public_id}");
+                },
+                function ($model) {
+                    return $model->public_id && ! $model->confirmed;
                 },
             ],
         ];
@@ -66,30 +92,6 @@ class UserDatatable extends EntityDatatable
                 break;
         }
 
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-
-    public function actions()
-    {
-        return [
-            [
-                uctrans('texts.edit_user'),
-                function ($model) {
-                    return URL::to("users/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return $model->public_id;
-                },
-            ],
-            [
-                uctrans('texts.send_invite'),
-                function ($model) {
-                    return URL::to("send_confirmation/{$model->public_id}");
-                },
-                function ($model) {
-                    return $model->public_id && ! $model->confirmed;
-                },
-            ],
-        ];
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

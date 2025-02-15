@@ -5,7 +5,7 @@ namespace App\Ninja\Datatables;
 use App\Libraries\Utils;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use Bootstrapper\Facades\DropdownButton;
+use DropdownButton;
 use Illuminate\Support\Facades\Auth;
 use URL;
 
@@ -14,8 +14,6 @@ class TaskDatatable extends EntityDatatable
     public $entityType = ENTITY_TASK;
 
     public $sortCol = 3;
-
-    public $fieldToSum = 'duration';
 
     public function columns()
     {
@@ -76,14 +74,6 @@ class TaskDatatable extends EntityDatatable
         ];
     }
 
-    private function getStatusLabel($model)
-    {
-        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number, $model->task_status);
-        $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);
-
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-
     public function actions()
     {
         return [
@@ -93,16 +83,7 @@ class TaskDatatable extends EntityDatatable
                     return URL::to('tasks/' . $model->public_id . '/edit');
                 },
                 function ($model) {
-                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('view', [ENTITY_TASK, $model]);
-                },
-            ],
-            [
-                trans('texts.clone_task'),
-                function ($model) {
-                    return URL::to("tasks/{$model->public_id}/clone");
-                },
-                function ($model) {
-                    return Auth::user()->can('create', ENTITY_TASK);
+                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -138,7 +119,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->is_running && ! $model->invoice_number && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
+                    return ! $model->is_running && ! $model->invoice_number && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
                 },
             ],
         ];
@@ -164,5 +145,13 @@ class TaskDatatable extends EntityDatatable
         $actions = array_merge($actions, parent::bulkActions());
 
         return $actions;
+    }
+
+    private function getStatusLabel($model)
+    {
+        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number, $model->task_status);
+        $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);
+
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

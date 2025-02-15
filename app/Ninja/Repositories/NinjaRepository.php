@@ -2,21 +2,21 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\Company;
+use App\Models\Account;
 
 class NinjaRepository
 {
-    public function updatePlanDetails($clientPublicId, $data): void
+    public function updatePlanDetails($clientPublicId, $data)
     {
-        $company = Company::whereId($clientPublicId)->first();
+        $account = Account::whereId($clientPublicId)->first();
 
-        if (! $company) {
+        if ( ! $account) {
             return;
         }
 
-        $companyPlan = $company->companyPlan;
-        $companyPlan->fill($data);
-        $companyPlan->plan_expires = $companyPlan->plan_expires ?: null;
-        $companyPlan->save();
+        $company = $account->company;
+        $company->fill($data);
+        $company->plan_expires = $company->plan_expires ?: null;
+        $company->save();
     }
 }

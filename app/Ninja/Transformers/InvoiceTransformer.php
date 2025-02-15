@@ -4,6 +4,9 @@ namespace App\Ninja\Transformers;
 
 use App\Models\Invoice;
 
+/**
+ * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
+ */
 class InvoiceTransformer extends EntityTransformer
 {
     /**
@@ -26,53 +29,53 @@ class InvoiceTransformer extends EntityTransformer
         'documents',
     ];
 
-    public function __construct($company = null, $serializer = null, $client = null)
+    public function __construct($account = null, $serializer = null, $client = null)
     {
-        parent::__construct($company, $serializer);
+        parent::__construct($account, $serializer);
 
         $this->client = $client;
     }
 
     public function includeInvoiceItems(Invoice $invoice)
     {
-        $transformer = new InvoiceItemTransformer($this->company, $this->serializer);
+        $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
 
     public function includeInvitations(Invoice $invoice)
     {
-        $transformer = new InvitationTransformer($this->company, $this->serializer);
+        $transformer = new InvitationTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->company, $this->serializer, $invoice);
+        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
 
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
     public function includeClient(Invoice $invoice)
     {
-        $transformer = new ClientTransformer($this->company, $this->serializer);
+        $transformer = new ClientTransformer($this->account, $this->serializer);
 
         return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
     }
 
     public function includeExpenses(Invoice $invoice)
     {
-        $transformer = new ExpenseTransformer($this->company, $this->serializer);
+        $transformer = new ExpenseTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
     }
 
     public function includeDocuments(Invoice $invoice)
     {
-        $transformer = new DocumentTransformer($this->company, $this->serializer);
+        $transformer = new DocumentTransformer($this->account, $this->serializer);
 
-        $invoice->documents->each(function ($document) use ($invoice): void {
+        $invoice->documents->each(function ($document) use ($invoice) {
             $document->setRelation('invoice', $invoice);
         });
 
@@ -93,7 +96,7 @@ class InvoiceTransformer extends EntityTransformer
             'discount'             => (float) $invoice->discount,
             'po_number'            => $invoice->po_number,
             'invoice_date'         => $invoice->invoice_date ?: '',
-            'due_at'               => $invoice->due_at ?: '',
+            'due_date'             => $invoice->due_date ?: '',
             'terms'                => $invoice->terms,
             'public_notes'         => $invoice->public_notes ?: '',
             'private_notes'        => $invoice->private_notes ?: '',
@@ -116,6 +119,10 @@ class InvoiceTransformer extends EntityTransformer
             'has_tasks'            => (bool) $invoice->has_tasks,
             'auto_bill'            => (bool) $invoice->auto_bill,
             'auto_bill_id'         => (int) $invoice->auto_bill,
+            'custom_value1'        => (float) $invoice->custom_value1,
+            'custom_value2'        => (float) $invoice->custom_value2,
+            'custom_taxes1'        => (bool) $invoice->custom_taxes1,
+            'custom_taxes2'        => (bool) $invoice->custom_taxes2,
             'has_expenses'         => (bool) $invoice->has_expenses,
             'quote_invoice_id'     => (int) ($invoice->quote_invoice_id ?: 0),
             'custom_text_value1'   => $invoice->custom_text_value1 ?: '',

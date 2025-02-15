@@ -7,12 +7,11 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Request;
 
 class ClientApiController extends BaseAPIController
 {
-    protected ClientRepository $clientRepo;
+    protected $clientRepo;
 
     protected $entityType = ENTITY_CLIENT;
 
@@ -23,17 +22,37 @@ class ClientApiController extends BaseAPIController
         $this->clientRepo = $clientRepo;
     }
 
-    public function index(Request $request)
+    /**
+     * @SWG\Get(
+     *   path="/clients",
+     *   summary="List clients",
+     *   operationId="listClients",
+     *   tags={"client"},
+     *
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list of clients",
+     *
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Client"))
+     *   ),
+     *
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function index()
     {
         $clients = Client::scope()
             ->orderBy('updated_at', 'desc')
             ->withTrashed();
 
-        if ($email = $request->get('email')) {
-            $clients = $clients->whereHas('contacts', function ($query) use ($email): void {
+        if ($email = Request::input('email')) {
+            $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
-        } elseif ($idNumber = $request->get('id_number')) {
+        } elseif ($idNumber = Request::input('id_number')) {
             $clients = $clients->whereIdNumber($idNumber);
         }
 
@@ -71,8 +90,8 @@ class ClientApiController extends BaseAPIController
     {
         $client = $request->entity();
 
-        if (strpos(request()->include, 'activities') !== false) {
-            $client->load('activities.client.contacts', 'activities.user', 'activities.invoice', 'activities.payment', 'activities.credit', 'activities.company', 'activities.task', 'activities.expense', 'activities.contact');
+        if (str_contains(request()->include, 'activities')) {
+            $client->load('activities.client.contacts', 'activities.user', 'activities.invoice', 'activities.payment', 'activities.credit', 'activities.account', 'activities.task', 'activities.expense', 'activities.contact');
         }
 
         return $this->itemResponse($client);

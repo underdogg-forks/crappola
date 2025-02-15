@@ -3,12 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Frequency;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class FrequencySeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Model::unguard();
+
         $frequencies = [
             ['name' => 'Weekly', 'date_interval' => '1 week'],
             ['name' => 'Two weeks', 'date_interval' => '2 weeks'],

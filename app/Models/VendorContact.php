@@ -34,9 +34,6 @@ class VendorContact extends EntityModel
      */
     public static $fieldPhone = 'phone';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -44,9 +41,6 @@ class VendorContact extends EntityModel
      */
     protected $table = 'vendor_contacts';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'first_name',
         'last_name',
@@ -56,48 +50,33 @@ class VendorContact extends EntityModel
     ];
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class)->withTrashed();
+        return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersonType()
     {
         return PERSON_VENDOR_CONTACT;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getName()
     {
         return $this->getDisplayName();
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getDisplayName()
     {
         if ($this->getFullName()) {
@@ -107,12 +86,12 @@ class VendorContact extends EntityModel
         return $this->email;
     }
 
-    public function getFullName(): string
+    /**
+     * @return string
+     */
+    public function getFullName()
     {
-        if ($this->first_name) {
-            return $this->first_name . ' ' . $this->last_name;
-        }
-        if ($this->last_name) {
+        if ($this->first_name || $this->last_name) {
             return $this->first_name . ' ' . $this->last_name;
         }
 

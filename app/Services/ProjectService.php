@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Client;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class ProjectService.
@@ -26,6 +25,7 @@ class ProjectService extends BaseService
      * CreditService constructor.
      *
      * @param ProjectRepository $creditRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(ProjectRepository $projectRepo, DatatableService $datatableService)
     {
@@ -34,6 +34,7 @@ class ProjectService extends BaseService
     }
 
     /**
+     * @param       $data
      * @param mixed $project
      *
      * @return mixed|null
@@ -49,8 +50,10 @@ class ProjectService extends BaseService
 
     /**
      * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
     {

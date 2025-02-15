@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Ninja\Datatables\PaymentTermDatatable;
 use App\Ninja\Repositories\PaymentTermRepository;
-use Illuminate\Http\JsonResponse;
 use URL;
 
 class PaymentTermService extends BaseService
@@ -15,6 +14,9 @@ class PaymentTermService extends BaseService
 
     /**
      * PaymentTermService constructor.
+     *
+     * @param PaymentTermRepository $paymentTermRepo
+     * @param DatatableService      $datatableService
      */
     public function __construct(PaymentTermRepository $paymentTermRepo, DatatableService $datatableService)
     {
@@ -23,14 +25,15 @@ class PaymentTermService extends BaseService
     }
 
     /**
-     * @param int $companyId
+     * @param int $accountId
      *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getDatatable($companyId = 0)
+    public function getDatatable($accountId = 0)
     {
         $datatable = new PaymentTermDatatable(false);
 
-        $query = $this->paymentTermRepo->find($companyId);
+        $query = $this->paymentTermRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

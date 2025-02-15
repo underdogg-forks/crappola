@@ -4,7 +4,6 @@ namespace App\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Query\Builder;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -15,19 +14,13 @@ class Proposal extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
     /**
      * @var string
      */
-    protected $presenter = ProposalPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProposalPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'private_notes',
         'html',
@@ -39,6 +32,11 @@ class Proposal extends EntityModel
      */
     //protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
+    public function getEntityType()
+    {
+        return ENTITY_PROPOSAL;
+    }
+
     /**
      * @return string
      */
@@ -48,53 +46,39 @@ class Proposal extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function invitations(): Builder
+    public function invitations()
     {
-        return $this->hasMany(ProposalInvitation::class)->orderBy('proposal_invitations.contact_id');
+        return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
     }
 
-    /**
-     * @return mixed
-     */
-    public function proposal_invitations(): Builder
+    public function proposal_invitations()
     {
-        return $this->hasMany(ProposalInvitation::class)->orderBy('proposal_invitations.contact_id');
+        return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function proposal_template()
     {
-        return $this->belongsTo(ProposalTemplate::class)->withTrashed();
+        return $this->belongsTo('App\Models\ProposalTemplate')->withTrashed();
     }
 
     public function getDisplayName()
     {
         return $this->invoice->invoice_number;
-    }
-
-    public function getHeadlessLink(): string
-    {
-        return sprintf('%s?phantomjs=true&phantomjs_secret=%s', $this->getLink(true, true), env('PHANTOMJS_SECRET'));
     }
 
     public function getLink($forceOnsite = false, $forcePlain = false)
@@ -104,19 +88,16 @@ class Proposal extends EntityModel
         return $invitation->getLink('proposal', $forceOnsite, $forcePlain);
     }
 
-    public function getFilename($extension = 'pdf'): string
+    public function getHeadlessLink()
+    {
+        return sprintf('%s?phantomjs=true&phantomjs_secret=%s', $this->getLink(true, true), env('PHANTOMJS_SECRET'));
+    }
+
+    public function getFilename($extension = 'pdf')
     {
         $entityType = $this->getEntityType();
 
         return trans('texts.proposal') . '_' . $this->invoice->invoice_number . '.' . $extension;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_PROPOSAL;
     }
 
     /**
@@ -128,16 +109,19 @@ class Proposal extends EntityModel
             return CUSTOM_MESSAGE_APPROVED_PROPOSAL;
         }
 
+        return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
+    }
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
     }
 }
 
-Proposal::creating(function ($project): void {
+Proposal::creating(function ($project) {
     $project->setNullValues();
 });
 
-Proposal::updating(function ($project): void {
+Proposal::updating(function ($project) {
     $project->setNullValues();
 });

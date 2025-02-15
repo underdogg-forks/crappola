@@ -11,8 +11,8 @@
 |
 */
 
-$app = new App\Application(
-    realpath(__DIR__ . '/../')
+$app = new Illuminate\Foundation\Application(
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
 /*
@@ -27,18 +27,18 @@ $app = new App\Application(
 */
 
 $app->singleton(
-    'Illuminate\Contracts\Http\Kernel',
-    'App\Http\Kernel'
+    Illuminate\Contracts\Http\Kernel::class,
+    App\Http\Kernel::class
 );
 
 $app->singleton(
-    'Illuminate\Contracts\Console\Kernel',
-    'App\Console\Kernel'
+    Illuminate\Contracts\Console\Kernel::class,
+    App\Console\Kernel::class
 );
 
 $app->singleton(
-    'Illuminate\Contracts\Debug\ExceptionHandler',
-    'App\Exceptions\Handler'
+    Illuminate\Contracts\Debug\ExceptionHandler::class,
+    App\Exceptions\Handler::class
 );
 
 /*
@@ -56,19 +56,12 @@ $app->singleton(
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'PhantomJS') && Utils::isNinjaDev()) {
     $app->loadEnvironmentFrom('.env.testing');
 }
-*/
-
-/*$app->configureMonologUsing(function($monolog) {
-    if (config('app.log') == 'single') {
-        $monolog->pushHandler(new Monolog\Handler\StreamHandler(storage_path() . '/logs/laravel-info.log', Monolog\Logger::INFO, false));
-        $monolog->pushHandler(new Monolog\Handler\StreamHandler(storage_path() . '/logs/laravel-warning.log', Monolog\Logger::WARNING, false));
-        $monolog->pushHandler(new Monolog\Handler\StreamHandler(storage_path() . '/logs/laravel-error.log', Monolog\Logger::ERROR, false));
-    }
-});*/
+*	/
 
 // Capture real IP if using cloudflare
-/*if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-    $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
-}*/
+if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+    $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+}
+*/
 
 return $app;

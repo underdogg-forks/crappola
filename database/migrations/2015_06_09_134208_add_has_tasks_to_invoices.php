@@ -6,11 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 class AddHasTasksToInvoices extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::table('invoices', function ($table): void {
-            $table->boolean('has_tasks')->after('invoice_footer')->default(false);
-        });
+        Schema::table('invoices', function ($table) {});
 
         $invoices = DB::table('invoices')
             ->join('tasks', 'tasks.invoice_id', '=', 'invoices.id')
@@ -24,9 +22,9 @@ class AddHasTasksToInvoices extends Migration
         }
     }
 
-    public function down(): void
+    public function down()
     {
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropColumn('has_tasks');
         });
     }

@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Cache;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class InvoiceDesign.
  */
-class InvoiceDesign extends Model
+class InvoiceDesign extends Eloquent
 {
+    public $timestamps = false;
+
     public static $pageSizes = [
         'A0',
         'A1',
@@ -62,17 +64,9 @@ class InvoiceDesign extends Model
         'Tabloid',
     ];
 
-    /**
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
-     * @return mixed
-     */
     public static function getDesigns()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $designs = Cache::get('invoiceDesigns');
 
         $data = collect();
@@ -86,7 +80,7 @@ class InvoiceDesign extends Model
             $design->pdfmake = null;
 
             if (in_array($design->id, [CUSTOM_DESIGN1, CUSTOM_DESIGN2, CUSTOM_DESIGN3])) {
-                if ($javascript = $company->getCustomDesign($design->id)) {
+                if ($javascript = $account->getCustomDesign($design->id)) {
                     $design->javascript = $javascript;
                 } else {
                     $data->forget($design->id - 1);

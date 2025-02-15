@@ -1,24 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AllowNullClientCurrency extends Migration
+{
+    public function up()
     {
-        Schema::table('clients', function ($table): void {
+        Schema::table('clients', function ($table) {
             //DB::statement('ALTER TABLE `clients` MODIFY `currency_id` INTEGER UNSIGNED NULL;');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void {}
-};
+    public function down() {}
+}

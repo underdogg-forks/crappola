@@ -3,16 +3,12 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupCompany extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'db_server_id',
         'company_id',
@@ -20,7 +16,7 @@ class LookupCompany extends LookupModel
 
     public function dbServer()
     {
-        return $this->belongsTo(DbServer::class);
+        return $this->belongsTo('App\Models\DbServer');
     }
 
     public function getDbServer()

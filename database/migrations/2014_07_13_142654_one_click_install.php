@@ -1,31 +1,27 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class OneClickInstall extends Migration
+{
+    public function up()
     {
-        Schema::create('affiliates', function ($table): void {
+        Schema::create('affiliates', function ($table) {
             $table->increments('id');
-            $table->timestamps();
-            $table->softDeletes();
 
             $table->string('name');
             $table->string('affiliate_key')->unique();
 
             $table->text('payment_title');
             $table->text('payment_subtitle');
-        });
 
-        Schema::create('licenses', function ($table): void {
-            $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::create('licenses', function ($table) {
+            $table->increments('id');
             $table->unsignedInteger('affiliate_id');
 
             $table->string('first_name');
@@ -36,18 +32,16 @@ return new class () extends Migration {
             $table->boolean('is_claimed');
             $table->string('transaction_reference');
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('licenses');
         Schema::dropIfExists('affiliates');
     }
-};
+}

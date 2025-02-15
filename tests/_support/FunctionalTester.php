@@ -25,7 +25,7 @@ class FunctionalTester extends \Codeception\Actor
     /**
      * Define custom actions here.
      */
-    public function checkIfLogin(self $I): void
+    public function checkIfLogin(self $I)
     {
         //if ($I->loadSessionSnapshot('login')) return;
         $I->amOnPage('/login');

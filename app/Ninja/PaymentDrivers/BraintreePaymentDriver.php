@@ -6,7 +6,6 @@ use App\Libraries\Utils;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Braintree\Customer;
-use Braintree\Result\Error;
 use Exception;
 use Illuminate\Support\Facades\Session;
 
@@ -93,39 +92,6 @@ class BraintreePaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    protected function paymentDetails($paymentMethod = false)
-    {
-        $data = parent::paymentDetails($paymentMethod);
-
-        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
-
-        if ($deviceData) {
-            $data['device_data'] = $deviceData;
-        }
-
-        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
-            $data['ButtonSource'] = 'InvoiceNinja_SP';
-        }
-
-        if (! $paymentMethod && ! empty($this->input['sourceToken'])) {
-            $data['token'] = $this->input['sourceToken'];
-        }
-
-        return $data;
-    }
-
-    private function customerData()
-    {
-        return [
-            'firstName'   => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
-            'lastName'    => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
-            'companyPlan' => $this->client()->name,
-            'email'       => $this->contact()->email,
-            'phone'       => $this->contact()->phone,
-            'website'     => $this->client()->website,
-        ];
-    }
-
     public function creatingCustomer($customer)
     {
         $customer->token = $this->tokenResponse->customerId;
@@ -147,6 +113,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
         throw new Exception($response->getMessage());
     }
 
+    public function createTransactionToken()
+    {
+        return $this->gateway()
+            ->clientToken()
+            ->send()
+            ->getToken();
+    }
+
     public function isValid()
     {
         try {
@@ -158,17 +132,9 @@ class BraintreePaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function createTransactionToken()
-    {
-        return $this->gateway()
-            ->clientToken()
-            ->send()
-            ->getToken();
-    }
-
     protected function checkCustomerExists($customer)
     {
-        if (! parent::checkCustomerExists($customer)) {
+        if ( ! parent::checkCustomerExists($customer)) {
             return false;
         }
 
@@ -188,6 +154,27 @@ class BraintreePaymentDriver extends BasePaymentDriver
         }
 
         return $url;
+    }
+
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $data = parent::paymentDetails($paymentMethod);
+
+        $deviceData = array_get($this->input, 'device_data') ?: Session::get($this->invitation->id . 'device_data');
+
+        if ($deviceData) {
+            $data['device_data'] = $deviceData;
+        }
+
+        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
+            $data['ButtonSource'] = 'InvoiceNinja_SP';
+        }
+
+        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
+            $data['token'] = $this->input['sourceToken'];
+        }
+
+        return $data;
     }
 
     protected function creatingPaymentMethod($paymentMethod)
@@ -212,13 +199,13 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected function attemptVoidPayment($response, $payment, $amount)
     {
-        if (! parent::attemptVoidPayment($response, $payment, $amount)) {
+        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
         }
 
         $data = $response->getData();
 
-        if ($data instanceof Error) {
+        if ($data instanceof \Braintree\Result\Error) {
             $error = $data->errors->deepAll()[0];
             if ($error && $error->code == 91506) {
                 return true;
@@ -226,5 +213,17 @@ class BraintreePaymentDriver extends BasePaymentDriver
         }
 
         return false;
+    }
+
+    private function customerData()
+    {
+        return [
+            'firstName' => array_get($this->input, 'first_name') ?: $this->contact()->first_name,
+            'lastName'  => array_get($this->input, 'last_name') ?: $this->contact()->last_name,
+            'company'   => $this->client()->name,
+            'email'     => $this->contact()->email,
+            'phone'     => $this->contact()->phone,
+            'website'   => $this->client()->website,
+        ];
     }
 }

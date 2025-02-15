@@ -23,7 +23,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         $response = $this->gateway()->fetchTransaction($data)->send();
 
         if ($response->isPaid() || $response->isPaidOut()) {
-            $invitation = Invitation::whereCompanyPlanId($this->accountGateway->company_id)
+            $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
                 ->whereTransactionReference($ref)
                 ->first();
             if ($invitation) {
@@ -32,7 +32,7 @@ class MolliePaymentDriver extends BasePaymentDriver
             }
         } else {
             // check if payment has failed
-            $payment = Payment::whereCompanyPlanId($this->accountGateway->company_id)
+            $payment = Payment::whereAccountId($this->accountGateway->account_id)
                 ->whereTransactionReference($ref)
                 ->first();
             if ($payment) {
@@ -50,7 +50,7 @@ class MolliePaymentDriver extends BasePaymentDriver
         $data = parent::paymentDetails($paymentMethod);
 
         // Enable webhooks
-        $data['notifyUrl'] = url('/payment_hook/' . $this->company()->account_key . '/' . GATEWAY_MOLLIE);
+        $data['notifyUrl'] = url('/payment_hook/' . $this->account()->account_key . '/' . GATEWAY_MOLLIE);
 
         return $data;
     }

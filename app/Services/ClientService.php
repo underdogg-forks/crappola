@@ -2,13 +2,10 @@
 
 namespace App\Services;
 
-use App\Libraries\Utils;
-use App\Models\Client;
+use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class ClientService.
@@ -27,6 +24,10 @@ class ClientService extends BaseService
 
     /**
      * ClientService constructor.
+     *
+     * @param ClientRepository $clientRepo
+     * @param DatatableService $datatableService
+     * @param NinjaRepository  $ninjaRepo
      */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
@@ -36,48 +37,33 @@ class ClientService extends BaseService
     }
 
     /**
+     * @param      $data
+     * @param null $client
+     *
      * @return mixed|null
      */
     public function save($data, $client = null)
     {
-        if (Auth::user()->company->isNinjaAccount() && isset($data['plan'])) {
+        if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
             $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
         }
 
         return $this->clientRepo->save($data, $client);
     }
 
+    /**
+     * @param $search
+     * @param $userId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search, $userId)
     {
-        return datatables()
-            ->eloquent(Client::query()
-                ->with(['contacts' => function ($query): void {
-                    $query->select('contacts.first_name', 'contacts.last_name', 'contacts.email');
-                }])
-                ->select('clients.id', 'clients.name', 'clients.id_number', 'clients.last_login', 'clients.balance')) // Adjust the query to your model
-            ->addColumn('name', function ($model) {
-                $str = link_to("clients/{$model->id}", $model->name ?: '')->toHtml();
+        $datatable = new ClientDatatable();
 
-                return $str;
-            })
-            ->addColumn('contact', function ($model) {
-                return link_to("clients/{$model->id}", $model?->contact?->first_name . ' ' . $model?->contact?->last_name ?: '')->toHtml();
-            })
-            ->addColumn('email', function ($model) {
-                return $model?->contact?->email;
-            })
-            ->addColumn('id_number', function ($model) {
-                return $model->id_number;
-                //Auth::user()->company()->clientNumbersEnabled(),
-            })
-            ->addColumn('last_login', function ($model) {
-                return Utils::timestampToDateString(strtotime($model->last_login));
-            })
-            ->addColumn('balance', function ($model) {
-                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-            })
-            ->rawColumns(['name', 'contact'])
-            ->make(true);
+        $query = $this->clientRepo->find($search, $userId);
+
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
     /**

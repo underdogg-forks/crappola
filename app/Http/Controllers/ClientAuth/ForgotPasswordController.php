@@ -4,13 +4,12 @@ namespace App\Http\Controllers\ClientAuth;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\Contact;
 use Config;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Mail\Message;
 use Password;
 
 class ForgotPasswordController extends Controller
@@ -41,7 +40,7 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function showLinkRequestForm()
     {
@@ -55,32 +54,31 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
+     * @param \Illuminate\Http\Request $request
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function sendResetLinkEmail(Request $request)
     {
-        // resolve the email to a contact/company
-        $company = false;
-        if (! Utils::isNinja() && Company::count() == 1) {
-            $company = Company::first();
-        } elseif ($companyKey = request()->account_key) {
-            $company = Company::whereAccountKey($companyKey)->first();
+        // resolve the email to a contact/account
+        $account = false;
+        if ( ! Utils::isNinja() && Account::count() == 1) {
+            $account = Account::first();
+        } elseif ($accountKey = request()->account_key) {
+            $account = Account::whereAccountKey($accountKey)->first();
         } else {
             $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
             if ($subdomain && $subdomain != 'app') {
-                $company = Company::whereSubdomain($subdomain)->first();
+                $account = Account::whereSubdomain($subdomain)->first();
             }
         }
-        if (! $company) {
-            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
-        }
-        if (! request()->email) {
+
+        if ( ! $account || ! request()->email) {
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
         $contact = Contact::where('email', '=', request()->email)
-            ->where('company_id', '=', $company->id)
+            ->where('account_id', '=', $account->id)
             ->first();
 
         if ($contact) {
@@ -89,13 +87,13 @@ class ForgotPasswordController extends Controller
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
-        $response = $this->broker()->sendResetLink(['id' => $contactId], function (Message $message): void {
+        $response = $this->broker()->sendResetLink(['id' => $contactId], function (Message $message) {
             $message->subject($this->getEmailSubject());
         });
 
         return $response == Password::RESET_LINK_SENT
-            ? $this->sendResetLinkResponse($response)
-            : $this->sendResetLinkFailedResponse($request, $response);
+                    ? $this->sendResetLinkResponse($request, $response)
+                    : $this->sendResetLinkFailedResponse($request, $response);
     }
 
     protected function broker()

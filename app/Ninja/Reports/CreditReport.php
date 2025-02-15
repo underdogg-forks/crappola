@@ -19,15 +19,15 @@ class CreditReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
-            ->with(['contacts', 'user', 'credits' => function ($query): void {
+            ->with(['contacts', 'user', 'credits' => function ($query) {
                 $query->where('credit_date', '>=', $this->startDate)
                     ->where('credit_date', '<=', $this->endDate)
                     ->withArchived();
@@ -45,14 +45,14 @@ class CreditReport extends AbstractReport
                 $this->addChartData($dimension, $credit->credit_date, $credit->amount);
             }
 
-            if (! $amount && ! $balance) {
+            if ( ! $amount && ! $balance) {
                 continue;
             }
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $company->formatMoney($amount, $client),
-                $company->formatMoney($balance, $client),
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($balance, $client),
                 $client->user->getDisplayName(),
             ];
 

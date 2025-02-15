@@ -3,16 +3,13 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class PaymentLibrary.
  */
-class PaymentLibrary extends Model
+class PaymentLibrary extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = true;
 
     /**
@@ -21,11 +18,11 @@ class PaymentLibrary extends Model
     protected $table = 'payment_libraries';
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function gateways()
     {
-        return $this->hasMany(Gateway::class, 'payment_library_id');
+        return $this->hasMany('App\Models\Gateway', 'payment_library_id');
     }
 
     protected function serializeDate(DateTimeInterface $date)

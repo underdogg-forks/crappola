@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DateFormatsSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
+        Model::unguard();
+
         // Date formats
         $formats = [
             ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],

@@ -8,18 +8,20 @@ class ComposerServiceProvider extends ServiceProvider
 {
     /**
      * Register bindings in the container.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         view()->composer(
             [
-                'companies.details',
+                'accounts.details',
                 'clients.edit',
                 'vendors.edit',
                 'payments.edit',
                 'invoices.edit',
                 'expenses.edit',
-                'companies.localization',
+                'accounts.localization',
                 'payments.credit_card',
                 'invited.details',
             ],
@@ -53,8 +55,8 @@ class ComposerServiceProvider extends ServiceProvider
 
     /**
      * Register the service provider.
+     *
+     * @return void
      */
-    public function register(): void
-    {
-    }
+    public function register() {}
 }

@@ -21,16 +21,16 @@ class ImportData extends Job implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    protected User $user;
+    /**
+     * @var User
+     */
+    protected $user;
 
     /**
      * @var string
      */
     protected $type;
 
-    /**
-     * @var array
-     */
     protected $settings;
 
     /**
@@ -57,13 +57,13 @@ class ImportData extends Job implements ShouldQueue
      *
      * @param ContactMailer $mailer
      */
-    public function handle(ImportService $importService, UserMailer $userMailer): void
+    public function handle(ImportService $importService, UserMailer $userMailer)
     {
         $includeSettings = false;
 
         if (App::runningInConsole()) {
             Auth::onceUsingId($this->user->id);
-            $this->user->company->loadLocalizationSettings();
+            $this->user->account->loadLocalizationSettings();
         }
 
         try {

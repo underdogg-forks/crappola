@@ -13,39 +13,31 @@ class EntityPolicy
     use HandlesAuthorization;
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
-    public function createPermission(User $user, $entityType)
+    public static function create(User $user, $item)
     {
-        if (! $this->checkModuleEnabled($user, $entityType)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
+
+        $entityType = is_string($item) ? $item : $item->getEntityType();
 
         return $user->hasPermission('create_' . $entityType);
     }
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
-    public function checkModuleEnabled(User $user, $item)
+    public static function edit(User $user, $item)
     {
-        $entityType = is_string($item) ? $item : $item->getEntityType();
-
-        return $user->company->isModuleEnabled($entityType);
-    }
-
-    /**
-     * @param $item - entity name or object
-     *
-     * @return bool
-     */
-    public function edit(User $user, $item)
-    {
-        if (! $this->checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -55,13 +47,14 @@ class EntityPolicy
     }
 
     /**
-     * @param $item - entity name or object
+     * @param User $user
+     * @param      $item - entity name or object
      *
      * @return bool
      */
-    public function view(User $user, $item, $entityType = null)
+    public static function view(User $user, $item)
     {
-        if (! $this->checkModuleEnabled($user, $item)) {
+        if ( ! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -70,21 +63,9 @@ class EntityPolicy
         return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
-    public function viewModel(User $user, $model)
-    {
-        if ($user->hasPermission('view_' . $model->entityType)) {
-            return true;
-        } elseif ($model->user_id == $user->id) {
-            return true;
-        } elseif (isset($model->agent_id) && ($model->agent_id == $user->id)) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
-     * @param $ownerUserId
+     * @param User $user
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('view', $ENTITY_TYPE)
@@ -93,13 +74,14 @@ class EntityPolicy
      *
      * @return bool
      */
-    public function viewByOwner(User $user, $ownerUserId)
+    public static function viewByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
 
     /**
-     * @param $ownerUserId
+     * @param User $user
+     * @param      $ownerUserId
      *
      * Legacy permissions - retaining these for legacy code however new code
      *                      should use auth()->user()->can('edit', $ENTITY_TYPE)
@@ -108,13 +90,21 @@ class EntityPolicy
      *
      * @return bool
      */
-    public function editByOwner(User $user, $ownerUserId)
+    public static function editByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
 
-    public function createEntity(User $user, $entityType)
+    /**
+     * @param User $user
+     * @param      $item - entity name or object
+     *
+     * @return bool
+     */
+    private static function checkModuleEnabled(User $user, $item)
     {
-        return $user->hasPermission('create_' . $entityType);
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+
+        return $user->account->isModuleEnabled($entityType);
     }
 }

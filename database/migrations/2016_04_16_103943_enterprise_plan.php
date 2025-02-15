@@ -3,14 +3,11 @@
 use App\Models\Account;
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class EnterprisePlan extends Migration
+{
+    public function up()
     {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
@@ -20,7 +17,7 @@ return new class () extends Migration {
         $startTime = time();
 
         if ( ! Schema::hasTable('companies')) {
-            Schema::create('companies', function ($table): void {
+            Schema::create('companies', function ($table) {
                 $table->increments('id');
 
                 $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
@@ -41,22 +38,22 @@ return new class () extends Migration {
                 $table->softDeletes();
             });
 
-            Schema::table('companies', function ($table): void {
+            Schema::table('companies', function ($table) {
                 $table->foreign('payment_id')->references('id')->on('payments');
             });
         }
 
         if ( ! Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
         }
 
         $single_account_ids = \DB::table('users')
-            ->leftJoin('user_accounts', function ($join): void {
+            ->leftJoin('user_accounts', function ($join) {
                 $join->on('user_accounts.user_id1', '=', 'users.id');
                 $join->orOn('user_accounts.user_id2', '=', 'users.id');
                 $join->orOn('user_accounts.user_id3', '=', 'users.id');
@@ -66,7 +63,7 @@ return new class () extends Migration {
             ->leftJoin('accounts', 'accounts.id', '=', 'users.account_id')
             ->whereNull('user_accounts.id')
             ->whereNull('accounts.company_id')
-            ->where(function ($query): void {
+            ->where(function ($query) {
                 $query->whereNull('users.public_id');
                 $query->orWhere('users.public_id', '=', 0);
             })
@@ -106,19 +103,14 @@ return new class () extends Migration {
         }
 
         if (Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->dropColumn('pro_plan_paid');
                 $table->dropColumn('pro_plan_trial');
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
@@ -128,7 +120,7 @@ return new class () extends Migration {
         $startTime = time();
 
         if ( ! Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();
             });
@@ -138,7 +130,7 @@ return new class () extends Migration {
             ->leftJoin('accounts', 'accounts.company_id', '=', 'companies.id')
             ->whereNull('accounts.pro_plan_paid')
             ->whereNull('accounts.pro_plan_trial')
-            ->where(function ($query): void {
+            ->where(function ($query) {
                 $query->whereNotNull('companies.plan_paid');
                 $query->orWhereNotNull('companies.trial_started');
             })
@@ -158,7 +150,7 @@ return new class () extends Migration {
         }
 
         if (Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 $table->dropForeign('accounts_company_id_foreign');
                 $table->dropColumn('company_id');
             });
@@ -167,14 +159,14 @@ return new class () extends Migration {
         Schema::dropIfExists('companies');
     }
 
-    protected function checkTimeout($timeout, $startTime): void
+    protected function checkTimeout($timeout, $startTime)
     {
         if (time() - $startTime >= $timeout) {
             exit('Migration reached time limit; please run again to continue');
         }
     }
 
-    private function upAccounts($primaryAccount, $otherAccounts = []): void
+    private function upAccounts($primaryAccount, $otherAccounts = [])
     {
         if ( ! $primaryAccount) {
             $primaryAccount = $otherAccounts->first();
@@ -231,4 +223,4 @@ return new class () extends Migration {
             }
         }
     }
-};
+}

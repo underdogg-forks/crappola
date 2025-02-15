@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use DateTimeInterface;
-use Utils;
 use HTMLUtils;
-use Crypt;
-use HTMLUtils;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 use Laracasts\Presenter\PresentableTrait;
 use URL;
 
@@ -25,38 +23,48 @@ class AccountGateway extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\AccountGatewayPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $hidden = [
         'config',
     ];
 
     /**
-     * @return mixed
+     * @param $provider
+     *
+     * @return string
      */
+    public static function paymentDriverClass($provider)
+    {
+        $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $provider = str_replace('\\', '', $provider);
+        $class = $folder . $provider . 'PaymentDriver';
+        $class = str_replace('_', '', $class);
+
+        if (class_exists($class)) {
+            return $class;
+        }
+
+        return $folder . 'BasePaymentDriver';
+    }
+
     public function getEntityType()
     {
         return ENTITY_ACCOUNT_GATEWAY;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function gateway()
     {
-        return $this->belongsTo(Gateway::class);
+        return $this->belongsTo('App\Models\Gateway');
     }
 
     /**
-     * @return array<int, array{source: string, alt: mixed}>
+     * @return array
      */
-    public function getCreditcardTypes(): array
+    public function getCreditcardTypes()
     {
         $flags = unserialize(CREDIT_CARDS);
         $arrayOfImages = [];
@@ -84,42 +92,11 @@ class AccountGateway extends EntityModel
     }
 
     /**
-     * @return string
+     * @param $gatewayId
+     *
+     * @return bool
      */
-    public static function paymentDriverClass($provider)
-    {
-        $folder = 'App\\Ninja\\PaymentDrivers\\';
-        $provider = str_replace('\\', '', $provider);
-        $class = $folder . $provider . 'PaymentDriver';
-        $class = str_replace('_', '', $class);
-
-        if (class_exists($class)) {
-            return $class;
-        }
-
-        return $folder . 'BasePaymentDriver';
-    }
-
-    public function isCustom(): bool
-    {
-        return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
-    }
-
-    public function setConfig($config): void
-    {
-        $this->config = Crypt::encrypt(json_encode($config));
-    }
-
-    public function getAppleMerchantId()
-    {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
-            return false;
-        }
-
-        return $this->getConfigField('appleMerchantId');
-    }
-
-    public function isGateway($gatewayId): bool
+    public function isGateway($gatewayId)
     {
         if (is_array($gatewayId)) {
             foreach ($gatewayId as $id) {
@@ -134,7 +111,27 @@ class AccountGateway extends EntityModel
         return $this->gateway_id == $gatewayId;
     }
 
+    public function isCustom()
+    {
+        return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
+    }
+
     /**
+     * @param $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = Crypt::encrypt(json_encode($config));
+    }
+
+    public function getConfig()
+    {
+        return json_decode(Crypt::decrypt($this->config));
+    }
+
+    /**
+     * @param $field
+     *
      * @return mixed
      */
     public function getConfigField($field)
@@ -143,11 +140,32 @@ class AccountGateway extends EntityModel
     }
 
     /**
-     * @return mixed
+     * @return bool|mixed
      */
-    public function getConfig()
+    public function getPublishableKey()
     {
-        return json_decode(Crypt::decrypt($this->config));
+        if ( ! $this->isGateway([GATEWAY_STRIPE, GATEWAY_PAYMILL])) {
+            return false;
+        }
+
+        return $this->getConfigField('publishableKey');
+    }
+
+    public function getAppleMerchantId()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('appleMerchantId');
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAchEnabled()
+    {
+        return ! empty($this->getConfigField('enableAch'));
     }
 
     /**
@@ -203,7 +221,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidSecret()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -213,26 +231,9 @@ class AccountGateway extends EntityModel
     /**
      * @return bool|mixed
      */
-    public function getPlaidPublicKey()
-    {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
-            return false;
-        }
-
-        return $this->getConfigField('plaidPublicKey');
-    }
-
-    public function getPlaidEnabled(): bool
-    {
-        return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
-    }
-
-    /**
-     * @return bool|mixed
-     */
     public function getPlaidClientId()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -240,11 +241,23 @@ class AccountGateway extends EntityModel
     }
 
     /**
+     * @return bool|mixed
+     */
+    public function getPlaidPublicKey()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('plaidPublicKey');
+    }
+
+    /**
      * @return bool
      */
-    public function getAchEnabled()
+    public function getPlaidEnabled()
     {
-        return ! empty($this->getConfigField('enableAch'));
+        return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
     }
 
     /**
@@ -252,25 +265,13 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnvironment()
     {
-        if (! $this->getPlaidClientId()) {
+        if ( ! $this->getPlaidClientId()) {
             return;
         }
 
         $stripe_key = $this->getPublishableKey();
 
-        return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
-    }
-
-    /**
-     * @return bool|mixed
-     */
-    public function getPublishableKey()
-    {
-        if (! $this->isGateway([GATEWAY_STRIPE, GATEWAY_PAYMILL])) {
-            return false;
-        }
-
-        return $this->getConfigField('publishableKey');
+        return mb_substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
 
     /**
@@ -278,15 +279,15 @@ class AccountGateway extends EntityModel
      */
     public function getWebhookUrl()
     {
-        $company = $this->company ? $this->company : Company::find($this->company_id);
+        $account = $this->account ? $this->account : Account::find($this->account_id);
 
-        return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $company->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
+        return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 
     public function isTestMode()
     {
         if ($this->isGateway(GATEWAY_STRIPE)) {
-            return strpos($this->getPublishableKey(), 'test') !== false;
+            return str_contains($this->getPublishableKey(), 'test');
         }
 
         return $this->getConfigField('testMode');
@@ -304,9 +305,10 @@ class AccountGateway extends EntityModel
             $text = HTMLUtils::sanitizeHTML($text);
         }
 
-        $templateService = app(TemplateService::class);
+        $templateService = app('App\Services\TemplateService');
+        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
 
-        return $templateService->processVariables($text, ['invitation' => $invitation]);
+        return $text;
     }
 
     protected function serializeDate(DateTimeInterface $date)

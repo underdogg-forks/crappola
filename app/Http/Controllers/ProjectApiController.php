@@ -14,9 +14,15 @@ use App\Services\ProjectService;
  */
 class ProjectApiController extends BaseAPIController
 {
-    protected ProjectRepository $projectRepo;
+    /**
+     * @var ProjectRepository
+     */
+    protected $projectRepo;
 
-    protected ProjectService $projectService;
+    /**
+     * @var ProjectService
+     */
+    protected $projectService;
 
     /**
      * @var string
@@ -25,6 +31,9 @@ class ProjectApiController extends BaseAPIController
 
     /**
      * ProjectApiController constructor.
+     *
+     * @param ProjectRepository $projectRepo
+     * @param ProjectService    $projectService
      */
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {

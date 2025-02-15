@@ -18,7 +18,7 @@ class UserPresenter extends EntityPresenter
     {
         $status = '';
         $user = $this->entity;
-        $company = $user->company;
+        $account = $user->account;
 
         if ($user->confirmed) {
             $status .= 'C';
@@ -28,11 +28,11 @@ class UserPresenter extends EntityPresenter
             $status .= 'N';
         }
 
-        if ($company->isTrial()) {
+        if ($account->isTrial()) {
             $status .= 'T';
-        } elseif ($company->isEnterprise()) {
+        } elseif ($account->isEnterprise()) {
             $status .= 'E';
-        } elseif ($company->isPro()) {
+        } elseif ($account->isPro()) {
             $status .= 'P';
         } else {
             $status .= 'H';

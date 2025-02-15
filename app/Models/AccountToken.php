@@ -12,33 +12,24 @@ class AccountToken extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_TOKEN;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     protected function serializeDate(DateTimeInterface $date)
@@ -47,13 +38,13 @@ class AccountToken extends EntityModel
     }
 }
 
-AccountToken::creating(function ($token): void {
-    LookupAccountToken::createNew($token->company->account_key, [
+AccountToken::creating(function ($token) {
+    LookupAccountToken::createNew($token->account->account_key, [
         'token' => $token->token,
     ]);
 });
 
-AccountToken::deleted(function ($token): void {
+AccountToken::deleted(function ($token) {
     if ($token->forceDeleting) {
         LookupAccountToken::deleteWhere([
             'token' => $token->token,

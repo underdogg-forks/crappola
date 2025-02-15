@@ -12,14 +12,8 @@ class TaxRate extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'rate',
@@ -27,27 +21,21 @@ class TaxRate extends EntityModel
     ];
 
     /**
-     * @return mixed
+     * @return bool|string
      */
+    public function __toString()
+    {
+        return sprintf('%s: %s%%', $this->name, $this->rate);
+    }
+
     public function getEntityType()
     {
         return ENTITY_TAX_RATE;
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function __toString(): string
-    {
-        return sprintf('%s: %s%%', $this->name, $this->rate);
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     protected function serializeDate(DateTimeInterface $date)

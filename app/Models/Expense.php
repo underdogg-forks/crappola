@@ -4,9 +4,9 @@ namespace App\Models;
 
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
+use App\Libraries\Utils;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Query\Builder;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -18,24 +18,19 @@ class Expense extends EntityModel
     // Expenses
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
     /**
      * @var string
      */
-    protected $presenter = ExpensePresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'client_id',
         'vendor_id',
-        'invoice_currency_id',
+        'expense_currency_id',
         'expense_date',
+        'invoice_currency_id',
         'amount',
         'foreign_amount',
         'exchange_rate',
@@ -49,6 +44,7 @@ class Expense extends EntityModel
         'tax_rate2',
         'tax_name2',
         'payment_date',
+        'payment_type_id',
         'transaction_reference',
         'invoice_documents',
         'should_be_invoiced',
@@ -56,7 +52,7 @@ class Expense extends EntityModel
         'custom_value2',
     ];
 
-    public static function getImportColumns(): array
+    public static function getImportColumns()
     {
         return [
             'client',
@@ -72,7 +68,7 @@ class Expense extends EntityModel
         ];
     }
 
-    public static function getImportMap(): array
+    public static function getImportMap()
     {
         return [
             'amount|total'          => 'amount',
@@ -88,10 +84,7 @@ class Expense extends EntityModel
         ];
     }
 
-    /**
-     * @return mixed[]
-     */
-    public static function getStatuses($entityType = false): array
+    public static function getStatuses($entityType = false)
     {
         $statuses = [];
         $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
@@ -104,89 +97,102 @@ class Expense extends EntityModel
         return $statuses;
     }
 
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'billed';
+            }
+        } elseif ($shouldBeInvoiced) {
+            $label = 'pending';
+        } else {
+            $label = 'logged';
+        }
+
+        $label = trans("texts.{$label}");
+
+        if ($paymentDate) {
+            $label = trans('texts.paid') . ' | ' . $label;
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                return 'default';
+            }
+
+            return 'success';
+        }
+        if ($shouldBeInvoiced) {
+            return 'warning';
+        }
+
+        return 'primary';
+    }
+
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expense_category()
     {
-        return $this->belongsTo(ExpenseCategory::class)->withTrashed();
+        return $this->belongsTo('App\Models\ExpenseCategory')->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class)->withTrashed();
+        return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function documents(): Builder
+    public function documents()
     {
-        return $this->hasMany(Document::class)->orderBy('id');
+        return $this->hasMany('App\Models\Document')->orderBy('id');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function payment_type()
     {
-        return $this->belongsTo(PaymentType::class);
+        return $this->belongsTo('App\Models\PaymentType');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function recurring_expense()
     {
-        return $this->belongsTo(RecurringExpense::class);
+        return $this->belongsTo('App\Models\RecurringExpense')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDisplayName()
-    {
-        return $this->getName();
-    }
-
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         if ($this->transaction_id) {
@@ -199,6 +205,11 @@ class Expense extends EntityModel
         return '#' . $this->public_id;
     }
 
+    public function getDisplayName()
+    {
+        return $this->getName();
+    }
+
     /**
      * @return string
      */
@@ -207,22 +218,33 @@ class Expense extends EntityModel
         return "/expenses/{$this->public_id}";
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_EXPENSE;
     }
 
-    public function isExchanged(): bool
+    /**
+     * @return bool
+     */
+    public function isExchanged()
     {
-        return $this->invoice_currency_id != $this->invoice_currency_id || $this->exchange_rate != 1;
+        return $this->invoice_currency_id != $this->expense_currency_id || $this->exchange_rate != 1;
     }
 
-    public function isPaid(): bool
+    /**
+     * @return bool
+     */
+    public function isPaid()
     {
         return $this->payment_date || $this->payment_type_id;
+    }
+
+    /**
+     * @return float
+     */
+    public function convertedAmount()
+    {
+        return round($this->amount * $this->exchange_rate, 2);
     }
 
     /**
@@ -239,26 +261,21 @@ class Expense extends EntityModel
         return $array;
     }
 
-    public function convertedAmount(): float
-    {
-        return round($this->amount * $this->exchange_rate, 2);
-    }
-
-    /**
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('expense_date', [$startDate, $endDate]);
     }
 
     /**
+     * @param      $query
+     * @param null $bankdId
+     *
      * @return mixed
      */
     public function scopeBankId($query, $bankdId = null)
     {
         if ($bankdId) {
-            $query->whereBankId($bankId);
+            $query->whereBankId($bankdId);
         }
 
         return $query;
@@ -281,70 +298,6 @@ class Expense extends EntityModel
         return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
     }
 
-    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance): string
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                return 'default';
-            }
-
-            return 'success';
-        }
-        if ($shouldBeInvoiced) {
-            return 'warning';
-        }
-
-        return 'primary';
-    }
-
-    public function statusLabel()
-    {
-        $balance = $this->invoice ? $this->invoice->balance : 0;
-
-        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
-    }
-
-    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
-    {
-        if ($invoiceId) {
-            $label = floatval($balance) > 0 ? 'invoiced' : 'billed';
-        } elseif ($shouldBeInvoiced) {
-            $label = 'pending';
-        } else {
-            $label = 'logged';
-        }
-
-        $label = trans("texts.{$label}");
-
-        if ($paymentDate) {
-            return trans('texts.paid') . ' | ' . $label;
-        }
-
-        return $label;
-    }
-
-    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                return 'default';
-            } else {
-                return 'success';
-            }
-        } elseif ($shouldBeInvoiced) {
-            return 'warning';
-        } else {
-            return 'primary';
-        }
-    }
-
-    public function statusClass()
-    {
-        $balance = $this->invoice ? $this->invoice->balance : 0;
-
-        return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
-    }
-
     public function statusLabel()
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
@@ -358,22 +311,22 @@ class Expense extends EntityModel
     }
 }
 
-Expense::creating(function ($expense): void {
+Expense::creating(function ($expense) {
     $expense->setNullValues();
 });
 
-Expense::created(function ($expense): void {
+Expense::created(function ($expense) {
     event(new ExpenseWasCreated($expense));
 });
 
-Expense::updating(function ($expense): void {
+Expense::updating(function ($expense) {
     $expense->setNullValues();
 });
 
-Expense::updated(function ($expense): void {
+Expense::updated(function ($expense) {
     event(new ExpenseWasUpdated($expense));
 });
 
-Expense::deleting(function ($expense): void {
+Expense::deleting(function ($expense) {
     $expense->setNullValues();
 });

@@ -14,14 +14,8 @@ class ProposalSnippet extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'icon',
@@ -34,11 +28,8 @@ class ProposalSnippet extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = ProposalSnippetPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProposalSnippetPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_SNIPPET;
@@ -53,19 +44,19 @@ class ProposalSnippet extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function proposal_category()
     {
-        return $this->belongsTo(ProposalCategory::class)->withTrashed();
+        return $this->belongsTo('App\Models\ProposalCategory')->withTrashed();
     }
 
     public function getDisplayName()

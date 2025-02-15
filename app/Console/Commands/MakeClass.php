@@ -47,6 +47,49 @@ class MakeClass extends GeneratorCommand
         ]))->render();
     }
 
+    public function getDestinationFilePath()
+    {
+        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
+
+        return $path . $seederPath . '/' . $this->getFileName() . '.php';
+    }
+
+    protected function getArguments()
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the module.'],
+            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['class', InputArgument::REQUIRED, 'The name of the class.'],
+            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFileName()
+    {
+        if ($this->option('filename')) {
+            return $this->option('filename');
+        }
+
+        return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
+    }
+
     protected function getColumns()
     {
         $fields = $this->option('fields');
@@ -54,7 +97,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -76,7 +119,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $parts = explode(':', $field);
@@ -100,7 +143,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -110,61 +153,20 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
-    protected function getTransformerFields($module): string
+    protected function getTransformerFields($module)
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
         $str = '';
 
         foreach ($fields as $field) {
-            if (! $field) {
+            if ( ! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
-            $str .= "'{$field}' => $" . $module->getLowerName() . "->$field,\n            ";
+            $str .= "'{$field}' => $" . $module->getLowerName() . "->{$field},\n            ";
         }
 
         return rtrim($str);
-    }
-
-    public function getDestinationFilePath(): string
-    {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
-        $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
-
-        return $path . $seederPath . '/' . $this->getFileName() . '.php';
-    }
-
-    /**
-     * @return string
-     */
-    protected function getFileName()
-    {
-        if ($this->option('filename')) {
-            return $this->option('filename');
-        }
-
-        return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
-    }
-
-    protected function getArguments(): array
-    {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the module.'],
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['class', InputArgument::REQUIRED, 'The name of the class.'],
-            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
-        ];
-    }
-
-    /**
-     * Get the console command options.
-     */
-    protected function getOptions(): array
-    {
-        return [
-            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
-            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
-        ];
     }
 }

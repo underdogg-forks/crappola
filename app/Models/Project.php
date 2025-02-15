@@ -15,19 +15,13 @@ class Project extends EntityModel
     // Expense Categories
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'task_rate',
         'private_notes',
-        'due_at',
+        'due_date',
         'budgeted_hours',
         'custom_value1',
         'custom_value2',
@@ -36,11 +30,8 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = ProjectPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROJECT;
@@ -55,33 +46,30 @@ class Project extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany('App\Models\Task');
     }
 
     public function scopeDateRange($query, $startDate, $endDate)
     {
-        return $query->where(function ($query) use ($startDate, $endDate): void {
-            $query->whereBetween('due_at', [$startDate, $endDate]);
+        return $query->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('due_date', [$startDate, $endDate]);
         });
     }
 
@@ -96,10 +84,10 @@ class Project extends EntityModel
     }
 }
 
-Project::creating(function ($project): void {
+Project::creating(function ($project) {
     $project->setNullValues();
 });
 
-Project::updating(function ($project): void {
+Project::updating(function ($project) {
     $project->setNullValues();
 });

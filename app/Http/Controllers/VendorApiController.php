@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Response;
 
 class VendorApiController extends BaseAPIController
 {
-    protected VendorRepository $vendorRepo;
+    protected $vendorRepo;
 
     protected $entityType = ENTITY_VENDOR;
 

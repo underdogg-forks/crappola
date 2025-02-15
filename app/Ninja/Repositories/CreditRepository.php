@@ -5,10 +5,10 @@ namespace App\Ninja\Repositories;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
-use Yajra\DataTables\Services\DataTable;
+use Datatable;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class CreditRepository extends BaseRepository
 {
@@ -20,15 +20,15 @@ class CreditRepository extends BaseRepository
     public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('credits')
-            ->join('companies', 'companies.id', '=', 'credits.company_id')
+            ->join('accounts', 'accounts.id', '=', 'credits.account_id')
             ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.company_id', '=', Auth::user()->company_id)
+            ->where('clients.account_id', '=', Auth::user()->account_id)
             ->where('contacts.deleted_at', '=', null)
             ->where('contacts.is_primary', '=', true)
             ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'credits.public_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.public_id as client_public_id',
@@ -56,7 +56,7 @@ class CreditRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_CREDIT);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%');
             });
         }
@@ -67,14 +67,14 @@ class CreditRepository extends BaseRepository
     public function getClientDatatable($clientId)
     {
         $query = DB::table('credits')
-            ->join('companies', 'companies.id', '=', 'credits.company_id')
+            ->join('accounts', 'accounts.id', '=', 'credits.account_id')
             ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->where('credits.client_id', '=', $clientId)
             ->where('clients.deleted_at', '=', null)
             ->where('credits.deleted_at', '=', null)
             ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'credits.amount',
                 'credits.balance',
                 'credits.credit_date',
@@ -101,7 +101,7 @@ class CreditRepository extends BaseRepository
 
     public function save($input, $credit = null)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
 
         if ($credit) {
             // do nothing

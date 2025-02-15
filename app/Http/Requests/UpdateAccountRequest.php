@@ -4,20 +4,12 @@ namespace App\Http\Requests;
 
 class UpdateAccountRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array{name: string, logo: string}
-     */
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => 'required',
@@ -25,4 +17,3 @@ class UpdateAccountRequest extends Request
         ];
     }
 }
-//

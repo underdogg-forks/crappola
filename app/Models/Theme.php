@@ -2,15 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
-/**
- * Class Theme.
- */
-class Theme extends Model
+class Theme extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 }

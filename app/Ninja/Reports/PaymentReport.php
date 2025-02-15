@@ -23,9 +23,9 @@ class PaymentReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
         $subgroup = $this->options['subgroup'];
@@ -34,10 +34,10 @@ class PaymentReport extends AbstractReport
             ->orderBy('payment_date', 'desc')
             ->withArchived()
             ->excludeFailed()
-            ->whereHas('client', function ($query): void {
+            ->whereHas('client', function ($query) {
                 $query->where('is_deleted', '=', false);
             })
-            ->whereHas('invoice', function ($query): void {
+            ->whereHas('invoice', function ($query) {
                 $query->where('is_deleted', '=', false);
             })
             ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
@@ -56,14 +56,14 @@ class PaymentReport extends AbstractReport
                 $amount = Utils::formatMoney($amount, $payment->exchange_currency_id);
             } else {
                 $this->addToTotals($client->currency_id, 'paid', $amount);
-                $amount = $company->formatMoney($amount, $client);
+                $amount = $account->formatMoney($amount, $client);
             }
 
             $this->data[] = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                 $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
-                $lastInvoiceId == $invoice->id ? '' : $company->formatMoney($invoice->amount, $client),
+                $lastInvoiceId == $invoice->id ? '' : $account->formatMoney($invoice->amount, $client),
                 $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
@@ -71,7 +71,7 @@ class PaymentReport extends AbstractReport
                 $payment->user->getDisplayName(),
             ];
 
-            if (! isset($invoiceMap[$invoice->id])) {
+            if ( ! isset($invoiceMap[$invoice->id])) {
                 $invoiceMap[$invoice->id] = true;
 
                 if ($currencyType == 'converted') {

@@ -2,19 +2,19 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Company;
+use App\Models\Account;
 use Illuminate\Support\Facades\Auth;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
-    protected $company;
+    protected $account;
 
     protected $serializer;
 
-    public function __construct(company $company = null, $serializer = null)
+    public function __construct(?Account $account = null, $serializer = null)
     {
-        $this->company = $company;
+        $this->account = $account;
         $this->serializer = $serializer;
     }
 
@@ -45,20 +45,16 @@ class EntityTransformer extends TransformerAbstract
     {
         if (method_exists($date, 'getTimestamp')) {
             return $date->getTimestamp();
-        } elseif (is_string($date)) {
+        }
+        if (is_string($date)) {
             return strtotime($date);
         }
-    }
-
-    public function getDefaultIncludes(): array
-    {
-        return $this->defaultIncludes;
     }
 
     protected function getDefaults($entity)
     {
         $data = [
-            'account_key' => $this->company->account_key,
+            'account_key' => $this->account->account_key,
             'is_owner'    => (bool) (Auth::check() && Auth::user()->owns($entity)),
         ];
 

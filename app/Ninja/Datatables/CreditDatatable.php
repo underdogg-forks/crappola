@@ -12,8 +12,6 @@ class CreditDatatable extends EntityDatatable
 
     public $sortCol = 4;
 
-    public $fieldToSum = 'amount';
-
     public function columns()
     {
         return [
@@ -31,7 +29,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                     }
                 },
@@ -39,7 +37,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'balance',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
                         return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                     }
                 },
@@ -91,7 +89,7 @@ class CreditDatatable extends EntityDatatable
                     return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_PAYMENT);
+                    return Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
         ];

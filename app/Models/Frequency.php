@@ -2,32 +2,22 @@
 
 namespace App\Models;
 
-use Cache;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Cache;
+use Str;
 
 /**
  * Class Frequency.
  */
-class Frequency extends Model
+class Frequency extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];
 
-    /**
-     * @return Translator[]|string[]|mixed[][]|null[]
-     */
-    public static function selectOptions(): array
+    public static function selectOptions()
     {
         $data = [];
 

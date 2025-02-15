@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\GenerateCalendarEvents;
-use Illuminate\Contracts\View\View;
 
 /**
  * Class ReportController.
@@ -11,13 +10,13 @@ use Illuminate\Contracts\View\View;
 class CalendarController extends BaseController
 {
     /**
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showCalendar()
     {
         $data = [
             'title'   => trans('texts.calendar'),
-            'company' => auth()->user()->company,
+            'account' => auth()->user()->account,
         ];
 
         return view('calendar', $data);
@@ -25,7 +24,7 @@ class CalendarController extends BaseController
 
     public function loadEvents()
     {
-        if (auth()->user()->company->hasFeature(FEATURE_REPORTS)) {
+        if (auth()->user()->account->hasFeature(FEATURE_REPORTS)) {
             $events = dispatch_now(new GenerateCalendarEvents());
         } else {
             $events = [];

@@ -2,9 +2,8 @@
 
 namespace App\Ninja\Transformers;
 
-use App\Models\Company;
+use App\Models\Account;
 use App\Models\User;
-use League\Fractal\Resource\Collection;
 
 class UserAccountTransformer extends EntityTransformer
 {
@@ -55,11 +54,8 @@ class UserAccountTransformer extends EntityTransformer
         'user',
     ];
 
-    /**
-     * @var array
-     */
     protected array $availableIncludes = [
-		'users',
+        'users',
         'tax_rates',
         'expense_categories',
         'account_email_settings',
@@ -69,159 +65,159 @@ class UserAccountTransformer extends EntityTransformer
 
     protected $tokenName;
 
-    public function __construct(company $company, $serializer, $tokenName)
+    public function __construct(Account $account, $serializer, $tokenName)
     {
-        parent::__construct($company, $serializer);
+        parent::__construct($account, $serializer);
 
         $this->tokenName = $tokenName;
     }
 
     public function includeUser(User $user)
     {
-        $transformer = new UserTransformer($this->company, $this->serializer);
+        $transformer = new UserTransformer($this->account, $this->serializer);
 
         return $this->includeItem($user, $transformer, 'user');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeCustomPaymentTerms(User $user)
     {
-        $transformer = new PaymentTermTransformer($this->company, $this->serializer);
+        $transformer = new PaymentTermTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($this->company->custom_payment_terms, $transformer, 'payment_terms');
+        return $this->includeCollection($this->account->custom_payment_terms, $transformer, 'payment_terms');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeUsers(User $user)
     {
-        $transformer = new UserTransformer($this->company, $this->serializer);
+        $transformer = new UserTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($this->company->users, $transformer, 'users');
+        return $this->includeCollection($this->account->users, $transformer, 'users');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeTaskStatuses(User $user)
     {
-        $transformer = new TaskStatusTransformer($this->company, $this->serializer);
+        $transformer = new TaskStatusTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($this->company->task_statuses, $transformer, 'task_statuses');
+        return $this->includeCollection($this->account->task_statuses, $transformer, 'task_statuses');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeAccountEmailSettings(User $user)
     {
-        $transformer = new AccountEmailSettingsTransformer($this->company, $this->serializer);
+        $transformer = new AccountEmailSettingsTransformer($this->account, $this->serializer);
 
-        return $this->includeItem($this->company->account_email_settings, $transformer, 'account_email_settings');
+        return $this->includeItem($this->account->account_email_settings, $transformer, 'account_email_settings');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeExpenseCategories(User $user)
     {
-        $transformer = new ExpenseCategoryTransformer($this->company, $this->serializer);
+        $transformer = new ExpenseCategoryTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($this->company->expense_categories, $transformer, 'expense_categories');
+        return $this->includeCollection($this->account->expense_categories, $transformer, 'expense_categories');
     }
 
     /**
-     * @param company $company
+     * @param Account $account
      *
-     * @return Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeTaxRates(User $user)
     {
-        $transformer = new TaxRateTransformer($this->company, $this->serializer);
+        $transformer = new TaxRateTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($this->company->tax_rates, $transformer, 'tax_rates');
+        return $this->includeCollection($this->account->tax_rates, $transformer, 'tax_rates');
     }
 
     public function transform(User $user)
     {
-        $company = $user->company;
-        $companyPlan = $company->companyPlan;
+        $account = $user->account;
+        $company = $account->company;
 
         return [
-            'account_key'              => $company->account_key,
+            'account_key'              => $account->account_key,
             'user_id'                  => (int) ($user->public_id + 1),
-            'name'                     => $company->present()->name ?: '',
-            'token'                    => $company->getToken($user->id, $this->tokenName),
+            'name'                     => $account->present()->name ?: '',
+            'token'                    => $account->getToken($user->id, $this->tokenName),
             'default_url'              => SITE_URL,
-            'plan'                     => $companyPlan->hasActivePlan() && $companyPlan->plan ? $companyPlan->plan : '',
-            'logo'                     => $company->logo ?: '',
-            'logo_url'                 => $company->getLogoURL() ?: '',
-            'currency_id'              => (int) $company->currency_id,
-            'timezone_id'              => (int) $company->timezone_id,
-            'date_format_id'           => (int) $company->date_format_id,
-            'datetime_format_id'       => (int) $company->datetime_format_id,
-            'invoice_terms'            => $company->invoice_terms ?: '',
-            'invoice_taxes'            => (bool) $company->invoice_taxes,
-            'invoice_item_taxes'       => (bool) $company->invoice_item_taxes,
-            'invoice_design_id'        => (int) $company->invoice_design_id,
-            'quote_design_id'          => (int) $company->quote_design_id,
-            'language_id'              => (int) $company->language_id,
-            'country_id'               => (int) $company->country_id,
-            'invoice_footer'           => $company->invoice_footer ?: '',
-            'invoice_labels'           => $company->invoice_labels ?: '',
-            'show_item_taxes'          => (bool) $company->show_item_taxes,
-            'military_time'            => (bool) $company->military_time,
-            'fill_products'            => (bool) $company->fill_products,
-            'tax_name1'                => $company->tax_name1 ?: '',
-            'tax_rate1'                => (float) $company->tax_rate1,
-            'tax_name2'                => $company->tax_name2 ?: '',
-            'tax_rate2'                => (float) $company->tax_rate2,
-            'quote_terms'              => $company->quote_terms ?: '',
-            'show_currency_code'       => (bool) $company->show_currency_code,
-            'enable_second_tax_rate'   => (bool) $company->enable_second_tax_rate,
-            'start_of_week'            => (int) $company->start_of_week,
-            'financial_year_start'     => (int) $company->financialYearStartMonth(),
-            'enabled_modules'          => (int) $company->enabled_modules,
-            'payment_terms'            => (int) $company->payment_terms,
-            'payment_type_id'          => (int) $company->payment_type_id,
-            'task_rate'                => (float) $company->task_rate,
-            'inclusive_taxes'          => (bool) $company->inclusive_taxes,
-            'convert_products'         => (bool) $company->convert_products,
-            'custom_invoice_taxes1'    => (bool) $company->custom_invoice_taxes1,
-            'custom_invoice_taxes2'    => (bool) $company->custom_invoice_taxes1,
-            'custom_fields'            => $company->custom_fields ?: '',
-            'invoice_fields'           => $company->invoice_fields ?: '',
-            'custom_messages'          => $company->custom_messages,
-            'email_footer'             => $company->getEmailFooter(),
-            'email_subject_invoice'    => $company->getEmailSubject(ENTITY_INVOICE),
-            'email_subject_quote'      => $company->getEmailSubject(ENTITY_QUOTE),
-            'email_subject_payment'    => $company->getEmailSubject(ENTITY_PAYMENT),
-            'email_template_invoice'   => $company->getEmailTemplate(ENTITY_INVOICE),
-            'email_template_quote'     => $company->getEmailTemplate(ENTITY_QUOTE),
-            'email_template_payment'   => $company->getEmailTemplate(ENTITY_PAYMENT),
-            'email_subject_reminder1'  => $company->getEmailSubject('reminder1'),
-            'email_subject_reminder2'  => $company->getEmailSubject('reminder2'),
-            'email_subject_reminder3'  => $company->getEmailSubject('reminder3'),
-            'email_template_reminder1' => $company->getEmailTemplate('reminder1'),
-            'email_template_reminder2' => $company->getEmailTemplate('reminder2'),
-            'email_template_reminder3' => $company->getEmailTemplate('reminder3'),
-            'has_custom_design1'       => (bool) $company->custom_design1,
-            'has_custom_design2'       => (bool) $company->custom_design2,
-            'has_custom_design3'       => (bool) $company->custom_design3,
-            'enable_portal_password'   => (bool) $company->enable_portal_password,
+            'plan'                     => $company->hasActivePlan() && $company->plan ? $company->plan : '',
+            'logo'                     => $account->logo ?: '',
+            'logo_url'                 => $account->getLogoURL() ?: '',
+            'currency_id'              => (int) $account->currency_id,
+            'timezone_id'              => (int) $account->timezone_id,
+            'date_format_id'           => (int) $account->date_format_id,
+            'datetime_format_id'       => (int) $account->datetime_format_id,
+            'invoice_terms'            => $account->invoice_terms ?: '',
+            'invoice_taxes'            => (bool) $account->invoice_taxes,
+            'invoice_item_taxes'       => (bool) $account->invoice_item_taxes,
+            'invoice_design_id'        => (int) $account->invoice_design_id,
+            'quote_design_id'          => (int) $account->quote_design_id,
+            'language_id'              => (int) $account->language_id,
+            'country_id'               => (int) $account->country_id,
+            'invoice_footer'           => $account->invoice_footer ?: '',
+            'invoice_labels'           => $account->invoice_labels ?: '',
+            'show_item_taxes'          => (bool) $account->show_item_taxes,
+            'military_time'            => (bool) $account->military_time,
+            'fill_products'            => (bool) $account->fill_products,
+            'tax_name1'                => $account->tax_name1 ?: '',
+            'tax_rate1'                => (float) $account->tax_rate1,
+            'tax_name2'                => $account->tax_name2 ?: '',
+            'tax_rate2'                => (float) $account->tax_rate2,
+            'quote_terms'              => $account->quote_terms ?: '',
+            'show_currency_code'       => (bool) $account->show_currency_code,
+            'enable_second_tax_rate'   => (bool) $account->enable_second_tax_rate,
+            'start_of_week'            => (int) $account->start_of_week,
+            'financial_year_start'     => (int) $account->financialYearStartMonth(),
+            'enabled_modules'          => (int) $account->enabled_modules,
+            'payment_terms'            => (int) $account->payment_terms,
+            'payment_type_id'          => (int) $account->payment_type_id,
+            'task_rate'                => (float) $account->task_rate,
+            'inclusive_taxes'          => (bool) $account->inclusive_taxes,
+            'convert_products'         => (bool) $account->convert_products,
+            'custom_invoice_taxes1'    => (bool) $account->custom_invoice_taxes1,
+            'custom_invoice_taxes2'    => (bool) $account->custom_invoice_taxes1,
+            'custom_fields'            => $account->custom_fields ?: '',
+            'invoice_fields'           => $account->invoice_fields ?: '',
+            'custom_messages'          => $account->custom_messages,
+            'email_footer'             => $account->getEmailFooter(),
+            'email_subject_invoice'    => $account->getEmailSubject(ENTITY_INVOICE),
+            'email_subject_quote'      => $account->getEmailSubject(ENTITY_QUOTE),
+            'email_subject_payment'    => $account->getEmailSubject(ENTITY_PAYMENT),
+            'email_template_invoice'   => $account->getEmailTemplate(ENTITY_INVOICE),
+            'email_template_quote'     => $account->getEmailTemplate(ENTITY_QUOTE),
+            'email_template_payment'   => $account->getEmailTemplate(ENTITY_PAYMENT),
+            'email_subject_reminder1'  => $account->getEmailSubject('reminder1'),
+            'email_subject_reminder2'  => $account->getEmailSubject('reminder2'),
+            'email_subject_reminder3'  => $account->getEmailSubject('reminder3'),
+            'email_template_reminder1' => $account->getEmailTemplate('reminder1'),
+            'email_template_reminder2' => $account->getEmailTemplate('reminder2'),
+            'email_template_reminder3' => $account->getEmailTemplate('reminder3'),
+            'has_custom_design1'       => (bool) $account->custom_design1,
+            'has_custom_design2'       => (bool) $account->custom_design2,
+            'has_custom_design3'       => (bool) $account->custom_design3,
+            'enable_portal_password'   => (bool) $account->enable_portal_password,
         ];
     }
 }

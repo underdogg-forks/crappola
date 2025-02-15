@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Ninja\Datatables\TokenDatatable;
 use App\Ninja\Repositories\TokenRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class TokenService.
@@ -23,6 +22,9 @@ class TokenService extends BaseService
 
     /**
      * TokenService constructor.
+     *
+     * @param TokenRepository  $tokenRepo
+     * @param DatatableService $datatableService
      */
     public function __construct(TokenRepository $tokenRepo, DatatableService $datatableService)
     {
@@ -30,6 +32,11 @@ class TokenService extends BaseService
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @param $userId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($userId)
     {
         $datatable = new TokenDatatable(false);

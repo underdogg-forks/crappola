@@ -8,7 +8,7 @@ class ActivityDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACTIVITY;
 
-    public function columns(): array
+    public function columns()
     {
         return [
             [
@@ -48,9 +48,8 @@ class ActivityDatatable extends EntityDatatable
                         'credit'         => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
                         'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
                         'adjustment'     => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
-                        'task'           => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30) . '...') : null,
-                        'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30) . '...') : null,
-                        'ticket'         => $model->ticket_public_id ? link_to('/tickets/' . $model->ticket_public_id, '') : null,
+                        'task'           => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, mb_substr($model->task_description, 0, 30) . '...') : null,
+                        'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, mb_substr($model->expense_public_notes, 0, 30) . '...') : null,
                     ];
 
                     $str = trans("texts.activity_{$model->activity_type_id}", $data);

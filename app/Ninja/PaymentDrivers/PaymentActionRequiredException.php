@@ -19,7 +19,7 @@ class PaymentActionRequiredException extends Exception
         $data,
         $message = 'Direct user approval required.',
         $code = 0,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         $this->data = $data;
         parent::__construct($message, $code, $previous);

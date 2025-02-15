@@ -18,7 +18,7 @@ class ReactivatePostmarkEmail extends Job
      */
     public function handle()
     {
-        if (! config('services.postmark')) {
+        if ( ! config('services.postmark')) {
             return false;
         }
 

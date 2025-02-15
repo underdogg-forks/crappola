@@ -10,7 +10,10 @@ use App\Events\QuoteWasEmailed;
  */
 class QuoteListener
 {
-    public function viewedQuote(QuoteInvitationWasViewed $event): void
+    /**
+     * @param QuoteInvitationWasViewed $event
+     */
+    public function viewedQuote(QuoteInvitationWasViewed $event)
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
@@ -19,7 +22,7 @@ class QuoteListener
     /**
      * @param InvoiceWasEmailed $event
      */
-    public function emailedQuote(QuoteWasEmailed $event): void
+    public function emailedQuote(QuoteWasEmailed $event)
     {
         $quote = $event->quote;
         $quote->last_sent_date = date('Y-m-d');

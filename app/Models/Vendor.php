@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasUpdated;
+use App\Libraries\Utils;
 use DateTimeInterface;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -67,16 +67,10 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = VendorPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'id_number',
@@ -96,7 +90,10 @@ class Vendor extends EntityModel
         'custom_value2',
     ];
 
-    public static function getImportColumns(): array
+    /**
+     * @return array
+     */
+    public static function getImportColumns()
     {
         return [
             self::$fieldName,
@@ -115,7 +112,10 @@ class Vendor extends EntityModel
         ];
     }
 
-    public static function getImportMap(): array
+    /**
+     * @return array
+     */
+    public static function getImportMap()
     {
         return [
             'first'                    => 'contact_first_name',
@@ -135,87 +135,93 @@ class Vendor extends EntityModel
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany('App\Models\Payment');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendor_contacts()
+    {
+        return $this->hasMany('App\Models\VendorContact');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function country()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo('App\Models\Country');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo('App\Models\Currency');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function language()
     {
-        return $this->belongsTo(Language::class);
+        return $this->belongsTo('App\Models\Language');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function size()
     {
-        return $this->belongsTo(Size::class);
+        return $this->belongsTo('App\Models\Size');
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function industry()
     {
-        return $this->belongsTo(Industry::class);
+        return $this->belongsTo('App\Models\Industry');
     }
 
     /**
-     * @return HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function expenses()
     {
-        return $this->hasMany(Expense::class, 'vendor_id', 'id');
+        return $this->hasMany('App\Models\Expense', 'vendor_id', 'id');
     }
 
     /**
+     * @param      $data
      * @param bool $isPrimary
      *
-     * @return Model
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function addVendorContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
+        $publicId = $data['public_id'] ?? ($data['id'] ?? false);
 
-        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
+        if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = VendorContact::scope($publicId)->whereVendorId($this->id)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();
@@ -228,14 +234,6 @@ class Vendor extends EntityModel
     }
 
     /**
-     * @return HasMany
-     */
-    public function vendor_contacts()
-    {
-        return $this->hasMany(VendorContact::class);
-    }
-
-    /**
      * @return string
      */
     public function getRoute()
@@ -243,20 +241,14 @@ class Vendor extends EntityModel
         return "/vendors/{$this->public_id}";
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDisplayName()
-    {
-        return $this->getName();
-    }
-
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getDisplayName()
+    {
+        return $this->getName();
     }
 
     /**
@@ -269,21 +261,26 @@ class Vendor extends EntityModel
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
-    public function getEntityType(): string
+    /**
+     * @return string
+     */
+    public function getEntityType()
     {
         return 'vendor';
     }
 
-    public function showMap(): bool
+    /**
+     * @return bool
+     */
+    public function showMap()
     {
-        if (! $this->hasAddress()) {
-            return false;
-        }
-
-        return env('GOOGLE_MAPS_ENABLED') !== false;
+        return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
-    public function hasAddress(): bool
+    /**
+     * @return bool
+     */
+    public function hasAddress()
     {
         $fields = [
             'address1',
@@ -295,7 +292,7 @@ class Vendor extends EntityModel
         ];
 
         foreach ($fields as $field) {
-            if ($this->$field) {
+            if ($this->{$field}) {
                 return true;
             }
         }
@@ -315,33 +312,29 @@ class Vendor extends EntityModel
         return $this->created_at->format('m/d/y h:i a');
     }
 
-    /**
-     * @return mixed
-     */
     public function getCurrencyId()
     {
         if ($this->currency_id) {
             return $this->currency_id;
         }
 
-        if (! $this->company) {
-            $this->load('company');
+        if ( ! $this->account) {
+            $this->load('account');
         }
 
-        return $this->company->currency_id ?: DEFAULT_CURRENCY;
+        return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
 
     /**
      * @return float|int
      */
-    public function getUnpaidExpenses()
+    public function getTotalExpenses()
     {
         return DB::table('expenses')
-            ->select('invoice_currency_id', DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
+            ->select('expense_currency_id', DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
             ->whereVendorId($this->id)
             ->whereIsDeleted(false)
-            ->whereNull('payment_date')
-            ->groupBy('invoice_currency_id')
+            ->groupBy('expense_currency_id')
             ->get();
     }
 
@@ -351,26 +344,26 @@ class Vendor extends EntityModel
     }
 }
 
-Vendor::creating(function ($vendor): void {
+Vendor::creating(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::created(function ($vendor): void {
+Vendor::created(function ($vendor) {
     event(new VendorWasCreated($vendor));
 });
 
-Vendor::updating(function ($vendor): void {
+Vendor::updating(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::updated(function ($vendor): void {
+Vendor::updated(function ($vendor) {
     event(new VendorWasUpdated($vendor));
 });
 
-Vendor::deleting(function ($vendor): void {
+Vendor::deleting(function ($vendor) {
     $vendor->setNullValues();
 });
 
-Vendor::deleted(function ($vendor): void {
+Vendor::deleted(function ($vendor) {
     event(new VendorWasDeleted($vendor));
 });

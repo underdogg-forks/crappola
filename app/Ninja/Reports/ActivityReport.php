@@ -17,17 +17,17 @@ class ActivityReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
         $startDate = $this->startDate;
         $endDate = $this->endDate;
         $subgroup = $this->options['subgroup'];
 
         $activities = Activity::scope()
-            ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'company')
-            ->whereRaw("DATE(created_at) >= \"{$startDate}\" and DATE(created_at) <= \"$endDate\"")
+            ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
+            ->whereRaw("DATE(created_at) >= \"{$startDate}\" and DATE(created_at) <= \"{$endDate}\"")
             ->orderBy('id', 'desc');
 
         foreach ($activities->get() as $activity) {

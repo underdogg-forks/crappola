@@ -3,8 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalCategory;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProposalCategoryRepository extends BaseRepository
 {
@@ -21,7 +21,7 @@ class ProposalCategoryRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposal_categories')
-            ->where('proposal_categories.company_id', '=', Auth::user()->company_id)
+            ->where('proposal_categories.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_categories.name',
                 'proposal_categories.public_id',
@@ -33,7 +33,7 @@ class ProposalCategoryRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL_CATEGORY);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->Where('proposal_categories.name', 'like', '%' . $filter . '%');
             });
         }
@@ -43,9 +43,9 @@ class ProposalCategoryRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = isset($input['public_id']) ? $input['public_id'] : false;
+        $publicId = $input['public_id'] ?? false;
 
-        if (! $proposal) {
+        if ( ! $proposal) {
             $proposal = ProposalCategory::createNew();
         }
 

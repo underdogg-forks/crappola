@@ -1,29 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddIpToActivity extends Migration
+{
+    public function up()
     {
-        Schema::table('activities', function ($table): void {
-            $table->string('ip')->nullable();
-        });
+        Schema::table('activities', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('activities', function ($table): void {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('ip');
         });
     }
-};
+}

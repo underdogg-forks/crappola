@@ -1,23 +1,6 @@
 <?php
 
-use App\Models\Bank;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\Font;
-use App\Models\Frequency;
-use App\Models\Gateway;
-use App\Models\GatewayType;
-use App\Models\Industry;
-use App\Models\InvoiceDesign;
-use App\Models\InvoiceStatus;
-use App\Models\Language;
-use App\Models\PaymentType;
-use App\Models\Size;
-use App\Models\Timezone;
-
-if (! defined('APP_NAME')) {
+if ( ! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('APP_DOMAIN', env('APP_DOMAIN', 'invoiceninja.com'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS'));
@@ -36,7 +19,6 @@ if (! defined('APP_NAME')) {
     define('ENTITY_INVOICE_ITEM', 'invoice_item');
     define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
-    define('ENTITY_RECURRING_QUOTE', 'recurring_quote');
     define('ENTITY_PAYMENT', 'payment');
     define('ENTITY_CREDIT', 'credit');
     define('ENTITY_QUOTE', 'quote');
@@ -51,7 +33,6 @@ if (! defined('APP_NAME')) {
     define('ENTITY_VENDOR', 'vendor');
     define('ENTITY_VENDOR_ACTIVITY', 'vendor_activity');
     define('ENTITY_EXPENSE', 'expense');
-    define('ENTITY_TICKET', 'expense');
     define('ENTITY_PAYMENT_TERM', 'payment_term');
     define('ENTITY_EXPENSE_ACTIVITY', 'expense_activity');
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
@@ -66,12 +47,6 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_SNIPPET', 'proposal_snippet');
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
-
-    //define('ENTITY_EXPENSE_CATEGORY', 'expense_categories');
-    //define('ENTITY_PROPOSAL_CATEGORY', 'proposal_categories');
-    //define('ENTITY_TASK_STATUS', 'task_statuses');
-    define('ENTITY_TICKET_STATUS', 'ticket_statuses');
-    define('ENTITY_TICKET_CATEGORY', 'ticket_categories');
 
     $permissionEntities = [
         ENTITY_CLIENT,
@@ -128,7 +103,6 @@ if (! defined('APP_NAME')) {
     define('ACCOUNT_EMAIL_SETTINGS', 'email_settings');
     define('ACCOUNT_REPORTS', 'reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
-    define('ACCOUNT_TICKETS', 'tickets');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
     define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
     define('ACCOUNT_API_TOKENS', 'api_tokens');
@@ -387,7 +361,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'https://invoice-ninja.readthedocs.io/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.5.46' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.50' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -611,7 +585,6 @@ if (! defined('APP_NAME')) {
 
     // Whitelabel
     define('FEATURE_WHITE_LABEL', 'feature_white_label');
-    define('FEATURE_TICKETS', 'tickets');
 
     // Enterprise
     define('FEATURE_DOCUMENTS', 'documents');
@@ -658,24 +631,6 @@ if (! defined('APP_NAME')) {
     define('INVOICE_FIELDS_PRODUCT', 'product_fields');
     define('INVOICE_FIELDS_TASK', 'task_fields');
 
-    define('TICKET_PRIORITY_LOW', 'low');
-    define('TICKET_PRIORITY_HIGH', 'high');
-    define('TICKET_SAVE_ONLY', 'low');
-
-    define('TICKET_STATUS_NEW', trans('texts.new'));
-    define('TICKET_STATUS_OPEN', trans('texts.open'));
-    define('TICKET_STATUS_MERGED', 'merged');
-    define('TICKET_STATUS_CLOSED', 'closed');
-
-    define('TICKET_CLIENT_NEW', 'new to the client');
-
-    define('TICKET_INBOUND_CONTACT_REPLY', 'new reply from contact');
-    define('TICKET_CLIENT_UPDATE', 'new update from client');
-    define('TICKET_INBOUND_ADMIN_REPLY', 'admin reply');
-    define('TICKET_INBOUND_AGENT_REPLY', 'agent reply');
-    define('TICKET_AGENT_UPDATE', 'agent update');
-    define('TICKET_AGENT_NEW', 'new to the agent');
-
     define('NINJA_V5_TOKEN', env('NINJA_V5_TOKEN', false));
 
     $creditCards = [
@@ -688,22 +643,22 @@ if (! defined('APP_NAME')) {
     define('CREDIT_CARDS', serialize($creditCards));
 
     $cachedTables = [
-        'currencies'      => Currency::class,
-        'sizes'           => Size::class,
-        'industries'      => Industry::class,
-        'timezones'       => Timezone::class,
-        'dateFormats'     => DateFormat::class,
-        'datetimeFormats' => DatetimeFormat::class,
-        'languages'       => Language::class,
-        'paymentTypes'    => PaymentType::class,
-        'countries'       => Country::class,
-        'invoiceDesigns'  => InvoiceDesign::class,
-        'invoiceStatus'   => InvoiceStatus::class,
-        'frequencies'     => Frequency::class,
-        'gateways'        => Gateway::class,
-        'gatewayTypes'    => GatewayType::class,
-        'fonts'           => Font::class,
-        'banks'           => Bank::class,
+        'currencies'      => 'App\Models\Currency',
+        'sizes'           => 'App\Models\Size',
+        'industries'      => 'App\Models\Industry',
+        'timezones'       => 'App\Models\Timezone',
+        'dateFormats'     => 'App\Models\DateFormat',
+        'datetimeFormats' => 'App\Models\DatetimeFormat',
+        'languages'       => 'App\Models\Language',
+        'paymentTypes'    => 'App\Models\PaymentType',
+        'countries'       => 'App\Models\Country',
+        'invoiceDesigns'  => 'App\Models\InvoiceDesign',
+        'invoiceStatus'   => 'App\Models\InvoiceStatus',
+        'frequencies'     => 'App\Models\Frequency',
+        'gateways'        => 'App\Models\Gateway',
+        'gatewayTypes'    => 'App\Models\GatewayType',
+        'fonts'           => 'App\Models\Font',
+        'banks'           => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
@@ -723,7 +678,7 @@ if (! defined('APP_NAME')) {
         $locale = Session::get(SESSION_LOCALE);
         $text = trans($text, $data);
 
-        return $locale == 'en' ? strtoupper($text) : $text;
+        return $locale == 'en' ? mb_strtoupper($text) : $text;
     }
 
     // optional trans: only return the string if it's translated
@@ -743,18 +698,18 @@ if (! defined('APP_NAME')) {
     // include modules in translations
     function mtrans($entityType, $text = false, $replace = [])
     {
-        if (! $text) {
+        if ( ! $text) {
             $text = $entityType;
         }
 
         // check if this has been translated in a module language file
-        /*if (!Utils::isNinjaProd() && $module = Module::find($entityType)) {
+        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;
             }
-        }*/
+        }
 
         return trans("texts.{$text}");
     }

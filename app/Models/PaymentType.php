@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class PaymentType.
  */
-class PaymentType extends Model
+class PaymentType extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
+
+    public $guarded = [];
 
     public static function parseCardType($cardName)
     {
@@ -34,14 +32,14 @@ class PaymentType extends Model
             'switch'          => PAYMENT_TYPE_SWITCH,
         ];
 
-        $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
+        $cardName = mb_strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
         if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }
 
-        if (! empty($cardTypes[$cardName])) {
+        if ( ! empty($cardTypes[$cardName])) {
             return $cardTypes[$cardName];
         }
 
@@ -49,10 +47,10 @@ class PaymentType extends Model
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function gatewayType()
     {
-        return $this->belongsTo(GatewayType::class);
+        return $this->belongsTo('App\Models\GatewayType');
     }
 }

@@ -22,28 +22,28 @@ class ClientReport extends AbstractReport
         ];
 
         $user = auth()->user();
-        $company = $user->company;
+        $account = $user->account;
 
-        if ($company->customLabel('client1')) {
-            $columns[$company->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client1')) {
+            $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
-        if ($company->customLabel('client2')) {
-            $columns[$company->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client2')) {
+            $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
             ->with(['contacts', 'user'])
-            ->with(['invoices' => function ($query): void {
+            ->with(['invoices' => function ($query) {
                 $query->where('invoice_date', '>=', $this->startDate)
                     ->where('invoice_date', '<=', $this->endDate)
                     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
@@ -69,9 +69,9 @@ class ClientReport extends AbstractReport
 
             $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                $company->formatMoney($amount, $client),
-                $company->formatMoney($paid, $client),
-                $company->formatMoney($amount - $paid, $client),
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($paid, $client),
+                $account->formatMoney($amount - $paid, $client),
                 $client->id_number,
                 $client->vat_number,
                 $client->public_notes,
@@ -79,10 +79,10 @@ class ClientReport extends AbstractReport
                 $client->user->getDisplayName(),
             ];
 
-            if ($company->customLabel('client1')) {
+            if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
-            if ($company->customLabel('client2')) {
+            if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }
 

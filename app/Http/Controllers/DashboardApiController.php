@@ -20,11 +20,11 @@ class DashboardApiController extends BaseAPIController
         $user = Auth::user();
         $viewAll = $user->hasPermission('view_reports');
         $userId = $user->id;
-        $companyId = $user->company->id;
-        $defaultCurrency = $user->company->currency_id;
+        $accountId = $user->account->id;
+        $defaultCurrency = $user->account->currency_id;
 
         $dashboardRepo = $this->dashboardRepo;
-        $activities = $dashboardRepo->activities($companyId, $userId, $viewAll);
+        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
 
         // optimization for new mobile app
         if (request()->only_activity) {
@@ -34,13 +34,13 @@ class DashboardApiController extends BaseAPIController
             ]);
         }
 
-        $metrics = $dashboardRepo->totals($companyId, $userId, $viewAll);
-        $paidToDate = $dashboardRepo->paidToDate($user->company, $userId, $viewAll);
-        $averageInvoice = $dashboardRepo->averages($user->company, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($user->company, $userId, $viewAll);
-        $pastDue = $dashboardRepo->pastDue($companyId, $userId, $viewAll);
-        $upcoming = $dashboardRepo->upcoming($companyId, $userId, $viewAll);
-        $payments = $dashboardRepo->payments($companyId, $userId, $viewAll);
+        $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
+        $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
+        $averageInvoice = $dashboardRepo->averages($user->account, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($user->account, $userId, $viewAll);
+        $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
+        $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
+        $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
 
         $data = [
             'id'                     => 1,

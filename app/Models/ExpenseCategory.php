@@ -15,9 +15,6 @@ class ExpenseCategory extends EntityModel
     // Expense Categories
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];
@@ -25,22 +22,19 @@ class ExpenseCategory extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = EntityPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_EXPENSE_CATEGORY;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expense()
     {
-        return $this->belongsTo(Expense::class);
+        return $this->belongsTo('App\Models\Expense');
     }
 
     /**

@@ -1,46 +1,18 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddReminderEmails extends Migration
+{
+    public function up()
     {
-        Schema::table('accounts', function ($table): void {
-            $table->string('email_subject_invoice')->nullable();
-            $table->string('email_subject_quote')->nullable();
-            $table->string('email_subject_payment')->nullable();
-
-            $table->string('email_subject_reminder1')->nullable();
-            $table->string('email_subject_reminder2')->nullable();
-            $table->string('email_subject_reminder3')->nullable();
-
-            $table->text('email_template_reminder1')->nullable();
-            $table->text('email_template_reminder2')->nullable();
-            $table->text('email_template_reminder3')->nullable();
-
-            $table->boolean('enable_reminder1')->default(false);
-            $table->boolean('enable_reminder2')->default(false);
-            $table->boolean('enable_reminder3')->default(false);
-
-            $table->smallInteger('num_days_reminder1')->default(7);
-            $table->smallInteger('num_days_reminder2')->default(14);
-            $table->smallInteger('num_days_reminder3')->default(30);
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             if (Schema::hasColumn('accounts', 'email_subject_invoice')) {
                 $table->dropColumn('email_subject_invoice');
                 $table->dropColumn('email_subject_quote');
@@ -64,4 +36,4 @@ return new class () extends Migration {
             $table->dropColumn('num_days_reminder3');
         });
     }
-};
+}

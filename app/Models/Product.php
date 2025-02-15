@@ -14,27 +14,30 @@ class Product extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
     /**
      * @var string
      */
-    protected $presenter = ProductPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'product_key',
         'notes',
         'cost',
         'qty',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
+        'custom_value1',
+        'custom_value2',
     ];
 
-    public static function getImportColumns(): array
+    /**
+     * @return array
+     */
+    public static function getImportColumns()
     {
         return [
             'product_key',
@@ -45,7 +48,10 @@ class Product extends EntityModel
         ];
     }
 
-    public static function getImportMap(): array
+    /**
+     * @return array
+     */
+    public static function getImportMap()
     {
         return [
             'product|item'              => 'product_key',
@@ -57,6 +63,8 @@ class Product extends EntityModel
     }
 
     /**
+     * @param $key
+     *
      * @return mixed
      */
     public static function findProductByKey($key)
@@ -64,25 +72,14 @@ class Product extends EntityModel
         return self::scope()->where('product_key', '=', $key)->first();
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PRODUCT;
     }
 
-    public function taxRate(): BelongsTo
-    {
-        return $this->belongsTo(TaxRate::class, 'default_tax_rate_id');
-    }
-
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     protected function serializeDate(DateTimeInterface $date)

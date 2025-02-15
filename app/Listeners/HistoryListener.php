@@ -16,37 +16,58 @@ use App\Libraries\HistoryUtils;
  */
 class HistoryListener
 {
-    public function deletedClient(ClientWasDeleted $event): void
+    /**
+     * @param ClientWasDeleted $event
+     */
+    public function deletedClient(ClientWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->client);
     }
 
-    public function deletedInvoice(InvoiceWasDeleted $event): void
+    /**
+     * @param InvoiceWasDeleted $event
+     */
+    public function deletedInvoice(InvoiceWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->invoice);
     }
 
-    public function deletedQuote(QuoteWasDeleted $event): void
+    /**
+     * @param QuoteWasDeleted $event
+     */
+    public function deletedQuote(QuoteWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->quote);
     }
 
-    public function deletedTask(TaskWasDeleted $event): void
+    /**
+     * @param TaskWasDeleted $event
+     */
+    public function deletedTask(TaskWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->task);
     }
 
-    public function deletedExpense(ExpenseWasDeleted $event): void
+    /**
+     * @param ExpenseWasDeleted $event
+     */
+    public function deletedExpense(ExpenseWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->expense);
     }
 
-    public function deletedProject(ProjectWasDeleted $event): void
+    /**
+     * @param ProjectWasDeleted $event
+     */
+    public function deletedProject(ProjectWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->project);
     }
 
-    public function deletedProposal(ProposalWasDeleted $event): void
+    /**
+     * @param ProposalWasDeleted $event
+     */
+    public function deletedProposal(ProposalWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->proposal);
     }

@@ -7,7 +7,6 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class RecurringExpenseService.
@@ -28,6 +27,7 @@ class RecurringExpenseService extends BaseService
      * CreditService constructor.
      *
      * @param RecurringExpenseRepository $creditRepo
+     * @param DatatableService           $datatableService
      */
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, DatatableService $datatableService)
     {
@@ -36,6 +36,7 @@ class RecurringExpenseService extends BaseService
     }
 
     /**
+     * @param       $data
      * @param mixed $recurringExpense
      *
      * @return mixed|null
@@ -55,14 +56,16 @@ class RecurringExpenseService extends BaseService
 
     /**
      * @param       $clientPublicId
+     * @param       $search
      * @param mixed $userId
      *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
     {
         $query = $this->recurringExpenseRepo->find($search);
 
-        if (! Utils::hasPermission('view_expense')) {
+        if ( ! Utils::hasPermission('view_expense')) {
             $query->where('recurring_expenses.user_id', '=', Auth::user()->id);
         }
 

@@ -32,7 +32,7 @@ class ConvertInvoiceToUbl extends Job
     public function handle()
     {
         $invoice = $this->invoice;
-        $company = $invoice->company;
+        $account = $invoice->account;
         $client = $invoice->client;
         $ublInvoice = new Invoice();
 
@@ -41,7 +41,7 @@ class ConvertInvoiceToUbl extends Job
         $ublInvoice->setIssueDate(date_create($invoice->invoice_date));
         $ublInvoice->setInvoiceTypeCode($invoice->amount < 0 ? self::INVOICE_TYPE_CREDIT : self::INVOICE_TYPE_STANDARD);
 
-        $supplierParty = $this->createParty($company, $invoice->user);
+        $supplierParty = $this->createParty($account, $invoice->user);
         $ublInvoice->setAccountingSupplierParty($supplierParty);
 
         $customerParty = $this->createParty($client, $client->contacts[0]);
@@ -63,7 +63,7 @@ class ConvertInvoiceToUbl extends Job
         $taxAmount1 = $taxAmount2 = 0;
 
         $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
-        if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
+        if ($invoice->tax_name2 || (float) ($invoice->tax_rate2)) {
             $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
         }
 
@@ -84,19 +84,19 @@ class ConvertInvoiceToUbl extends Job
         }
     }
 
-    private function createParty($companyPlan, $user): Party
+    private function createParty($company, $user)
     {
         $party = new Party();
-        $party->setName($companyPlan->name);
+        $party->setName($company->name);
         $address = (new Address())
-            ->setCityName($companyPlan->city)
-            ->setStreetName($companyPlan->address1)
-            ->setBuildingNumber($companyPlan->address2)
-            ->setPostalZone($companyPlan->postal_code);
+            ->setCityName($company->city)
+            ->setStreetName($company->address1)
+            ->setBuildingNumber($company->address2)
+            ->setPostalZone($company->postal_code);
 
-        if ($companyPlan->country_id) {
+        if ($company->country_id) {
             $country = new Country();
-            $country->setIdentificationCode($companyPlan->country->iso_3166_2);
+            $country->setIdentificationCode($company->country->iso_3166_2);
             $address->setCountry($country);
         }
 
@@ -125,7 +125,7 @@ class ConvertInvoiceToUbl extends Job
         $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
         $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
-        if ($item->tax_name2 || floatval($item->tax_rate2)) {
+        if ($item->tax_name2 || (float) ($item->tax_rate2)) {
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 

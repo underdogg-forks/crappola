@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Filename & Format
@@ -11,8 +10,8 @@ return [
     |
     */
 
-    'filename'  => '_ide_helper',
-    'format'    => 'php',
+    'filename' => '_ide_helper',
+    'format'   => 'php',
 
     /*
     |--------------------------------------------------------------------------
@@ -84,5 +83,4 @@ return [
     'interfaces' => [
         '\Illuminate\Contracts\Auth\Authenticatable' => config('auth.model', 'App\User'),
     ],
-
 ];

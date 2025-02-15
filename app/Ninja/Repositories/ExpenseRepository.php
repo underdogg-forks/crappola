@@ -7,21 +7,20 @@ use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ExpenseRepository extends BaseRepository
 {
     protected $documentRepo;
-
-    // Expenses
 
     public function __construct(DocumentRepository $documentRepo)
     {
         $this->documentRepo = $documentRepo;
     }
 
+    // Expenses
     public function getClassName()
     {
         return 'App\Models\Expense';
@@ -45,27 +44,36 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
+    public function findClient($clientPublicId)
+    {
+        $clientId = Client::getPrivateId($clientPublicId);
+
+        $query = $this->find()->where('expenses.client_id', '=', $clientId);
+
+        return $query;
+    }
+
     public function find($filter = null)
     {
-        $companyid = Auth::user()->company_id;
+        $accountid = Auth::user()->account_id;
         $query = DB::table('expenses')
-            ->join('companies', 'companies.id', '=', 'expenses.company_id')
+            ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftjoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
             ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')
             ->leftJoin('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
-            ->where('expenses.company_id', '=', $companyid)
+            ->where('expenses.account_id', '=', $accountid)
             ->where('contacts.deleted_at', '=', null)
-            //->where('vendors.deleted_at', '=', null)
-            //->where('clients.deleted_at', '=', null)
-            ->where(function ($query): void { // handle when client isn't set
+                    //->where('vendors.deleted_at', '=', null)
+                    //->where('clients.deleted_at', '=', null)
+            ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
                     ->orWhere('contacts.is_primary', '=', null);
             })
             ->select(
                 DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) status'),
-                'expenses.company_id',
+                'expenses.account_id',
                 'expenses.amount',
                 'expenses.deleted_at',
                 'expenses.exchange_rate',
@@ -79,7 +87,7 @@ class ExpenseRepository extends BaseRepository
                 'expenses.public_notes',
                 'expenses.should_be_invoiced',
                 'expenses.vendor_id',
-                'expenses.invoice_currency_id',
+                'expenses.expense_currency_id',
                 'expenses.invoice_currency_id',
                 'expenses.user_id',
                 'expenses.tax_rate1',
@@ -108,7 +116,7 @@ class ExpenseRepository extends BaseRepository
 
         if ($statuses = session('entity_status_filter:' . ENTITY_EXPENSE)) {
             $statuses = explode(',', $statuses);
-            $query->where(function ($query) use ($statuses): void {
+            $query->where(function ($query) use ($statuses) {
                 $query->whereNull('expenses.id');
 
                 if (in_array(EXPENSE_STATUS_LOGGED, $statuses)) {
@@ -117,7 +125,7 @@ class ExpenseRepository extends BaseRepository
                 }
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
-                    if (! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
+                    if ( ! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
@@ -139,7 +147,7 @@ class ExpenseRepository extends BaseRepository
         }
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('expenses.public_notes', 'like', '%' . $filter . '%')
                     ->orWhere('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('vendors.name', 'like', '%' . $filter . '%')
@@ -150,18 +158,9 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function findClient($clientPublicId)
-    {
-        $clientId = Client::getPrivateId($clientPublicId);
-
-        $query = $this->find()->where('expenses.client_id', '=', $clientId);
-
-        return $query;
-    }
-
     public function save($input, $expense = null)
     {
-        $publicId = isset($input['public_id']) ? $input['public_id'] : false;
+        $publicId = $input['public_id'] ?? false;
 
         if ($expense) {
             // do nothing
@@ -188,11 +187,11 @@ class ExpenseRepository extends BaseRepository
             $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
 
-        if (! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = Auth::user()->company->getCurrencyId();
+        if ( ! $expense->expense_currency_id) {
+            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
         }
-        if (! $expense->invoice_currency_id) {
-            $expense->invoice_currency_id = Auth::user()->company->getCurrencyId();
+        if ( ! $expense->invoice_currency_id) {
+            $expense->invoice_currency_id = Auth::user()->account->getCurrencyId();
         }
 
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
@@ -200,8 +199,6 @@ class ExpenseRepository extends BaseRepository
         if (isset($input['amount'])) {
             $expense->amount = round(Utils::parseFloat($input['amount']), 2);
         }
-
-        $expense->company_id = $expense->company_id;
 
         $expense->save();
 
@@ -221,9 +218,9 @@ class ExpenseRepository extends BaseRepository
         }
 
         // prevent loading all of the documents if we don't have to
-        if (! $expense->wasRecentlyCreated) {
+        if ( ! $expense->wasRecentlyCreated) {
             foreach ($expense->documents as $document) {
-                if (! in_array($document->public_id, $document_ids)) {
+                if ( ! in_array($document->public_id, $document_ids)) {
                     // Not checking permissions; deleting a document is just editing the invoice
                     $document->delete();
                 }

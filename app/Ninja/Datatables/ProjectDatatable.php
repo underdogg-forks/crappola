@@ -12,8 +12,6 @@ class ProjectDatatable extends EntityDatatable
 
     public $sortCol = 1;
 
-    public $fieldToSum = 'budgeted_hours';
-
     public function columns()
     {
         return [
@@ -42,7 +40,7 @@ class ProjectDatatable extends EntityDatatable
                 },
             ],
             [
-                'due_at',
+                'due_date',
                 function ($model) {
                     return Utils::fromSqlDate($model->due_date);
                 },
@@ -56,21 +54,7 @@ class ProjectDatatable extends EntityDatatable
             [
                 'task_rate',
                 function ($model) {
-                    $taskRate = 0.0000;
-                    $taskRateIcon = '';
-
-                    if ($model->task_rate !== '0.0000') {
-                        $taskRate = $model->task_rate;
-                        $taskRateIcon = '<i class="fa fa-briefcase"></i> ';
-                    } elseif ($model->client_task_rate !== '0.0000') {
-                        $taskRate = $model->client_task_rate;
-                        $taskRateIcon = '<i class="fa fa-user"></i> ';
-                    } elseif ($model->account_task_rate !== '0.0000') {
-                        $taskRate = $model->account_task_rate;
-                        $taskRateIcon = '<i class="fa fa-cog"></i> ';
-                    }
-
-                    return floatval($taskRate) ? $taskRateIcon . Utils::formatMoney($taskRate) : '';
+                    return (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
                 },
             ],
         ];
@@ -94,7 +78,7 @@ class ProjectDatatable extends EntityDatatable
                     return "javascript:submitForm_project('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];

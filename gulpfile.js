@@ -35,7 +35,6 @@ elixir(function(mix) {
         bowerDir + '/bootstrap/dist/css/bootstrap.css',
         bowerDir + '/font-awesome/css/font-awesome.css',
         bowerDir + '/datatables/media/css/jquery.dataTables.css',
-        bowerDir + '/dropzone/dist/dropzone.css',
         bowerDir + '/datatables-bootstrap3/BS3/assets/css/datatables.css',
         'bootstrap-combobox.css',
         'public.style.css',
@@ -176,6 +175,7 @@ elixir(function(mix) {
         bowerDir + '/spectrum/spectrum.js',
         bowerDir + '/moment/moment.js',
         bowerDir + '/moment-timezone/builds/moment-timezone-with-data.js',
+        bowerDir + '/stacktrace-js/stacktrace.js',
         bowerDir + '/es6-promise/es6-promise.auto.js',
         bowerDir + '/sweetalert2/dist/sweetalert2.js',
         bowerDir + '/nouislider/distribute/nouislider.js',
@@ -183,7 +183,7 @@ elixir(function(mix) {
         bowerDir + '/toastr/toastr.js',
         bowerDir + '/fuse.js/src/fuse.js',
         'bootstrap-combobox.js',
-        'not-this-one-script.js',
+        'script.js',
         'pdf.pdfmake.js',
     ], 'public/built.js');
 

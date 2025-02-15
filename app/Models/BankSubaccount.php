@@ -12,25 +12,19 @@ class BankSubaccount extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_BANK_SUBACCOUNT;
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function bank_account()
     {
-        return $this->belongsTo(BankAccount::class);
+        return $this->belongsTo('App\Models\BankAccount');
     }
 
     protected function serializeDate(DateTimeInterface $date)

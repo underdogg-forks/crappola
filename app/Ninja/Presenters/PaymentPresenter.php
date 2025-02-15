@@ -3,7 +3,7 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Utils;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 class PaymentPresenter extends EntityPresenter
 {
@@ -12,9 +12,19 @@ class PaymentPresenter extends EntityPresenter
         return Utils::formatMoney($this->entity->amount, $this->entity->client->currency_id);
     }
 
+    public function completedAmount()
+    {
+        return Utils::formatMoney($this->entity->getCompletedAmount(), $this->entity->client->currency_id);
+    }
+
     public function currencySymbol()
     {
         return Utils::getFromCache($this->entity->client->currency_id ? $this->entity->client->currency_id : DEFAULT_CURRENCY, 'currencies')->symbol;
+    }
+
+    public function client()
+    {
+        return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
     public function payment_date()
@@ -40,7 +50,8 @@ class PaymentPresenter extends EntityPresenter
     {
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
-        } elseif ($this->entity->payment_type) {
+        }
+        if ($this->entity->payment_type) {
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
@@ -61,15 +72,5 @@ class PaymentPresenter extends EntityPresenter
         }
 
         return $data;
-    }
-
-    public function completedAmount()
-    {
-        return Utils::formatMoney($this->entity->getCompletedAmount(), $this->entity->client->currency_id);
-    }
-
-    public function client()
-    {
-        return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 }

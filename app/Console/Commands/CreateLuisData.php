@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Libraries\Utils;
-use App\Models\Company;
+use App\Models\Account;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use stdClass;
@@ -36,7 +36,7 @@ class CreateLuisData extends Command
     /**
      * @return bool
      */
-    public function handle(): void
+    public function handle()
     {
         $this->fakerField = $this->argument('faker_field');
 
@@ -61,23 +61,38 @@ class CreateLuisData extends Command
         $intents = array_merge($intents, $this->getNavigateToIntents($entityType));
 
         $this->info(json_encode($intents));
+
         return 0;
     }
 
-    private function createIntents(string $entityType): array
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
+    }
+
+    private function createIntents($entityType)
     {
         $intents = [];
 
         $intents = array_merge($intents, $this->getCreateEntityIntents($entityType));
         $intents = array_merge($intents, $this->getFindEntityIntents($entityType));
+        $intents = array_merge($intents, $this->getListEntityIntents($entityType));
 
-        return array_merge($intents, $this->getListEntityIntents($entityType));
+        return $intents;
     }
 
-    /**
-     * @return mixed[]
-     */
-    private function getCreateEntityIntents(string $entityType): array
+    private function getCreateEntityIntents($entityType)
     {
         $intents = [];
         $phrases = [
@@ -103,32 +118,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    private function createIntent(string $name, string $text, $entities): stdClass
-    {
-        $intent = new stdClass();
-        $intent->intent = $name;
-        $intent->text = $text;
-        $intent->entities = [];
-
-        foreach ($entities as $value => $entity) {
-            $startPos = strpos($text, (string) $value);
-            if (! $startPos) {
-                dd("Failed to find {$value} in {$text}");
-            }
-            $entityClass = new stdClass();
-            $entityClass->entity = $entity;
-            $entityClass->startPos = $startPos;
-            $entityClass->endPos = $entityClass->startPos + strlen($value) - 1;
-            $intent->entities[] = $entityClass;
-        }
-
-        return $intent;
-    }
-
-    /**
-     * @return never[]|mixed[]
-     */
-    private function getFindEntityIntents(string $entityType): array
+    private function getFindEntityIntents($entityType)
     {
         $intents = [];
 
@@ -149,10 +139,7 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    /**
-     * @return mixed[]
-     */
-    private function getListEntityIntents(string $entityType): array
+    private function getListEntityIntents($entityType)
     {
         $intents = [];
         $entityTypePlural = Utils::pluralizeEntityType($entityType);
@@ -194,13 +181,10 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    /**
-     * @return mixed[]
-     */
-    private function getNavigateToIntents(string $entityType): array
+    private function getNavigateToIntents($entityType)
     {
         $intents = [];
-        $locations = array_merge(Company::$basicSettings, Company::$advancedSettings);
+        $locations = array_merge(Account::$basicSettings, Account::$advancedSettings);
 
         foreach ($locations as $location) {
             $location = str_replace('_', ' ', $location);
@@ -215,19 +199,25 @@ class CreateLuisData extends Command
         return $intents;
     }
 
-    /**
-     * @return array
-     */
-    protected function getArguments()
+    private function createIntent($name, $text, $entities)
     {
-        return [];
-    }
+        $intent = new stdClass();
+        $intent->intent = $name;
+        $intent->text = $text;
+        $intent->entities = [];
 
-    /**
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [];
+        foreach ($entities as $value => $entity) {
+            $startPos = mb_strpos($text, (string) $value);
+            if ( ! $startPos) {
+                dd("Failed to find {$value} in {$text}");
+            }
+            $entityClass = new stdClass();
+            $entityClass->entity = $entity;
+            $entityClass->startPos = $startPos;
+            $entityClass->endPos = $entityClass->startPos + mb_strlen($value) - 1;
+            $intent->entities[] = $entityClass;
+        }
+
+        return $intent;
     }
 }

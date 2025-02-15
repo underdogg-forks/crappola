@@ -21,11 +21,11 @@ class ResetData extends Command
      */
     protected $description = 'Reset data';
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running ResetData...');
 
-        if (! Utils::isNinjaDev()) {
+        if ( ! Utils::isNinjaDev()) {
             return;
         }
 
@@ -36,6 +36,7 @@ class ResetData extends Command
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');
+
         return 0;
     }
 

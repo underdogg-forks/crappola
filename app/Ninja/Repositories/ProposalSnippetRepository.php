@@ -3,8 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
@@ -22,7 +22,7 @@ class ProposalSnippetRepository extends BaseRepository
     {
         $query = DB::table('proposal_snippets')
             ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
-            ->where('proposal_snippets.company_id', '=', Auth::user()->company_id)
+            ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
             ->select(
                 'proposal_snippets.name',
                 'proposal_snippets.public_id',
@@ -40,7 +40,7 @@ class ProposalSnippetRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL_SNIPPET);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
@@ -58,9 +58,9 @@ class ProposalSnippetRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
 
-        if (! $proposal) {
+        if ( ! $proposal) {
             $proposal = ProposalSnippet::createNew();
         }
 

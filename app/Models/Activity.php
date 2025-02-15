@@ -2,119 +2,87 @@
 
 namespace App\Models;
 
-use Auth;
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Activity.
  */
-class Activity extends Model
+class Activity extends Eloquent
 {
     use PresentableTrait;
 
-    /**
-     * @var bool
-     */
     public $timestamps = true;
 
     /**
      * @var string
      */
-    protected $presenter = ActivityPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
 
-    /**
-     * @return mixed
-     */
     public function scopeScope($query)
     {
-        return $query->whereCompanyPlanId(Auth::user()->company_id);
+        return $query->whereAccountId(Auth::user()->account_id);
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return BelongsTo
-     */
-    public function company()
-    {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    /**
-     * @return mixed
-     */
     public function contact()
     {
-        return $this->belongsTo(Contact::class)->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
-        return $this->belongsTo(Client::class)->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function credit()
     {
-        return $this->belongsTo(Credit::class)->withTrashed();
+        return $this->belongsTo('App\Models\Credit')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function payment()
     {
-        return $this->belongsTo(Payment::class)->withTrashed();
+        return $this->belongsTo('App\Models\Payment')->withTrashed();
     }
 
     public function task()
     {
-        return $this->belongsTo(Task::class)->withTrashed();
+        return $this->belongsTo('App\Models\Task')->withTrashed();
     }
 
     public function expense()
     {
-        return $this->belongsTo(Expense::class)->withTrashed();
+        return $this->belongsTo('App\Models\Expense')->withTrashed();
     }
 
-    public function ticket()
-    {
-        return $this->belongsTo(Ticket::class)->withTrashed();
-    }
-
-    public function key(): string
+    public function key()
     {
         return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
     }
 
-    /**
-     * @return mixed
-     */
     public function getMessage()
     {
         $activityTypeId = $this->activity_type_id;
-        $company = $this->company;
+        $account = $this->account;
         $client = $this->client;
         $user = $this->user;
         $invoice = $this->invoice;
@@ -125,7 +93,6 @@ class Activity extends Model
         $expense = $this->expense;
         $isSystem = $this->is_system;
         $task = $this->task;
-        $ticket = $this->ticket;
 
         $data = [
             'client'         => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
@@ -134,12 +101,11 @@ class Activity extends Model
             'quote'          => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'contact'        => $contactId ? link_to($client->getRoute(), $contact->getDisplayName()) : e($user->getDisplayName()),
             'payment'        => $payment ? e($payment->transaction_reference) : null,
-            'payment_amount' => $payment ? $company->formatMoney($payment->amount, $payment) : null,
-            'adjustment'     => $this->adjustment ? $company->formatMoney($this->adjustment, $this) : null,
-            'credit'         => $credit ? $company->formatMoney($credit->amount, $client) : null,
-            'task'           => $task ? link_to($task->getRoute(), substr($task->description, 0, 30) . '...') : null,
-            'expense'        => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30) . '...') : null,
-            'ticket'         => $ticket ? link_to($ticket->getRoute(), $ticket->public_id) : null,
+            'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
+            'adjustment'     => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
+            'credit'         => $credit ? $account->formatMoney($credit->amount, $client) : null,
+            'task'           => $task ? link_to($task->getRoute(), mb_substr($task->description, 0, 30) . '...') : null,
+            'expense'        => $expense ? link_to($expense->getRoute(), mb_substr($expense->public_notes, 0, 30) . '...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

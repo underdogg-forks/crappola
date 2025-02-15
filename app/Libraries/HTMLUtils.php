@@ -50,15 +50,6 @@ class HTMLUtils
         return $purifier->purify($html);
     }
 
-    public static function sanitizeJS($js)
-    {
-        if (! stripos($js, '<script')) {
-            return "<script type=\"text/javascript\">{$js}</script>";
-        }
-
-        return $js;
-    }
-
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();
@@ -76,7 +67,7 @@ class HTMLUtils
         $key = '';
 
         if ($user = auth()->user()) {
-            $key .= $user->company->id . '_';
+            $key .= $user->account->id . '_';
         }
 
         $key .= $field;

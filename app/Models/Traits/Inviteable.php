@@ -3,7 +3,7 @@
 namespace App\Models\Traits;
 
 use App\Libraries\Utils;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 /**
  * Class SendsEmails.
@@ -20,35 +20,35 @@ trait Inviteable
      */
     public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if (! $this->company) {
-            $this->load('company');
+        if ( ! $this->account) {
+            $this->load('account');
         }
 
         if ($this->proposal_id) {
             $type = 'proposal';
         }
 
-        $company = $this->company;
-        $iframe_url = $company->iframe_url;
+        $account = $this->account;
+        $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');
 
         if (env('REQUIRE_HTTPS')) {
             $url = str_replace('http://', 'https://', $url);
         }
 
-        if ($company->hasFeature(FEATURE_CUSTOM_URL)) {
+        if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
             if (Utils::isNinjaProd() && ! Utils::isReseller()) {
-                $url = $company->present()->clientPortalLink();
+                $url = $account->present()->clientPortalLink();
             }
 
             if ($iframe_url && ! $forceOnsite) {
-                if ($company->is_custom_domain) {
+                if ($account->is_custom_domain) {
                     $url = $iframe_url;
                 } else {
                     return "{$iframe_url}?{$this->invitation_key}/{$type}";
                 }
-            } elseif ($this->company->subdomain && ! $forcePlain) {
-                $url = Utils::replaceSubdomain($url, $company->subdomain);
+            } elseif ($this->account->subdomain && ! $forcePlain) {
+                $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
 
@@ -67,25 +67,27 @@ trait Inviteable
         foreach ($statuses as $status) {
             $field = "{$status}_date";
             $date = '';
-            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
-                $date = Utils::dateToString($this->$field);
+            if ($this->{$field} && $this->field != '0000-00-00 00:00:00') {
+                $date = Utils::dateToString($this->{$field});
                 $hasValue = true;
                 $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
         }
 
-        return $hasValue ? implode($parts, '<br/>') : false;
+        return $hasValue ? implode('<br/>', $parts) : false;
+
+        // return $hasValue ? implode($parts, '<br/>') : false;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->invitation_key;
     }
 
-    public function markSent($messageId = null): void
+    /**
+     * @param null $messageId
+     */
+    public function markSent($messageId = null)
     {
         $this->message_id = $messageId;
         $this->email_error = null;
@@ -93,12 +95,12 @@ trait Inviteable
         $this->save();
     }
 
-    public function isSent(): bool
+    public function isSent()
     {
         return $this->sent_date && $this->sent_date != '0000-00-00 00:00:00';
     }
 
-    public function markViewed(): void
+    public function markViewed()
     {
         $this->viewed_date = Carbon::now()->toDateTimeString();
         $this->save();

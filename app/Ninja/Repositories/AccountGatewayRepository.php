@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class AccountGatewayRepository extends BaseRepository
 {
@@ -11,12 +11,12 @@ class AccountGatewayRepository extends BaseRepository
         return 'App\Models\AccountGateway';
     }
 
-    public function find($companyId)
+    public function find($accountId)
     {
         $query = DB::table('account_gateways')
             ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-            ->join('companies', 'companies.id', '=', 'account_gateways.company_id')
-            ->where('account_gateways.company_id', '=', $companyId)
+            ->join('accounts', 'accounts.id', '=', 'account_gateways.account_id')
+            ->where('account_gateways.account_id', '=', $accountId)
             ->whereNull('account_gateways.deleted_at');
 
         return $query->select(
@@ -26,7 +26,7 @@ class AccountGatewayRepository extends BaseRepository
             'gateways.name as gateway',
             'account_gateways.deleted_at',
             'account_gateways.gateway_id',
-            'companies.gateway_fee_enabled'
+            'accounts.gateway_fee_enabled'
         );
     }
 }

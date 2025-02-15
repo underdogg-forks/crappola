@@ -42,6 +42,7 @@ body {
 }
 
 div.col-md-3,
+div.col-md-4,
 div.col-md-5,
 div.col-md-6,
 div.col-md-7,
@@ -71,6 +72,11 @@ header {
     margin: 0px !important
 }
 
+hr.form-legend {
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
 @media screen and (min-width: 700px) {
     header {
         margin: 20px 0 75px;
@@ -80,6 +86,14 @@ header {
     .panel-body {
         padding-left: 150px;
         padding-right: 150px;
+    }
+
+}
+
+@media screen and (min-width: 1140px) {
+    .panel-body {
+        padding-left: 180px;
+        padding-right: 180px;
     }
 
 }
@@ -125,7 +139,7 @@ header h3 em {
     }
 
 .secure h3 {
-    color: #36b855;
+    color: #5cb85c;
     font-size: 30px;
     margin-bottom: 8px;
     margin-top: 0px;

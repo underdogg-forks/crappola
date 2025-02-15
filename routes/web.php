@@ -1,8 +1,9 @@
 <?php
 
+// Application setup
+use App\Libraries\Utils;
 use Illuminate\Support\Facades\Route;
 
-// Application setup
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
 Route::get('/install', 'AppController@install');
@@ -13,7 +14,7 @@ Route::get('/', 'HomeController@showIndex');
 Route::get('/log_error', 'HomeController@logError');
 Route::get('/invoice_now', 'HomeController@invoiceNow');
 Route::get('/keep_alive', 'HomeController@keepAlive');
-Route::post('/get_started', 'CompanyController@getStarted');
+Route::post('/get_started', 'AccountController@getStarted');
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
@@ -22,7 +23,7 @@ Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\L
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
 Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
 
-Route::group(['middleware' => ['lookup:contact']], function (): void {
+Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
     Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
@@ -30,11 +31,10 @@ Route::group(['middleware' => ['lookup:contact']], function (): void {
 });
 
 // Client visible pages
-Route::group(['middleware' => ['lookup:contact', 'auth:client']], function (): void {
+Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
     Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalProposalController@downloadProposal');
     Route::get('proposal/{proposal_invitation_key}', 'ClientPortalProposalController@viewProposal');
-    Route::get('ticket/{ticket_invitation_key}', 'ClientPortalTicketController@viewTicket');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('authorize/{invitation_key}', 'ClientPortalController@authorizeInvoice');
     Route::get('view', 'HomeController@viewLogo');
@@ -55,21 +55,9 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function (): v
     Route::get('client/credits', 'ClientPortalController@creditIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
     Route::get('client/invoices/recurring', 'ClientPortalController@recurringInvoiceIndex');
-    Route::get('client/invoices/recurring_quotes', 'ClientPortalController@recurringQuoteIndex');
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
-    Route::get('client/tickets', 'ClientPortalTicketController@index');
-    Route::get('client/tickets/create', 'ClientPortalTicketController@create');
-    Route::post('client/tickets/create', 'ClientPortalTicketController@store');
-    Route::get('client/tickets/{ticketId}', 'ClientPortalTicketController@view');
-    Route::put('client/tickets/{ticketId}', 'ClientPortalTicketController@update');
-
-    Route::post('client/tickets/documents', 'DocumentController@postUpload');
-    Route::get('client/tickets/documents/{documents}/{filename?}', 'DocumentController@get');
-    Route::get('client/tickets/documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
-    Route::delete('client/tickets/documents/{documents}', 'DocumentController@delete');
-
     Route::get('client/tasks', 'ClientPortalController@taskIndex');
     Route::get('client/dashboard/{contact_key?}', 'ClientPortalController@dashboard');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
@@ -81,34 +69,28 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function (): v
     Route::get('api/client.credits', ['as' => 'api.client.credits', 'uses' => 'ClientPortalController@creditDatatable']);
     Route::get('api/client.invoices', ['as' => 'api.client.invoices', 'uses' => 'ClientPortalController@invoiceDatatable']);
     Route::get('api/client.recurring_invoices', ['as' => 'api.client.recurring_invoices', 'uses' => 'ClientPortalController@recurringInvoiceDatatable']);
-    Route::get('api/client.recurring_quotes', ['as' => 'api.client.recurring_quotes', 'uses' => 'ClientPortalController@recurringQuoteDatatable']);
     Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
     Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
-    Route::get('api/client.tickets', ['as' => 'api.client.tickets', 'uses' => 'ClientPortalTicketController@ticketDatatable']);
     Route::get('api/client.tasks', ['as' => 'api.client.tasks', 'uses' => 'ClientPortalController@taskDatatable']);
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 
-Route::group(['middleware' => 'lookup:license'], function (): void {
+Route::group(['middleware' => 'lookup:license'], function () {
     Route::get('license', 'NinjaController@show_license_payment');
     Route::post('license', 'NinjaController@do_license_payment');
     Route::get('claim_license', 'NinjaController@claim_license');
     if (Utils::isNinja()) {
-        Route::post('/signup/register', 'CompanyController@doRegister');
+        Route::post('/signup/register', 'AccountController@doRegister');
         Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     }
 });
 
-Route::group(['middleware' => 'ticket'], function (): void {
-    Route::post('/tickets/inbound', 'TicketController@inbound');
-});
-
-Route::group(['middleware' => 'lookup:postmark'], function (): void {
+Route::group(['middleware' => 'lookup:postmark'], function () {
     Route::post('/hook/email_bounced', 'AppController@emailBounced');
     Route::post('/hook/email_opened', 'AppController@emailOpened');
 });
 
-Route::group(['middleware' => 'lookup:company'], function (): void {
+Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
     Route::get('validate_two_factor/{account_key}', 'Auth\LoginController@getValidateToken');
@@ -125,7 +107,7 @@ Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswor
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@showResetForm']);
 Route::get('/auth/{provider}', 'Auth\AuthController@oauthLogin');
 
-Route::group(['middleware' => ['lookup:user']], function (): void {
+Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
     Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@postLoginWrapper']);
     Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
@@ -144,43 +126,49 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
+Route::group(['middleware' => ['lookup:user', 'auth:user', 'migration_channel:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
-    Route::get('set_entity_filter/{entity_type}/{filter?}', 'CompanyController@setEntityFilter');
+    Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-    Route::get('company/get_search_data', ['as' => 'get_search_data', 'uses' => 'CompanyController@getSearchData']);
+    Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
     Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
     Route::post('accept_terms', 'UserController@acceptTerms');
 
-    Route::post('signup/validate', 'CompanyController@checkEmail');
-    Route::post('signup/submit', 'CompanyController@submitSignup');
+    Route::post('signup/validate', 'AccountController@checkEmail');
+    Route::post('signup/submit', 'AccountController@submitSignup');
     Route::get('auth_unlink', 'Auth\AuthController@oauthUnlink');
 
-    Route::get('settings/user_details', 'CompanyController@showUserDetails');
-    Route::post('settings/user_details', 'CompanyController@saveUserDetails');
-    Route::post('settings/tickets', 'CompanyController@saveTickets');
+    Route::get('settings/user_details', 'AccountController@showUserDetails');
+    Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
     Route::get('migration/start', 'Migration\StepsController@start');
-
+    Route::post('migration/type', 'Migration\StepsController@handleType');
     Route::get('migration/download', 'Migration\StepsController@download');
     Route::post('migration/download', 'Migration\StepsController@handleDownload');
+    Route::get('migration/endpoint', 'Migration\StepsController@endpoint');
+    Route::post('migration/endpoint', 'Migration\StepsController@handleEndpoint');
+    Route::get('migration/auth', 'Migration\StepsController@auth');
+    Route::post('migration/auth', 'Migration\StepsController@handleAuth');
+    Route::get('migration/companies', 'Migration\StepsController@companies');
+    Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
+    Route::get('migration/completed', 'Migration\StepsController@completed');
+    Route::post('migration/forward', 'Migration\StepsController@forwardUrl');
+    Route::get('migration/disable_forward', 'Migration\StepsController@disableForwarding');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 
-    Route::resource('clients', 'ClientController')->except('show');
-    Route::get('clients/{clientId}', 'ClientController@show');
-    Route::get('api/clients', 'ClientController@getDatatable')->name('api.clients.datatable');
-
+    Route::resource('clients', 'ClientController');
+    Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
     Route::get('clients/statement/{client_id}', 'ClientController@statement');
@@ -194,7 +182,6 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
     Route::delete('task_statuses/{task_status_id}', 'TaskKanbanController@deleteStatus');
     Route::put('task_status_order/{task_id}', 'TaskKanbanController@updateTask');
     Route::resource('tasks', 'TaskController');
-    Route::get('tasks/{tasks}/clone', 'TaskController@cloneTask');
     Route::get('api/tasks/{client_id?}/{project_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
@@ -208,28 +195,21 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
     Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
-    Route::get('api/recurring_quotes/{client_id?}', 'InvoiceController@getRecurringQuotesDatatable');
 
     Route::get('invoices/delivery_note/{invoice_id}', 'InvoiceController@deliveryNote');
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
 
     Route::resource('invoices', 'InvoiceController');
-    Route::get('api/invoices/{client_id?}', 'InvoiceController@getDatatable')->name('api.invoices.datatable');
-
+    Route::get('api/invoices/{client_id?}', 'InvoiceController@getDatatable');
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
     Route::get('recurring_invoices/{invoices}/edit', 'InvoiceController@edit');
     Route::get('recurring_invoices/{invoices}', 'InvoiceController@edit');
-    Route::get('recurring_quotes/create/{client_id?}', 'InvoiceController@createRecurringQuote');
-    Route::get('recurring_quotes', 'RecurringQuoteController@index');
-    Route::get('recurring_quotes/{invoices}/edit', 'InvoiceController@edit');
-    Route::get('recurring_quotes/{invoices}', 'InvoiceController@edit');
     Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
-    Route::post('recurring_quotes/bulk', 'InvoiceController@bulk');
 
     Route::get('recurring_expenses', 'RecurringExpenseController@index');
     Route::get('api/recurring_expenses', 'RecurringExpenseController@getDatatable');
@@ -293,32 +273,12 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
     Route::post('credits/bulk', 'CreditController@bulk');
 
     Route::get('products/{products}/clone', 'ProductController@cloneProduct');
-    Route::get('api/products', 'ProductController@getDatatable')->name('api.products.datatable');
-
+    Route::get('api/products', 'ProductController@getDatatable');
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
 
-    Route::get('/resend_confirmation', 'CompanyController@resendConfirmation');
+    Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
-
-    Route::get('tickets/entities', 'TicketController@getTicketRelationCollection');
-    Route::resource('tickets', 'TicketController');
-    Route::get('/tickets/create/{parent_ticket_id?}', 'TicketController@create');
-    Route::get('api/tickets', 'TicketController@getDatatable');
-    Route::get('api/ticket_templates', 'TicketTemplateController@getDatatable');
-    Route::get('ticket_templates', 'TicketTemplateController@index');
-    Route::get('ticket_templates/create', 'TicketTemplateController@create');
-    Route::get('ticket_templates/{public_id}/edit', 'TicketTemplateController@edit');
-    Route::put('ticket_templates/{public_id}', 'TicketTemplateController@update');
-    Route::post('ticket_templates/create', 'TicketTemplateController@store');
-    Route::post('ticket_templates/bulk', 'TicketTemplateController@bulk');
-    Route::post('tickets/bulk', 'TicketController@bulk');
-    Route::post('api/tickets/checkSupportLocalPart', 'CompanyController@checkUniqueLocalPart');
-    Route::get('tickets/merge/{public_id}', 'TicketController@merge');
-    Route::post('tickets/merge/', 'TicketController@actionMerge');
-    Route::post('tickets/entities/create', 'TicketController@addEntity');
-    Route::post('tickets/entities/remove', 'TicketController@removeEntity');
-    Route::post('tickets/search', 'TicketController@search');
 
     // vendor
     Route::resource('vendors', 'VendorController');
@@ -360,13 +320,13 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
 Route::group([
     'middleware'  => ['lookup:user', 'auth:user', 'permissions.required'],
     'permissions' => 'admin',
-], function (): void {
+], function () {
     Route::get('api/users', 'UserController@getDatatable');
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
-    Route::get('/company/{account_key}', 'UserController@viewAccountByKey');
+    Route::get('/account/{account_key}', 'UserController@viewAccountByKey');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
     Route::get('/errors', 'AppController@errors');
@@ -383,19 +343,18 @@ Route::group([
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
-    Route::get('settings/email_preview', 'CompanyController@previewEmail');
-    Route::post('settings/client_portal', 'CompanyController@saveClientPortalSettings');
-    Route::post('settings/email_settings', 'CompanyController@saveEmailSettings');
-    Route::get('companyPlan/{section}/{subSection?}', 'CompanyController@redirectLegacy');
+    Route::get('settings/email_preview', 'AccountController@previewEmail');
+    Route::post('settings/client_portal', 'AccountController@saveClientPortalSettings');
+    Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
+    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
 
-    Route::post('settings/change_plan', 'CompanyController@changePlan');
-    Route::post('settings/cancel_account', 'CompanyController@cancelAccount');
-    Route::post('settings/purge_data', 'CompanyController@purgeData');
-    Route::post('settings/company_details', 'CompanyController@updateDetails');
-    Route::post('settings/{section?}', 'CompanyController@doSection');
-    Route::post('remove_logo', 'CompanyController@removeLogo');
-    Route::post('remove_avatar', 'CompanyController@removeAvatar');
+    Route::post('settings/change_plan', 'AccountController@changePlan');
+    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/purge_data', 'AccountController@purgeData');
+    Route::post('settings/company_details', 'AccountController@updateDetails');
+    Route::post('settings/{section?}', 'AccountController@doSection');
+    Route::post('remove_logo', 'AccountController@removeLogo');
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
@@ -429,8 +388,8 @@ Route::group([
     //Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function (): void {
-    Route::get('settings/{section?}', 'CompanyController@showSection');
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+    Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
 // Redirects for legacy links

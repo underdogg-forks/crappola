@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\CompanyPlan;
+use App\Models\Company;
 use App\Models\DbServer;
 
 class ReferralRepository
@@ -15,20 +15,22 @@ class ReferralRepository
             'enterprise' => 0,
         ];
 
-        if (! $referralCode) {
+        if ( ! $referralCode) {
             return $counts;
         }
 
         $current = config('database.default');
-        $databases = env('MULTI_DB_ENABLED') ? DbServer::all()->pluck('name')->toArray() : [$current];
+        $databases = env('MULTI_DB_ENABLED')
+            ? DbServer::pluck('name')->all()
+            : [$current];
 
         foreach ($databases as $database) {
             config(['database.default' => $database]);
-            $companys = CompanyPlan::whereReferralCode($referralCode)->get();
+            $accounts = Company::whereReferralCode($referralCode)->get();
 
-            foreach ($companys as $company) {
+            foreach ($accounts as $account) {
                 $counts['free']++;
-                $plan = $company->getPlanDetails(false, false);
+                $plan = $account->getPlanDetails(false, false);
 
                 if ($plan) {
                     $counts['pro']++;

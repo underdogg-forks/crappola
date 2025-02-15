@@ -5,24 +5,32 @@ namespace App\Listeners;
 use App\Events\PaymentWasDeleted;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 /**
  * Class CreditListener.
  */
 class CreditListener
 {
-    protected CreditRepository $creditRepo;
+    /**
+     * @var CreditRepository
+     */
+    protected $creditRepo;
 
     /**
      * CreditListener constructor.
+     *
+     * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)
     {
         $this->creditRepo = $creditRepo;
     }
 
-    public function deletedPayment(PaymentWasDeleted $event): void
+    /**
+     * @param PaymentWasDeleted $event
+     */
+    public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
 

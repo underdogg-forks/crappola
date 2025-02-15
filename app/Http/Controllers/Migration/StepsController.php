@@ -3,29 +3,66 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
+use App\Jobs\HostedMigration;
 use App\Libraries\Utils;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\TaxRate;
-use App\Models\User;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use App\Models\Account;
+use App\Models\AccountGatewayToken;
+use App\Models\Client;
+use App\Services\Migration\AuthService;
+use App\Services\Migration\CompanyService;
+use App\Services\Migration\CompleteService;
+use App\Traits\GenerateMigrationResources;
+use Auth;
+use Exception;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Validator;
 use ZipArchive;
 
 class StepsController extends BaseController
 {
-    private $company;
+    use GenerateMigrationResources;
+
+    private $access = [
+        'auth' => [
+            'steps'    => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'endpoint' => [
+            'steps'    => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'companies' => [
+            'steps'    => ['MIGRATION_TYPE', 'MIGRATION_ACCOUNT_TOKEN'],
+            'redirect' => '/migration/auth',
+        ],
+    ];
+
+    public function __construct()
+    {
+        $this->middleware('migration');
+    }
 
     /**
-     * @return Factory|View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function start()
     {
-    return view('migration.start');
+        if(Utils::isNinja()) {
+            session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
+            //    session()->put('MIGRATION_ENDPOINT', 'http://ninja.test:8000');
+            session()->put('MIGRATION_ACCOUNT_TOKEN', '');
+            session()->put('MIGRAITON_API_SECRET', null);
+
+            return $this->companies();
+        }
+
+        return view('migration.start');
     }
 
     public function import()
@@ -34,458 +71,372 @@ class StepsController extends BaseController
     }
 
     /**
-     * @return Factory|View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function download()
     {
         return view('migration.download');
     }
 
+    public function handleType(MigrationTypeRequest $request)
+    {
+        session()->put('MIGRATION_TYPE', $request->option);
+
+        if ($request->option == 0 || $request->option == '0') {
+            return redirect(
+                url('/migration/companies?hosted=true')
+            );
+        }
+
+        return redirect(
+            url('/migration/endpoint')
+        );
+    }
+
+    public function forwardUrl(Request $request)
+    {
+        if(Utils::isNinjaProd()) {
+            return $this->autoForwardUrl();
+        }
+
+        $rules = [
+            'url' => 'nullable|url',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $account_settings = Auth::user()->account->account_email_settings;
+
+        if(mb_strlen($request->input('url')) == 0) {
+            $account_settings->is_disabled = false;
+        } else {
+            $account_settings->is_disabled = true;
+        }
+
+        $account_settings->forward_url_for_v5 = rtrim($request->input('url'), '/');
+        $account_settings->save();
+
+        return back();
+    }
+
+    public function disableForwarding()
+    {
+        $account = Auth::user()->account;
+
+        $account_settings = $account->account_email_settings;
+        $account_settings->forward_url_for_v5 = '';
+        $account_settings->is_disabled = false;
+        $account_settings->save();
+
+        return back();
+    }
+
+    public function endpoint()
+    {
+        if ($this->shouldGoBack('endpoint')) {
+            return redirect(
+                url($this->access['endpoint']['redirect'])
+            );
+        }
+
+        return view('migration.endpoint');
+    }
+
+    public function handleEndpoint(MigrationEndpointRequest $request)
+    {
+        if ($this->shouldGoBack('endpoint')) {
+            return redirect(
+                url($this->access['endpoint']['redirect'])
+            );
+        }
+
+        session()->put('MIGRATION_ENDPOINT', rtrim($request->endpoint, '/'));
+
+        return redirect(
+            url('/migration/auth')
+        );
+    }
+
+    public function auth()
+    {
+        if ($this->shouldGoBack('auth')) {
+            return redirect(
+                url($this->access['auth']['redirect'])
+            );
+        }
+
+        return view('migration.auth');
+    }
+
+    public function handleAuth(MigrationAuthRequest $request)
+    {
+        if ($this->shouldGoBack('auth')) {
+            return redirect(
+                url($this->access['auth']['redirect'])
+            );
+        }
+
+        if (auth()->user()->email !== $request->email) {
+            return back()->with('responseErrors', [trans('texts.cross_migration_message')]);
+        }
+
+        $authentication = (new AuthService($request->email, $request->password, $request->has('api_secret') ? $request->api_secret : null))
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+        if ($authentication->isSuccessful()) {
+            session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
+            session()->put('MIGRAITON_API_SECRET', $authentication->getApiSecret());
+
+            return redirect(
+                url('/migration/companies')
+            );
+        }
+
+        return back()->with('responseErrors', $authentication->getErrors());
+    }
+
+    public function companies()
+    {
+        if ($this->shouldGoBack('companies')) {
+            return redirect(
+                url($this->access['companies']['redirect'])
+            );
+        }
+
+        $companyService = (new CompanyService())
+            ->start();
+
+        if ($companyService->isSuccessful()) {
+            return view('migration.companies', ['companies' => $companyService->getCompanies()]);
+        }
+
+        return response()->json([
+            'message' => 'Oops, looks like something failed. Please try again.',
+        ], 500);
+    }
+
+    public function handleCompanies(MigrationCompaniesRequest $request)
+    {
+        if ($this->shouldGoBack('companies')) {
+            return redirect(
+                url($this->access['companies']['redirect'])
+            );
+        }
+        $bool = true;
+
+        if(Utils::isNinja()) {
+            $this->dispatch(new HostedMigration(auth()->user(), $request->all(), config('database.default')));
+
+            return view('migration.completed');
+        }
+
+        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')));
+
+        try {
+            $migrationData = $this->generateMigrationData($request->all());
+
+            $completeService->data($migrationData)
+                ->endpoint(session('MIGRATION_ENDPOINT'))
+                ->start();
+        } catch(Exception $e) {
+            info($e->getMessage());
+
+            return view('migration.completed', ['customMessage' => $e->getMessage()]);
+        }
+
+        if ($completeService->isSuccessful()) {
+            return view('migration.completed');
+        }
+
+        return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
+    }
+
+    public function completed()
+    {
+        return view('migration.completed');
+    }
+
+    /**
+     * ==================================
+     * Rest of functions that are used as 'actions', not controller methods.
+     * ==================================.
+     */
+    public function shouldGoBack(string $step)
+    {
+        $redirect = true;
+
+        foreach ($this->access[$step]['steps'] as $step) {
+            if (session()->has($step)) {
+                $redirect = false;
+            } else {
+                $redirect = true;
+            }
+        }
+
+        return $redirect;
+    }
+
     /**
      * Handle data downloading for the migration.
      *
+     * @return string
      */
-    public function handleDownload()
+    public function generateMigrationData(array $data): array
     {
-        $this->company = Auth::user()->company;
+        set_time_limit(0);
 
-        $date = date('Y-m-d');
-        $companyKey = $this->company->account_key;
+        $migrationData = [];
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+        foreach ($data['companies'] as $company) {
+            $account = Account::where('account_key', $company['id'])->firstOrFail();
 
-        $fileName = "{$companyKey}-{$date}-invoiceninja";
+            $this->account = $account;
 
-        $data = [
-            'companyPlan' => $this->getCompanyPlan(),
-            'users'       => $this->getUsers(),
-            'tax_rates'   => $this->getTaxRates(),
-            'clients'     => $this->getClients(),
-            'products'    => $this->getProducts(),
-            'invoices'    => $this->getInvoices(),
-            'quotes'      => $this->getQuotes(),
-            'payments'    => array_merge($this->getPayments(), $this->getCredits()),
-            'credits'     => $this->getCreditsNotes(),
-        ];
+            $date = date('Y-m-d');
+            $accountKey = $this->account->account_key;
 
-        $file = storage_path("{$fileName}.zip");
+            $output = fopen('php://output', 'w') || Utils::fatalError();
 
-        $zip = new ZipArchive();
-        $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $zip->addFromString('migration.json', json_encode($data));
-        $zip->close();
+            $fileName = "{$accountKey}-{$date}-invoiceninja";
 
             $localMigrationData['data'] = [
-                'account' => $this->getAccount(),
-                'company' => $this->getCompany(),
-                'users' => $this->getUsers(),
-                'tax_rates' => $this->getTaxRates(),
-                'payment_terms' => $this->getPaymentTerms(),
-                'clients' => $this->getClients(),
-                'company_gateways' => $this->getCompanyGateways(),
+                'account'               => $this->getAccount(),
+                'company'               => $this->getCompany(),
+                'users'                 => $this->getUsers(),
+                'tax_rates'             => $this->getTaxRates(),
+                'payment_terms'         => $this->getPaymentTerms(),
+                'clients'               => $this->getClients(),
+                'company_gateways'      => $this->getCompanyGateways(),
                 'client_gateway_tokens' => $this->getClientGatewayTokens(),
-                'vendors' => $this->getVendors(),
-                'projects' => $this->getProjects(),
-                'products' => $this->getProducts(),
-                'credits' => $this->getCreditsNotes(),
-                'invoices' => $this->getInvoices(),
-                'recurring_expenses' => $this->getRecurringExpenses(),
-                'recurring_invoices' => $this->getRecurringInvoices(),
-                'quotes' => $this->getQuotes(),
-                'payments' => $this->getPayments(),
-                'documents' => $this->getDocuments(),
-                'expense_categories' => $this->getExpenseCategories(),
-                'task_statuses' => $this->getTaskStatuses(),
-                'expenses' => $this->getExpenses(),
-                'tasks' => $this->getTasks(),
-                'ninja_tokens' => $this->getNinjaToken(),
+                'vendors'               => $this->getVendors(),
+                'projects'              => $this->getProjects(),
+                'products'              => $this->getProducts(),
+                'credits'               => $this->getCreditsNotes(),
+                'invoices'              => $this->getInvoices(),
+                'recurring_expenses'    => $this->getRecurringExpenses(),
+                'recurring_invoices'    => $this->getRecurringInvoices(),
+                'quotes'                => $this->getQuotes(),
+                'payments'              => $this->getPayments(),
+                'documents'             => $this->getDocuments(),
+                'expense_categories'    => $this->getExpenseCategories(),
+                'task_statuses'         => $this->getTaskStatuses(),
+                'expenses'              => $this->getExpenses(),
+                'tasks'                 => $this->getTasks(),
+                'ninja_tokens'          => $this->getNinjaToken(),
             ];
+
+            $localMigrationData['force'] = array_key_exists('force', $company);
+
+            Storage::makeDirectory('migrations');
+            $file = Storage::path("migrations/{$fileName}.zip");
+
+            ksort($localMigrationData);
+
+            $zip = new ZipArchive();
+            $zip->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
+            $zip->close();
+
+            $localMigrationData['file'] = $file;
+
+            $migrationData[] = $localMigrationData;
         }
 
-        return $transformed;
+        return $migrationData;
+
+        // header('Content-Type: application/zip');
+        // header('Content-Length: ' . filesize($file));
+        // header("Content-Disposition: attachment; filename={$fileName}.zip");
     }
 
-    /**
-     * @return array<int, array{name: mixed, rate: mixed, company_id: mixed, user_id: mixed, created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    public function getTaxRates(): array
+    private function autoForwardUrl()
     {
-        $rates = TaxRate::where('company_id', $this->company->id)
-            ->withTrashed()
-            ->get();
+        $url = 'https://invoicing.co/api/v1/confirm_forwarding';
+        // $url = 'http://devhosted.test:8000/api/v1/confirm_forwarding';
 
-        $transformed = [];
+        $headers = [
+            'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
+            'X-Requested-With'    => 'XMLHttpRequest',
+            'Content-Type'        => 'application/json',
+        ];
 
-        foreach ($rates as $rate) {
-            $transformed[] = [
-                'name'       => $rate->name,
-                'rate'       => $rate->rate,
-                'company_id' => $rate->company_id,
-                'user_id'    => $rate->user_id,
-                'created_at' => $rate->created_at ? $rate->created_at->toDateString() : null,
-                'updated_at' => $rate->updated_at ? $rate->updated_at->toDateString() : null,
-                'deleted_at' => $rate->deleted_at ? $rate->deleted_at->toDateString() : null,
-            ];
+        $account = Auth::user()->account;
+        $gateway_reference = '';
+
+        $ninja_client = Client::where('public_id', $account->id)->first();
+
+        if($ninja_client) {
+            $agt = AccountGatewayToken::where('client_id', $ninja_client->id)->first();
+
+            if($agt) {
+                $gateway_reference = $agt->token;
+            }
         }
 
-        return $transformed;
-    }
+        $body = [
+            'account_key'       => $account->account_key,
+            'email'             => $account->getPrimaryUser()->email,
+            'plan'              => $account->company->plan,
+            'plan_term'         => $account->company->plan_term,
+            'plan_started'      => $account->company->plan_started,
+            'plan_paid'         => $account->company->plan_paid,
+            'plan_expires'      => $account->company->plan_expires,
+            'trial_started'     => $account->company->trial_started,
+            'trial_plan'        => $account->company->trial_plan,
+            'plan_price'        => $account->company->plan_price,
+            'num_users'         => $account->company->num_users,
+            'gateway_reference' => $gateway_reference,
+        ];
 
-    /**
-     * @return array<int, array{id: mixed, company_id: mixed, user_id: mixed, name: mixed, balance: mixed, paid_to_date: mixed, address1: mixed, address2: mixed, city: mixed, state: mixed, postal_code: mixed, country_id: mixed, phone: mixed, private_notes: mixed, website: mixed, industry_id: mixed, size_id: mixed, is_deleted: mixed, vat_number: mixed, id_number: mixed, custom_value1: mixed, custom_value2: mixed, shipping_address1: mixed, shipping_address2: mixed, shipping_city: mixed, shipping_state: mixed, shipping_postal_code: mixed, shipping_country_id: mixed, contacts: mixed[]}>
-     */
-    protected function getClients(): array
-    {
-        $clients = [];
+        $client = new \GuzzleHttp\Client([
+            'headers' => $headers,
+        ]);
 
-        foreach ($this->company->clients()->withTrashed()->get() as $client) {
-            $clients[] = [
-                'id'                   => $client->id,
-                'company_id'           => $client->company_id,
-                'user_id'              => $client->user_id,
-                'name'                 => $client->name,
-                'balance'              => $client->balance,
-                'paid_to_date'         => $client->paid_to_date,
-                'address1'             => $client->address1,
-                'address2'             => $client->address2,
-                'city'                 => $client->city,
-                'state'                => $client->state,
-                'postal_code'          => $client->postal_code,
-                'country_id'           => $client->country_id,
-                'phone'                => $client->work_phone,
-                'private_notes'        => $client->private_notes,
-                'website'              => $client->website,
-                'industry_id'          => $client->industry_id,
-                'size_id'              => $client->size_id,
-                'is_deleted'           => $client->is_deleted,
-                'vat_number'           => $client->vat_number,
-                'id_number'            => $client->id_number,
-                'custom_value1'        => $client->custom_value1,
-                'custom_value2'        => $client->custom_value2,
-                'shipping_address1'    => $client->shipping_address1,
-                'shipping_address2'    => $client->shipping_address2,
-                'shipping_city'        => $client->shipping_city,
-                'shipping_state'       => $client->shipping_state,
-                'shipping_postal_code' => $client->shipping_postal_code,
-                'shipping_country_id'  => $client->shipping_country_id,
-                'contacts'             => $this->getClientContacts($client->contacts),
-            ];
+        $response = $client->post($url, [
+            RequestOptions::JSON            => $body,
+            RequestOptions::ALLOW_REDIRECTS => false,
+        ]);
+
+        if($response->getStatusCode() == 401) {
+            info('autoForwardUrl');
+            info($response->getBody());
+        } elseif ($response->getStatusCode() == 200) {
+            $message_body = json_decode($response->getBody(), true);
+
+            $forwarding_url = $message_body['forward_url'];
+
+            $account_settings = $account->account_email_settings;
+
+            if(mb_strlen($forwarding_url) == 0) {
+                $account_settings->is_disabled = false;
+            } else {
+                $account_settings->is_disabled = true;
+            }
+
+            $account_settings->forward_url_for_v5 = rtrim($forwarding_url, '/');
+            $account_settings->save();
+
+            $billing_transferred = $message_body['billing_transferred'];
+
+            if($billing_transferred == 'true') {
+                $company = $account->company;
+                $company->plan = null;
+                $company->plan_expires = null;
+                $company->save();
+            }
+        } else {
+            info('failed to autoforward');
+            info(json_decode($response->getBody()->getContents()));
+            // dd('else');
         }
 
-        return $clients;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, company_id: mixed, user_id: mixed, client_id: mixed, first_name: mixed, last_name: mixed, phone: mixed, custom_value1: mixed, custom_value2: mixed, email: mixed, is_primary: mixed, send_invoice: mixed, confirmed: bool, last_login: mixed, password: mixed, remember_token: mixed, contact_key: mixed}>
-     */
-    protected function getClientContacts($contacts): array
-    {
-        $transformed = [];
-
-        foreach ($contacts as $contact) {
-            $transformed[] = [
-                'id'             => $contact->id,
-                'company_id'     => $contact->company_id,
-                'user_id'        => $contact->user_id,
-                'client_id'      => $contact->client_id,
-                'first_name'     => $contact->first_name,
-                'last_name'      => $contact->last_name,
-                'phone'          => $contact->phone,
-                'custom_value1'  => $contact->custom_value1,
-                'custom_value2'  => $contact->custom_value2,
-                'email'          => $contact->email,
-                'is_primary'     => $contact->is_primary,
-                'send_invoice'   => $contact->send_invoice,
-                'confirmed'      => $contact->confirmation_token ? true : false,
-                'last_login'     => $contact->last_login,
-                'password'       => $contact->password,
-                'remember_token' => $contact->remember_token,
-                'contact_key'    => $contact->contact_key,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{company_id: mixed, user_id: mixed, custom_value1: mixed, custom_value2: mixed, product_key: mixed, notes: mixed, cost: mixed, quantity: mixed, tax_name1: mixed, tax_name2: mixed, tax_rate1: mixed, tax_rate2: mixed, created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    protected function getProducts(): array
-    {
-        $products = Product::where('company_id', $this->company->id)
-            ->withTrashed()
-            ->get();
-
-        $transformed = [];
-
-        foreach ($products as $product) {
-            $transformed[] = [
-                'company_id'    => $product->company_id,
-                'user_id'       => $product->user_id,
-                'custom_value1' => $product->custom_value1,
-                'custom_value2' => $product->custom_value2,
-                'product_key'   => $product->product_key,
-                'notes'         => $product->notes,
-                'cost'          => $product->cost,
-                'quantity'      => $product->qty,
-                'tax_name1'     => $product->tax_name1,
-                'tax_name2'     => $product->tax_name2,
-                'tax_rate1'     => $product->tax_rate1,
-                'tax_rate2'     => $product->tax_rate2,
-                'created_at'    => $product->created_at ? $product->created_at->toDateString() : null,
-                'updated_at'    => $product->updated_at ? $product->updated_at->toDateString() : null,
-                'deleted_at'    => $product->deleted_at ? $product->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, client_id: mixed, user_id: mixed, company_id: mixed, status_id: mixed, design_id: mixed, number: mixed, discount: mixed, is_amount_discount: mixed, po_number: mixed, date: mixed, last_sent_date: mixed, due_at: mixed, is_deleted: mixed, footer: mixed, public_notes: mixed, private_notes: mixed, uses_inclusive_taxes: mixed, terms: mixed, tax_name1: mixed, tax_name2: mixed, tax_rate1: mixed, tax_rate2: mixed, custom_value1: mixed, custom_value2: mixed, next_send_date: null, amount: mixed, balance: mixed, partial: mixed, partial_due_date: mixed, line_items: mixed[], created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    protected function getInvoices(): array
-    {
-        $invoices = [];
-
-        foreach ($this->company->invoices()->where('amount', '>=', '0')->withTrashed()->get() as $invoice) {
-            $invoices[] = [
-                'id'                   => $invoice->id,
-                'client_id'            => $invoice->client_id,
-                'user_id'              => $invoice->user_id,
-                'company_id'           => $invoice->company_id,
-                'status_id'            => $invoice->invoice_status_id,
-                'design_id'            => $invoice->invoice_design_id,
-                'number'               => $invoice->invoice_number,
-                'discount'             => $invoice->discount,
-                'is_amount_discount'   => $invoice->is_amount_discount ?: false,
-                'po_number'            => $invoice->po_number,
-                'date'                 => $invoice->invoice_date,
-                'last_sent_date'       => $invoice->last_sent_date,
-                'due_at'               => $invoice->due_at,
-                'is_deleted'           => $invoice->is_deleted,
-                'footer'               => $invoice->invoice_footer,
-                'public_notes'         => $invoice->public_notes,
-                'private_notes'        => $invoice->private_notes,
-                'uses_inclusive_taxes' => $this->company->inclusive_taxes,
-                'terms'                => $invoice->terms,
-                'tax_name1'            => $invoice->tax_name1,
-                'tax_name2'            => $invoice->tax_name2,
-                'tax_rate1'            => $invoice->tax_rate1,
-                'tax_rate2'            => $invoice->tax_rate2,
-                'custom_value1'        => $invoice->custom_value1,
-                'custom_value2'        => $invoice->custom_value2,
-                'next_send_date'       => null,
-                'amount'               => $invoice->amount,
-                'balance'              => $invoice->balance,
-                'partial'              => $invoice->partial,
-                'partial_due_date'     => $invoice->partial_due_date,
-                'line_items'           => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at'           => $invoice->created_at ? $invoice->created_at->toDateString() : null,
-                'updated_at'           => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
-                'deleted_at'           => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $invoices;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, quantity: mixed, cost: mixed, product_key: mixed, notes: mixed, discount: mixed, tax_name1: mixed, tax_rate1: mixed, date: mixed, custom_value1: mixed, custom_value2: mixed, line_item_type_id: mixed}>
-     */
-    public function getInvoiceItems($items): array
-    {
-        $transformed = [];
-
-        foreach ($items as $item) {
-            $transformed[] = [
-                'id'                => $item->id,
-                'quantity'          => $item->qty,
-                'cost'              => $item->cost,
-                'product_key'       => $item->product_key,
-                'notes'             => $item->notes,
-                'discount'          => $item->discount,
-                'tax_name1'         => $item->tax_name1,
-                'tax_rate1'         => $item->tax_rate1,
-                'date'              => $item->created_at,
-                'custom_value1'     => $item->custom_value1,
-                'custom_value2'     => $item->custom_value2,
-                'line_item_type_id' => $item->invoice_item_type_id,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, client_id: mixed, user_id: mixed, company_id: mixed, status_id: mixed, design_id: mixed, number: mixed, discount: mixed, is_amount_discount: mixed, po_number: mixed, date: mixed, last_sent_date: mixed, due_at: mixed, is_deleted: mixed, footer: mixed, public_notes: mixed, private_notes: mixed, terms: mixed, tax_name1: mixed, tax_name2: mixed, tax_rate1: mixed, tax_rate2: mixed, custom_value1: mixed, custom_value2: mixed, next_send_date: null, amount: mixed, balance: mixed, partial: mixed, partial_due_date: mixed, created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    public function getQuotes(): array
-    {
-        $transformed = [];
-
-        $quotes = Invoice::where('company_id', $this->company->id)
-            ->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
-            ->withTrashed()
-            ->get();
-
-        foreach ($quotes as $quote) {
-            $transformed[] = [
-                'id'                 => $quote->id,
-                'client_id'          => $quote->client_id,
-                'user_id'            => $quote->user_id,
-                'company_id'         => $quote->company_id,
-                'status_id'          => $quote->invoice_status_id,
-                'design_id'          => $quote->invoice_design_id,
-                'number'             => $quote->invoice_number,
-                'discount'           => $quote->discount,
-                'is_amount_discount' => $quote->is_amount_discount ?: false,
-                'po_number'          => $quote->po_number,
-                'date'               => $quote->invoice_date,
-                'last_sent_date'     => $quote->last_sent_date,
-                'due_at'             => $quote->due_date,
-                'is_deleted'         => $quote->is_deleted,
-                'footer'             => $quote->invoice_footer,
-                'public_notes'       => $quote->public_notes,
-                'private_notes'      => $quote->private_notes,
-                'terms'              => $quote->terms,
-                'tax_name1'          => $quote->tax_name1,
-                'tax_name2'          => $quote->tax_name2,
-                'tax_rate1'          => $quote->tax_rate1,
-                'tax_rate2'          => $quote->tax_rate2,
-                'custom_value1'      => $quote->custom_value1,
-                'custom_value2'      => $quote->custom_value2,
-                'next_send_date'     => null,
-                'amount'             => $quote->amount,
-                'balance'            => $quote->balance,
-                'partial'            => $quote->partial,
-                'partial_due_date'   => $quote->partial_due_date,
-                'created_at'         => $quote->created_at ? $quote->created_at->toDateString() : null,
-                'updated_at'         => $quote->updated_at ? $quote->updated_at->toDateString() : null,
-                'deleted_at'         => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, invoices: array<int, array{invoice_id: mixed, amount: mixed, refunded: mixed}>, invoice_id: mixed, company_id: mixed, client_id: mixed, user_id: mixed, client_contact_id: mixed, invitation_id: mixed, company_gateway_id: mixed, type_id: mixed, status_id: mixed, amount: mixed, applied: mixed, refunded: mixed, date: mixed, transaction_reference: mixed, payer_id: mixed, is_deleted: mixed, updated_at: mixed, created_at: mixed, deleted_at: mixed}>
-     */
-    public function getPayments(): array
-    {
-        $transformed = [];
-
-        $payments = Payment::where('company_id', $this->company->id)
-            ->withTrashed()
-            ->get();
-
-        foreach ($payments as $payment) {
-            $transformed[] = [
-                'id'       => $payment->id,
-                'invoices' => [
-                    ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
-                ],
-                'invoice_id'            => $payment->invoice_id,
-                'company_id'            => $payment->company_id,
-                'client_id'             => $payment->client_id,
-                'user_id'               => $payment->user_id,
-                'client_contact_id'     => $payment->contact_id,
-                'invitation_id'         => $payment->invitation_id,
-                'company_gateway_id'    => $payment->account_gateway_id,
-                'type_id'               => $payment->payment_type_id,
-                'status_id'             => $payment->payment_status_id,
-                'amount'                => $payment->amount,
-                'applied'               => $payment->amount,
-                'refunded'              => $payment->refunded,
-                'date'                  => $payment->payment_date,
-                'transaction_reference' => $payment->transaction_reference,
-                'payer_id'              => $payment->payer_id,
-                'is_deleted'            => $payment->is_deleted,
-                'updated_at'            => $payment->updated_at ? $payment->updated_at->toDateString() : null,
-                'created_at'            => $payment->created_at ? $payment->created_at->toDateString() : null,
-                'deleted_at'            => $payment->deleted_at ? $payment->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{client_id: mixed, user_id: mixed, company_id: mixed, is_deleted: mixed, amount: mixed, applied: int, refunded: int, date: mixed, created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    private function getCredits(): array
-    {
-        $credits = Credit::where('company_id', $this->company->id)->where('balance', '>', '0')->whereIsDeleted(false)
-            ->withTrashed()
-            ->get();
-
-        $transformed = [];
-
-        foreach ($credits as $credit) {
-            $transformed[] = [
-                'client_id'  => $credit->client_id,
-                'user_id'    => $credit->user_id,
-                'company_id' => $credit->company_id,
-                'is_deleted' => $credit->is_deleted,
-                'amount'     => $credit->balance,
-                'applied'    => 0,
-                'refunded'   => 0,
-                'date'       => $credit->date,
-                'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
-                'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
-                'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $transformed;
-    }
-
-    /**
-     * @return array<int, array{id: mixed, client_id: mixed, user_id: mixed, company_id: mixed, status_id: mixed, design_id: mixed, number: mixed, discount: mixed, is_amount_discount: mixed, po_number: mixed, date: mixed, last_sent_date: mixed, due_at: mixed, is_deleted: mixed, footer: mixed, public_notes: mixed, private_notes: mixed, terms: mixed, tax_name1: mixed, tax_name2: mixed, tax_rate1: mixed, tax_rate2: mixed, custom_value1: mixed, custom_value2: mixed, next_send_date: null, amount: mixed, balance: mixed, partial: mixed, partial_due_date: mixed, line_items: mixed[], created_at: mixed, updated_at: mixed, deleted_at: mixed}>
-     */
-    private function getCreditsNotes(): array
-    {
-        $credits = [];
-
-        foreach ($this->company->invoices()->where('amount', '<', '0')->withTrashed()->get() as $credit) {
-            $credits[] = [
-                'id'                 => $credit->id,
-                'client_id'          => $credit->client_id,
-                'user_id'            => $credit->user_id,
-                'company_id'         => $credit->company_id,
-                'status_id'          => $credit->invoice_status_id,
-                'design_id'          => $credit->invoice_design_id,
-                'number'             => $credit->invoice_number,
-                'discount'           => $credit->discount,
-                'is_amount_discount' => $credit->is_amount_discount ?: false,
-                'po_number'          => $credit->po_number,
-                'date'               => $credit->invoice_date,
-                'last_sent_date'     => $credit->last_sent_date,
-                'due_at'             => $credit->due_date,
-                'is_deleted'         => $credit->is_deleted,
-                'footer'             => $credit->invoice_footer,
-                'public_notes'       => $credit->public_notes,
-                'private_notes'      => $credit->private_notes,
-                'terms'              => $credit->terms,
-                'tax_name1'          => $credit->tax_name1,
-                'tax_name2'          => $credit->tax_name2,
-                'tax_rate1'          => $credit->tax_rate1,
-                'tax_rate2'          => $credit->tax_rate2,
-                'custom_value1'      => $credit->custom_value1,
-                'custom_value2'      => $credit->custom_value2,
-                'next_send_date'     => null,
-                'amount'             => $credit->amount,
-                'balance'            => $credit->balance,
-                'partial'            => $credit->partial,
-                'partial_due_date'   => $credit->partial_due_date,
-                'line_items'         => $this->getInvoiceItems($credit->invoice_items),
-                'created_at'         => $credit->created_at ? $credit->created_at->toDateString() : null,
-                'updated_at'         => $credit->updated_at ? $credit->updated_at->toDateString() : null,
-                'deleted_at'         => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
-            ];
-        }
-
-        return $credits;
+        return back();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use App\Libraries\Utils;
+use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
 use URL;
 
@@ -46,21 +47,21 @@ class RecurringExpenseDatatable extends EntityDatatable
                 ! $this->hideClient,
             ],
             /*
-                        [
-                            'expense_date',
-                            function ($model) {
-                                if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
-                                    return Utils::fromSqlDate($model->expense_date_sql);
-                                }
+            [
+                'expense_date',
+                function ($model) {
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
+                        return Utils::fromSqlDate($model->expense_date_sql);
+                    }
 
-                                return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
-                            },
-                        ],
-            */
+                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
+                },
+            ],
+*/
             [
                 'frequency',
                 function ($model) {
-                    $frequency = strtolower($model->frequency);
+                    $frequency = mb_strtolower($model->frequency);
                     $frequency = preg_replace('/\s/', '_', $frequency);
 
                     $str = link_to("recurring_expenses/{$model->public_id}/edit", trans('texts.freq_' . $frequency))->toHtml();
@@ -72,7 +73,7 @@ class RecurringExpenseDatatable extends EntityDatatable
                 'amount',
                 function ($model) {
                     $amount = $model->amount + Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
-                    $str = Utils::formatMoney($amount, $model->invoice_currency_id);
+                    $str = Utils::formatMoney($amount, $model->expense_currency_id);
 
                     /*
                     // show both the amount and the converted amount
@@ -88,7 +89,7 @@ class RecurringExpenseDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
                     if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
                         return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
                     }

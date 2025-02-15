@@ -32,6 +32,10 @@ class InvoiceService extends BaseService
 
     /**
      * InvoiceService constructor.
+     *
+     * @param ClientRepository  $clientRepo
+     * @param InvoiceRepository $invoiceRepo
+     * @param DatatableService  $datatableService
      */
     public function __construct(
         ClientRepository $clientRepo,
@@ -44,6 +48,9 @@ class InvoiceService extends BaseService
     }
 
     /**
+     * @param $ids
+     * @param $action
+     *
      * @return int
      */
     public function bulk($ids, $action)
@@ -59,24 +66,19 @@ class InvoiceService extends BaseService
     }
 
     /**
-     * @return InvoiceRepository
+     * @param array        $data
+     * @param Invoice|null $invoice
+     *
+     * @return \App\Models\Invoice|Invoice|mixed
      */
-    protected function getRepo()
-    {
-        return $this->invoiceRepo;
-    }
-
-    /**
-     * @return Invoice|Invoice|mixed
-     */
-    public function save(array $data, Invoice $invoice = null)
+    public function save(array $data, ?Invoice $invoice = null)
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
             $canViewClient = false;
             $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
-            if (empty($clientPublicId) || intval($clientPublicId) < 0) {
-                $canSaveClient = Auth::user()->can('createEntity', ENTITY_CLIENT);
+            if (empty($clientPublicId) || (int) $clientPublicId < 0) {
+                $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $client = Client::scope($clientPublicId)->first();
                 $canSaveClient = Auth::user()->can('edit', $client);
@@ -94,19 +96,40 @@ class InvoiceService extends BaseService
     }
 
     /**
+     * @param                 $quote
+     * @param Invitation|null $invitation
+     *
+     * @return mixed
+     */
+    public function convertQuote($quote)
+    {
+        $account = $quote->account;
+        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+
+        if ($account->auto_archive_quote) {
+            $this->invoiceRepo->archive($quote);
+        }
+
+        return $invoice;
+    }
+
+    /**
+     * @param                 $quote
+     * @param Invitation|null $invitation
+     *
      * @return mixed|null
      */
-    public function approveQuote($quote, Invitation $invitation = null)
+    public function approveQuote($quote, ?Invitation $invitation = null)
     {
-        $company = $quote->company;
+        $account = $quote->account;
 
-        if (! $company->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
+        if ( ! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
             return;
         }
 
         event(new QuoteInvitationWasApproved($quote, $invitation));
 
-        if ($company->auto_convert_quote) {
+        if ($account->auto_convert_quote) {
             $invoice = $this->convertQuote($quote);
 
             foreach ($invoice->invitations as $invoiceInvitation) {
@@ -121,33 +144,26 @@ class InvoiceService extends BaseService
         return $invitation->invitation_key;
     }
 
-    /**
-     * @param Invitation|null $invitation
-     *
-     * @return mixed
-     */
-    public function convertQuote($quote)
-    {
-        $company = $quote->company;
-        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
-
-        if ($company->auto_archive_quote) {
-            $this->invoiceRepo->archive($quote);
-        }
-
-        return $invoice;
-    }
-
-    public function getDatatable($companyId, $clientPublicId, $entityType, $search)
+    public function getDatatable($accountId, $clientPublicId, $entityType, $search)
     {
         $datatable = new InvoiceDatatable(true, $clientPublicId);
         $datatable->entityType = $entityType;
 
-        $query = $this->invoiceRepo->getInvoices($companyId, $clientPublicId, $entityType, $search)
+        $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
             ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
-        dd($query->toSql());
+        if ( ! Utils::hasPermission('view_' . $entityType)) {
+            $query->where('invoices.user_id', '=', Auth::user()->id);
+        }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return InvoiceRepository
+     */
+    protected function getRepo()
+    {
+        return $this->invoiceRepo;
     }
 }

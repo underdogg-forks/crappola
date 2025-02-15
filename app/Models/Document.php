@@ -5,47 +5,32 @@ namespace App\Models;
 use DateTimeInterface;
 use DB;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\Rackspace\RackspaceAdapter;
-use OpenCloud\Common\Exceptions\NoNameError;
 
 /**
  * Class Document.
  */
 class Document extends EntityModel
 {
-    /**
-     * @var array
-     */
     public static $extraExtensions = [
         'jpg' => 'jpeg',
         'tif' => 'tiff',
     ];
 
-    /**
-     * @var array
-     */
     public static $allowedMimes = [// Used by Dropzone.js; does not affect what the server accepts
         'image/png', 'image/jpeg', 'image/tiff', 'application/pdf', 'image/gif', 'image/vnd.adobe.photoshop', 'text/plain',
         'application/msword',
         'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript', 'image/svg+xml',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     ];
 
-    /**
-     * @var array
-     */
     public static $types = [
         'png' => [
             'mime' => 'image/png',
         ],
         'ai' => [
             'mime' => 'application/postscript',
-        ],
-        'svg' => [
-            'mime' => 'image/svg+xml',
         ],
         'jpeg' => [
             'mime' => 'image/jpeg',
@@ -85,103 +70,27 @@ class Document extends EntityModel
         ],
     ];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'invoice_id',
         'expense_id',
         'is_default',
-        'ticket_id',
     ];
 
     /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_DOCUMENT;
-    }
-
-    /**
-     * @return $this
-     */
-    public function fill(array $attributes)
-    {
-        parent::fill($attributes);
-
-        if (empty($this->attributes['disk'])) {
-            $this->attributes['disk'] = env('DOCUMENT_FILESYSTEM', 'documents');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function company()
-    {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function expense()
-    {
-        return $this->belongsTo(Expense::class)->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function ticket()
-    {
-        return $this->belongsTo(Ticket::class)->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class)->withTrashed();
-    }
-
-    public function setDiskAttribute($value): void
-    {
-        $this->attributes['disk'] = $value ? $value : env('DOCUMENT_FILESYSTEM', 'documents');
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getDirectUrl()
-    {
-        return static::getDirectFileUrl($this->path, $this->getDisk());
-    }
-
-    /**
+     * @param      $path
+     * @param      $disk
      * @param bool $prioritizeSpeed
      *
-     * @return null|string
+     * @throws \OpenCloud\Common\Exceptions\NoNameError
      *
-     * @throws NoNameError
+     * @return null|string
      */
     public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false)
     {
         $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
-        if ($adapter instanceof AwsS3Adapter) {
+
+        if ($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
             $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
@@ -190,9 +99,8 @@ class Document extends EntityModel
 
             return (string) $client->createPresignedRequest($command, '+10 minutes')->getUri();
         }
-
-        if (! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
-            && $adapter instanceof RackspaceAdapter) {
+        if ( ! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
+                   && $adapter instanceof \League\Flysystem\Rackspace\RackspaceAdapter) {
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
             if ($secret) {
                 $object = $adapter->getContainer()->getObject($fullPath);
@@ -213,20 +121,66 @@ class Document extends EntityModel
         }
     }
 
-    /**
-     * @return UrlGenerator|string
-     */
-    public function getUrl()
+    public function getEntityType()
     {
-        return url('documents/' . $this->public_id . '/' . $this->name);
+        return ENTITY_DOCUMENT;
     }
 
     /**
-     * @return mixed
+     * @param array $attributes
+     *
+     * @return $this
      */
+    public function fill(array $attributes)
+    {
+        parent::fill($attributes);
+
+        if (empty($this->attributes['disk'])) {
+            $this->attributes['disk'] = env('DOCUMENT_FILESYSTEM', 'documents');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo('App\Models\Expense')->withTrashed();
+    }
+
+    public function invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+    }
+
     public function getDisk()
     {
-        return Storage::disk(! empty($this->disk) ? $this->disk : env('DOCUMENT_FILESYSTEM', 'documents'));
+        return Storage::disk( ! empty($this->disk) ? $this->disk : env('DOCUMENT_FILESYSTEM', 'documents'));
+    }
+
+    public function setDiskAttribute($value)
+    {
+        $this->attributes['disk'] = $value ? $value : env('DOCUMENT_FILESYSTEM', 'documents');
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDirectUrl()
+    {
+        return static::getDirectFileUrl($this->path, $this->getDisk());
     }
 
     /**
@@ -237,9 +191,13 @@ class Document extends EntityModel
         return $this->preview ? static::getDirectFileUrl($this->preview, $this->getDisk(), true) : null;
     }
 
-    /**
-     * @return mixed
-     */
+    public function getRaw()
+    {
+        $disk = $this->getDisk();
+
+        return $disk->get($this->path);
+    }
+
     public function getRawCached()
     {
         $key = 'image:' . $this->path;
@@ -254,19 +212,6 @@ class Document extends EntityModel
         return $image;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getRaw()
-    {
-        $disk = $this->getDisk();
-
-        return $disk->get($this->path);
-    }
-
-    /**
-     * @return mixed
-     */
     public function getStream()
     {
         $disk = $this->getDisk();
@@ -274,9 +219,6 @@ class Document extends EntityModel
         return $disk->readStream($this->path);
     }
 
-    /**
-     * @return mixed
-     */
     public function getRawPreview()
     {
         $disk = $this->getDisk();
@@ -285,7 +227,17 @@ class Document extends EntityModel
     }
 
     /**
-     * @return UrlGenerator|string
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
+    public function getUrl()
+    {
+        return url('documents/' . $this->public_id . '/' . $this->name);
+    }
+
+    /**
+     * @param $invitation
+     *
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
     public function getClientUrl($invitation)
     {
@@ -294,43 +246,51 @@ class Document extends EntityModel
 
     public function getProposalUrl()
     {
-        if (! $this->is_proposal) {
-            return '';
-        }
-        if (! $this->document_key) {
+        if ( ! $this->is_proposal || ! $this->document_key) {
             return '';
         }
 
-        return url('proposal/image/' . $this->company->account_key . '/' . $this->document_key . '/' . $this->name);
+        return url('proposal/image/' . $this->account->account_key . '/' . $this->document_key . '/' . $this->name);
     }
 
     /**
-     * @return UrlGenerator|null|string
+     * @return bool
+     */
+    public function isPDFEmbeddable()
+    {
+        return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
      */
     public function getVFSJSUrl()
     {
-        if (! $this->isPDFEmbeddable()) {
+        if ( ! $this->isPDFEmbeddable()) {
             return;
         }
 
         return url('documents/js/' . $this->public_id . '/' . $this->name . '.js');
     }
 
-    public function isPDFEmbeddable(): bool
-    {
-        return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
-    }
-
     /**
-     * @return UrlGenerator|null|string
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
      */
     public function getClientVFSJSUrl()
     {
-        if (! $this->isPDFEmbeddable()) {
+        if ( ! $this->isPDFEmbeddable()) {
             return;
         }
 
         return url('client/documents/js/' . $this->public_id . '/' . $this->name . '.js');
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
+     */
+    public function getPreviewUrl()
+    {
+        return $this->preview ? url('documents/preview/' . $this->public_id . '/' . $this->name . '.' . pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
     }
 
     /**
@@ -342,10 +302,7 @@ class Document extends EntityModel
 
         if (empty($this->visible) || in_array('url', $this->visible)) {
             $array['url'] = $this->getUrl();
-            $array['client_doc_url'] = $this->getClientDocUrl();
-            $array['client_preview_url'] = $this->getClientPreviewUrl();
         }
-
         if (empty($this->visible) || in_array('preview_url', $this->visible)) {
             $array['preview_url'] = $this->getPreviewUrl();
         }
@@ -353,27 +310,6 @@ class Document extends EntityModel
         return $array;
     }
 
-    public function getClientDocUrl()
-    {
-        return url('client/tickets/documents/' . $this->public_id . '/' . $this->name);
-    }
-
-    public function getClientPreviewUrl()
-    {
-        return $this->preview ? url('client/tickets/documents/preview/' . $this->public_id . '/' . $this->name . '.' . pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
-    }
-
-    /**
-     * @return UrlGenerator|null|string
-     */
-    public function getPreviewUrl()
-    {
-        return $this->preview ? url('documents/preview/' . $this->public_id . '/' . $this->name . '.' . pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
-    }
-
-    /**
-     * @return mixed
-     */
     public function cloneDocument()
     {
         $document = self::createNew($this);
@@ -401,24 +337,24 @@ class Document extends EntityModel
     }
 }
 
-Document::deleted(function ($document): void {
+Document::deleted(function ($document) {
     $same_path_count = DB::table('documents')
-        ->where('documents.company_id', '=', $document->company_id)
+        ->where('documents.account_id', '=', $document->account_id)
         ->where('documents.path', '=', $document->path)
         ->where('documents.disk', '=', $document->disk)
         ->count();
 
-    if (! $same_path_count) {
+    if ( ! $same_path_count) {
         $document->getDisk()->delete($document->path);
     }
 
     if ($document->preview) {
         $same_preview_count = DB::table('documents')
-            ->where('documents.company_id', '=', $document->company_id)
+            ->where('documents.account_id', '=', $document->account_id)
             ->where('documents.preview', '=', $document->preview)
             ->where('documents.disk', '=', $document->disk)
             ->count();
-        if (! $same_preview_count) {
+        if ( ! $same_preview_count) {
             $document->getDisk()->delete($document->preview);
         }
     }

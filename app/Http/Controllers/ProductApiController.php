@@ -18,10 +18,15 @@ class ProductApiController extends BaseAPIController
      */
     protected $entityType = ENTITY_PRODUCT;
 
-    protected ProductRepository $productRepo;
+    /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
 
     /**
      * ProductApiController constructor.
+     *
+     * @param ProductRepository $productRepo
      */
     public function __construct(ProductRepository $productRepo)
     {

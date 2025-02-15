@@ -15,7 +15,6 @@ use App\Models\VendorContact;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use Excel;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use League\Fractal\Manager;
@@ -26,6 +25,11 @@ use League\Fractal\Resource\Item;
  */
 class ExportController extends BaseController
 {
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function doExport(Request $request)
     {
         $format = $request->input('format');
@@ -37,16 +41,16 @@ class ExportController extends BaseController
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
-                if (! in_array($key, ['format', 'include', '_token'])) {
+                if ( ! in_array($key, ['format', 'include', '_token'])) {
                     return $key;
                 }
             }, array_keys($fields), $fields));
             $fileName = $date . '-invoiceninja-' . implode('-', $fields);
         }
+
         if ($format === 'JSON') {
             return $this->returnJSON($request, $fileName);
         }
-
         if ($format === 'CSV') {
             return $this->returnCSV($request, $fileName);
         }
@@ -54,9 +58,15 @@ class ExportController extends BaseController
         return $this->returnXLS($request, $fileName);
     }
 
-    private function returnJSON(Request $request, string $fileName)
+    /**
+     * @param $request
+     * @param $fileName
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function returnJSON($request, $fileName)
     {
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+        $output = fopen('php://output', 'w') || Utils::fatalError();
         header('Content-Type:application/json');
         header("Content-Disposition:attachment;filename={$fileName}.json");
 
@@ -64,18 +74,18 @@ class ExportController extends BaseController
         $manager->setSerializer(new ArraySerializer());
 
         // eager load data, include archived but exclude deleted
-        $company = Auth::user()->company;
-        $company->load(['clients' => function ($query): void {
+        $account = Auth::user()->account;
+        $account->load(['clients' => function ($query) {
             $query->withArchived()
-                ->with(['contacts', 'invoices' => function ($query): void {
+                ->with(['contacts', 'invoices' => function ($query) {
                     $query->withArchived()
-                        ->with(['invoice_items', 'payments' => function ($query): void {
+                        ->with(['invoice_items', 'payments' => function ($query) {
                             $query->withArchived();
                         }]);
                 }]);
         }]);
 
-        $resource = new Item($company, new AccountTransformer());
+        $resource = new Item($account, new AccountTransformer());
         $data = $manager->parseIncludes('clients.invoices.payments')
             ->createData($resource)
             ->toArray();
@@ -84,30 +94,77 @@ class ExportController extends BaseController
     }
 
     /**
+     * @param $request
+     * @param $fileName
+     *
      * @return mixed
      */
-    private function returnCSV(Request $request, string $fileName)
+    private function returnCSV($request, $fileName)
     {
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function ($excel) use ($data): void {
-            $excel->sheet('', function ($sheet) use ($data): void {
+        return Excel::create($fileName, function ($excel) use ($data) {
+            $excel->sheet('', function ($sheet) use ($data) {
                 $sheet->loadView('export', $data);
             });
         })->download('csv');
     }
 
     /**
-     * @return array{company: mixed, title: string, multiUser: bool, clients?: mixed, contacts?: mixed, credits?: mixed, tasks?: mixed, invoices?: mixed, quotes?: mixed, recurringInvoices?: mixed, payments?: mixed, expenses?: mixed, products?: mixed, vendors?: mixed, vendor_contacts?: mixed}
+     * @param $request
+     * @param $fileName
+     *
+     * @return mixed
      */
-    private function getData(Request $request): array
+    private function returnXLS($request, $fileName)
     {
-        $company = Auth::user()->company;
+        $user = Auth::user();
+        $data = $this->getData($request);
+
+        return Excel::create($fileName, function ($excel) use ($user, $data) {
+            $excel->setTitle($data['title'])
+                ->setCreator($user->getDisplayName())
+                ->setLastModifiedBy($user->getDisplayName())
+                ->setDescription('')
+                ->setSubject('')
+                ->setKeywords('')
+                ->setCategory('')
+                ->setManager('')
+                ->setCompany($user->account->getDisplayName());
+
+            foreach ($data as $key => $val) {
+                if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
+                    continue;
+                }
+                if ($key === 'recurringInvoices') {
+                    $key = 'recurring_invoices';
+                }
+                $label = trans("texts.{$key}");
+                $excel->sheet($label, function ($sheet) use ($key, $data) {
+                    if ($key === 'quotes') {
+                        $key = 'invoices';
+                        $data['entityType'] = ENTITY_QUOTE;
+                        $data['invoices'] = $data['quotes'];
+                    }
+                    $sheet->loadView("export.{$key}", $data);
+                });
+            }
+        })->download('xls');
+    }
+
+    /**
+     * @param $request
+     *
+     * @return array
+     */
+    private function getData($request)
+    {
+        $account = Auth::user()->account;
 
         $data = [
-            'company'   => $company,
-            'title'     => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $company->formatDateTime($company->getDateTime()),
-            'multiUser' => $company->users->count() > 1,
+            'account'   => $account,
+            'title'     => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
+            'multiUser' => $account->users->count() > 1,
         ];
 
         if ($request->input('include') === 'all' || $request->input('clients')) {
@@ -199,50 +256,5 @@ class ExportController extends BaseController
         }
 
         return $data;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function returnXLS(Request $request, string $fileName)
-    {
-        $user = Auth::user();
-        $data = $this->getData($request);
-
-        return Excel::create($fileName, function ($excel) use ($user, $data): void {
-            $excel->setTitle($data['title'])
-                ->setCreator($user->getDisplayName())
-                ->setLastModifiedBy($user->getDisplayName())
-                ->setDescription('')
-                ->setSubject('')
-                ->setKeywords('')
-                ->setCategory('')
-                ->setManager('')
-                ->setCompanyPlan($user->company->getDisplayName());
-
-            foreach ($data as $key => $val) {
-                if ($key === 'company') {
-                    continue;
-                }
-                if ($key === 'title') {
-                    continue;
-                }
-                if ($key === 'multiUser') {
-                    continue;
-                }
-                if ($key === 'recurringInvoices') {
-                    $key = 'recurring_invoices';
-                }
-                $label = trans("texts.{$key}");
-                $excel->sheet($label, function ($sheet) use ($key, $data): void {
-                    if ($key === 'quotes') {
-                        $key = 'invoices';
-                        $data['entityType'] = ENTITY_QUOTE;
-                        $data['invoices'] = $data['quotes'];
-                    }
-                    $sheet->loadView("export.{$key}", $data);
-                });
-            }
-        })->download('xls');
     }
 }

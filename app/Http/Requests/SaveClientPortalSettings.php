@@ -2,22 +2,22 @@
 
 namespace App\Http\Requests;
 
+use App\Libraries\Utils;
 use HTMLUtils;
-use Utils;
 
 class SaveClientPortalSettings extends Request
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->is_admin && $this->user()->isPro();
     }
 
-    public function rules(): array
+    public function rules()
     {
         $rules = [];
 
         if ($this->custom_link == 'subdomain' && Utils::isNinja()) {
-            $rules['subdomain'] = sprintf('unique:accounts,subdomain,%s,id|valid_subdomain', $this->user()->account_id);
+            $rules['subdomain'] = "unique:accounts,subdomain,{$this->user()->account_id},id|valid_subdomain";
         }
 
         return $rules;

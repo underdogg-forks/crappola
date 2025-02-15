@@ -6,20 +6,12 @@ class CreateBankAccountRequest extends Request
 {
     // Expenses
 
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array{bank_id: string, bank_username: string, bank_password: string}
-     */
-    public function rules(): array
+    public function rules()
     {
         return [
             'bank_id'       => 'required',

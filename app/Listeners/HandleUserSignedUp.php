@@ -16,23 +16,33 @@ class HandleUserSignedUp
     /**
      * @var AccountRepository
      */
-    protected $companyRepo;
+    protected $accountRepo;
 
-    protected UserMailer $userMailer;
+    /**
+     * @var UserMailer
+     */
+    protected $userMailer;
 
     /**
      * Create the event handler.
+     *
+     * @param AccountRepository $accountRepo
+     * @param UserMailer        $userMailer
      */
-    public function __construct(AccountRepository $companyRepo, UserMailer $userMailer)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
-        $this->accountRepo = $companyRepo;
+        $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
     }
 
     /**
      * Handle the event.
+     *
+     * @param UserSignedUp $event
+     *
+     * @return void
      */
-    public function handle(UserSignedUp $event): void
+    public function handle(UserSignedUp $event)
     {
         $user = Auth::user();
 

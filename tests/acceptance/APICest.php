@@ -10,7 +10,7 @@ class APICest
 
     private $token;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $this->faker = Factory::create();
 
@@ -32,7 +32,7 @@ class APICest
         Debug::debug("Token: {$this->token}");
     }
 
-    public function testAPI(AcceptanceTester $I): void
+    public function testAPI(AcceptanceTester $I)
     {
         $I->wantTo('test the API');
 
@@ -89,7 +89,7 @@ class APICest
         $this->createEntity('credit', $data);
         $this->listEntities('credits');
 
-        $this->listEntities('corporations');
+        $this->listEntities('accounts');
         $this->listEntities('dashboard');
     }
 
@@ -129,7 +129,7 @@ class APICest
             CURLOPT_POSTFIELDS     => $data,
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
-                'Content-Length: ' . strlen($data),
+                'Content-Length: ' . mb_strlen($data),
                 'X-Ninja-Token: ' . $this->token,
             ],
         ];

@@ -15,57 +15,45 @@ class Credit extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
     /**
      * @var string
      */
-    protected $presenter = CreditPresenter::class;
+    protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'public_notes',
         'private_notes',
     ];
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function account()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+    }
+
+    public function client()
+    {
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function client()
-    {
-        return $this->belongsTo(Client::class)->withTrashed();
-    }
-
-    public function getName(): string
+    public function getName()
     {
         return '';
     }
@@ -78,15 +66,14 @@ class Credit extends EntityModel
         return "/credits/{$this->public_id}";
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_CREDIT;
     }
 
     /**
+     * @param $amount
+     *
      * @return mixed
      */
     public function apply($amount)
@@ -110,9 +97,8 @@ class Credit extends EntityModel
     }
 }
 
-Credit::creating(function ($credit): void {
-});
+Credit::creating(function ($credit) {});
 
-Credit::created(function ($credit): void {
+Credit::created(function ($credit) {
     event(new CreditWasCreated($credit));
 });

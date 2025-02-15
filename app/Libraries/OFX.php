@@ -4,7 +4,6 @@ namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
 
-use Log;
 use SimpleXMLElement;
 
 class OFX
@@ -25,7 +24,14 @@ class OFX
         $this->request = $request;
     }
 
-    public function go(): void
+    public static function closeTags($x)
+    {
+        $x = preg_replace('/\s+/', '', $x);
+
+        return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
+    }
+
+    public function go()
     {
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL, $this->bank->url);
@@ -48,19 +54,13 @@ class OFX
         $this->responseBody = '<OFX>' . $tmp[1];
     }
 
-    public function xml(): SimpleXMLElement
+    public function xml()
     {
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
+        $x = new SimpleXMLElement($xml);
 
-        return new SimpleXMLElement($xml);
-    }
-
-    public static function closeTags($x): string|array|null
-    {
-        $x = preg_replace('/\s+/', '', $x);
-
-        return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
+        return $x;
     }
 }
 
@@ -92,7 +92,7 @@ class Bank
 
 class Login
 {
-    public $companys;
+    public $accounts;
 
     public $bank;
 
@@ -111,57 +111,57 @@ class Login
         $this->pass = $pass;
     }
 
-    public function setup(): void
+    public function setup()
     {
         $ofxRequest =
-            "OFXHEADER:100\n" .
-            "DATA:OFXSGML\n" .
-            'VERSION:' . $this->ofxVersion . "\n" .
-            "SECURITY:NONE\n" .
-            "ENCODING:USASCII\n" .
-            "CHARSET:1252\n" .
-            "COMPRESSION:NONE\n" .
-            "OLDFILEUID:NONE\n" .
-            "NEWFILEUID:NONE\n" .
-            "\n" .
-            "<OFX>\n" .
+        "OFXHEADER:100\n" .
+        "DATA:OFXSGML\n" .
+        'VERSION:' . $this->ofxVersion . "\n" .
+        "SECURITY:NONE\n" .
+        "ENCODING:USASCII\n" .
+        "CHARSET:1252\n" .
+        "COMPRESSION:NONE\n" .
+        "OLDFILEUID:NONE\n" .
+        "NEWFILEUID:NONE\n" .
+        "\n" .
+        "<OFX>\n" .
             "<SIGNONMSGSRQV1>\n" .
-            "<SONRQ>\n" .
-            "<DTCLIENT>20110412162900.000[-7:MST]\n" .
-            '<USERID>' . $this->id . "\n" .
-            '<USERPASS>' . $this->pass . "\n" .
-            "<GENUSERKEY>N\n" .
-            "<LANGUAGE>ENG\n" .
-            "<FI>\n" .
-            '<ORG>' . $this->bank->org . "\n" .
-            '<FID>' . $this->bank->fid . "\n" .
-            "</FI>\n" .
-            "<APPID>QWIN\n" .
-            '<APPVER>' . $this->appVersion . "\n" .
-            "</SONRQ>\n" .
+                "<SONRQ>\n" .
+                    "<DTCLIENT>20110412162900.000[-7:MST]\n" .
+                    '<USERID>' . $this->id . "\n" .
+                    '<USERPASS>' . $this->pass . "\n" .
+                    "<GENUSERKEY>N\n" .
+                    "<LANGUAGE>ENG\n" .
+                    "<FI>\n" .
+                        '<ORG>' . $this->bank->org . "\n" .
+                        '<FID>' . $this->bank->fid . "\n" .
+                    "</FI>\n" .
+                    "<APPID>QWIN\n" .
+                    '<APPVER>' . $this->appVersion . "\n" .
+                "</SONRQ>\n" .
             "</SIGNONMSGSRQV1>\n" .
             "<SIGNUPMSGSRQV1>\n" .
-            "<ACCTINFOTRNRQ>\n" .
-            '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
-            "<ACCTINFORQ>\n" .
-            "<DTACCTUP>19900101\n" .
-            "</ACCTINFORQ>\n" .
-            "</ACCTINFOTRNRQ> \n" .
+                "<ACCTINFOTRNRQ>\n" .
+                    '<TRNUID>' . md5(time() . $this->bank->url . $this->id) . "\n" .
+                    "<ACCTINFORQ>\n" .
+                        "<DTACCTUP>19900101\n" .
+                    "</ACCTINFORQ>\n" .
+                "</ACCTINFOTRNRQ> \n" .
             "</SIGNUPMSGSRQV1>\n" .
-            "</OFX>\n";
+        "</OFX>\n";
         $o = new OFX($this->bank, $ofxRequest);
         $o->go();
         $x = $o->xml();
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/BANKACCTINFO/BANKACCTFROM') as $a) {
-            $this->accounts[] = new company($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
+            $this->accounts[] = new Account($this, (string) $a->ACCTID, 'BANK', (string) $a->ACCTTYPE, (string) $a->BANKID);
         }
         foreach ($x->xpath('/OFX/SIGNUPMSGSRSV1/ACCTINFOTRNRS/ACCTINFORS/ACCTINFO/CCACCTINFO/CCACCTFROM') as $a) {
-            $this->accounts[] = new company($this, (string) $a->ACCTID, 'CC');
+            $this->accounts[] = new Account($this, (string) $a->ACCTID, 'CC');
         }
     }
 }
 
-class company
+class Account
 {
     public $login;
 
@@ -188,7 +188,7 @@ class company
         $this->bankId = $bankId;
     }
 
-    public function setup($includeTransactions = true): void
+    public function setup($includeTransactions = true)
     {
         $ofxRequest =
             "OFXHEADER:100\n" .
@@ -202,20 +202,20 @@ class company
             "NEWFILEUID:NONE\n" .
             "\n" .
             "<OFX>\n" .
-            "<SIGNONMSGSRQV1>\n" .
-            "<SONRQ>\n" .
-            "<DTCLIENT>20110412162900.000[-7:MST]\n" .
-            '<USERID>' . $this->login->id . "\n" .
-            '<USERPASS>' . $this->login->pass . "\n" .
-            "<LANGUAGE>ENG\n" .
-            "<FI>\n" .
-            '<ORG>' . $this->login->bank->org . "\n" .
-            '<FID>' . $this->login->bank->fid . "\n" .
-            "</FI>\n" .
-            "<APPID>QWIN\n" .
-            '<APPVER>' . $this->login->appVersion . "\n" .
-            "</SONRQ>\n" .
-            "</SIGNONMSGSRQV1>\n";
+                "<SIGNONMSGSRQV1>\n" .
+                    "<SONRQ>\n" .
+                        "<DTCLIENT>20110412162900.000[-7:MST]\n" .
+                        '<USERID>' . $this->login->id . "\n" .
+                        '<USERPASS>' . $this->login->pass . "\n" .
+                        "<LANGUAGE>ENG\n" .
+                        "<FI>\n" .
+                            '<ORG>' . $this->login->bank->org . "\n" .
+                            '<FID>' . $this->login->bank->fid . "\n" .
+                        "</FI>\n" .
+                        "<APPID>QWIN\n" .
+                        '<APPVER>' . $this->login->appVersion . "\n" .
+                    "</SONRQ>\n" .
+                "</SIGNONMSGSRQV1>\n";
         if ($this->type == 'BANK') {
             $ofxRequest .=
                 "	<BANKMSGSRQV1>\n" .

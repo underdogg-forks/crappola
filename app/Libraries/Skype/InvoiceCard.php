@@ -24,7 +24,7 @@ class InvoiceCard
 
         $this->addFact(trans('texts.email'), HTML::mailto($invoice->client->contacts[0]->email)->toHtml());
 
-        if ($invoice->due_at) {
+        if ($invoice->due_date) {
             $this->addFact($invoice->present()->dueDateLabel, $invoice->present()->due_date);
         }
 
@@ -37,12 +37,12 @@ class InvoiceCard
         }
 
         foreach ($invoice->invoice_items as $item) {
-            $this->addItem($item, $invoice->company);
+            $this->addItem($item, $invoice->account);
         }
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if (floatval($invoice->amount)) {
+        if ((float) ($invoice->amount)) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
@@ -50,12 +50,17 @@ class InvoiceCard
         }
     }
 
-    public function setTitle($title): void
+    public function setTitle($title)
     {
         $this->content->title = $title;
     }
 
-    public function addFact($key, $value): void
+    public function setTotal($value)
+    {
+        $this->content->total = $value;
+    }
+
+    public function addFact($key, $value)
     {
         $fact = new stdClass();
         $fact->key = $key;
@@ -64,17 +69,12 @@ class InvoiceCard
         $this->content->facts[] = $fact;
     }
 
-    public function addItem($item, $company): void
+    public function addItem($item, $account)
     {
-        $this->content->items[] = new InvoiceItemCard($item, $company);
+        $this->content->items[] = new InvoiceItemCard($item, $account);
     }
 
-    public function setTotal($value): void
-    {
-        $this->content->total = $value;
-    }
-
-    public function addButton($type, $title, $value, $url = false): void
+    public function addButton($type, $title, $value, $url = false)
     {
         $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }

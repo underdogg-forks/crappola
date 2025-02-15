@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use Illuminate\Support\Facades\Response;
 
 class QuoteApiController extends InvoiceApiController
 {

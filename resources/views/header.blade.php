@@ -73,47 +73,47 @@
             hint: true,
             highlight: true,
           }
-          @if (Auth::check() && Auth::user()->company->customLabel('client1'))
+          @if (Auth::check() && Auth::user()->account->customLabel('client1'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->company->present()->customLabel('client1') }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('client1') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->company->present()->customLabel('client1') }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('client1') }}</span>'
             }
           }
           @endif
-          @if (Auth::check() && Auth::user()->company->customLabel('client2'))
+          @if (Auth::check() && Auth::user()->account->customLabel('client2'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->company->present()->customLabel('client2') }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('client2') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->company->present()->customLabel('client2') }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('client2') }}</span>'
             }
           }
           @endif
-          @if (Auth::check() && Auth::user()->company->customLabel('invoice_text1'))
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text1'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->company->present()->customLabel('invoice_text1') }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text1') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->company->present()->customLabel('invoice_text1') }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text1') }}</span>'
             }
           }
           @endif
-          @if (Auth::check() && Auth::user()->company->customLabel('invoice_text2'))
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text2'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->company->present()->customLabel('invoice_text2') }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text2') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->company->present()->customLabel('invoice_text2') }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text2') }}</span>'
             }
           }
           @endif
@@ -154,10 +154,10 @@
     }, 3000);
 
     /* Set the defaults for Bootstrap datepicker */
-    /*$.extend(true, $.fn.datepicker.defaults, {
+    $.extend(true, $.fn.datepicker.defaults, {
         //language: '{{ $appLanguage }}', // causes problems with some languages (ie, fr_CA) if the date includes strings (ie, July 31, 2016)
         weekStart: {{ Session::get('start_of_week') }}
-    });*/
+    });
 
     if (isStorageSupported()) {
       @if (Auth::check() && !Auth::user()->registered)
@@ -173,8 +173,8 @@
 
     @yield('onReady')
 
-    @if (request()->has('focus'))
-        $('#{{ request()->get('focus') }}').focus();
+    @if (\Request::has('focus'))
+        $('#{{ \Request::input('focus') }}').focus();
     @endif
 
     // Focus the search input if the user clicks forward slash
@@ -287,7 +287,7 @@
                 {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'onclick' => 'showSignUp()', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
               @endif
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            @if (Auth::user()->company->company->hasActivePromo())
+            @if (Auth::user()->account->company->hasActivePromo())
                 {!! Button::warning(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
             @else
                 {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
@@ -299,7 +299,7 @@
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
             <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::hasFeature(FEATURE_USERS) ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
-                    {{ Auth::user()->company->getDisplayName() }}
+                    {{ Auth::user()->account->getDisplayName() }}
                 @else
                     {{ Auth::user()->getDisplayName() }}
                 @endif
@@ -334,9 +334,9 @@
                 @endforeach
             @else
                 @include('user_account', [
-                    'account_name' => Auth::user()->company->name ?: trans('texts.untitled'),
+                    'account_name' => Auth::user()->account->name ?: trans('texts.untitled'),
                     'user_name' => Auth::user()->getDisplayName(),
-                    'logo_url' => Auth::user()->company->getLogoURL(),
+                    'logo_url' => Auth::user()->account->getLogoURL(),
                     'selected' => true,
                 ])
             @endif
@@ -419,20 +419,20 @@
                 'expenses',
                 'vendors',
             ] as $option)
-                @if(!Auth::user()->company->isModuleEnabled(substr($option, 0, -1)))
+                @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
                     {{ '' }}
                 @else
                     @include('partials.navigation_option')
                 @endif
             @endforeach
-            {{--@if ( ! Utils::isNinjaProd())
+            @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
                     ])
                 @endforeach
-            @endif--}}
+            @endif
             @if (Auth::user()->hasPermission('view_reports'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
@@ -517,13 +517,13 @@
                             'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
                         ]) !!}
                 @elseif (Auth::check() && Auth::user()->isTrial())
-                  {!! trans(Auth::user()->company->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
-                          'count' => Auth::user()->company->getCountTrialDaysLeft(),
+                  {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
+                          'count' => Auth::user()->account->getCountTrialDaysLeft(),
                           'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
                       ]) !!}
                 @endif
               @else
-                @include('partials.white_label', ['company' => Auth::user()->company->company])
+                @include('partials.white_label', ['company' => Auth::user()->account->company])
               @endif
             </div>
         </div>
@@ -537,9 +537,9 @@
     @include('partials.keyboard_shortcuts')
 @endif
 
-{{--@if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
+@if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
     @include('partials.accept_terms')
-@endif--}}
+@endif
 
 </div>
 

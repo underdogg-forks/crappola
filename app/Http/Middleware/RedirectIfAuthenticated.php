@@ -14,11 +14,15 @@ class RedirectIfAuthenticated
 {
     /**
      * The Guard implementation.
+     *
+     * @var Guard
      */
-    protected Guard $auth;
+    protected $auth;
 
     /**
      * Create a new filter instance.
+     *
+     * @param Guard $auth
      */
     public function __construct(Guard $auth)
     {
@@ -28,6 +32,8 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */

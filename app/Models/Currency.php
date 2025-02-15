@@ -2,38 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Str;
 
 /**
  * Class Currency.
  */
-class Currency extends Model
+class Currency extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * @var array
-     */
     protected $casts = [
         'swap_currency_symbol' => 'boolean',
         'exchange_rate'        => 'double',
     ];
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getTranslatedName()
     {
         return trans('texts.currency_' . Str::slug($this->name, '_'));

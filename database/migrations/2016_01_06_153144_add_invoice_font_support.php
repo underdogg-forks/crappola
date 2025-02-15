@@ -1,16 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddInvoiceFontSupport extends Migration
+{
+    public function up()
     {
-        Schema::create('fonts', function ($t): void {
+        Schema::create('fonts', function ($t) {
             $t->increments('id');
 
             $t->string('name');
@@ -30,10 +27,7 @@ return new class () extends Migration {
         //$seeder = new FontsSeeder();
         //$seeder->run();
 
-        Schema::table('accounts', function ($table): void {
-            $table->unsignedInteger('header_font_id')->default(1);
-            $table->unsignedInteger('body_font_id')->default(1);
-        });
+        Schema::table('accounts', function ($table) {});
 
         /*
         Schema::table('accounts', function ($table) {
@@ -43,22 +37,17 @@ return new class () extends Migration {
         */
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         if (Schema::hasColumn('accounts', 'header_font_id')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 //$table->dropForeign('accounts_header_font_id_foreign');
                 $table->dropColumn('header_font_id');
             });
         }
 
         if (Schema::hasColumn('accounts', 'body_font_id')) {
-            Schema::table('accounts', function ($table): void {
+            Schema::table('accounts', function ($table) {
                 //$table->dropForeign('accounts_body_font_id_foreign');
                 $table->dropColumn('body_font_id');
             });
@@ -66,4 +55,4 @@ return new class () extends Migration {
 
         Schema::dropIfExists('fonts');
     }
-};
+}

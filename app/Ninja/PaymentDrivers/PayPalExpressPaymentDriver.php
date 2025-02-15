@@ -34,14 +34,14 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $url = parent::paymentUrl($gatewayTypeAlias);
 
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
-        if ($this->company()->iframe_url) {
+        if ($this->account()->iframe_url) {
             return 'javascript:window.open("' . $url . '", "_blank")';
         }
 
         return $url;
     }
 
-    protected function updateClientFromOffsite($transRef, $paymentRef): void
+    protected function updateClientFromOffsite($transRef, $paymentRef)
     {
         $response = $this->gateway()->fetchCheckout([
             'token' => $transRef,
@@ -61,7 +61,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
         if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
-            return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));
+            return mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE']));
         })->first()) {
             $client->shipping_country_id = $country->id;
         } else {

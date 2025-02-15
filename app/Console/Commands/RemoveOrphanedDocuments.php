@@ -22,7 +22,7 @@ class RemoveOrphanedDocuments extends Command
      */
     protected $description = 'Removes old documents not associated with an expense or invoice';
 
-    public function handle(): void
+    public function handle()
     {
         $this->info(date('r') . ' Running RemoveOrphanedDocuments...');
 
@@ -40,6 +40,7 @@ class RemoveOrphanedDocuments extends Command
         }
 
         $this->info('Done');
+
         return 0;
     }
 

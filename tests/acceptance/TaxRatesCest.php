@@ -6,14 +6,14 @@ class TaxRatesCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function lineItemTaxRates(AcceptanceTester $I): void
+    public function lineItemTaxRates(AcceptanceTester $I)
     {
         $I->wantTo('test line item tax rates');
 
@@ -62,7 +62,7 @@ class TaxRatesCest
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(2) input.tt-input', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->selectOption('#taxRateSelect1', $invoiceTaxName . ' ' . floatval($invoiceTaxRate) . '%');
+        $I->selectOption('#taxRateSelect1', $invoiceTaxName . ' ' . (float) $invoiceTaxRate . '%');
         $I->wait(3);
 
         // check total is right before saving
@@ -80,7 +80,7 @@ class TaxRatesCest
         $I->see("\${$total}");
     }
 
-    public function invoiceTaxRates(AcceptanceTester $I): void
+    public function invoiceTaxRates(AcceptanceTester $I)
     {
         $I->wantTo('test invoice tax rates');
 

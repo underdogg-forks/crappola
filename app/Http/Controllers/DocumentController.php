@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Response;
 
 class DocumentController extends BaseController
 {
-    protected DocumentRepository $documentRepo;
+    protected $documentRepo;
 
     protected $entityType = ENTITY_DOCUMENT;
 
@@ -20,11 +20,6 @@ class DocumentController extends BaseController
         // parent::__construct();
 
         $this->documentRepo = $documentRepo;
-    }
-
-    public function get(DocumentRequest $request)
-    {
-        return static::getDownloadResponse($request->entity());
     }
 
     public static function getDownloadResponse($document)
@@ -42,7 +37,7 @@ class DocumentController extends BaseController
                 'Content-Length' => $document->size,
             ];
 
-            $response = Response::stream(function () use ($stream): void {
+            $response = Response::stream(function () use ($stream) {
                 fpassthru($stream);
             }, 200, $headers);
         } else {
@@ -51,6 +46,11 @@ class DocumentController extends BaseController
         }
 
         return $response;
+    }
+
+    public function get(DocumentRequest $request)
+    {
+        return static::getDownloadResponse($request->entity());
     }
 
     public function getPreview(DocumentRequest $request)
@@ -77,16 +77,16 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if (substr($name, -3) == '.js') {
-            $name = substr($name, 0, -3);
+        if (mb_substr($name, -3) == '.js') {
+            $name = mb_substr($name, 0, -3);
         }
 
-        if (! $document->isPDFEmbeddable()) {
+        if ( ! $document->isPDFEmbeddable()) {
             return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
         $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode(intval($publicId) . '/' . strval($name)) . ',"' . base64_encode($content) . '")';
+        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');

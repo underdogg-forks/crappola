@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -24,7 +24,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
- *         description="An open-source invoicing and time-tracking app built with Laravel",
+ *         description="A source-available invoicing and time-tracking app built with Laravel",
  *         termsOfService="",
  *
  *         @SWG\Contact(
@@ -53,7 +53,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseAPIController extends Controller
 {
-    protected Manager $manager;
+    protected $manager;
 
     protected $serializer;
 
@@ -79,8 +79,8 @@ class BaseAPIController extends Controller
         $entity = $request->entity();
         $action = $request->action;
 
-        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
-            return $this->errorResponse("Action [$action] is not supported");
+        if ( ! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
+            return $this->errorResponse("Action [{$action}] is not supported");
         }
 
         if ($action == 'mark_sent') {
@@ -89,28 +89,59 @@ class BaseAPIController extends Controller
 
         $repo = Utils::toCamelCase($this->entityType) . 'Repo';
 
-        $this->$repo->$action($entity);
+        $this->{$repo}->{$action}($entity);
 
         return $this->itemResponse($entity);
     }
 
-    protected function errorResponse($response, $httpErrorCode = 400)
+    protected function listResponse($query)
     {
-        $error['error'] = $response;
-        $error = json_encode($error, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
-        return Response::make($error, $httpErrorCode, $headers);
+        $includes = $transformer->getDefaultIncludes();
+        $includes = $this->getRequestIncludes($includes);
+
+        $query->with($includes);
+
+        if (Request::input('filter_active')) {
+            $query->whereNull('deleted_at');
+        }
+
+        if (Request::input('updated_at') > 0) {
+            $updatedAt = (int) (Request::input('updated_at'));
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
+        }
+
+        if (Request::input('client_id') > 0) {
+            $clientPublicId = Request::input('client_id');
+            $filter = function ($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+            };
+            $query->whereHas('client', $filter);
+        }
+
+        if ( ! Utils::hasPermission('view_' . $this->entityType)) {
+            if ($this->entityType == ENTITY_USER) {
+                $query->where('id', '=', Auth::user()->id);
+            } else {
+                $query->where('user_id', '=', Auth::user()->id);
+            }
+        }
+
+        $data = $this->createCollection($query, $transformer, $this->entityType);
+
+        return $this->response($data);
     }
 
     protected function itemResponse($item)
     {
-        if (! $item) {
+        if ( ! $item) {
             return $this->errorResponse('Record not found', 404);
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->company, $request->get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -128,6 +159,28 @@ class BaseAPIController extends Controller
         return $this->manager->createData($resource)->toArray();
     }
 
+    protected function createCollection($query, $transformer, $entityType)
+    {
+        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
+            $entityType = null;
+        }
+
+        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
+            $limit = Request::input('per_page', DEFAULT_API_PAGE_SIZE);
+            if (Utils::isNinja()) {
+                $limit = min(MAX_API_PAGE_SIZE, $limit);
+            }
+            $paginator = $query->paginate($limit);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $entityType);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        } else {
+            $resource = new Collection($query, $transformer, $entityType);
+        }
+
+        return $this->manager->createData($resource)->toArray();
+    }
+
     protected function response($response)
     {
         $index = Request::get('index') ?: 'data';
@@ -135,7 +188,7 @@ class BaseAPIController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta = isset($response['meta']) ? $response['meta'] : null;
+            $meta = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];
@@ -152,44 +205,13 @@ class BaseAPIController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    protected function listResponse($query)
+    protected function errorResponse($response, $httpErrorCode = 400)
     {
-        $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->company, $request->get('serializer'));
+        $error['error'] = $response;
+        $error = json_encode($error, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
 
-        $includes = $transformer->getDefaultIncludes();
-        $includes = $this->getRequestIncludes($includes);
-
-        $query->with($includes);
-
-        if ($request->get('filter_active')) {
-            $query->whereNull('deleted_at');
-        }
-
-        if ($request->get('updated_at') > 0) {
-            $updatedAt = intval($request->get('updated_at'));
-            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
-        }
-
-        if ($request->get('client_id') > 0) {
-            $clientPublicId = $request->get('client_id');
-            $filter = function ($query) use ($clientPublicId): void {
-                $query->where('public_id', '=', $clientPublicId);
-            };
-            $query->whereHas('client', $filter);
-        }
-
-        if (! Utils::hasPermission('view_' . $this->entityType)) {
-            if ($this->entityType == ENTITY_USER) {
-                $query->where('id', '=', Auth::user()->id);
-            } else {
-                $query->where('user_id', '=', Auth::user()->id);
-            }
-        }
-
-        $data = $this->createCollection($query, $transformer, $this->entityType);
-
-        return $this->response($data);
+        return Response::make($error, $httpErrorCode, $headers);
     }
 
     protected function getRequestIncludes($data)
@@ -220,32 +242,10 @@ class BaseAPIController extends Controller
         return $data;
     }
 
-    protected function createCollection($query, $transformer, $entityType)
-    {
-        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
-            $entityType = null;
-        }
-
-        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = $request->get('per_page', DEFAULT_API_PAGE_SIZE);
-            if (Utils::isNinja()) {
-                $limit = min(MAX_API_PAGE_SIZE, $limit);
-            }
-            $paginator = $query->paginate($limit);
-            $query = $paginator->getCollection();
-            $resource = new Collection($query, $transformer, $entityType);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $entityType);
-        }
-
-        return $this->manager->createData($resource)->toArray();
-    }
-
     protected function fileReponse($name, $data)
     {
         header('Content-Type: application/pdf');
-        header('Content-Length: ' . strlen($data));
+        header('Content-Length: ' . mb_strlen($data));
         header('Content-disposition: attachment; filename="' . $name . '"');
         header('Cache-Control: public, must-revalidate, max-age=0');
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');

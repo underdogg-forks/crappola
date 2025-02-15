@@ -21,19 +21,17 @@ class TaxRateReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
             ->with('contacts', 'user')
-            ->with(['invoices' => function ($query): void {
-                $query
-                    ->with('company', 'client')
-                    ->with('invoice_items')
+            ->with(['invoices' => function ($query) {
+                $query->with('invoice_items')
                     ->withArchived()
                     ->invoices()
                     ->where('is_public', '=', true);
@@ -42,12 +40,12 @@ class TaxRateReport extends AbstractReport
                         ->where('invoice_date', '<=', $this->endDate)
                         ->with('payments');
                 } else {
-                    $query->whereHas('payments', function ($query): void {
+                    $query->whereHas('payments', function ($query) {
                         $query->where('payment_date', '>=', $this->startDate)
                             ->where('payment_date', '<=', $this->endDate)
                             ->withArchived();
                     })
-                        ->with(['payments' => function ($query): void {
+                        ->with(['payments' => function ($query) {
                             $query->where('payment_date', '>=', $this->startDate)
                                 ->where('payment_date', '<=', $this->endDate)
                                 ->withArchived();
@@ -56,13 +54,13 @@ class TaxRateReport extends AbstractReport
             }]);
 
         foreach ($clients->get() as $client) {
-            $currencyId = $client->currency_id ?: Auth::user()->company->getCurrencyId();
+            $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
 
             foreach ($client->invoices as $invoice) {
                 $taxTotals = [];
 
                 foreach ($invoice->getTaxes(true) as $key => $tax) {
-                    if (! isset($taxTotals[$currencyId])) {
+                    if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
                     if (isset($taxTotals[$currencyId][$key])) {
@@ -80,8 +78,8 @@ class TaxRateReport extends AbstractReport
                             $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                             $tax['name'],
                             $tax['rate'] . '%',
-                            $company->formatMoney($tax['amount'], $client),
-                            $company->formatMoney($tax['paid'], $client),
+                            $account->formatMoney($tax['amount'], $client),
+                            $account->formatMoney($tax['paid'], $client),
                             $invoice->present()->amount,
                             $invoice->present()->paid,
                         ];

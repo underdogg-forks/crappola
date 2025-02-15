@@ -10,17 +10,23 @@ use App\Models\User;
 class PaymentTermPolicy extends EntityPolicy
 {
     /**
+     * @param User $user
+     * @param      $item
+     *
      * @return mixed
      */
-    public function edit(User $user, $item)
+    public static function edit(User $user, $item)
     {
         return $user->hasPermission('admin');
     }
 
     /**
+     * @param User  $user
+     * @param mixed $item
+     *
      * @return bool
      */
-    public function create(User $user)
+    public static function create(User $user, $item)
     {
         return $user->hasPermission('admin');
     }

@@ -1,63 +1,42 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddSocialLogin extends Migration
+{
+    public function up()
     {
-        Schema::table('users', function ($table): void {
-            $table->string('oauth_user_id')->nullable();
-            $table->unsignedInteger('oauth_provider_id')->nullable();
-        });
+        Schema::table('users', function ($table) {});
 
-        Schema::table('accounts', function ($table): void {
-            $table->string('custom_invoice_text_label1')->nullable();
-            $table->string('custom_invoice_text_label2')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('invoices', function ($table): void {
-            $table->string('custom_text_value1')->nullable();
-            $table->string('custom_text_value2')->nullable();
-        });
+        Schema::table('invoices', function ($table) {});
 
-        Schema::table('invitations', function ($table): void {
-            $table->timestamp('opened_date')->nullable();
-            $table->string('message_id')->nullable();
-            $table->text('email_error')->nullable();
-        });
+        Schema::table('invitations', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('users', function ($table): void {
+        Schema::table('users', function ($table) {
             $table->dropColumn('oauth_user_id');
             $table->dropColumn('oauth_provider_id');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('custom_invoice_text_label1');
             $table->dropColumn('custom_invoice_text_label2');
         });
 
-        Schema::table('invoices', function ($table): void {
+        Schema::table('invoices', function ($table) {
             $table->dropColumn('custom_text_value1');
             $table->dropColumn('custom_text_value2');
         });
 
-        Schema::table('invitations', function ($table): void {
+        Schema::table('invitations', function ($table) {
             $table->dropColumn('opened_date');
             $table->dropColumn('message_id');
             $table->dropColumn('email_error');
         });
     }
-};
+}

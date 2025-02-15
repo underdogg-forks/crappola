@@ -6,28 +6,27 @@ use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Libraries\Utils;
-use App\Models\LookupUser;
 use App\Models\User;
 use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
-use Carbon;
 use Crypt;
 use Google2FA;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class AccountApiController extends BaseAPIController
 {
-    protected $companyRepo;
+    protected $accountRepo;
 
-    public function __construct(AccountRepository $companyRepo)
+    public function __construct(AccountRepository $accountRepo)
     {
         parent::__construct();
 
-        $this->accountRepo = $companyRepo;
+        $this->accountRepo = $accountRepo;
     }
 
     public function ping(Request $request)
@@ -44,12 +43,12 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
-        if (! LookupUser::validateField('email', $request->email)) {
+        if ( ! \App\Models\LookupUser::validateField('email', $request->email)) {
             return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
         }
 
-        $company = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
-        $user = $company->users()->first();
+        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
+        $user = $account->users()->first();
 
         Auth::login($user);
         event(new UserSignedUp());
@@ -69,12 +68,12 @@ class AccountApiController extends BaseAPIController
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             // TODO remove token_name check once legacy apps are deactivated
-            if ($user->google_2fa_secret && strpos($request->token_name, 'invoice-ninja-') !== false) {
+            if ($user->google_2fa_secret && str_contains($request->token_name, 'invoice-ninja-')) {
                 $secret = Crypt::decrypt($user->google_2fa_secret);
-                if (! $request->one_time_password) {
+                if ( ! $request->one_time_password) {
                     return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
                 }
-                if (! Google2FA::verifyKey($secret, $request->one_time_password)) {
+                if ( ! Google2FA::verifyKey($secret, $request->one_time_password)) {
                     return $this->errorResponse(['message' => 'Invalid one time password'], 401);
                 }
             }
@@ -95,36 +94,6 @@ class AccountApiController extends BaseAPIController
         return $this->errorResponse(['message' => 'Invalid credentials'], 401);
     }
 
-    private function processLogin(Request $request, bool $createToken = true)
-    {
-        // Create a new token only if one does not already exist
-        $user = Auth::user();
-        $company = $user->company;
-
-        if ($createToken) {
-            $this->accountRepo->createTokens($user, $request->token_name);
-        }
-
-        $users = $this->accountRepo->findUsers($user, 'company.account_tokens');
-        $transformer = new UserAccountTransformer($company, $request->serializer, $request->token_name);
-        $data = $this->createCollection($users, $transformer, 'user_account');
-
-        if (request()->include_static) {
-            $data = [
-                'companies' => $data,
-                'static'    => Utils::getStaticData($company->getLocale()),
-                'version'   => NINJA_VERSION,
-            ];
-        }
-
-        return $this->response($data);
-    }
-
-    public function getStaticData()
-    {
-        return $this->response(Utils::getStaticData());
-    }
-
     public function refresh(Request $request)
     {
         return $this->processLogin($request, false);
@@ -132,22 +101,27 @@ class AccountApiController extends BaseAPIController
 
     public function show(Request $request)
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
-        $company->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
-        $company = $this->createItem($company, $transformer, 'company');
+        $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
+        $account = $this->createItem($account, $transformer, 'account');
 
-        return $this->response($company);
+        return $this->response($account);
+    }
+
+    public function getStaticData()
+    {
+        return $this->response(Utils::getStaticData());
     }
 
     public function getUserAccounts(Request $request)
     {
         $user = Auth::user();
 
-        $users = $this->accountRepo->findUsers($user, 'company.account_tokens');
-        $transformer = new UserAccountTransformer($user->company, $request->serializer, $request->token_name);
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
         $data = $this->createCollection($users, $transformer, 'user_account');
 
         return $this->response($data);
@@ -155,29 +129,29 @@ class AccountApiController extends BaseAPIController
 
     public function update(UpdateAccountRequest $request)
     {
-        $company = Auth::user()->company;
-        $this->accountRepo->save($request->input(), $company);
+        $account = Auth::user()->account;
+        $this->accountRepo->save($request->input(), $account);
 
         $transformer = new AccountTransformer(null, $request->serializer);
-        $company = $this->createItem($company, $transformer, 'company');
+        $account = $this->createItem($account, $transformer, 'account');
 
-        return $this->response($company);
+        return $this->response($account);
     }
 
     public function addDeviceToken(Request $request)
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
-        $devices = json_decode($company->devices, true);
+        $devices = json_decode($account->devices, true);
 
         for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == $request->email) {
                 $devices[$x]['token'] = $request->token; //update
                 $devices[$x]['device'] = $request->device;
-                $company->devices = json_encode($devices);
-                $company->save();
-                $devices[$x]['account_key'] = $company->account_key;
+                $account->devices = json_encode($devices);
+                $account->save();
+                $devices[$x]['account_key'] = $account->account_key;
 
                 return $this->response($devices[$x]);
             }
@@ -189,7 +163,7 @@ class AccountApiController extends BaseAPIController
             'token'           => $request->token,
             'email'           => $request->email,
             'device'          => $request->device,
-            'account_key'     => $company->account_key,
+            'account_key'     => $account->account_key,
             'notify_sent'     => true,
             'notify_viewed'   => true,
             'notify_approved' => true,
@@ -197,35 +171,35 @@ class AccountApiController extends BaseAPIController
         ];
 
         $devices[] = $newDevice;
-        $company->devices = json_encode($devices);
-        $company->save();
+        $account->devices = json_encode($devices);
+        $account->save();
 
         return $this->response($newDevice);
     }
 
     public function removeDeviceToken(Request $request)
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
-        $devices = json_decode($company->devices, true);
+        $devices = json_decode($account->devices, true);
 
-        for ($x = 0; $x < count($devices); $x++) {
-            if ($request->token == $devices[$x]['token']) {
+        for($x = 0; $x < count($devices); $x++) {
+            if($request->token == $devices[$x]['token']) {
                 unset($devices[$x]);
             }
         }
 
-        $company->devices = json_encode(array_values($devices));
-        $company->save();
+        $account->devices = json_encode(array_values($devices));
+        $account->save();
 
         return $this->response(['success']);
     }
 
     public function updatePushNotifications(Request $request)
     {
-        $company = Auth::user()->company;
+        $account = Auth::user()->account;
 
-        $devices = json_decode($company->devices, true);
+        $devices = json_decode($account->devices, true);
 
         if (count($devices) < 1) {
             return $this->errorResponse(['message' => 'No registered devices.'], 400);
@@ -237,7 +211,7 @@ class AccountApiController extends BaseAPIController
                     'token'           => $devices[$x]['token'],
                     'email'           => $devices[$x]['email'],
                     'device'          => $devices[$x]['device'],
-                    'account_key'     => $company->account_key,
+                    'account_key'     => $account->account_key,
                     'notify_sent'     => $request->notify_sent,
                     'notify_viewed'   => $request->notify_viewed,
                     'notify_approved' => $request->notify_approved,
@@ -245,8 +219,8 @@ class AccountApiController extends BaseAPIController
                 ];
 
                 $devices[$x] = $newDevice;
-                $company->devices = json_encode($devices);
-                $company->save();
+                $account->devices = json_encode($devices);
+                $account->save();
 
                 return $this->response($newDevice);
             }
@@ -282,54 +256,79 @@ class AccountApiController extends BaseAPIController
         return $this->errorResponse(['message' => 'Invalid credentials'], 401);
     }
 
-    public function iosSubscriptionStatus(): void
+    public function iosSubscriptionStatus()
     {
         //stubbed for iOS callbacks
     }
 
-    public function upgrade(Request $request): string
+    public function upgrade(Request $request)
     {
         $user = Auth::user();
-        $company = $user->company;
-        $companyPlan = $company->companyPlan;
+        $account = $user->account;
+        $company = $account->company;
         $orderId = $request->order_id;
         $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
-        if (Carbon::createFromTimestamp($timestamp) < Carbon::now()->subYear()) {
-            return '{"message":"The order is expired"}';
+        if ($company->app_store_order_id) {
+            return '{"message":"error"}';
         }
 
         if ($productId == 'v1_pro_yearly') {
-            $companyPlan->plan = PLAN_PRO;
-            $companyPlan->num_users = 1;
-            $companyPlan->plan_price = PLAN_PRICE_PRO_MONTHLY * 10;
+            $company->plan = PLAN_PRO;
+            $company->num_users = 1;
+            $company->plan_price = PLAN_PRICE_PRO_MONTHLY * 10;
         } elseif ($productId == 'v1_enterprise_2_yearly') {
-            $companyPlan->plan = PLAN_ENTERPRISE;
-            $companyPlan->num_users = 2;
-            $companyPlan->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10;
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 2;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10;
         } elseif ($productId == 'v1_enterprise_5_yearly') {
-            $companyPlan->plan = PLAN_ENTERPRISE;
-            $companyPlan->num_users = 5;
-            $companyPlan->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10;
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 5;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10;
         } elseif ($productId == 'v1_enterprise_10_yearly') {
-            $companyPlan->plan = PLAN_ENTERPRISE;
-            $companyPlan->num_users = 10;
-            $companyPlan->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10;
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 10;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10;
         } elseif ($productId == 'v1_enterprise_20_yearly') {
-            $companyPlan->plan = PLAN_ENTERPRISE;
-            $companyPlan->num_users = 20;
-            $companyPlan->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10;
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 20;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10;
         }
 
-        $companyPlan->app_store_order_id = $orderId;
-        $companyPlan->plan_term = PLAN_TERM_YEARLY;
-        $companyPlan->plan_started = $companyPlan->plan_started ?: date('Y-m-d');
-        $companyPlan->plan_paid = date('Y-m-d');
-        $companyPlan->plan_expires = Carbon::createFromTimestamp($timestamp)->addYear()->format('Y-m-d');
-        $companyPlan->trial_plan = null;
-        $companyPlan->save();
+        $company->app_store_order_id = $orderId;
+        $company->plan_term = PLAN_TERM_YEARLY;
+        $company->plan_started = $company->plan_started ?: date('Y-m-d');
+        $company->plan_paid = date('Y-m-d');
+        $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
+        $company->trial_plan = null;
+        $company->save();
 
         return '{"message":"success"}';
+    }
+
+    private function processLogin(Request $request, $createToken = true)
+    {
+        // Create a new token only if one does not already exist
+        $user = Auth::user();
+        $account = $user->account;
+
+        if ($createToken) {
+            $this->accountRepo->createTokens($user, $request->token_name);
+        }
+
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $transformer = new UserAccountTransformer($account, $request->serializer, $request->token_name);
+        $data = $this->createCollection($users, $transformer, 'user_account');
+
+        if (request()->include_static) {
+            $data = [
+                'accounts' => $data,
+                'static'   => Utils::getStaticData($account->getLocale()),
+                'version'  => NINJA_VERSION,
+            ];
+        }
+
+        return $this->response($data);
     }
 }
