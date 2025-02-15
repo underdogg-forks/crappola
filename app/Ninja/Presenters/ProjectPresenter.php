@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ProjectPresenter extends EntityPresenter
 {
@@ -28,11 +28,11 @@ class ProjectPresenter extends EntityPresenter
      */
     public function taskRate()
     {
-        if ((float) ($this->entity->task_rate)) {
-            return Utils::roundSignificant($this->entity->task_rate);
-        }
-
-        return '';
+      if (floatval($this->entity->task_rate)) {
+          return Utils::roundSignificant($this->entity->task_rate);
+      } else {
+          return '';
+      }
     }
 
     /**
@@ -40,10 +40,11 @@ class ProjectPresenter extends EntityPresenter
      */
     public function defaultTaskRate()
     {
-        if ($rate = $this->taskRate()) {
-            return $rate;
-        }
-
-        return $this->entity->client->present()->defaultTaskRate;
+      if ($rate = $this->taskRate()) {
+          return $rate;
+      } else {
+          return $this->entity->client->present()->defaultTaskRate;
+      }
     }
+
 }

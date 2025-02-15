@@ -6,13 +6,6 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = 'refId';
 
-    public function createPayment($ref = false, $paymentMethod = null)
-    {
-        $ref = $this->purchaseResponse['transactionResponse']['transId'] ?: $this->purchaseResponse['refId'];
-
-        parent::createPayment($ref, $paymentMethod);
-    }
-
     protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
@@ -20,5 +13,12 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
         $data['invoiceNumber'] = $this->invoice()->invoice_number;
 
         return $data;
+    }
+
+    public function createPayment($ref = false, $paymentMethod = null)
+    {
+        $ref = $this->purchaseResponse['transactionResponse']['transId'] ?: $this->purchaseResponse['refId'];
+
+        parent::createPayment($ref, $paymentMethod);
     }
 }

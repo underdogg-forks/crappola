@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Eloquent;
 
 /**
  * Class Country.
  */
 class Country extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var array
+     */
     protected $visible = [
         'id',
         'name',
@@ -23,18 +28,19 @@ class Country extends Eloquent
         'iso_3166_3',
     ];
 
+    /**
+     * @var array
+     */
     protected $casts = [
-        'swap_postal_code'     => 'boolean',
+        'swap_postal_code' => 'boolean',
         'swap_currency_symbol' => 'boolean',
     ];
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return trans('texts.country_' . $this->name);
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }

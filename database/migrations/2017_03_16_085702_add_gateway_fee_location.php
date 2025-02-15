@@ -1,14 +1,21 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddGatewayFeeLocation extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('clients', function ($table) {});
+        Schema::table('clients', function ($table) {
+            $table->integer('invoice_number_counter')->default(1)->nullable();
+            $table->integer('quote_number_counter')->default(1)->nullable();
+        });
 
         Schema::table('credits', function ($table) {
             $table->text('public_notes')->nullable();
@@ -23,6 +30,7 @@ class AddGatewayFeeLocation extends Migration
         Schema::create('account_email_settings', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
+            $table->timestamps();
 
             $table->string('reply_to_email')->nullable();
             $table->string('bcc_email')->nullable();
@@ -40,8 +48,6 @@ class AddGatewayFeeLocation extends Migration
             $table->text('email_template_reminder1');
             $table->text('email_template_reminder2');
             $table->text('email_template_reminder3');
-
-            $table->timestamps();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -105,7 +111,8 @@ class AddGatewayFeeLocation extends Migration
             }
         });
 
-        if ( ! Schema::hasColumn('accounts', 'gateway_fee_enabled')) {
+
+        if (! Schema::hasColumn('accounts', 'gateway_fee_enabled')) {
             Schema::table('accounts', function ($table) {
                 $table->boolean('gateway_fee_enabled')->default(0);
             });
@@ -114,8 +121,14 @@ class AddGatewayFeeLocation extends Migration
         Schema::table('accounts', function ($table) {
             $table->date('reset_counter_date')->nullable();
         });
+
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

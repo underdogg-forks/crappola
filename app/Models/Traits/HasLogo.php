@@ -2,8 +2,9 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Document;
+use Utils;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Document;
 
 /**
  * Class HasLogo.
@@ -18,9 +19,33 @@ trait HasLogo
         return ! empty($this->logo);
     }
 
+    /**
+     * @return mixed
+     */
     public function getLogoDisk()
     {
         return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
+    }
+
+    protected function calculateLogoDetails()
+    {
+        $disk = $this->getLogoDisk();
+
+        if ($disk->exists($this->account_key.'.png')) {
+            $this->logo = $this->account_key.'.png';
+        } elseif ($disk->exists($this->account_key.'.jpg')) {
+            $this->logo = $this->account_key.'.jpg';
+        }
+
+        if (! empty($this->logo)) {
+            $image = imagecreatefromstring($disk->get($this->logo));
+            $this->logo_width = imagesx($image);
+            $this->logo_height = imagesy($image);
+            $this->logo_size = $disk->size($this->logo);
+        } else {
+            $this->logo = null;
+        }
+        $this->save();
     }
 
     /**
@@ -28,14 +53,14 @@ trait HasLogo
      */
     public function getLogoRaw()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         $disk = $this->getLogoDisk();
 
-        if ( ! $disk->exists($this->logo)) {
-            return;
+        if (! $disk->exists($this->logo)) {
+            return null;
         }
 
         return $disk->get($this->logo);
@@ -48,8 +73,8 @@ trait HasLogo
      */
     public function getLogoURL($cachebuster = false)
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         $disk = $this->getLogoDisk();
@@ -60,7 +85,7 @@ trait HasLogo
             $logoUrl = url('/logo/' . $this->logo);
 
             if ($cachebuster) {
-                $logoUrl .= '?no_cache=' . time();
+                $logoUrl .= '?no_cache='.time();
             }
 
             return $logoUrl;
@@ -71,8 +96,8 @@ trait HasLogo
 
     public function getLogoPath()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         $disk = $this->getLogoDisk();
@@ -80,9 +105,9 @@ trait HasLogo
 
         if ($adapter instanceof \League\Flysystem\Adapter\Local) {
             return $adapter->applyPathPrefix($this->logo);
+        } else {
+            return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
         }
-
-        return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
     /**
@@ -90,8 +115,8 @@ trait HasLogo
      */
     public function getLogoWidth()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         return $this->logo_width;
@@ -102,8 +127,8 @@ trait HasLogo
      */
     public function getLogoHeight()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         return $this->logo_height;
@@ -114,8 +139,8 @@ trait HasLogo
      */
     public function getLogoSize()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         return round($this->logo_size / 1000);
@@ -126,8 +151,8 @@ trait HasLogo
      */
     public function getLogoName()
     {
-        if ( ! $this->hasLogo()) {
-            return;
+        if (! $this->hasLogo()) {
+            return null;
         }
 
         return $this->logo;
@@ -147,26 +172,5 @@ trait HasLogo
         $this->logo_width = 0;
         $this->logo_height = 0;
         $this->logo_size = 0;
-    }
-
-    protected function calculateLogoDetails()
-    {
-        $disk = $this->getLogoDisk();
-
-        if ($disk->exists($this->account_key . '.png')) {
-            $this->logo = $this->account_key . '.png';
-        } elseif ($disk->exists($this->account_key . '.jpg')) {
-            $this->logo = $this->account_key . '.jpg';
-        }
-
-        if ( ! empty($this->logo)) {
-            $image = imagecreatefromstring($disk->get($this->logo));
-            $this->logo_width = imagesx($image);
-            $this->logo_height = imagesy($image);
-            $this->logo_size = $disk->size($this->logo);
-        } else {
-            $this->logo = null;
-        }
-        $this->save();
     }
 }

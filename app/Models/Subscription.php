@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -10,18 +10,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Subscription extends EntityModel
 {
-    use SoftDeletes;
-
+    /**
+     * @var bool
+     */
     public $timestamps = true;
 
+    use SoftDeletes;
+
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'event_id',
         'target_url',
         'format',
     ];
 
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_SUBSCRIPTION;
@@ -35,8 +47,4 @@ class Subscription extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }

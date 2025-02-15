@@ -21,10 +21,10 @@ class CurlUtils
         $curl = curl_init();
 
         $opts = [
-            CURLOPT_URL            => $url,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => $method,
-            CURLOPT_HTTPHEADER     => $headers ?: [],
+            CURLOPT_POST => $method,
+            CURLOPT_HTTPHEADER => $headers ?: [],
         ];
 
         if ($data) {
@@ -45,7 +45,7 @@ class CurlUtils
 
     public static function phantom($method, $url)
     {
-        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
@@ -63,20 +63,20 @@ class CurlUtils
 
         if ($response->getStatus() === 200) {
             return $response->getContent();
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public static function renderPDF($url, $filename)
     {
-        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
         $client = Client::getInstance();
         $client->isLazy();
-        $client->getEngine()->addOption('--load-images=true');
+        $client->getEngine()->addOption("--load-images=true");
         $client->getEngine()->setPath($path);
 
         $request = $client->getMessageFactory()->createPdfRequest($url, 'GET');
@@ -90,10 +90,9 @@ class CurlUtils
         if ($response->getStatus() === 200) {
             $pdf = file_get_contents($filename);
             unlink($filename);
-
             return $pdf;
+        } else {
+            return false;
         }
-
-        return false;
     }
 }

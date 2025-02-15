@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BaseService.
@@ -13,6 +13,14 @@ class BaseService
     use DispatchesJobs;
 
     /**
+     * @return null
+     */
+    protected function getRepo()
+    {
+        return null;
+    }
+
+    /**
      * @param $ids
      * @param $action
      *
@@ -20,7 +28,7 @@ class BaseService
      */
     public function bulk($ids, $action)
     {
-        if ( ! $ids) {
+        if (! $ids) {
             return 0;
         }
 
@@ -28,15 +36,10 @@ class BaseService
 
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
-                $this->getRepo()->{$action}($entity);
+                $this->getRepo()->$action($entity);
             }
         }
 
         return count($entities);
     }
-
-    /**
-     * @return null
-     */
-    protected function getRepo() {}
 }

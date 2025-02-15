@@ -3,22 +3,24 @@
 namespace App\Ninja\Reports;
 
 use App\Models\Client;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class AgingReport extends AbstractReport
 {
     public function getColumns()
     {
         return [
-            'client'         => [],
+            'client' => [],
             'invoice_number' => [],
-            'invoice_date'   => [],
-            'due_date'       => [],
-            'age'            => [],
-            'amount'         => [],
-            'balance'        => [],
+            'invoice_date' => [],
+            'due_date' => [],
+            'last_sent' => [],
+            'age' => [],
+            'amount' => [],
+            'balance' => [],
         ];
     }
+
 
     public function run()
     {
@@ -26,18 +28,18 @@ class AgingReport extends AbstractReport
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
-            ->orderBy('name')
-            ->withArchived()
-            ->with('contacts')
-            ->with(['invoices' => function ($query) {
-                $query->invoices()
-                    ->whereIsPublic(true)
-                    ->withArchived()
-                    ->where('balance', '>', 0)
-                    ->where('invoice_date', '>=', $this->startDate)
-                    ->where('invoice_date', '<=', $this->endDate)
-                    ->with(['invoice_items']);
-            }]);
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with('contacts')
+                        ->with(['invoices' => function ($query) {
+                            $query->invoices()
+                                  ->whereIsPublic(true)
+                                  ->withArchived()
+                                  ->where('balance', '>', 0)
+                                  ->where('invoice_date', '>=', $this->startDate)
+                                  ->where('invoice_date', '<=', $this->endDate)
+                                  ->with(['invoice_items']);
+                        }]);
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
@@ -46,6 +48,7 @@ class AgingReport extends AbstractReport
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
                     $this->isExport ? ($invoice->partial_due_date ?: $invoice->due_date) : ($invoice->present()->partial_due_date ?: $invoice->present()->due_date),
+                    $invoice->present()->days_since_last_email,
                     $invoice->present()->age,
                     $account->formatMoney($invoice->amount, $client),
                     $account->formatMoney($invoice->balance, $client),
@@ -58,7 +61,7 @@ class AgingReport extends AbstractReport
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
 
                 if ($subgroup == 'age') {
-                    $dimension = trans('texts.' . $invoice->present()->ageGroup);
+                    $dimension = trans('texts.' .$invoice->present()->ageGroup);
                 } else {
                     $dimension = $this->getDimension($client);
                 }

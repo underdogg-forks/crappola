@@ -2,9 +2,9 @@
 
 namespace $NAMESPACE$;
 
-use App\Libraries\Utils;
+use Utils;
 use URL;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use App\Ninja\Datatables\EntityDatatable;
 
 class $CLASS$Datatable extends EntityDatatable
