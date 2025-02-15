@@ -1,6 +1,9 @@
 Quotes
 ======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 For Pro Plan users, the Quotes function streamlines your invoicing activity, from the moment you create and send a price quote for a particular job, until the quote is accepted, you invoice the job, receive payment and provide a receipt. With the Quotes function, you can automatically convert accepted quotes into invoices in a swift one-click action. Keeping track of your projected work schedule and potential income, the Quotes feature gives you even greater control of your freelance activity.
 
 List Quotes
@@ -127,9 +130,3 @@ Click on More Actions to open the following action list:
 - **Delete Quote**: Want to delete the quote? Click here. The quote will be deleted and removed from the Quotes list page.
 
 .. TIP:: At the left of these colorful buttons, you'll see a field with an arrow that opens a drop-down menu. This field provides you with template options for the quote design. Click on the arrow to select the desired template. When selected, the quote preview will change to reflect the new template.
-
-Quote Preview
-^^^^^^^^^^^^^
-
-Did you know that all this time you've been creating the new quote, a preview of the quote appears below, and it changes in real time according to the data you've entered? The PDF is created in real time; all you have to do is click Save.
-To check out the quote preview, scroll down below the invoice data fields.

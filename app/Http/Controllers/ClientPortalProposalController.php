@@ -16,7 +16,7 @@ class ClientPortalProposalController extends BaseController
 
     private $documentRepo;
 
-    private readonly ProposalRepository $propoosalRepo;
+    private $propoosalRepo;
 
     public function __construct(ProposalRepository $propoosalRepo)
     {
@@ -57,7 +57,7 @@ class ClientPortalProposalController extends BaseController
 
         $proposal = $invitation->proposal;
 
-        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }

@@ -3,12 +3,10 @@
 namespace App\Jobs;
 
 use App\Libraries\HistoryUtils;
-use Utils;
+use App\Libraries\Utils;
 
 class PurgeClientData extends Job
 {
-    public $client;
-
     public function __construct($client)
     {
         $this->client = $client;
@@ -19,7 +17,7 @@ class PurgeClientData extends Job
      *
      * @return void
      */
-    public function handle(): void
+    public function handle()
     {
         $user = auth()->user();
         $client = $this->client;
@@ -45,7 +43,6 @@ class PurgeClientData extends Job
                 $document->delete();
             }
         }
-
         foreach ($expenses as $expense) {
             foreach ($expense->documents as $document) {
                 $document->delete();

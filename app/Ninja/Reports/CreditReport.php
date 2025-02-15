@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CreditReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         $columns = [
             'client'  => [],
@@ -19,7 +19,7 @@ class CreditReport extends AbstractReport
         return $columns;
     }
 
-    public function run(): void
+    public function run()
     {
         $account = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
@@ -27,7 +27,7 @@ class CreditReport extends AbstractReport
         $clients = Client::scope()
             ->orderBy('name')
             ->withArchived()
-            ->with(['contacts', 'user', 'credits' => function ($query): void {
+            ->with(['contacts', 'user', 'credits' => function ($query) {
                 $query->where('credit_date', '>=', $this->startDate)
                     ->where('credit_date', '<=', $this->endDate)
                     ->withArchived();

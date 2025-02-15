@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Import\Harvest;
 
 use App\Ninja\Import\BaseTransformer;
@@ -16,16 +17,17 @@ class ContactTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (!$this->hasClient($data->client)) {
+        if ( ! $this->hasClient($data->client)) {
             return false;
         }
+
         return new Item($data, function ($data) {
             return [
-                'customer_id' => $this->getClientId($data->client),
+                'client_id'  => $this->getClientId($data->client),
                 'first_name' => $this->getString($data, 'first_name'),
-                'last_name' => $this->getString($data, 'last_name'),
-                'email' => $this->getString($data, 'email'),
-                'phone' => $this->getString($data, 'office_phone') ?: $this->getString($data, 'mobile_phone'),
+                'last_name'  => $this->getString($data, 'last_name'),
+                'email'      => $this->getString($data, 'email'),
+                'phone'      => $this->getString($data, 'office_phone') ?: $this->getString($data, 'mobile_phone'),
             ];
         });
     }

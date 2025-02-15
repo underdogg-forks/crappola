@@ -50,9 +50,13 @@ class InvoiceCest
         $this->fillItem($I, 1, 'Item', 'Notes', 64.50, 3);
 
         $I->click('#saveButton');
-        $I->wait(1);
+        $I->wait(2);
         $I->see($invoiceNumber);
         $I->see('199.01');
+
+        for ($i = 1; $i <= 10; $i++) {
+            $this->updateDesign($I, $i);
+        }
 
         $I->amOnPage("/clients/{$clientId}#invoices");
         $I->see('199.01');
@@ -124,7 +128,6 @@ class InvoiceCest
         $I->see($clientEmail);
     }
 
-
     public function cloneInvoice(AcceptanceTester $I)
     {
         $I->wantTo('clone an invoice');
@@ -136,6 +139,13 @@ class InvoiceCest
         $I->wait(3);
 
         $I->see($invoiceNumber);
+    }
+
+    private function updateDesign($I, $designId)
+    {
+        $I->selectOption('#invoice_design_id', $designId);
+        $I->click('#saveButton');
+        $I->wait(2);
     }
 
     /*
@@ -156,11 +166,9 @@ class InvoiceCest
     }
     */
 
-
     private function fillItems(AcceptanceTester $I, $max = 2)
     {
         for ($row = 1; $row <= $max; $row++) {
-
             $product = $this->faker->text(10);
             $description = $this->faker->text(80);
             $cost = $this->faker->randomFloat(2, 0, 100);
@@ -174,9 +182,9 @@ class InvoiceCest
     {
         $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $row);
 
-        $I->fillField($row_selector.'#product_key', $product);
-        $I->fillField($row_selector.'textarea', $description);
-        $I->fillField($row_selector.'td:nth-child(4) input', $cost);
-        $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
+        $I->fillField($row_selector . 'td:nth-child(2) input.tt-input', $product);
+        $I->fillField($row_selector . 'textarea', $description);
+        $I->fillField($row_selector . 'td:nth-child(4) input', $cost);
+        $I->fillField($row_selector . 'td:nth-child(5) input', $quantity);
     }
 }

@@ -1,16 +1,14 @@
 <?php
+
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class UserAccount.
  */
 class UserAccount extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     /**
@@ -20,15 +18,17 @@ class UserAccount extends Eloquent
      */
     public function hasUserId($userId)
     {
-        if (!$userId) {
+        if ( ! $userId) {
             return false;
         }
+
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if ($this->$field && $this->$field == $userId) {
+            if ($this->{$field} && $this->{$field} == $userId) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -40,10 +40,11 @@ class UserAccount extends Eloquent
         if (self::hasUserId($userId)) {
             return;
         }
+
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if (!$this->$field) {
-                $this->$field = $userId;
+            if ( ! $this->{$field}) {
+                $this->{$field} = $userId;
                 break;
             }
         }
@@ -54,13 +55,14 @@ class UserAccount extends Eloquent
      */
     public function removeUserId($userId)
     {
-        if (!$userId || !self::hasUserId($userId)) {
+        if ( ! $userId || ! self::hasUserId($userId)) {
             return;
         }
+
         for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if ($this->$field && $this->$field == $userId) {
-                $this->$field = null;
+            if ($this->{$field} && $this->{$field} == $userId) {
+                $this->{$field} = null;
             }
         }
     }

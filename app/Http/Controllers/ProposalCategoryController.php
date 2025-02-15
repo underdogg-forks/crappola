@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\View;
 
 class ProposalCategoryController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_CATEGORY;
+    protected $proposalCategoryRepo;
 
-    protected ProposalCategoryRepository $proposalCategoryRepo;
+    protected $proposalCategoryService;
 
-    protected ProposalCategoryService $proposalCategoryService;
+    protected $entityType = ENTITY_PROPOSAL_CATEGORY;
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {
@@ -71,7 +71,7 @@ class ProposalCategoryController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/categories/%s/edit', $publicId));
+        return redirect("proposals/categories/{$publicId}/edit");
     }
 
     public function edit(ProposalCategoryRequest $request)
@@ -115,13 +115,13 @@ class ProposalCategoryController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_category' : $action . 'd_proposal_categories';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal_category" : "{$action}d_proposal_categories";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 

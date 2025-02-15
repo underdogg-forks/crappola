@@ -4,12 +4,12 @@ namespace App\Ninja\PaymentDrivers;
 
 class PaymillPaymentDriver extends BasePaymentDriver
 {
-    public function tokenize(): bool
+    public function tokenize()
     {
         return true;
     }
 
-    protected function paymentDetails($paymentMethod = false): array
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
 

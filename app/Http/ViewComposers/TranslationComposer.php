@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\ViewComposers;
 
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Str;
 
 /**
  * TranslationComposer.php.
@@ -25,20 +27,29 @@ class TranslationComposer
         })->sortBy(function ($industry) {
             return $industry->name;
         }));
+
         $view->with('countries', Cache::get('countries')->each(function ($country) {
             $country->name = trans('texts.country_' . $country->name);
         })->sortBy(function ($country) {
             return $country->name;
         }));
+
         $view->with('paymentTypes', Cache::get('paymentTypes')->each(function ($pType) {
             $pType->name = trans('texts.payment_type_' . $pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;
         }));
+
         $view->with('languages', Cache::get('languages')->each(function ($lang) {
             $lang->name = trans('texts.lang_' . $lang->name);
         })->sortBy(function ($lang) {
             return $lang->name;
+        }));
+
+        $view->with('currencies', Cache::get('currencies')->each(function ($currency) {
+            $currency->name = trans('texts.currency_' . Str::slug($currency->name, '_'));
+        })->sortBy(function ($currency) {
+            return $currency->name;
         }));
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -22,9 +23,11 @@ class ComposerServiceProvider extends ServiceProvider
                 'expenses.edit',
                 'accounts.localization',
                 'payments.credit_card',
+                'invited.details',
             ],
             'App\Http\ViewComposers\TranslationComposer'
         );
+
         view()->composer(
             [
                 'header',
@@ -32,11 +35,21 @@ class ComposerServiceProvider extends ServiceProvider
             ],
             'App\Http\ViewComposers\AppLanguageComposer'
         );
+
         view()->composer(
             [
                 'public.header',
             ],
             'App\Http\ViewComposers\ClientPortalHeaderComposer'
+        );
+
+        view()->composer(
+            [
+                'proposals.edit',
+                'proposals.templates.edit',
+                'proposals.snippets.edit',
+            ],
+            'App\Http\ViewComposers\ProposalComposer'
         );
     }
 
@@ -45,7 +58,5 @@ class ComposerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-    }
+    public function register() {}
 }

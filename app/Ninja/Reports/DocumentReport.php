@@ -8,7 +8,7 @@ use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public function getColumns(): array
+    public function getColumns()
     {
         return [
             'document'           => [],
@@ -18,7 +18,7 @@ class DocumentReport extends AbstractReport
         ];
     }
 
-    public function run(): void
+    public function run()
     {
         $account = auth()->user()->account;
         $filter = $this->options['document_filter'];
@@ -43,7 +43,11 @@ class DocumentReport extends AbstractReport
                 ->where('expense_date', '<=', $this->endDate)
                 ->get();
 
-            $records = $records ? $records->merge($expenses) : $expenses;
+            if ($records) {
+                $records = $records->merge($expenses);
+            } else {
+                $records = $expenses;
+            }
         }
 
         if ($this->isExport && $exportFormat == 'zip') {
@@ -60,7 +64,6 @@ class DocumentReport extends AbstractReport
                     $zip->add_file($name, $document->getRaw());
                 }
             }
-
             $zip->finish();
             exit;
         }

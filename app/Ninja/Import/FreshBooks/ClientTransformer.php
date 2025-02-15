@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Import\FreshBooks;
 
 use App\Ninja\Import\BaseTransformer;
@@ -19,22 +20,23 @@ class ClientTransformer extends BaseTransformer
         if ($this->hasClient($data->organization)) {
             return false;
         }
+
         return new Item($data, function ($data) {
             return [
-                'name' => $this->getString($data, 'organization'),
-                'work_phone' => $this->getString($data, 'busphone'),
-                'address1' => $this->getString($data, 'street'),
-                'address2' => $this->getString($data, 'street2'),
-                'city' => $this->getString($data, 'city'),
-                'state' => $this->getString($data, 'province'),
-                'postal_code' => $this->getString($data, 'postalcode'),
+                'name'          => $this->getString($data, 'organization'),
+                'work_phone'    => $this->getString($data, 'busphone'),
+                'address1'      => $this->getString($data, 'street'),
+                'address2'      => $this->getString($data, 'street2'),
+                'city'          => $this->getString($data, 'city'),
+                'state'         => $this->getString($data, 'province'),
+                'postal_code'   => $this->getString($data, 'postalcode'),
                 'private_notes' => $this->getString($data, 'notes'),
-                'contacts' => [
+                'contacts'      => [
                     [
                         'first_name' => $this->getString($data, 'firstname'),
-                        'last_name' => $this->getString($data, 'lastname'),
-                        'email' => $this->getString($data, 'email'),
-                        'phone' => $this->getString($data, 'mobphone') ?: $this->getString($data, 'homephone'),
+                        'last_name'  => $this->getString($data, 'lastname'),
+                        'email'      => $this->getString($data, 'email'),
+                        'phone'      => $this->getString($data, 'mobphone') ?: $this->getString($data, 'homephone'),
                     ],
                 ],
                 'country_id' => $this->getCountryId($data->country),

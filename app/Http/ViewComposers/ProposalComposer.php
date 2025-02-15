@@ -20,7 +20,7 @@ class ProposalComposer
      *
      * @return void
      */
-    public function compose(View $view): void
+    public function compose(View $view)
     {
         $snippets = ProposalSnippet::scope()
             ->with('proposal_category')

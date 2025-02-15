@@ -19,7 +19,7 @@ class HistoryListener
     /**
      * @param ClientWasDeleted $event
      */
-    public function deletedClient(ClientWasDeleted $event): void
+    public function deletedClient(ClientWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->client);
     }
@@ -27,7 +27,7 @@ class HistoryListener
     /**
      * @param InvoiceWasDeleted $event
      */
-    public function deletedInvoice(InvoiceWasDeleted $event): void
+    public function deletedInvoice(InvoiceWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->invoice);
     }
@@ -35,7 +35,7 @@ class HistoryListener
     /**
      * @param QuoteWasDeleted $event
      */
-    public function deletedQuote(QuoteWasDeleted $event): void
+    public function deletedQuote(QuoteWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->quote);
     }
@@ -43,7 +43,7 @@ class HistoryListener
     /**
      * @param TaskWasDeleted $event
      */
-    public function deletedTask(TaskWasDeleted $event): void
+    public function deletedTask(TaskWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->task);
     }
@@ -51,7 +51,7 @@ class HistoryListener
     /**
      * @param ExpenseWasDeleted $event
      */
-    public function deletedExpense(ExpenseWasDeleted $event): void
+    public function deletedExpense(ExpenseWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->expense);
     }
@@ -59,7 +59,7 @@ class HistoryListener
     /**
      * @param ProjectWasDeleted $event
      */
-    public function deletedProject(ProjectWasDeleted $event): void
+    public function deletedProject(ProjectWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->project);
     }
@@ -67,7 +67,7 @@ class HistoryListener
     /**
      * @param ProposalWasDeleted $event
      */
-    public function deletedProposal(ProposalWasDeleted $event): void
+    public function deletedProposal(ProposalWasDeleted $event)
     {
         HistoryUtils::deleteHistory($event->proposal);
     }

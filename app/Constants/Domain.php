@@ -1,14 +1,12 @@
 <?php
+
 namespace App\Constants;
+
 class Domain
 {
-    const INVOICENINJA_COM = 1;
-    const INVOICE_SERVICES = 2;
+    public const INVOICENINJA_COM = 1;
 
-    public static function getLinkFromId($id)
-    {
-        return 'https://app.' . static::getDomainFromId($id);
-    }
+    public const INVOICE_SERVICES = 2;
 
     public static function getDomainFromId($id)
     {
@@ -18,7 +16,13 @@ class Domain
             case static::INVOICE_SERVICES:
                 return 'invoice.services';
         }
+
         return 'invoiceninja.com';
+    }
+
+    public static function getLinkFromId($id)
+    {
+        return 'https://app.' . static::getDomainFromId($id);
     }
 
     public static function getEmailFromId($id)

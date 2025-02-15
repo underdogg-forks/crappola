@@ -2,7 +2,7 @@
 
 namespace $CLASS_NAMESPACE$;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BaseController;
 use App\Services\DatatableService;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
@@ -38,7 +38,7 @@ class $CLASS$ extends BaseController
 
     public function datatable(DatatableService $datatableService)
     {
-        $search = request()->input('test');
+        $search = request()->input('sSearch');
         $userId = Auth::user()->filterId();
 
         $datatable = new $STUDLY_NAME$Datatable();

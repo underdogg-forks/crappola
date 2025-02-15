@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use App\Models\Invitation;
@@ -19,8 +20,8 @@ class QuoteInvitationWasApproved extends Event
     /**
      * Create a new event instance.
      *
-     * @param $quote
-     * @param Invoice $invoice
+     * @param            $quote
+     * @param Invoice    $invoice
      * @param Invitation $invitation
      */
     public function __construct(Invoice $quote, Invitation $invitation)

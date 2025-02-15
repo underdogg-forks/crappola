@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Listeners;
 
 use App\Events\PaymentWasDeleted;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 /**
  * Class CreditListener.
@@ -32,10 +33,12 @@ class CreditListener
     public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
+
         // if the payment was from a credit we need to refund the credit
         if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
             return;
         }
+
         $credit = Credit::createNew();
         $credit->client_id = $payment->client_id;
         $credit->credit_date = Carbon::now()->toDateTimeString();

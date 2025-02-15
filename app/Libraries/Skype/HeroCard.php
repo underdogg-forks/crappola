@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Libraries\Skype;
 
 use stdClass;

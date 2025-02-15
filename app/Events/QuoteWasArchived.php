@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
@@ -6,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasArchived extends Event
 {
     use SerializesModels;
+
     public $quote;
 
     /**

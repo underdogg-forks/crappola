@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Libraries;
 
 use App\Models\Activity;
 use App\Models\EntityModel;
-use Session;
+use Illuminate\Support\Facades\Session;
 use stdClass;
 
 class HistoryUtils
@@ -11,6 +12,8 @@ class HistoryUtils
     public static function loadHistory($users)
     {
         $userIds = [];
+        session([RECENTLY_VIEWED => false]);
+
         if (is_array($users)) {
             foreach ($users as $user) {
                 $userIds[] = $user->user_id;
@@ -18,6 +21,7 @@ class HistoryUtils
         } else {
             $userIds[] = $users;
         }
+
         $activityTypes = [
             ACTIVITY_TYPE_CREATE_CLIENT,
             ACTIVITY_TYPE_CREATE_TASK,
@@ -33,36 +37,71 @@ class HistoryUtils
             ACTIVITY_TYPE_VIEW_INVOICE,
             ACTIVITY_TYPE_VIEW_QUOTE,
         ];
-        $activities = Activity::with(['client.contacts', 'invoice', 'task', 'expense'])
-            ->whereIn('staff_id', $userIds)
+
+        $activities = Activity::with(['client.contacts', 'invoice', 'task.project', 'expense'])
+            ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'desc')
             ->limit(100)
             ->get();
+
         foreach ($activities->reverse() as $activity) {
+            if ($activity->client && $activity->client->is_deleted) {
+                continue;
+            }
+
             if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_CLIENT) {
                 $entity = $activity->client;
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_TASK || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_TASK) {
                 $entity = $activity->task;
-                if (!$entity) {
+                if ( ! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
+
+                if ($entity->project) {
+                    $project = $entity->project;
+                    $project->setRelation('client', $activity->client);
+                    static::trackViewed($project);
+                }
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
                 $entity = $activity->expense;
-                if (!$entity) {
+                if ( ! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
-                if (!$entity) {
+                if ( ! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
             }
+
             static::trackViewed($entity);
         }
+    }
+
+    public static function deleteHistory(EntityModel $entity)
+    {
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $accountHistory = $history[$entity->account_id] ?? [];
+        $remove = [];
+
+        for ($i = 0; $i < count($accountHistory); $i++) {
+            $item = $accountHistory[$i];
+            if ($entity->equalTo($item)) {
+                $remove[] = $i;
+            } elseif ($entity->getEntityType() == ENTITY_CLIENT && $entity->public_id == $item->client_id) {
+                $remove[] = $i;
+            }
+        }
+
+        for ($i = count($remove) - 1; $i >= 0; $i--) {
+            array_splice($history[$entity->account_id], $remove[$i], 1);
+        }
+
+        Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function trackViewed(EntityModel $entity)
@@ -74,54 +113,50 @@ class HistoryUtils
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
+            //ENTITY_RECURRING_EXPENSE,
         ];
-        if (!in_array($entityType, $trackedTypes)) {
+
+        if ( ! in_array($entityType, $trackedTypes)) {
             return;
         }
+
+        if ($entity->is_deleted) {
+            return;
+        }
+
         $object = static::convertToObject($entity);
         $history = Session::get(RECENTLY_VIEWED) ?: [];
-        $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
+        $accountHistory = $history[$entity->account_id] ?? [];
         $data = [];
+
         // Add to the list and make sure to only show each item once
         for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
+
             if ($object->url == $item->url) {
                 continue;
             }
+
             array_push($data, $item);
+
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
             } else {
                 $counts[$item->accountId] = 1;
             }
         }
+
         array_unshift($data, $object);
+
         if (isset($counts[$entity->account_id]) && $counts[$entity->account_id] > RECENTLY_VIEWED_LIMIT) {
             array_pop($data);
         }
-        $history[$entity->account_id] = $data;
-        Session::put(RECENTLY_VIEWED, $history);
-    }
 
-    private static function convertToObject($entity)
-    {
-        $object = new stdClass();
-        $object->accountId = $entity->account_id;
-        $object->url = $entity->present()->url;
-        $object->entityType = $entity->subEntityType();
-        $object->name = $entity->present()->titledName;
-        $object->timestamp = time();
-        if ($entity->isEntityType(ENTITY_CLIENT)) {
-            $object->client_id = $entity->public_id;
-            $object->client_name = $entity->getDisplayName();
-        } elseif (method_exists($entity, 'client') && $entity->client) {
-            $object->client_id = $entity->client->public_id;
-            $object->client_name = $entity->client->getDisplayName();
-        } else {
-            $object->client_id = 0;
-            $object->client_name = 0;
-        }
-        return $object;
+        $history[$entity->account_id] = $data;
+
+        Session::put(RECENTLY_VIEWED, $history);
     }
 
     public static function renderHtml($accountId)
@@ -129,18 +164,23 @@ class HistoryUtils
         $lastClientId = false;
         $clientMap = [];
         $str = '';
+
         $history = Session::get(RECENTLY_VIEWED, []);
-        $history = isset($history[$accountId]) ? $history[$accountId] : [];
+        $history = $history[$accountId] ?? [];
+
         foreach ($history as $item) {
             if ($item->entityType == ENTITY_CLIENT && isset($clientMap[$item->client_id])) {
                 continue;
             }
+
             $clientMap[$item->client_id] = true;
+
             if ($lastClientId === false || $item->client_id != $lastClientId) {
                 $icon = '<i class="fa fa-users" style="width:32px"></i>';
                 if ($item->client_id) {
                     $link = url('/clients/' . $item->client_id);
                     $name = e($item->client_name);
+
                     $buttonLink = url('/invoices/create/' . $item->client_id);
                     $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
                                     <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
@@ -150,15 +190,47 @@ class HistoryUtils
                     $name = trans('texts.unassigned');
                     $button = '';
                 }
-                $str .= sprintf('<li>%s<a href="%s"><div>%s %s</div></a></li>', $button, $link, $icon, $name);
+
+                $padding = $str ? 16 : 0;
+                $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }
+
             if ($item->entityType == ENTITY_CLIENT) {
                 continue;
             }
+
             $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '" style="width:24px"></i>';
             $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, e($item->name), $icon);
         }
+
         return $str;
+    }
+
+    private static function convertToObject($entity)
+    {
+        $object = new stdClass();
+        $object->id = $entity->id;
+        $object->accountId = $entity->account_id;
+        $object->url = $entity->present()->url;
+        $object->entityType = $entity->subEntityType();
+        $object->name = $entity->present()->titledName;
+        $object->timestamp = time();
+
+        if ($entity->isEntityType(ENTITY_CLIENT)) {
+            $object->client_id = $entity->public_id;
+            $object->client_name = $entity->getDisplayName();
+        } elseif (method_exists($entity, 'client') && $entity->client) {
+            $object->client_id = $entity->client->public_id;
+            $object->client_name = $entity->client->getDisplayName();
+        } elseif (method_exists($entity, 'invoice') && $entity->invoice) {
+            $object->client_id = $entity->invoice->client->public_id;
+            $object->client_name = $entity->invoice->client->getDisplayName();
+        } else {
+            $object->client_id = 0;
+            $object->client_name = 0;
+        }
+
+        return $object;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Import\Invoiceable;
 
 use App\Ninja\Import\BaseTransformer;
@@ -18,10 +19,10 @@ class PaymentTransformer extends BaseTransformer
     {
         return new Item($data, function ($data) {
             return [
-                'amount' => $data->paid,
+                'amount'           => $data->paid,
                 'payment_date_sql' => $data->date_paid,
-                'customer_id' => $data->client_id,
-                'invoice_id' => $data->invoice_id,
+                'client_id'        => $data->client_id,
+                'invoice_id'       => $data->invoice_id,
             ];
         });
     }

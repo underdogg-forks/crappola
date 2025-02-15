@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
@@ -10,30 +11,27 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends EntityModel
 {
+    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
+        'task_rate',
+        'private_notes',
+        'due_date',
+        'budgeted_hours',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
+    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROJECT;
@@ -44,12 +42,17 @@ class Project extends EntityModel
      */
     public function getRoute()
     {
-        return "/projects/{$this->public_id}/edit";
+        return "/projects/{$this->public_id}";
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
@@ -84,6 +87,7 @@ class Project extends EntityModel
 Project::creating(function ($project) {
     $project->setNullValues();
 });
+
 Project::updating(function ($project) {
     $project->setNullValues();
 });

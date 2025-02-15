@@ -11,20 +11,18 @@
 
 namespace App\Services\Migration;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\StreamInterface;
 
 // use Unirest\Request;
 // use Unirest\Request\Body;
 
 class AuthService
 {
-    protected string $username;
+    protected $username;
 
-    protected string $password;
+    protected $password;
 
-    protected ?string $apiSecret;
+    protected $apiSecret;
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
@@ -43,21 +41,21 @@ class AuthService
         $this->apiSecret = $apiSecret;
     }
 
-    public function endpoint(string $endpoint): static
+    public function endpoint(string $endpoint)
     {
         $this->endpoint = $endpoint;
 
         return $this;
     }
 
-    public function start(): static
+    public function start()
     {
         $data = [
             'email'    => $this->username,
             'password' => $this->password,
         ];
 
-        $client = new Client([
+        $client = new \GuzzleHttp\Client([
             'headers' => $this->getHeaders(),
         ]);
 
@@ -66,7 +64,7 @@ class AuthService
             RequestOptions::ALLOW_REDIRECTS => false,
         ]);
 
-        if ($response->getStatusCode() == 401) {
+        if($response->getStatusCode() == 401) {
             info($response->getBody());
             $this->isSuccessful = false;
             $this->processErrors($response->getBody());
@@ -120,7 +118,7 @@ class AuthService
         }
     }
 
-    public function getApiSecret(): ?string
+    public function getApiSecret()
     {
         return $this->apiSecret;
     }
@@ -130,7 +128,7 @@ class AuthService
         return $this->errors;
     }
 
-    private function getHeaders(): array
+    private function getHeaders()
     {
         $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
@@ -144,12 +142,12 @@ class AuthService
         return $headers;
     }
 
-    private function getUrl(): string
+    private function getUrl()
     {
         return $this->endpoint . $this->uri;
     }
 
-    private function processErrors(StreamInterface $errors): void
+    private function processErrors($errors)
     {
         $array = (array) $errors;
 

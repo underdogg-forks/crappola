@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Ninja\PaymentDrivers;
+
 class PayPalProPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()
@@ -12,7 +14,9 @@ class PayPalProPaymentDriver extends BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
+
         $data['ButtonSource'] = 'InvoiceNinja_SP';
+
         return $data;
     }
 }

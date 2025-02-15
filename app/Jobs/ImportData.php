@@ -1,22 +1,25 @@
 <?php
+
 namespace App\Jobs;
 
+use App;
+use App\Libraries\Utils;
+use App\Models\User;
+use App\Ninja\Mailers\UserMailer;
+use App\Services\ImportService;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Monolog\Logger;
-use App\Services\ImportService;
-use App\Ninja\Mailers\UserMailer;
-use App\Models\User;
-use Auth;
-use App;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SendInvoiceEmail.
  */
 class ImportData extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue;
+    use SerializesModels;
 
     /**
      * @var User
@@ -28,9 +31,6 @@ class ImportData extends Job implements ShouldQueue
      */
     protected $type;
 
-    /**
-     * @var array
-     */
     protected $settings;
 
     /**
@@ -60,28 +60,39 @@ class ImportData extends Job implements ShouldQueue
     public function handle(ImportService $importService, UserMailer $userMailer)
     {
         $includeSettings = false;
+
         if (App::runningInConsole()) {
             Auth::onceUsingId($this->user->id);
             $this->user->account->loadLocalizationSettings();
         }
-        if ($this->type === IMPORT_JSON) {
-            $includeData = $this->settings['include_data'];
-            $includeSettings = $this->settings['include_settings'];
-            $files = $this->settings['files'];
-            $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
-        } elseif ($this->type === IMPORT_CSV) {
-            $map = $this->settings['map'];
-            $headers = $this->settings['headers'];
-            $timestamp = $this->settings['timestamp'];
-            $results = $importService->importCSV($map, $headers, $timestamp);
-        } else {
-            $source = $this->settings['source'];
-            $files = $this->settings['files'];
-            $results = $importService->importFiles($source, $files);
+
+        try {
+            if ($this->type === IMPORT_JSON) {
+                $includeData = $this->settings['include_data'];
+                $includeSettings = $this->settings['include_settings'];
+                $files = $this->settings['files'];
+                $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
+            } elseif ($this->type === IMPORT_CSV) {
+                $map = $this->settings['map'];
+                $headers = $this->settings['headers'];
+                $timestamp = $this->settings['timestamp'];
+                $results = $importService->importCSV($map, $headers, $timestamp);
+            } else {
+                $source = $this->settings['source'];
+                $files = $this->settings['files'];
+                $results = $importService->importFiles($source, $files);
+            }
+
+            $subject = trans('texts.import_complete');
+            $message = $importService->presentResults($results, $includeSettings);
+        } catch (Exception $exception) {
+            $subject = trans('texts.import_failed');
+            $message = $exception->getMessage();
+            Utils::logError($subject . ': ' . $message);
         }
-        $subject = trans('texts.import_complete');
-        $message = $importService->presentResults($results, $includeSettings);
+
         $userMailer->sendMessage($this->user, $subject, $message);
+
         if (App::runningInConsole()) {
             Auth::logout();
         }

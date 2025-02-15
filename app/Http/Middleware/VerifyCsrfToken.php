@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -9,11 +10,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
  */
 class VerifyCsrfToken extends BaseVerifier
 {
-    /**
-     * @var array
-     */
     private $openRoutes = [
-        'complete/*',
+        'complete*',
         'signup/register',
         'api/v1/*',
         'hook/email_opened',
@@ -39,6 +37,7 @@ class VerifyCsrfToken extends BaseVerifier
                 return $next($request);
             }
         }
+
         return parent::handle($request, $next);
     }
 }

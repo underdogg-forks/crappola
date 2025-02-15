@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Libraries\CurlUtils;
+use App\Models\Company;
 use App\Models\DbServer;
 use App\Models\User;
-use App\Models\Company;
+use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 class CalculatePayouts extends Command
 {
@@ -13,14 +16,14 @@ class CalculatePayouts extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:calculate-payouts';
+    protected $signature = 'ninja:calculate-payouts {--type=} {--url=} {--password=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Calculate referral payouts';
+    protected $description = 'Calculate payouts';
 
     /**
      * Create a new command instance.
@@ -39,7 +42,7 @@ class CalculatePayouts extends Command
      */
     public function handle()
     {
-        $type = strtolower($this->option('type'));
+        $type = mb_strtolower($this->option('type'));
 
         switch ($type) {
             case 'referral':
@@ -49,45 +52,77 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
+
         return 0;
+    }
+
+    protected function getOptions()
+    {
+        return [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
+            ['url', null, InputOption::VALUE_OPTIONAL, 'Url', null],
+            ['password', null, InputOption::VALUE_OPTIONAL, 'Password', null],
+        ];
     }
 
     private function referralPayouts()
     {
         $servers = DbServer::orderBy('id')->get(['name']);
         $userMap = [];
+
         foreach ($servers as $server) {
-            $this->info('Processing users: ' . $server->name);
             config(['database.default' => $server->name]);
+
             $users = User::where('referral_code', '!=', '')
                 ->get(['email', 'referral_code']);
             foreach ($users as $user) {
                 $userMap[$user->referral_code] = $user->email;
             }
         }
+
         foreach ($servers as $server) {
-            $this->info('Processing companies: ' . $server->name);
             config(['database.default' => $server->name]);
+
             $companies = Company::where('referral_code', '!=', '')
                 ->with('payment.client.payments')
                 ->whereNotNull('payment_id')
                 ->get();
+
+            $this->info('User,Client,Date,Amount,Reference');
+
             foreach ($companies as $company) {
+                if ( ! isset($userMap[$company->referral_code])) {
+                    continue;
+                }
+
                 $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
-                $client = $payment->client;
-                $this->info("User: $user");
-                foreach ($client->payments as $payment) {
-                    $this->info("Date: $payment->payment_date, Amount: $payment->amount, Reference: $payment->transaction_reference");
+
+                if ($payment) {
+                    $client = $payment->client;
+
+                    foreach ($client->payments as $payment) {
+                        $amount = $payment->getCompletedAmount();
+                        $this->info(
+                            '"' . $user . '",' .
+                            '"' . $client->getDisplayName() . '",' .
+                            $payment->payment_date . ',' .
+                            $amount . ',' .
+                            $payment->transaction_reference
+                        );
+                    }
                 }
             }
         }
     }
 
-    protected function getOptions()
+    private function resellerPayouts()
     {
-        return [
-        ];
-    }
+        $response = CurlUtils::post($this->option('url') . '/reseller_stats', [
+            'password' => $this->option('password'),
+        ]);
 
+        $this->info('Response:');
+        $this->info($response);
+    }
 }

@@ -1,13 +1,15 @@
 <?php
+
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class CreditDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CREDIT;
+
     public $sortCol = 4;
 
     public function columns()
@@ -16,44 +18,54 @@ class CreditDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
-                        return Utils::getClientDisplayName($model);
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     }
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
+
+                    return Utils::getClientDisplayName($model);
                 },
-                !$this->hideClient,
+                ! $this->hideClient,
             ],
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
+                    }
                 },
             ],
             [
                 'balance',
                 function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+                    }
                 },
             ],
             [
                 'credit_date',
                 function ($model) {
-                    if (!Auth::user()->can('viewByOwner', [ENTITY_CREDIT, $model->user_id])) {
-                        return Utils::fromSqlDate($model->credit_date_sql);
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                        return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
                     }
-                    return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
+
+                    return Utils::fromSqlDate($model->credit_date_sql);
                 },
             ],
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes;
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                        return e($model->public_notes);
+                    }
                 },
             ],
             [
                 'private_notes',
                 function ($model) {
-                    return $model->private_notes;
+                    if (Auth::user()->can('view', [ENTITY_CREDIT, $model])) {
+                        return e($model->private_notes);
+                    }
                 },
             ],
         ];
@@ -68,7 +80,7 @@ class CreditDatatable extends EntityDatatable
                     return URL::to("credits/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_CREDIT, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_CREDIT, $model]);
                 },
             ],
             [

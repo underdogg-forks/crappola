@@ -2,23 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Libraries\Utils;
 use Excel;
 use Exception;
-use Utils;
 
 class ExportReportResults extends Job
 {
-    public $user;
-
-    /**
-     * @var lowercase-string
-     */
-    public $format;
-
-    public $reportType;
-
-    public $params;
-
     public function __construct($user, $format, $reportType, $params)
     {
         $this->user = $user;
@@ -47,7 +36,7 @@ class ExportReportResults extends Job
         $totals = $params['reportTotals'];
         $report = $params['report'];
 
-        $filename = sprintf('%s-%s_invoiceninja-', $params['startDate'], $params['endDate']) . mb_strtolower(Utils::normalizeChars(trans('texts.' . $reportType))) . '-report';
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . mb_strtolower(Utils::normalizeChars(trans("texts.{$reportType}"))) . '-report';
 
         $formats = ['csv', 'pdf', 'xlsx', 'zip'];
         if ( ! in_array($format, $formats)) {
@@ -57,16 +46,20 @@ class ExportReportResults extends Job
         //Get labeled header
         $data = array_merge(
             [
-                array_map(fn ($col) => $col['label'], $report->tableHeaderArray()),
+                array_map(function ($col) {
+                    return $col['label'];
+                }, $report->tableHeaderArray()),
             ],
             $data
         );
 
         $summary = [];
-        if (array_values($totals) !== []) {
+        if (count(array_values($totals))) {
             $summary[] = array_merge([
                 trans('texts.totals'),
-            ], array_map(fn ($key) => trans('texts.' . $key), array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(function ($key) {
+                return trans("texts.{$key}");
+            }, array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {
@@ -74,15 +67,18 @@ class ExportReportResults extends Job
                 $tmp = [];
                 $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
                 foreach ($val as $field => $value) {
-                    $tmp[] = $field == 'duration' ? Utils::formatTime($value) : Utils::formatMoney($value, $currencyId);
+                    if ($field == 'duration') {
+                        $tmp[] = Utils::formatTime($value);
+                    } else {
+                        $tmp[] = Utils::formatMoney($value, $currencyId);
+                    }
                 }
-
                 $summary[] = $tmp;
             }
         }
 
-        return Excel::create($filename, function ($excel) use ($data, $reportType, $format, $summary): void {
-            $excel->sheet(trans('texts.' . $reportType), function ($sheet) use ($data, $format, $summary): void {
+        return Excel::create($filename, function ($excel) use ($data, $reportType, $format, $summary) {
+            $excel->sheet(trans("texts.{$reportType}"), function ($sheet) use ($data, $format, $summary) {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
                 if ($format == 'pdf') {
@@ -96,7 +92,7 @@ class ExportReportResults extends Job
                 }
 
                 // Styling header
-                $sheet->cells('A1:' . Utils::num2alpha(count($data[0]) - 1) . '1', function ($cells): void {
+                $sheet->cells('A1:' . Utils::num2alpha(count($data[0]) - 1) . '1', function ($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
                     $cells->setFontSize(13);
@@ -106,19 +102,18 @@ class ExportReportResults extends Job
                 $sheet->setAutoSize(true);
             });
 
-            if ($summary !== []) {
-                $excel->sheet(trans('texts.totals'), function ($sheet) use ($summary, $format): void {
+            if (count($summary)) {
+                $excel->sheet(trans('texts.totals'), function ($sheet) use ($summary, $format) {
                     $sheet->setOrientation('landscape');
                     $sheet->freezeFirstRow();
 
                     if ($format == 'pdf') {
                         $sheet->setAllBorders('thin');
                     }
-
                     $sheet->rows($summary);
 
                     // Styling header
-                    $sheet->cells('A1:' . Utils::num2alpha(count($summary[0]) - 1) . '1', function ($cells): void {
+                    $sheet->cells('A1:' . Utils::num2alpha(count($summary[0]) - 1) . '1', function ($cells) {
                         $cells->setBackground('#777777');
                         $cells->setFontColor('#FFFFFF');
                         $cells->setFontSize(13);

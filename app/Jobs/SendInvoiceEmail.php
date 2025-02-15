@@ -1,35 +1,30 @@
 <?php
+
 namespace App\Jobs;
 
+use App;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Monolog\Logger;
-use Auth;
-use App;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SendInvoiceEmail.
  */
 class SendInvoiceEmail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue;
+    use SerializesModels;
 
     /**
      * @var Invoice
      */
-    protected $invoice;
+    public $invoice;
 
-    /**
-     * @var bool
-     */
     protected $reminder;
 
-    /**
-     * @var array
-     */
     protected $template;
 
     /**
@@ -43,19 +38,25 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $server;
 
     /**
+     * @var Proposal
+     */
+    protected $proposal;
+
+    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
-     * @param string $pdf
-     * @param bool $reminder
-     * @param mixed $pdfString
+     * @param string  $pdf
+     * @param bool    $reminder
+     * @param mixed   $pdfString
      */
-    public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false)
+    public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false, $proposal = false)
     {
         $this->invoice = $invoice;
         $this->userId = $userId;
         $this->reminder = $reminder;
         $this->template = $template;
+        $this->proposal = $proposal;
         $this->server = config('database.default');
     }
 
@@ -70,7 +71,9 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         if (App::runningInConsole() && $this->userId) {
             Auth::onceUsingId($this->userId);
         }
-        $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
+
+        $mailer->sendInvoice($this->invoice, $this->reminder, $this->template, $this->proposal);
+
         if (App::runningInConsole() && $this->userId) {
             Auth::logout();
         }
@@ -83,11 +86,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param Logger $logger
      */
     /*
-   public function failed(ContactMailer $mailer, Logger $logger)
-   {
+    public function failed(ContactMailer $mailer, Logger $logger)
+    {
        $this->jobName = $this->job->getName();
 
        parent::failed($mailer, $logger);
-   }
-   */
+    }
+    */
 }

@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -11,19 +12,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AccountGatewayToken extends Eloquent
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-    /**
-     * @var bool
-     */
+
     public $timestamps = true;
 
-    /**
-     * @var array
-     */
+    protected $dates = ['deleted_at'];
+
     protected $casts = [];
+
+    protected $fillable = [
+        'contact_id',
+        'account_gateway_id',
+        'client_id',
+        'token',
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -42,6 +43,14 @@ class AccountGatewayToken extends Eloquent
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function contact()
+    {
+        return $this->belongsTo('App\Models\Contact');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function default_payment_method()
@@ -49,14 +58,17 @@ class AccountGatewayToken extends Eloquent
         return $this->hasOne('App\Models\PaymentMethod', 'id', 'default_payment_method_id');
     }
 
-    /**
-     * @return mixed
-     */
+    public function getEntityType()
+    {
+        return ENTITY_CUSTOMER;
+    }
+
     public function autoBillLater()
     {
         if ($this->default_payment_method) {
             return $this->default_payment_method->requiresDelayedAutoBill();
         }
+
         return false;
     }
 
@@ -69,14 +81,12 @@ class AccountGatewayToken extends Eloquent
      */
     public function scopeClientAndGateway($query, $clientId, $accountGatewayId)
     {
-        $query->where('customer_id', '=', $clientId)
+        $query->where('client_id', '=', $clientId)
             ->where('account_gateway_id', '=', $accountGatewayId);
+
         return $query;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayName()
     {
         return $this->account_gateway->gateway->name;
@@ -88,15 +98,23 @@ class AccountGatewayToken extends Eloquent
     public function gatewayLink()
     {
         $accountGateway = $this->account_gateway;
+
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             return "https://dashboard.stripe.com/customers/{$this->token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+        }
+        if ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
+
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
-        } else {
-            return false;
         }
+        if ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+            $testMode = $accountGateway->getConfigField('testMode');
+
+            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
+        }
+
+        return false;
     }
 
     protected function serializeDate(DateTimeInterface $date)

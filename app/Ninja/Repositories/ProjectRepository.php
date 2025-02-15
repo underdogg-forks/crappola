@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Project;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectRepository extends BaseRepository
 {
@@ -21,7 +23,7 @@ class ProjectRepository extends BaseRepository
     {
         $query = DB::table('projects')
             ->where('projects.account_id', '=', Auth::user()->account_id)
-            ->leftjoin('relations', 'clients.id', '=', 'projects.client_id')
+            ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('contacts.deleted_at', '=', null)
             ->where('clients.deleted_at', '=', null)
@@ -34,12 +36,18 @@ class ProjectRepository extends BaseRepository
                 'projects.public_id',
                 'projects.user_id',
                 'projects.deleted_at',
+                'projects.task_rate',
                 'projects.is_deleted',
+                'projects.due_date',
+                'projects.budgeted_hours',
+                'projects.private_notes',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
                 'clients.public_id as client_public_id'
             );
+
         $this->applyFilters($query, ENTITY_PROJECT);
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
@@ -49,21 +57,31 @@ class ProjectRepository extends BaseRepository
                     ->orWhere('projects.name', 'like', '%' . $filter . '%');
             });
         }
+
         if ($userId) {
             $query->where('projects.user_id', '=', $userId);
         }
+
         return $query;
     }
 
     public function save($input, $project = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-        if (!$project) {
+        $publicId = $data['public_id'] ?? false;
+
+        if ( ! $project) {
             $project = Project::createNew();
-            $project['customer_id'] = $input['customer_id'];
+            $project['client_id'] = $input['client_id'];
         }
+
         $project->fill($input);
+
+        if (isset($input['due_date'])) {
+            $project->due_date = Utils::toSqlDate($input['due_date']);
+        }
+
         $project->save();
+
         return $project;
     }
 }

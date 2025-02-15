@@ -11,9 +11,12 @@ use Illuminate\Support\Facades\Request;
 
 class PaymentTermApiController extends BaseAPIController
 {
-    public $entityType = ENTITY_PAYMENT_TERM;
+    /**
+     * @var PaymentTermRepository
+     */
+    protected $paymentTermRepo;
 
-    protected PaymentTermRepository $paymentTermRepo;
+    protected $entityType = ENTITY_PAYMENT_TERM;
 
     /**
      * PaymentTermApiController constructor.
@@ -157,7 +160,7 @@ class PaymentTermApiController extends BaseAPIController
     {
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
 
-        if ( ! $paymentTerm || $paymentTerm->account_id == 0) {
+        if( ! $paymentTerm || $paymentTerm->account_id == 0) {
             return $this->errorResponse(['message' => 'Cannot delete a default or non existent Payment Term'], 400);
         }
 

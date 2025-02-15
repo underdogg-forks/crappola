@@ -1,23 +1,15 @@
 <?php
+
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Str;
 
 /**
  * Class InvoiceStatus.
  */
 class InvoiceStatus extends Eloquent
 {
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    public $table = 'lookup__invoicestatuses';
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     public static function getIdFromAlias($status)
@@ -40,5 +32,10 @@ class InvoiceStatus extends Eloquent
             default:
                 return false;
         }
+    }
+
+    public function getTranslatedName()
+    {
+        return trans('texts.status_' . Str::slug($this->name, '_'));
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Client;
@@ -24,7 +25,7 @@ class ActivityService extends BaseService
      * ActivityService constructor.
      *
      * @param ActivityRepository $activityRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService   $datatableService
      */
     public function __construct(ActivityRepository $activityRepo, DatatableService $datatableService)
     {
@@ -40,7 +41,9 @@ class ActivityService extends BaseService
     public function getDatatable($clientPublicId = null)
     {
         $clientId = Client::getPrivateId($clientPublicId);
+
         $query = $this->activityRepo->findByClientId($clientId);
+
         return $this->datatableService->createDatatable(new ActivityDatatable(false), $query);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
@@ -10,13 +11,10 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ExpenseCategory extends EntityModel
 {
+    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];
@@ -26,9 +24,6 @@ class ExpenseCategory extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_EXPENSE_CATEGORY;

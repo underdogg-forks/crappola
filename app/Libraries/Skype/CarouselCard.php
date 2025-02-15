@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Libraries\Skype;
+
 class CarouselCard
 {
     public function __construct()

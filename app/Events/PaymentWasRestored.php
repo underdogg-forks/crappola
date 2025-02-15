@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use App\Models\Payment;
@@ -15,13 +16,14 @@ class PaymentWasRestored extends Event
      * @var Payment
      */
     public $payment;
+
     public $fromDeleted;
 
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
-     * @param $fromDeleted
+     * @param         $fromDeleted
      */
     public function __construct(Payment $payment, $fromDeleted)
     {

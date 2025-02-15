@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Libraries\Skype;
+
 class ButtonCard
 {
     public function __construct($type, $title, $value, $url = false)

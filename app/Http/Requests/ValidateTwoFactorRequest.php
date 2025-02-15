@@ -4,18 +4,25 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Exception;
-use Google2FA;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Factory as ValidationFactory;
+use PragmaRX\Google2FALaravel\Google2FA;
 
 class ValidateTwoFactorRequest extends Request
 {
     /**
-     * @var User
+     * @var \App\User
      */
     private $user;
 
+    /**
+     * Create a new FormRequest instance.
+     *
+     * @param \Illuminate\Validation\Factory $factory
+     *
+     * @return void
+     */
     public function __construct(ValidationFactory $factory)
     {
         $factory->extend(
@@ -30,7 +37,7 @@ class ValidateTwoFactorRequest extends Request
 
         $factory->extend(
             'used_token',
-            function ($attribute, string $value, $parameters, $validator): bool {
+            function ($attribute, $value, $parameters, $validator) {
                 $key = $this->user->id . ':' . $value;
 
                 return ! Cache::has($key);
@@ -39,20 +46,20 @@ class ValidateTwoFactorRequest extends Request
         );
     }
 
-    public function authorize(): bool
+    public function authorize()
     {
         try {
             $this->user = User::findOrFail(
                 session('2fa:user:id')
             );
-        } catch (Exception) {
+        } catch (Exception $exc) {
             return false;
         }
 
         return true;
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'totp' => 'bail|required|digits:6|valid_token|used_token',

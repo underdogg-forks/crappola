@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Crypt;
@@ -11,17 +12,31 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankAccount extends EntityModel
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
+    protected $fillable = [
+        'bank_id',
+        'app_version',
+        'ofx_version',
+    ];
+
     public function getEntityType()
     {
         return ENTITY_BANK_ACCOUNT;
+    }
+
+    public function getUsername()
+    {
+        return Crypt::decrypt($this->username);
+    }
+
+    /**
+     * @param $config
+     */
+    public function setUsername($value)
+    {
+        $this->username = Crypt::encrypt($value);
     }
 
     /**

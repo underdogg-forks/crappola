@@ -1,6 +1,8 @@
 {!! Former::populateField(GATEWAY_STRIPE . '_apiKey', env('STRIPE_TEST_SECRET_KEY')) !!}
 {!! Former::populateField('publishable_key', env('STRIPE_TEST_PUBLISHABLE_KEY')) !!}
-{!! Former::populateField('enable_ach', 1) !!}
+@if (Utils::isTravis())
+    {!! Former::populateField('enable_ach', 1) !!}
+@endif
 {!! Former::populateField('plaid_client_id', env('PLAID_TEST_CLIENT_ID')) !!}
 {!! Former::populateField('plaid_secret', env('PLAID_TEST_SECRET')) !!}
 {!! Former::populateField('plaid_public_key', env('PLAID_TEST_PUBLIC_KEY')) !!}
@@ -45,3 +47,14 @@
 {!! Former::populateField(GATEWAY_BRAINTREE . '_merchantId', env('BRAINTREE_TEST_MERCHANT_ID')) !!}
 {!! Former::populateField(GATEWAY_BRAINTREE . '_testMode', 1) !!}
 {!! Former::populateField('enable_paypal', 1) !!}
+
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_accessToken', env('GOCARDLESS_TEST_TOKEN')) !!}
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_webhookSecret', env('GOCARDLESS_TEST_WEBHOOK_SECRET')) !!}
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_testMode', 1) !!}
+
+{!! Former::populateField(GATEWAY_PAYFAST . '_merchantId', env('PAYFAST_TEST_MERCHANT_ID')) !!}
+{!! Former::populateField(GATEWAY_PAYFAST . '_merchantKey', env('PAYFAST_TEST_MERCHANT_KEY')) !!}
+
+{!! Former::populateField(GATEWAY_PAYTRACE . '_username', env('PAYTRACE_TEST_USERNAME')) !!}
+{!! Former::populateField(GATEWAY_PAYTRACE . '_password', env('PAYTRACE_TEST_PASSWORD')) !!}
+{!! Former::populateField(GATEWAY_PAYTRACE . '_testMode', 1) !!}

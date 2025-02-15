@@ -1,19 +1,19 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
-    | Default Queue Driver
+    | Default Queue Connection Name
     |--------------------------------------------------------------------------
     |
-    | The Laravel queue API supports a variety of back-ends via an unified
+    | Laravel's queue API supports an assortment of back-ends via a single
     | API, giving you convenient access to each back-end using the same
-    | syntax for each one. Here you may set the default queue driver.
-    |
-    | Supported: "null", "sync", "database", "beanstalkd",
-    |            "sqs", "iron", "redis"
+    | syntax for every one. Here you may define a default connection.
     |
     */
+
     'default' => env('QUEUE_DRIVER', 'sync'),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections
@@ -24,44 +24,56 @@ return [
     | for each back-end shipped with Laravel. You are free to add more.
     |
     */
+
     'connections' => [
         'sync' => [
             'driver' => 'sync',
         ],
+
         'database' => [
             'connection' => env('QUEUE_DATABASE', 'mysql'),
-            'driver' => 'database',
-            'table' => 'jobs',
-            'queue' => 'default',
-            'expire' => 60,
+            'driver'     => 'database',
+            'table'      => 'jobs',
+            'queue'      => 'default',
+            'expire'     => 60,
         ],
+
         'beanstalkd' => [
-            'driver' => 'beanstalkd',
-            'host' => 'localhost',
-            'queue' => 'default',
-            'ttr' => 60,
+            'driver'       => 'beanstalkd',
+            'host'         => 'localhost',
+            'queue'        => 'default',
+            'ttr'          => 60,
+            'block_for'    => 0,
+            'after_commit' => false,
         ],
+
         'sqs' => [
             'driver' => 'sqs',
-            'key' => 'your-public-key',
+            'key'    => 'your-public-key',
             'secret' => 'your-secret-key',
-            'queue' => 'your-queue-url',
+            'queue'  => 'your-queue-url',
             'region' => 'us-east-1',
         ],
+
         'iron' => [
-            'driver' => 'iron',
-            'host' => env('QUEUE_HOST', 'mq-aws-us-east-1.iron.io'),
-            'token' => env('QUEUE_TOKEN'),
+            'driver'  => 'iron',
+            'host'    => env('QUEUE_HOST', 'mq-aws-us-east-1.iron.io'),
+            'token'   => env('QUEUE_TOKEN'),
             'project' => env('QUEUE_PROJECT'),
-            'queue' => env('QUEUE_NAME'),
+            'queue'   => env('QUEUE_NAME'),
             'encrypt' => true,
         ],
+
         'redis' => [
-            'driver' => 'redis',
-            'queue' => 'default',
-            'expire' => 60,
+            'driver'       => 'redis',
+            'queue'        => env('REDIS_QUEUE', 'default'),
+            'expire'       => 60,
+            'retry_after'  => 90,
+            'block_for'    => null,
+            'after_commit' => false,
         ],
     ],
+
     /*
     |--------------------------------------------------------------------------
     | Failed Queue Jobs
@@ -72,8 +84,9 @@ return [
     | have failed. You may change them to any database / table you wish.
     |
     */
+
     'failed' => [
         'database' => env('QUEUE_DATABASE', 'mysql'),
-        'table' => 'failed_jobs',
+        'table'    => 'failed_jobs',
     ],
 ];

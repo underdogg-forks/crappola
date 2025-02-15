@@ -1,16 +1,18 @@
-API
-===
+API (VERSION 4)
+===============
 
-Invoice Ninja provides a REST based API, `click here <https://app.invoiceninja.com/api-docs#/>`_ to see the full list of methods available.
+**Please note this is for the V4 API, if you are looking for V5 API documentation please go here** https://app.swaggerhub.com/apis/invoiceninja/invoiceninja
 
-To access the API you first need to create a token using the "Tokens” page under "Advanced Settings”.
+Invoice Ninja provides a RESTful API,
+
+To access the API you first need to create a token using the "API Tokens” page under "Advanced Settings”.
 
 - **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
 - **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
 - **PHP SDK**: https://github.com/invoiceninja/sdk-php
 - **Zend Framework**: https://github.com/alexz707/InvoiceNinjaModule
 
-.. NOTE:: Replace ninja.dev with https://app.invoiceninja.com to access a hosted account.
+.. NOTE:: Replace ninja.test with https://app.invoiceninja.com to access a hosted account.
 
 Reading Data
 """"""""""""
@@ -19,39 +21,39 @@ Here’s an example of reading the list of clients using cURL from the command l
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients" -H "X-Ninja-Token: TOKEN"
 
 For invoices, quotes, tasks and payments simply change the object type.
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/invoices -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices" -H "X-Ninja-Token: TOKEN"
 
 You can search clients by their email address or id number and invoices by their invoice number.
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/clients?email=<value> -H "X-Ninja-Token: TOKEN"
-  curl -X GET ninja.dev/api/v1/clients?id_number=<value> -H "X-Ninja-Token: TOKEN"
-  curl -X GET ninja.dev/api/v1/invoices?invoice_number=<value> -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients?email=<value>" -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients?id_number=<value>" -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices?invoice_number=<value>" -H "X-Ninja-Token: TOKEN"
 
 To load a single record specify the Id in the URL.
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/invoices/1 -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices/1" -H "X-Ninja-Token: TOKEN"
 
 You can specify additional relationships to load using the ``include`` parameter.
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/clients/1?include=invoices.invitations -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients/1?include=invoices.invitations" -H "X-Ninja-Token: TOKEN"
 
 You can download a PDF using the following URL
 
 .. code-block:: shell
 
-  curl -X GET ninja.dev/api/v1/download/1 -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/download/1" -H "X-Ninja-Token: TOKEN"
 
 Optional Settings
 """""""""""""""""
@@ -74,18 +76,20 @@ Here’s an example of creating a client. Note that email address is a property 
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/clients -H "Content-Type:application/json" \
+  curl -X POST "ninja.test/api/v1/clients" -H "Content-Type:application/json" \
     -d '{"name":"Client","contact":{"email":"test@example.com"}}' -H "X-Ninja-Token: TOKEN"
 
 You can also update a client by specifying a value for ‘id’. Next, here’s an example of creating an invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/invoices -H "Content-Type:application/json" \
+  curl -X POST "ninja.test/api/v1/invoices" -H "Content-Type:application/json" \
     -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}' \
     -H "X-Ninja-Token: TOKEN"
 
-If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created.
+If the email field is set we’ll search for a matching client, if no matches are found a new client will be created.
+
+If the product_key is set and matches an existing record the product fields will be auto-populated. You can use a comma-separated value to create an invoice with multiple products.
 
 Options
 ^^^^^^^
@@ -93,6 +97,7 @@ Options
 The following options are available when creating an invoice.
 
 - ``email_invoice``: Email the invoice to the client.
+- ``email_type``: Set to reminder1, reminder2 or reminder3 to use the reminder template.
 - ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
 - ``paid``: Create a payment for the defined amount.
 
@@ -103,7 +108,7 @@ Updating Data
 
 .. code-block:: shell
 
-  curl -X PUT ninja.dev/api/v1/clients/1 -H "Content-Type:application/json" \
+  curl -X PUT 'ninja.test/api/v1/clients/1" -H "Content-Type:application/json" \
     -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}' \
     -H "X-Ninja-Token: TOKEN"
 
@@ -111,8 +116,10 @@ You can archive, delete or restore an entity by setting ``action`` in the reques
 
 .. code-block:: shell
 
-  curl -X PUT ninja.dev/api/v1/invoices/1?action=archive \
+  curl -X PUT "ninja.test/api/v1/invoices/1?action=archive" \
     -H "X-Ninja-Token: TOKEN"
+
+.. TIP:: For invoices use `mark_sent` to manually mark the invoice as sent
 
 Emailing Invoices
 """""""""""""""""
@@ -121,10 +128,5 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/email_invoice -d '{"id":1}' \
+  curl -X POST "ninja.test/api/v1/email_invoice" -d '{"id":1}' \
     -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
-
-Subscriptions
-"""""""""""""
-
-You can use subscriptions to have Invoice Ninja POST newly created records to a third-party application. To enable this feature you need to manually add a record to the subscriptions table. To determine the event_id find the associated EVENT_CREATE_ value from app/Constants.php.

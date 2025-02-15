@@ -1,10 +1,14 @@
 <?php
+
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Credit;
+use Datatable;
 use DB;
-use Utils;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreditRepository extends BaseRepository
 {
@@ -17,9 +21,9 @@ class CreditRepository extends BaseRepository
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
-            ->join('relations', 'clients.id', '=', 'credits.client_id')
+            ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.account_id', '=', \Auth::user()->account_id)
+            ->where('clients.account_id', '=', Auth::user()->account_id)
             ->where('contacts.deleted_at', '=', null)
             ->where('contacts.is_primary', '=', true)
             ->select(
@@ -32,7 +36,7 @@ class CreditRepository extends BaseRepository
                 'credits.amount',
                 'credits.balance',
                 'credits.credit_date as credit_date_sql',
-                DB::raw("CONCAT(credits.credit_date, credits.created_at) as credit_date"),
+                DB::raw('CONCAT(credits.credit_date, credits.created_at) as credit_date'),
                 'contacts.first_name',
                 'contacts.last_name',
                 'contacts.email',
@@ -42,17 +46,21 @@ class CreditRepository extends BaseRepository
                 'credits.is_deleted',
                 'credits.user_id'
             );
+
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
         } else {
             $query->whereNull('clients.deleted_at');
         }
+
         $this->applyFilters($query, ENTITY_CREDIT);
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%');
             });
         }
+
         return $query;
     }
 
@@ -60,7 +68,7 @@ class CreditRepository extends BaseRepository
     {
         $query = DB::table('credits')
             ->join('accounts', 'accounts.id', '=', 'credits.account_id')
-            ->join('relations', 'clients.id', '=', 'credits.client_id')
+            ->join('clients', 'clients.id', '=', 'credits.client_id')
             ->where('credits.client_id', '=', $clientId)
             ->where('clients.deleted_at', '=', null)
             ->where('credits.deleted_at', '=', null)
@@ -72,7 +80,8 @@ class CreditRepository extends BaseRepository
                 'credits.credit_date',
                 'credits.public_notes'
             );
-        $table = \Datatable::query($query)
+
+        $table = Datatable::query($query)
             ->addColumn('credit_date', function ($model) {
                 return Utils::fromSqlDate($model->credit_date);
             })
@@ -83,27 +92,31 @@ class CreditRepository extends BaseRepository
                 return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
             })
             ->addColumn('public_notes', function ($model) {
-                return $model->public_notes;
+                return e($model->public_notes);
             })
             ->make();
+
         return $table;
     }
 
     public function save($input, $credit = null)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = $data['public_id'] ?? false;
+
         if ($credit) {
             // do nothing
         } elseif ($publicId) {
             $credit = Credit::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in credit repo save');
+            Log::warning('Entity not set in credit repo save');
         } else {
             $credit = Credit::createNew();
             $credit->balance = Utils::parseFloat($input['amount']);
-            $credit->client_id = Client::getPrivateId($input['customer_id']);
+            $credit->client_id = Client::getPrivateId($input['client_id']);
             $credit->credit_date = date('Y-m-d');
         }
+
         $credit->fill($input);
+
         if (isset($input['credit_date'])) {
             $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         }
@@ -113,7 +126,9 @@ class CreditRepository extends BaseRepository
         if (isset($input['balance'])) {
             $credit->balance = Utils::parseFloat($input['balance']);
         }
+
         $credit->save();
+
         return $credit;
     }
 }

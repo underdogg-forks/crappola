@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -11,41 +12,56 @@ return [
     | to have a conventional place to find your various credentials.
     |
     */
+
     'postmark' => env('POSTMARK_API_TOKEN', ''),
+
     'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN', ''),
-        'secret' => env('MAILGUN_SECRET', ''),
+        'domain'   => env('MAILGUN_DOMAIN', ''),
+        'secret'   => env('MAILGUN_SECRET', ''),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'scheme'   => 'https',
     ],
+
     'mandrill' => [
         'secret' => '',
     ],
+
     'ses' => [
-        'key' => '',
-        'secret' => '',
-        'region' => 'us-east-1',
+        'key'    => env('SES_KEY', ''),
+        'secret' => env('SES_SECRET', ''),
+        'region' => env('SES_DEFAULT_REGION', 'us-east-1'),
     ],
+
+    'sparkpost' => [
+        'secret' => env('SPARKPOST_SECRET'),
+    ],
+
     'stripe' => [
-        'model' => 'User',
+        'model'  => 'User',
         'secret' => '',
     ],
+
     'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_id'     => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => env('GITHUB_OAUTH_REDIRECT'),
+        'redirect'      => env('GITHUB_OAUTH_REDIRECT'),
     ],
+
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
+        'redirect'      => env('GOOGLE_OAUTH_REDIRECT'),
     ],
+
     'facebook' => [
-        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_id'     => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
+        'redirect'      => env('FACEBOOK_OAUTH_REDIRECT'),
     ],
+
     'linkedin' => [
-        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_id'     => env('LINKEDIN_CLIENT_ID'),
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-        'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
+        'redirect'      => env('LINKEDIN_OAUTH_REDIRECT'),
     ],
 ];

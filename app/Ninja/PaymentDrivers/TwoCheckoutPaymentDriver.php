@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Ninja\PaymentDrivers;
+
 class TwoCheckoutPaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = 'cart_order_id';

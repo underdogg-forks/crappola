@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\View;
 
 class ProposalTemplateController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_TEMPLATE;
+    protected $proposalTemplateRepo;
 
-    protected ProposalTemplateRepository $proposalTemplateRepo;
+    protected $proposalTemplateService;
 
-    protected ProposalTemplateService $proposalTemplateService;
+    protected $entityType = ENTITY_PROPOSAL_TEMPLATE;
 
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, ProposalTemplateService $proposalTemplateService)
     {
@@ -66,7 +66,7 @@ class ProposalTemplateController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/templates/%s/edit', $publicId));
+        return redirect("proposals/templates/{$publicId}/edit");
     }
 
     public function edit(ProposalTemplateRequest $request, $publicId = false, $clone = false)
@@ -127,20 +127,20 @@ class ProposalTemplateController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_template' : $action . 'd_proposal_templates';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/templates');
     }
 
-    private function getViewmodel(): array
+    private function getViewmodel()
     {
         $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
         $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
@@ -153,15 +153,12 @@ class ProposalTemplateController extends BaseController
             if ( ! isset($options[$customLabel])) {
                 $options[$customLabel] = [];
             }
-
             $options[trans('texts.custom')][$template->public_id] = $template->name;
         }
-
         foreach ($defaultTemplates as $template) {
             if ( ! isset($options[$defaultLabel])) {
                 $options[$defaultLabel] = [];
             }
-
             $options[trans('texts.default')][$template->public_id] = $template->name;
         }
 

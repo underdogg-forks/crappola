@@ -1,5 +1,5 @@
 <?php
+
 namespace App\Libraries;
-class DateUtils
-{
-}
+
+class DateUtils {}

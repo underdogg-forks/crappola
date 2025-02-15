@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use App\Models\User;
@@ -18,7 +19,7 @@ class UserSettingsChanged extends Event
      *
      * @param User $user
      */
-    public function __construct(User $user = null)
+    public function __construct(?User $user = null)
     {
         $this->user = $user;
     }

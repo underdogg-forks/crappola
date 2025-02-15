@@ -1,7 +1,8 @@
 <?php
+
 namespace App\Ninja\PaymentDrivers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request;
 
 class PayFastPaymentDriver extends BasePaymentDriver
 {
@@ -12,5 +13,13 @@ class PayFastPaymentDriver extends BasePaymentDriver
         parent::completeOffsitePurchase([
             'token' => Request::query('pt'),
         ]);
+    }
+
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $data = parent::paymentDetails();
+        $data['notifyUrl'] = $this->invitation->getLink('complete', true);
+
+        return $data;
     }
 }

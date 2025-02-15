@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Ninja\Repositories;
 
+use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
-use Auth;
-use Session;
+use App\Models\TaskStatus;
+use Datatable;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class TaskRepository extends BaseRepository
 {
@@ -15,13 +18,14 @@ class TaskRepository extends BaseRepository
         return 'App\Models\Task';
     }
 
-    public function find($clientPublicId = null, $filter = null)
+    public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
     {
         $query = DB::table('tasks')
-            ->leftJoin('relations', 'tasks.client_id', '=', 'clients.id')
+            ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+            ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
             ->where('tasks.account_id', '=', Auth::user()->account_id)
             ->where(function ($query) { // handle when client isn't set
                 $query->where('contacts.is_primary', '=', true)
@@ -49,18 +53,24 @@ class TaskRepository extends BaseRepository
                 'tasks.time_log',
                 'tasks.time_log as duration',
                 'tasks.created_at',
-                DB::raw("SUBSTRING(time_log, 3, 10) date"),
+                DB::raw('SUBSTRING(time_log, 3, 10) date'),
                 'tasks.user_id',
                 'projects.name as project',
                 'projects.public_id as project_public_id',
-                'projects.user_id as project_user_id'
+                'projects.user_id as project_user_id',
+                'task_statuses.name as task_status'
             );
-        if ($clientPublicId) {
+
+        if ($projectPublicId) {
+            $query->where('projects.public_id', '=', $projectPublicId);
+        } elseif ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
         } else {
             $query->whereNull('clients.deleted_at');
         }
+
         $this->applyFilters($query, ENTITY_TASK);
+
         if ($statuses = session('entity_status_filter:' . ENTITY_TASK)) {
             $statuses = explode(',', $statuses);
             $query->where(function ($query) use ($statuses) {
@@ -73,15 +83,20 @@ class TaskRepository extends BaseRepository
                 }
                 if (in_array(TASK_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '>', 0);
-                    if (!in_array(TASK_STATUS_PAID, $statuses)) {
+                    if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
+                $query->orWhere(function ($query) use ($statuses) {
+                    $query->whereIn('task_statuses.public_id', $statuses)
+                        ->whereNull('tasks.invoice_id');
+                });
             });
         }
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
@@ -92,7 +107,40 @@ class TaskRepository extends BaseRepository
                     ->orWhere('projects.name', 'like', '%' . $filter . '%');
             });
         }
+
         return $query;
+    }
+
+    public function getClientDatatable($clientId)
+    {
+        $query = DB::table('tasks')
+            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+            ->where('tasks.client_id', '=', $clientId)
+            ->where('tasks.is_deleted', '=', false)
+            ->whereNull('tasks.invoice_id')
+            ->select(
+                'tasks.description',
+                'tasks.time_log',
+                'tasks.time_log as duration',
+                DB::raw('SUBSTRING(time_log, 3, 10) date'),
+                'projects.name as project'
+            );
+
+        $table = Datatable::query($query)
+            ->addColumn('project', function ($model) {
+                return $model->project;
+            })
+            ->addColumn('date', function ($model) {
+                return Task::calcStartTime($model);
+            })
+            ->addColumn('duration', function ($model) {
+                return Utils::formatTime(Task::calcDuration($model));
+            })
+            ->addColumn('description', function ($model) {
+                return $model->description;
+            });
+
+        return $table->make();
     }
 
     public function save($publicId, $data, $task = null)
@@ -103,19 +151,37 @@ class TaskRepository extends BaseRepository
             $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
             $task = Task::createNew();
+            $task->task_status_sort_order = 9999;
         }
+
         if ($task->is_deleted) {
             return $task;
         }
-        if (isset($data['client'])) {
-            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+
+        $task->fill($data);
+
+        if ( ! empty($data['project_id'])) {
+            $project = Project::scope($data['project_id'])->firstOrFail();
+            $task->project_id = $project->id;
+            $task->client_id = $project->client_id;
+        } else {
+            if (isset($data['client'])) {
+                $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+            } elseif (isset($data['client_id'])) {
+                $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
+            }
         }
-        if (isset($data['project_id'])) {
-            $task->project_id = $data['project_id'] ? Project::getPrivateId($data['project_id']) : null;
-        }
+
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
         }
+        if (isset($data['task_status_id'])) {
+            $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
+        }
+        if (isset($data['task_status_sort_order'])) {
+            $task->task_status_sort_order = $data['task_status_sort_order'];
+        }
+
         if (isset($data['time_log'])) {
             $timeLog = json_decode($data['time_log']);
         } elseif ($task->time_log) {
@@ -123,10 +189,9 @@ class TaskRepository extends BaseRepository
         } else {
             $timeLog = [];
         }
-        if (isset($data['customer_id'])) {
-            $task->client_id = Client::getPrivateId($data['customer_id']);
-        }
+
         array_multisort($timeLog);
+
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
                 $task->is_running = true;
@@ -140,9 +205,13 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }
+        } elseif (isset($data['is_running'])) {
+            $task->is_running = $data['is_running'] ? 1 : 0;
         }
+
         $task->time_log = json_encode($timeLog);
         $task->save();
+
         return $task;
     }
 }

@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Ninja\Intents;
 
 use App\Models\Product;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ListProductsIntent extends ProductIntent
 {
@@ -18,8 +19,10 @@ class ListProductsIntent extends ProductIntent
                 if ($this->stateEntity(ENTITY_INVOICE)) {
                     $card->addButton('imBack', trans('texts.add_to_invoice', ['invoice' => '']), trans('texts.add_product_to_invoice', ['product' => $item->product_key]));
                 }
+
                 return $card;
             });
+
         return $this->createResponse(SKYPE_CARD_CAROUSEL, $products);
     }
 }

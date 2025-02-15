@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\LookupAccountToken;
 
 /**
  * Class AccountToken.
@@ -11,14 +11,9 @@ use App\Models\LookupAccountToken;
 class AccountToken extends EntityModel
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_TOKEN;
@@ -32,9 +27,6 @@ class AccountToken extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -51,10 +43,11 @@ AccountToken::creating(function ($token) {
         'token' => $token->token,
     ]);
 });
+
 AccountToken::deleted(function ($token) {
     if ($token->forceDeleting) {
         LookupAccountToken::deleteWhere([
-            'token' => $token->token
+            'token' => $token->token,
         ]);
     }
 });

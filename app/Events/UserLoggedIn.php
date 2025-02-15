@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
@@ -13,7 +14,5 @@ class UserLoggedIn extends Event
     /**
      * UserLoggedIn constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 }

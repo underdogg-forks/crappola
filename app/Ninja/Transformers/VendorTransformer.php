@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Transformers;
 
 use App\Models\Account;
@@ -44,44 +45,49 @@ class VendorTransformer extends EntityTransformer
     public function includeVendorContacts(Vendor $vendor)
     {
         $transformer = new VendorContactTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($vendor->vendor_contacts, $transformer, ENTITY_CONTACT);
     }
 
     public function includeInvoices(Vendor $vendor)
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($vendor->invoices, $transformer, ENTITY_INVOICE);
     }
 
     public function includeExpenses(Vendor $vendor)
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($vendor->expenses, $transformer, ENTITY_EXPENSE);
     }
 
     public function transform(Vendor $vendor)
     {
         return array_merge($this->getDefaults($vendor), [
-            'id' => (int)$vendor->public_id,
-            'name' => $vendor->name,
-            'balance' => (float)$vendor->balance,
-            'paid_to_date' => (float)$vendor->paid_to_date,
-            'updated_at' => $this->getTimestamp($vendor->updated_at),
-            'archived_at' => $this->getTimestamp($vendor->deleted_at),
-            'address1' => $vendor->address1,
-            'address2' => $vendor->address2,
-            'city' => $vendor->city,
-            'state' => $vendor->state,
-            'postal_code' => $vendor->postal_code,
-            'country_id' => (int)$vendor->country_id,
-            'work_phone' => $vendor->work_phone,
+            'id'            => (int) $vendor->public_id,
+            'name'          => $vendor->name ?: '',
+            'balance'       => (float) ($vendor->balance ?: 0.0),
+            'paid_to_date'  => (float) ($vendor->paid_to_date ?: 0.0),
+            'updated_at'    => $this->getTimestamp($vendor->updated_at),
+            'archived_at'   => $this->getTimestamp($vendor->deleted_at),
+            'address1'      => $vendor->address1,
+            'address2'      => $vendor->address2,
+            'city'          => $vendor->city,
+            'state'         => $vendor->state,
+            'postal_code'   => $vendor->postal_code,
+            'country_id'    => (int) ($vendor->country_id ?: 0),
+            'work_phone'    => $vendor->work_phone,
             'private_notes' => $vendor->private_notes,
-            'last_login' => $vendor->last_login,
-            'website' => $vendor->website,
-            'is_deleted' => (bool)$vendor->is_deleted,
-            'vat_number' => $vendor->vat_number,
-            'id_number' => $vendor->id_number,
-            'currency_id' => (int)$vendor->currency_id,
+            'last_login'    => $vendor->last_login ?: '',
+            'website'       => $vendor->website,
+            'is_deleted'    => (bool) $vendor->is_deleted,
+            'vat_number'    => $vendor->vat_number ?: '',
+            'id_number'     => $vendor->id_number ?: '',
+            'currency_id'   => (int) ($vendor->currency_id ?: 0),
+            'custom_value1' => $vendor->custom_value1 ?: '',
+            'custom_value2' => $vendor->custom_value2 ?: '',
         ]);
     }
 }

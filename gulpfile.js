@@ -50,6 +50,7 @@ elixir(function(mix) {
         bowerDir + '/dropzone/dist/dropzone.css',
         bowerDir + '/spectrum/spectrum.css',
         bowerDir + '/sweetalert2/dist/sweetalert2.css',
+        bowerDir + '/toastr/toastr.css',
         'bootstrap-combobox.css',
         'typeahead.js-bootstrap.css',
         'style.css',
@@ -67,6 +68,15 @@ elixir(function(mix) {
     ], 'public/css/daterangepicker.css');
 
     mix.styles([
+        bowerDir + '/grapesjs/dist/css/grapes.min.css',
+        //'grapesjs-preset-newsletter.css',
+    ], 'public/css/grapesjs.css');
+
+    mix.styles([
+        bowerDir + '/jt.timepicker/jquery.timepicker.css'
+    ], 'public/css/jquery.timepicker.css');
+
+    mix.styles([
         bowerDir + '/select2/dist/css/select2.css'
     ], 'public/css/select2.css');
 
@@ -75,6 +85,10 @@ elixir(function(mix) {
         bowerDir + '/tablesorter/dist/css/theme.bootstrap.min.css',
         bowerDir + '/tablesorter/dist/css/widget.grouping.min.css'
     ], 'public/css/tablesorter.css');
+
+    mix.styles([
+        bowerDir + '/fullcalendar/dist/fullcalendar.css'
+    ], 'public/css/fullcalendar.css');
 
 
     /**
@@ -96,14 +110,32 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
+        bowerDir + '/grapesjs/dist/grapes.js',
+    ], 'public/js/grapesjs.min.js');
+
+    mix.scripts([
+        bowerDir + '/jt.timepicker/jquery.timepicker.js'
+    ], 'public/js/jquery.timepicker.js');
+
+    mix.scripts([
+        bowerDir + '/fullcalendar/dist/fullcalendar.js',
+        bowerDir + '/fullcalendar/dist/locale-all.js',
+    ], 'public/js/fullcalendar.min.js');
+
+    mix.scripts([
         bowerDir + '/card/dist/card.js',
     ], 'public/js/card.min.js');
+
+    mix.scripts([
+        bowerDir + '/qrcode.js/qrcode.js',
+    ], 'public/js/qrcode.min.js');
 
     mix.scripts([
         bowerDir + '/tablesorter/dist/js/jquery.tablesorter.combined.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-grouping.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-uitheme.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-filter.min.js',
+        bowerDir + '/tablesorter/dist/js/widgets/widget-columnSelector.min.js',
     ], 'public/js/tablesorter.min.js');
 
     mix.scripts([
@@ -139,15 +171,16 @@ elixir(function(mix) {
         bowerDir + '/dropzone/dist/dropzone.js',
         bowerDir + '/typeahead.js/dist/typeahead.jquery.js',
         bowerDir + '/accounting/accounting.js',
+        bowerDir + '/money.js/money.js',
         bowerDir + '/spectrum/spectrum.js',
         bowerDir + '/moment/moment.js',
         bowerDir + '/moment-timezone/builds/moment-timezone-with-data.js',
-        //bowerDir + '/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
+        bowerDir + '/stacktrace-js/stacktrace.js',
         bowerDir + '/es6-promise/es6-promise.auto.js',
         bowerDir + '/sweetalert2/dist/sweetalert2.js',
-        //bowerDir + '/sweetalert/dist/sweetalert-dev.js',
         bowerDir + '/nouislider/distribute/nouislider.js',
         bowerDir + '/mousetrap/mousetrap.js',
+        bowerDir + '/toastr/toastr.js',
         bowerDir + '/fuse.js/src/fuse.js',
         'bootstrap-combobox.js',
         'script.js',

@@ -1,28 +1,18 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddFontSize extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('companies', function ($table) {
-            $table->smallInteger('font_size')->default(DEFAULT_FONT_SIZE);
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('companies', function ($table) {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('font_size');
         });
     }

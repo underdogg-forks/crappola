@@ -33,7 +33,7 @@ class PaymentCreated extends Notification implements ShouldQueue
      *
      * @return array
      */
-    public function via($notifiable): array
+    public function via($notifiable)
     {
         return [];
     }
@@ -53,7 +53,7 @@ class PaymentCreated extends Notification implements ShouldQueue
             ->from(APP_NAME)
             ->image('https://app.invoiceninja.com/favicon-v2.png')
             ->content(trans('texts.received_new_payment'))
-            ->attachment(function ($attachment): void {
+            ->attachment(function ($attachment) {
                 $invoiceName = $this->invoice->present()->titledName;
                 $invoiceLink = $this->invoice->present()->multiAccountLink;
                 $attachment->title($invoiceName, $invoiceLink)
@@ -71,7 +71,7 @@ class PaymentCreated extends Notification implements ShouldQueue
      *
      * @return array
      */
-    public function toArray($notifiable): array
+    public function toArray($notifiable)
     {
         return [
         ];

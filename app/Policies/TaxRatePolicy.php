@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Policies;
 
 use App\Models\User;
@@ -7,7 +8,7 @@ class TaxRatePolicy extends EntityPolicy
 {
     /**
      * @param User $user
-     * @param $item
+     * @param      $item
      *
      * @return bool
      */
@@ -17,7 +18,7 @@ class TaxRatePolicy extends EntityPolicy
     }
 
     /**
-     * @param User $user
+     * @param User  $user
      * @param mixed $item
      *
      * @return bool

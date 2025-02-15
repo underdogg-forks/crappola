@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
@@ -18,41 +19,30 @@ class InvoiceItem extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_INVOICE_ITEM;
-    }
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
         'tax_name2',
         'tax_rate2',
         'invoice_item_type_id',
+        'discount',
     ];
+
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -74,17 +64,40 @@ class InvoiceItem extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function amount()
+    public function getPreTaxAmount()
     {
         $amount = $this->cost * $this->qty;
-        $preTaxAmount = $amount;
-        if ($this->tax_rate1) {
-            $amount += $preTaxAmount * $this->tax_rate1 / 100;
+
+        if ($this->discount != 0) {
+            if ($this->invoice->is_amount_discount) {
+                $amount -= $this->discount;
+            } else {
+                $amount -= round($amount * $this->discount / 100, 4);
+            }
         }
-        if ($this->tax_rate2) {
-            $amount += $preTaxAmount * $this->tax_rate2 / 100;
-        }
+
         return $amount;
+    }
+
+    public function getTaxAmount()
+    {
+        $tax = 0;
+        $preTaxAmount = $this->getPreTaxAmount();
+
+        if ($this->tax_rate1) {
+            $tax += round($preTaxAmount * $this->tax_rate1 / 100, 2);
+        }
+
+        if ($this->tax_rate2) {
+            $tax += round($preTaxAmount * $this->tax_rate2 / 100, 2);
+        }
+
+        return $tax;
+    }
+
+    public function amount()
+    {
+        return $this->getPreTaxAmount() + $this->getTaxAmount();
     }
 
     public function markFeePaid()

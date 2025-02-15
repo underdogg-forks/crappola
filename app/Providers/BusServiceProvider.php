@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Providers;
 
 use Illuminate\Bus\Dispatcher;
@@ -13,23 +14,22 @@ class BusServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      *
      * @param \Illuminate\Bus\Dispatcher $dispatcher
-     * Dispatcher $dispatcher
      *
      * @return void
      */
-    public function boot()
+    public function boot(Dispatcher $dispatcher)
     {
-        /*$dispatcher->mapUsing(function ($command) {
+        $dispatcher->mapUsing(function ($command) {
             return Dispatcher::simpleMapping(
-                $command, 'App\Commands', 'App\Handlers\Commands'
+                $command,
+                'App\Commands',
+                'App\Handlers\Commands'
             );
-        });*/
+        });
     }
 
     /**
      * Register any application services.
      */
-    public function register()
-    {
-    }
+    public function register() {}
 }

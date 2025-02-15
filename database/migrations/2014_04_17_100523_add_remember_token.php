@@ -1,28 +1,18 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddRememberToken extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('staff', function ($table) {
-            $table->string('remember_token', 100)->nullable();
-        });
+        Schema::table('users', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('staff', function ($table) {
+        Schema::table('users', function ($table) {
             $table->dropColumn('remember_token');
         });
     }

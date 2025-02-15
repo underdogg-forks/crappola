@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Ninja\Presenters;
 
+use App\Libraries\Utils;
 use Laracasts\Presenter\Presenter;
-use URL;
-use Utils;
+use stdClass;
 
 class EntityPresenter extends Presenter
 {
@@ -19,6 +20,7 @@ class EntityPresenter extends Presenter
     {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
+
         return sprintf('/%s/%s', $type, $id);
     }
 
@@ -30,6 +32,10 @@ class EntityPresenter extends Presenter
     public function statusLabel($label = false)
     {
         $class = $text = '';
+
+        if ( ! $this->entity->id) {
+            return '';
+        }
         if ($this->entity->is_deleted) {
             $class = 'danger';
             $label = trans('texts.deleted');
@@ -40,16 +46,33 @@ class EntityPresenter extends Presenter
             $class = $this->entity->statusClass();
             $label = $label ?: $this->entity->statusLabel();
         }
+
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
 
-    /**
-     * @return mixed
-     */
+    public function statusColor()
+    {
+        $class = $this->entity->statusClass();
+
+        switch ($class) {
+            case 'success':
+                return '#5cb85c';
+            case 'warning':
+                return '#f0ad4e';
+            case 'primary':
+                return '#337ab7';
+            case 'info':
+                return '#5bc0de';
+            default:
+                return '#777';
+        }
+    }
+
     public function link()
     {
         $name = $this->entity->getDisplayName();
         $link = $this->url();
+
         return link_to($link, $name)->toHtml();
     }
 
@@ -57,6 +80,19 @@ class EntityPresenter extends Presenter
     {
         $entity = $this->entity;
         $entityType = $entity->getEntityType();
+
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
+    }
+
+    public function calendarEvent($subColors = false)
+    {
+        $entity = $this->entity;
+
+        $data = new stdClass();
+        $data->id = $entity->getEntityType() . ':' . $entity->public_id;
+        $data->allDay = true;
+        $data->url = $this->url();
+
+        return $data;
     }
 }

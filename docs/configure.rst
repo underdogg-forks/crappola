@@ -6,12 +6,14 @@ Review the `.env.example <https://github.com/invoiceninja/invoiceninja/blob/mast
 Recurring invoices and reminder emails
 """"""""""""""""""""""""""""""""""""""
 
-Create a cron to call the ``ninja:send-invoices`` and ``ninja:send-reminders`` Artisan commands **once daily**.
+Create a cron to call the ``ninja:send-invoices`` and ``ninja:send-reminders`` commands **once daily**.
 
 .. code-block:: shell
 
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders
+
+If you server doesn't support crons commands can be run by setting a value for COMMAND_SECRET in the .env file and then loading ``/run_command?command=<command>&secret=<secret>``. The following commands are supported: send-invoices, send-reminders and update-key.
 
 Email Queues
 """"""""""""
@@ -44,7 +46,7 @@ Create an application in either Google, Facebook, GitHub or LinkedIn and then se
 
    GOOGLE_CLIENT_ID=
    GOOGLE_CLIENT_SECRET=
-   GOOGLE_OAUTH_REDIRECT=http://ninja.dev/auth/google
+   GOOGLE_OAUTH_REDIRECT=http://ninja.test/auth/google
 
 PhantomJS
 """""""""
@@ -62,11 +64,19 @@ To use a local PhantomJS install add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantom
 Troubleshooting
 ---------------
 
+- Check a company name is set on Settings > Company Details
 - Check storage/logs/laravel-error.log for relevant errors.
 - To determine the path you can run ``which phantomjs`` from the command line.
 - We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
-- You can use `this script <https://raw.githubusercontent.com/invoiceninja/invoiceninja/develop/resources/test.pjs>`_ to test from the command line, change ``__YOUR_LINK_HERE__`` to a 'View as recipient' link.
+- You can use `this script <https://raw.githubusercontent.com/invoiceninja/invoiceninja/develop/resources/test.pjs>`_ to test from the command line, change ``__YOUR_LINK_HERE__`` to the link in the error and then run ``phantomjs test.pjs``.
+- It may help to test with HTTP to check the problem isn't related to the SSL certificate.
+- You may need to add an entry in the /etc/hosts file to resolve the domain name.
 - If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
+- If you're using a proxy and/or self-signed certificate `this comment <https://github.com/invoiceninja/dockerfiles/issues/39#issuecomment-282489039>`_ may help.
+- If you're using a custom design try using a standard one, if the PDF is outside the printable area it can fail.
+- If you're using a non-English language try changing to English.
+- It may help to use the `pre-compiled binary from phantomjs.org <https://www.invoiceninja.com/forums/topic/local-phantomjs-pdfs-not-attaching-phantomjs-cloud-works/#post-17256>`_.
+- If all else fails you can `try changing the code <https://www.invoiceninja.com/forums/topic/attach-pdfs-to-emails-using-https-domain/>`_ to prevent SSL checks.
 
 Custom Fonts
 """"""""""""
@@ -82,15 +92,24 @@ Follow these steps to add custom ttf fonts: ie, `Google fonts <https://www.googl
 Omnipay
 """""""
 
-We use `Omnipay <https://github.com/thephpleague/omnipay-braintree>`_ to support our payment gateway integrations.
+We use `Omnipay <https://github.com/thephpleague/omnipay#payment-gateways>`_ to support our payment gateway integrations.
 
-Follow these steps to add a driver.
+Follow these steps to add a custom driver.
 
-- Add the package to composer.json and then run ``composer install``
+- Run ``composer require <package_name>``
 - Add a row to the gateways table. ``name`` is used in the gateway select, ``provider`` needs to match the Omnipay driver name
 - Clear the cache by adding ``?clear_cache=true`` to the end of the URL
 
 .. NOTE:: Most drivers also require `code changes <https://github.com/invoiceninja/invoiceninja/tree/master/app/Ninja/PaymentDrivers>`_ to work correctly.
+
+Security
+""""""""
+
+To require a password to update the app add ``UPDATE_SECRET=random_value`` to the .env file and then use /update?secret=random_value to update.
+
+By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours. This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
+
+To include a secret when notifying subscriptions add ``SUBSCRIPTION_SECRET=random_value`` to the .env file.
 
 Google Map
 """"""""""
@@ -102,31 +121,27 @@ You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env 
 Voice Commands
 """"""""""""""
 
-Supporting voice commands requires creating a `LUIS.ai <https://www.luis.ai/home/index>`_ app, once the app is created you can import this `model file <https://download.invoiceninja.com/luis.json>`_.
-
-You'll also need to set the following values in the .env file.
+Supporting voice commands requires creating a `LUIS.ai subscription key <https://docs.microsoft.com/en-us/azure/cognitive-services/luis/azureibizasubscription>`_, then set the following values in the .env file.
 
 .. code-block:: shell
 
    SPEECH_ENABLED=true
-   MSBOT_LUIS_APP_ID=...
    MSBOT_LUIS_SUBSCRIPTION_KEY=...
 
-Using a Proxy
+Lock Invoices
 """""""""""""
 
-If you need to set a list of trusted proxies you can add a TRUSTED_PROXIES value in the .env file. ie,
+Adding ``LOCK_SENT_INVOICES=true`` to the .env file will prevent changing an invoice once it has been sent.
+
+Using a (Reverse) Proxy
+"""""""""""""
+
+If you need to set a list of trusted (reverse) proxies you can add a TRUSTED_PROXIES value in the .env file. ie,
 
 .. code-block:: shell
 
    TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
 
-Stay logged in
-""""""""""""""
-
-By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours.
-
-This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
 
 Customizations
 """"""""""""""

@@ -13,20 +13,20 @@ use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 
 class ProposalController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL;
+    protected $proposalRepo;
 
-    protected ProposalRepository $proposalRepo;
+    protected $proposalService;
 
-    protected ProposalService $proposalService;
+    protected $contactMailer;
 
-    protected ContactMailer $contactMailer;
+    protected $entityType = ENTITY_PROPOSAL;
 
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {
@@ -53,7 +53,7 @@ class ProposalController extends BaseController
     {
         $search = Request::input('sSearch');
         //$userId = Auth::user()->filterId();
-        $userId = \Illuminate\Support\Facades\Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
+        $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
         return $this->proposalService->getDatatable($search, $userId);
     }
@@ -77,7 +77,7 @@ class ProposalController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/%s/edit', $publicId));
+        return redirect("proposals/{$publicId}/edit");
     }
 
     public function edit(ProposalRequest $request)
@@ -140,24 +140,24 @@ class ProposalController extends BaseController
         $count = $this->proposalService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal' : $action . 'd_proposals';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal" : "{$action}d_proposals";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals');
     }
 
-    public function download(ProposalRequest $request): void
+    public function download(ProposalRequest $request)
     {
         $proposal = $request->entity();
 
-        $pdf = dispatch_sync(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
-    private function getViewmodel($proposal = false): array
+    private function getViewmodel($proposal = false)
     {
         $account = auth()->user()->account;
         $templates = ProposalTemplate::whereAccountId($account->id)->withActiveOrSelected($proposal ? $proposal->proposal_template_id : false)->orderBy('name')->get();

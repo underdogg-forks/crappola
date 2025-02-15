@@ -2,19 +2,11 @@
 
 namespace App\Jobs;
 
-use Carbon;
-use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Str;
 
 class RunReport extends Job
 {
-    public $user;
-
-    public $reportType;
-
-    public $config;
-
-    public $isExport;
-
     public function __construct($user, $reportType, $config, $isExport = false)
     {
         $this->user = $user;
@@ -28,7 +20,7 @@ class RunReport extends Job
      *
      * @return void
      */
-    public function handle(): false|object
+    public function handle()
     {
         if ( ! $this->user->hasPermission('view_reports')) {
             return false;
@@ -36,7 +28,7 @@ class RunReport extends Job
 
         $reportType = $this->reportType;
         $config = $this->config;
-        $config['subgroup'] = empty($config['subgroup']) ? false : $config['subgroup']; // don't yet support charts in export
+        $config['subgroup'] = ! empty($config['subgroup']) ? $config['subgroup'] : false; // don't yet support charts in export
 
         $isExport = $this->isExport;
         $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';

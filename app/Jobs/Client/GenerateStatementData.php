@@ -2,19 +2,13 @@
 
 namespace App\Jobs\Client;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
-use Utils;
 
 class GenerateStatementData
 {
-    public $client;
-
-    public $options;
-
-    public $contact;
-
     public function __construct($client, $options, $contact = false)
     {
         $this->client = $client;
@@ -75,7 +69,7 @@ class GenerateStatementData
         }
 
         if ($this->contact) {
-            $invoices->whereHas('invitations', function ($query): void {
+            $invoices->whereHas('invitations', function ($query) {
                 $query->where('contact_id', $this->contact->id);
             });
         }

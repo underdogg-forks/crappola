@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Ninja\Repositories;
 
 use App\Models\ExpenseCategory;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
@@ -28,23 +29,29 @@ class ExpenseCategoryRepository extends BaseRepository
                 'expense_categories.deleted_at',
                 'expense_categories.is_deleted'
             );
+
         $this->applyFilters($query, ENTITY_EXPENSE_CATEGORY);
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('expense_categories.name', 'like', '%' . $filter . '%');
             });
         }
+
         return $query;
     }
 
     public function save($input, $category = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-        if (!$category) {
+        $publicId = $data['public_id'] ?? false;
+
+        if ( ! $category) {
             $category = ExpenseCategory::createNew();
         }
+
         $category->fill($input);
         $category->save();
+
         return $category;
     }
 }

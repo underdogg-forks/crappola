@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Datatables;
 
 use URL;

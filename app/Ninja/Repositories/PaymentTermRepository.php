@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Repositories;
 
 use DB;

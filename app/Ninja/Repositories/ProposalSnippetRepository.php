@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProposalSnippetRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return ProposalSnippet::class;
+        return 'App\Models\ProposalSnippet';
     }
 
     public function all()
@@ -40,7 +40,7 @@ class ProposalSnippetRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL_SNIPPET);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')

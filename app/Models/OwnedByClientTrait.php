@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 /**
  * Class OwnedByClientTrait.
  */
@@ -10,9 +12,10 @@ trait OwnedByClientTrait
      */
     public function isClientTrashed()
     {
-        if (!$this->client) {
+        if ( ! $this->client) {
             return false;
         }
+
         return $this->client->trashed();
     }
 }

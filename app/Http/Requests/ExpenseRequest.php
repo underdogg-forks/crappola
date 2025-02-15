@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use App\Models\ExpenseCategory;
@@ -11,20 +12,23 @@ class ExpenseRequest extends EntityRequest
     public function entity()
     {
         $expense = parent::entity();
+
         // eager load the documents
-        if ($expense && !$expense->relationLoaded('documents')) {
+        if ($expense && method_exists($expense, 'documents') && ! $expense->relationLoaded('documents')) {
             $expense->load('documents');
         }
+
         return $expense;
     }
 
     public function sanitize()
     {
         $input = $this->all();
+
         // check if we're creating a new expense category
         if ($this->expense_category_id == '-1') {
             $data = [
-                'name' => trim($this->expense_category_name)
+                'name' => trim($this->expense_category_name),
             ];
             if (ExpenseCategory::validate($data) === true) {
                 $category = app('App\Ninja\Repositories\ExpenseCategoryRepository')->save($data);
@@ -35,10 +39,11 @@ class ExpenseRequest extends EntityRequest
         } elseif ($this->expense_category_id) {
             $input['expense_category_id'] = ExpenseCategory::getPrivateId($this->expense_category_id);
         }
+
         // check if we're creating a new vendor
         if ($this->vendor_id == '-1') {
             $data = [
-                'name' => trim($this->vendor_name)
+                'name' => trim($this->vendor_name),
             ];
             if (Vendor::validate($data) === true) {
                 $vendor = app('App\Ninja\Repositories\VendorRepository')->save($data);
@@ -48,7 +53,9 @@ class ExpenseRequest extends EntityRequest
                 $input['vendor_id'] = null;
             }
         }
+
         $this->replace($input);
+
         return $this->all();
     }
 }

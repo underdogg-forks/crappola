@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 class CreateProposalRequest extends ProposalRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return $this->user()->can('create', ENTITY_PROPOSAL);
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
             'invoice_id' => 'required',

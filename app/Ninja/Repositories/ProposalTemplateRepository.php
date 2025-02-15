@@ -3,14 +3,14 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalTemplate;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ProposalTemplateRepository extends BaseRepository
 {
-    public function getClassName(): string
+    public function getClassName()
     {
-        return ProposalTemplate::class;
+        return 'App\Models\ProposalTemplate';
     }
 
     public function all()
@@ -35,7 +35,7 @@ class ProposalTemplateRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_PROPOSAL_TEMPLATE);
 
         if ($filter) {
-            $query->where(function ($query) use ($filter): void {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
                     ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')

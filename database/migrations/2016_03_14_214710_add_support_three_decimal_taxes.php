@@ -1,30 +1,22 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddSupportThreeDecimalTaxes extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('lookup__taxrates', function ($table) {
-            if (Schema::hasColumn('lookup__taxrates', 'rate')) {
+        Schema::table('tax_rates', function ($table) {
+            if (Schema::hasColumn('tax_rates', 'rate')) {
                 $table->decimal('rate', 13, 3)->change();
             }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('lookup__taxrates', function ($table) {
+        Schema::table('tax_rates', function ($table) {
             $table->decimal('rate', 13, 2)->change();
         });
     }

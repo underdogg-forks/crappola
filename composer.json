@@ -1,163 +1,98 @@
 {
-  "name": "hillelcoren/invoice-ninja",
-  "description": "An open-source invoicing site built with Laravel",
-  "keywords": [],
-  "license": "Attribution Assurance License",
-  "authors": [],
-  "config": {
-    "preferred-install": "dist",
-    "sort-packages": true,
-    "optimize-autoloader": true
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "require": {
-    "php": ">=5.6.4",
-    "ext-gd": "*",
-    "ext-gmp": "*",
-    "anahkiasen/former": "3.5.x-dev",
-    "barracudanetworks/archivestream-php": "^1.0",
-    "barryvdh/laravel-cors": "^0.9.2",
-    "barryvdh/laravel-debugbar": "^2.4",
-    "barryvdh/laravel-ide-helper": "^2.3",
-    "cerdic/css-tidy": "^1.5",
-    "chumper/datatable": "dev-develop#04ef2bf",
-    "codedge/laravel-selfupdater": "5.x-dev",
-    "doctrine/dbal": "^2.5",
-    "ezyang/htmlpurifier": "^4.9",
-    "google/apiclient": "^1.1",
-    "guzzlehttp/guzzle": "^6.2",
-    "intervention/image": "dev-master",
-    "jaybizzle/laravel-crawler-detect": "^1.2",
-    "jlapp/swaggervel": "master-dev",
-    "jonnyw/php-phantomjs": "^4.5.1",
-    "laracasts/presenter": "dev-master",
-    "laravel/framework": "5.4.*",
-    "laravel/socialite": "^2.0",
-    "laravelcollective/html": "^5.4.2",
-    "league/flysystem-aws-s3-v3": "^1.0",
-    "league/flysystem-rackspace": "^1.0",
-    "league/fractal": "^0.13",
-    "maatwebsite/excel": "^2.1",
-    "nwidart/laravel-modules": "^1.22",
-    "patricktalmadge/bootstrapper": "^5.5",
-    "predis/predis": "^1.1",
-    "rtconner/laravel-tagging": "^2.2",
-    "simshaun/recurr": "dev-master",
-    "spatie/laravel-permission": "^1.0",
-    "thomaswelton/laravel-gravatar": "^1.0",
-    "turbo124/laravel-push-notification": "^2.0",
-    "watson/bootstrap-form": "^1.0",
-    "webpatser/laravel-countries": "dev-master",
-    "websight/l5-google-cloud-storage": "^2.0",
-    "wepay/php-sdk": "^0.2",
-    "wildbit/laravel-postmark-provider": "^3.0",
-    "yajra/laravel-datatables-oracle": "^6.20"
-  },
-  "require-dev": {
-    "codeception/c3": "~2.0",
-    "codeception/codeception": "*",
-    "filp/whoops": "^2.1",
-    "fzaninotto/faker": "^1.6",
-    "mockery/mockery": "^0.9",
-    "phpspec/phpspec": "~2.1",
-    "phpunit/phpunit": "^5.7",
-    "symfony/css-selector": "3.1.*",
-    "symfony/dom-crawler": "3.1.*"
-  },
-  "extra": {
-    "merge-plugin": {
-      "include": [
-        "Modules/*/composer.json"
-      ]
-    }
-  },
-  "autoload": {
-    "classmap": [
-      "app/Console/Commands",
-      "app/Libraries",
-      "app/Http/Controllers",
-      "app/Models",
-      "app/Ninja",
-      "app/Ninja/Repositories",
-      "database"
-    ],
-    "license": "Attribution Assurance License",
-    "authors": [
-        {
-            "name": "Hillel Coren",
-            "email": "hillelcoren@gmail.com"
+    "name": "invoiceninja/invoiceninja",
+    "description": "Invoices, expenses & time-tracking built with Laravel",
+    "keywords": [],
+    "license": "",
+    "authors": [],
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "codeception/c3": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
         }
-    ],
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "php": "7.4.33",
+        "php": "^8.1",
         "ext-gd": "*",
         "ext-gmp": "*",
         "ext-json": "*",
         "ext-zip": "*",
-        "abdala/omnipay-pagseguro": "*",
-        "anahkiasen/former": "*",
-        "asgrim/ofxparser": "*",
-        "bacon/bacon-qr-code": "*",
-        "barracudanetworks/archivestream-php": "*",
+        "anahkiasen/former": ">=5",
+        "asgrim/ofxparser": ">=1.1.1",
+        "bacon/bacon-qr-code": ">=3.0.1",
+        "barracudanetworks/archivestream-php": ">=1.0.8",
         "barryvdh/laravel-cors": "*",
-        "barryvdh/laravel-debugbar": "*",
-        "barryvdh/laravel-ide-helper": "*",
-        "cardgate/omnipay-cardgate": "*",
-        "cerdic/css-tidy": "*",
+        "braintree/braintree_php": "^6.23",
+        "cerdic/css-tidy": ">=2.2.1",
         "chumper/datatable": "dev-laravel-8-beyond",
-        "cleverit/ubl_invoice": "*",
-        "codedge/laravel-selfupdater": "*",
-        "doctrine/dbal": "*",
-        "dompdf/dompdf": "*",
-        "ezyang/htmlpurifier": "*",
-        "fruitcakestudio/omnipay-sisow": "*",
-        "fzaninotto/faker": "*",
-        "google/apiclient": "*",
-        "guzzlehttp/guzzle": "^7.9",
-        "guzzlehttp/psr7": "*",
-        "intervention/image": "*",
-        "jaybizzle/laravel-crawler-detect": "*",
-        "jlapp/swaggervel": "master-dev",
+        "cleverit/ubl_invoice": ">=1.3",
+        "codedge/laravel-selfupdater": "^3.9",
+        "doctrine/dbal": "^3.9.4",
+        "dompdf/dompdf": ">=3.1",
+        "ezyang/htmlpurifier": ">=4.18",
+        "google/apiclient": ">=2.18.2",
+        "guzzlehttp/guzzle": "^7.9.2",
+        "guzzlehttp/psr7": ">=2.7",
+        "intervention/image": ">=3.11.1",
+        "intervention/image-laravel": ">=1.4",
+        "jlapp/swaggervel": "*",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "^8.0",
-        "laravel/helpers": "*",
-        "laravel/legacy-encrypter": "*",
-        "laravel/socialite": "^5.17",
-        "laravel/tinker": "*",
-        "laravelcollective/html": "*",
-        "league/csv": "9.1",
-        "league/flysystem-aws-s3-v3": "*",
-        "league/flysystem-rackspace": "*",
-        "league/fractal": "*",
+        "laravel-notification-channels/pusher-push-notifications": "^4.2",
+        "laravel/framework": "^10.48.28",
+        "laravel/helpers": ">=1.7.2",
+        "laravel/legacy-encrypter": ">=1",
+        "laravel/slack-notification-channel": ">=3.4.4",
+        "laravel/socialite": ">=5.17.1",
+        "laravel/ui": ">=4.6.1",
+        "league/csv": ">=9.21",
+        "league/flysystem-aws-s3-v3": ">=3.29",
+        "league/fractal": ">=0.20.1",
         "maatwebsite/excel": "dev-php-fix",
-        "mpdf/mpdf": "*",
-        "nesbot/carbon": "*",
-        "nwidart/laravel-modules": "*",
-        "omnipay/braintree": "*",
-        "omnipay/common": "^3.0",
-        "omnipay/mollie": "*",
-        "omnipay/omnipay": "*",
-        "omnipay/payfast": "*",
-        "omnipay/stripe": "*",
-        "patricktalmadge/bootstrapper": "*",
-        "pragmarx/google2fa-laravel": "*",
-        "predis/predis": "*",
+        "mpdf/mpdf": ">=8.2.5",
+        "nesbot/carbon": ">=2.72.6",
+        "nwidart/laravel-modules": "2.0.*",
+        "omnipay/common": "^3.1@dev",
+        "patricktalmadge/bootstrapper": "dev-l10-compatibility",
+        "php-http/httplug": "^2.4.1",
+        "pragmarx/google2fa-laravel": ">=2.2",
+        "predis/predis": ">=2.3.0",
         "simshaun/recurr": "dev-master",
-        "stripe/stripe-php": "*",
-        "superbalist/laravel-google-cloud-storage": "*",
-        "symfony/css-selector": "*",
-        "vemcogroup/laravel-sparkpost-driver": "*",
+        "spatie/laravel-html": ">=3.5",
+        "stripe/stripe-php": ">=16.1",
+        "symfony/css-selector": ">=6.4.13",
+        "symfony/http-client": ">=6.4.18",
+        "symfony/mailer": ">=6.4.18",
+        "symfony/postmark-mailer": ">=6.4.13",
+        "therobfonz/laravel-mandrill-driver": ">=5.1",
+        "vemcogroup/laravel-sparkpost-driver": "^5.0.8",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wepay/php-sdk": "*",
-        "wildbit/postmark-php": "*"
+        "wepay/php-sdk": ">=0.3.1",
+        "wildbit/postmark-php": ">=6.0.9"
     },
     "require-dev": {
-        "symfony/dom-crawler": "*",
-        "codeception/c3": "*",
-        "codeception/codeception": "*",
-        "phpspec/phpspec": "*",
-        "phpunit/phpunit": "^9.6"
+        "barryvdh/laravel-debugbar": ">=3.14.10",
+        "barryvdh/laravel-ide-helper": "^3.1",
+        "codeception/c3": ">=2.9",
+        "codeception/codeception": ">=5.1.2",
+        "driftingly/rector-laravel": "^1.2.6",
+        "fakerphp/faker": ">=1.24.1",
+        "filp/whoops": ">=2.17",
+        "jonnyw/php-phantomjs": ">=2.0.1",
+        "larastan/larastan": "^2.9.14",
+        "laravel/pint": "dev-feat/blade",
+        "laravel/tinker": ">=2.10.1",
+        "nunomaduro/collision": "^6.4",
+        "phpspec/phpspec": ">=7.5",
+        "phpunit/phpunit": ">=10.5.35",
+        "rector/rector": ">=1.2.10",
+        "rector/type-perfect": "^1.0",
+        "spatie/laravel-ignition": ">=2.9",
+        "symfony/dom-crawler": ">=6.4.18"
     },
     "autoload": {
         "classmap": [
@@ -171,11 +106,12 @@
         ],
         "psr-4": {
             "App\\": "app/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
+            "Database\\Factories\\": "database/factories",
+            "Database\\Seeders\\": "database/seeders",
             "Modules\\": "Modules/"
         },
         "files": [
+            "app/helpers.php",
             "app/Libraries/lib_autolink.php",
             "app/Libraries/OFX.php"
         ]
@@ -208,19 +144,15 @@
     "replace": {
         "alfaproject/omnipay-skrill": "*"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "optimize-autoloader": true,
-        "allow-plugins": {
-            "codeception/c3": true,
-            "php-http/discovery": true,
-            "phpstan/extension-installer": true
-        }
-    },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/laravel-shift/laravel-google-cloud-storage.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Applicomhq/bootstrapper.git"
+        },
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
@@ -255,10 +187,6 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/underdogg-forks/laravel-push-notification"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/turbo124/NotificationPusher"
         },
         {
@@ -266,26 +194,4 @@
             "url": "https://github.com/turbo124/Laravel-Excel"
         }
     ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
-    },
-    "classmap": []
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "php artisan clear-compiled",
-      "php artisan optimize"
-    ],
-    "post-update-cmd": [
-      "php artisan clear-compiled",
-      "php artisan optimize"
-    ],
-    "post-create-project-cmd": [
-      "php -r \"copy('.env.example', '.env');\"",
-      "php artisan key:generate"
-    ]
-  },
-  "repositories": []
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Policies;
 
 use App\Models\User;
@@ -10,7 +11,7 @@ class PaymentTermPolicy extends EntityPolicy
 {
     /**
      * @param User $user
-     * @param $item
+     * @param      $item
      *
      * @return mixed
      */
@@ -20,7 +21,7 @@ class PaymentTermPolicy extends EntityPolicy
     }
 
     /**
-     * @param User $user
+     * @param User  $user
      * @param mixed $item
      *
      * @return bool

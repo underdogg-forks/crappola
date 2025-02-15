@@ -1,13 +1,11 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddLanguageSupport extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('languages', function ($table) {
@@ -15,6 +13,7 @@ class AddLanguageSupport extends Migration
             $table->string('name');
             $table->string('locale');
         });
+
         //DB::table('languages')->insert(['name' => 'English', 'locale' => 'en']);
         //DB::table('languages')->insert(['name' => 'Italian', 'locale' => 'it']);
         //DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
@@ -23,26 +22,25 @@ class AddLanguageSupport extends Migration
         //DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
         //DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
         //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
-        Schema::table('companies', function ($table) {
-            $table->unsignedInteger('language_id')->default(1);
+
+        Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('language_id')->after('work_email')->default(1);
         });
-        DB::table('companies')->update(['language_id' => 1]);
-        Schema::table('companies', function ($table) {
-            //$table->foreign('language_id')->references('id')->on('languages');
+
+        DB::table('accounts')->update(['language_id' => 1]);
+
+        Schema::table('accounts', function ($table) {
+            $table->foreign('language_id')->references('id')->on('languages');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('companies', function ($table) {
-            //$table->dropForeign('accounts_language_id_foreign');
+        Schema::table('accounts', function ($table) {
+            $table->dropForeign('accounts_language_id_foreign');
             $table->dropColumn('language_id');
         });
+
         Schema::drop('languages');
     }
 }

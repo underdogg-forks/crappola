@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
@@ -6,9 +7,8 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
-use Auth;
-use Input;
-use Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class TaskApiController extends BaseAPIController
 {
@@ -19,6 +19,7 @@ class TaskApiController extends BaseAPIController
     public function __construct(TaskRepository $taskRepo)
     {
         parent::__construct();
+
         $this->taskRepo = $taskRepo;
     }
 
@@ -28,11 +29,14 @@ class TaskApiController extends BaseAPIController
      *   summary="List tasks",
      *   operationId="listTasks",
      *   tags={"task"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of tasks",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Task"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -43,8 +47,9 @@ class TaskApiController extends BaseAPIController
     {
         $tasks = Task::scope()
             ->withTrashed()
-            ->with('client', 'invoice', 'project')
-            ->orderBy('created_at', 'desc');
+            ->with('client', 'invoice', 'project', 'task_status')
+            ->orderBy('updated_at', 'desc');
+
         return $this->listResponse($tasks);
     }
 
@@ -54,17 +59,21 @@ class TaskApiController extends BaseAPIController
      *   summary="Retrieve a task",
      *   operationId="getTask",
      *   tags={"task"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="task_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A single task",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -82,16 +91,21 @@ class TaskApiController extends BaseAPIController
      *   summary="Create a task",
      *   operationId="createTask",
      *   tags={"task"},
+     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="task",
+     *
      *     @SWG\Schema(ref="#/definitions/Task")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="New task",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -100,15 +114,49 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data = Input::all();
-        $taskId = isset($data['id']) ? $data['id'] : false;
-        if (isset($data['customer_id']) && $data['customer_id']) {
-            $data['client'] = $data['customer_id'];
+        $data = Request::all();
+        $taskId = $data['id'] ?? false;
+
+        if (isset($data['client_id']) && $data['client_id']) {
+            $data['client'] = $data['client_id'];
         }
+
+        if ( ! empty($data['time_details'])) {
+            $timeLog = [];
+            foreach ($data['time_details'] as $detail) {
+                $startTime = strtotime($detail['start_datetime']);
+                $endTime = false;
+                if ( ! empty($detail['end_datetime'])) {
+                    $endTime = strtotime($detail['end_datetime']);
+                } else {
+                    $duration = 0;
+                    if ( ! empty($detail['duration_seconds'])) {
+                        $duration += $detail['duration_seconds'];
+                    }
+                    if ( ! empty($detail['duration_minutes'])) {
+                        $duration += $detail['duration_minutes'] * 60;
+                    }
+                    if ( ! empty($detail['duration_hours'])) {
+                        $duration += $detail['duration_hours'] * 60 * 60;
+                    }
+                    if ($duration) {
+                        $endTime = $startTime + $duration;
+                    }
+                }
+                $timeLog[] = [$startTime, $endTime];
+                if ( ! $endTime) {
+                    $data['is_running'] = true;
+                }
+            }
+            $data['time_log'] = json_encode($timeLog);
+        }
+
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
-        $transformer = new TaskTransformer(Auth::user()->account, Input::get('serializer'));
+
+        $transformer = new TaskTransformer(Auth::user()->account, Request::input('serializer'));
         $data = $this->createItem($task, $transformer, 'task');
+
         return $this->response($data);
     }
 
@@ -118,6 +166,7 @@ class TaskApiController extends BaseAPIController
      *   summary="Update a task",
      *   operationId="updateTask",
      *   tags={"task"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="task_id",
@@ -127,13 +176,17 @@ class TaskApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="body",
+     *
      *     @SWG\Schema(ref="#/definitions/Task")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Update task",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -142,8 +195,14 @@ class TaskApiController extends BaseAPIController
      */
     public function update(UpdateTaskRequest $request)
     {
+        if ($request->action) {
+            return $this->handleAction($request);
+        }
+
         $task = $request->entity();
-        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Input::all());
+
+        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Request::all());
+
         return $this->itemResponse($task);
     }
 
@@ -153,17 +212,21 @@ class TaskApiController extends BaseAPIController
      *   summary="Delete a task",
      *   operationId="deleteTask",
      *   tags={"task"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="task_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted task",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -173,7 +236,9 @@ class TaskApiController extends BaseAPIController
     public function destroy(UpdateTaskRequest $request)
     {
         $task = $request->entity();
+
         $this->taskRepo->delete($task);
+
         return $this->itemResponse($task);
     }
 }

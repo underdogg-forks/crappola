@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use App\Models\Invoice;
@@ -22,7 +23,7 @@ class InvoiceWasRestored extends Event
      * Create a new event instance.
      *
      * @param Invoice $invoice
-     * @param $fromDeleted
+     * @param         $fromDeleted
      */
     public function __construct(Invoice $invoice, $fromDeleted)
     {

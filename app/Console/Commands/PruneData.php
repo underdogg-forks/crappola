@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use DB;
@@ -20,12 +21,14 @@ class PruneData extends Command
      */
     protected $description = 'Delete inactive accounts';
 
-    public function fire()
+    public function handle()
     {
-        $this->info(date('Y-m-d') . ' Running PruneData...');
+        $this->info(date('r') . ' Running PruneData...');
+
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
+
         // delete accounts who never registered, didn't create any invoices,
         // hansn't logged in within the past 6 months and isn't linked to another account
         $sql = 'select c.id
@@ -43,7 +46,9 @@ class PruneData extends Command
                 and count(t.id) = 0
                 and count(e.id) = 0
                 and count(u.id) = 0';
+
         $results = DB::select($sql);
+
         foreach ($results as $result) {
             $this->info("Deleting company: {$result->id}");
             try {
@@ -55,7 +60,9 @@ class PruneData extends Command
                 $this->info("Unable to delete companyId: {$result->id}");
             }
         }
+
         $this->info('Done');
+
         return 0;
     }
 

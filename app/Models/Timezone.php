@@ -1,24 +1,13 @@
 <?php
+
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class Timezone.
  */
 class Timezone extends Eloquent
 {
-
-
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    public $table = 'lookup__timezones';
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 }

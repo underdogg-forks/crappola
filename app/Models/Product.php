@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
@@ -12,9 +13,7 @@ class Product extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
     /**
@@ -22,9 +21,6 @@ class Product extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'product_key',
         'notes',
@@ -47,6 +43,8 @@ class Product extends EntityModel
             'product_key',
             'notes',
             'cost',
+            'custom_value1',
+            'custom_value2',
         ];
     }
 
@@ -56,9 +54,11 @@ class Product extends EntityModel
     public static function getImportMap()
     {
         return [
-            'product|item' => 'product_key',
+            'product|item'              => 'product_key',
             'notes|description|details' => 'notes',
-            'cost|amount|price' => 'cost',
+            'cost|amount|price'         => 'cost',
+            'custom_value1'             => 'custom_value1',
+            'custom_value2'             => 'custom_value2',
         ];
     }
 
@@ -72,17 +72,11 @@ class Product extends EntityModel
         return self::scope()->where('product_key', '=', $key)->first();
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PRODUCT;
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();

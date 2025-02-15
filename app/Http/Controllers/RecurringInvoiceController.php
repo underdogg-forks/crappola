@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
@@ -22,19 +23,18 @@ class RecurringInvoiceController extends BaseController
     public function __construct(InvoiceRepository $invoiceRepo)
     {
         //parent::__construct();
+
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    /**
-     * @return mixed
-     */
     public function index()
     {
         $data = [
-            'title' => trans('texts.recurring_invoices'),
+            'title'      => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
-            'datatable' => new RecurringInvoiceDatatable(),
+            'datatable'  => new RecurringInvoiceDatatable(),
         ];
+
         return response()->view('list_wrapper', $data);
     }
 }

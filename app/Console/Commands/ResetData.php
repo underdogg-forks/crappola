@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use Illuminate\Console\Command;
-use Utils;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -20,18 +21,22 @@ class ResetData extends Command
      */
     protected $description = 'Reset data';
 
-    public function fire()
+    public function handle()
     {
-        $this->info(date('Y-m-d') . ' Running ResetData...');
-        if (!Utils::isNinjaDev()) {
+        $this->info(date('r') . ' Running ResetData...');
+
+        if ( ! Utils::isNinjaDev()) {
             return;
         }
+
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
         }
+
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');
+
         return 0;
     }
 
@@ -42,7 +47,7 @@ class ResetData extends Command
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
-            ['customer_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+            ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }

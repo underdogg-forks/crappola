@@ -1,30 +1,17 @@
 <?php
+
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class Country.
  */
 class Country extends Eloquent
 {
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    public $table = 'lookup__countries';
-
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * @var array
-     */
     protected $visible = [
         'id',
         'name',
@@ -32,22 +19,18 @@ class Country extends Eloquent
         'swap_currency_symbol',
         'thousand_separator',
         'decimal_separator',
+        'iso_3166_2',
+        'iso_3166_3',
     ];
 
-    /**
-     * @var array
-     */
     protected $casts = [
-        'swap_postal_code' => 'boolean',
+        'swap_postal_code'     => 'boolean',
         'swap_currency_symbol' => 'boolean',
     ];
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
-        return $this->name;
+        return trans('texts.country_' . $this->name);
     }
 
     protected function serializeDate(DateTimeInterface $date)

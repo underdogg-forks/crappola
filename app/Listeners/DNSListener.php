@@ -13,7 +13,7 @@ class DNSListener
     /**
      * @param DNSListener $event
      */
-    public function addDNSRecord(SubdomainWasUpdated $event): void {}
+    public function addDNSRecord(SubdomainWasUpdated $event) {}
 
-    public function removeDNSRecord(SubdomainWasRemoved $event): void {}
+    public function removeDNSRecord(SubdomainWasRemoved $event) {}
 }

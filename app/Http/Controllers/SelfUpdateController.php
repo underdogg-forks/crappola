@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use Codedge\Updater\UpdaterManager;
-use Redirect;
-use Utils;
+use Illuminate\Support\Facades\Redirect;
 
 class SelfUpdateController extends BaseController
 {
@@ -22,6 +23,7 @@ class SelfUpdateController extends BaseController
         if (Utils::isNinjaProd()) {
             exit;
         }
+
         $this->updater = $updater;
     }
 
@@ -34,12 +36,13 @@ class SelfUpdateController extends BaseController
     {
         $versionInstalled = $this->updater->source()->getVersionInstalled('v');
         $updateAvailable = $this->updater->source()->isNewVersionAvailable($versionInstalled);
+
         return view(
             'vendor.self-update.self-update',
             [
                 'versionInstalled' => $versionInstalled,
                 'versionAvailable' => $this->updater->source()->getVersionAvailable(),
-                'updateAvailable' => $updateAvailable,
+                'updateAvailable'  => $updateAvailable,
             ]
         );
     }
@@ -52,6 +55,7 @@ class SelfUpdateController extends BaseController
     public function update()
     {
         $this->updater->source()->update();
+
         return Redirect::to('/');
     }
 

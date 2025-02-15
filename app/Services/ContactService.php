@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Client;
@@ -25,25 +26,25 @@ class ContactService extends BaseService
     }
 
     /**
-     * @return ContactRepository
-     */
-    protected function getRepo()
-    {
-        return $this->contactRepo;
-    }
-
-    /**
-     * @param $data
+     * @param      $data
      * @param null $contact
      *
      * @return mixed|null
      */
     public function save($data, $contact = null)
     {
-        if (isset($data['customer_id']) && $data['customer_id']) {
-            $data['customer_id'] = Client::getPrivateId($data['customer_id']);
+        if (isset($data['client_id']) && $data['client_id']) {
+            $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
+
         return $this->contactRepo->save($data, $contact);
     }
 
+    /**
+     * @return ContactRepository
+     */
+    protected function getRepo()
+    {
+        return $this->contactRepo;
+    }
 }

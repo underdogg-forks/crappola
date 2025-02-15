@@ -3,13 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Industry;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class IndustrySeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
+
         $industries = [
             ['name' => 'Accounting & Legal'],
             ['name' => 'Advertising'],
@@ -43,13 +45,16 @@ class IndustrySeeder extends Seeder
             ['name' => 'Other'],
             ['name' => 'Photography'],
             ['name' => 'Construction'],
+            ['name' => 'Restaurant & Catering'],
         ];
+
         foreach ($industries as $industry) {
             $record = Industry::whereName($industry['name'])->first();
-            if (!$record) {
+            if ( ! $record) {
                 Industry::create($industry);
             }
         }
-        Eloquent::reguard();
+
+        Model::reguard();
     }
 }

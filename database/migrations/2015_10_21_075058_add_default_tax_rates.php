@@ -1,35 +1,24 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddDefaultTaxRates extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('companies', function ($table) {
-            $table->unsignedInteger('default_tax_rate_id')->nullable();
-            $table->smallInteger('recurring_hour')->default(DEFAULT_SEND_RECURRING_HOUR);
-        });
-        Schema::table('products', function ($table) {
-            $table->unsignedInteger('default_tax_rate_id')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
+
+        Schema::table('products', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('companies', function ($table) {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('default_tax_rate_id');
             $table->dropColumn('recurring_hour');
         });
+
         Schema::table('products', function ($table) {
             $table->dropColumn('default_tax_rate_id');
         });

@@ -1,18 +1,15 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class SetupCountriesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         // Creates the users table
         /*
-        Schema::create('lookup__countries', function($table)
+        Schema::create('countries', function($table)
         {
             $table->integer('id')->index();
             $table->string('capital', 255)->nullable();
@@ -34,13 +31,8 @@ class SetupCountriesTable extends Migration
         */
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        //Schema::drop('lookup__countries');
+        //Schema::drop('countries');
     }
 }

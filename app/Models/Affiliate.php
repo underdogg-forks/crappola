@@ -1,20 +1,14 @@
 <?php
+
 namespace App\Models;
 
-use Eloquent;
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
-/**
- * Class Affiliate.
- */
 class Affiliate extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = true;
-    /**
-     * @var bool
-     */
+
     protected $softDelete = true;
 
     protected function serializeDate(DateTimeInterface $date)

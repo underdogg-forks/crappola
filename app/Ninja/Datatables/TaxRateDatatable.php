@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Ninja\Datatables;
 
 use URL;
@@ -19,12 +20,16 @@ class TaxRateDatatable extends EntityDatatable
             [
                 'rate',
                 function ($model) {
-                    return $model->rate . '%';
+                    return ($model->rate + 0) . '%';
                 },
             ],
             [
                 'type',
                 function ($model) {
+                    if (auth()->user()->account->inclusive_taxes) {
+                        return trans('texts.inclusive');
+                    }
+
                     return $model->is_inclusive ? trans('texts.inclusive') : trans('texts.exclusive');
                 },
             ],

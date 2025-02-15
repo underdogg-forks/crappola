@@ -3,15 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentStatusSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
+
         $this->createPaymentStatuses();
-        Eloquent::reguard();
+
+        Model::reguard();
     }
 
     private function createPaymentStatuses()
@@ -24,6 +27,7 @@ class PaymentStatusSeeder extends Seeder
             ['id' => '5', 'name' => 'Partially Refunded'],
             ['id' => '6', 'name' => 'Refunded'],
         ];
+
         foreach ($statuses as $status) {
             $record = PaymentStatus::find($status['id']);
             if ($record) {

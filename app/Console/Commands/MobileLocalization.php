@@ -32,7 +32,12 @@ class MobileLocalization extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
         $type = mb_strtolower($this->option('type'));
 
@@ -44,6 +49,7 @@ class MobileLocalization extends Command
                 $this->flutterResources();
                 break;
         }
+
         return 0;
     }
 
@@ -54,19 +60,19 @@ class MobileLocalization extends Command
         ];
     }
 
-    private function laravelResources(): void
+    private function laravelResources()
     {
         $resources = $this->getResources();
 
         foreach ($resources as $key => $val) {
-            $transKey = 'texts.' . $key;
+            $transKey = "texts.{$key}";
             if (trans($transKey) == $transKey) {
                 echo "'{$key}' => '{$val}',\n";
             }
         }
     }
 
-    private function flutterResources(): void
+    private function flutterResources()
     {
         $languages = cache('languages');
         $resources = $this->getResources();
@@ -79,8 +85,8 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = trim(addslashes(trans('texts.' . $key, [], $language->locale)));
-                if (mb_substr($text, 0, 6) === 'texts.') {
+                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
+                if (mb_substr($text, 0, 6) == 'texts.') {
                     $text = $resources->{$key};
                 }
 
@@ -95,7 +101,7 @@ class MobileLocalization extends Command
         }
     }
 
-    private function getResources(): mixed
+    private function getResources()
     {
         $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);

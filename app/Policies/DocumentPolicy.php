@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Policies;
 
 use App\Models\User;
@@ -9,36 +10,38 @@ use App\Models\User;
 class DocumentPolicy extends EntityPolicy
 {
     /**
-     * @param User $user
+     * @param User  $user
      * @param mixed $item
      *
      * @return bool
      */
     public static function create(User $user, $item)
     {
-        return !empty($user);
+        return ! $user instanceof(User::class);
     }
 
     /**
-     * @param User $user
+     * @param User     $user
      * @param Document $document
      *
      * @return bool
      */
     public static function view(User $user, $document)
     {
-        if ($user->hasPermission('view_all')) {
+        if ($user->hasPermission(['view_expense', 'view_invoice'], true)) {
             return true;
         }
         if ($document->expense) {
             if ($document->expense->invoice) {
                 return $user->can('view', $document->expense->invoice);
             }
+
             return $user->can('view', $document->expense);
         }
         if ($document->invoice) {
             return $user->can('view', $document->invoice);
         }
+
         return $user->owns($document);
     }
 }

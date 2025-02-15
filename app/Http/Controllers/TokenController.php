@@ -1,15 +1,15 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
-use Auth;
-use Input;
-use Redirect;
-use Session;
-use URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Validator;
-use View;
 
 /**
  * Class TokenController.
@@ -29,6 +29,7 @@ class TokenController extends BaseController
     public function __construct(TokenService $tokenService)
     {
         //parent::__construct();
+
         $this->tokenService = $tokenService;
     }
 
@@ -55,14 +56,16 @@ class TokenController extends BaseController
      */
     public function edit($publicId)
     {
-        $token = AccountToken::where('company_id', '=', Auth::user()->account_id)
+        $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $publicId)->firstOrFail();
+
         $data = [
-            'token' => $token,
+            'token'  => $token,
             'method' => 'PUT',
-            'url' => 'tokens/' . $publicId,
-            'title' => trans('texts.edit_token'),
+            'url'    => 'tokens/' . $publicId,
+            'title'  => trans('texts.edit_token'),
         ];
+
         return View::make('accounts.token', $data);
     }
 
@@ -90,11 +93,12 @@ class TokenController extends BaseController
     public function create()
     {
         $data = [
-            'token' => null,
+            'token'  => null,
             'method' => 'POST',
-            'url' => 'tokens',
-            'title' => trans('texts.add_token'),
+            'url'    => 'tokens',
+            'title'  => trans('texts.add_token'),
         ];
+
         return View::make('accounts.token', $data);
     }
 
@@ -103,10 +107,12 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
+
         Session::flash('message', trans('texts.archived_token'));
+
         return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
@@ -121,29 +127,37 @@ class TokenController extends BaseController
             $rules = [
                 'name' => 'required',
             ];
+
             if ($tokenPublicId) {
-                $token = AccountToken::where('company_id', '=', Auth::user()->account_id)
+                $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
-            $validator = Validator::make(Input::all(), $rules);
+
+            $validator = Validator::make(Request::all(), $rules);
+
             if ($validator->fails()) {
                 return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
+
             if ($tokenPublicId) {
-                $token->name = trim(Input::get('name'));
+                $token->name = trim(Request::input('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(Input::get('name'));
-                $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $token->name = trim(Request::input('name'));
+                $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
+
             $token->save();
+
             if ($tokenPublicId) {
                 $message = trans('texts.updated_token');
             } else {
                 $message = trans('texts.created_token');
             }
+
             Session::flash('message', $message);
         }
+
         return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 }

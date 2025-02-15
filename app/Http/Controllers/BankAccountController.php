@@ -1,30 +1,32 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateBankAccountRequest;
-use App\Models\Account;
+use App\Libraries\Utils;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
-use Auth;
-use Cache;
-use Crypt;
+use Exception;
 use File;
 use Illuminate\Http\Request;
-use Input;
-use Redirect;
-use Session;
-use Utils;
-use View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class BankAccountController extends BaseController
 {
     protected $bankAccountService;
+
     protected $bankAccountRepo;
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {
         //parent::__construct();
+
         $this->bankAccountService = $bankAccountService;
         $this->bankAccountRepo = $bankAccountRepo;
     }
@@ -42,11 +44,13 @@ class BankAccountController extends BaseController
     public function edit($publicId)
     {
         $bankAccount = BankAccount::scope($publicId)->firstOrFail();
+
         $data = [
-            'title' => trans('texts.edit_bank_account'),
-            'banks' => Cache::get('banks'),
+            'title'       => trans('texts.edit_bank_account'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => $bankAccount,
         ];
+
         return View::make('accounts.bank_account', $data);
     }
 
@@ -61,51 +65,68 @@ class BankAccountController extends BaseController
     public function create()
     {
         $data = [
-            'banks' => Cache::get('banks'),
+            'banks'       => Cache::get('banks'),
             'bankAccount' => null,
         ];
+
         return View::make('accounts.bank_account', $data);
     }
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
         $count = $this->bankAccountService->bulk($ids, $action);
+
         Session::flash('message', trans('texts.archived_bank_account'));
+
         return Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
     public function validateAccount()
     {
-        $publicId = Input::get('public_id');
-        $username = trim(Input::get('bank_username'));
-        $password = trim(Input::get('bank_password'));
+        $publicId = \Request::input('public_id');
+        $username = trim(\Request::input('bank_username'));
+        $password = trim(\Request::input('bank_password'));
+
         if ($publicId) {
             $bankAccount = BankAccount::scope($publicId)->firstOrFail();
             if ($username != $bankAccount->username) {
-                // TODO update username
+                $bankAccount->setUsername($username);
+                $bankAccount->save();
+            } else {
+                $username = Crypt::decrypt($username);
             }
-            $username = Crypt::decrypt($username);
             $bankId = $bankAccount->bank_id;
         } else {
-            $bankId = Input::get('bank_id');
+            $bankAccount = new BankAccount();
+            $bankAccount->bank_id = \Request::input('bank_id');
         }
-        return json_encode($this->bankAccountService->loadBankAccounts($bankId, $username, $password, $publicId));
+
+        $bankAccount->app_version = \Request::input('app_version');
+        $bankAccount->ofx_version = \Request::input('ofx_version');
+
+        if ($publicId) {
+            $bankAccount->save();
+        }
+
+        return json_encode($this->bankAccountService->loadBankAccounts($bankAccount, $username, $password, $publicId));
     }
 
     public function store(CreateBankAccountRequest $request)
     {
-        $bankAccount = $this->bankAccountRepo->save(Input::all());
-        $bankId = Input::get('bank_id');
-        $username = trim(Input::get('bank_username'));
-        $password = trim(Input::get('bank_password'));
-        return json_encode($this->bankAccountService->loadBankAccounts($bankId, $username, $password, true));
+        $bankAccount = $this->bankAccountRepo->save(Request::all());
+
+        $bankId = \Request::input('bank_id');
+        $username = trim(\Request::input('bank_username'));
+        $password = trim(\Request::input('bank_password'));
+
+        return json_encode($this->bankAccountService->loadBankAccounts($bankAccount, $username, $password, true));
     }
 
     public function importExpenses($bankId)
     {
-        return $this->bankAccountService->importExpenses($bankId, Input::all());
+        return $this->bankAccountService->importExpenses($bankId, Request::all());
     }
 
     public function showImportOFX()
@@ -116,18 +137,22 @@ class BankAccountController extends BaseController
     public function doImportOFX(Request $request)
     {
         $file = File::get($request->file('ofx_file'));
+
         try {
             $data = $this->bankAccountService->parseOFX($file);
-        } catch (\Exception $e) {
-            Session::flash('error', trans('texts.ofx_parse_failed'));
+        } catch (Exception $e) {
+            Session::now('error', trans('texts.ofx_parse_failed'));
             Utils::logError($e);
+
             return view('accounts.import_ofx');
         }
+
         $data = [
-            'banks' => null,
-            'bankAccount' => null,
+            'banks'        => null,
+            'bankAccount'  => null,
             'transactions' => json_encode([$data]),
         ];
+
         return View::make('accounts.bank_account', $data);
     }
 }

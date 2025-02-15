@@ -1,14 +1,18 @@
 <?php
+
 namespace App\Ninja\Datatables;
 
+use App\Libraries\Utils;
 use App\Models\Task;
-use Auth;
+use App\Models\TaskStatus;
+use DropdownButton;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class TaskDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TASK;
+
     public $sortCol = 3;
 
     public function columns()
@@ -17,41 +21,48 @@ class TaskDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
-                        return Utils::getClientDisplayName($model);
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     }
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
+
+                    return Utils::getClientDisplayName($model);
                 },
-                !$this->hideClient,
+                ! $this->hideClient,
             ],
             [
                 'project',
                 function ($model) {
-                    if (!Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->project_user_id])) {
-                        return $model->project;
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
+                        return $model->project_public_id ? link_to("projects/{$model->project_public_id}", $model->project)->toHtml() : '';
                     }
-                    return $model->project_public_id ? link_to("projects/{$model->project_public_id}/edit", $model->project)->toHtml() : '';
+
+                    return $model->project;
                 },
             ],
             [
                 'date',
                 function ($model) {
-                    if (!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
-                        return Task::calcStartTime($model);
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
+                        return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
                     }
-                    return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
+
+                    return Task::calcStartTime($model);
                 },
             ],
             [
                 'duration',
                 function ($model) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
+                        return link_to("tasks/{$model->public_id}/edit", Utils::formatTime(Task::calcDuration($model)))->toHtml();
+                    }
+
                     return Utils::formatTime(Task::calcDuration($model));
                 },
             ],
             [
                 'description',
                 function ($model) {
-                    return $model->description;
+                    return $this->showWithTooltip($model->description);
                 },
             ],
             [
@@ -72,7 +83,7 @@ class TaskDatatable extends EntityDatatable
                     return URL::to('tasks/' . $model->public_id . '/edit');
                 },
                 function ($model) {
-                    return (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
+                    return ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -81,7 +92,7 @@ class TaskDatatable extends EntityDatatable
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_number && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
+                    return $model->invoice_number && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -90,7 +101,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('resume', {$model->public_id})";
                 },
                 function ($model) {
-                    return !$model->is_running && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
+                    return ! $model->is_running && Auth::user()->can('edit', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -99,7 +110,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('stop', {$model->public_id})";
                 },
                 function ($model) {
-                    return $model->is_running && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
+                    return $model->is_running && Auth::user()->can('edit', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -108,16 +119,39 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return !$model->is_running && !$model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ! $model->is_running && ! $model->invoice_number && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->canCreateOrEdit(ENTITY_INVOICE);
                 },
             ],
         ];
     }
 
+    public function bulkActions()
+    {
+        $actions = [];
+
+        $statuses = TaskStatus::scope()->orderBy('sort_order')->get();
+
+        foreach ($statuses as $status) {
+            $actions[] = [
+                'label' => sprintf('%s %s', trans('texts.mark'), $status->name),
+                'url'   => 'javascript:submitForm_' . $this->entityType . '("update_status:' . $status->public_id . '")',
+            ];
+        }
+
+        if (count($actions)) {
+            $actions[] = DropdownButton::DIVIDER;
+        }
+
+        $actions = array_merge($actions, parent::bulkActions());
+
+        return $actions;
+    }
+
     private function getStatusLabel($model)
     {
-        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number);
+        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number, $model->task_status);
         $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\View;
 
 class ProposalSnippetController extends BaseController
 {
-    public $entityType = ENTITY_PROPOSAL_SNIPPET;
+    protected $proposalSnippetRepo;
 
-    protected ProposalSnippetRepository $proposalSnippetRepo;
+    protected $proposalSnippetService;
 
-    protected ProposalSnippetService $proposalSnippetService;
+    protected $entityType = ENTITY_PROPOSAL_SNIPPET;
 
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, ProposalSnippetService $proposalSnippetService)
     {
@@ -70,7 +70,7 @@ class ProposalSnippetController extends BaseController
     {
         Session::reflash();
 
-        return redirect(sprintf('proposals/snippets/%s/edit', $publicId));
+        return redirect("proposals/snippets/{$publicId}/edit");
     }
 
     public function edit(ProposalSnippetRequest $request)
@@ -118,20 +118,20 @@ class ProposalSnippetController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ?: Request::input('ids');
+        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalSnippetService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? $action . 'd_proposal_snippet' : $action . 'd_proposal_snippets';
-            $message = trans('texts.' . $field, ['count' => $count]);
+            $field = $count == 1 ? "{$action}d_proposal_snippet" : "{$action}d_proposal_snippets";
+            $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
 
         return redirect()->to('/proposals/snippets');
     }
 
-    private function getIcons(): array
+    private function getIcons()
     {
         $data = [];
         $icons = [

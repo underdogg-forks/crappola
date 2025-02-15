@@ -1,37 +1,20 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddCustomProductFields extends Migration
+{
+    public function up()
     {
-        Schema::table('products', function ($table): void {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
-        });
+        Schema::table('products', function ($table) {});
 
-        Schema::table('account_gateway_settings', function ($table): void {
-            $table->decimal('fee_amount', 13, 2)->nullable();
-            $table->decimal('fee_percent', 13, 3)->nullable();
-            $table->string('fee_tax_name1')->nullable();
-            $table->string('fee_tax_name2')->nullable();
-            $table->decimal('fee_tax_rate1', 13, 3)->nullable();
-            $table->decimal('fee_tax_rate2', 13, 3)->nullable();
-        });
+        Schema::table('account_gateway_settings', function ($table) {});
 
-        Schema::table('invoice_items', function ($table): void {
-            $table->smallInteger('invoice_item_type_id')->default(1);
-        });
+        Schema::table('invoice_items', function ($table) {});
 
-        Schema::table('accounts', function ($table): void {
-            $table->smallInteger('reset_counter_frequency_id')->nullable();
-            $table->smallInteger('payment_type_id')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
         DB::table('currencies')->where('code', '=', 'HKR')->update(['code' => 'HRK']);
 
@@ -45,19 +28,14 @@ return new class () extends Migration {
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('products', function ($table): void {
+        Schema::table('products', function ($table) {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
 
-        Schema::table('account_gateway_settings', function ($table): void {
+        Schema::table('account_gateway_settings', function ($table) {
             $table->dropColumn('fee_amount');
             $table->dropColumn('fee_percent');
             $table->dropColumn('fee_tax_rate1');
@@ -66,15 +44,15 @@ return new class () extends Migration {
             $table->dropColumn('fee_tax_name2');
         });
 
-        Schema::table('invoice_items', function ($table): void {
+        Schema::table('invoice_items', function ($table) {
             $table->dropColumn('invoice_item_type_id');
         });
 
-        Schema::table('accounts', function ($table): void {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('reset_counter_frequency_id');
             $table->dropColumn('payment_type_id');
         });
 
         DB::table('currencies')->where('code', '=', 'HRK')->update(['code' => 'HKR']);
     }
-};
+}

@@ -7,10 +7,7 @@ namespace App\Models\Traits;
  */
 trait HasCustomMessages
 {
-    /**
-     * @param $value
-     */
-    public function setCustomMessagesAttribute($data): void
+    public function setCustomMessagesAttribute($data)
     {
         $fields = [];
 
@@ -27,7 +24,7 @@ trait HasCustomMessages
         $this->attributes['custom_messages'] = count($fields) ? json_encode($fields) : null;
     }
 
-    public function getCustomMessagesAttribute($value): mixed
+    public function getCustomMessagesAttribute($value)
     {
         return json_decode($value ?: '{}');
     }
