@@ -2,16 +2,17 @@
 
 namespace App\Http\Requests;
 
+use Cache;
+use Crypt;
+use Google2FA;
 use App\Models\User;
-use Exception;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Validation\Factory as ValidationFactory;
-use PragmaRX\Google2FALaravel\Google2FA;
+use App\Http\Requests\Request;
+use Illuminate\Validation\Factory as ValidatonFactory;
 
 class ValidateTwoFactorRequest extends Request
 {
     /**
+     *
      * @var \App\User
      */
     private $user;
@@ -20,10 +21,9 @@ class ValidateTwoFactorRequest extends Request
      * Create a new FormRequest instance.
      *
      * @param \Illuminate\Validation\Factory $factory
-     *
      * @return void
      */
-    public function __construct(ValidationFactory $factory)
+    public function __construct(ValidatonFactory $factory)
     {
         $factory->extend(
             'valid_token',
@@ -40,12 +40,17 @@ class ValidateTwoFactorRequest extends Request
             function ($attribute, $value, $parameters, $validator) {
                 $key = $this->user->id . ':' . $value;
 
-                return ! Cache::has($key);
+                return !Cache::has($key);
             },
             trans('texts.invalid_code')
         );
     }
 
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize()
     {
         try {
@@ -59,6 +64,11 @@ class ValidateTwoFactorRequest extends Request
         return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
     public function rules()
     {
         return [

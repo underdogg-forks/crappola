@@ -1,9 +1,6 @@
 Credits
 =======
 
-For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 List Credits
 """"""""""""
 

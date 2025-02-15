@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -11,11 +10,17 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalSnippet extends EntityModel
 {
-    use PresentableTrait;
     use SoftDeletes;
+    use PresentableTrait;
 
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'name',
         'icon',
@@ -30,6 +35,9 @@ class ProposalSnippet extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProposalSnippetPresenter';
 
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_SNIPPET;
@@ -62,11 +70,6 @@ class ProposalSnippet extends EntityModel
     public function getDisplayName()
     {
         return $this->name;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
 

@@ -1,11 +1,17 @@
 <?php
 
-use App\Models\Subscription;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use App\Models\Subscription;
 
 class AddSubdomainToLookups extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('lookup_accounts', function ($table) {
@@ -36,27 +42,26 @@ class AddSubdomainToLookups extends Migration
             $table->foreign('shipping_country_id')->references('id')->on('countries');
         });
 
-        Schema::table('account_gateways', function ($table) {});
+        Schema::table('account_gateways', function ($table) {
+            $table->boolean('show_shipping_address')->default(false)->nullable();
+        });
 
         Schema::dropIfExists('scheduled_reports');
         Schema::create('scheduled_reports', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('public_id')->nullable();
+            $table->unsignedInteger('account_id')->index();
+            $table->timestamps();
+            $table->softDeletes();
 
             $table->text('config');
             $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly']);
             $table->date('send_date');
 
-            $table->string('ip')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
+            $table->unsignedInteger('public_id')->nullable();
             $table->unique(['account_id', 'public_id']);
         });
 
@@ -75,11 +80,11 @@ class AddSubdomainToLookups extends Migration
                 $publicId = $accountPublicIds[$accountId];
                 $accountPublicIds[$accountId]++;
             } else {
-                $publicId                     = 1;
+                $publicId = 1;
                 $accountPublicIds[$accountId] = 2;
             }
             $subscription->public_id = $publicId;
-            $subscription->user_id   = $subscription->account->users[0]->id;
+            $subscription->user_id = $subscription->account->users[0]->id;
             $subscription->save();
         }
 
@@ -98,6 +103,11 @@ class AddSubdomainToLookups extends Migration
         }
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('lookup_accounts', function ($table) {
@@ -139,5 +149,6 @@ class AddSubdomainToLookups extends Migration
         Schema::table('accounts', function ($table) {
             $table->dropColumn('inclusive_taxes');
         });
+
     }
 }

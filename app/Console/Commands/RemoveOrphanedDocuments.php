@@ -16,7 +16,6 @@ class RemoveOrphanedDocuments extends Command
      * @var string
      */
     protected $name = 'ninja:remove-orphaned-documents';
-
     /**
      * @var string
      */
@@ -24,7 +23,7 @@ class RemoveOrphanedDocuments extends Command
 
     public function handle()
     {
-        $this->info(date('r') . ' Running RemoveOrphanedDocuments...');
+        $this->info(date('r').' Running RemoveOrphanedDocuments...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -40,8 +39,6 @@ class RemoveOrphanedDocuments extends Command
         }
 
         $this->info('Done');
-
-        return 0;
     }
 
     /**
