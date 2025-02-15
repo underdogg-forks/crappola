@@ -1,10 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceFontSupport extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('fonts', function ($t) {
@@ -27,7 +31,10 @@ class AddInvoiceFontSupport extends Migration
         //$seeder = new FontsSeeder();
         //$seeder->run();
 
-        Schema::table('accounts', function ($table) {});
+        Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('header_font_id')->default(1);
+            $table->unsignedInteger('body_font_id')->default(1);
+        });
 
         /*
         Schema::table('accounts', function ($table) {
@@ -37,6 +44,11 @@ class AddInvoiceFontSupport extends Migration
         */
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         if (Schema::hasColumn('accounts', 'header_font_id')) {

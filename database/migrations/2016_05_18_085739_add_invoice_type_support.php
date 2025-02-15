@@ -1,10 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceTypeSupport extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         if (Schema::hasColumn('invoices', 'is_quote')) {
@@ -20,6 +24,11 @@ class AddInvoiceTypeSupport extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         if (Schema::hasColumn('invoices', 'invoice_type_id')) {

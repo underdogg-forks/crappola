@@ -18,8 +18,8 @@ class TaskStatusTransformer extends EntityTransformer
     public function transform(TaskStatus $taskStatus)
     {
         return array_merge($this->getDefaults($taskStatus), [
-            'id'         => (int) $taskStatus->public_id,
-            'name'       => $taskStatus->name ?: '',
+            'id' => (int) $taskStatus->public_id,
+            'name' => $taskStatus->name ?: '',
             'sort_order' => (int) $taskStatus->sort_order + 1,
         ]);
     }

@@ -39,8 +39,6 @@ class TestOFX extends Command
 
     public function handle()
     {
-        $this->info(date('r') . ' Running TestOFX...');
-
-        return 0;
+        $this->info(date('r').' Running TestOFX...');
     }
 }

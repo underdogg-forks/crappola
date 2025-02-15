@@ -1,10 +1,16 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddRemember2faToken extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('users', function ($table) {
@@ -14,19 +20,18 @@ class AddRemember2faToken extends Migration
         Schema::dropIfExists('task_statuses');
         Schema::create('task_statuses', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('public_id')->index();
+            $table->unsignedInteger('account_id')->index();
+            $table->timestamps();
+            $table->softDeletes();
 
             $table->string('name')->nullable();
             $table->smallInteger('sort_order')->default(0);
 
-            $table->timestamps();
-            $table->softDeletes();
-
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });
 
@@ -69,7 +74,7 @@ class AddRemember2faToken extends Migration
             $table->string('date_interval')->nullable();
         });
 
-        DB::statement('update invoices, (
+        DB::statement("update invoices, (
             	select max(created_at) created_at, invoice_id
             	from activities
             	where activity_type_id = 6
@@ -78,9 +83,9 @@ class AddRemember2faToken extends Migration
             set invoices.last_sent_date = activities.created_at
             where invoices.id = activities.invoice_id
             and invoices.is_recurring = 0
-            and invoices.invoice_type_id = 1');
+            and invoices.invoice_type_id = 1");
 
-        DB::statement('update invoices, (
+        DB::statement("update invoices, (
             	select max(created_at) created_at, invoice_id
             	from activities
             	where activity_type_id = 20
@@ -89,15 +94,20 @@ class AddRemember2faToken extends Migration
             set invoices.last_sent_date = activities.created_at
             where invoices.id = activities.invoice_id
             and invoices.is_recurring = 0
-            and invoices.invoice_type_id = 2');
+            and invoices.invoice_type_id = 2");
 
-        if ( ! Utils::isNinja()) {
+        if (! Utils::isNinja()) {
             Schema::table('activities', function ($table) {
                 $table->index('user_id');
             });
         }
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('users', function ($table) {
@@ -144,5 +154,6 @@ class AddRemember2faToken extends Migration
         Schema::table('frequencies', function ($table) {
             $table->dropColumn('date_interval');
         });
+
     }
 }

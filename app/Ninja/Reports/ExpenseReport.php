@@ -2,28 +2,30 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
+use Barracuda\ArchiveStream\Archive;
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Barracuda\ArchiveStream\Archive;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Utils;
 
 class ExpenseReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'vendor'            => [],
-            'client'            => [],
-            'date'              => [],
-            'category'          => [],
-            'amount'            => [],
-            'public_notes'      => ['columnSelector-false'],
-            'private_notes'     => ['columnSelector-false'],
-            'user'              => ['columnSelector-false'],
-            'payment_date'      => ['columnSelector-false'],
-            'payment_type'      => ['columnSelector-false'],
+            'id_number' => [],
+            'vendor' => [],
+            'client' => [],
+            'date' => [],
+            'category' => [],
+            'amount' => [],
+            'public_notes' => ['columnSelector-false'],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+            'payment_date' => ['columnSelector-false'],
+            'payment_type' => ['columnSelector-false'],
             'payment_reference' => ['columnSelector-false'],
+
         ];
 
         $user = auth()->user();
@@ -44,6 +46,8 @@ class ExpenseReport extends AbstractReport
             $columns['currency'] = ['columnSelector-false'];
         }
 
+        $columns['documents'] = ['columnSelector-false'];
+
         return $columns;
     }
 
@@ -60,14 +64,14 @@ class ExpenseReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-            ->orderBy('expense_date', 'desc')
-            ->withArchived()
-            ->with('client.contacts', 'vendor', 'expense_category', 'user')
-            ->where('expense_date', '>=', $this->startDate)
-            ->where('expense_date', '<=', $this->endDate);
+                        ->orderBy('expense_date', 'desc')
+                        ->withArchived()
+                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
+                        ->where('expense_date', '>=', $this->startDate)
+                        ->where('expense_date', '<=', $this->endDate);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if ( ! extension_loaded('GMP')) {
+            if (! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 
@@ -88,6 +92,7 @@ class ExpenseReport extends AbstractReport
             $amount = $expense->amountWithTax();
 
             $row = [
+                str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT),
                 $expense->vendor ? ($this->isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
                 $this->isExport ? $expense->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
@@ -115,6 +120,15 @@ class ExpenseReport extends AbstractReport
             if ($this->isExport) {
                 $row[] = $expense->present()->currencyCode;
             }
+
+            $documents = '';
+            foreach ($expense->documents as $document) {
+                $expenseId = $row[0];
+                $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                $name = str_replace(' ', '_', $name);
+                $documents[] = $name;
+            }
+            $row[] = join(', ', $documents);
 
             $this->data[] = $row;
 
