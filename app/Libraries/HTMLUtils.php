@@ -29,7 +29,7 @@ class HTMLUtils
 
         // Wrap our CSS in style tags and pass to purifier.
         // we're not actually interested in the html response though
-        $purifier->purify('<style>' . $css . '</style>');
+        $purifier->purify('<style>'.$css.'</style>');
 
         // The "style" blocks are stored seperately
         $css = $purifier->context->get('StyleBlocks');
@@ -50,6 +50,14 @@ class HTMLUtils
         return $purifier->purify($html);
     }
 
+    public static function sanitizeJS($js) {
+        if(!stripos($js, '<script')) {
+            $js = "<script type=\"text/javascript\">{$js}</script>";
+        }
+
+        return $js;
+    }
+
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();
@@ -57,9 +65,9 @@ class HTMLUtils
 
         if ($previous == $current) {
             return url($fallback);
+        } else {
+            return $previous;
         }
-
-        return $previous;
     }
 
     public static function getEnvForAccount($field, $default = '')

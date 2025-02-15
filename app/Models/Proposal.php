@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -11,16 +10,21 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Proposal extends EntityModel
 {
-    use PresentableTrait;
     use SoftDeletes;
+    use PresentableTrait;
 
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
-
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\ProposalPresenter';
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'private_notes',
         'html',
@@ -32,6 +36,9 @@ class Proposal extends EntityModel
      */
     //protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL;
@@ -53,16 +60,25 @@ class Proposal extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return mixed
+     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function invitations()
     {
         return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function proposal_invitations()
     {
         return $this->hasMany('App\Models\ProposalInvitation')->orderBy('proposal_invitations.contact_id');
@@ -107,15 +123,11 @@ class Proposal extends EntityModel
     {
         if ($this->invoice->quote_invoice_id) {
             return CUSTOM_MESSAGE_APPROVED_PROPOSAL;
+        } else {
+            return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
         }
-
-        return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }
 
 Proposal::creating(function ($project) {

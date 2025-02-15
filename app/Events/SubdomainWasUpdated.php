@@ -7,7 +7,6 @@ use Illuminate\Queue\SerializesModels;
 class SubdomainWasUpdated extends Event
 {
     use SerializesModels;
-
     public $account;
 
     /**

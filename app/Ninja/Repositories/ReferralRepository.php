@@ -10,19 +10,17 @@ class ReferralRepository
     public function getCounts($referralCode)
     {
         $counts = [
-            'free'       => 0,
-            'pro'        => 0,
+            'free' => 0,
+            'pro' => 0,
             'enterprise' => 0,
         ];
 
-        if ( ! $referralCode) {
+        if (! $referralCode) {
             return $counts;
         }
 
         $current = config('database.default');
-        $databases = env('MULTI_DB_ENABLED')
-            ? DbServer::pluck('name')->all()
-            : [$current];
+        $databases = env('MULTI_DB_ENABLED') ? DbServer::all()->pluck('name')->toArray() : [$current];
 
         foreach ($databases as $database) {
             config(['database.default' => $database]);

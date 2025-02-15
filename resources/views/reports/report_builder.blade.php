@@ -63,6 +63,7 @@
 
 		var chartStartDate = moment("{{ $startDate }}");
 		var chartEndDate = moment("{{ $endDate }}");
+        var chartQuarter = moment().quarter();
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
 		function resolveRange(range) {
@@ -285,7 +286,12 @@
             @foreach ($reportTotals as $currencyId => $each)
 				@foreach ($each as $dimension => $val)
 	                <tr>
-	                    <td>{!! Utils::getFromCache($currencyId, 'currencies')->name !!}
+	                    <td>
+							@if ($currencyId == 'Total')
+							Total
+							@else
+							{!! Utils::getFromCache($currencyId, 'currencies')->name !!}
+							@endif
 						@if ($dimension)
 							- {{ $dimension }}
 						@endif
@@ -294,8 +300,10 @@
 							<td>
 								@if ($field == 'duration')
 									{{ Utils::formatTime($value) }}
+								@elseif ($currencyId == 'Total')
+									{{ Utils::formatMoney($value, $account->getCurrencyId()) }}
 								@else
-		                        	{{ Utils::formatMoney($value, $currencyId) }}
+									{{ Utils::formatMoney($value, $currencyId) }}
 								@endif
 							</td>
 	                    @endforeach
@@ -357,6 +365,16 @@
 				<center style="padding-bottom:40px;font-size:16px;">
 					<div id="scheduleHelp"></div>
 				</center>
+
+				{!! Former::select('range')
+							->addOption(trans('texts.none'), '')
+							->addOption(trans('texts.this_month'), 'this_month')
+							->addOption(trans('texts.last_month'), 'last_month')
+							->addOption(trans('texts.current_quarter'), 'this_quarter')
+							->addOption(trans('texts.last_quarter'), 'last_quarter')
+							->addOption(trans('texts.this_year'), 'this_year')
+							->addOption(trans('texts.last_year'), 'last_year')
+							->value('') !!}
 
 				{!! Former::select('frequency')
 							->addOption(trans('texts.freq_daily'), REPORT_FREQUENCY_DAILY)
@@ -486,18 +504,6 @@
 				localStorage.setItem('last:report_subgroup', model.subgroup());
 			}, 1);
         });
-
-		// parse 1,000.00 or 1.000,00
-		function convertStringToNumber(str) {
-			str = str + '' || '';
-			if (str.indexOf(':') >= 0) {
-				return roundToTwo(moment.duration(str).asHours());
-			} else {
-				return NINJA.parseFloat(str);
-				var number = Number(str.replace(/[^0-9\-]+/g, ''));
-				return number / 100;
-			}
-		}
 
 		function ReportTypeModel(type, transType) {
 			var self = this;
