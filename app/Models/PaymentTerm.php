@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
+use Cache;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -12,25 +12,18 @@ class PaymentTerm extends EntityModel
 {
     use SoftDeletes;
 
+    /**
+     * @var bool
+     */
     public $timestamps = true;
-
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
-    public static function getSelectOptions()
-    {
-        $terms = self::whereAccountId(0)->get();
-
-        foreach (self::scope()->get() as $term) {
-            $terms->push($term);
-        }
-
-        foreach ($terms as $term) {
-            $term->name = trans('texts.payment_terms_net') . ' ' . $term->getNumDays();
-        }
-
-        return $terms->sortBy('num_days');
-    }
-
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_PAYMENT_TERM;
@@ -41,8 +34,18 @@ class PaymentTerm extends EntityModel
         return $this->num_days == -1 ? 0 : $this->num_days;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
+    public static function getSelectOptions()
     {
-        return $date->format('Y-m-d H:i:s');
+        $terms = PaymentTerm::whereAccountId(0)->get();
+
+        foreach (PaymentTerm::scope()->get() as $term) {
+            $terms->push($term);
+        }
+
+        foreach ($terms as $term) {
+            $term->name = trans('texts.payment_terms_net') . ' ' . $term->getNumDays();
+        }
+
+        return $terms->sortBy('num_days');
     }
 }

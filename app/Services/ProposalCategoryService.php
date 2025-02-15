@@ -25,7 +25,7 @@ class ProposalCategoryService extends BaseService
      * CreditService constructor.
      *
      * @param ProposalCategoryRepository $creditRepo
-     * @param DatatableService           $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, DatatableService $datatableService)
     {
@@ -34,7 +34,15 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @param       $data
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->proposalCategoryRepo;
+    }
+
+    /**
+     * @param $data
      * @param mixed $proposalCategory
      *
      * @return mixed|null
@@ -45,8 +53,8 @@ class ProposalCategoryService extends BaseService
     }
 
     /**
-     * @param       $clientPublicId
-     * @param       $search
+     * @param $clientPublicId
+     * @param $search
      * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -59,13 +67,5 @@ class ProposalCategoryService extends BaseService
         $query = $this->proposalCategoryRepo->find($search, $userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->proposalCategoryRepo;
     }
 }

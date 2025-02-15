@@ -1,12 +1,15 @@
 <?php
 
 use App\Models\PaymentStatus;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class PaymentsChanges extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::dropIfExists('payment_statuses');
@@ -25,7 +28,7 @@ class PaymentsChanges extends Migration
             ['id' => '6', 'name' => 'Refunded'],
         ];
 
-        Model::unguard();
+        Eloquent::unguard();
         foreach ($statuses as $status) {
             $record = PaymentStatus::find($status['id']);
             if ($record) {
@@ -35,40 +38,53 @@ class PaymentsChanges extends Migration
                 PaymentStatus::create($status);
             }
         }
-        Model::reguard();
+        Eloquent::reguard();
 
         Schema::dropIfExists('payment_methods');
 
         Schema::create('payment_methods', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
-            $table->unsignedInteger('contact_id')->nullable();
-            $table->unsignedInteger('account_gateway_token_id')->nullable();
-            $table->unsignedInteger('payment_type_id');
-            $table->unsignedInteger('currency_id')->nullable();
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('public_id')->index();
-
+            $table->unsignedInteger('contact_id')->nullable();
+            $table->unsignedInteger('account_gateway_token_id');
+            $table->unsignedInteger('payment_type_id');
             $table->string('source_reference');
 
             $table->unsignedInteger('routing_number')->nullable();
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
             $table->string('email')->nullable();
-
+            $table->unsignedInteger('currency_id')->nullable();
             $table->string('status')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
+            $table->unsignedInteger('public_id')->index();
         });
 
-        Schema::table('payment_methods', function ($table) {});
+        Schema::table('payment_methods', function ($table) {
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
+            $table->foreign('currency_id')->references('id')->on('currencies');
+
+            $table->unique(['account_id', 'public_id']);
+        });
 
         Schema::table('payments', function ($table) {
-            $table->unsignedInteger('payment_status_id')->after('id')->default(PAYMENT_STATUS_COMPLETED);
-            $table->unsignedInteger('payment_method_id')->after('payment_status_id')->nullable();
+            $table->decimal('refunded', 13, 2);
+            $table->unsignedInteger('payment_status_id')->default(PAYMENT_STATUS_COMPLETED);
+
+            $table->unsignedInteger('routing_number')->nullable();
+            $table->smallInteger('last4')->unsigned()->nullable();
+            $table->date('expiration')->nullable();
+            $table->text('gateway_error')->nullable();
+            $table->string('email')->nullable();
+            $table->unsignedInteger('payment_method_id')->nullable();
         });
 
         Schema::table('payments', function ($table) {
@@ -90,7 +106,7 @@ class PaymentsChanges extends Migration
             ->update(['auto_bill' => AUTO_BILL_OFF]);
 
         Schema::table('account_gateway_tokens', function ($table) {
-            $table->unsignedInteger('default_payment_method_id')->after('id')->nullable();
+            $table->unsignedInteger('default_payment_method_id')->nullable();
         });
 
         Schema::table('account_gateway_tokens', function ($table) {
@@ -98,6 +114,11 @@ class PaymentsChanges extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('payments', function ($table) {

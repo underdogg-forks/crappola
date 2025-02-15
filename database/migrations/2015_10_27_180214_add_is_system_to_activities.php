@@ -2,13 +2,19 @@
 
 use App\Models\Activity;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddIsSystemToActivities extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('activities', function ($table) {});
+        Schema::table('activities', function ($table) {
+            $table->boolean('is_system')->default(0);
+        });
 
         $activities = Activity::where('message', 'like', '%<i>System</i>%')->get();
         foreach ($activities as $activity) {
@@ -21,6 +27,11 @@ class AddIsSystemToActivities extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('activities', function ($table) {

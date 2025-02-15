@@ -2,16 +2,16 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
 use App\Models\Expense;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use URL;
+use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
-
     public $sortCol = 3;
+    public $fieldToSum = 'amount';
 
     public function columns()
     {
@@ -20,14 +20,14 @@ class ExpenseDatatable extends EntityDatatable
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model]))
                             return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
-                        }
+                        else
+                            return $model->vendor_name;
 
-                        return $model->vendor_name;
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
                 ! $this->hideClient,
             ],
@@ -35,25 +35,25 @@ class ExpenseDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
                             return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
-                        }
+                        else
+                            return Utils::getClientDisplayName($model);
 
-                        return Utils::getClientDisplayName($model);
+                    } else {
+                        return '';
                     }
-
-                    return '';
                 },
                 ! $this->hideClient,
             ],
             [
                 'expense_date',
                 function ($model) {
-                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model])) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
                         return $this->addNote(link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml(), $model->private_notes);
-                    }
+                    else
+                        return Utils::fromSqlDate($model->expense_date_sql);
 
-                    return Utils::fromSqlDate($model->expense_date_sql);
                 },
             ],
             [
@@ -74,12 +74,12 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    $category = $model->category != null ? mb_substr($model->category, 0, 100) : '';
-                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model])) {
+                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model]))
                         return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
-                    }
+                    else
+                        return $category;
 
-                    return $category;
                 },
             ],
             [
@@ -110,12 +110,12 @@ class ExpenseDatatable extends EntityDatatable
                 },
             ],
             [
-                trans('texts.clone_expense'),
+                trans("texts.clone_expense"),
                 function ($model) {
                     return URL::to("expenses/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
             ],
             [
@@ -133,7 +133,7 @@ class ExpenseDatatable extends EntityDatatable
                     return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && ( ! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('createEntity', ENTITY_INVOICE);
                 },
             ],
         ];
@@ -144,6 +144,6 @@ class ExpenseDatatable extends EntityDatatable
         $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
         $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
-        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

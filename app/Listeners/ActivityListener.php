@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App;
 use App\Events\ClientWasArchived;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
@@ -43,6 +42,7 @@ use App\Events\TaskWasCreated;
 use App\Events\TaskWasDeleted;
 use App\Events\TaskWasRestored;
 use App\Events\TaskWasUpdated;
+use App\Events\TicketUserViewed;
 use App\Models\Invoice;
 use App\Ninja\Repositories\ActivityRepository;
 
@@ -131,13 +131,13 @@ class ActivityListener
      */
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
-        if ( ! $event->invoice->isChanged()) {
+        if (! $event->invoice->isChanged()) {
             return;
         }
 
         $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')
-            ->withTrashed()
-            ->find($event->invoice->id);
+                            ->withTrashed()
+                            ->find($event->invoice->id);
 
         $activity = $this->activityRepo->create(
             $event->invoice,
@@ -239,13 +239,13 @@ class ActivityListener
      */
     public function updatedQuote(QuoteWasUpdated $event)
     {
-        if ( ! $event->quote->isChanged()) {
+        if (! $event->quote->isChanged()) {
             return;
         }
 
         $backupQuote = Invoice::with('invoice_items', 'client.account', 'client.contacts')
-            ->withTrashed()
-            ->find($event->quote->id);
+                            ->withTrashed()
+                            ->find($event->quote->id);
 
         $activity = $this->activityRepo->create(
             $event->quote,
@@ -395,7 +395,7 @@ class ActivityListener
             $event->payment->amount * -1,
             $event->payment->amount,
             false,
-            App::runningInConsole() ? 'auto_billed' : ''
+            \App::runningInConsole() ? 'auto_billed' : ''
         );
     }
 
@@ -509,7 +509,7 @@ class ActivityListener
      */
     public function updatedTask(TaskWasUpdated $event)
     {
-        if ( ! $event->task->isChanged()) {
+        if (! $event->task->isChanged()) {
             return;
         }
 
@@ -557,7 +557,7 @@ class ActivityListener
 
     public function updatedExpense(ExpenseWasUpdated $event)
     {
-        if ( ! $event->expense->isChanged()) {
+        if (! $event->expense->isChanged()) {
             return;
         }
 
@@ -592,6 +592,17 @@ class ActivityListener
         $this->activityRepo->create(
             $event->expense,
             ACTIVITY_TYPE_RESTORE_EXPENSE
+        );
+    }
+
+    /**
+     * @param TicketUserViewed $event
+     */
+    public function userViewedTicket(TicketUserViewed $event)
+    {
+        $this->activityRepo->create(
+            $event->ticket,
+            ACTIVITY_TYPE_USER_VIEW_TICKET
         );
     }
 }

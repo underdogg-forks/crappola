@@ -12,7 +12,7 @@ trait OwnedByClientTrait
      */
     public function isClientTrashed()
     {
-        if ( ! $this->client) {
+        if (! $this->client) {
             return false;
         }
 

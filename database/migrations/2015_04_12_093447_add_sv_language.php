@@ -4,6 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddSvLanguage extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         //DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
@@ -12,6 +17,11 @@ class AddSvLanguage extends Migration
         //DB::table('languages')->insert(['name' => 'Lithuanian', 'locale' => 'lt']);
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         if ($language = \App\Models\Language::whereLocale('sv')->first()) {

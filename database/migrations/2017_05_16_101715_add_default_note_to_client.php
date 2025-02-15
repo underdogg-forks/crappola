@@ -1,14 +1,29 @@
 <?php
 
-use App\Libraries\Utils;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddDefaultNoteToClient extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
+        Schema::table('clients', function ($table) {
+            $table->text('public_notes')->nullable();
+        });
+
+        Schema::table('invoices', function ($table) {
+            $table->text('private_notes')->nullable();
+        });
+
+        Schema::table('payments', function ($table) {
+            $table->text('private_notes')->nullable();
+        });
+
         Schema::table('accounts', function ($table) {
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
@@ -49,6 +64,14 @@ class AddDefaultNoteToClient extends Migration
             });
         }
 
+        Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('quote_design_id')->default(1);
+            $table->renameColumn('custom_design', 'custom_design1');
+            $table->mediumText('custom_design2')->nullable();
+            $table->mediumText('custom_design3')->nullable();
+            $table->string('analytics_key')->nullable();
+        });
+
         DB::statement('update accounts
             set quote_design_id = invoice_design_id');
 
@@ -58,6 +81,11 @@ class AddDefaultNoteToClient extends Migration
             and name = "Custom"');
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('clients', function ($table) {

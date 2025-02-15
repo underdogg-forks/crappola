@@ -33,6 +33,14 @@ class TokenService extends BaseService
     }
 
     /**
+     * @return TokenRepository
+     */
+    protected function getRepo()
+    {
+        return $this->tokenRepo;
+    }
+
+    /**
      * @param $userId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -43,13 +51,5 @@ class TokenService extends BaseService
         $query = $this->tokenRepo->find($userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return TokenRepository
-     */
-    protected function getRepo()
-    {
-        return $this->tokenRepo;
     }
 }

@@ -1,18 +1,23 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddDefaultQuoteTerms extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {});
+        Schema::table('accounts', function ($table) {
+            $table->text('quote_terms')->nullable();
+        });
 
         $accounts = DB::table('accounts')
-            ->orderBy('id')
-            ->get(['id', 'invoice_terms']);
+                        ->orderBy('id')
+                        ->get(['id', 'invoice_terms']);
 
         foreach ($accounts as $account) {
             DB::table('accounts')
@@ -21,6 +26,11 @@ class AddDefaultQuoteTerms extends Migration
         }
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

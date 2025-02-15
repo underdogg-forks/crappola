@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -11,10 +10,13 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ExpenseCategory extends EntityModel
 {
-    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
+    use PresentableTrait;
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'name',
     ];
@@ -24,6 +26,9 @@ class ExpenseCategory extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
 
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_EXPENSE_CATEGORY;
@@ -43,10 +48,5 @@ class ExpenseCategory extends EntityModel
     public function getRoute()
     {
         return "/expense_categories/{$this->public_id}/edit";
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
