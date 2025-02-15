@@ -1,20 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddPartialAmountToInvoices extends Migration
 {
     public function up()
     {
-        Schema::table('invoices', function ($table) {
-            $table->decimal('partial', 13, 2)->nullable();
-        });
+        Schema::table('invoices', function ($table) {});
 
-        Schema::table('accounts', function ($table) {
-            $table->boolean('utf8_invoices')->default(true);
-            $table->boolean('auto_wrap')->default(false);
-            $table->string('subdomain')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

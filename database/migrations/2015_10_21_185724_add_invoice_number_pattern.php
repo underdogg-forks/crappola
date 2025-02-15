@@ -1,15 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceNumberPattern extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->string('invoice_number_pattern')->nullable();
-            $table->string('quote_number_pattern')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

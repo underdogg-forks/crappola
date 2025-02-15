@@ -1,18 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceDesignTable extends Migration
 {
     public function up()
     {
-        Schema::table('invoice_designs', function ($table) {
-            $table->mediumText('javascript')->nullable();
-        });
+        Schema::table('invoice_designs', function ($table) {});
 
-        Schema::table('accounts', function ($table) {
-            $table->text('invoice_design')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
         DB::table('invoice_designs')->where('id', 1)->update([
             'javascript' => "var GlobalY=0;//Y position of line at current page

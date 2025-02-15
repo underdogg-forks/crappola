@@ -2,25 +2,17 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSwapCurrencySymbolToCurrency extends Migration
 {
     public function up()
     {
-        Schema::table('currencies', function (Blueprint $table) {
-            $table->boolean('swap_currency_symbol')->default(false);
-        });
+        Schema::table('currencies', function (Blueprint $table) {});
 
-        Schema::table('expenses', function (Blueprint $table) {
-            $table->string('tax_name1')->nullable();
-            $table->decimal('tax_rate1', 13, 3);
-            $table->string('tax_name2')->nullable();
-            $table->decimal('tax_rate2', 13, 3);
-        });
+        Schema::table('expenses', function (Blueprint $table) {});
 
-        Schema::table('account_gateways', function (Blueprint $table) {
-            $table->boolean('require_cvv')->default(true)->nullable();
-        });
+        Schema::table('account_gateways', function (Blueprint $table) {});
     }
 
     public function down()

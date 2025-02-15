@@ -1,18 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddSwapPostalCode extends Migration
 {
     public function up()
     {
-        Schema::table('countries', function ($table) {
-            $table->boolean('swap_postal_code')->default(0);
-        });
+        Schema::table('countries', function ($table) {});
 
-        Schema::table('accounts', function ($table) {
-            $table->boolean('show_item_taxes')->default(0);
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

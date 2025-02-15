@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddAffiliatePrice extends Migration
 {
@@ -11,7 +12,7 @@ class AddAffiliatePrice extends Migration
         });
 
         Schema::table('licenses', function ($table) {
-            $table->unsignedInteger('product_id')->nullable();
+            $table->unsignedInteger('product_id')->after('affiliate_id')->nullable();
         });
     }
 

@@ -1,14 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddDefaultQuoteTerms extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->text('quote_terms')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
         $accounts = DB::table('accounts')
             ->orderBy('id')

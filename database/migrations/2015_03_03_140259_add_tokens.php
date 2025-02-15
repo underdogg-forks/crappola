@@ -25,9 +25,7 @@ class AddTokens extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('activities', function ($table) {
-            $table->unsignedInteger('token_id')->nullable();
-        });
+        Schema::table('activities', function ($table) {});
     }
 
     public function down()

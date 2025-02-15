@@ -17,6 +17,10 @@ class AddTasks extends Migration
 
             $table->timestamp('start_time')->nullable();
             $table->integer('duration')->nullable();
+            $table->boolean('is_running')->default(false);
+            $table->integer('break_duration')->nullable();
+            $table->timestamp('resume_time')->nullable();
+            $table->text('time_log')->nullable();
             $table->string('description')->nullable();
             $table->boolean('is_deleted')->default(false);
 
@@ -31,11 +35,11 @@ class AddTasks extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::dropIfExists('timesheets');
-        Schema::dropIfExists('timesheet_events');
-        Schema::dropIfExists('timesheet_event_sources');
-        Schema::dropIfExists('project_codes');
-        Schema::dropIfExists('projects');
+        //Schema::dropIfExists('timesheets');
+        //Schema::dropIfExists('timesheet_events');
+        //Schema::dropIfExists('timesheet_event_sources');
+        //Schema::dropIfExists('project_codes');
+        //Schema::dropIfExists('projects');
     }
 
     public function down()

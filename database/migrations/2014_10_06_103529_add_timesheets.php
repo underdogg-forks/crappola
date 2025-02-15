@@ -10,16 +10,22 @@ class AddTimesheets extends Migration
         Schema::create('projects', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
+            $t->unsignedInteger('client_id')->index()->nullable();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('public_id')->index();
 
             $t->string('name');
             $t->string('description');
 
+            $t->boolean('is_deleted')->default(false);
+
             $t->timestamps();
             $t->softDeletes();
 
-            $t->foreign('account_id')->references('id')->on('accounts');
+            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
 
             $t->unique(['account_id', 'name']);
         });

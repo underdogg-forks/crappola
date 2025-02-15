@@ -1,20 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddReminderSettings extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->smallInteger('direction_reminder1')->default(1);
-            $table->smallInteger('direction_reminder2')->default(1);
-            $table->smallInteger('direction_reminder3')->default(1);
-
-            $table->smallInteger('field_reminder1')->default(1);
-            $table->smallInteger('field_reminder2')->default(1);
-            $table->smallInteger('field_reminder3')->default(1);
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()
