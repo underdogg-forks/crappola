@@ -36,9 +36,7 @@ class AddSubdomainToLookups extends Migration
             $table->foreign('shipping_country_id')->references('id')->on('countries');
         });
 
-        Schema::table('account_gateways', function ($table) {
-            $table->boolean('show_shipping_address')->default(false)->nullable();
-        });
+        Schema::table('account_gateways', function ($table) {});
 
         Schema::dropIfExists('scheduled_reports');
         Schema::create('scheduled_reports', function ($table) {
@@ -50,6 +48,8 @@ class AddSubdomainToLookups extends Migration
             $table->text('config');
             $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly']);
             $table->date('send_date');
+
+            $table->string('ip')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -75,11 +75,11 @@ class AddSubdomainToLookups extends Migration
                 $publicId = $accountPublicIds[$accountId];
                 $accountPublicIds[$accountId]++;
             } else {
-                $publicId = 1;
+                $publicId                     = 1;
                 $accountPublicIds[$accountId] = 2;
             }
             $subscription->public_id = $publicId;
-            $subscription->user_id = $subscription->account->users[0]->id;
+            $subscription->user_id   = $subscription->account->users[0]->id;
             $subscription->save();
         }
 

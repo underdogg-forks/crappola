@@ -8,12 +8,8 @@ class AddDartFormatColumn extends Migration
 {
     public function up()
     {
-        Schema::table('date_formats', function (Blueprint $table) {
-            $table->string('format_dart');
-        });
-        Schema::table('datetime_formats', function (Blueprint $table) {
-            $table->string('format_dart');
-        });
+        Schema::table('date_formats', function (Blueprint $table) {});
+        Schema::table('datetime_formats', function (Blueprint $table) {});
     }
 
     public function down()

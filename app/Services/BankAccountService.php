@@ -12,9 +12,9 @@ use App\Ninja\Datatables\BankAccountDatatable;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Carbon;
 use Exception;
 use Hash;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
 

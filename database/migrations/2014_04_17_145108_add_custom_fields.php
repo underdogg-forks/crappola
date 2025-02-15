@@ -1,26 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddCustomFields extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->string('custom_label1')->nullable();
-            $table->string('custom_value1')->nullable();
+        Schema::table('accounts', function ($table) {});
 
-            $table->string('custom_label2')->nullable();
-            $table->string('custom_value2')->nullable();
-
-            $table->string('custom_client_label1')->nullable();
-            $table->string('custom_client_label2')->nullable();
-        });
-
-        Schema::table('clients', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
-        });
+        Schema::table('clients', function ($table) {});
     }
 
     public function down()

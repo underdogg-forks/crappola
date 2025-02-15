@@ -29,6 +29,11 @@ class CreateVendorsTable extends Migration
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
 
+            $table->string('transaction_name')->nullable();
+
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
+
             $table->boolean('is_deleted')->default(0);
 
             $table->timestamps();
@@ -71,6 +76,7 @@ class CreateVendorsTable extends Migration
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_currency_id')->nullable(false);
+            $table->unsignedInteger('payment_type_id')->nullable();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('public_id')->index();
 
@@ -78,10 +84,26 @@ class CreateVendorsTable extends Migration
             $table->decimal('foreign_amount', 13, 2);
             $table->decimal('exchange_rate', 13, 4);
             $table->date('expense_date')->nullable();
+            $table->boolean('should_be_invoiced')->default(true);
+
+            $table->string('transaction_id')->nullable();
+            $table->string('transaction_reference')->nullable();
+            $table->unsignedInteger('bank_id')->nullable();
+
+            $table->date('payment_date')->nullable();
+            $table->boolean('invoice_documents')->default(true);
+
+            $table->string('tax_name1')->nullable();
+            $table->decimal('tax_rate1', 13, 3);
+            $table->string('tax_name2')->nullable();
+            $table->decimal('tax_rate2', 13, 3);
+
             $table->text('private_notes');
             $table->text('public_notes');
 
-            $table->boolean('should_be_invoiced')->default(true);
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
+
             $table->boolean('is_deleted')->default(false);
 
             $table->timestamps();
@@ -90,18 +112,13 @@ class CreateVendorsTable extends Migration
             // Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
 
             // Indexes
             $table->unique(['account_id', 'public_id']);
         });
 
         Schema::table('payment_terms', function (Blueprint $table) {
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id');
-            $table->unsignedInteger('public_id')->index();
-
-            $table->timestamps();
-            $table->softDeletes();
             //$table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             //$table->unique(array('account_id', 'public_id'));
@@ -118,13 +135,9 @@ class CreateVendorsTable extends Migration
             DB::table('payment_terms')->where('id', $pTerm->id)->update($data);
         }
 
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->boolean('has_expenses')->default(false);
-        });
+        Schema::table('invoices', function (Blueprint $table) {});
 
-        Schema::table('payment_terms', function (Blueprint $table) {
-            $table->unique(['account_id', 'public_id']);
-        });
+        Schema::table('payment_terms', function (Blueprint $table) {});
     }
 
     public function down()

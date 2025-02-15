@@ -1,16 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddQuotes extends Migration
 {
     public function up()
     {
-        Schema::table('invoices', function ($table) {
-            $table->boolean('invoice_type_id')->default(0);
-            $table->unsignedInteger('quote_id')->nullable();
-            $table->unsignedInteger('quote_invoice_id')->nullable();
-        });
+        Schema::table('invoices', function ($table) {});
     }
 
     public function down()

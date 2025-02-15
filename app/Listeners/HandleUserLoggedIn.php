@@ -8,7 +8,7 @@ use App\Libraries\HistoryUtils;
 use App\Libraries\Utils;
 use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
-use Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 

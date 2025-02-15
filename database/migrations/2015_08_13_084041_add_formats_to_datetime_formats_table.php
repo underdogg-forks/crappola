@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddFormatsToDatetimeFormatsTable extends Migration
 {
@@ -15,9 +17,7 @@ class AddFormatsToDatetimeFormatsTable extends Migration
             ->where('label', '20/03/2013 6:15 pm')
             ->update(['label' => '20-03-2013 6:15 pm']);
 
-        Schema::table('datetime_formats', function (Blueprint $table) {
-            $table->string('format_moment');
-        });
+        Schema::table('datetime_formats', function (Blueprint $table) {});
     }
 
     public function down()

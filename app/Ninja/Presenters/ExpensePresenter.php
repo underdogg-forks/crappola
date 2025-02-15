@@ -3,8 +3,8 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Utils;
-use Carbon;
 use DateTime;
+use Illuminate\Support\Carbon;
 
 /**
  * Class ExpensePresenter.

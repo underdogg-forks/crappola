@@ -8,7 +8,7 @@ class AddTaskProjects extends Migration
 {
     public function up()
     {
-        Schema::create('projects', function ($table) {
+        /*Schema::create('projects', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('client_id')->index()->nullable();
@@ -27,7 +27,7 @@ class AddTaskProjects extends Migration
             $table->softDeletes();
 
             $table->unique(['account_id', 'public_id']);
-        });
+        });*/
 
         Schema::table('tasks', function ($table) {
             $table->unsignedInteger('project_id')->nullable()->index();

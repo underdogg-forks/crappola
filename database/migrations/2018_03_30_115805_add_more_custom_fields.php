@@ -2,15 +2,14 @@
 
 use App\Models\Account;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AddMoreCustomFields extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->mediumText('custom_fields')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
         $accounts = Account::where('custom_label1', '!=', '')
             ->orWhere('custom_label2', '!=', '')
@@ -72,63 +71,29 @@ class AddMoreCustomFields extends Migration
             $table->dropColumn('custom_invoice_item_label2');
         });
 
-        Schema::table('accounts', function ($table) {
-            $table->unsignedInteger('background_image_id')->nullable();
-            $table->mediumText('custom_messages')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('clients', function ($table) {
-            $table->mediumText('custom_messages')->nullable();
-        });
+        Schema::table('clients', function ($table) {});
 
-        Schema::table('tasks', function ($table) {
-            $table->text('custom_value1')->nullable();
-            $table->text('custom_value2')->nullable();
-        });
+        Schema::table('tasks', function ($table) {});
 
-        Schema::table('projects', function ($table) {
-            $table->text('custom_value1')->nullable();
-            $table->text('custom_value2')->nullable();
-        });
+        Schema::table('projects', function ($table) {});
 
-        Schema::table('expenses', function ($table) {
-            $table->text('custom_value1')->nullable();
-            $table->text('custom_value2')->nullable();
-        });
+        Schema::table('expenses', function ($table) {});
 
-        Schema::table('vendors', function ($table) {
-            $table->text('custom_value1')->nullable();
-            $table->text('custom_value2')->nullable();
-        });
+        Schema::table('vendors', function ($table) {});
 
-        Schema::table('products', function ($table) {
-            $table->text('custom_value1')->nullable()->change();
-            $table->text('custom_value2')->nullable()->change();
-        });
+        Schema::table('products', function ($table) {});
 
-        Schema::table('clients', function ($table) {
-            $table->text('custom_value1')->nullable()->change();
-            $table->text('custom_value2')->nullable()->change();
-        });
+        Schema::table('clients', function ($table) {});
 
-        Schema::table('contacts', function ($table) {
-            $table->text('custom_value1')->nullable()->change();
-            $table->text('custom_value2')->nullable()->change();
-        });
+        Schema::table('contacts', function ($table) {});
 
-        Schema::table('invoices', function ($table) {
-            $table->text('custom_text_value1')->nullable()->change();
-            $table->text('custom_text_value2')->nullable()->change();
-        });
+        Schema::table('invoices', function ($table) {});
 
-        Schema::table('invoice_items', function ($table) {
-            $table->text('custom_value1')->nullable()->change();
-            $table->text('custom_value2')->nullable()->change();
-        });
+        Schema::table('invoice_items', function ($table) {});
 
-        Schema::table('scheduled_reports', function ($table) {
-            $table->string('ip')->nullable();
-        });
+        Schema::table('scheduled_reports', function ($table) {});
 
         DB::statement('UPDATE gateways SET provider = "Custom1" WHERE id = 62');
         DB::statement('UPDATE gateway_types SET alias = "custom1" WHERE id = 6');

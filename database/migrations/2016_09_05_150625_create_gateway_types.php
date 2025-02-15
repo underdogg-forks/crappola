@@ -25,6 +25,13 @@ class CreateGatewayTypes extends Migration
             $table->unsignedInteger('min_limit')->nullable();
             $table->unsignedInteger('max_limit')->nullable();
 
+            $table->decimal('fee_amount', 13, 2)->nullable();
+            $table->decimal('fee_percent', 13, 3)->nullable();
+            $table->string('fee_tax_name1')->nullable();
+            $table->string('fee_tax_name2')->nullable();
+            $table->decimal('fee_tax_rate1', 13, 3)->nullable();
+            $table->decimal('fee_tax_rate2', 13, 3)->nullable();
+
             $table->timestamp('updated_at')->nullable();
         });
 

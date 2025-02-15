@@ -1,16 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddSortAndRecommendedToGateways extends Migration
 {
     public function up()
     {
-        Schema::table('gateways', function ($table) {
-            $table->unsignedInteger('sort_order')->default(10000);
-            $table->boolean('recommended')->default(0);
-            $table->string('site_url', 200)->nullable();
-        });
+        Schema::table('gateways', function ($table) {});
     }
 
     public function down()

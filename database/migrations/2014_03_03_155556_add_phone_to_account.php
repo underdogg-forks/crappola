@@ -1,15 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddPhoneToAccount extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->string('work_phone')->nullable();
-            $table->string('work_email')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

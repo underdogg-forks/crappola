@@ -3,7 +3,7 @@
 namespace App\Models\Traits;
 
 use App\Libraries\Utils;
-use Carbon;
+use Illuminate\Support\Carbon;
 
 /**
  * Class SendsEmails.

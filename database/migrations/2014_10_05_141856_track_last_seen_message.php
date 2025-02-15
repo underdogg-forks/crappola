@@ -1,15 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class TrackLastSeenMessage extends Migration
 {
     public function up()
     {
-        Schema::table('users', function ($table) {
-            $table->unsignedInteger('news_feed_id')->nullable();
-        });
-
+        Schema::table('users', function ($table) {});
         if (DB::table('payment_libraries')->count() > 0) {
             DB::table('gateways')->update(['recommended' => 0]);
             DB::table('gateways')->insert([

@@ -1,19 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class SupportLockingAccount extends Migration
 {
     public function up()
     {
-        Schema::table('users', function ($table) {
-            $table->smallInteger('failed_logins')->nullable();
-        });
+        Schema::table('users', function ($table) {});
 
-        Schema::table('account_gateways', function ($table) {
-            $table->boolean('show_address')->default(true)->nullable();
-            $table->boolean('update_address')->default(true)->nullable();
-        });
+        Schema::table('account_gateways', function ($table) {});
     }
 
     public function down()

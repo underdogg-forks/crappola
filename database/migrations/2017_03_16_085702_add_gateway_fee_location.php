@@ -8,10 +8,7 @@ class AddGatewayFeeLocation extends Migration
 {
     public function up()
     {
-        Schema::table('clients', function ($table) {
-            $table->integer('invoice_number_counter')->default(1)->nullable();
-            $table->integer('quote_number_counter')->default(1)->nullable();
-        });
+        Schema::table('clients', function ($table) {});
 
         Schema::table('credits', function ($table) {
             $table->text('public_notes')->nullable();

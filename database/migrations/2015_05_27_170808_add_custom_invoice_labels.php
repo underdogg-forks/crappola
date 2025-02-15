@@ -1,14 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddCustomInvoiceLabels extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->text('invoice_labels')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

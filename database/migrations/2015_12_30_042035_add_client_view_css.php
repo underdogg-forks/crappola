@@ -1,14 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddClientViewCss extends Migration
 {
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->text('client_view_css')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
     public function down()

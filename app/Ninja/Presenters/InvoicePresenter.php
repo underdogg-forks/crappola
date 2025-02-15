@@ -4,8 +4,8 @@ namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
 use App\Libraries\Utils;
-use Carbon;
 use DropdownButton;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
 
