@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Eloquent;
 
 /**
  * Class Bank.
  */
 class Bank extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
     /**

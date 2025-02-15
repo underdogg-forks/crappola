@@ -2,8 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddQuoteToInvoiceOption extends Migration
 {
@@ -15,12 +13,14 @@ class AddQuoteToInvoiceOption extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function (Blueprint $table) {});
-
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->boolean('auto_convert_quote')->default(true);
+        });
+        
         // we need to create the last status to resolve a foreign key constraint
         if (DB::table('invoice_statuses')->count() == 5) {
             DB::table('invoice_statuses')->insert([
-                'id'   => 6,
+                'id' => 6,
                 'name' => 'Paid',
             ]);
         }
@@ -30,6 +30,11 @@ class AddQuoteToInvoiceOption extends Migration
             ->increment('invoice_status_id');
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('accounts', function (Blueprint $table) {

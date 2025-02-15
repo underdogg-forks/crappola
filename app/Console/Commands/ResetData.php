@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\Utils;
 use Illuminate\Console\Command;
+use Utils;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -25,7 +25,7 @@ class ResetData extends Command
     {
         $this->info(date('r') . ' Running ResetData...');
 
-        if ( ! Utils::isNinjaDev()) {
+        if (! Utils::isNinjaDev()) {
             return;
         }
 
@@ -36,8 +36,6 @@ class ResetData extends Command
         Artisan::call('migrate:reset');
         Artisan::call('migrate');
         Artisan::call('db:seed');
-
-        return 0;
     }
 
     /**

@@ -2,40 +2,41 @@
 
 namespace App\Ninja\Reports;
 
-use App\Libraries\Utils;
-use App\Models\Client;
+use App\Libraries\MoneyUtils;
+use App\Models\Currency;
+use Utils;
+use Auth;
+use Carbon;
 use DateInterval;
 use DatePeriod;
-use DateTime;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use stdClass;
+use App\Models\Client;
 
 class AbstractReport
 {
     public $startDate;
-
     public $endDate;
-
     public $isExport;
-
+    private $account;
     public $options;
 
     public $totals = [];
-
     public $data = [];
-
     public $chartData = [];
 
-    public function __construct($startDate, $endDate, $isExport, $options = false)
+    public function __construct($startDate, $endDate, $isExport, $account, $options = false)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->isExport = $isExport;
+        $this->account = $account;
         $this->options = $options;
     }
 
-    public function run() {}
+    public function run()
+    {
+
+    }
 
     public function getColumns()
     {
@@ -44,15 +45,43 @@ class AbstractReport
 
     public function results()
     {
+        asort($this->totals);
+
         return [
-            'columns'      => $this->getColumns(),
-            'displayData'  => $this->data,
+            'columns' => $this->getColumns(),
+            'displayData' => $this->data,
             'reportTotals' => $this->totals,
         ];
     }
 
-    public function tableHeaderArray()
+    protected function addToTotals($currencyId, $field, $value, $dimension = false)
     {
+        $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
+
+        if (! isset($this->totals[$currencyId][$dimension])) {
+        $this->totals[$currencyId][$dimension] = [];
+    }
+
+        if (! isset($this->totals[$currencyId][$dimension][$field])) {
+            $this->totals[$currencyId][$dimension][$field] = 0;
+        }
+
+        $this->totals[$currencyId][$dimension][$field] += $value;
+
+        if($currencyId !== 'Total') $this->addTotalToTotals($currencyId, $field, $value, $dimension);
+    }
+
+    protected function addTotalToTotals($currencyId, $field, $value, $dimension = false)
+    {
+        if ($currencyId != $this->account->getCurrencyId()) {
+            $currency = Currency::where('id', $currencyId)->first();
+            $value = MoneyUtils::convert($value, $currency->code, $this->account->currency->code);
+        }
+
+        $this->addToTotals('Total', $field, $value, $dimension);
+    }
+
+    public function tableHeaderArray() {
         $columns_labeled = [];
 
         foreach ($this->getColumns() as $key => $val) {
@@ -64,8 +93,8 @@ class AbstractReport
                 $class = [];
             }
 
-            if (str_contains($field, 'date')) {
-                $class[] = 'group-date-' . ($this->options['group'] ?? 'monthyear');
+            if (strpos($field, 'date') !== false) {
+                $class[] = 'group-date-' . (isset($this->options['group']) ? $this->options['group'] : 'monthyear');
             } elseif (in_array($field, ['client', 'vendor', 'product', 'user', 'method', 'category', 'project'])) {
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
@@ -74,7 +103,7 @@ class AbstractReport
                 $class[] = 'group-number-30';
             }
 
-            if ( ! in_array('custom', $class)) {
+            if (! in_array('custom', $class)) {
                 $label = trans("texts.{$field}");
             } else {
                 $label = $field;
@@ -84,7 +113,7 @@ class AbstractReport
             $columns_labeled[] = [
                 'label' => $label,
                 'class' => $class,
-                'key'   => $field,
+                'key' => $field
             ];
         }
 
@@ -108,17 +137,17 @@ class AbstractReport
     {
         $account = Auth::user()->account;
         $format = $account->getMomentDateFormat();
-        $format = mb_strtolower($format);
+        $format = strtolower($format);
         $format = str_replace('do', '', $format);
 
         $orignalFormat = $format;
-        $format = preg_replace('/[^mdy]/', '', $format);
+        $format = preg_replace("/[^mdy]/", '', $format);
 
         $lastLetter = false;
         $reportParts = [];
         $phpParts = [];
 
-        foreach (mb_str_split($format) as $letter) {
+        foreach (str_split($format) as $letter) {
             if ($lastLetter && $letter == $lastLetter) {
                 continue;
             }
@@ -138,6 +167,38 @@ class AbstractReport
         return join('', $reportParts);
     }
 
+    protected function getDimension($entity)
+    {
+        $subgroup = $this->options['subgroup'];
+
+        if ($subgroup == 'user') {
+            return $entity->user->getDisplayName();
+        } elseif ($subgroup == 'client') {
+            if ($entity instanceof Client) {
+                return $entity->getDisplayName();
+            } elseif ($entity->client) {
+                return $entity->client->getDisplayName();
+            } else {
+                return trans('texts.unset');
+            }
+        }
+    }
+
+    protected function addChartData($dimension, $date, $amount)
+    {
+        if (! isset($this->chartData[$dimension])) {
+            $this->chartData[$dimension] = [];
+        }
+
+        $date = $this->formatDate($date);
+
+        if (! isset($this->chartData[$dimension][$date])) {
+            $this->chartData[$dimension][$date] = 0;
+        }
+
+        $this->chartData[$dimension][$date] += $amount;
+    }
+
     public function chartGroupBy()
     {
         $groupBy = empty($this->options['group']) ? 'day' : $this->options['group'];
@@ -146,7 +207,19 @@ class AbstractReport
             $groupBy = 'month';
         }
 
-        return mb_strtoupper($groupBy);
+        return strtoupper($groupBy);
+    }
+
+    protected function formatDate($date)
+    {
+        if (! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
+        }
+
+        $groupBy = $this->chartGroupBy();
+        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
+
+        return $date->format('Y' . $dateFormat);
     }
 
     public function getLineChartData()
@@ -159,7 +232,7 @@ class AbstractReport
         $labels = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
+            $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
             $intervalStartDate = Carbon::instance($startDate);
             $intervalEndDate = Carbon::instance($endDate);
 
@@ -181,7 +254,7 @@ class AbstractReport
             foreach ($period as $date) {
                 $labels[] = $date->format('m/d/Y');
                 $date = $this->formatDate($date);
-                $records[] = $data[$date] ?? 0;
+                $records[] = isset($data[$date]) ? $data[$date] : 0;
             }
 
             $record = new stdClass();
@@ -193,7 +266,7 @@ class AbstractReport
             $record->lineTension = 0;
             $record->borderWidth = 3;
             $record->borderColor = "rgba({$color}, 1)";
-            $record->backgroundColor = 'rgba(255,255,255,0)';
+            $record->backgroundColor = "rgba(255,255,255,0)";
         }
 
         $data = new stdClass();
@@ -215,7 +288,7 @@ class AbstractReport
 
     public function getPieChartData()
     {
-        if ( ! $this->isPieChartEnabled()) {
+        if (! $this->isPieChartEnabled()) {
             return false;
         }
 
@@ -225,7 +298,7 @@ class AbstractReport
 
         foreach ($this->chartData as $dimension => $data) {
             foreach ($data as $date => $value) {
-                if ( ! isset($totals[$dimension])) {
+                if (! isset($totals[$dimension])) {
                     $totals[$dimension] = 0;
                 }
 
@@ -254,66 +327,5 @@ class AbstractReport
         $response->datasets = [$datasets];
 
         return $response;
-    }
-
-    protected function addToTotals($currencyId, $field, $value, $dimension = false)
-    {
-        $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
-
-        if ( ! isset($this->totals[$currencyId][$dimension])) {
-            $this->totals[$currencyId][$dimension] = [];
-        }
-
-        if ( ! isset($this->totals[$currencyId][$dimension][$field])) {
-            $this->totals[$currencyId][$dimension][$field] = 0;
-        }
-
-        $this->totals[$currencyId][$dimension][$field] += $value;
-    }
-
-    protected function getDimension($entity)
-    {
-        $subgroup = $this->options['subgroup'];
-
-        if ($subgroup == 'user') {
-            return $entity->user->getDisplayName();
-        }
-        if ($subgroup == 'client') {
-            if ($entity instanceof Client) {
-                return $entity->getDisplayName();
-            }
-            if ($entity->client) {
-                return $entity->client->getDisplayName();
-            }
-
-            return trans('texts.unset');
-        }
-    }
-
-    protected function addChartData($dimension, $date, $amount)
-    {
-        if ( ! isset($this->chartData[$dimension])) {
-            $this->chartData[$dimension] = [];
-        }
-
-        $date = $this->formatDate($date);
-
-        if ( ! isset($this->chartData[$dimension][$date])) {
-            $this->chartData[$dimension][$date] = 0;
-        }
-
-        $this->chartData[$dimension][$date] += $amount;
-    }
-
-    protected function formatDate($date)
-    {
-        if ( ! $date instanceof DateTime) {
-            $date = new DateTime($date);
-        }
-
-        $groupBy = $this->chartGroupBy();
-        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
-
-        return $date->format('Y' . $dateFormat);
     }
 }

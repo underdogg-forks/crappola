@@ -21,9 +21,7 @@ class BusServiceProvider extends ServiceProvider
     {
         $dispatcher->mapUsing(function ($command) {
             return Dispatcher::simpleMapping(
-                $command,
-                'App\Commands',
-                'App\Handlers\Commands'
+                $command, 'App\Commands', 'App\Handlers\Commands'
             );
         });
     }
@@ -31,5 +29,7 @@ class BusServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register() {}
+    public function register()
+    {
+    }
 }

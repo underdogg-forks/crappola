@@ -49,7 +49,7 @@
             ->help('<b>' . strtoupper(trans('texts.important')) . ': '
                 . trans('texts.inclusive_taxes_notice') . '</b>')
             ->value(1) !!}
-    @elseif ($countInvoices <= 10)
+    @elseif ($countInvoices <= 25)
         {!! Former::plaintext(' ')->help(
                 trans($account->inclusive_taxes ? 'texts.taxes_are_included_help' : 'texts.taxes_are_not_included_help') . '<br/>' .
                 trans('texts.change_requires_purge', ['link' => link_to(url('/settings/account_management'), trans('texts.purging'))])) !!}

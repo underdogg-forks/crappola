@@ -2,35 +2,50 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Inviteable;
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupProposalInvitation;
+use App\Models\Traits\Inviteable;
 
 /**
  * Class Invitation.
  */
 class ProposalInvitation extends EntityModel
 {
-    use Inviteable;
     use SoftDeletes;
+    use Inviteable;
 
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @return mixed
+     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_INVITATION;
     }
 
+    /**
+     * @return mixed
+     */
     public function proposal()
     {
         return $this->belongsTo('App\Models\Proposal')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -43,27 +58,25 @@ class ProposalInvitation extends EntityModel
     {
         return $this->belongsTo('App\Models\Account');
     }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }
 
-ProposalInvitation::creating(function ($invitation) {
+ProposalInvitation::creating(function ($invitation)
+{
     LookupProposalInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
 
-ProposalInvitation::updating(function ($invitation) {
+ProposalInvitation::updating(function ($invitation)
+{
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
         LookupProposalInvitation::updateInvitation($invitation->account->account_key, $invitation);
     }
 });
 
-ProposalInvitation::deleted(function ($invitation) {
+ProposalInvitation::deleted(function ($invitation)
+{
     if ($invitation->forceDeleting) {
         LookupProposalInvitation::deleteWhere([
             'invitation_key' => $invitation->invitation_key,
