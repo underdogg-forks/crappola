@@ -3,6 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
+use App\Models\Invoice;
 
 class DownloadInvoiceIntent extends InvoiceIntent
 {

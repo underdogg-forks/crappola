@@ -2,8 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Job;
+use App\Models\Invoice;
+use App\Models\LookupAccount;
+use DB;
+use Exception;
 use App\Libraries\HistoryUtils;
-use App\Libraries\Utils;
+use Utils;
 
 class PurgeClientData extends Job
 {
@@ -23,7 +28,7 @@ class PurgeClientData extends Job
         $client = $this->client;
         $contact = $client->getPrimaryContact();
 
-        if ( ! $user->is_admin) {
+        if (! $user->is_admin) {
             return;
         }
 

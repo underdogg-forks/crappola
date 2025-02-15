@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CurlUtils;
-use App\Models\Company;
+use Illuminate\Console\Command;
 use App\Models\DbServer;
 use App\Models\User;
-use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
+use App\Models\Company;
+use App\Libraries\CurlUtils;
 
 class CalculatePayouts extends Command
 {
@@ -24,6 +23,7 @@ class CalculatePayouts extends Command
      * @var string
      */
     protected $description = 'Calculate payouts';
+
 
     /**
      * Create a new command instance.
@@ -42,7 +42,8 @@ class CalculatePayouts extends Command
      */
     public function handle()
     {
-        $type = mb_strtolower($this->option('type'));
+        $this->info('Running CalculatePayouts...');
+        $type = strtolower($this->option('type'));
 
         switch ($type) {
             case 'referral':
@@ -52,8 +53,60 @@ class CalculatePayouts extends Command
                 $this->resellerPayouts();
                 break;
         }
+    }
 
-        return 0;
+    private function referralPayouts()
+    {
+        $servers = DbServer::orderBy('id')->get(['name']);
+        $userMap = [];
+
+        foreach ($servers as $server) {
+            $this->info('Processing users: ' . $server->name);
+            config(['database.default' => $server->name]);
+
+            $users = User::where('referral_code', '!=', '')
+                ->get(['email', 'referral_code']);
+            foreach ($users as $user) {
+                $userMap[$user->referral_code] = $user->email;
+            }
+        }
+
+        foreach ($servers as $server) {
+            $this->info('Processing companies: ' . $server->name);
+            config(['database.default' => $server->name]);
+
+            $companies = Company::where('referral_code', '!=', '')
+                ->with('payment.client.payments')
+                ->whereNotNull('payment_id')
+                ->get();
+
+            foreach ($companies as $company) {
+                $user = $userMap[$company->referral_code];
+                $payment = $company->payment;
+
+                if ($payment) {
+                    $client = $payment->client;
+
+                    $this->info("User: $user");
+                    $this->info("Client: " . $client->getDisplayName());
+
+                    foreach ($client->payments as $payment) {
+                        $amount = $payment->getCompletedAmount();
+                        $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
+                    }
+                }
+            }
+        }
+    }
+
+    private function resellerPayouts()
+    {
+        $response = CurlUtils::post($this->option('url') . '/reseller_stats', [
+            'password' => $this->option('password')
+        ]);
+
+        $this->info('Response:');
+        $this->info($response);
     }
 
     protected function getOptions()
@@ -65,64 +118,4 @@ class CalculatePayouts extends Command
         ];
     }
 
-    private function referralPayouts()
-    {
-        $servers = DbServer::orderBy('id')->get(['name']);
-        $userMap = [];
-
-        foreach ($servers as $server) {
-            config(['database.default' => $server->name]);
-
-            $users = User::where('referral_code', '!=', '')
-                ->get(['email', 'referral_code']);
-            foreach ($users as $user) {
-                $userMap[$user->referral_code] = $user->email;
-            }
-        }
-
-        foreach ($servers as $server) {
-            config(['database.default' => $server->name]);
-
-            $companies = Company::where('referral_code', '!=', '')
-                ->with('payment.client.payments')
-                ->whereNotNull('payment_id')
-                ->get();
-
-            $this->info('User,Client,Date,Amount,Reference');
-
-            foreach ($companies as $company) {
-                if ( ! isset($userMap[$company->referral_code])) {
-                    continue;
-                }
-
-                $user = $userMap[$company->referral_code];
-                $payment = $company->payment;
-
-                if ($payment) {
-                    $client = $payment->client;
-
-                    foreach ($client->payments as $payment) {
-                        $amount = $payment->getCompletedAmount();
-                        $this->info(
-                            '"' . $user . '",' .
-                            '"' . $client->getDisplayName() . '",' .
-                            $payment->payment_date . ',' .
-                            $amount . ',' .
-                            $payment->transaction_reference
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    private function resellerPayouts()
-    {
-        $response = CurlUtils::post($this->option('url') . '/reseller_stats', [
-            'password' => $this->option('password'),
-        ]);
-
-        $this->info('Response:');
-        $this->info($response);
-    }
 }

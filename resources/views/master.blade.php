@@ -57,6 +57,39 @@
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
+@if (request()->phantomjs)
+        function trackEvent(category, action) {
+        }
+@elseif (Utils::isNinjaProd() && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                    }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');
+        ga('set', 'anonymizeIp', true);
+
+        @if (request()->invitation_key || request()->proposal_invitation_key || request()->contact_key)
+            ga('send', 'pageview', { 'page': '/client/portal' });
+        @else
+            ga('send', 'pageview');
+        @endif
+
+        function trackEvent(category, action) {
+            ga('send', 'event', category, action, this.src);
+        }
+@else
+        function trackEvent(category, action) {
+        }
+@endif
+
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
@@ -95,28 +128,24 @@
                 return;
             }
             @if (Utils::isTravis())
-                if (errorMsg.indexOf('Attempting to change value of a readonly property') > -1) {
-                    return;
-                }
+            if (errorMsg.indexOf('Attempting to change value of a readonly property') > -1) {
+                return;
+            }
+            if (errorMsg.indexOf('No URL provided') > -1) {
+                return;
+            }
             @endif
             // Less than IE9 https://stackoverflow.com/a/14835682/497368
             if (! document.addEventListener) {
                 return;
             }
             try {
-                // Use StackTraceJS to parse the error context
-                if (error) {
-                    StackTrace.fromError(error).then(function (result) {
-                        var gps = new StackTraceGPS();
-                        gps.findFunctionName(result[0]).then(function (result) {
-                            logError(errorMsg + ': ' + JSON.stringify(result));
-                        });
-                    }).catch(function () {
-                        logError(errorMsg);
-                    });
-                } else {
-                    logError(errorMsg);
-                }
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('log_error') }}',
+                    data: 'error=' + encodeURIComponent(errorMsg + ' | Line: ' + lineNumber + ', Column: '+ column)
+                    + '&url=' + encodeURIComponent(window.location)
+                });
 
                 trackEvent('/error', errorMsg);
             } catch (exception) {
@@ -125,14 +154,6 @@
             }
 
             return false;
-        }
-
-        function logError(message) {
-            $.ajax({
-                type: 'GET',
-                url: '{{ URL::to('log_error') }}',
-                data: 'error=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location)
-            });
         }
 
         // http://t4t5.github.io/sweetalert/
@@ -232,7 +253,8 @@
         @else
         function fbq() {
             // do nothing
-        };
+        }
+        ;
         @endif
 
                 window._fbq = window._fbq || [];
@@ -247,23 +269,42 @@
             if (! window.cookieconsent) {
                 return;
             }
-            window.cookieconsent.initialise({
-                "palette": {
-                    "popup": {
-                        "background": "#000"
+            @if (Utils::isNinja())
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        },
                     },
-                    "button": {
-                        "background": "#f1d600"
+                    "content": {
+                        "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
+                        "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                        "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                        "link": {!! json_encode(trans('texts.learn_more')) !!},
+                    }
+                });
+            @elseif (config('ninja.cookie_consent.enabled'))
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        },
                     },
-                },
-                "content": {
-                    "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url.hosted') : 'https://cookiesandyou.com/' }}",
-                    "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                    "link": {!! json_encode(trans('texts.learn_more')) !!},
-                }
-            })}
-        );
+                    "content": {
+                        "href": "{{ config('ninja.cookie_consent.link') }}",
+                        "message": {!! json_encode(config('ninja.cookie_consent.message') ?: trans('texts.cookie_message')) !!},
+                        "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                        "link": {!! json_encode(trans('texts.learn_more')) !!},
+                    }
+                });
+            @endif
+        });
         </script>
     @endif
 
@@ -278,45 +319,6 @@
 </head>
 
 <body class="body">
-
-@if (request()->phantomjs)
-    <script>
-        function trackEvent(category, action) {
-        }
-    </script>
-@elseif (Utils::isNinjaProd() && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
-    <script>
-        (function (i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function () {
-                        (i[r].q = i[r].q || []).push(arguments)
-                    }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');
-        ga('set', 'anonymizeIp', true);
-
-        @if (request()->invitation_key || request()->proposal_invitation_key || request()->contact_key)
-            ga('send', 'pageview', { 'page': '/client/portal' });
-        @else
-            ga('send', 'pageview');
-        @endif
-
-        function trackEvent(category, action) {
-            ga('send', 'event', category, action, this.src);
-        }
-    </script>
-@else
-    <script>
-        function trackEvent(category, action) {
-        }
-    </script>
-@endif
 
 @yield('body')
 

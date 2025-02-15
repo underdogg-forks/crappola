@@ -1,9 +1,6 @@
 Client Portal
 =============
 
-For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 The invoicing process is a two-way street. You bill the client; the client views and pays the invoice. Why not make it as easy as possible for you – and for your clients? This is the purpose of Invoice Ninja's Client Portal. With Invoice Ninja, you can choose to provide a portal for your clients where they can open and view your invoices, and even make payments, all via the Invoice Ninja website.
 
 You can modify the Client Portal with a range of settings. To modify the client portal, go to Advanced Settings > Client Portal.
@@ -35,6 +32,8 @@ Custom CSS
 ^^^^^^^^^^
 
 Do you have some experience in web design? Want to put your individual fingerprint on your client portal? You can control the look and feel of your client portal by entering custom CSS in your portal layout. Enter the CSS in the Custom CSS field.
+
+.. NOTE:: This feature is only available for self-hosted installations.
 
 Authorization
 """""""""""""

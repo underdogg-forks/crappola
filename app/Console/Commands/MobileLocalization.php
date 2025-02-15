@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CurlUtils;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
+use App\Models\DbServer;
+use App\Models\User;
+use App\Models\Company;
+use App\Libraries\CurlUtils;
 
 class MobileLocalization extends Command
 {
@@ -21,6 +23,7 @@ class MobileLocalization extends Command
      * @var string
      */
     protected $description = 'Generate mobile localization resources';
+
 
     /**
      * Create a new command instance.
@@ -39,7 +42,7 @@ class MobileLocalization extends Command
      */
     public function handle()
     {
-        $type = mb_strtolower($this->option('type'));
+        $type = strtolower($this->option('type'));
 
         switch ($type) {
             case 'laravel':
@@ -49,15 +52,6 @@ class MobileLocalization extends Command
                 $this->flutterResources();
                 break;
         }
-
-        return 0;
-    }
-
-    protected function getOptions()
-    {
-        return [
-            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
-        ];
     }
 
     private function laravelResources()
@@ -67,7 +61,7 @@ class MobileLocalization extends Command
         foreach ($resources as $key => $val) {
             $transKey = "texts.{$key}";
             if (trans($transKey) == $transKey) {
-                echo "'{$key}' => '{$val}',\n";
+                echo "'$key' => '$val',\n";
             }
         }
     }
@@ -86,15 +80,10 @@ class MobileLocalization extends Command
 
             foreach ($resources as $key => $val) {
                 $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
-                if (mb_substr($text, 0, 6) == 'texts.') {
-                    $text = $resources->{$key};
+                if (substr($text, 0, 6) == 'texts.') {
+                    $text = $resources->$key;
                 }
-
-                $text = str_replace(['<b>', '</b>'], '', $text);
-                $text = str_replace(['<i>', '</i>'], '', $text);
-                $text = str_replace(['<strong>', '</strong>'], '', $text);
-
-                echo "'{$key}': '{$text}',\n";
+                echo "'$key': '$text',\n";
             }
 
             echo "},\n";
@@ -103,17 +92,25 @@ class MobileLocalization extends Command
 
     private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
-        $start = mb_strpos($data, 'do not remove comment') + 25;
-        $end = mb_strpos($data, '},', $start);
-        $data = mb_substr($data, $start, $end - $start - 5);
+        $start = strpos($data, 'do not remove comment') + 25;
+        $end = strpos($data, '},', $start);
+        $data = substr($data, $start, $end - $start - 5);
 
-        $data = str_replace("\n", '', $data);
-        $data = str_replace('"', "\'", $data);
-        $data = str_replace("'", '"', $data);
+        $data = str_replace("\n", "", $data);
+        $data = str_replace("\"", "\'", $data);
+        $data = str_replace("'", "\"", $data);
 
         return json_decode('{' . rtrim($data, ',') . '}');
     }
+
+    protected function getOptions()
+    {
+        return [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
+        ];
+    }
+
 }
