@@ -3,8 +3,8 @@
 namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
+use Auth;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {
@@ -12,7 +12,7 @@ class EmailInvoiceIntent extends InvoiceIntent
     {
         $invoice = $this->stateInvoice();
 
-        if ( ! Auth::user()->can('edit', $invoice)) {
+        if (! Auth::user()->can('edit', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 

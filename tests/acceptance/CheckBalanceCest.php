@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class CheckBalanceCest

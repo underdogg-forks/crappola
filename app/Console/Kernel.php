@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use App\Libraries\Utils;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Utils;
 
 class Kernel extends ConsoleKernel
 {
@@ -21,7 +21,6 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\PruneData',
         'App\Console\Commands\CreateTestData',
         'App\Console\Commands\CreateLuisData',
-        'App\Console\Commands\MobileLocalization',
         'App\Console\Commands\SendRenewalInvoices',
         'App\Console\Commands\ChargeRenewalInvoices',
         'App\Console\Commands\SendReminders',
@@ -31,8 +30,9 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\InitLookup',
         'App\Console\Commands\CalculatePayouts',
         'App\Console\Commands\UpdateKey',
-        'App\Console\Commands\ExportMigrations',
-        'App\Console\Commands\SyncAccounts',
+        'App\Console\Commands\MobileLocalization',
+        'App\Console\Commands\SendOverdueTickets',
+        'App\Console\Commands\MakeModuleSettings',
     ];
 
     /**
@@ -47,26 +47,14 @@ class Kernel extends ConsoleKernel
         $logFile = storage_path() . '/logs/cron.log';
 
         $schedule
-            ->command('ninja:send-invoices --force')
+            ->command('ninja:send-invoices')
             ->sendOutputTo($logFile)
             ->withoutOverlapping()
             ->hourly();
 
         $schedule
-            ->command('ninja:send-reminders --force')
+            ->command('ninja:send-reminders')
             ->sendOutputTo($logFile)
             ->daily();
-
-        if(Utils::isNinjaProd()) {
-            $schedule
-                ->command('ninja:sync-v5')
-                ->withoutOverlapping()
-                ->daily();
-
-            // $schedule
-            //     ->command('ninja:force-migrate-v5')
-            //     ->everyMinute()
-            //     ->withoutOverlapping();
-        }
     }
 }

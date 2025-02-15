@@ -33,6 +33,14 @@ class ExpenseCategoryService extends BaseService
     }
 
     /**
+     * @return CreditRepository
+     */
+    protected function getRepo()
+    {
+        return $this->categoryRepo;
+    }
+
+    /**
      * @param $data
      *
      * @return mixed|null
@@ -56,13 +64,5 @@ class ExpenseCategoryService extends BaseService
         $query = $this->categoryRepo->find($search);
 
         return $this->datatableService->createDatatable($datatable, $query);
-    }
-
-    /**
-     * @return CreditRepository
-     */
-    protected function getRepo()
-    {
-        return $this->categoryRepo;
     }
 }
