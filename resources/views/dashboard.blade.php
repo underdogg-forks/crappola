@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 
-    @if (Auth::user()->hasPermission('admin'))
+    @if (Auth::user()->hasPermission('view_dashboard'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
             if (window.myChart) {
@@ -89,12 +89,14 @@
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 		var chartStartDate;
         var chartEndDate;
+        var dashboardTotalsInAllCurrenciesHelp;
 
         $(function() {
 
             // Initialize date range selector
 			chartStartDate = moment().subtract(29, 'days');
 	        chartEndDate = moment();
+            dashboardTotalsInAllCurrenciesHelp = $("#dashboard-totals-in-all-currencies-help");
 			lastRange = false;
 
 			if (isStorageSupported()) {
@@ -129,6 +131,7 @@
 				if (label) {
 					$('.range-label-div').text(label);
 				}
+                displayTotalsNote();
                 loadData();
 
 				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
@@ -152,8 +155,18 @@
             cb(chartStartDate, chartEndDate, lastRange);
 
             $("#currency-btn-group > .btn").click(function(){
-                $(this).addClass("active").siblings().removeClass("active");
-                chartCurrencyId = currencyMap[$(this).text()].id;
+                var t = $(this);
+
+                t.addClass("active").siblings().removeClass("active");
+
+                if(t.attr("data-button") === "totals"){
+
+                    chartCurrencyId = 'totals';
+                }else {
+                    chartCurrencyId = currencyMap[t.text()].id;
+                }
+                displayTotalsNote();
+
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
@@ -163,6 +176,7 @@
             $("#group-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
                 chartGroupBy = $(this).attr('data-button');
+                displayTotalsNote();
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_group_by', chartGroupBy);
@@ -176,11 +190,15 @@
                     response = JSON.parse(response);
                     loadChart(response.data);
 
+                    var realCurrencyId = chartCurrencyId;
+                    if(chartCurrencyId === "totals") realCurrencyId = account.currency.id;
+
+
                     var totals = response.totals;
-                    $('.revenue-div').text(formatMoney(totals.revenue, chartCurrencyId, account.country_id));
-                    $('.outstanding-div').text(formatMoney(totals.balance, chartCurrencyId, account.country_id));
-                    $('.expenses-div').text(formatMoney(totals.expenses, chartCurrencyId, account.country_id));
-                    $('.average-div').text(formatMoney(totals.average, chartCurrencyId, account.country_id));
+                    $('.revenue-div').text(formatMoney(totals.revenue, realCurrencyId, account.country_id));
+                    $('.outstanding-div').text(formatMoney(totals.balance, realCurrencyId, account.country_id));
+                    $('.expenses-div').text(formatMoney(totals.expenses, realCurrencyId, account.country_id));
+                    $('.average-div').text(formatMoney(totals.average, realCurrencyId, account.country_id));
 
                     $('.currency').hide();
                     $('.currency_' + chartCurrencyId).show();
@@ -190,10 +208,18 @@
 					for (var i=0; i<divs.length; i++) {
 						var type = divs[i];
 						if (!$('.' + type + '-panel .currency_' + chartCurrencyId).length) {
-							$('.' + type + '-panel .currency_blank').text(formatMoney(0, chartCurrencyId)).show();
+							$('.' + type + '-panel .currency_blank').text(formatMoney(0, realCurrencyId)).show();
 						}
 					}
                 })
+            }
+
+            function displayTotalsNote() {
+                if(chartCurrencyId === "totals"){
+                    dashboardTotalsInAllCurrenciesHelp.show();
+                }else {
+                    dashboardTotalsInAllCurrenciesHelp.hide();
+                }
             }
 
         });
@@ -204,6 +230,18 @@
     @endif
 
 </script>
+
+
+@if ($invoiceExchangeRateMissing)
+    <div class="row" id="dashboard-totals-in-all-currencies-help" style="display: none">
+        <div class="col-xs-12">
+            <div class="alert alert-warning custom-message">{!! trans('texts.dashboard_totals_in_all_currencies_help', [
+                'link' => link_to('/settings/invoice_settings#invoice_fields', trans('texts.custom_field'), ['target' => '_blank']),
+                'name' => trans('texts.exchange_rate')
+            ]) !!}</div>
+        </div>
+    </div>
+@endif
 
 <div class="row">
     <div class="col-md-2">
@@ -219,7 +257,7 @@
     @else
         <div class="col-md-10">
     @endif
-        @if (Auth::user()->hasPermission('admin'))
+        @if (Auth::user()->hasPermission('view_dashboard'))
         <div class="pull-right">
             @if (count($currencies) > 1)
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
@@ -227,6 +265,8 @@
                 <button type="button" class="btn btn-normal {{ array_values($currencies)[0] == $val ? 'active' : '' }}"
                     data-button="{{ $key }}" style="font-weight:normal !important;background-color:white">{{ $val }}</button>
               @endforeach
+                <button type="button" class="btn btn-normal"
+                        data-button="totals" style="font-weight:normal !important;background-color:white">{{ trans('texts.totals') }}</button>
             </div>
             @endif
             <div id="group-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc; margin-left:18px">
@@ -253,13 +293,6 @@
 	@include('partials/white_label_expired')
 @endif
 
-@if($account->account_email_settings->forward_url_for_v5)
-<div class="alert alert-danger">
-Your account is currently forwarding all requests to v5, this installation is now disabled.
-</div>
-@endif
-
-@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -277,6 +310,9 @@ Your account is currently forwarding all requests to v5, this installation is no
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($paidToDateTotal, $account->getCurrencyId()) }}
+                                </div>
                         @else
                             <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                 {{ Utils::formatMoney(0) }}
@@ -309,6 +345,9 @@ Your account is currently forwarding all requests to v5, this installation is no
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($expensesTotals, $account->getCurrencyId()) }}<br/>
+                                </div>
 							<div class="currency currency_blank" style="display:none">
 								&nbsp;
 							</div>
@@ -326,6 +365,9 @@ Your account is currently forwarding all requests to v5, this installation is no
                                         {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
                                     </div>
                                 @endforeach
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney($averageInvoiceTotal, $account->getCurrencyId()) }}<br/>
+                                    </div>
                             @else
                                 <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                     {{ Utils::formatMoney(0) }}
@@ -359,6 +401,9 @@ Your account is currently forwarding all requests to v5, this installation is no
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($balancesTotals, $account->getCurrencyId()) }}<br/>
+                                </div>
                         @else
                             <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                 {{ Utils::formatMoney(0) }}
@@ -377,6 +422,7 @@ Your account is currently forwarding all requests to v5, this installation is no
     </div>
 </div>
 
+@if (Auth::user()->hasPermission('view_dashboard'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
@@ -395,7 +441,7 @@ Your account is currently forwarding all requests to v5, this installation is no
             <div class="panel-heading">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
-                    @if (Auth::user()->hasPermission('admin') && $invoicesSent)
+                    @if ($invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
 							@if ($invoicesSent == 1)
 								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
@@ -421,18 +467,16 @@ Your account is currently forwarding all requests to v5, this installation is no
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
-					@if (Auth::user()->hasPermission('admin'))
-	                    @if ($showExpenses && count($averageInvoice))
-	                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
-	                            @foreach ($averageInvoice as $item)
-	                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
-	                                    {{ trans('texts.average_invoice') }}
-	                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
-	                                </span>
-	                            @endforeach
-	                            <span class="average-div" style="color:#337ab7"/>
-	                        </div>
-						@endif
+                    @if ($showExpenses && count($averageInvoice))
+                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
+                            @foreach ($averageInvoice as $item)
+                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+                                    {{ trans('texts.average_invoice') }}
+                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
+                                </span>
+                            @endforeach
+                            <span class="average-div" style="color:#337ab7"/>
+                        </div>
                     @endif
                     <i class="glyphicon glyphicon-ok-sign"></i> {{ trans('texts.recent_payments') }}
                 </h3>

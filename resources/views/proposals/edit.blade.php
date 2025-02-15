@@ -147,7 +147,6 @@
         }
 
         invoice.account = {!! auth()->user()->account->load('country') !!};
-        invoice.contact = invoice.client.contacts[0];
 
         var regExp = new RegExp(/\$[a-z][\w\.]*/g);
         var matches = html.match(regExp);

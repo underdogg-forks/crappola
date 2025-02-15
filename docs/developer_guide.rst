@@ -1,9 +1,6 @@
 Developer Guide
 ===============
 
-For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 This guide will provide an overview of Invoice Ninja. If anything’s unclear please send us an email, we’re always working to improve it.
 
 The application is written in PHP using the `Laravel <http://laravel.com/>`_ framework, the full list of libraries can be found on our `GitHub <https://github.com/invoiceninja/invoiceninja>`_ page.
@@ -20,6 +17,27 @@ When setting up the app you can choose to either use the self hosted zip or chec
 We use Gulp to concatenate the JavasScript and CSS files. You can download the source files with Bower. After making any changes you need to run ``gulp`` to re-generate the built files.
 
 Most of the system tables are cached (ie, currencies, languages, etc). If you make any changes you need to run ``php artisan db:seed --class=UpdateSeeder`` and then load any page with ?clear_cache=true added at the end of the URL.
+
+Custom Localization
+"""""""""""""""""""
+
+Invoice Ninja has many translations built-in. Many of them are contributed by users via `Transifex <https://www.transifex.com/invoice-ninja/invoice-ninja/>`_. But not every translation can be sent upstream.
+It is possible to selectively override text strings as required. Any text that is not overridden is taken from the default locale file.
+
+By default the locale override folder ``storage/lang`` does not exist. You have to create it when you want to use this feature. The layout of this folder is the same as the main translation folder, which is located at ``resources/lang``.
+
+**Example**
+
+To override the string *Organization* from the English translation you need to override the locale file ``texts.php``.
+
+Create both ``lang`` and ``lang/en`` folders inside of your installations storage folder, then create the file ``texts.php`` in that last folder with the following contents;
+
+.. code-block:: php
+
+   <?php
+   return $LANG = [
+      'organization' => 'Company',
+   ];
 
 Database
 """"""""

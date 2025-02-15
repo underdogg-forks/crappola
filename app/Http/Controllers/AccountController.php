@@ -8,11 +8,11 @@ use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Http\Requests\SaveClientPortalSettings;
 use App\Http\Requests\SaveEmailSettings;
+use App\Http\Requests\SaveTicketSettings;
 use App\Http\Requests\UpdateAccountRequest;
-use App\Libraries\Utils;
 use App\Models\Account;
-use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
+use App\Models\AccountTicketSettings;
 use App\Models\Affiliate;
 use App\Models\Document;
 use App\Models\Gateway;
@@ -20,9 +20,12 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\InvoiceDesign;
 use App\Models\License;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\TaxRate;
+use App\Models\TicketTemplate;
 use App\Models\User;
+use App\Models\AccountEmailSettings;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -30,21 +33,25 @@ use App\Ninja\Repositories\ReferralRepository;
 use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
-use Exception;
-use File;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use Image;
+use Monolog\Handler\Curl\Util;
 use Nwidart\Modules\Facades\Module;
+use Auth;
+use Cache;
+use File;
+use Image;
+use Input;
+use Redirect;
+use Request;
+use Response;
+use Session;
 use stdClass;
+use Exception;
 use URL;
+use Utils;
+
 use Validator;
+use View;
+use App\Jobs\PurgeClientData;
 
 /**
  * Class AccountController.
@@ -106,13 +113,13 @@ class AccountController extends BaseController
     {
         $user = false;
         $account = false;
-        $guestKey = Request::input('guest_key'); // local storage key to login until registered
+        $guestKey = Input::get('guest_key'); // local storage key to login until registered
 
         if (Auth::check()) {
             return Redirect::to('invoices/create');
         }
 
-        if ( ! Utils::isNinja() && Account::count() > 0) {
+        if (! Utils::isNinja() && Account::count() > 0) {
             return Redirect::to('/login');
         }
 
@@ -124,7 +131,7 @@ class AccountController extends BaseController
             }
         }
 
-        if ( ! $user) {
+        if (! $user) {
             $account = $this->accountRepo->create();
             $user = $account->users()->first();
         }
@@ -138,13 +145,13 @@ class AccountController extends BaseController
             Session::flash('warning', $message);
         }
 
-        if ($redirectTo = Request::input('redirect_to')) {
+        if ($redirectTo = Input::get('redirect_to')) {
             $redirectTo = SITE_URL . '/' . ltrim($redirectTo, '/');
         } else {
-            $redirectTo = Request::input('sign_up') ? 'dashboard' : 'invoices/create';
+            $redirectTo = Input::get('sign_up') ? 'dashboard' : 'invoices/create';
         }
 
-        return Redirect::to($redirectTo)->with('sign_up', Request::input('sign_up'));
+        return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
     /**
@@ -156,9 +163,9 @@ class AccountController extends BaseController
         $account = $user->account;
         $company = $account->company;
 
-        $plan = Request::input('plan');
-        $term = Request::input('plan_term');
-        $numUsers = Request::input('num_users');
+        $plan = Input::get('plan');
+        $term = Input::get('plan_term');
+        $numUsers = Input::get('num_users');
 
         if ($plan != PLAN_ENTERPRISE) {
             $numUsers = 1;
@@ -167,8 +174,8 @@ class AccountController extends BaseController
         $planDetails = $account->getPlanDetails(false, false);
 
         $newPlan = [
-            'plan'      => $plan,
-            'term'      => $term,
+            'plan' => $plan,
+            'term' => $term,
             'num_users' => $numUsers,
         ];
         $newPlan['price'] = Utils::getPlanPrice($newPlan);
@@ -189,39 +196,39 @@ class AccountController extends BaseController
 
             $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
             $percent_used = $days_used / $days_total;
-            $credit = round((float) ($company->payment->amount) * (1 - $percent_used), 2);
+            $credit = round(floatval($company->payment->amount) * (1 - $percent_used), 2);
         }
 
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
-
             return Redirect::to('view/' . $invitation->invitation_key);
-        }
-        if ($plan == PLAN_FREE) {
-            $company->discount = 0;
-
-            $ninjaClient = $this->accountRepo->getNinjaClient($account);
-            $ninjaClient->send_reminders = false;
-            $ninjaClient->save();
         } else {
-            $company->plan_term = $term;
-            $company->plan_price = $newPlan['price'];
-            $company->num_users = $numUsers;
-            $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+            if ($plan == PLAN_FREE) {
+                $company->discount = 0;
+
+                $ninjaClient = $this->accountRepo->getNinjaClient($account);
+                $ninjaClient->send_reminders = false;
+                $ninjaClient->save();
+            } else {
+                $company->plan_term = $term;
+                $company->plan_price = $newPlan['price'];
+                $company->num_users = $numUsers;
+                $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+            }
+
+            $company->trial_plan = null;
+            $company->plan = $plan;
+            $company->save();
+
+            Session::flash('message', trans('texts.updated_plan'));
+
+            return Redirect::to('settings/account_management');
         }
-
-        $company->trial_plan = null;
-        $company->plan = $plan;
-        $company->save();
-
-        Session::flash('message', trans('texts.updated_plan'));
-
-        return Redirect::to('settings/account_management');
     }
 
     /**
-     * @param       $entityType
-     * @param       $visible
+     * @param $entityType
+     * @param $visible
      * @param mixed $filter
      *
      * @return mixed
@@ -267,620 +274,60 @@ class AccountController extends BaseController
      */
     public function showSection($section = false)
     {
-        if ( ! Auth::user()->is_admin) {
+        if (! Auth::user()->is_admin) {
             return Redirect::to('/settings/user_details');
         }
 
-        if ( ! $section) {
-            return Redirect::to('/settings/' . ACCOUNT_COMPANY_DETAILS, 301);
+        if (! $section) {
+            return Redirect::to('/settings/'.ACCOUNT_COMPANY_DETAILS, 301);
         }
 
         if ($section == ACCOUNT_COMPANY_DETAILS) {
             return self::showCompanyDetails();
-        }
-        if ($section == ACCOUNT_LOCALIZATION) {
+        } elseif ($section == ACCOUNT_LOCALIZATION) {
             return self::showLocalization();
-        }
-        if ($section == ACCOUNT_PAYMENTS) {
+        } elseif ($section == ACCOUNT_PAYMENTS) {
             return self::showOnlinePayments();
-        }
-        if ($section == ACCOUNT_BANKS) {
+        } elseif ($section == ACCOUNT_BANKS) {
             return self::showBankAccounts();
-        }
-        if ($section == ACCOUNT_INVOICE_SETTINGS) {
+        } elseif ($section == ACCOUNT_INVOICE_SETTINGS) {
             return self::showInvoiceSettings();
-        }
-        if ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
-        }
-        if ($section == ACCOUNT_MANAGEMENT) {
+        } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
+            return View::make('accounts.import_export', [
+                'title' => trans('texts.import_export'),
+            ]);
+        } elseif ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
-        }
-        if ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
+        } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
-        }
-        if ($section == ACCOUNT_CLIENT_PORTAL) {
+        } elseif ($section == ACCOUNT_CLIENT_PORTAL) {
             return self::showClientPortal();
-        }
-        if ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
+        } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return self::showTemplates();
-        }
-        if ($section === ACCOUNT_PRODUCTS) {
+        } elseif ($section === ACCOUNT_PRODUCTS) {
             return self::showProducts();
-        }
-        if ($section === ACCOUNT_TAX_RATES) {
+        } elseif ($section === ACCOUNT_TAX_RATES) {
             return self::showTaxRates();
-        }
-        if ($section === ACCOUNT_PAYMENT_TERMS) {
+        } elseif ($section === ACCOUNT_TICKETS) {
+            return self::showTickets();
+        } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
             return self::showPaymentTerms();
-        }
-        if ($section === ACCOUNT_SYSTEM_SETTINGS) {
+        } elseif ($section === ACCOUNT_SYSTEM_SETTINGS) {
             return self::showSystemSettings();
-        }
-        $view = "accounts.{$section}";
-        if ( ! view()->exists($view)) {
-            return redirect('/settings/company_details');
-        }
-
-        $data = [
-            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title'   => trans("texts.{$section}"),
-            'section' => $section,
-        ];
-
-        return View::make($view, $data);
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function showUserDetails()
-    {
-        if ( ! auth()->user()->registered) {
-            return redirect('/')->withError(trans('texts.sign_up_to_save'));
-        }
-
-        $oauthLoginUrls = [];
-        foreach (AuthService::$providers as $provider) {
-            $oauthLoginUrls[] = ['label' => $provider, 'url' => URL::to('/auth/' . mb_strtolower($provider))];
-        }
-
-        $data = [
-            'account'           => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title'             => trans('texts.user_details'),
-            'user'              => Auth::user(),
-            'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
-            'oauthLoginUrls'    => $oauthLoginUrls,
-            'referralCounts'    => $this->referralRepository->getCounts(Auth::user()->referral_code),
-        ];
-
-        return View::make('accounts.user_details', $data);
-    }
-
-    /**
-     * @param $section
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function doSection($section)
-    {
-        if ($section === ACCOUNT_LOCALIZATION) {
-            return self::saveLocalization();
-        }
-        if ($section == ACCOUNT_PAYMENTS) {
-            return self::saveOnlinePayments();
-        }
-        if ($section === ACCOUNT_NOTIFICATIONS) {
-            return self::saveNotifications();
-        }
-        if ($section === ACCOUNT_EXPORT) {
-            return self::export();
-        }
-        if ($section === ACCOUNT_INVOICE_SETTINGS) {
-            return self::saveInvoiceSettings();
-        }
-        if ($section === ACCOUNT_INVOICE_DESIGN) {
-            return self::saveInvoiceDesign();
-        }
-        if ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
-            return self::saveCustomizeDesign();
-        }
-        if ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
-            return self::saveEmailTemplates();
-        }
-        if ($section === ACCOUNT_PRODUCTS) {
-            return self::saveProducts();
-        }
-        if ($section === ACCOUNT_TAX_RATES) {
-            return self::saveTaxRates();
-        }
-        if ($section === ACCOUNT_PAYMENT_TERMS) {
-            return self::savePaymetTerms();
-        }
-        if ($section === ACCOUNT_MANAGEMENT) {
-            return self::saveAccountManagement();
-        }
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function saveClientPortalSettings(SaveClientPortalSettings $request)
-    {
-        $account = $request->user()->account;
-
-        // check subdomain is unique in the lookup tables
-        if (request()->subdomain) {
-            if ( ! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
-                return Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
-                    ->withError(trans('texts.subdomain_taken'))
-                    ->withInput();
+        } else {
+            $view = "accounts.{$section}";
+            if (! view()->exists($view)) {
+                return redirect('/settings/company_details');
             }
-        }
-
-        (bool) $fireUpdateSubdomainEvent = false;
-
-        if ($account->subdomain !== $request->subdomain) {
-            $fireUpdateSubdomainEvent = true;
-            event(new SubdomainWasRemoved($account));
-        }
-
-        $account->fill($request->all());
-        $account->client_view_css = $request->client_view_css;
-        $account->subdomain = $request->subdomain;
-        $account->iframe_url = $request->iframe_url;
-        $account->is_custom_domain = $request->is_custom_domain;
-        $account->save();
-
-        if ($fireUpdateSubdomainEvent) {
-            event(new SubdomainWasUpdated($account));
-        }
-
-        return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
-            ->with('message', trans('texts.updated_settings'));
-    }
-
-    /**
-     * @return $this|\Illuminate\Http\RedirectResponse
-     */
-    public function saveEmailSettings(SaveEmailSettings $request)
-    {
-        $account = $request->user()->account;
-        $account->fill($request->all());
-        $account->save();
-
-        $settings = $account->account_email_settings;
-        $settings->fill($request->all());
-        $settings->save();
-
-        return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
-            ->with('message', trans('texts.updated_settings'));
-    }
-
-    /**
-     * @param UpdateAccountRequest $request
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function updateDetails(UpdateAccountRequest $request)
-    {
-        $account = Auth::user()->account;
-        $this->accountRepo->save($request->input(), $account);
-
-        // Logo image file
-        if ($uploaded = Request::file('logo')) {
-            $path = Request::file('logo')->getRealPath();
-            $disk = $account->getLogoDisk();
-            $extension = mb_strtolower($uploaded->getClientOriginalExtension());
-
-            if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
-                $documentType = Document::$extraExtensions[$extension];
-            } else {
-                $documentType = $extension;
-            }
-
-            if ( ! in_array($documentType, ['jpeg', 'png', 'gif'])) {
-                Session::flash('warning', 'Unsupported file type');
-            } else {
-                $documentTypeData = Document::$types[$documentType];
-
-                $filePath = $uploaded->path();
-                $size = filesize($filePath);
-
-                if ($size / 1000 > MAX_DOCUMENT_SIZE) {
-                    Session::flash('error', trans('texts.logo_warning_too_large'));
-                } else {
-                    if ($documentType != 'gif') {
-                        $account->logo = $account->account_key . '.' . $documentType;
-
-                        try {
-                            $imageSize = getimagesize($filePath);
-                            $account->logo_width = $imageSize[0];
-                            $account->logo_height = $imageSize[1];
-                            $account->logo_size = $size;
-
-                            // make sure image isn't interlaced
-                            if (extension_loaded('fileinfo')) {
-                                $image = Image::make($path);
-                                $image->interlace(false);
-                                $imageStr = (string) $image->encode($documentType);
-                                $disk->put($account->logo, $imageStr);
-                                $account->logo_size = mb_strlen($imageStr);
-                            } else {
-                                if (Utils::isInterlaced($filePath)) {
-                                    $account->clearLogo();
-                                    Session::flash('error', trans('texts.logo_warning_invalid'));
-                                } else {
-                                    $stream = fopen($filePath, 'r');
-                                    $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
-                                    fclose($stream);
-                                }
-                            }
-                        } catch (Exception $exception) {
-                            $account->clearLogo();
-                            Session::flash('error', trans('texts.logo_warning_invalid'));
-                        }
-                    } else {
-                        if (extension_loaded('fileinfo')) {
-                            $account->logo = $account->account_key . '.png';
-                            $image = Image::make($path);
-                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
-                            $imageStr = (string) $image->encode('png');
-                            $disk->put($account->logo, $imageStr);
-
-                            $account->logo_size = mb_strlen($imageStr);
-                            $account->logo_width = $image->width();
-                            $account->logo_height = $image->height();
-                        } else {
-                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
-                        }
-                    }
-                }
-            }
-
-            $account->save();
-        }
-
-        event(new UserSettingsChanged());
-
-        Session::flash('message', trans('texts.updated_settings'));
-
-        return Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
-    }
-
-    /**
-     * @return $this|\Illuminate\Http\RedirectResponse
-     */
-    public function saveUserDetails()
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $email = trim(mb_strtolower(Request::input('email')));
-
-        if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
-            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
-                ->withError(trans('texts.email_taken'))
-                ->withInput();
-        }
-
-        $rules = ['email' => 'email|required|unique:users,email,' . $user->id . ',id'];
-
-        if ($user->google_2fa_secret) {
-            $rules['phone'] = 'required';
-        }
-
-        $validator = Validator::make(Request::all(), $rules);
-
-        if ($validator->fails()) {
-            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
-                ->withErrors($validator)
-                ->withInput();
-        }
-        $user->first_name = trim(Request::input('first_name'));
-        $user->last_name = trim(Request::input('last_name'));
-        $user->username = $email;
-        $user->email = $email;
-        $user->phone = trim(Request::input('phone'));
-        $user->dark_mode = Request::input('dark_mode');
-
-        if ( ! Auth::user()->is_admin) {
-            $user->notify_sent = Request::input('notify_sent');
-            $user->notify_viewed = Request::input('notify_viewed');
-            $user->notify_paid = Request::input('notify_paid');
-            $user->notify_approved = Request::input('notify_approved');
-            $user->only_notify_owned = Request::input('only_notify_owned');
-        }
-
-        if ($user->google_2fa_secret && ! Request::input('enable_two_factor')) {
-            $user->google_2fa_secret = null;
-        }
-
-        if (Utils::isNinja()) {
-            if (Request::input('referral_code') && ! $user->referral_code) {
-                $user->referral_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            }
-        }
-
-        $user->save();
-
-        event(new UserSettingsChanged());
-        Session::flash('message', trans('texts.updated_settings'));
-
-        return Redirect::to('settings/' . ACCOUNT_USER_DETAILS);
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function removeLogo()
-    {
-        $account = Auth::user()->account;
-
-        if ( ! Utils::isNinjaProd() && $account->hasLogo()) {
-            $account->getLogoDisk()->delete($account->logo);
-        }
-
-        $account->logo = null;
-        $account->logo_size = null;
-        $account->logo_width = null;
-        $account->logo_height = null;
-        $account->save();
-
-        Session::flash('message', trans('texts.removed_logo'));
-
-        return Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
-    }
-
-    /**
-     * @return string
-     */
-    public function checkEmail()
-    {
-        $email = trim(mb_strtolower(Request::input('email')));
-        $user = Auth::user();
-
-        if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
-            return 'taken';
-        }
-
-        $email = User::withTrashed()->where('email', '=', $email)
-            ->where('id', '<>', $user->registered ? 0 : $user->id)
-            ->first();
-
-        if ($email) {
-            return 'taken';
-        }
-
-        return 'available';
-    }
-
-    /**
-     * @return string
-     */
-    public function submitSignup()
-    {
-        $user = Auth::user();
-        $ip = Request::getClientIp();
-        $account = $user->account;
-
-        $rules = [
-            'new_first_name' => 'required',
-            'new_last_name'  => 'required',
-            'new_password'   => 'required|min:6',
-            'new_email'      => 'email|required|unique:users,email',
-        ];
-
-        if ( ! $user->registered) {
-            $rules['new_email'] .= ',' . Auth::user()->id . ',id';
-        }
-
-        $validator = Validator::make(Request::all(), $rules);
-
-        if ($validator->fails()) {
-            return '';
-        }
-
-        $firstName = trim(Request::input('new_first_name'));
-        $lastName = trim(Request::input('new_last_name'));
-        $email = trim(mb_strtolower(Request::input('new_email')));
-        $password = trim(Request::input('new_password'));
-
-        if ( ! \App\Models\LookupUser::validateField('email', $email, $user)) {
-            return '';
-        }
-
-        if ($user->registered) {
-            $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
-            $newUser = $newAccount->users()->first();
-            $newUser->acceptLatestTerms($ip)->save();
-            $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
-
-            Session::flash('message', trans('texts.created_new_company'));
-            Session::put(SESSION_USER_ACCOUNTS, $users);
-            Auth::loginUsingId($newUser->id);
-
-            return RESULT_SUCCESS;
-        }
-        $user->first_name = $firstName;
-        $user->last_name = $lastName;
-        $user->email = $email;
-        $user->username = $user->email;
-        $user->password = bcrypt($password);
-        $user->registered = true;
-        $user->acceptLatestTerms($ip);
-        $user->save();
-
-        $user->account->startTrial(PLAN_PRO);
-
-        if (Request::input('go_pro') == 'true') {
-            session([REQUESTED_PRO_PLAN => true]);
-        }
-
-        return "{$user->first_name} {$user->last_name}";
-    }
-
-    public function doRegister()
-    {
-        $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
-        $email = trim(Request::input('email'));
-
-        if ( ! $email || $email == TEST_USERNAME) {
-            return RESULT_FAILURE;
-        }
-
-        $license = new License();
-        $license->first_name = Request::input('first_name');
-        $license->last_name = Request::input('last_name');
-        $license->email = $email;
-        $license->transaction_reference = Request::getClientIp();
-        $license->license_key = Utils::generateLicense();
-        $license->affiliate_id = $affiliate->id;
-        $license->product_id = PRODUCT_SELF_HOST;
-        $license->is_claimed = 1;
-        $license->save();
-
-        return RESULT_SUCCESS;
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function purgeData()
-    {
-        $this->dispatch(new \App\Jobs\PurgeAccountData());
-
-        return redirect('/settings/account_management')->withMessage(trans('texts.purge_successful'));
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function cancelAccount()
-    {
-        if ($reason = trim(Request::input('reason'))) {
-            $email = Auth::user()->email;
-            $name = Auth::user()->getDisplayName();
 
             $data = [
-                'text' => $reason,
+                'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+                'title' => trans("texts.{$section}"),
+                'section' => $section,
             ];
 
-            $subject = 'Invoice Ninja - Canceled Account';
-
-            $this->userMailer->sendTo(env('CONTACT_EMAIL', CONTACT_EMAIL), $email, $name, $subject, 'contact', $data);
+            return View::make($view, $data);
         }
-
-        $user = Auth::user();
-        $account = Auth::user()->account;
-
-        Log::info("Canceled Account: {$account->name} - {$user->email}");
-        $type = $account->hasMultipleAccounts() ? 'company' : 'account';
-        $subject = trans("texts.deleted_{$type}");
-        $message = trans("texts.deleted_{$type}_details", ['account' => $account->getDisplayName()]);
-        $this->userMailer->sendMessage($user, $subject, $message);
-
-        $refunded = false;
-        if ( ! $account->hasMultipleAccounts()) {
-            $company = $account->company;
-            $refunded = $company->processRefund(Auth::user());
-
-            $ninjaClient = $this->accountRepo->getNinjaClient($account);
-            dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
-        }
-
-        Document::scope()->each(function ($item, $key) {
-            $item->delete();
-        });
-
-        $this->accountRepo->unlinkAccount($account);
-        $account->forceDelete();
-
-        Auth::logout();
-        Session::flush();
-
-        if ($refunded) {
-            Session::flash('warning', trans('texts.plan_refunded'));
-        }
-
-        return Redirect::to('/')->with('clearGuestKey', true);
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function resendConfirmation()
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $this->userMailer->sendConfirmation($user);
-
-        return Redirect::to('/settings/' . ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
-    }
-
-    /**
-     * @param      $section
-     * @param bool $subSection
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function redirectLegacy($section, $subSection = false)
-    {
-        if ($section === 'details') {
-            $section = ACCOUNT_COMPANY_DETAILS;
-        } elseif ($section === 'payments') {
-            $section = ACCOUNT_PAYMENTS;
-        } elseif ($section === 'advanced_settings') {
-            $section = $subSection;
-            if ($section === 'token_management') {
-                $section = ACCOUNT_API_TOKENS;
-            }
-        }
-
-        if ( ! in_array($section, array_merge(Account::$basicSettings, Account::$advancedSettings))) {
-            $section = ACCOUNT_COMPANY_DETAILS;
-        }
-
-        return Redirect::to("/settings/{$section}/", 301);
-    }
-
-    /**
-     * @param TemplateService $templateService
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function previewEmail(TemplateService $templateService)
-    {
-        $template = Request::input('template');
-        $invitation = \App\Models\Invitation::scope()
-            ->with('invoice.client.contacts')
-            ->first();
-
-        if ( ! $invitation) {
-            return trans('texts.create_invoice_for_sample');
-        }
-
-        /** @var \App\Models\Account $account */
-        $account = Auth::user()->account;
-        $invoice = $invitation->invoice;
-
-        // replace the variables with sample data
-        $data = [
-            'account'    => $account,
-            'invoice'    => $invoice,
-            'invitation' => $invitation,
-            'link'       => $invitation->getLink(),
-            'client'     => $invoice->client,
-            'amount'     => $invoice->amount,
-        ];
-
-        // create the email view
-        $view = 'emails.' . $account->getTemplateView(ENTITY_INVOICE) . '_html';
-        $data = array_merge($data, [
-            'body'       => $templateService->processVariables($template, $data),
-            'entityType' => ENTITY_INVOICE,
-        ]);
-
-        return Response::view($view, $data);
     }
 
     /**
@@ -894,7 +341,7 @@ class AccountController extends BaseController
 
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title'   => trans('texts.system_settings'),
+            'title' => trans('texts.system_settings'),
             'section' => ACCOUNT_SYSTEM_SETTINGS,
         ];
 
@@ -919,9 +366,9 @@ class AccountController extends BaseController
         }
 
         $data = [
-            'account'        => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title'          => trans('texts.invoice_settings'),
-            'section'        => ACCOUNT_INVOICE_SETTINGS,
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'title' => trans('texts.invoice_settings'),
+            'section' => ACCOUNT_INVOICE_SETTINGS,
             'recurringHours' => $recurringHours,
         ];
 
@@ -936,13 +383,13 @@ class AccountController extends BaseController
         // check that logo is less than the max file size
         $account = Auth::user()->account;
         if ($account->isLogoTooLarge()) {
-            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
+            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize().'KB']));
         }
 
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'sizes'   => Cache::get('sizes'),
-            'title'   => trans('texts.company_details'),
+            'sizes' => Cache::get('sizes'),
+            'title' => trans('texts.company_details'),
         ];
 
         return View::make('accounts.details', $data);
@@ -965,10 +412,10 @@ class AccountController extends BaseController
         }
 
         $data = [
-            'account'     => $account,
-            'portalLink'  => $portalLink,
+            'account' => $account,
+            'portalLink' => $portalLink,
             'planDetails' => $planDetails,
-            'title'       => trans('texts.account_management'),
+            'title' => trans('texts.account_management'),
         ];
 
         return View::make('accounts.management', $data);
@@ -977,16 +424,42 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
+    public function showUserDetails()
+    {
+        if (! auth()->user()->registered) {
+            return redirect('/')->withError(trans('texts.sign_up_to_save'));
+        }
+
+        $oauthLoginUrls = [];
+        foreach (AuthService::$providers as $provider) {
+            $oauthLoginUrls[] = ['label' => $provider, 'url' => URL::to('/auth/'.strtolower($provider))];
+        }
+
+        $data = [
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'title' => trans('texts.user_details'),
+            'user' => Auth::user(),
+            'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
+            'oauthLoginUrls' => $oauthLoginUrls,
+            'referralCounts' => $this->referralRepository->getCounts(Auth::user()->referral_code),
+        ];
+
+        return View::make('accounts.user_details', $data);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showLocalization()
     {
         $data = [
-            'account'         => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'timezones'       => Cache::get('timezones'),
-            'dateFormats'     => Cache::get('dateFormats'),
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'timezones' => Cache::get('timezones'),
+            'dateFormats' => Cache::get('dateFormats'),
             'datetimeFormats' => Cache::get('datetimeFormats'),
-            'title'           => trans('texts.localization'),
-            'weekdays'        => Utils::getTranslatedWeekdayNames(),
-            'months'          => Utils::getMonthOptions(),
+            'title' => trans('texts.localization'),
+            'weekdays' => Utils::getTranslatedWeekdayNames(),
+            'months' => Utils::getMonthOptions(),
         ];
 
         return View::make('accounts.localization', $data);
@@ -1000,8 +473,8 @@ class AccountController extends BaseController
         $account = auth()->user()->account;
 
         return View::make('accounts.banks', [
-            'title'              => trans('texts.bank_accounts'),
-            'advanced'           => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
+            'title' => trans('texts.bank_accounts'),
+            'advanced' => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
             'warnPaymentGateway' => ! $account->account_gateways->count(),
         ]);
     }
@@ -1017,7 +490,7 @@ class AccountController extends BaseController
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
-            if ( ! $accountGateway->getPublishableKey()) {
+            if (! $accountGateway->getPublishableKey()) {
                 Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }
@@ -1028,12 +501,12 @@ class AccountController extends BaseController
         }
 
         return View::make('accounts.payments', [
-            'showAdd'             => $count < count(Gateway::$alternate) + 1,
-            'title'               => trans('texts.online_payments'),
+            'showAdd' => $count < count(Gateway::$alternate) + 1,
+            'title' => trans('texts.online_payments'),
             'tokenBillingOptions' => $tokenBillingOptions,
-            'currency'            => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
-            'taxRates'            => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
-            'account'             => $account,
+            'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
+            'account' => $account,
         ]);
     }
 
@@ -1044,10 +517,28 @@ class AccountController extends BaseController
     {
         $data = [
             'account' => Auth::user()->account,
-            'title'   => trans('texts.product_library'),
+            'title' => trans('texts.product_library'),
+
         ];
 
         return View::make('accounts.products', $data);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function showTickets()
+    {
+
+        $data = [
+            'account' => Auth::user()->account,
+            'account_ticket_settings' => Auth::user()->account->account_ticket_settings,
+            'templates' => TicketTemplate::scope()->get(),
+            'title' => trans('texts.ticket_settings'),
+            'section' => ACCOUNT_TICKETS,
+        ];
+
+        return View::make('accounts.tickets', $data);
     }
 
     /**
@@ -1056,10 +547,10 @@ class AccountController extends BaseController
     private function showTaxRates()
     {
         $data = [
-            'account'              => Auth::user()->account,
-            'title'                => trans('texts.tax_rates'),
-            'taxRates'             => TaxRate::scope()->whereIsInclusive(false)->get(),
-            'countInvoices'        => Invoice::scope()->withTrashed()->count(),
+            'account' => Auth::user()->account,
+            'title' => trans('texts.tax_rates'),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(),
+            'countInvoices' => Invoice::scope()->withTrashed()->count(),
             'hasInclusiveTaxRates' => TaxRate::scope()->whereIsInclusive(true)->count() ? true : false,
         ];
 
@@ -1073,7 +564,7 @@ class AccountController extends BaseController
     {
         $data = [
             'account' => Auth::user()->account,
-            'title'   => trans('texts.payment_terms'),
+            'title' => trans('texts.payment_terms'),
         ];
 
         return View::make('accounts.payment_terms', $data);
@@ -1168,6 +659,7 @@ class AccountController extends BaseController
         $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
         $data['pageSizes'] = array_combine(InvoiceDesign::$pageSizes, InvoiceDesign::$pageSizes);
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
@@ -1221,15 +713,21 @@ class AccountController extends BaseController
         }
 
         $data = [
-            'client_view_css'        => $css,
+            'client_view_css' => $css,
             'enable_portal_password' => $account->enable_portal_password,
-            'send_portal_password'   => $account->send_portal_password,
-            'title'                  => trans('texts.client_portal'),
-            'section'                => ACCOUNT_CLIENT_PORTAL,
-            'account'                => $account,
-            'products'               => Product::scope()->orderBy('product_key')->get(),
-            'gateway_types'          => $options,
+            'send_portal_password' => $account->send_portal_password,
+            'title' => trans('texts.client_portal'),
+            'section' => ACCOUNT_CLIENT_PORTAL,
+            'account' => $account,
+            'products' => Product::scope()->orderBy('product_key')->get(),
+            'gateway_types' => $options,
+
         ];
+
+        if (Utils::isSelfHost()) {
+            $js = $account->client_view_js ? $account->client_view_js : '';
+            $data['client_view_js'] = $js;
+        }
 
         return View::make('accounts.client_portal', $data);
     }
@@ -1245,17 +743,52 @@ class AccountController extends BaseController
         $data['defaultTemplates'] = [];
         foreach (AccountEmailSettings::$templates as $type) {
             $data['templates'][$type] = [
-                'subject'  => $account->getEmailSubject($type),
+                'subject' => $account->getEmailSubject($type),
                 'template' => $account->getEmailTemplate($type),
             ];
             $data['defaultTemplates'][$type] = [
-                'subject'  => $account->getDefaultEmailSubject($type),
+                'subject' => $account->getDefaultEmailSubject($type),
                 'template' => $account->getDefaultEmailTemplate($type),
             ];
         }
         $data['title'] = trans('texts.email_templates');
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         return View::make('accounts.templates_and_reminders', $data);
+    }
+
+    /**
+     * @param $section
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function doSection($section)
+    {
+        if ($section === ACCOUNT_LOCALIZATION) {
+            return self::saveLocalization();
+        } elseif ($section == ACCOUNT_PAYMENTS) {
+            return self::saveOnlinePayments();
+        } elseif ($section === ACCOUNT_NOTIFICATIONS) {
+            return self::saveNotifications();
+        } elseif ($section === ACCOUNT_EXPORT) {
+            return self::export();
+        } elseif ($section === ACCOUNT_INVOICE_SETTINGS) {
+            return self::saveInvoiceSettings();
+        } elseif ($section === ACCOUNT_INVOICE_DESIGN) {
+            return self::saveInvoiceDesign();
+        } elseif ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
+            return self::saveCustomizeDesign();
+        } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
+            return self::saveEmailTemplates();
+        } elseif ($section === ACCOUNT_PRODUCTS) {
+            return self::saveProducts();
+        } elseif ($section === ACCOUNT_TAX_RATES) {
+            return self::saveTaxRates();
+        } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
+            return self::savePaymetTerms();
+        } elseif ($section === ACCOUNT_MANAGEMENT) {
+            return self::saveAccountManagement();
+        }
     }
 
     /**
@@ -1265,11 +798,11 @@ class AccountController extends BaseController
     {
         $user = Auth::user();
         $account = $user->account;
-        $modules = Request::input('modules');
+        $modules = Input::get('modules');
 
         if (Utils::isSelfHost()) {
             // get all custom modules, including disabled
-            $custom_modules = collect(Request::input('custom_modules'))->each(function ($item, $key) {
+            $custom_modules = collect(Input::get('custom_modules'))->each(function ($item, $key) {
                 $module = Module::find($item);
                 if ($module && $module->disabled()) {
                     $module->enable();
@@ -1283,10 +816,10 @@ class AccountController extends BaseController
             });
         }
 
-        $user->force_pdfjs = Request::input('force_pdfjs') ? true : false;
+        $user->force_pdfjs = Input::get('force_pdfjs') ? true : false;
         $user->save();
 
-        $account->live_preview = Request::input('live_preview') ? true : false;
+        $account->live_preview = Input::get('live_preview') ? true : false;
 
         // Automatically disable live preview when using a large font
         $fonts = Cache::get('fonts')->filter(function ($font) use ($account) {
@@ -1306,7 +839,7 @@ class AccountController extends BaseController
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_MANAGEMENT);
+        return Redirect::to('settings/'.ACCOUNT_MANAGEMENT);
     }
 
     /**
@@ -1314,21 +847,79 @@ class AccountController extends BaseController
      */
     private function saveCustomizeDesign()
     {
-        $designId = (int) (Request::input('design_id')) ?: CUSTOM_DESIGN1;
+        $designId = intval(Input::get('design_id')) ?: CUSTOM_DESIGN1;
         $field = 'custom_design' . ($designId - 10);
 
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
-            if ( ! $account->custom_design1) {
+            if (! $account->custom_design1) {
                 $account->invoice_design_id = CUSTOM_DESIGN1;
             }
-            $account->{$field} = Request::input('custom_design');
+            $account->$field = Input::get('custom_design');
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
 
         return Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN . '?design_id=' . $designId);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function saveClientPortalSettings(SaveClientPortalSettings $request)
+    {
+        $account = $request->user()->account;
+
+        // check subdomain is unique in the lookup tables
+        if (request()->subdomain) {
+            if (! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
+                return Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
+                    ->withError(trans('texts.subdomain_taken'))
+                    ->withInput();
+            }
+        }
+
+
+        (bool) $fireUpdateSubdomainEvent = false;
+
+        if ($account->subdomain !== $request->subdomain) {
+            $fireUpdateSubdomainEvent = true;
+            event(new SubdomainWasRemoved($account));
+        }
+
+        $account->fill($request->all());
+        $account->client_view_css = $request->client_view_css;
+        $account->client_view_js = $request->client_view_js;
+        $account->subdomain = $request->subdomain;
+        $account->iframe_url = $request->iframe_url;
+        $account->is_custom_domain = $request->is_custom_domain;
+        $account->save();
+
+        if ($fireUpdateSubdomainEvent) {
+            event(new SubdomainWasUpdated($account));
+        }
+
+
+        return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
+            ->with('message', trans('texts.updated_settings'));
+    }
+
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
+    public function saveEmailSettings(SaveEmailSettings $request)
+    {
+        $account = $request->user()->account;
+        $account->fill($request->all());
+        $account->save();
+
+        $settings = $account->account_email_settings;
+        $settings->fill($request->all());
+        $settings->save();
+
+        return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
+            ->with('message', trans('texts.updated_settings'));
     }
 
     /**
@@ -1341,28 +932,28 @@ class AccountController extends BaseController
 
             foreach (AccountEmailSettings::$templates as $type) {
                 $subjectField = "email_subject_{$type}";
-                $subject = Request::input($subjectField, $account->getEmailSubject($type));
-                $account->account_email_settings->{$subjectField} = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
+                $subject = Input::get($subjectField, $account->getEmailSubject($type));
+                $account->account_email_settings->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
 
                 $bodyField = "email_template_{$type}";
-                $body = Request::input($bodyField, $account->getEmailTemplate($type));
-                $account->account_email_settings->{$bodyField} = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
+                $body = Input::get($bodyField, $account->getEmailTemplate($type));
+                $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
             foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
-                $account->{$enableField} = Request::input($enableField) ? true : false;
-                $account->{"num_days_{$type}"} = Request::input("num_days_{$type}");
-                $account->{"field_{$type}"} = Request::input("field_{$type}");
-                $account->{"direction_{$type}"} = Request::input("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Request::input("direction_{$type}");
+                $account->account_email_settings->$enableField = Input::get($enableField) ? true : false;
+                $account->account_email_settings->{"num_days_{$type}"} = Input::get("num_days_{$type}");
+                $account->account_email_settings->{"field_{$type}"} = Input::get("field_{$type}");
+                $account->account_email_settings->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
-                $account->account_email_settings->{"late_fee{$number}_amount"} = Request::input("late_fee{$number}_amount");
-                $account->account_email_settings->{"late_fee{$number}_percent"} = Request::input("late_fee{$number}_percent");
+                $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
+                $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
-            $account->enable_reminder4 = Request::input('enable_reminder4') ? true : false;
-            $account->account_email_settings->frequency_id_reminder4 = Request::input('frequency_id_reminder4');
+            $account->account_email_settings->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
 
             $account->save();
             $account->account_email_settings->save();
@@ -1370,7 +961,30 @@ class AccountController extends BaseController
             Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_TEMPLATES_AND_REMINDERS);
+        return Redirect::to('settings/'.ACCOUNT_TEMPLATES_AND_REMINDERS);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+    public function saveTickets(SaveTicketSettings $request)
+    {
+        $account_ticket_settings = Auth::user()->account->account_ticket_settings;
+        $account_ticket_settings->fill($request->all());
+        $account_ticket_settings->save();
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_TICKETS);
+    }
+
+    public function checkUniqueLocalPart()
+    {
+        if(AccountTicketSettings::checkUniqueLocalPart(Input::get('support_email_local_part'), Auth::user()->account))
+            return RESULT_SUCCESS;
+        else
+            return RESULT_FAILURE;
     }
 
     /**
@@ -1379,12 +993,12 @@ class AccountController extends BaseController
     private function saveTaxRates()
     {
         $account = Auth::user()->account;
-        $account->fill(Request::all());
+        $account->fill(Input::all());
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+        return Redirect::to('settings/'.ACCOUNT_TAX_RATES);
     }
 
     /**
@@ -1394,15 +1008,15 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
 
-        $account->show_product_notes = Request::input('show_product_notes') ? true : false;
-        $account->fill_products = Request::input('fill_products') ? true : false;
-        $account->update_products = Request::input('update_products') ? true : false;
-        $account->convert_products = Request::input('convert_products') ? true : false;
+        $account->show_product_notes = Input::get('show_product_notes') ? true : false;
+        $account->fill_products = Input::get('fill_products') ? true : false;
+        $account->update_products = Input::get('update_products') ? true : false;
+        $account->convert_products = Input::get('convert_products') ? true : false;
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return Redirect::to('settings/'.ACCOUNT_PRODUCTS);
     }
 
     /**
@@ -1413,79 +1027,83 @@ class AccountController extends BaseController
         if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             $rules = [];
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
-                if (Request::input("{$entityType}_number_type") == 'pattern') {
+                if (Input::get("{$entityType}_number_type") == 'pattern') {
                     $rules["{$entityType}_number_pattern"] = 'has_counter';
                 }
             }
-            if (Request::input('credit_number_enabled')) {
+            if (Input::get('credit_number_enabled')) {
                 $rules['credit_number_prefix'] = 'required_without:credit_number_pattern';
                 $rules['credit_number_pattern'] = 'required_without:credit_number_prefix';
             }
-            $validator = Validator::make(Request::all(), $rules);
+            $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)
+                return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)
                     ->withErrors($validator)
                     ->withInput();
-            }
-            $account = Auth::user()->account;
-            $account->custom_value1 = Request::input('custom_value1');
-            $account->custom_value2 = Request::input('custom_value2');
-            $account->custom_invoice_taxes1 = Request::input('custom_invoice_taxes1') ? true : false;
-            $account->custom_invoice_taxes2 = Request::input('custom_invoice_taxes2') ? true : false;
-            $account->custom_fields = request()->custom_fields;
-            $account->invoice_number_padding = Request::input('invoice_number_padding');
-            $account->invoice_number_counter = Request::input('invoice_number_counter');
-            $account->quote_number_prefix = Request::input('quote_number_prefix');
-            $account->share_counter = Request::input('share_counter') ? true : false;
-            $account->invoice_terms = Request::input('invoice_terms');
-            $account->invoice_footer = Request::input('invoice_footer');
-            $account->quote_terms = Request::input('quote_terms');
-            $account->auto_convert_quote = Request::input('auto_convert_quote');
-            $account->auto_archive_quote = Request::input('auto_archive_quote');
-            $account->auto_archive_invoice = Request::input('auto_archive_invoice');
-            $account->auto_email_invoice = Request::input('auto_email_invoice');
-            $account->recurring_invoice_number_prefix = Request::input('recurring_invoice_number_prefix');
+            } else {
+                $account = Auth::user()->account;
+                $account->custom_value1 = Input::get('custom_value1');
+                $account->custom_value2 = Input::get('custom_value2');
+                $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
+                $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
+                $account->custom_fields = request()->custom_fields;
+                $account->invoice_number_padding = Input::get('invoice_number_padding');
+                $account->invoice_number_counter = Input::get('invoice_number_counter');
+                $account->quote_number_prefix = Input::get('quote_number_prefix');
+                $account->share_counter = Input::get('share_counter') ? true : false;
+                $account->invoice_terms = Input::get('invoice_terms');
+                $account->invoice_footer = Input::get('invoice_footer');
+                $account->quote_terms = Input::get('quote_terms');
+                $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->auto_archive_quote = Input::get('auto_archive_quote');
+                $account->allow_approve_expired_quote = Input::get('allow_approve_expired_quote');
+                $account->auto_archive_invoice = Input::get('auto_archive_invoice');
+                $account->auto_email_invoice = Input::get('auto_email_invoice');
+                $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
-            $account->client_number_prefix = trim(Request::input('client_number_prefix'));
-            $account->client_number_pattern = trim(Request::input('client_number_pattern'));
-            $account->client_number_counter = Request::input('client_number_counter');
-            $account->credit_number_counter = Request::input('credit_number_counter');
-            $account->credit_number_prefix = trim(Request::input('credit_number_prefix'));
-            $account->credit_number_pattern = trim(Request::input('credit_number_pattern'));
-            $account->reset_counter_frequency_id = Request::input('reset_counter_frequency_id');
-            $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Request::input('reset_counter_date')) : null;
+                $account->client_number_prefix = trim(Input::get('client_number_prefix'));
+                $account->client_number_pattern = trim(Input::get('client_number_pattern'));
+                $account->client_number_counter = Input::get('client_number_counter');
+                $account->credit_number_counter = Input::get('credit_number_counter');
+                $account->credit_number_prefix = trim(Input::get('credit_number_prefix'));
+                $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
+                $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
+                $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
+                $account->custom_fields_options = request()->custom_fields_options;
 
-            if (Request::has('recurring_hour')) {
-                $account->recurring_hour = Request::input('recurring_hour');
-            }
+                if (Input::has('recurring_hour')) {
+                    $account->recurring_hour = Input::get('recurring_hour');
+                }
 
-            if ( ! $account->share_counter) {
-                $account->quote_number_counter = Request::input('quote_number_counter');
-            }
+                if (! $account->share_counter) {
+                    $account->quote_number_counter = Input::get('quote_number_counter');
+                }
 
-            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
-                if (Request::input("{$entityType}_number_type") == 'prefix') {
-                    $account->{"{$entityType}_number_prefix"} = trim(Request::input("{$entityType}_number_prefix"));
-                    $account->{"{$entityType}_number_pattern"} = null;
+                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                    if (Input::get("{$entityType}_number_type") == 'prefix') {
+                        $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
+                        $account->{"{$entityType}_number_pattern"} = null;
+                    } else {
+                        $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
+                        $account->{"{$entityType}_number_prefix"} = null;
+                    }
+                }
+
+                if (! $account->share_counter
+                    && $account->invoice_number_prefix == $account->quote_number_prefix
+                    && $account->invoice_number_pattern == $account->quote_number_pattern) {
+                    Session::flash('error', trans('texts.invalid_counter'));
+
+                    return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
                 } else {
-                    $account->{"{$entityType}_number_pattern"} = trim(Request::input("{$entityType}_number_pattern"));
-                    $account->{"{$entityType}_number_prefix"} = null;
+                    $account->save();
+                    Session::flash('message', trans('texts.updated_settings'));
                 }
             }
-
-            if ( ! $account->share_counter
-                && $account->invoice_number_prefix == $account->quote_number_prefix
-                && $account->invoice_number_pattern == $account->quote_number_pattern) {
-                Session::flash('error', trans('texts.invalid_counter'));
-
-                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)->withInput();
-            }
-            $account->save();
-            Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS);
+        return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS);
     }
 
     /**
@@ -1495,34 +1113,34 @@ class AccountController extends BaseController
     {
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
-            $account->hide_quantity = Request::input('hide_quantity') ? true : false;
-            $account->hide_paid_to_date = Request::input('hide_paid_to_date') ? true : false;
-            $account->all_pages_header = Request::input('all_pages_header') ? true : false;
-            $account->all_pages_footer = Request::input('all_pages_footer') ? true : false;
-            $account->invoice_embed_documents = Request::input('invoice_embed_documents') ? true : false;
-            $account->header_font_id = Request::input('header_font_id');
-            $account->body_font_id = Request::input('body_font_id');
-            $account->primary_color = Request::input('primary_color');
-            $account->secondary_color = Request::input('secondary_color');
-            $account->invoice_design_id = Request::input('invoice_design_id');
-            $account->quote_design_id = Request::input('quote_design_id');
-            $account->font_size = (int) (Request::input('font_size'));
-            $account->page_size = Request::input('page_size');
+            $account->hide_quantity = Input::get('hide_quantity') ? true : false;
+            $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
+            $account->all_pages_header = Input::get('all_pages_header') ? true : false;
+            $account->all_pages_footer = Input::get('all_pages_footer') ? true : false;
+            $account->invoice_embed_documents = Input::get('invoice_embed_documents') ? true : false;
+            $account->header_font_id = Input::get('header_font_id');
+            $account->body_font_id = Input::get('body_font_id');
+            $account->primary_color = Input::get('primary_color');
+            $account->secondary_color = Input::get('secondary_color');
+            $account->invoice_design_id = Input::get('invoice_design_id');
+            $account->quote_design_id = Input::get('quote_design_id');
+            $account->font_size = intval(Input::get('font_size'));
+            $account->page_size = Input::get('page_size');
             $account->background_image_id = Document::getPrivateId(request()->background_image_id);
 
             $labels = [];
             foreach (Account::$customLabels as $field) {
-                $labels[$field] = Request::input("labels_{$field}");
+                $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
-            $account->invoice_fields = Request::input('invoice_fields_json');
+            $account->invoice_fields = Input::get('invoice_fields_json');
 
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/' . ACCOUNT_INVOICE_DESIGN);
+        return Redirect::to('settings/'.ACCOUNT_INVOICE_DESIGN);
     }
 
     /**
@@ -1531,12 +1149,12 @@ class AccountController extends BaseController
     private function saveNotifications()
     {
         $user = Auth::user();
-        $user->notify_sent = Request::input('notify_sent');
-        $user->notify_viewed = Request::input('notify_viewed');
-        $user->notify_paid = Request::input('notify_paid');
-        $user->notify_approved = Request::input('notify_approved');
-        $user->only_notify_owned = Request::input('only_notify_owned');
-        $user->slack_webhook_url = Request::input('slack_webhook_url');
+        $user->notify_sent = Input::get('notify_sent');
+        $user->notify_viewed = Input::get('notify_viewed');
+        $user->notify_paid = Input::get('notify_paid');
+        $user->notify_approved = Input::get('notify_approved');
+        $user->only_notify_owned = Input::get('only_notify_owned');
+        $user->slack_webhook_url = Input::get('slack_webhook_url');
         $user->save();
 
         $account = $user->account;
@@ -1545,7 +1163,247 @@ class AccountController extends BaseController
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_NOTIFICATIONS);
+        return Redirect::to('settings/'.ACCOUNT_NOTIFICATIONS);
+    }
+
+    /**
+     * @param UpdateAccountRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateDetails(UpdateAccountRequest $request)
+    {
+        $account = Auth::user()->account;
+        $this->accountRepo->save($request->input(), $account);
+
+        /* Logo image file */
+        if ($uploaded = Input::file('logo')) {
+            $path = Input::file('logo')->getRealPath();
+            $disk = $account->getLogoDisk();
+            $extension = strtolower($uploaded->getClientOriginalExtension());
+
+            if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
+                $documentType = Document::$extraExtensions[$extension];
+            } else {
+                $documentType = $extension;
+            }
+
+            if (! in_array($documentType, ['jpeg', 'png', 'gif'])) {
+                Session::flash('warning', 'Unsupported file type');
+            } else {
+                $documentTypeData = Document::$types[$documentType];
+
+                $filePath = $uploaded->path();
+                $size = filesize($filePath);
+
+                if ($size / 1000 > MAX_DOCUMENT_SIZE) {
+                    Session::flash('error', trans('texts.logo_warning_too_large'));
+                } else {
+                    if ($documentType != 'gif') {
+                        $account->logo = $account->account_key.'.'.$documentType;
+
+                        try {
+                            $imageSize = getimagesize($filePath);
+                            $account->logo_width = $imageSize[0];
+                            $account->logo_height = $imageSize[1];
+                            $account->logo_size = $size;
+
+                            // make sure image isn't interlaced
+                            if (extension_loaded('fileinfo')) {
+                                $image = Image::make($path);
+                                $image->interlace(false);
+                                $imageStr = (string) $image->encode($documentType);
+                                $disk->put($account->logo, $imageStr);
+                                $account->logo_size = strlen($imageStr);
+                            } else {
+                                if (Utils::isInterlaced($filePath)) {
+                                    $account->clearLogo();
+                                    Session::flash('error', trans('texts.logo_warning_invalid'));
+                                } else {
+                                    $stream = fopen($filePath, 'r');
+                                    $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                    fclose($stream);
+                                }
+                            }
+                        } catch (Exception $exception) {
+                            $account->clearLogo();
+                            Session::flash('error', trans('texts.logo_warning_invalid'));
+                        }
+                    } else {
+                        if (extension_loaded('fileinfo')) {
+                            $account->logo = $account->account_key.'.png';
+                            $image = Image::make($path);
+                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
+                            $imageStr = (string) $image->encode('png');
+                            $disk->put($account->logo, $imageStr);
+
+                            $account->logo_size = strlen($imageStr);
+                            $account->logo_width = $image->width();
+                            $account->logo_height = $image->height();
+                        } else {
+                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
+                        }
+                    }
+                }
+            }
+
+            $account->save();
+        }
+
+        event(new UserSettingsChanged());
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
+    }
+
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
+    public function saveUserDetails()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $email = trim(strtolower(Input::get('email')));
+
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
+            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
+                ->withError(trans('texts.email_taken'))
+                ->withInput();
+        }
+
+        $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
+
+        if ($user->google_2fa_secret) {
+            $rules['phone'] = 'required';
+        }
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) {
+            return Redirect::to('settings/'.ACCOUNT_USER_DETAILS)
+                ->withErrors($validator)
+                ->withInput();
+        } else {
+            $user->first_name = trim(Input::get('first_name'));
+            $user->last_name = trim(Input::get('last_name'));
+            $user->username = $email;
+            $user->email = $email;
+            $user->phone = trim(Input::get('phone'));
+            $user->dark_mode = Input::get('dark_mode');
+            $user->signature = Input::get('signature');
+
+            if (! Auth::user()->is_admin) {
+                $user->notify_sent = Input::get('notify_sent');
+                $user->notify_viewed = Input::get('notify_viewed');
+                $user->notify_paid = Input::get('notify_paid');
+                $user->notify_approved = Input::get('notify_approved');
+                $user->only_notify_owned = Input::get('only_notify_owned');
+            }
+
+            if ($user->google_2fa_secret && ! Input::get('enable_two_factor')) {
+                $user->google_2fa_secret = null;
+            }
+
+            if (Utils::isNinja()) {
+                if (Input::get('referral_code') && ! $user->referral_code) {
+                    $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+                }
+            }
+
+            $this->saveUserAvatar(Input::file('avatar'), $user);
+
+            $user->save();
+
+            event(new UserSettingsChanged());
+            Session::flash('message', trans('texts.updated_settings'));
+
+            return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
+        }
+    }
+
+    /**
+     * @param $avatar
+     * @param $user
+     */
+    private function saveUserAvatar($avatar, $user)
+    {
+
+        /* Logo image file */
+        if ($uploaded = $avatar) {
+            $path = $avatar->getRealPath();
+            $disk = $user->getAvatarDisk();
+            $extension = strtolower($uploaded->getClientOriginalExtension());
+
+            if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
+                $documentType = Document::$extraExtensions[$extension];
+            } else {
+                $documentType = $extension;
+            }
+
+            if (! in_array($documentType, ['jpeg', 'png', 'gif'])) {
+                Session::flash('warning', 'Unsupported file type');
+            } else {
+                $documentTypeData = Document::$types[$documentType];
+
+                $filePath = $uploaded->path();
+                $size = filesize($filePath);
+
+                if ($size / 1000 > MAX_DOCUMENT_SIZE) {
+                    Session::flash('error', trans('texts.logo_warning_too_large'));
+                } else {
+                    if ($documentType != 'gif') {
+                        $user->avatar = str_random(21).'.'.$documentType;
+
+                        try {
+                            $imageSize = getimagesize($filePath);
+                            $user->avatar_width = $imageSize[0];
+                            $user->avatar_height = $imageSize[1];
+                            $user->avatar_size = $size;
+
+                            // make sure image isn't interlaced
+                            if (extension_loaded('fileinfo')) {
+                                $image = Image::make($path);
+                                $image->interlace(false);
+                                $imageStr = (string) $image->encode($documentType);
+                                $disk->put($user->avatar, $imageStr);
+                                $user->avatar_size = strlen($imageStr);
+                            } else {
+                                if (Utils::isInterlaced($filePath)) {
+                                    $user->clearAvatar();
+                                    Session::flash('error', trans('texts.logo_warning_invalid'));
+                                } else {
+                                    $stream = fopen($filePath, 'r');
+                                    $disk->getDriver()->putStream($user->avatar, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                    fclose($stream);
+                                }
+                            }
+                        } catch (Exception $exception) {
+                            $user->clearAvatar();
+                            Session::flash('error', trans('texts.logo_warning_invalid'));
+                        }
+                    } else {
+                        if (extension_loaded('fileinfo')) {
+                            $user->avatar = str_random(32).'.png';
+                            $image = Image::make($path);
+                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
+                            $imageStr = (string) $image->encode('png');
+                            $disk->put($user->avatar, $imageStr);
+
+                            $user->avatar_size = strlen($imageStr);
+                            $user->avatar_width = $image->width();
+                            $user->avatar_height = $image->height();
+                        } else {
+                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
+                        }
+                    }
+                }
+            }
+
+            $user->save();
+        }
+
     }
 
     /**
@@ -1556,22 +1414,22 @@ class AccountController extends BaseController
         /** @var \App\Models\Account $account */
         $account = Auth::user()->account;
 
-        $account->timezone_id = Request::input('timezone_id') ? Request::input('timezone_id') : null;
-        $account->date_format_id = Request::input('date_format_id') ? Request::input('date_format_id') : null;
-        $account->datetime_format_id = Request::input('datetime_format_id') ? Request::input('datetime_format_id') : null;
-        $account->currency_id = Request::input('currency_id') ? Request::input('currency_id') : 1; // US Dollar
-        $account->language_id = Request::input('language_id') ? Request::input('language_id') : 1; // English
-        $account->military_time = Request::input('military_time') ? true : false;
-        $account->show_currency_code = Request::input('show_currency_code') ? true : false;
-        $account->start_of_week = Request::input('start_of_week') ? Request::input('start_of_week') : 0;
-        $account->financial_year_start = Request::input('financial_year_start') ? Request::input('financial_year_start') : null;
+        $account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
+        $account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
+        $account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
+        $account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
+        $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
+        $account->military_time = Input::get('military_time') ? true : false;
+        $account->show_currency_code = Input::get('show_currency_code') ? true : false;
+        $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0;
+        $account->financial_year_start = Input::get('financial_year_start') ? Input::get('financial_year_start') : null;
         $account->save();
 
         event(new UserSettingsChanged());
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_LOCALIZATION);
+        return Redirect::to('settings/'.ACCOUNT_LOCALIZATION);
     }
 
     /**
@@ -1580,10 +1438,10 @@ class AccountController extends BaseController
     private function saveOnlinePayments()
     {
         $account = Auth::user()->account;
-        $account->token_billing_type_id = Request::input('token_billing_type_id');
-        $account->auto_bill_on_due_date = (bool) (Request::input('auto_bill_on_due_date'));
-        $account->gateway_fee_enabled = (bool) (Request::input('gateway_fee_enabled'));
-        $account->send_item_details = (bool) (Request::input('send_item_details'));
+        $account->token_billing_type_id = Input::get('token_billing_type_id');
+        $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
+        $account->gateway_fee_enabled = boolval(Input::get('gateway_fee_enabled'));
+        $account->send_item_details = boolval(Input::get('send_item_details'));
 
         $account->save();
 
@@ -1591,6 +1449,306 @@ class AccountController extends BaseController
 
         Session::flash('message', trans('texts.updated_settings'));
 
-        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
+        return Redirect::to('settings/'.ACCOUNT_PAYMENTS);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeLogo()
+    {
+        $account = Auth::user()->account;
+
+        if (! Utils::isNinjaProd() && $account->hasLogo()) {
+            $account->getLogoDisk()->delete($account->logo);
+        }
+
+        $account->logo = null;
+        $account->logo_size = null;
+        $account->logo_width = null;
+        $account->logo_height = null;
+        $account->save();
+
+        Session::flash('message', trans('texts.removed_logo'));
+
+        return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function removeAvatar()
+    {
+        $user = Auth::user();
+
+        if (! Utils::isNinjaProd() && $user->hasAvatar()) {
+            $user->getAvatarDisk()->delete($user->avatar);
+        }
+
+        $user->avatar = null;
+        $user->avatar_size = null;
+        $user->avatar_width = null;
+        $user->avatar_height = null;
+        $user->save();
+
+        Session::flash('message', trans('texts.removed_logo'));
+
+        return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
+    }
+
+    /**
+     * @return string
+     */
+    public function checkEmail()
+    {
+        $email = trim(strtolower(Input::get('email')));
+        $user = Auth::user();
+
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
+            return 'taken';
+        }
+
+        $email = User::withTrashed()->where('email', '=', $email)
+            ->where('id', '<>', $user->registered ? 0 : $user->id)
+            ->first();
+
+        if ($email) {
+            return 'taken';
+        } else {
+            return 'available';
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function submitSignup()
+    {
+        $user = Auth::user();
+        $ip = Request::getClientIp();
+        $account = $user->account;
+
+        $rules = [
+            'new_first_name' => 'required',
+            'new_last_name' => 'required',
+            'new_password' => 'required|min:6',
+            'new_email' => 'email|required|unique:users,email',
+        ];
+
+        if (! $user->registered) {
+            $rules['new_email'] .= ',' . Auth::user()->id . ',id';
+        }
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) {
+            return '';
+        }
+
+        $firstName = trim(Input::get('new_first_name'));
+        $lastName = trim(Input::get('new_last_name'));
+        $email = trim(strtolower(Input::get('new_email')));
+        $password = trim(Input::get('new_password'));
+
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
+            return '';
+        }
+
+        if ($user->registered) {
+            $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
+            $newUser = $newAccount->users()->first();
+            $newUser->acceptLatestTerms($ip)->save();
+            $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
+
+            Session::flash('message', trans('texts.created_new_company'));
+            Session::put(SESSION_USER_ACCOUNTS, $users);
+            Auth::loginUsingId($newUser->id);
+
+            return RESULT_SUCCESS;
+        } else {
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->email = $email;
+            $user->username = $user->email;
+            $user->password = bcrypt($password);
+            $user->registered = true;
+            $user->acceptLatestTerms($ip);
+            $user->save();
+
+            $user->account->startTrial(PLAN_PRO);
+
+            if (Input::get('go_pro') == 'true') {
+                session([REQUESTED_PRO_PLAN => true]);
+            }
+
+            return "{$user->first_name} {$user->last_name}";
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function doRegister()
+    {
+        $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
+        $email = trim(Input::get('email'));
+
+        if (! $email || $email == TEST_USERNAME) {
+            return RESULT_FAILURE;
+        }
+
+        $license = new License();
+        $license->first_name = Input::get('first_name');
+        $license->last_name = Input::get('last_name');
+        $license->email = $email;
+        $license->transaction_reference = Request::getClientIp();
+        $license->license_key = Utils::generateLicense();
+        $license->affiliate_id = $affiliate->id;
+        $license->product_id = PRODUCT_SELF_HOST;
+        $license->is_claimed = 1;
+        $license->save();
+
+        return RESULT_SUCCESS;
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function purgeData()
+    {
+        $this->dispatch(new \App\Jobs\PurgeAccountData());
+
+        return redirect('/settings/account_management')->withMessage(trans('texts.purge_successful'));
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function cancelAccount()
+    {
+        if ($reason = trim(Input::get('reason'))) {
+            $email = Auth::user()->email;
+            $name = Auth::user()->getDisplayName();
+
+            $data = [
+                'text' => $reason,
+            ];
+
+            $subject = 'Invoice Ninja - Canceled Account';
+
+            $this->userMailer->sendTo(env('CONTACT_EMAIL', CONTACT_EMAIL), $email, $name, $subject, 'contact', $data);
+        }
+
+        $user = Auth::user();
+        $account = Auth::user()->account;
+
+        \Log::info("Canceled Account: {$account->name} - {$user->email}");
+        $type = $account->hasMultipleAccounts() ? 'company' : 'account';
+        $subject = trans("texts.deleted_{$type}");
+        $message = trans("texts.deleted_{$type}_details", ['account' => $account->getDisplayName()]);
+        $this->userMailer->sendMessage($user, $subject, $message);
+
+        $refunded = false;
+        if (! $account->hasMultipleAccounts()) {
+            $company = $account->company;
+            $refunded = $company->processRefund(Auth::user());
+
+            $ninjaClient = $this->accountRepo->getNinjaClient($account);
+            dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
+        }
+
+        Document::scope()->each(function ($item, $key) {
+            $item->delete();
+        });
+
+        $this->accountRepo->unlinkAccount($account);
+        $account->forceDelete();
+
+        Auth::logout();
+        Session::flush();
+
+        if ($refunded) {
+            Session::flash('warning', trans('texts.plan_refunded'));
+        }
+
+        return Redirect::to('/')->with('clearGuestKey', true);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function resendConfirmation()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $this->userMailer->sendConfirmation($user);
+
+        return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
+    }
+
+    /**
+     * @param $section
+     * @param bool $subSection
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function redirectLegacy($section, $subSection = false)
+    {
+        if ($section === 'details') {
+            $section = ACCOUNT_COMPANY_DETAILS;
+        } elseif ($section === 'payments') {
+            $section = ACCOUNT_PAYMENTS;
+        } elseif ($section === 'advanced_settings') {
+            $section = $subSection;
+            if ($section === 'token_management') {
+                $section = ACCOUNT_API_TOKENS;
+            }
+        }
+
+        if (! in_array($section, array_merge(Account::$basicSettings, Account::$advancedSettings))) {
+            $section = ACCOUNT_COMPANY_DETAILS;
+        }
+
+        return Redirect::to("/settings/$section/", 301);
+    }
+
+    /**
+     * @param TemplateService $templateService
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function previewEmail(TemplateService $templateService)
+    {
+        $template = Input::get('template');
+        $invitation = \App\Models\Invitation::scope()
+            ->with('invoice.client.contacts')
+            ->first();
+
+        if (! $invitation) {
+            return trans('texts.create_invoice_for_sample');
+        }
+
+        /** @var \App\Models\Account $account */
+        $account = Auth::user()->account;
+        $invoice = $invitation->invoice;
+
+        // replace the variables with sample data
+        $data = [
+            'account' => $account,
+            'invoice' => $invoice,
+            'invitation' => $invitation,
+            'link' => $invitation->getLink(),
+            'client' => $invoice->client,
+            'amount' => $invoice->amount,
+        ];
+
+        // create the email view
+        $view = 'emails.' . $account->getTemplateView(ENTITY_INVOICE) . '_html';
+        $data = array_merge($data, [
+            'body' => $templateService->processVariables($template, $data),
+            'entityType' => ENTITY_INVOICE,
+        ]);
+
+        return Response::view($view, $data);
     }
 }

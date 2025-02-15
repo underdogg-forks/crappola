@@ -6,7 +6,9 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                @if (config('mail.driver') == 'log' && ! config('services.postmark'))
+                @if (env('TRAVIS'))
+                    background-color: #FF0000 !important;
+                @elseif (config('mail.driver') == 'log' && ! config('services.postmark'))
                     background-color: #50C878 !important;
                 @else
                     background-color: #FD6A02 !important;
@@ -173,8 +175,8 @@
 
     @yield('onReady')
 
-    @if (\Request::has('focus'))
-        $('#{{ \Request::input('focus') }}').focus();
+    @if (Input::has('focus'))
+        $('#{{ Input::get('focus') }}').focus();
     @endif
 
     // Focus the search input if the user clicks forward slash
@@ -352,7 +354,7 @@
 
       </div>
 
-      {!! Former::open(env('SPEECH_ENABLED') ? '/handle_command' : '/#')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
+      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
         <div class="form-group has-feedback">
           <input type="text" name="command" id="search" style="width: 280px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
             class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
@@ -392,7 +394,13 @@
             'reports' => false,
             'settings' => false,
         ] as $key => $value)
-            {!! Form::nav_link($key, $value ?: $key) !!}
+              @if(!Auth::user()->account->isModuleEnabled(substr($key, 0, -1)))
+                  {{ '' }}
+              @elseif (in_array($key, ['dashboard', 'settings'])
+                || Auth::user()->can('view', substr($key, 0, -1))
+                || Auth::user()->can('create', substr($key, 0, -1)))
+                  {!! Form::nav_link($key, $value ?: $key) !!}
+              @endif
         @endforeach
       </ul>
     </div><!-- /.navbar-collapse -->
@@ -418,6 +426,7 @@
                 'tasks',
                 'expenses',
                 'vendors',
+                'tickets',
             ] as $option)
                 @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
                     {{ '' }}
@@ -428,8 +437,9 @@
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
-                        'option' => $module->getAlias(),
+                        'option' => $module->get('base-route', $module->getAlias()),
                         'icon' => $module->get('icon', 'th-large'),
+                        'moduleName' => $module->getLowerName(),
                     ])
                 @endforeach
             @endif
@@ -503,7 +513,7 @@
           </div>
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs((! empty($entity) && $entity->exists && !$entity->deleted_at) ? $entity->present()->statusLabel : false) !!}
+            {!! Form::breadcrumbs((! empty($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')
@@ -528,14 +538,16 @@
             </div>
         </div>
     </div>
+
+    @if(Utils::isSelfHost())
+        @stack('component_scripts')
+    @endif
     <!-- /#page-content-wrapper -->
 </div>
 
 @include('partials.contact_us')
 @include('partials.sign_up')
-@if (!request()->is('*proposals*'))
-    @include('partials.keyboard_shortcuts')
-@endif
+@include('partials.keyboard_shortcuts')
 
 @if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
     @include('partials.accept_terms')

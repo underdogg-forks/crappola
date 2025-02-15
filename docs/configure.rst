@@ -64,7 +64,6 @@ To use a local PhantomJS install add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantom
 Troubleshooting
 ---------------
 
-- Check a company name is set on Settings > Company Details
 - Check storage/logs/laravel-error.log for relevant errors.
 - To determine the path you can run ``which phantomjs`` from the command line.
 - We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
@@ -75,8 +74,6 @@ Troubleshooting
 - If you're using a proxy and/or self-signed certificate `this comment <https://github.com/invoiceninja/dockerfiles/issues/39#issuecomment-282489039>`_ may help.
 - If you're using a custom design try using a standard one, if the PDF is outside the printable area it can fail.
 - If you're using a non-English language try changing to English.
-- It may help to use the `pre-compiled binary from phantomjs.org <https://www.invoiceninja.com/forums/topic/local-phantomjs-pdfs-not-attaching-phantomjs-cloud-works/#post-17256>`_.
-- If all else fails you can `try changing the code <https://www.invoiceninja.com/forums/topic/attach-pdfs-to-emails-using-https-domain/>`_ to prevent SSL checks.
 
 Custom Fonts
 """"""""""""

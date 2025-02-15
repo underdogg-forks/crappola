@@ -59,17 +59,13 @@
             <div class="row existing-accounts">
                 <p>{{ trans('texts.login_or_existing') }}</p>
                 @foreach (App\Services\AuthService::$providers as $provider)
-                    <div class="col-md-12">
-                        <a href="{{ URL::to('auth/' . $provider) }}" title="{{ $provider }}"
+                    <div class="col-md-3 col-xs-6">
+                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-lg" title="{{ $provider }}"
                            id="{{ strtolower($provider) }}LoginButton">
                             @if($provider == SOCIAL_GITHUB)
-                                <img style="height: 6rem;" src="{{ asset('images/social/signin/btn_github_signin.png') }}">
-                            @elseif($provider == SOCIAL_GOOGLE)
-                                <img style="height: 6rem;" src="{{ asset('images/social/signin/btn_google_signin_dark_normal_web@2x.png') }}">
-                            @elseif($provider == SOCIAL_LINKEDIN)
-                                <img style="height: 6rem;" src="{{ asset('images/social/signin/btn_linkedin_signin.png') }}">
-                            @elseif($provider === SOCIAL_FACEBOOK)
-                                <img style="height: 6rem;" src="{{ asset('images/social/signin/btn_facebook_signin.png') }}">
+                                <i class="fa fa-github-alt"></i>
+                            @else
+                                <i class="fa fa-{{ strtolower($provider) }}"></i>
                             @endif
                         </a>
                     </div>
@@ -90,14 +86,14 @@
                     @if (Utils::isTimeTracker())
                         {!! link_to('#', trans('texts.self_host_login'), ['onclick' => 'setSelfHostUrl()']) !!}
                     @else
-                        {!! link_to(NINJA_WEB_URL.'/knowledge-base/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
+                        {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
                     @endif
                 </div>
             @endif
         </div>
         {!! Former::close() !!}
 
-        @if (false && Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
+        @if (Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
             <div class="row sign-up">
                 <div class="col-md-3 col-md-offset-3 col-xs-12">
                     <h3>{{trans('texts.not_a_member_yet')}}</h3>

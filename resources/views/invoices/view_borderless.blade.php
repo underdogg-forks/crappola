@@ -53,8 +53,8 @@
 		}
 
 		$(function() {
-            @if (Request::has('phantomjs'))
-				@if (Request::has('phantomjs_balances'))
+            @if (Input::has('phantomjs'))
+				@if (Input::has('phantomjs_balances'))
 					document.write(calculateAmounts(invoice).total_amount);
 					document.close();
 					if (window.hasOwnProperty('pjsc_meta')) {
@@ -69,19 +69,7 @@
 					@endif
 				@endif
             @else
-				@if (request()->download)
-					try {
-						var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
-						var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
-						doc.save(fileName + '_' + invoice.invoice_number + '.pdf');
-					} catch (exception) {
-						if (location.href.indexOf('/view/') > 0) {
-							location.href = location.href.replace('/view/', '/download/');
-						}
-					}
-				@else
-					refreshPDF();
-				@endif
+                refreshPDF();
             @endif
 		});
 

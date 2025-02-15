@@ -599,7 +599,6 @@ function calculateAmounts(invoice) {
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
-      total = roundToTwo(total);
     }
     if (!item.notes && !item.product_key && !item.cost) {
         continue;
@@ -1051,13 +1050,23 @@ function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }
 
+// parse 1,000.00 or 1.000,00
+function convertStringToNumber(str) {
+    str = str + '' || '';
+    if (str.indexOf(':') >= 0) {
+        return roundToTwo(moment.duration(str).asHours());
+    } else {
+        return NINJA.parseFloat(str);
+    }
+}
+
 // http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
 // http://codeaid.net/javascript/convert-seconds-to-hours-minutes-and-seconds-%28javascript%29
-function secondsToTime(secs)
+function secondsToTime(secs, toString)
 {
     secs = Math.round(secs);
     var hours = Math.floor(secs / (60 * 60));
@@ -1068,12 +1077,24 @@ function secondsToTime(secs)
     var divisor_for_seconds = divisor_for_minutes % 60;
     var seconds = Math.ceil(divisor_for_seconds);
 
-    var obj = {
-        "h": hours,
-        "m": minutes,
-        "s": seconds
-    };
-    return obj;
+    if (toString) {
+        var totalSumToString = "";
+        if(hours.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += hours + ":";
+        if(minutes.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += minutes + ":";
+        if(seconds.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += seconds;
+        return totalSumToString;
+    } else {
+        var obj = {
+            "h": hours,
+            "m": minutes,
+            "s": seconds
+        }
+
+        return obj;
+    }
 }
 
 function twoDigits(value) {
@@ -1187,12 +1208,17 @@ function escapeRegExp(str) {
 }
 
 function firstJSONError(json) {
-    json = json['errors'];
     for (var key in json) {
         if ( ! json.hasOwnProperty(key)) {
             continue;
         }
-        return json[key] + '';
+        var item = json[key];
+        for (var subKey in item) {
+            if ( ! item.hasOwnProperty(subKey)) {
+                continue;
+            }
+            return item[subKey];
+        }
     }
     return false;
 }

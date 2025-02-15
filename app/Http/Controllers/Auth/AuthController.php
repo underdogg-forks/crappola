@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
@@ -35,14 +35,14 @@ class AuthController extends Controller
     }
 
     /**
-     * @param         $provider
+     * @param $provider
      * @param Request $request
      *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function oauthLogin($provider, Request $request)
     {
-        return $this->authService->execute($provider, $request->filled('code'));
+        return $this->authService->execute($provider, $request->has('code'));
     }
 
     /**

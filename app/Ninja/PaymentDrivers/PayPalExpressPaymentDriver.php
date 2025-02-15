@@ -36,15 +36,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
         if ($this->account()->iframe_url) {
             return 'javascript:window.open("' . $url . '", "_blank")';
+        } else {
+            return $url;
         }
-
-        return $url;
     }
 
     protected function updateClientFromOffsite($transRef, $paymentRef)
     {
         $response = $this->gateway()->fetchCheckout([
-            'token' => $transRef,
+            'token' => $transRef
         ])->send();
 
         $data = $response->getData();
@@ -54,14 +54,14 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             return;
         }
 
-        $client->shipping_address1 = isset($data['SHIPTOSTREET']) ? trim($data['SHIPTOSTREET']) : '';
-        $client->shipping_address2 = isset($data['SHIPTOSTREET2']) ? trim($data['SHIPTOSTREET2']) : '';
-        $client->shipping_city = isset($data['SHIPTOCITY']) ? trim($data['SHIPTOCITY']) : '';
+        $client->shipping_address1 = trim($data['SHIPTOSTREET']);
+        $client->shipping_address2 = '';
+        $client->shipping_city = trim($data['SHIPTOCITY']);
         $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
-        if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {
-            return mb_strtolower($item->iso_3166_2) == mb_strtolower(trim($data['SHIPTOCOUNTRYCODE']));
+        if ($country = cache('countries')->filter(function ($item) use ($data) {
+            return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));
         })->first()) {
             $client->shipping_country_id = $country->id;
         } else {

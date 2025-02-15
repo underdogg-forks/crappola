@@ -7,7 +7,6 @@ use Illuminate\Queue\SerializesModels;
 class SubdomainWasRemoved extends Event
 {
     use SerializesModels;
-
     public $account;
 
     /**

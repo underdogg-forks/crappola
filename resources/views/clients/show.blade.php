@@ -6,6 +6,19 @@
     <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
 
+    @if ($client->showMap())
+        <style>
+          #map {
+            width: 100%;
+            height: 200px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #ddd;
+          }
+        </style>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}"></script>
+    @endif
 @stop
 
 
@@ -183,13 +196,11 @@
 
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
                     <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
-                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_in_portal') }}</a>                        
+                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_in_portal') }}</a>
                     @if (config('services.postmark'))
-                        <div style="padding-top:10px">
-                            <a href="#" class="btn btn-sm btn-primary" onclick="showEmailHistory('{{ $contact->email }}')">
-                                {{ trans('texts.email_history') }}
-                            </a>
-                        </div>
+                        | <a href="#" onclick="showEmailHistory('{{ $contact->email }}')">
+                            {{ trans('texts.email_history') }}
+                        </a>
                     @endif
                     <br/>
                 @endif
@@ -222,14 +233,8 @@
     </div>
 
     @if ($client->showMap())
-
-        <iframe
-          width="100%"
-          height="200px"
-          frameborder="0" style="border:0"
-          src="https://www.google.com/maps/embed/v1/place?key={{ env('GOOGLE_MAPS_API_KEY') }}&q={!! e("{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->getName() : '')) !!}" allowfullscreen>
-        </iframe>
-
+        <div id="map"></div>
+        <br/>
     @endif
 
 	<ul class="nav nav-tabs nav-justified">
@@ -240,11 +245,14 @@
         @if ($hasExpenses)
             {!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
         @endif
+        @if ($hasRecurringQuotes)
+            {!! Form::tab_link('#recurring_quotes', trans('texts.recurring_quotes')) !!}
+        @endif
 		@if ($hasQuotes)
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
         @if ($hasRecurringInvoices)
-            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring')) !!}
+            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring_invoices')) !!}
         @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
@@ -312,6 +320,16 @@
                 'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
                 'clientId' => $client->public_id,
                 'url' => url('api/recurring_invoices/' . $client->public_id),
+            ])
+        </div>
+    @endif
+    @if ($hasRecurringQuotes)
+        <div class="tab-pane" id="recurring_quotes">
+            @include('list', [
+                'entityType' => ENTITY_RECURRING_QUOTE,
+                'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
+                'clientId' => $client->public_id,
+                'url' => url('api/recurring_quotes/' . $client->public_id),
             ])
         </div>
     @endif
@@ -450,6 +468,50 @@
             swal("{{ trans('texts.reactivated_email') }}")
         })
     }
+
+    @if ($client->showMap())
+        function initialize() {
+            var mapCanvas = document.getElementById('map');
+            var mapOptions = {
+                zoom: {{ DEFAULT_MAP_ZOOM }},
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                zoomControl: true,
+            };
+
+            var map = new google.maps.Map(mapCanvas, mapOptions)
+            var address = {!! json_encode(e("{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->getName() : ''))) !!};
+
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
+                    var result = results[0];
+                    map.setCenter(result.geometry.location);
+
+                    var infowindow = new google.maps.InfoWindow(
+                        { content: '<b>'+result.formatted_address+'</b>',
+                        size: new google.maps.Size(150, 50)
+                    });
+
+                    var marker = new google.maps.Marker({
+                        position: result.geometry.location,
+                        map: map,
+                        title:address,
+                    });
+                    google.maps.event.addListener(marker, 'click', function() {
+                        infowindow.open(map, marker);
+                    });
+                } else {
+                    $('#map').hide();
+                }
+            } else {
+              $('#map').hide();
+          }
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+    @endif
 
 	</script>
 

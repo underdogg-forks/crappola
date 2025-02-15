@@ -15,7 +15,7 @@ class ProposalSnippetRequest extends EntityRequest
         // check if we're creating a new proposal category
         if ($this->proposal_category_id == '-1') {
             $data = [
-                'name' => trim($this->proposal_category_name),
+                'name' => trim($this->proposal_category_name)
             ];
             if (ProposalCategory::validate($data) === true) {
                 $category = app('App\Ninja\Repositories\ProposalCategoryRepository')->save($data);
@@ -30,5 +30,10 @@ class ProposalSnippetRequest extends EntityRequest
         $this->replace($input);
 
         return $this->all();
+    }
+
+    public function authorize()
+    {
+        return $this->user()->can('view', ENTITY_PROPOSAL) || $this->user()->can('createEntity', ENTITY_PROPOSAL);
     }
 }

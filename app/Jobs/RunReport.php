@@ -2,8 +2,11 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Carbon;
+use App;
 use Str;
+use Utils;
+use Carbon;
+use App\Jobs\Job;
 
 class RunReport extends Job
 {
@@ -22,7 +25,7 @@ class RunReport extends Job
      */
     public function handle()
     {
-        if ( ! $this->user->hasPermission('view_reports')) {
+        if (! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
@@ -33,7 +36,7 @@ class RunReport extends Job
         $isExport = $this->isExport;
         $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
 
-        if ( ! empty($config['range'])) {
+        if (! empty($config['range'])) {
             switch ($config['range']) {
                 case 'this_month':
                     $startDate = Carbon::now()->firstOfMonth()->toDateString();
@@ -52,7 +55,7 @@ class RunReport extends Job
                     $endDate = Carbon::now()->subYear()->lastOfYear()->toDateString();
                     break;
             }
-        } elseif ( ! empty($config['start_date_offset'])) {
+        } elseif (! empty($config['start_date_offset'])) {
             $startDate = Carbon::now()->subDays($config['start_date_offset'])->toDateString();
             $endDate = Carbon::now()->subDays($config['end_date_offset'])->toDateString();
         } else {
@@ -65,8 +68,8 @@ class RunReport extends Job
 
         $params = [
             'startDate' => $startDate,
-            'endDate'   => $endDate,
-            'report'    => $report,
+            'endDate' => $endDate,
+            'report' => $report,
         ];
 
         $report->exportParams = array_merge($params, $report->results());

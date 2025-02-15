@@ -64,6 +64,11 @@
                         <li role="presentation">
                             <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>
                         </li>
+                        @if (Utils::isSelfHost())
+                            <li role="presentation">
+                                <a href="#custom_js" aria-controls="custom_js" role="tab" data-toggle="tab">{{ trans('texts.custom_js') }}</a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
 
@@ -161,6 +166,20 @@
 
                         </div>
                     </div>
+                    @if (Utils::isSelfHost())
+                        <div role="tabpanel" class="tab-pane" id="custom_js">
+                            <div class="panel-body">
+
+                                {!! Former::textarea('client_view_js')
+                                    ->label(trans('texts.custom_js'))
+                                    ->rows(10)
+                                    ->raw()
+                                    ->maxlength(60000)
+                                    ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
+
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -383,10 +402,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring
             </div>
 
             <div class="panel-body" id="domainModalHelp" style="display:none">
-                <p>
-                    Create a DNS A Record entry for your custom domain and point to the following IP address <code>96.126.107.105</code>.
-                    You can watch this <a href="https://www.youtube.com/watch?v=tmEJI-Xfdb0" target="_blank">video on YouTube</a> to see how.
-                </p>
+                <p>Create a DNS A Record entry for your custom domain and point to the following IP address <code>96.126.107.105</code>.</p>
                 <p>Once this is setup please send an email to {{ env('CONTACT_EMAIL') }} and we'll complete the process.</p>
             </div>
 

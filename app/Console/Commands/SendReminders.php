@@ -2,25 +2,26 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ExportReportResults;
-use App\Jobs\RunReport;
-use App\Jobs\SendInvoiceEmail;
 use App\Libraries\CurlUtils;
-use App\Libraries\Utils;
-use App\Models\Currency;
+use Carbon;
+use Str;
+use Cache;
+use Utils;
+use Exception;
+use DateTime;
+use Auth;
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
-use App\Models\ScheduledReport;
+use App\Models\Currency;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
+use App\Models\ScheduledReport;
 use App\Services\PaymentService;
-use DateTime;
-use DB;
-use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
+use App\Jobs\ExportReportResults;
+use App\Jobs\RunReport;
 
 /**
  * Class SendReminders.
@@ -69,7 +70,7 @@ class SendReminders extends Command
         $this->userMailer = $userMailer;
     }
 
-    public function handle()
+    public function fire()
     {
         $this->info(date('r') . ' Running SendReminders...');
 
@@ -86,32 +87,12 @@ class SendReminders extends Command
         $this->info(date('r') . ' Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
-                    ->from(CONTACT_EMAIL)
-                    ->subject("SendReminders [{$database}]: Finished successfully");
+                        ->from(CONTACT_EMAIL)
+                        ->subject("SendReminders [{$database}]: Finished successfully");
             });
         }
-
-        return 0;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
-        ];
     }
 
     private function billInvoices()
@@ -119,20 +100,16 @@ class SendReminders extends Command
         $today = new DateTime();
 
         $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
-            ->whereRaw(
-                'is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
             AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
-                [$today->format('Y-m-d')]
-            )
+                [$today->format('Y-m-d')])
             ->orderBy('invoices.id', 'asc')
             ->get();
         $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
-            //21-03-2023 adjustment here
-            if ($invoice->isPaid() || ! $invoice->account || $invoice->account->is_deleted) {
-                // if ($invoice->isPaid() || $invoice->account->is_deleted) {
+            if ($invoice->isPaid()) {
                 continue;
             }
 
@@ -148,10 +125,10 @@ class SendReminders extends Command
     private function chargeLateFees()
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
+        $this->info(date('r ') . $accounts->count() . ' accounts found with fees');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
 
@@ -175,10 +152,10 @@ class SendReminders extends Command
     private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
+        $this->info(date('r ') . count($accounts) . ' accounts found with reminders');
 
         foreach ($accounts as $account) {
-            if ( ! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
 
@@ -224,7 +201,7 @@ class SendReminders extends Command
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
 
-            if ( ! $account->hasFeature(FEATURE_REPORTS) || $account->account_email_settings->is_disabled) {
+            if (! $account->hasFeature(FEATURE_REPORTS)) {
                 continue;
             }
 
@@ -234,8 +211,8 @@ class SendReminders extends Command
             // send email as user
             auth()->onceUsingId($user->id);
 
-            $report = dispatch_now(new RunReport($scheduledReport->user, $reportType, $config, true));
-            $file = dispatch_now(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
+            $report = dispatch(new RunReport($scheduledReport->user, $reportType, $config, true));
+            $file = dispatch(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
                 try {
@@ -263,23 +240,52 @@ class SendReminders extends Command
         if (config('ninja.exchange_rates_enabled')) {
             $this->info(date('r') . ' Loading latest exchange rates...');
 
-            $response = CurlUtils::get(config('ninja.exchange_rates_url'));
+            $url = config('ninja.exchange_rates_url');
+            $apiKey = config('ninja.exchange_rates_api_key');
+            $url = str_replace('{apiKey}', $apiKey, $url);
+
+            $response = CurlUtils::get($url);
             $data = json_decode($response);
 
-            if ($data && property_exists($data, 'rates')) {
-                Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
+            if ($data && property_exists($data, 'rates') && property_exists($data, 'base')) {
+                $base = config('ninja.exchange_rates_base');
+
+                // should calculate to different base
+                $recalculate = ($data->base != $base);
 
                 foreach ($data->rates as $code => $rate) {
+                    if($recalculate) {
+                        $rate = 1 / $data->rates->{$base} * $rate;
+                    }
+
                     Currency::whereCode($code)->update(['exchange_rate' => $rate]);
                 }
             } else {
                 $this->info(date('r') . ' Error: failed to load exchange rates - ' . $response);
-                DB::table('currencies')->update(['exchange_rate' => 1]);
+                \DB::table('currencies')->update(['exchange_rate' => 1]);
             }
         } else {
-            DB::table('currencies')->update(['exchange_rate' => 1]);
+            \DB::table('currencies')->update(['exchange_rate' => 1]);
         }
 
         CurlUtils::get(SITE_URL . '?clear_cache=true');
+    }
+
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

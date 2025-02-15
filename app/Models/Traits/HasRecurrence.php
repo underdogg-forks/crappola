@@ -2,12 +2,12 @@
 
 namespace App\Models\Traits;
 
-use App\Libraries\Utils;
+use Carbon;
 use DateTime;
-use Illuminate\Support\Carbon;
+use Utils;
 
 /**
- * Class HasRecurrence.
+ * Class HasRecurrence
  */
 trait HasRecurrence
 {
@@ -18,9 +18,9 @@ trait HasRecurrence
     {
         if (Utils::isSelfHost()) {
             return $this->shouldSendTodayNew();
+        } else {
+            return $this->shouldSendTodayOld();
         }
-
-        return $this->shouldSendTodayOld();
     }
 
     /**
@@ -28,44 +28,39 @@ trait HasRecurrence
      */
     public function shouldSendTodayOld()
     {
-        if ( ! $this->user->confirmed) {
+        if (! $this->user->confirmed) {
             return false;
         }
 
         $account = $this->account;
-
-        if ( ! $account) {
-            return false;
-        }
-
         $timezone = $account->getTimezone();
 
-        if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
+        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
             return false;
         }
 
-        if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()
-            && ! Carbon::parse($this->end_date, $timezone)->isToday()) {
+        if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()) {
             return false;
         }
 
-        if ( ! $this->last_sent_date) {
+        if (! $this->last_sent_date) {
             return true;
-        }
-        $date1 = new DateTime($this->last_sent_date);
-        $date2 = new DateTime();
-        $diff = $date2->diff($date1);
-        $daysSinceLastSent = $diff->format('%a');
-        $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
+        } else {
+            $date1 = new DateTime($this->last_sent_date);
+            $date2 = new DateTime();
+            $diff = $date2->diff($date1);
+            $daysSinceLastSent = $diff->format('%a');
+            $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
-        // check we don't send a few hours early due to timezone difference
-        if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
-            return false;
-        }
+            // check we don't send a few hours early due to timezone difference
+            if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
+                return false;
+            }
 
-        // check we never send twice on one day
-        if ($daysSinceLastSent == 0) {
-            return false;
+            // check we never send twice on one day
+            if ($daysSinceLastSent == 0) {
+                return false;
+            }
         }
 
         switch ($this->frequency_id) {
@@ -98,14 +93,14 @@ trait HasRecurrence
 
     public function shouldSendTodayNew()
     {
-        if ( ! $this->user->confirmed) {
+        if (! $this->user->confirmed) {
             return false;
         }
 
         $account = $this->account;
         $timezone = $account->getTimezone();
 
-        if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
+        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
             return false;
         }
 
@@ -113,21 +108,22 @@ trait HasRecurrence
             return false;
         }
 
-        if ( ! $this->last_sent_date) {
+        if (! $this->last_sent_date) {
             return true;
-        }
-        // check we don't send a few hours early due to timezone difference
-        if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
-            return false;
-        }
+        } else {
+            // check we don't send a few hours early due to timezone difference
+            if (Utils::isNinja() && Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
+                return false;
+            }
 
-        $nextSendDate = $this->getNextSendDate();
+            $nextSendDate = $this->getNextSendDate();
 
-        if ( ! $nextSendDate) {
-            return false;
+            if (! $nextSendDate) {
+                return false;
+            }
+
+            return $this->account->getDateTime() >= $nextSendDate;
         }
-
-        return $this->account->getDateTime() >= $nextSendDate;
     }
 
     /**
@@ -137,7 +133,7 @@ trait HasRecurrence
      */
     public function getSchedule()
     {
-        if ( ! $this->start_date || ! $this->frequency_id) {
+        if (! $this->start_date || ! $this->frequency_id) {
             return false;
         }
 
@@ -170,7 +166,7 @@ trait HasRecurrence
     {
         // expenses don't have an is_public flag
         if ($this->is_recurring && ! $this->is_public) {
-            return;
+            return null;
         }
 
         if ($this->start_date && ! $this->last_sent_date) {
@@ -179,12 +175,12 @@ trait HasRecurrence
             return $this->account->getDateTime($startDate);
         }
 
-        if ( ! $schedule = $this->getSchedule()) {
-            return;
+        if (! $schedule = $this->getSchedule()) {
+            return null;
         }
 
         if (count($schedule) < 2) {
-            return;
+            return null;
         }
 
         return $schedule[1]->getStart();

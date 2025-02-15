@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Libraries\Utils;
+use Utils;
 
 class ActivityDatatable extends EntityDatatable
 {
@@ -30,6 +30,7 @@ class ActivityDatatable extends EntityDatatable
                         $str .= sprintf(' &nbsp; <i class="fa fa-globe" style="cursor:pointer" title="%s" onclick="openUrl(\'%s\', \'IP Lookup\')"></i>', $model->ip, $ipLookUpLink);
                     } elseif ($model->token_id) {
                         $str .= ' &nbsp; <i class="fa fa-server" title="API"><i>';
+
                     }
 
                     return $str;
@@ -39,17 +40,18 @@ class ActivityDatatable extends EntityDatatable
                 'activity_type_id',
                 function ($model) {
                     $data = [
-                        'client'         => link_to('/clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml(),
-                        'user'           => $model->is_system ? '<i>' . trans('texts.system') . '</i>' : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
-                        'invoice'        => $model->invoice ? link_to('/invoices/' . $model->invoice_public_id, $model->is_recurring ? trans('texts.recurring_invoice') : $model->invoice)->toHtml() : null,
-                        'quote'          => $model->invoice ? link_to('/quotes/' . $model->invoice_public_id, $model->invoice)->toHtml() : null,
-                        'contact'        => $model->contact_id ? link_to('/clients/' . $model->client_public_id, Utils::getPersonDisplayName($model->first_name, $model->last_name, $model->email))->toHtml() : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
-                        'payment'        => $model->payment ? e($model->payment) : '',
-                        'credit'         => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
+                        'client' => link_to('/clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml(),
+                        'user' => $model->is_system ? '<i>' . trans('texts.system') . '</i>' : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
+                        'invoice' => $model->invoice ? link_to('/invoices/' . $model->invoice_public_id, $model->is_recurring ? trans('texts.recurring_invoice') : $model->invoice)->toHtml() : null,
+                        'quote' => $model->invoice ? link_to('/quotes/' . $model->invoice_public_id, $model->invoice)->toHtml() : null,
+                        'contact' => $model->contact_id ? link_to('/clients/' . $model->client_public_id, Utils::getClientDisplayName($model))->toHtml() : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
+                        'payment' => $model->payment ?: '',
+                        'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
                         'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
-                        'adjustment'     => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
-                        'task'           => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, mb_substr($model->task_description, 0, 30) . '...') : null,
-                        'expense'        => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, mb_substr($model->expense_public_notes, 0, 30) . '...') : null,
+                        'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
+                        'task' => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30).'...') : null,
+                        'expense' => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30).'...') : null,
+                        'ticket' => $model->ticket_public_id ? link_to('/tickets/' . $model->ticket_public_id, '') : null,
                     ];
 
                     $str = trans("texts.activity_{$model->activity_type_id}", $data);

@@ -2,8 +2,8 @@
 
 namespace App\Models\Traits;
 
-use App\Libraries\Utils;
-use Illuminate\Support\Carbon;
+use Carbon;
+use Utils;
 
 /**
  * Class SendsEmails.
@@ -20,7 +20,7 @@ trait Inviteable
      */
     public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if ( ! $this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -67,18 +67,19 @@ trait Inviteable
         foreach ($statuses as $status) {
             $field = "{$status}_date";
             $date = '';
-            if ($this->{$field} && $this->field != '0000-00-00 00:00:00') {
-                $date = Utils::dateToString($this->{$field});
+            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
+                $date = Utils::dateToString($this->$field);
                 $hasValue = true;
                 $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
         }
 
-        return $hasValue ? implode('<br/>', $parts) : false;
-
-        // return $hasValue ? implode($parts, '<br/>') : false;
+        return $hasValue ? implode($parts, '<br/>') : false;
     }
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->invitation_key;

@@ -2,7 +2,7 @@
 
 namespace $CLASS_NAMESPACE$;
 
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use App\Http\Controllers\BaseController;
 use App\Services\DatatableService;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;

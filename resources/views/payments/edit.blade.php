@@ -14,7 +14,7 @@
 
 @section('content')
 
-	{!! Former::open($payment ? $url : '')
+	{!! Former::open($url)
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('return onFormSubmit(event)')
         ->method($method)
@@ -134,7 +134,6 @@
 
 	<script type="text/javascript">
 
-    var canSubmitPayment = true;
 	var invoices = {!! $invoices !!};
 	var clients = {!! $clients !!};
 
@@ -169,7 +168,7 @@
             $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
         @endif
 
-        @if (Request::old('data'))
+        @if (Input::old('data'))
             // this means we failed so we'll reload the previous state
             window.model = new ViewModel({!! $data !!});
         @else
@@ -221,13 +220,12 @@
 	});
 
     function onFormSubmit(event) {
-        if (! canSubmitPayment) {
+        if ($('#saveButton').is(':disabled')) {
             return false;
         }
 
         @if ($payment)
             $('#saveButton').attr('disabled', true);
-            canSubmitPayment = false;
             return true;
         @else
             // warn if amount is more than balance/credit will be created
@@ -237,7 +235,6 @@
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
                 $('#saveButton').attr('disabled', true);
-                canSubmitPayment = false;
                 submitAjax();
                 return false;
             } else {
@@ -261,14 +258,11 @@
 
     function handleSaveFailed(data) {
 		$('#saveButton').attr('disabled', false);
-        canSubmitPayment = true;
-
-		var error = '{{ trans('texts.error_refresh_page') }}';
+		var error = '';
 		if (data) {
-		    error = firstJSONError(data.responseJSON);
+			var error = firstJSONError(data.responseJSON) || data.statusText;
 		}
-
-		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
+		swal({!! json_encode(trans('texts.error_refresh_page')) !!}, error);
 	}
 
     function submitAction(action) {

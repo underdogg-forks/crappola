@@ -2,8 +2,12 @@
 
 namespace App\Models\Traits;
 
+use App\Models\GatewayType;
+use App\Models\InvoiceItem;
+use App\Models\AccountGatewaySettings;
+
 /**
- * Class ChargesFees.
+ * Class ChargesFees
  */
 trait ChargesFees
 {
@@ -12,8 +16,9 @@ trait ChargesFees
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);
         $fee = 0;
+        $fee_cap = $settings->fee_cap;
 
-        if ( ! $account->gateway_fee_enabled) {
+        if (! $account->gateway_fee_enabled) {
             return false;
         }
 
@@ -23,7 +28,12 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             $amount = $this->partial > 0 ? $this->partial : $this->balance;
-            $fee += $amount * $settings->fee_percent / 100;
+
+            if ($settings->adjust_fee_percent) {
+                $fee += ($amount + $fee) / (1 - $settings->fee_percent / 100) - ($amount + $fee);
+            } else {
+                $fee += $amount * $settings->fee_percent / 100;
+            }
         }
 
         // calculate final amount with tax
@@ -39,6 +49,10 @@ trait ChargesFees
             }
         }
 
+        if($fee_cap != 0) {
+            $fee = min($fee, $fee_cap);
+        }
+
         return round($fee, 2);
     }
 
@@ -46,18 +60,17 @@ trait ChargesFees
     {
         $account = $this->account;
 
-        if ( ! $account->gateway_fee_enabled) {
+        if (! $account->gateway_fee_enabled) {
             return 0;
         }
 
         $item = $this->getGatewayFeeItem();
-
         return $item ? $item->amount() : 0;
     }
 
     public function getGatewayFeeItem()
     {
-        if ( ! $this->relationLoaded('invoice_items')) {
+        if (! $this->relationLoaded('invoice_items')) {
             $this->load('invoice_items');
         }
 
