@@ -1,35 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddBuyNowButtons extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->boolean('enable_buy_now_buttons')->default(false);
-            $table->dropColumn('invoice_design');
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('datetime_formats', function ($table) {
-            $table->dropColumn('label');
-        });
+        Schema::table('datetime_formats', function ($table) {});
 
-        Schema::table('date_formats', function ($table) {
-            $table->dropColumn('label');
-        });
+        Schema::table('date_formats', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

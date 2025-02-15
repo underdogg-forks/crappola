@@ -2,30 +2,22 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-use Illuminate\Support\Arr;
-
 class CheckoutComPaymentDriver extends BasePaymentDriver
 {
     public function createTransactionToken()
     {
-        if( $this->invoice()->getCurrencyCode() == 'BHD')
-        {
-            $amount = $this->invoice()->getRequestedAmount()/10;
-        }
-        elseif($this->invoice()->getCurrencyCode() == 'KWD') 
-        {
-            $amount = $this->invoice()->getRequestedAmount()*10;
-
-        }
-        elseif($this->invoice()->getCurrencyCode() == 'OMR')
-        {
+        if($this->invoice()->getCurrencyCode() == 'BHD') {
+            $amount = $this->invoice()->getRequestedAmount() / 10;
+        } elseif($this->invoice()->getCurrencyCode() == 'KWD') {
+            $amount = $this->invoice()->getRequestedAmount() * 10;
+        } elseif($this->invoice()->getCurrencyCode() == 'OMR') {
+            $amount = $this->invoice()->getRequestedAmount();
+        } else {
             $amount = $this->invoice()->getRequestedAmount();
         }
-        else
-            $amount = $this->invoice()->getRequestedAmount();
 
         $response = $this->gateway()->purchase([
-            'amount' => $amount,
+            'amount'   => $amount,
             'currency' => $this->client()->getCurrencyCode(),
         ])->send();
 
@@ -45,7 +37,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails();
 
-        if ($ref = Arr::get($this->input, 'token')) {
+        if ($ref = array_get($this->input, 'token')) {
             $data['transactionReference'] = $ref;
         }
 

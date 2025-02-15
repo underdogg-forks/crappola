@@ -19,22 +19,8 @@ class InvoiceItem extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_INVOICE_ITEM;
-    }
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
@@ -44,6 +30,11 @@ class InvoiceItem extends EntityModel
         'discount',
     ];
 
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -52,9 +43,6 @@ class InvoiceItem extends EntityModel
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();

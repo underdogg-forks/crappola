@@ -2,16 +2,13 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class DatetimeFormat.
  */
 class DatetimeFormat extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
     /**

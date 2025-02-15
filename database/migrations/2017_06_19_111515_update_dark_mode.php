@@ -2,14 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateDarkMode extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('users', function ($table) {
@@ -33,30 +29,33 @@ class UpdateDarkMode extends Migration
 
         Schema::create('recurring_expenses', function (Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
-            $table->softDeletes();
 
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('vendor_id')->nullable();
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('expense_category_id')->nullable()->index();
             $table->unsignedInteger('client_id')->nullable();
-            $table->boolean('is_deleted')->default(false);
+            $table->unsignedInteger('invoice_currency_id')->nullable()->index();
+            $table->unsignedInteger('expense_currency_id')->nullable()->index();
+            $table->unsignedInteger('frequency_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('public_id')->index();
             $table->decimal('amount', 13, 2);
             $table->text('private_notes');
             $table->text('public_notes');
-            $table->unsignedInteger('invoice_currency_id')->nullable()->index();
-            $table->unsignedInteger('expense_currency_id')->nullable()->index();
-            $table->boolean('should_be_invoiced')->default(true);
-            $table->unsignedInteger('expense_category_id')->nullable()->index();
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3);
             $table->string('tax_name2')->nullable();
             $table->decimal('tax_rate2', 13, 3);
 
-            $table->unsignedInteger('frequency_id');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->timestamp('last_sent_date')->nullable();
+
+            $table->boolean('should_be_invoiced')->default(true);
+            $table->boolean('is_deleted')->default(false);
+
+            $table->timestamps();
+            $table->softDeletes();
 
             // Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -66,7 +65,6 @@ class UpdateDarkMode extends Migration
             $table->foreign('expense_category_id')->references('id')->on('expense_categories')->onDelete('cascade');
 
             // Indexes
-            $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });
 
@@ -80,11 +78,6 @@ class UpdateDarkMode extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::drop('recurring_expenses');

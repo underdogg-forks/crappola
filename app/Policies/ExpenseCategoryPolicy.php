@@ -19,7 +19,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param $item
+     * @param      $item
      *
      * @return bool
      */
@@ -30,7 +30,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param $item
+     * @param      $item
      *
      * @return bool
      */
@@ -41,7 +41,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param $ownerUserId
+     * @param      $ownerUserId
      *
      * @return bool
      */
@@ -52,7 +52,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param $ownerUserId
+     * @param      $ownerUserId
      *
      * @return bool
      */

@@ -6,14 +6,14 @@ class TaxRatesCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function lineItemTaxRates(AcceptanceTester $I): void
+    public function lineItemTaxRates(AcceptanceTester $I)
     {
         $I->wantTo('test line item tax rates');
 
@@ -80,7 +80,7 @@ class TaxRatesCest
         $I->see("\${$total}");
     }
 
-    public function invoiceTaxRates(AcceptanceTester $I): void
+    public function invoiceTaxRates(AcceptanceTester $I)
     {
         $I->wantTo('test invoice tax rates');
 

@@ -33,14 +33,6 @@ class AccountGatewayService extends BaseService
     }
 
     /**
-     * @return AccountGatewayRepository
-     */
-    protected function getRepo()
-    {
-        return $this->accountGatewayRepo;
-    }
-
-    /**
      * @param $accountId
      *
      * @return \Illuminate\Http\JsonResponse
@@ -50,5 +42,13 @@ class AccountGatewayService extends BaseService
         $query = $this->accountGatewayRepo->find($accountId);
 
         return $this->datatableService->createDatatable(new AccountGatewayDatatable(false), $query);
+    }
+
+    /**
+     * @return AccountGatewayRepository
+     */
+    protected function getRepo()
+    {
+        return $this->accountGatewayRepo;
     }
 }

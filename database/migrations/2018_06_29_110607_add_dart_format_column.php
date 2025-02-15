@@ -6,26 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 class AddDartFormatColumn extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('date_formats', function (Blueprint $table) {
-            $table->string('format_dart');
-        });
-        Schema::table('datetime_formats', function (Blueprint $table) {
-            $table->string('format_dart');
-        });
+        Schema::table('date_formats', function (Blueprint $table) {});
+        Schema::table('datetime_formats', function (Blueprint $table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('date_formats', function (Blueprint $table) {

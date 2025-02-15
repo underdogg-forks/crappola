@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Utils;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
-use Auth;
-use Input;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Request;
-use Response;
-use Utils;
 
 /**
  * @SWG\Swagger(
@@ -21,24 +20,29 @@ use Utils;
  *     host="ninja.test",
  *     basePath="/api/v1",
  *     produces={"application/json"},
+ *
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
- *         description="An open-source invoicing and time-tracking app built with Laravel",
+ *         description="A source-available invoicing and time-tracking app built with Laravel",
  *         termsOfService="",
+ *
  *         @SWG\Contact(
  *             email="contact@invoiceninja.com"
  *         ),
+ *
  *         @SWG\License(
  *             name="Attribution Assurance License",
  *             url="https://raw.githubusercontent.com/invoiceninja/invoiceninja/master/LICENSE"
  *         )
  *     ),
+ *
  *     @SWG\ExternalDocumentation(
  *         description="Find out more about Invoice Ninja",
  *         url="https://www.invoiceninja.com"
  *     ),
  *     security={"api_key": {}},
+ *
  *     @SWG\SecurityScheme(
  *         securityDefinition="api_key",
  *         type="apiKey",
@@ -50,6 +54,7 @@ use Utils;
 class BaseAPIController extends Controller
 {
     protected $manager;
+
     protected $serializer;
 
     public function __construct()
@@ -74,8 +79,8 @@ class BaseAPIController extends Controller
         $entity = $request->entity();
         $action = $request->action;
 
-        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
-            return $this->errorResponse("Action [$action] is not supported");
+        if ( ! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
+            return $this->errorResponse("Action [{$action}] is not supported");
         }
 
         if ($action == 'mark_sent') {
@@ -84,7 +89,7 @@ class BaseAPIController extends Controller
 
         $repo = Utils::toCamelCase($this->entityType) . 'Repo';
 
-        $this->$repo->$action($entity);
+        $this->{$repo}->{$action}($entity);
 
         return $this->itemResponse($entity);
     }
@@ -92,31 +97,31 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, request()->get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
 
-        if (request()->get('filter_active')) {
+        if (Request::input('filter_active')) {
             $query->whereNull('deleted_at');
         }
 
-        if (request()->get('updated_at') > 0) {
-                $updatedAt = intval(request()->get('updated_at'));
-                $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
+        if (Request::input('updated_at') > 0) {
+            $updatedAt = (int) (Request::input('updated_at'));
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
-        if (request()->get('client_id') > 0) {
-                $clientPublicId = request()->get('client_id');
-                $filter = function ($query) use ($clientPublicId) {
+        if (Request::input('client_id') > 0) {
+            $clientPublicId = Request::input('client_id');
+            $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
-             };
-             $query->whereHas('client', $filter);
+            };
+            $query->whereHas('client', $filter);
         }
 
-        if (! Utils::hasPermission('view_'.$this->entityType)) {
+        if ( ! Utils::hasPermission('view_' . $this->entityType)) {
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
@@ -131,12 +136,12 @@ class BaseAPIController extends Controller
 
     protected function itemResponse($item)
     {
-        if (! $item) {
+        if ( ! $item) {
             return $this->errorResponse('Record not found', 404);
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, request()->get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -161,7 +166,7 @@ class BaseAPIController extends Controller
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = request()->get('per_page', DEFAULT_API_PAGE_SIZE);
+            $limit = Request::input('per_page', DEFAULT_API_PAGE_SIZE);
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
@@ -183,7 +188,7 @@ class BaseAPIController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta = isset($response['meta']) ? $response['meta'] : null;
+            $meta = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];
@@ -240,7 +245,7 @@ class BaseAPIController extends Controller
     protected function fileReponse($name, $data)
     {
         header('Content-Type: application/pdf');
-        header('Content-Length: ' . strlen($data));
+        header('Content-Length: ' . mb_strlen($data));
         header('Content-disposition: attachment; filename="' . $name . '"');
         header('Cache-Control: public, must-revalidate, max-age=0');
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');

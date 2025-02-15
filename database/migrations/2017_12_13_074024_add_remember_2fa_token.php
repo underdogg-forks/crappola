@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 class AddRemember2faToken extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('users', function ($table) {
@@ -19,18 +14,19 @@ class AddRemember2faToken extends Migration
         Schema::dropIfExists('task_statuses');
         Schema::create('task_statuses', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
-            $table->timestamps();
-            $table->softDeletes();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('public_id')->index();
 
             $table->string('name')->nullable();
             $table->smallInteger('sort_order')->default(0);
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
         });
 
@@ -95,18 +91,13 @@ class AddRemember2faToken extends Migration
             and invoices.is_recurring = 0
             and invoices.invoice_type_id = 2');
 
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             Schema::table('activities', function ($table) {
                 $table->index('user_id');
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('users', function ($table) {

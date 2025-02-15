@@ -2,29 +2,28 @@
 
 namespace App\Ninja\Reports;
 
-use Barracuda\ArchiveStream\Archive;
+use App\Libraries\Utils;
 use App\Models\Expense;
 use App\Models\TaxRate;
-use Auth;
-use Utils;
+use Barracuda\ArchiveStream\Archive;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseReport extends AbstractReport
 {
     public function getColumns()
     {
         $columns = [
-            'vendor' => [],
-            'client' => [],
-            'date' => [],
-            'category' => [],
-            'amount' => [],
-            'public_notes' => ['columnSelector-false'],
-            'private_notes' => ['columnSelector-false'],
-            'user' => ['columnSelector-false'],
-            'payment_date' => ['columnSelector-false'],
-            'payment_type' => ['columnSelector-false'],
+            'vendor'            => [],
+            'client'            => [],
+            'date'              => [],
+            'category'          => [],
+            'amount'            => [],
+            'public_notes'      => ['columnSelector-false'],
+            'private_notes'     => ['columnSelector-false'],
+            'user'              => ['columnSelector-false'],
+            'payment_date'      => ['columnSelector-false'],
+            'payment_type'      => ['columnSelector-false'],
             'payment_reference' => ['columnSelector-false'],
-
         ];
 
         $user = auth()->user();
@@ -61,14 +60,14 @@ class ExpenseReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
-                        ->orderBy('expense_date', 'desc')
-                        ->withArchived()
-                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
-                        ->where('expense_date', '>=', $this->startDate)
-                        ->where('expense_date', '<=', $this->endDate);
+            ->orderBy('expense_date', 'desc')
+            ->withArchived()
+            ->with('client.contacts', 'vendor', 'expense_category', 'user')
+            ->where('expense_date', '>=', $this->startDate)
+            ->where('expense_date', '<=', $this->endDate);
 
         if ($this->isExport && $exportFormat == 'zip') {
-            if (! extension_loaded('GMP')) {
+            if ( ! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
 

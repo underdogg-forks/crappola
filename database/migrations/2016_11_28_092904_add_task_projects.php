@@ -1,34 +1,33 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddTaskProjects extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::create('projects', function ($table) {
+        /*Schema::create('projects', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('client_id')->index()->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('public_id')->index();
 
             $table->string('name')->nullable();
+
             $table->boolean('is_deleted')->default(false);
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
 
-            $table->unsignedInteger('public_id')->index();
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->unique(['account_id', 'public_id']);
-        });
+        });*/
 
         Schema::table('tasks', function ($table) {
             $table->unsignedInteger('project_id')->nullable()->index();
@@ -67,7 +66,7 @@ class AddTaskProjects extends Migration
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
         });
 
-        if (! Schema::hasColumn('invoices', 'is_public')) {
+        if ( ! Schema::hasColumn('invoices', 'is_public')) {
             Schema::table('invoices', function ($table) {
                 $table->boolean('is_public')->default(false);
             });
@@ -76,11 +75,6 @@ class AddTaskProjects extends Migration
         DB::table('invoices')->update(['is_public' => true]);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('tasks', function ($table) {

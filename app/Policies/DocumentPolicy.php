@@ -17,7 +17,7 @@ class DocumentPolicy extends EntityPolicy
      */
     public static function create(User $user, $item)
     {
-        return ! empty($user);
+        return ! $user instanceof(User::class);
     }
 
     /**

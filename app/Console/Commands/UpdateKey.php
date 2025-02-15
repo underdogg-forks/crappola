@@ -2,18 +2,18 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use App\Models\User;
 use Artisan;
-use Crypt;
+use Illuminate\Console\Command;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\LegacyEncrypter\McryptEncrypter;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Class UpdateKey
+ * Class UpdateKey.
  */
 class UpdateKey extends Command
 {
@@ -35,7 +35,7 @@ class UpdateKey extends Command
             config(['database.default' => $database]);
         }
 
-        if (! env('APP_KEY') || ! env('APP_CIPHER')) {
+        if ( ! env('APP_KEY') || ! env('APP_CIPHER')) {
             $this->info(date('r') . ' Error: app key and cipher are not set');
             exit;
         }
@@ -84,7 +84,7 @@ class UpdateKey extends Command
             Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
-            $key = Str::random(32);
+            $key = str_random(32);
         }
 
         $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');
@@ -124,6 +124,7 @@ class UpdateKey extends Command
             }
         }
         $this->info($message);
+
         return 0;
     }
 

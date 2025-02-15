@@ -1,43 +1,21 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddSocialLogin extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('users', function ($table) {
-            $table->string('oauth_user_id')->nullable();
-            $table->unsignedInteger('oauth_provider_id')->nullable();
-        });
+        Schema::table('users', function ($table) {});
 
-        Schema::table('accounts', function ($table) {
-            $table->string('custom_invoice_text_label1')->nullable();
-            $table->string('custom_invoice_text_label2')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('invoices', function ($table) {
-            $table->string('custom_text_value1')->nullable();
-            $table->string('custom_text_value2')->nullable();
-        });
+        Schema::table('invoices', function ($table) {});
 
-        Schema::table('invitations', function ($table) {
-            $table->timestamp('opened_date')->nullable();
-            $table->string('message_id')->nullable();
-            $table->text('email_error')->nullable();
-        });
+        Schema::table('invitations', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('users', function ($table) {

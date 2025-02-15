@@ -32,9 +32,14 @@ class SyncAccounts extends Command
         parent::__construct();
     }
 
-    public function handle(): void
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
     {
-        if ( ! Utils::isNinjaProd()) {
+        if( ! Utils::isNinjaProd()) {
             return;
         }
 
@@ -45,16 +50,17 @@ class SyncAccounts extends Command
         config(['database.default' => DB_NINJA_2]);
 
         $this->updateAccounts();
+
         return 0;
     }
 
-    private function updateAccounts(): void
+    private function updateAccounts()
     {
         $data = [];
 
         $a = Company::whereIn('plan', ['pro', 'enterprise'])
             ->with('accounts')
-            ->cursor()->each(function ($company) use ($data): void {
+            ->cursor()->each(function ($company) use ($data) {
                 $accounts = $company->accounts->pluck('account_key');
 
                 $data[] = [

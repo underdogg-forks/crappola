@@ -2,8 +2,9 @@
 
 namespace App\Listeners;
 
+use App;
 use App\Events\PaymentWasCreated;
-use Utils;
+use App\Libraries\Utils;
 
 /**
  * Class AnalyticsListener.
@@ -31,7 +32,7 @@ class AnalyticsListener
             }
         }
 
-        if (! $analyticsId) {
+        if ( ! $analyticsId) {
             return;
         }
 
@@ -40,7 +41,7 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
-        if ($account->isNinjaAccount() && \App::runningInConsole()) {
+        if ($account->isNinjaAccount() && App::runningInConsole()) {
             $item .= ' [R]';
         }
 
@@ -62,10 +63,10 @@ class AnalyticsListener
         $curl = curl_init();
 
         $opts = [
-            CURLOPT_URL => GOOGLE_ANALYITCS_URL,
+            CURLOPT_URL            => GOOGLE_ANALYITCS_URL,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
+            CURLOPT_POST           => 'POST',
+            CURLOPT_POSTFIELDS     => $data,
         ];
 
         curl_setopt_array($curl, $opts);

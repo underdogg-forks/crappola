@@ -4,22 +4,19 @@ namespace App\Models;
 
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use App\Libraries\Utils;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Task.
  */
 class Task extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'client_id',
         'description',
@@ -30,65 +27,9 @@ class Task extends EntityModel
     ];
 
     /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_TASK;
-    }
-
-    /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function account()
-    {
-        return $this->belongsTo('App\Models\Account');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function invoice()
-    {
-        return $this->belongsTo('App\Models\Invoice')->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function client()
-    {
-        return $this->belongsTo('App\Models\Client')->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function project()
-    {
-        return $this->belongsTo('App\Models\Project')->withTrashed();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function task_status()
-    {
-        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
-    }
 
     /**
      * @param $task
@@ -101,30 +42,9 @@ class Task extends EntityModel
 
         if (count($parts)) {
             return Utils::timestampToDateTimeString($parts[0][0]);
-        } else {
-            return '';
         }
-    }
 
-    /**
-     * @return string
-     */
-    public function getStartTime()
-    {
-        return self::calcStartTime($this);
-    }
-
-    public function getLastStartTime()
-    {
-        $parts = json_decode($this->time_log) ?: [];
-
-        if (count($parts)) {
-            $index = count($parts) - 1;
-
-            return $parts[$index][0];
-        } else {
-            return '';
-        }
+        return '';
     }
 
     /**
@@ -158,9 +78,123 @@ class Task extends EntityModel
         return round($duration);
     }
 
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+
+        $taskStatues = TaskStatus::scope()->orderBy('sort_order')->get();
+
+        foreach ($taskStatues as $status) {
+            $statuses[$status->public_id] = $status->name;
+        }
+
+        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
+        $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[TASK_STATUS_PAID] = trans('texts.paid');
+
+        return $statuses;
+    }
+
+    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
+    {
+        if ($invoiceNumber) {
+            if ((float) $balance > 0) {
+                $label = trans('texts.invoiced');
+            } else {
+                $label = trans('texts.paid');
+            }
+        } elseif ($taskStatus) {
+            $label = $taskStatus;
+        } else {
+            $label = trans('texts.logged');
+        }
+
+        if ($isRunning) {
+            $label .= ' | ' . trans('texts.running');
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            if ((float) $balance) {
+                return 'default';
+            }
+
+            return 'success';
+        }
+        if ($isRunning) {
+            return 'primary';
+        }
+
+        return 'info';
+    }
+
+    public function getEntityType()
+    {
+        return ENTITY_TASK;
+    }
+
     /**
-     * @return int
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
+    public function client()
+    {
+        return $this->belongsTo('App\Models\Client')->withTrashed();
+    }
+
+    public function project()
+    {
+        return $this->belongsTo('App\Models\Project')->withTrashed();
+    }
+
+    public function task_status()
+    {
+        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
+    }
+
+    /**
+     * @return string
+     */
+    public function getStartTime()
+    {
+        return self::calcStartTime($this);
+    }
+
+    public function getLastStartTime()
+    {
+        $parts = json_decode($this->time_log) ?: [];
+
+        if (count($parts)) {
+            $index = count($parts) - 1;
+
+            return $parts[$index][0];
+        }
+
+        return '';
+    }
+
     public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
@@ -173,9 +207,9 @@ class Task extends EntityModel
     {
         $value = 0;
 
-        if ($this->project && floatval($this->project->task_rate)) {
+        if ($this->project && (float) ($this->project->task_rate)) {
             $value = $this->project->task_rate;
-        } elseif ($this->client && floatval($this->client->task_rate)) {
+        } elseif ($this->client && (float) ($this->client->task_rate)) {
             $value = $this->client->task_rate;
         } else {
             $value = $this->account->task_rate;
@@ -184,9 +218,6 @@ class Task extends EntityModel
         return Utils::roundSignificant($value);
     }
 
-    /**
-     * @return int
-     */
     public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
@@ -194,9 +225,9 @@ class Task extends EntityModel
 
         if (count($part) == 1 || ! $part[1]) {
             return time() - $part[0];
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
     /**
@@ -250,60 +281,6 @@ class Task extends EntityModel
             end >= ' . $startDate->format('U'));
 
         return $query;
-    }
-
-    public static function getStatuses($entityType = false)
-    {
-        $statuses = [];
-
-        $taskStatues = TaskStatus::scope()->orderBy('sort_order')->get();
-
-        foreach ($taskStatues as $status) {
-            $statuses[$status->public_id] = $status->name;
-        }
-
-        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
-        $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[TASK_STATUS_PAID] = trans('texts.paid');
-
-        return $statuses;
-    }
-
-    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
-    {
-        if ($invoiceNumber) {
-            if (floatval($balance) > 0) {
-                $label = trans('texts.invoiced');
-            } else {
-                $label = trans('texts.paid');
-            }
-        } elseif ($taskStatus) {
-            $label = $taskStatus;
-        } else {
-            $label = trans('texts.logged');
-        }
-
-        if ($isRunning) {
-            $label .= ' | ' . trans('texts.running');
-        }
-
-        return $label;
-    }
-
-    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
-    {
-        if ($invoiceNumber) {
-            if (floatval($balance)) {
-                return 'default';
-            } else {
-                return 'success';
-            }
-        } elseif ($isRunning) {
-            return 'primary';
-        } else {
-            return 'info';
-        }
     }
 
     public function statusClass()

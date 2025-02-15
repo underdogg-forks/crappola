@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class Timezone.
  */
 class Timezone extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 }

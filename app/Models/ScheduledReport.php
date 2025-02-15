@@ -2,20 +2,17 @@
 
 namespace App\Models;
 
-use Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
- * Class Scheduled Report
+ * Class Scheduled Report.
  */
 class ScheduledReport extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'frequency',
         'config',
@@ -30,9 +27,6 @@ class ScheduledReport extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -41,7 +35,7 @@ class ScheduledReport extends EntityModel
     public function updateSendDate()
     {
         switch ($this->frequency) {
-            case REPORT_FREQUENCY_DAILY;
+            case REPORT_FREQUENCY_DAILY:
                 $this->send_date = Carbon::now()->addDay()->toDateString();
                 break;
             case REPORT_FREQUENCY_WEEKLY:

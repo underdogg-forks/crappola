@@ -1,41 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class SupportHidingQuantity extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->boolean('hide_quantity')->default(0);
-            $table->boolean('hide_paid_to_date')->default(0);
+        Schema::table('accounts', function ($table) {});
 
-            $table->string('custom_invoice_label1')->nullable();
-            $table->string('custom_invoice_label2')->nullable();
-
-            $table->boolean('custom_invoice_taxes1')->nullable();
-            $table->boolean('custom_invoice_taxes2')->nullable();
-        });
-
-        Schema::table('invoices', function ($table) {
-            $table->decimal('custom_value1', 13, 2)->default(0);
-            $table->decimal('custom_value2', 13, 2)->default(0);
-
-            $table->boolean('custom_taxes1')->default(0);
-            $table->boolean('custom_taxes2')->default(0);
-        });
+        Schema::table('invoices', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

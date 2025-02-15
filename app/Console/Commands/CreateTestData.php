@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Utils;
 use App\Models\ExpenseCategory;
 use App\Models\Project;
 use App\Models\TaxRate;
@@ -13,20 +14,17 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * Class CreateTestData.
- */
 class CreateTestData extends Command
 {
     /**
      * @var string
      */
     protected $description = 'Create Test Data';
+
     /**
      * @var string
      */
@@ -108,7 +106,24 @@ class CreateTestData extends Command
         $this->createOtherObjects();
 
         $this->info('Done');
+
         return 0;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
     }
 
     private function createClients()
@@ -161,7 +176,7 @@ class CreateTestData extends Command
             $invoice = $this->invoiceRepo->save($data);
             $this->info('Invoice: ' . $invoice->invoice_number);
 
-            if (! $isQuote) {
+            if ( ! $isQuote) {
                 $this->createPayment($client, $invoice);
             }
         }
@@ -293,21 +308,5 @@ class CreateTestData extends Command
         $project->user_id = 1;
         $project->public_id = $publicId;
         $project->save();
-    }
-
-    /**
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [];
     }
 }

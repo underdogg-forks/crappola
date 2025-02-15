@@ -3,21 +3,19 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class PaymentLibrary.
  */
 class PaymentLibrary extends Eloquent
 {
+    public $timestamps = true;
+
     /**
      * @var string
      */
     protected $table = 'payment_libraries';
-    /**
-     * @var bool
-     */
-    public $timestamps = true;
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

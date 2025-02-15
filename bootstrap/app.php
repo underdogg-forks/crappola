@@ -12,7 +12,7 @@
 */
 
 $app = new Illuminate\Foundation\Application(
-    realpath(__DIR__ . '/../')
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
 /*
@@ -50,6 +50,18 @@ $app->singleton(
 | the calling script so we can separate the building of the instances
 | from the actual running of the application and sending responses.
 |
+*/
+
+/*
+if (strstr($_SERVER['HTTP_USER_AGENT'], 'PhantomJS') && Utils::isNinjaDev()) {
+    $app->loadEnvironmentFrom('.env.testing');
+}
+*	/
+
+// Capture real IP if using cloudflare
+if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+    $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+}
 */
 
 return $app;

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -12,23 +12,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AccountGatewayToken extends Eloquent
 {
     use SoftDeletes;
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-    /**
-     * @var bool
-     */
+
     public $timestamps = true;
 
-    /**
-     * @var array
-     */
+    protected $dates = ['deleted_at'];
+
     protected $casts = [];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'contact_id',
         'account_gateway_id',
@@ -68,17 +58,11 @@ class AccountGatewayToken extends Eloquent
         return $this->hasOne('App\Models\PaymentMethod', 'id', 'default_payment_method_id');
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_CUSTOMER;
     }
 
-    /**
-     * @return mixed
-     */
     public function autoBillLater()
     {
         if ($this->default_payment_method) {
@@ -103,9 +87,6 @@ class AccountGatewayToken extends Eloquent
         return $query;
     }
 
-    /**
-     * @return mixed
-     */
     public function gatewayName()
     {
         return $this->account_gateway->gateway->name;
@@ -120,16 +101,20 @@ class AccountGatewayToken extends Eloquent
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             return "https://dashboard.stripe.com/customers/{$this->token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+        }
+        if ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
+
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
-            $testMode = $accountGateway->getConfigField('testMode');
-            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
-        } else {
-            return false;
         }
+        if ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+            $testMode = $accountGateway->getConfigField('testMode');
+
+            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
+        }
+
+        return false;
     }
 
     protected function serializeDate(DateTimeInterface $date)

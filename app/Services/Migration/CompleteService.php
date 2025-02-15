@@ -3,43 +3,31 @@
 namespace App\Services\Migration;
 
 use Illuminate\Support\Facades\Storage;
-use Unirest\Request;
-use Unirest\Request\Body;
+
+// use Unirest\Request;
 
 class CompleteService
 {
     protected $token;
-    protected $company;
-    protected $file;
+
     protected $endpoint = 'https://app.invoiceninja.com';
-    protected $uri = '/api/v1/migration/start/';
+
+    protected $uri = 'api/v1/migration/start';
+
     protected $errors = [];
+
     protected $isSuccessful;
-    protected $force = false;
-    protected $companyKey;
+
+    protected $data;
 
     public function __construct(string $token)
     {
         $this->token = $token;
     }
 
-    public function file($file)
+    public function data(array $data)
     {
-        $this->file = $file;
-
-        return $this;
-    }
-
-    public function force($option)
-    {
-        $this->force = $option;
-
-        return $this;
-    }
-
-    public function company($company)
-    {
-        $this->company = $company;
+        $this->data = $data;
 
         return $this;
     }
@@ -51,34 +39,59 @@ class CompleteService
         return $this;
     }
 
-    public function companyKey(string $key)
-    {
-        $this->companyKey = $key;
-
-        return $this;
-    }
-
     public function start()
     {
-        $body = [
-            'migration' => \Unirest\Request\Body::file($this->file, 'application/zip'),
-            'force' => $this->force,
-            'company_key' => $this->companyKey,
-        ];
+        $files = [];
 
-        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        foreach ($this->data as $companyKey => $companyData) {
+            $data = [
+                'company_index' => $companyKey,
+                'company_key'   => $companyData['data']['company']['company_key'],
+                'force'         => $companyData['force'],
+                'contents'      => 'name',
+                'name'          => $companyKey,
+            ];
 
-        if ($response->code == 200) {
-            $this->isSuccessful = true;
-            $this->deleteFile();
-        }
+            $payload[$companyKey] = [
+                'contents' => json_encode($data),
+                'name'     => $companyData['data']['company']['company_key'],
+            ];
 
-        if (in_array($response->code, [401, 422, 500])) {
-            $this->isSuccessful = false;
-            $this->errors = [
-                'Oops, something went wrong. Migration can\'t be processed at the moment.',
+            $files[] = [
+                'name'          => $companyKey,
+                'company_index' => $companyKey,
+                'company_key'   => $companyData['data']['company']['company_key'],
+                'force'         => $companyData['force'],
+                'contents'      => file_get_contents($companyData['file']),
+                'filename'      => basename($companyData['file']),
+                'Content-Type'  => 'application/zip',
             ];
         }
+
+        $client = new \GuzzleHttp\Client(
+            [
+                'headers' => $this->getHeaders(),
+            ]
+        );
+
+        $payload_data = [
+            'multipart' => array_merge($files, $payload),
+        ];
+
+        // info(print_r($payload_data,1));
+        $response = $client->request('POST', $this->getUrl(), $payload_data);
+
+        if($response->getStatusCode() == 200) {
+            $this->isSuccessful = true;
+
+            return json_decode($response->getBody(), true);
+        }
+        // info($response->raw_body);
+
+        $this->isSuccessful = false;
+        $this->errors = [
+            'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+        ];
 
         return $this;
     }
@@ -88,28 +101,33 @@ class CompleteService
         return $this->isSuccessful;
     }
 
-
     public function getErrors()
     {
         return $this->errors;
     }
 
+    public function deleteFile(string $path)
+    {
+        Storage::delete($path);
+    }
+
     private function getHeaders()
     {
-        return [
+        $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
-            'X-Api-Token' => $this->token,
-            'Content-Type' => 'multipart/form-data',
+            'X-Api-Token'      => $this->token,
+            'Content-Type'     => 'multipart/form-data',
         ];
+
+        if (session('MIGRATION_API_SECRET')) {
+            $headers['X-Api-Secret'] = session('MIGRATION_API_SECRET');
+        }
+
+        return $headers;
     }
 
     private function getUrl()
     {
-        return $this->endpoint . $this->uri . $this->company;
-    }
-
-    public function deleteFile()
-    {
-        Storage::delete($this->file);
+        return "{$this->endpoint}/{$this->uri}";
     }
 }

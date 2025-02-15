@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 class AddAppStoreOrderId extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('companies', function ($table) {
@@ -17,11 +12,6 @@ class AddAppStoreOrderId extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('companies', function ($table) {

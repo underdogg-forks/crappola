@@ -11,18 +11,12 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends EntityModel
 {
+    use PresentableTrait;
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'task_rate',
@@ -38,9 +32,6 @@ class Project extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROJECT;
@@ -62,9 +53,6 @@ class Project extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();

@@ -1,14 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddAccountDomain extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('accounts', function ($table) {
@@ -18,26 +14,17 @@ class AddAccountDomain extends Migration
         });
 
         Schema::table('clients', function ($table) {
-            $table->unsignedInteger('language_id')->nullable();
+            $table->unsignedInteger('language_id')->after('id_number')->nullable();
             $table->foreign('language_id')->references('id')->on('languages');
         });
 
-        Schema::table('invoices', function ($table) {
-            $table->boolean('auto_bill')->default(false);
-        });
+        Schema::table('invoices', function ($table) {});
 
-        Schema::table('users', function ($table) {
-            $table->string('referral_code')->nullable();
-        });
+        Schema::table('users', function ($table) {});
 
         DB::statement('ALTER TABLE invoices MODIFY COLUMN last_sent_date DATE');
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

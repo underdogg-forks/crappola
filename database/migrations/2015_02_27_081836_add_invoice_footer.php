@@ -1,30 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceFooter extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->text('invoice_footer')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('invoices', function ($table) {
-            $table->text('invoice_footer')->nullable();
-        });
+        Schema::table('invoices', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

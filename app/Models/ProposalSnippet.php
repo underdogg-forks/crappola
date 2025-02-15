@@ -11,17 +11,11 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class ProposalSnippet extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'icon',
@@ -36,9 +30,6 @@ class ProposalSnippet extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProposalSnippetPresenter';
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_PROPOSAL_SNIPPET;

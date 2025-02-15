@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Gateway;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $gateways = [
             ['name' => 'Authorize.Net AIM', 'provider' => 'AuthorizeNet_AIM', 'sort_order' => 5],
@@ -60,7 +61,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Cardgate', 'provider' => 'Cardgate'],
             ['name' => 'Checkout.com', 'provider' => 'CheckoutCom'],
             ['name' => 'Creditcall', 'provider' => 'Creditcall'],
-            ['name' => 'Cybersource', 'provider' => 'Cybersource'],
+            ['name' => 'Cybersource', 'provider' => 'Cybersource', 'payment_library_id' => 2],
             ['name' => 'ecoPayz', 'provider' => 'Ecopayz'],
             ['name' => 'Fasapay', 'provider' => 'Fasapay'],
             ['name' => 'Komoju', 'provider' => 'Komoju'],
@@ -83,15 +84,10 @@ class PaymentLibrariesSeeder extends Seeder
         ];
 
         foreach ($gateways as $gateway) {
-            $record = Gateway::whereName($gateway['name'])
-                        ->whereProvider($gateway['provider'])
-                        ->first();
-            if ($record) {
-                $record->fill($gateway);
-                $record->save();
-            } else {
-                Gateway::create($gateway);
-            }
+            Gateway::updateOrCreate(
+                ['name' => $gateway['name'], 'provider' => $gateway['provider']],
+                $gateway
+            );
         }
     }
 }

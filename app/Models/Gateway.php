@@ -2,30 +2,18 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Omnipay;
-use Utils;
 
 /**
  * Class Gateway.
  */
 class Gateway extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = true;
 
-    protected $fillable = [
-        'provider',
-        'is_offsite',
-        'sort_order',
-    ];
-
-    /**
-     * @var array
-     */
     public static $gatewayTypes = [
         GATEWAY_TYPE_CREDIT_CARD,
         GATEWAY_TYPE_BANK_TRANSFER,
@@ -38,9 +26,7 @@ class Gateway extends Eloquent
 
     // these will appear in the primary gateway select
     // the rest are shown when selecting 'more options'
-    /**
-     * @var array
-     */
+
     public static $preferred = [
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_STRIPE,
@@ -58,9 +44,7 @@ class Gateway extends Eloquent
 
     // allow adding these gateway if another gateway
     // is already configured
-    /**
-     * @var array
-     */
+
     public static $alternate = [
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
@@ -70,9 +54,6 @@ class Gateway extends Eloquent
         GATEWAY_CUSTOM3,
     ];
 
-    /**
-     * @var array
-     */
     public static $hiddenFields = [
         // PayPal
         'headerImageUrl',
@@ -85,9 +66,6 @@ class Gateway extends Eloquent
         'returnUrl',
     ];
 
-    /**
-     * @var array
-     */
     public static $optionalFields = [
         // PayPal
         'testMode',
@@ -104,23 +82,11 @@ class Gateway extends Eloquent
         'secretWord',
     ];
 
-    /**
-     * @return string
-     */
-    public function getLogoUrl()
-    {
-        return '/images/gateways/logo_'.$this->provider.'.png';
-    }
-
-    /**
-     * @param $gatewayId
-     *
-     * @return bool
-     */
-    public function isGateway($gatewayId)
-    {
-        return $this->id == $gatewayId;
-    }
+    protected $fillable = [
+        'provider',
+        'is_offsite',
+        'sort_order',
+    ];
 
     /**
      * @param $type
@@ -129,7 +95,7 @@ class Gateway extends Eloquent
      */
     public static function getPaymentTypeName($type)
     {
-        return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+        return Utils::toCamelCase(mb_strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
 
     /**
@@ -145,6 +111,24 @@ class Gateway extends Eloquent
     }
 
     /**
+     * @return string
+     */
+    public function getLogoUrl()
+    {
+        return '/images/gateways/logo_' . $this->provider . '.png';
+    }
+
+    /**
+     * @param $gatewayId
+     *
+     * @return bool
+     */
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
+
+    /**
      * @param $query
      * @param $accountGatewaysIds
      */
@@ -154,7 +138,7 @@ class Gateway extends Eloquent
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
 
-        if (! Utils::isNinja()) {
+        if ( ! Utils::isNinja()) {
             $query->where('id', '!=', GATEWAY_WEPAY);
         }
     }
@@ -195,18 +179,15 @@ class Gateway extends Eloquent
             $link = url('/gateways/create?wepay=true');
         }
 
-        $key = 'texts.gateway_help_'.$this->id;
+        $key = 'texts.gateway_help_' . $this->id;
         $str = trans($key, [
-            'link' => "<a href='$link' >Click here</a>",
+            'link'          => "<a href='{$link}' >Click here</a>",
             'complete_link' => url('/complete'),
         ]);
 
         return $key != $str ? $str : '';
     }
 
-    /**
-     * @return mixed
-     */
     public function getFields()
     {
         if ($this->isCustom()) {
@@ -214,9 +195,9 @@ class Gateway extends Eloquent
                 'name' => '',
                 'text' => '',
             ];
-        } else {
-            return Omnipay::create($this->provider)->getDefaultParameters();
         }
+
+        return Omnipay::create($this->provider)->getDefaultParameters();
     }
 
     public function isCustom()

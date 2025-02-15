@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 class LimitNotifications extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('users', function ($table) {
@@ -17,13 +12,5 @@ class LimitNotifications extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        //
-    }
+    public function down() {}
 }

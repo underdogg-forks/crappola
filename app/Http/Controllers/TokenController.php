@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
-use Auth;
-use Input;
-use Redirect;
-use Session;
-use URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Validator;
-use View;
 
 /**
  * Class TokenController.
@@ -58,13 +57,13 @@ class TokenController extends BaseController
     public function edit($publicId)
     {
         $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
-                        ->where('public_id', '=', $publicId)->firstOrFail();
+            ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
-            'token' => $token,
+            'token'  => $token,
             'method' => 'PUT',
-            'url' => 'tokens/'.$publicId,
-            'title' => trans('texts.edit_token'),
+            'url'    => 'tokens/' . $publicId,
+            'title'  => trans('texts.edit_token'),
         ];
 
         return View::make('accounts.token', $data);
@@ -94,10 +93,10 @@ class TokenController extends BaseController
     public function create()
     {
         $data = [
-          'token' => null,
-          'method' => 'POST',
-          'url' => 'tokens',
-          'title' => trans('texts.add_token'),
+            'token'  => null,
+            'method' => 'POST',
+            'url'    => 'tokens',
+            'title'  => trans('texts.add_token'),
         ];
 
         return View::make('accounts.token', $data);
@@ -108,8 +107,8 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
-        $action = request()->get('bulk_action');
-        $ids = request()->get('bulk_public_id');
+        $action = Request::input('bulk_action');
+        $ids = Request::input('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_token'));
@@ -131,21 +130,21 @@ class TokenController extends BaseController
 
             if ($tokenPublicId) {
                 $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
-                            ->where('public_id', '=', $tokenPublicId)->firstOrFail();
+                    ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
-            $validator = Validator::make(request()->all(), $rules);
+            $validator = Validator::make(Request::all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
 
             if ($tokenPublicId) {
-                $token->name = trim(request()->get('name'));
+                $token->name = trim(Request::input('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(request()->get('name'));
-                $token->token = strtolower(Str::random(RANDOM_KEY_LENGTH));
+                $token->name = trim(Request::input('name'));
+                $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();

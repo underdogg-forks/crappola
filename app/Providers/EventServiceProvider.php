@@ -12,7 +12,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
@@ -239,18 +238,18 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [
-            'App\Listeners\InvoiceListener@jobFailed'
+            'App\Listeners\InvoiceListener@jobFailed',
         ],
 
         //DNS Add A record to Cloudflare
         'App\Events\SubdomainWasUpdated' => [
-            'App\Listeners\DNSListener@addDNSRecord'
+            'App\Listeners\DNSListener@addDNSRecord',
         ],
 
         //DNS Remove A record from Cloudflare
         'App\Events\SubdomainWasRemoved' => [
-            'App\Listeners\DNSListener@removeDNSRecord'
-        ]
+            'App\Listeners\DNSListener@removeDNSRecord',
+        ],
 
         /*
         // Update events
@@ -270,7 +269,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        //
     }
 }

@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 class AddOptionForProductNotes extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('accounts', function ($table) {
@@ -17,13 +12,5 @@ class AddOptionForProductNotes extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        //
-    }
+    public function down() {}
 }

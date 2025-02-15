@@ -20,7 +20,7 @@ class QuoteInvitationWasApproved extends Event
     /**
      * Create a new event instance.
      *
-     * @param $quote
+     * @param            $quote
      * @param Invoice    $invoice
      * @param Invitation $invitation
      */

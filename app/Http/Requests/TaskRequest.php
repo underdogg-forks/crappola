@@ -25,11 +25,11 @@ class TaskRequest extends EntityRequest
             }
         }
         */
-        
+
         // check if we're creating a new project
         if ($this->project_id == '-1') {
             $project = [
-                'name' => trim($this->project_name),
+                'name'      => trim($this->project_name),
                 'client_id' => Client::getPrivateId($this->client_id ?: $this->client),
             ];
             if (Project::validate($project) === true) {

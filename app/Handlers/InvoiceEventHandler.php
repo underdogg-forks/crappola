@@ -8,6 +8,7 @@ use App\Ninja\Mailers\UserMailer;
 class InvoiceEventHandler
 {
     protected $userMailer;
+
     protected $contactMailer;
 
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)

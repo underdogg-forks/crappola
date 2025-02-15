@@ -1,14 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddMultipleDatabaseSupport extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('lookup_companies', function ($table) {
@@ -49,11 +45,6 @@ class AddMultipleDatabaseSupport extends Migration
         Schema::rename('lookup_tokens', 'lookup_account_tokens');
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('lookup_companies', function ($table) {

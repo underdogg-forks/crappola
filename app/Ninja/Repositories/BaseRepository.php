@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Repositories;
 
-use Auth;
-use Utils;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BaseRepository.
@@ -13,31 +13,7 @@ class BaseRepository
     /**
      * @return null
      */
-    public function getClassName()
-    {
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    /**
-     * @param $entity
-     * @param $type
-     *
-     * @return string
-     */
-    private function getEventClass($entity, $type)
-    {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
-    }
+    public function getClassName() {}
 
     /**
      * @param $entity
@@ -62,7 +38,7 @@ class BaseRepository
      */
     public function restore($entity)
     {
-        if (! $entity->trashed()) {
+        if ( ! $entity->trashed()) {
             return;
         }
 
@@ -111,7 +87,7 @@ class BaseRepository
      */
     public function bulk($ids, $action)
     {
-        if (! $ids) {
+        if ( ! $ids) {
             return 0;
         }
 
@@ -119,7 +95,7 @@ class BaseRepository
 
         foreach ($entities as $entity) {
             if (Auth::user()->can('edit', $entity)) {
-                $this->$action($entity);
+                $this->{$action}($entity);
             }
         }
 
@@ -162,7 +138,7 @@ class BaseRepository
                     $query->orWhere(function ($query) use ($table) {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if (! in_array($table, ['users'])) {
+                        if ( ! in_array($table, ['users'])) {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });
@@ -170,12 +146,30 @@ class BaseRepository
                 if (in_array(STATUS_DELETED, $filters)) {
                     $query->orWhere(function ($query) use ($table) {
                         $query->whereNotNull($table . '.deleted_at')
-                              ->where($table . '.is_deleted', '=', 1);
+                            ->where($table . '.is_deleted', '=', 1);
                     });
                 }
             });
         }
 
         return $query;
+    }
+
+    private function getInstance()
+    {
+        $className = $this->getClassName();
+
+        return new $className();
+    }
+
+    /**
+     * @param $entity
+     * @param $type
+     *
+     * @return string
+     */
+    private function getEventClass($entity, $type)
+    {
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 }

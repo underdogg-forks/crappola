@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use Input;
-use Redirect;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
 use URL;
 
 class BlueVineController extends BaseController
@@ -15,34 +15,36 @@ class BlueVineController extends BaseController
         $user = Auth::user();
 
         $data = [
-            'personal_user_full_name' => request()->get('name'),
-            'business_phone_number' => request()->get('phone'),
-            'email' => request()->get('email'),
-            'personal_fico_score' => intval(request()->get('fico_score')),
-            'business_annual_revenue' => intval(request()->get('annual_revenue')),
-            'business_monthly_average_bank_balance' => intval(request()->get('average_bank_balance')),
-            'business_inception_date' => date('Y-m-d', strtotime(request()->get('business_inception'))),
-            'partner_internal_business_id' => 'ninja_account_' . $user->account_id,
+            'personal_user_full_name'               => Request::input('name'),
+            'business_phone_number'                 => Request::input('phone'),
+            'email'                                 => Request::input('email'),
+            'personal_fico_score'                   => (int) (Request::input('fico_score')),
+            'business_annual_revenue'               => (int) (Request::input('annual_revenue')),
+            'business_monthly_average_bank_balance' => (int) (Request::input('average_bank_balance')),
+            'business_inception_date'               => date('Y-m-d', strtotime(Request::input('business_inception'))),
+            'partner_internal_business_id'          => 'ninja_account_' . $user->account_id,
         ];
 
-        if (! empty(request()->get('quote_type_factoring'))) {
+        if ( ! empty(Request::input('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line'] = intval(request()->get('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line'] = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
         }
 
-        if (! empty(request()->get('quote_type_loc'))) {
+        if ( ! empty(Request::input('quote_type_loc'))) {
             $data['line_of_credit_offer'] = true;
-            $data['desired_credit_line_for_loc'] = intval(request()->get('desired_credit_limit')['line_of_credit']);
+            $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
         }
 
         $api_client = new \GuzzleHttp\Client();
         try {
-            $response = $api_client->request('POST',
+            $response = $api_client->request(
+                'POST',
                 'https://app.bluevine.com/api/v1/user/register_external?' . http_build_query([
                     'external_register_token' => env('BLUEVINE_PARTNER_TOKEN'),
-                    'c' => env('BLUEVINE_PARTNER_UNIQUE_ID'),
-                    'signup_parent_url' => URL::to('/bluevine/completed'),
-                ]), [
+                    'c'                       => env('BLUEVINE_PARTNER_UNIQUE_ID'),
+                    'signup_parent_url'       => URL::to('/bluevine/completed'),
+                ]),
+                [
                     'json' => $data,
                 ]
             );
@@ -52,14 +54,14 @@ class BlueVineController extends BaseController
                 $response_data = json_decode($response_body);
 
                 return response()->json([
-                    'error' => true,
+                    'error'   => true,
                     'message' => $response_data->reason,
                 ]);
-            } else {
-                return response()->json([
-                    'error' => true,
-                ]);
             }
+
+            return response()->json([
+                'error' => true,
+            ]);
         }
 
         $company = $user->account->company;

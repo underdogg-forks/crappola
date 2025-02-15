@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Class Client.
  */
-class PasswordReset extends Eloquent
-{
-
-}
+class PasswordReset extends Eloquent {}

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\CreateDocumentRequest;
+use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
+use Illuminate\Support\Facades\Redirect;
 
 /**
  * Class DocumentAPIController.
@@ -41,11 +42,14 @@ class DocumentAPIController extends BaseAPIController
      *   summary="List document",
      *   operationId="listDocuments",
      *   tags={"document"},
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A list of documents",
+     *
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Document"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -62,7 +66,7 @@ class DocumentAPIController extends BaseAPIController
     /**
      * @param DocumentRequest $request
      *
-     * @return \Illuminate\Http\Response|\Redirect|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Illuminate\Http\Response|Redirect|\Symfony\Component\HttpFoundation\StreamedResponse
      *
      * @SWG\Get(
      *   path="/documents/{document_id}",
@@ -70,17 +74,21 @@ class DocumentAPIController extends BaseAPIController
      *   operationId="getDocument",
      *   tags={"document"},
      *   produces={"application/octet-stream"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="document_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="A file",
+     *
      *      @SWG\Schema(type="file")
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -93,9 +101,9 @@ class DocumentAPIController extends BaseAPIController
 
         if (array_key_exists($document->type, Document::$types)) {
             return DocumentController::getDownloadResponse($document);
-        } else {
-            return $this->errorResponse(['error' => 'Invalid mime type'], 400);
         }
+
+        return $this->errorResponse(['error' => 'Invalid mime type'], 400);
     }
 
     /**
@@ -104,16 +112,21 @@ class DocumentAPIController extends BaseAPIController
      *   summary="Create a document",
      *   operationId="createDocument",
      *   tags={"document"},
+     *
      *   @SWG\Parameter(
      *     in="body",
      *     name="document",
+     *
      *     @SWG\Schema(ref="#/definitions/Document")
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="New document",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Document"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -133,17 +146,21 @@ class DocumentAPIController extends BaseAPIController
      *   summary="Delete a document",
      *   operationId="deleteDocument",
      *   tags={"document"},
+     *
      *   @SWG\Parameter(
      *     in="path",
      *     name="document_id",
      *     type="integer",
      *     required=true
      *   ),
+     *
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted document",
+     *
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Document"))
      *   ),
+     *
      *   @SWG\Response(
      *     response="default",
      *     description="an ""unexpected"" error"
@@ -151,7 +168,7 @@ class DocumentAPIController extends BaseAPIController
      * )
      */
     public function destroy(UpdateDocumentRequest $request)
-    {    
+    {
         $entity = $request->entity();
 
         $entity->delete();

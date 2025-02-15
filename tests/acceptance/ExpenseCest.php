@@ -9,14 +9,14 @@ class ExpenseCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function createExpense(AcceptanceTester $I): void
+    public function createExpense(AcceptanceTester $I)
     {
         $I->wantTo('Create an expense');
 

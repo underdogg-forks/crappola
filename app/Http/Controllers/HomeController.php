@@ -5,14 +5,13 @@ namespace App\Http\Controllers;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
-use Auth;
-use Input;
-use Mail;
-use Redirect;
-use Request;
-use Response;
-use Session;
-use View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 /**
  * Class HomeController.
@@ -43,13 +42,14 @@ class HomeController extends BaseController
     {
         Session::reflash();
 
-        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
+        if ( ! Utils::isNinja() && ( ! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
-        } elseif (Auth::check()) {
-            return Redirect::to('/dashboard');
-        } else {
-            return Redirect::to('/login');
         }
+        if (Auth::check()) {
+            return Redirect::to('/dashboard');
+        }
+
+        return Redirect::to('/login');
     }
 
     /**
@@ -65,17 +65,27 @@ class HomeController extends BaseController
      */
     public function invoiceNow()
     {
+        $url = 'https://invoicing.co';
+
+        if (Request::has('rc')) {
+            $url = $url . '?rc=' . Request::input('rc');
+        }
+
+        return Redirect::to($url);
+
+        /*
         // Track the referral/campaign code
-        if (request()->has('rc')) {
-            session([SESSION_REFERRAL_CODE => request()->get('rc')]);
+        if (Request::has('rc')) {
+            session([SESSION_REFERRAL_CODE => \Request::input('rc')]);
         }
 
         if (Auth::check()) {
-            $redirectTo = request()->get('redirect_to') ? SITE_URL . '/' . ltrim(request()->get('redirect_to'), '/') : 'invoices/create';
-            return Redirect::to($redirectTo)->with('sign_up', request()->get('sign_up'));
+            $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'invoices/create';
+            return Redirect::to($redirectTo)->with('sign_up', \Request::input('sign_up'));
         } else {
             return View::make('public.invoice_now');
         }
+        */
     }
 
     /**
@@ -115,28 +125,19 @@ class HomeController extends BaseController
      */
     public function logError()
     {
-        return Utils::logError(request()->get('error'), 'JavaScript');
+        return Utils::logError(Request::input('error'), 'JavaScript');
     }
 
-    /**
-     * @return mixed
-     */
     public function keepAlive()
     {
         return RESULT_SUCCESS;
     }
 
-    /**
-     * @return mixed
-     */
     public function loggedIn()
     {
         return RESULT_SUCCESS;
     }
 
-    /**
-     * @return mixed
-     */
     public function contactUs()
     {
         $message = request()->contact_us_message;
@@ -155,9 +156,9 @@ class HomeController extends BaseController
             }
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
-                    ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
-                    ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
-                    ->subject($subject);
+                ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
+                ->subject($subject);
         });
 
         return RESULT_SUCCESS;

@@ -3,13 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Bank;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class BanksSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createBanks();
     }
@@ -24,15 +26,15 @@ class BanksSeeder extends Seeder
         $banks = json_decode($banks);
 
         foreach ($banks as $bank) {
-            if (! DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
-                if (! isset($bank->fid) || ! isset($bank->org)) {
+            if ( ! DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
+                if ( ! isset($bank->fid) || ! isset($bank->org)) {
                     continue;
                 }
 
                 Bank::create([
                     'remote_id' => $bank->id,
-                    'name' => $bank->name,
-                    'config' => json_encode([
+                    'name'      => $bank->name,
+                    'config'    => json_encode([
                         'fid' => $bank->fid,
                         'org' => $bank->org,
                         'url' => $bank->url,

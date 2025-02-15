@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentType;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $paymentTypes = [
             ['name' => 'Apply Credit'],
@@ -48,16 +49,12 @@ class PaymentTypesSeeder extends Seeder
         ];
 
         foreach ($paymentTypes as $paymentType) {
-            $record = PaymentType::where('name', '=', $paymentType['name'])->first();
+            $gatewayType = $paymentType['gateway_type_id'] ?? null;
 
-            if ($record) {
-                $record->name = $paymentType['name'];
-                $record->gateway_type_id = ! empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
-
-                $record->save();
-            } else {
-                PaymentType::create($paymentType);
-            }
+            PaymentType::updateOrCreate(
+                ['name' => $paymentType['name'], 'gateway_type_id' => $gatewayType],
+                $paymentType
+            );
         }
     }
 }

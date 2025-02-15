@@ -9,14 +9,14 @@ class QuoteCest
      */
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function createQuote(AcceptanceTester $I): void
+    public function createQuote(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->text(10);
@@ -89,7 +89,7 @@ class QuoteCest
         $invitationKey = $I->grabFromDatabase('proposal_invitations', 'invitation_key', ['proposal_id' => $proposalId]);
 
         $clientSession = $I->haveFriend('client');
-        $clientSession->does(function (AcceptanceTester $I) use ($invitationKey): void {
+        $clientSession->does(function (AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/proposal/' . $invitationKey);
             $I->click('Approve');
             $I->see('Successfully approved');

@@ -6,14 +6,14 @@ class OnlinePaymentCest
 {
     private $faker;
 
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
 
         $this->faker = Factory::create();
     }
 
-    public function onlinePayment(AcceptanceTester $I): void
+    public function onlinePayment(AcceptanceTester $I)
     {
         $I->wantTo('test an online payment');
 

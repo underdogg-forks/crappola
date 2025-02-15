@@ -3,13 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
+use App\Libraries\Utils;
 use App\Models\EntityModel;
-use Input;
-use Utils;
 
 class EntityRequest extends Request
 {
     protected $entityType;
+
     private $entity;
 
     public function entity()
@@ -23,21 +23,21 @@ class EntityRequest extends Request
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
-        if (! empty($this->$field)) {
-            $publicId = $this->$field;
+        if ( ! empty($this->{$field})) {
+            $publicId = $this->{$field};
         }
-        if (! $publicId) {
+        if ( ! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
-            if (! empty($this->$field)) {
-                $publicId = $this->$field;
+            if ( ! empty($this->{$field})) {
+                $publicId = $this->{$field};
             }
         }
-        if (! $publicId) {
-            $publicId = request()->get('public_id') ?: request()->get('id');
+        if ( ! $publicId) {
+            $publicId = \Request::input('public_id') ?: \Request::input('id');
         }
 
-        if (! $publicId) {
-            return null;
+        if ( ! $publicId) {
+            return;
         }
 
         if (method_exists($class, 'trashed')) {

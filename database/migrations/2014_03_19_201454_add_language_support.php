@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddLanguageSupport extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('languages', function ($table) {
@@ -27,7 +24,7 @@ class AddLanguageSupport extends Migration
         //DB::table('languages')->insert(['name' => 'Norwegian', 'locale' => 'nb_NO']);
 
         Schema::table('accounts', function ($table) {
-            $table->unsignedInteger('language_id')->default(1);
+            $table->unsignedInteger('language_id')->after('work_email')->default(1);
         });
 
         DB::table('accounts')->update(['language_id' => 1]);
@@ -37,11 +34,6 @@ class AddLanguageSupport extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

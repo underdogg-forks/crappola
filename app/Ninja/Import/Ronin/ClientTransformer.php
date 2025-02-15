@@ -23,13 +23,13 @@ class ClientTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'name' => $this->getString($data, 'company'),
+                'name'       => $this->getString($data, 'company'),
                 'work_phone' => $this->getString($data, 'phone'),
-                'contacts' => [
+                'contacts'   => [
                     [
                         'first_name' => $this->getFirstName($data->name),
-                        'last_name' => $this->getLastName($data->name),
-                        'email' => $this->getString($data, 'email'),
+                        'last_name'  => $this->getLastName($data->name),
+                        'email'      => $this->getString($data, 'email'),
                     ],
                 ],
             ];

@@ -14,7 +14,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
         $invoiceItems = $this->requestInvoiceItems();
 
         $data = array_merge($this->requestFields(), [
-            'public_id' => $invoice->public_id,
+            'public_id'     => $invoice->public_id,
             'invoice_items' => array_merge($invoice->invoice_items->toArray(), $invoiceItems),
         ]);
 
@@ -23,8 +23,8 @@ class UpdateInvoiceIntent extends InvoiceIntent
             foreach ($data['invoice_items'] as $key => $item) {
                 // if it's new or we recently created it
                 if (empty($item['public_id']) || in_array($item['public_id'], $this->entities(ENTITY_INVOICE_ITEM))) {
-                    $data['invoice_items'][$key]['cost'] = isset($data['cost']) ? $data['cost'] : $item['cost'];
-                    $data['invoice_items'][$key]['qty'] = isset($data['quantity']) ? $data['quantity'] : $item['qty'];
+                    $data['invoice_items'][$key]['cost'] = $data['cost'] ?? $item['cost'];
+                    $data['invoice_items'][$key]['qty'] = $data['quantity'] ?? $item['qty'];
                 }
             }
         }

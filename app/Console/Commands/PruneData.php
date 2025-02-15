@@ -23,7 +23,7 @@ class PruneData extends Command
 
     public function handle()
     {
-        $this->info(date('r').' Running PruneData...');
+        $this->info(date('r') . ' Running PruneData...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -62,6 +62,7 @@ class PruneData extends Command
         }
 
         $this->info('Done');
+
         return 0;
     }
 

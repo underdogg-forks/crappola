@@ -1,17 +1,14 @@
 <?php
 
+use App\Libraries\Utils;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddInvoiceSignature extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        if (! Schema::hasColumn('invitations', 'signature_base64')) {
+        if ( ! Schema::hasColumn('invitations', 'signature_base64')) {
             Schema::table('invitations', function ($table) {
                 $table->text('signature_base64')->nullable();
                 $table->timestamp('signature_date')->nullable();
@@ -26,22 +23,18 @@ class AddInvoiceSignature extends Migration
             });
 
             if (Utils::isNinja()) {
-                Schema::table('payment_methods', function ($table) {
-                    $table->unsignedInteger('account_gateway_token_id')->nullable()->change();
-                });
+                Schema::table('payment_methods', function ($table) {});
 
                 // This may fail if the foreign key doesn't exist
-                try {
+                /*try {
                     Schema::table('payment_methods', function ($table) {
                         $table->dropForeign('payment_methods_account_gateway_token_id_foreign');
                     });
                 } catch (Exception $e) {
                     // do nothing
-                }
+                }*/
 
-                Schema::table('payment_methods', function ($table) {
-                    $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
-                });
+                Schema::table('payment_methods', function ($table) {});
 
                 Schema::table('payments', function ($table) {
                     $table->dropForeign('payments_payment_method_id_foreign');
@@ -54,11 +47,6 @@ class AddInvoiceSignature extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('invitations', function ($table) {

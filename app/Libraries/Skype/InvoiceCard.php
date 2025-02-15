@@ -19,7 +19,7 @@ class InvoiceCard
 
         $this->setTitle(trans('texts.invoice_for_client', [
             'invoice' => link_to($invoice->getRoute(), $invoice->invoice_number),
-            'client' => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName()),
+            'client'  => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName()),
         ]));
 
         $this->addFact(trans('texts.email'), HTML::mailto($invoice->client->contacts[0]->email)->toHtml());
@@ -42,7 +42,7 @@ class InvoiceCard
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        if (floatval($invoice->amount)) {
+        if ((float) ($invoice->amount)) {
             $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {

@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use App\Libraries\Utils;
 use App\Models\Vendor;
 use App\Ninja\Datatables\VendorDatatable;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Repositories\VendorRepository;
-use Auth;
-use Utils;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class VendorService.
@@ -42,20 +42,12 @@ class VendorService extends BaseService
     }
 
     /**
-     * @return VendorRepository
-     */
-    protected function getRepo()
-    {
-        return $this->vendorRepo;
-    }
-
-    /**
      * @param array       $data
      * @param Vendor|null $vendor
      *
      * @return mixed|null
      */
-    public function save(array $data, Vendor $vendor = null)
+    public function save(array $data, ?Vendor $vendor = null)
     {
         return $this->vendorRepo->save($data, $vendor);
     }
@@ -70,10 +62,18 @@ class VendorService extends BaseService
         $datatable = new VendorDatatable();
         $query = $this->vendorRepo->find($search);
 
-        if (! Utils::hasPermission('view_vendor')) {
+        if ( ! Utils::hasPermission('view_vendor')) {
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @return VendorRepository
+     */
+    protected function getRepo()
+    {
+        return $this->vendorRepo;
     }
 }

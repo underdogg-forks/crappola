@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 class FixPaymentContactForeignKey extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         try {
@@ -35,13 +30,5 @@ class FixPaymentContactForeignKey extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        //
-    }
+    public function down() {}
 }
