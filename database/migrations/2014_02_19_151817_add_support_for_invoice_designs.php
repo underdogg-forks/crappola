@@ -1,18 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AddSupportForInvoiceDesigns extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('invoice_designs', function ($table) {
             $table->increments('id');
             $table->string('name');
-            $table->mediumText('javascript')->nullable();
-            $table->mediumText('pdfmake')->nullable();
         });
 
         DB::table('invoice_designs')->insert(['name' => 'Clean']);
@@ -34,12 +35,17 @@ class AddSupportForInvoiceDesigns extends Migration
         Schema::table('invoices', function ($table) {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });
-
+    
         Schema::table('accounts', function ($table) {
             $table->foreign('invoice_design_id')->references('id')->on('invoice_designs');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('invoices', function ($table) {

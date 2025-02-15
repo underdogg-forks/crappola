@@ -1,13 +1,17 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 
 class AddInclusiveTaxes extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        if ( ! Schema::hasColumn('tax_rates', 'is_inclusive')) {
+        if (! Schema::hasColumn('tax_rates', 'is_inclusive')) {
             Schema::table('tax_rates', function ($table) {
                 $table->boolean('is_inclusive')->default(false);
             });
@@ -40,6 +44,11 @@ class AddInclusiveTaxes extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('tax_rates', function ($table) {

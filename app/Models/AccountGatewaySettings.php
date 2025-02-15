@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
-use App\Libraries\Utils;
-use DateTimeInterface;
+use Utils;
 
 /**
  * Class AccountGatewaySettings.
  */
 class AccountGatewaySettings extends EntityModel
 {
+    /**
+     * @var array
+     */
     protected $dates = ['updated_at'];
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'fee_amount',
         'fee_percent',
@@ -19,8 +24,13 @@ class AccountGatewaySettings extends EntityModel
         'fee_tax_rate1',
         'fee_tax_name2',
         'fee_tax_rate2',
+        'fee_cap',
+        'adjust_fee_percent',
     ];
 
+    /**
+     * @var bool
+     */
     protected static $hasPublicId = false;
 
     /**
@@ -38,31 +48,26 @@ class AccountGatewaySettings extends EntityModel
 
     public function areFeesEnabled()
     {
-        return (float) ($this->fee_amount) || (float) ($this->fee_percent);
+        return floatval($this->fee_amount) || floatval($this->fee_percent);
     }
 
     public function hasTaxes()
     {
-        return (float) ($this->fee_tax_rate1) || (float) ($this->fee_tax_rate2);
+        return floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate2);
     }
 
     public function feesToString()
     {
         $parts = [];
 
-        if ((float) ($this->fee_amount) != 0) {
+        if (floatval($this->fee_amount) != 0) {
             $parts[] = Utils::formatMoney($this->fee_amount);
         }
 
-        if ((float) ($this->fee_percent) != 0) {
+        if (floatval($this->fee_percent) != 0) {
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
 
         return join(' + ', $parts);
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }

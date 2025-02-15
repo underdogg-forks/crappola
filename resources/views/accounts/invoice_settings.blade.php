@@ -32,6 +32,9 @@
     @foreach (App\Models\Account::$customFields as $field)
         {{ Former::populateField("custom_fields[$field]", $account->customLabel($field)) }}
     @endforeach
+    @foreach(App\Models\Account::$customFieldsOptions as $field)
+        {{ Former::populateField("custom_fields_options[$field]", $account->customFieldsOption($field)) }}
+    @endforeach
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -262,9 +265,18 @@
                     <div class="panel-body">
 
                         {!! Former::text('custom_fields[client1]')
-                                ->label('client_field') !!}
+                                ->label('client_field')
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_fields_options[client1_filter]')
+                                            ->value(1)
+                                            ->raw() . trans('texts.include_in_filter')) !!}
+
                         {!! Former::text('custom_fields[client2]')
                                 ->label('client_field')
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_fields_options[client2_filter]')
+                                            ->value(1)
+                                            ->raw() . trans('texts.include_in_filter'))
                                 ->help(trans('texts.custom_client_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                         <br/>
@@ -393,14 +405,24 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quote_workflow">
                     <div class="panel-body">
+                        {!! Former::checkbox('auto_archive_quote')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_archive_quote_help'))
+                                ->value(1) !!}
+
+                        {!! Former::checkbox('require_approve_quote')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.require_approve_quote_help'))
+                                ->value(1) !!}
+
                         {!! Former::checkbox('auto_convert_quote')
                                 ->text(trans('texts.enable'))
                                 ->blockHelp(trans('texts.auto_convert_quote_help'))
                                 ->value(1) !!}
 
-                        {!! Former::checkbox('auto_archive_quote')
+                        {!! Former::checkbox('allow_approve_expired_quote')
                                 ->text(trans('texts.enable'))
-                                ->blockHelp(trans('texts.auto_archive_quote_help'))
+                                ->blockHelp(trans('texts.allow_approve_expired_quote_help'))
                                 ->value(1) !!}
                     </div>
                 </div>
@@ -614,6 +636,7 @@
         onClientNumberEnabled();
         onCreditNumberEnabled();
         onResetFrequencyChange();
+        updateCheckboxes();
 
         $('#reset_counter_date').datepicker('update', '{{ Utils::fromSqlDate($account->reset_counter_date) ?: 'new Date()' }}');
         $('.reset_counter_date_group .input-group-addon').click(function() {
@@ -624,6 +647,14 @@
             @include('partials.dropzone', ['documentSource' => 'defaultDocuments', 'isDefault' => true])
         @endif
     });
+
+    $('#require_approve_quote').change(updateCheckboxes);
+
+    function updateCheckboxes() {
+        var checked = $('#require_approve_quote').is(':checked');
+        $('#auto_convert_quote').prop('disabled', ! checked);
+        $('#allow_approve_expired_quote').prop('disabled', ! checked);
+    }
 
 	</script>
 

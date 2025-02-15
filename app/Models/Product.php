@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -13,7 +12,9 @@ class Product extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
-
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -21,6 +22,9 @@ class Product extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'product_key',
         'notes',
@@ -54,12 +58,20 @@ class Product extends EntityModel
     public static function getImportMap()
     {
         return [
-            'product|item'              => 'product_key',
+            'product|item' => 'product_key',
             'notes|description|details' => 'notes',
-            'cost|amount|price'         => 'cost',
-            'custom_value1'             => 'custom_value1',
-            'custom_value2'             => 'custom_value2',
+            'cost|amount|price' => 'cost',
+            'custom_value1' => 'custom_value1',
+            'custom_value2' => 'custom_value2',
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_PRODUCT;
     }
 
     /**
@@ -72,18 +84,11 @@ class Product extends EntityModel
         return self::scope()->where('product_key', '=', $key)->first();
     }
 
-    public function getEntityType()
-    {
-        return ENTITY_PRODUCT;
-    }
-
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }
