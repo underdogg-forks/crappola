@@ -13,31 +13,19 @@ class BankAccount extends EntityModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'bank_id',
         'app_version',
         'ofx_version',
     ];
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_BANK_ACCOUNT;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUsername()
     {
         return Crypt::decrypt($this->username);

@@ -3,16 +3,12 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupProposalInvitation extends LookupModel
 {
-    /**
-     * @var array
-     */
     protected $fillable = [
         'lookup_account_id',
         'invitation_key',
@@ -21,11 +17,11 @@ class LookupProposalInvitation extends LookupModel
 
     public static function updateInvitation($accountKey, $invitation)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
-        if (! $invitation->message_id) {
+        if ( ! $invitation->message_id) {
             return;
         }
 
@@ -33,11 +29,11 @@ class LookupProposalInvitation extends LookupModel
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
-                            ->firstOrFail();
+            ->firstOrFail();
 
-        $lookupInvitation = LookupProposalInvitation::whereLookupAccountId($lookupAccount->id)
-                                ->whereInvitationKey($invitation->invitation_key)
-                                ->firstOrFail();
+        $lookupInvitation = self::whereLookupAccountId($lookupAccount->id)
+            ->whereInvitationKey($invitation->invitation_key)
+            ->firstOrFail();
 
         $lookupInvitation->message_id = $invitation->message_id;
         $lookupInvitation->save();

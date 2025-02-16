@@ -2,14 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSourceCurrencyToExpenses extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('expenses', function (Blueprint $table) {
@@ -24,7 +20,6 @@ class AddSourceCurrencyToExpenses extends Migration
         });
 
         Schema::table('expenses', function (Blueprint $table) {
-
             // set account value so we're able to create foreign constraint
             DB::statement('update expenses e
                             left join accounts a on a.id = e.account_id
@@ -35,14 +30,8 @@ class AddSourceCurrencyToExpenses extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('expenses', function ($table) {
-        });
+        Schema::table('expenses', function ($table) {});
     }
 }

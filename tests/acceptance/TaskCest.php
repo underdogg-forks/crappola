@@ -46,7 +46,7 @@ class TaskCest
 
         $I->seeInDatabase('tasks', [
             'description' => $description,
-            'client_id' => $clientId,
+            'client_id'   => $clientId,
         ]);
         $I->seeInDatabase('projects', ['name' => $project]);
 
@@ -75,7 +75,6 @@ class TaskCest
 
         $I->seeInDatabase('tasks', ['description' => $description]);
     }
-
 
     public function editTask(AcceptanceTester $I)
     {

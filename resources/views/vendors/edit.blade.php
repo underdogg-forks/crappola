@@ -67,6 +67,7 @@
 			{!! Former::text('postal_code')
 					->oninput(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
+				->autocomplete('off')
 				->fromQuery($countries, 'name', 'id') !!}
 
         </div>
@@ -117,7 +118,7 @@
             <div class="panel-body">
 
             {!! Former::select('currency_id')->addOption('','')
-                ->placeholder($account->currency ? $account->currency->name : '')
+                ->placeholder($account->currency ? $account->currency->getTranslatedName() : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::textarea('private_notes')->rows(6) !!}
 
@@ -202,12 +203,12 @@
 
 
 	</script>
-
+	@if(Auth::user()->canCreateOrEdit(ENTITY_VENDOR))
 	<center class="buttons">
     	{!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/vendors/' . ($vendor ? $vendor->public_id : '')))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
-
+	@endif
 	{!! Former::close() !!}
 </div>
 @stop

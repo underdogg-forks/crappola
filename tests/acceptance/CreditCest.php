@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\Credit;
 use Faker\Factory;
-use Codeception\Util\Fixtures;
 
 class CreditCest
 {
@@ -35,11 +33,10 @@ class CreditCest
         $I->click('Save');
 
         $I->see('Successfully created credit');
-        $I->seeInDatabase('credits', array('private_notes' => $note));
-    
+        $I->seeInDatabase('credits', ['private_notes' => $note]);
+
         $I->amOnPage('/credits');
         $I->seeCurrentUrlEquals('/credits');
         $I->see($clientEmail);
     }
-    
 }

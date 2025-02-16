@@ -1,37 +1,22 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddCustomContactFields extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->string('custom_contact_label1')->nullable();
-            $table->string('custom_contact_label2')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
 
-        Schema::table('contacts', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
-        });
+        Schema::table('contacts', function ($table) {});
 
         // This may fail if the foreign key doesn't exist
         try {
-            Schema::table('payment_methods', function ($table) {
-                $table->unsignedInteger('account_gateway_token_id')->nullable()->change();
-                $table->dropForeign('payment_methods_account_gateway_token_id_foreign');
-            });
+            Schema::table('payment_methods', function ($table) {});
 
-            Schema::table('payment_methods', function ($table) {
-                $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
-            });
+            Schema::table('payment_methods', function ($table) {});
 
             Schema::table('payments', function ($table) {
                 $table->dropForeign('payments_payment_method_id_foreign');
@@ -44,13 +29,7 @@ class AddCustomContactFields extends Migration
             // do nothing
         }
 
-        Schema::table('expenses', function($table) {
-            $table->unsignedInteger('payment_type_id')->nullable();
-            $table->date('payment_date')->nullable();
-            $table->string('transaction_reference')->nullable();
-            $table->foreign('payment_type_id')->references('id')->on('payment_types');
-            $table->boolean('invoice_documents')->default(true);
-        });
+        Schema::table('expenses', function ($table) {});
 
         // remove duplicate annual frequency
         if (DB::table('frequencies')->count() == 9) {
@@ -112,14 +91,8 @@ class AddCustomContactFields extends Migration
 
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {
@@ -132,7 +105,7 @@ class AddCustomContactFields extends Migration
             $table->dropColumn('custom_value2');
         });
 
-        Schema::table('expenses', function($table) {
+        Schema::table('expenses', function ($table) {
             $table->dropColumn('payment_type_id');
             $table->dropColumn('payment_date');
             $table->dropColumn('transaction_reference');

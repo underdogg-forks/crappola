@@ -2,40 +2,52 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use DateTimeInterface;
-use Utils;
 use HTMLUtils;
-use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 use Laracasts\Presenter\PresentableTrait;
+use URL;
 
 /**
  * Class AccountGateway.
  */
 class AccountGateway extends EntityModel
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\AccountGatewayPresenter';
-    /**
-     * @var array
-     */
+
     protected $dates = ['deleted_at'];
 
-    /**
-     * @var array
-     */
     protected $hidden = [
-        'config'
+        'config',
     ];
 
     /**
-     * @return mixed
+     * @param $provider
+     *
+     * @return string
      */
+    public static function paymentDriverClass($provider)
+    {
+        $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $provider = str_replace('\\', '', $provider);
+        $class = $folder . $provider . 'PaymentDriver';
+        $class = str_replace('_', '', $class);
+
+        if (class_exists($class)) {
+            return $class;
+        }
+
+        return $folder . 'BasePaymentDriver';
+    }
+
     public function getEntityType()
     {
         return ENTITY_ACCOUNT_GATEWAY;
@@ -67,25 +79,6 @@ class AccountGateway extends EntityModel
     }
 
     /**
-     * @param $provider
-     *
-     * @return string
-     */
-    public static function paymentDriverClass($provider)
-    {
-        $folder = 'App\\Ninja\\PaymentDrivers\\';
-        $provider = str_replace('\\', '', $provider);
-        $class = $folder . $provider . 'PaymentDriver';
-        $class = str_replace('_', '', $class);
-
-        if (class_exists($class)) {
-            return $class;
-        } else {
-            return $folder . 'BasePaymentDriver';
-        }
-    }
-
-    /**
      * @param bool  $invitation
      * @param mixed $gatewayTypeId
      *
@@ -111,10 +104,11 @@ class AccountGateway extends EntityModel
                     return true;
                 }
             }
+
             return false;
-        } else {
-            return $this->gateway_id == $gatewayId;
         }
+
+        return $this->gateway_id == $gatewayId;
     }
 
     public function isCustom()
@@ -130,9 +124,6 @@ class AccountGateway extends EntityModel
         $this->config = Crypt::encrypt(json_encode($config));
     }
 
-    /**
-     * @return mixed
-     */
     public function getConfig()
     {
         return json_decode(Crypt::decrypt($this->config));
@@ -153,7 +144,7 @@ class AccountGateway extends EntityModel
      */
     public function getPublishableKey()
     {
-        if (! $this->isGateway([GATEWAY_STRIPE, GATEWAY_PAYMILL])) {
+        if ( ! $this->isGateway([GATEWAY_STRIPE, GATEWAY_PAYMILL])) {
             return false;
         }
 
@@ -162,7 +153,7 @@ class AccountGateway extends EntityModel
 
     public function getAppleMerchantId()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -230,7 +221,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidSecret()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -242,7 +233,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidClientId()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -254,7 +245,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidPublicKey()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
             return false;
         }
 
@@ -274,13 +265,13 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnvironment()
     {
-        if (! $this->getPlaidClientId()) {
-            return null;
+        if ( ! $this->getPlaidClientId()) {
+            return;
         }
 
         $stripe_key = $this->getPublishableKey();
 
-        return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
+        return mb_substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
 
     /**
@@ -290,16 +281,16 @@ class AccountGateway extends EntityModel
     {
         $account = $this->account ? $this->account : Account::find($this->account_id);
 
-        return \URL::to(env('WEBHOOK_PREFIX', '').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX', ''));
+        return URL::to(env('WEBHOOK_PREFIX', '') . 'payment_hook/' . $account->account_key . '/' . $this->gateway_id . env('WEBHOOK_SUFFIX', ''));
     }
 
     public function isTestMode()
     {
         if ($this->isGateway(GATEWAY_STRIPE)) {
-            return strpos($this->getPublishableKey(), 'test') !== false;
-        } else {
-            return $this->getConfigField('testMode');
+            return str_contains($this->getPublishableKey(), 'test');
         }
+
+        return $this->getConfigField('testMode');
     }
 
     public function getCustomHtml($invitation)

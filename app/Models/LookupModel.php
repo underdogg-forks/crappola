@@ -2,27 +2,19 @@
 
 namespace App\Models;
 
-use Eloquent;
-use Cache;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ExpenseCategory.
  */
 class LookupModel extends Eloquent
 {
-    /**
-     * @var bool
-     */
     public $timestamps = false;
-
-    public function lookupAccount()
-    {
-        return $this->belongsTo('App\Models\LookupAccount');
-    }
 
     public static function createNew($accountKey, $data)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -44,7 +36,7 @@ class LookupModel extends Eloquent
 
     public static function deleteWhere($where)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -54,12 +46,11 @@ class LookupModel extends Eloquent
         static::where($where)->delete();
 
         config(['database.default' => $current]);
-
     }
 
     public static function setServerByField($field, $value)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if ( ! env('MULTI_DB_ENABLED')) {
             return;
         }
 
@@ -70,6 +61,7 @@ class LookupModel extends Eloquent
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
             static::setDbServer($server);
+
             return;
         }
 
@@ -84,38 +76,43 @@ class LookupModel extends Eloquent
 
             // check entity is found on the server
             if ($field === 'oauth_user_key') {
-                $providerId = substr($value, 0, 1);
-                $oauthId = substr($value, 2);
+                $providerId = mb_substr($value, 0, 1);
+                $oauthId = mb_substr($value, 2);
                 $isFound = $entity::where('oauth_provider_id', '=', $providerId)
-                                ->where('oauth_user_id', '=', $oauthId)
-                                ->withTrashed()
-                                ->first();
+                    ->where('oauth_user_id', '=', $oauthId)
+                    ->withTrashed()
+                    ->first();
             } else {
                 $isFound = $entity::where($field, '=', $value)
-                                ->withTrashed()
-                                ->first();
+                    ->withTrashed()
+                    ->first();
             }
-            if (! $isFound) {
+            if ( ! $isFound) {
                 abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
-            Cache::put($key, $server, 120);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }
     }
 
-    protected static function setDbServer($server)
+    public function lookupAccount()
     {
-        if (! env('MULTI_DB_ENABLED')) {
-            return;
-        }
-
-        config(['database.default' => $server]);
+        return $this->belongsTo('App\Models\LookupAccount');
     }
 
     public function getDbServer()
     {
         return $this->lookupAccount->lookupCompany->dbServer->name;
+    }
+
+    protected static function setDbServer($server)
+    {
+        if ( ! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        config(['database.default' => $server]);
     }
 }

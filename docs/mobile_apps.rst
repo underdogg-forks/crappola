@@ -1,6 +1,9 @@
 Mobile Applications
 ===================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The Invoice Ninja iPhone and Android applications allows a user to connect to their self-hosted Invoice Ninja web application.
 
 .. TIP:: If you're unable to access the Android app store you can download the APK here: https://download.invoiceninja.com/apk
@@ -24,7 +27,7 @@ Mobile App configuration
 
 Once you have completed the in-app purchase to unlock the mobile app to connect to your own server, you'll be presented with two fields.
 
-The first is the Base URL of your self-hosted installation, ie http://ninja.yourapp.com
+The first is the Base URL of your self-hosted installation, ie. https://ninja.example.com or https://ninja.example.com/public
 
 The second field is the API_SECRET, enter in the API_SECRET you used in your .env file.
 

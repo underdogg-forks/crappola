@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use App\Libraries\Utils;
 use DateTimeInterface;
-use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\LookupContact;
 use Illuminate\Notifications\Notifiable;
 
 /**
@@ -17,48 +16,10 @@ use Illuminate\Notifications\Notifiable;
  */
 class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes;
     use Authenticatable;
     use CanResetPassword;
     use Notifiable;
-
-    protected $guard = 'client';
-
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_CONTACT;
-    }
-
-    /**
-     * @var array
-     */
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'send_invoice',
-        'custom_value1',
-        'custom_value2',
-    ];
-
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'remember_token',
-        'confirmation_code',
-    ];
+    use SoftDeletes;
 
     /**
      * @var string
@@ -80,6 +41,35 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public static $fieldPhone = 'phone';
 
+    protected $guard = 'client';
+
+    protected $dates = ['deleted_at'];
+
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'send_invoice',
+        'custom_value1',
+        'custom_value2',
+    ];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'remember_token',
+        'confirmation_code',
+    ];
+
+    public function getEntityType()
+    {
+        return ENTITY_CONTACT;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -88,53 +78,35 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersonType()
     {
         return PERSON_CONTACT;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getName()
     {
         return $this->getDisplayName();
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getDisplayName()
     {
         if ($this->getFullName()) {
             return $this->getFullName();
-        } else {
-            return $this->email;
         }
+
+        return $this->email;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getSearchName()
     {
         $name = $this->getFullName();
@@ -142,9 +114,9 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 
         if ($name && $email) {
             return sprintf('%s <%s>', $name, $email);
-        } else {
-            return $name ?: $email;
         }
+
+        return $name ?: $email;
     }
 
     /**
@@ -155,7 +127,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getContactKeyAttribute($contact_key)
     {
         if (empty($contact_key) && $this->id) {
-            $this->contact_key = $contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $this->contact_key = $contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             static::where('id', $this->id)->update(['contact_key' => $contact_key]);
         }
 
@@ -168,10 +140,10 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return trim($this->first_name.' '.$this->last_name);
-        } else {
-            return '';
+            return trim($this->first_name . ' ' . $this->last_name);
         }
+
+        return '';
     }
 
     /**
@@ -179,7 +151,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function getLinkAttribute()
     {
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
@@ -218,15 +190,13 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     }
 }
 
-Contact::creating(function ($contact)
-{
+Contact::creating(function ($contact) {
     LookupContact::createNew($contact->account->account_key, [
         'contact_key' => $contact->contact_key,
     ]);
 });
 
-Contact::deleted(function ($contact)
-{
+Contact::deleted(function ($contact) {
     if ($contact->forceDeleting) {
         LookupContact::deleteWhere([
             'contact_key' => $contact->contact_key,

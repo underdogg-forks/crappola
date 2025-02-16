@@ -3,14 +3,10 @@
 use App\Models\Account;
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class EnterprisePlan extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $timeout = ini_get('max_execution_time');
@@ -20,7 +16,7 @@ class EnterprisePlan extends Migration
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (! Schema::hasTable('companies')) {
+        if ( ! Schema::hasTable('companies')) {
             Schema::create('companies', function ($table) {
                 $table->increments('id');
 
@@ -47,7 +43,7 @@ class EnterprisePlan extends Migration
             });
         }
 
-        if (! Schema::hasColumn('accounts', 'company_id')) {
+        if ( ! Schema::hasColumn('accounts', 'company_id')) {
             Schema::table('accounts', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
@@ -96,7 +92,8 @@ class EnterprisePlan extends Migration
             OR (a2.id IS NOT NULL AND a2.company_id IS NULL)
             OR (a3.id IS NOT NULL AND a3.company_id IS NULL)
             OR (a4.id IS NOT NULL AND a4.company_id IS NULL)
-            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)');
+            OR (a5.id IS NOT NULL AND a5.company_id IS NULL)'
+        );
 
         if (count($group_accounts)) {
             foreach ($group_accounts as $group_account) {
@@ -113,76 +110,6 @@ class EnterprisePlan extends Migration
         }
     }
 
-    private function upAccounts($primaryAccount, $otherAccounts = [])
-    {
-        if (! $primaryAccount) {
-            $primaryAccount = $otherAccounts->first();
-        }
-
-        if (empty($primaryAccount)) {
-            return;
-        }
-
-        $company = Company::create();
-        if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
-            $company->plan = 'pro';
-            $company->plan_term = 'year';
-            $company->plan_started = $primaryAccount->pro_plan_paid;
-            $company->plan_paid = $primaryAccount->pro_plan_paid;
-
-            $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
-            $expires->modify('+1 year');
-            $expires = $expires->format('Y-m-d');
-
-            // check for self host white label licenses
-            if (! Utils::isNinjaProd()) {
-                if ($company->plan_paid) {
-                    $company->plan = 'white_label';
-                    // old ones were unlimited, new ones are yearly
-                    if ($company->plan_paid == NINJA_DATE) {
-                        $company->plan_term = null;
-                    } else {
-                        $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_expires = $expires;
-                    }
-                }
-            } elseif ($company->plan_paid != NINJA_DATE) {
-                $company->plan_expires = $expires;
-            }
-        }
-
-        if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {
-            $company->trial_started = $primaryAccount->pro_plan_trial;
-            $company->trial_plan = 'pro';
-        }
-
-        $company->save();
-
-        $primaryAccount->company_id = $company->id;
-        $primaryAccount->save();
-
-        if (! empty($otherAccounts)) {
-            foreach ($otherAccounts as $account) {
-                if ($account && $account->id != $primaryAccount->id) {
-                    $account->company_id = $company->id;
-                    $account->save();
-                }
-            }
-        }
-    }
-
-    protected function checkTimeout($timeout, $startTime)
-    {
-        if (time() - $startTime >= $timeout) {
-            exit('Migration reached time limit; please run again to continue');
-        }
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $timeout = ini_get('max_execution_time');
@@ -192,7 +119,7 @@ class EnterprisePlan extends Migration
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (! Schema::hasColumn('accounts', 'pro_plan_paid')) {
+        if ( ! Schema::hasColumn('accounts', 'pro_plan_paid')) {
             Schema::table('accounts', function ($table) {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();
@@ -230,5 +157,70 @@ class EnterprisePlan extends Migration
         }
 
         Schema::dropIfExists('companies');
+    }
+
+    protected function checkTimeout($timeout, $startTime)
+    {
+        if (time() - $startTime >= $timeout) {
+            exit('Migration reached time limit; please run again to continue');
+        }
+    }
+
+    private function upAccounts($primaryAccount, $otherAccounts = [])
+    {
+        if ( ! $primaryAccount) {
+            $primaryAccount = $otherAccounts->first();
+        }
+
+        if (empty($primaryAccount)) {
+            return;
+        }
+
+        $company = Company::create();
+        if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
+            $company->plan = 'pro';
+            $company->plan_term = 'year';
+            $company->plan_started = $primaryAccount->pro_plan_paid;
+            $company->plan_paid = $primaryAccount->pro_plan_paid;
+
+            $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
+            $expires->modify('+1 year');
+            $expires = $expires->format('Y-m-d');
+
+            // check for self host white label licenses
+            if ( ! Utils::isNinjaProd()) {
+                if ($company->plan_paid) {
+                    $company->plan = 'white_label';
+                    // old ones were unlimited, new ones are yearly
+                    if ($company->plan_paid == NINJA_DATE) {
+                        $company->plan_term = null;
+                    } else {
+                        $company->plan_term = PLAN_TERM_YEARLY;
+                        $company->plan_expires = $expires;
+                    }
+                }
+            } elseif ($company->plan_paid != NINJA_DATE) {
+                $company->plan_expires = $expires;
+            }
+        }
+
+        if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {
+            $company->trial_started = $primaryAccount->pro_plan_trial;
+            $company->trial_plan = 'pro';
+        }
+
+        $company->save();
+
+        $primaryAccount->company_id = $company->id;
+        $primaryAccount->save();
+
+        if ( ! empty($otherAccounts)) {
+            foreach ($otherAccounts as $account) {
+                if ($account && $account->id != $primaryAccount->id) {
+                    $account->company_id = $company->id;
+                    $account->save();
+                }
+            }
+        }
     }
 }

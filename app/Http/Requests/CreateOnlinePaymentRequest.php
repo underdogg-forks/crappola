@@ -2,26 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Invitation;
 use App\Models\GatewayType;
+use App\Models\Invitation;
 
 class CreateOnlinePaymentRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         $account = $this->invitation->account;
@@ -42,7 +32,11 @@ class CreateOnlinePaymentRequest extends Request
         $input['invitation'] = $invitation;
 
         if ($gatewayTypeAlias = request()->gateway_type) {
-            $input['gateway_type'] = GatewayType::getIdFromAlias($gatewayTypeAlias);
+            if ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
+                $input['gateway_type'] = GatewayType::getIdFromAlias($gatewayTypeAlias);
+            } else {
+                $input['gateway_type'] = $gatewayTypeAlias;
+            }
         } else {
             $input['gateway_type'] = session($invitation->id . 'gateway_type');
         }

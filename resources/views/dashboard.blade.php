@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 
-    @if (Auth::user()->hasPermission('view_all'))
+    @if (Auth::user()->hasPermission('admin'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
             if (window.myChart) {
@@ -219,7 +219,7 @@
     @else
         <div class="col-md-10">
     @endif
-        @if (Auth::user()->hasPermission('view_all'))
+        @if (Auth::user()->hasPermission('admin'))
         <div class="pull-right">
             @if (count($currencies) > 1)
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
@@ -253,6 +253,13 @@
 	@include('partials/white_label_expired')
 @endif
 
+@if($account->account_email_settings->forward_url_for_v5)
+<div class="alert alert-danger">
+Your account is currently forwarding all requests to v5, this installation is now disabled.
+</div>
+@endif
+
+@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -370,7 +377,6 @@
     </div>
 </div>
 
-@if (Auth::user()->hasPermission('view_all'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
@@ -389,7 +395,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
-                    @if ($invoicesSent)
+                    @if (Auth::user()->hasPermission('admin') && $invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
 							@if ($invoicesSent == 1)
 								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
@@ -415,16 +421,18 @@
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
-                    @if ($showExpenses && count($averageInvoice))
-                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
-                            @foreach ($averageInvoice as $item)
-                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
-                                    {{ trans('texts.average_invoice') }}
-                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
-                                </span>
-                            @endforeach
-                            <span class="average-div" style="color:#337ab7"/>
-                        </div>
+					@if (Auth::user()->hasPermission('admin'))
+	                    @if ($showExpenses && count($averageInvoice))
+	                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
+	                            @foreach ($averageInvoice as $item)
+	                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+	                                    {{ trans('texts.average_invoice') }}
+	                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
+	                                </span>
+	                            @endforeach
+	                            <span class="average-div" style="color:#337ab7"/>
+	                        </div>
+						@endif
                     @endif
                     <i class="glyphicon glyphicon-ok-sign"></i> {{ trans('texts.recent_payments') }}
                 </h3>
@@ -441,7 +449,7 @@
                         @foreach ($payments as $payment)
                         <tr>
                             <td>{!! \App\Models\Invoice::calcLink($payment) !!}</td>
-                            @can('viewByOwner', [ENTITY_CLIENT, $payment->client_user_id])
+                            @can('view', [ENTITY_CLIENT, $payment])
                                 <td>{!! link_to('/clients/'.$payment->client_public_id, trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email)) !!}</td>
                             @else
                                 <td>{{ trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email) }}</td>
@@ -478,7 +486,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>
@@ -513,7 +521,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>

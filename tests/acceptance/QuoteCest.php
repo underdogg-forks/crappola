@@ -73,7 +73,7 @@ class QuoteCest
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->click('Mark Sent');
         $I->wait(2);
-        
+
         $I->see($clientEmail);
         $I->click('More Actions');
         $I->click('New Proposal');
@@ -89,11 +89,10 @@ class QuoteCest
         $invitationKey = $I->grabFromDatabase('proposal_invitations', 'invitation_key', ['proposal_id' => $proposalId]);
 
         $clientSession = $I->haveFriend('client');
-        $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
+        $clientSession->does(function (AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/proposal/' . $invitationKey);
             $I->click('Approve');
             $I->see('Successfully approved');
         });
-
     }
 }

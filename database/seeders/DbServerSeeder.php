@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\DbServer;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DbServerSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $servers = [
             ['name' => 'db-ninja-1'],

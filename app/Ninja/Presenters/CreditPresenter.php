@@ -2,7 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
-use Utils;
+use App\Libraries\Utils;
+use DateTime;
 
 /**
  * Class CreditPresenter.
@@ -18,7 +19,7 @@ class CreditPresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function credit_date()
     {

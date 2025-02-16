@@ -1,14 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddPageSize extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('accounts', function ($table) {
@@ -23,12 +19,14 @@ class AddPageSize extends Migration
 
         Schema::create('expense_categories', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('public_id')->index();
+
+            $table->string('name')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
-            $table->string('name')->nullable();
-            $table->unsignedInteger('public_id')->index();
         });
 
         Schema::table('expense_categories', function ($table) {
@@ -46,11 +44,6 @@ class AddPageSize extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

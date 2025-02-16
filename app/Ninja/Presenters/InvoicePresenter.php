@@ -3,12 +3,11 @@
 namespace App\Ninja\Presenters;
 
 use App\Libraries\Skype\InvoiceCard;
-use App\Models\Activity;
-use Carbon;
+use App\Libraries\Utils;
 use DropdownButton;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
-use Utils;
-use Auth;
 
 class InvoicePresenter extends EntityPresenter
 {
@@ -66,11 +65,12 @@ class InvoicePresenter extends EntityPresenter
     {
         if ($this->entity->partial > 0) {
             return 'partial_due';
-        } elseif ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
-            return 'total';
-        } else {
-            return 'balance_due';
         }
+        if ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
+            return 'total';
+        }
+
+        return 'balance_due';
     }
 
     public function age()
@@ -78,7 +78,7 @@ class InvoicePresenter extends EntityPresenter
         $invoice = $this->entity;
         $dueDate = $invoice->partial_due_date ?: $invoice->due_date;
 
-        if (! $dueDate || $dueDate == '0000-00-00') {
+        if ( ! $dueDate || $dueDate == '0000-00-00') {
             return 0;
         }
 
@@ -97,24 +97,27 @@ class InvoicePresenter extends EntityPresenter
 
         if ($age > 120) {
             return 'age_group_120';
-        } elseif ($age > 90) {
-            return 'age_group_90';
-        } elseif ($age > 60) {
-            return 'age_group_60';
-        } elseif ($age > 30) {
-            return 'age_group_30';
-        } else {
-            return 'age_group_0';
         }
+        if ($age > 90) {
+            return 'age_group_90';
+        }
+        if ($age > 60) {
+            return 'age_group_60';
+        }
+        if ($age > 30) {
+            return 'age_group_30';
+        }
+
+        return 'age_group_0';
     }
 
     public function dueDateLabel()
     {
         if ($this->entity->isType(INVOICE_TYPE_STANDARD)) {
             return trans('texts.due_date');
-        } else {
-            return trans('texts.valid_until');
         }
+
+        return trans('texts.valid_until');
     }
 
     public function discount()
@@ -123,37 +126,39 @@ class InvoicePresenter extends EntityPresenter
 
         if ($invoice->is_amount_discount) {
             return $invoice->account->formatMoney($invoice->discount);
-        } else {
-            return $invoice->discount . '%';
         }
+
+        return $invoice->discount . '%';
     }
 
     // https://schema.org/PaymentStatusType
     public function paymentStatus()
     {
-        if (! $this->entity->balance) {
+        if ( ! $this->entity->balance) {
             return 'PaymentComplete';
-        } elseif ($this->entity->isOverdue()) {
-            return 'PaymentPastDue';
-        } else {
-            return 'PaymentDue';
         }
+        if ($this->entity->isOverdue()) {
+            return 'PaymentPastDue';
+        }
+
+        return 'PaymentDue';
     }
 
     public function status()
     {
         if ($this->entity->is_deleted) {
             return trans('texts.deleted');
-        } elseif ($this->entity->trashed()) {
-            return trans('texts.archived');
-        } elseif ($this->entity->is_recurring) {
-            return trans('texts.active');
-        } else {
-            $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
-            $status = strtolower($status);
-
-            return trans("texts.status_{$status}");
         }
+        if ($this->entity->trashed()) {
+            return trans('texts.archived');
+        }
+        if ($this->entity->is_recurring) {
+            return trans('texts.active');
+        }
+        $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
+        $status = mb_strtolower($status);
+
+        return trans("texts.status_{$status}");
     }
 
     public function invoice_date()
@@ -174,9 +179,9 @@ class InvoicePresenter extends EntityPresenter
     public function frequency()
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
-        $frequency = strtolower($frequency);
+        $frequency = mb_strtolower($frequency);
 
-        return trans('texts.freq_'.$frequency);
+        return trans('texts.freq_' . $frequency);
     }
 
     public function email()
@@ -191,7 +196,7 @@ class InvoicePresenter extends EntityPresenter
         $client = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
-        if (! $paymentMethod) {
+        if ( ! $paymentMethod) {
             return false;
         }
 
@@ -205,7 +210,7 @@ class InvoicePresenter extends EntityPresenter
 
         $data = [
             'payment_method' => $paymentMethodString,
-            'due_date' => $this->due_date(),
+            'due_date'       => $this->due_date(),
         ];
 
         return trans('texts.auto_bill_notification', $data);
@@ -242,11 +247,11 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $actions = [
-            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
+            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans('texts.clone_invoice')],
         ];
 
         if (Auth::user()->can('create', ENTITY_QUOTE)) {
-            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
+            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans('texts.clone_quote')];
         }
 
         $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
@@ -261,7 +266,7 @@ class InvoicePresenter extends EntityPresenter
             if ($invoice->quote_invoice_id) {
                 $actions[] = ['url' => url("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
             } else {
-                if (! $invoice->isApproved()) {
+                if ( ! $invoice->isApproved()) {
                     $actions[] = ['url' => url("proposals/create/{$invoice->public_id}"), 'label' => trans('texts.new_proposal')];
                 }
                 $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
@@ -293,10 +298,10 @@ class InvoicePresenter extends EntityPresenter
             $actions[] = DropdownButton::DIVIDER;
         }
 
-        if (! $invoice->trashed()) {
+        if ( ! $invoice->trashed()) {
             $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
         }
-        if (! $invoice->is_deleted) {
+        if ( ! $invoice->is_deleted) {
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
         }
 
@@ -308,26 +313,30 @@ class InvoicePresenter extends EntityPresenter
         $invoice = $this->entity;
         $account = $invoice->account;
 
-        if (! $account->gateway_fee_enabled) {
+        if ( ! $account->gateway_fee_enabled) {
             return '';
         }
 
         $settings = $account->getGatewaySettings($gatewayTypeId);
 
-        if (! $settings || ! $settings->areFeesEnabled()) {
+        if ( ! $settings || ! $settings->areFeesEnabled()) {
             return '';
         }
 
-        $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
-        $fee = $account->formatMoney($fee, $invoice->client);
-
-        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
-            $label = trans('texts.discount');
+        if ($invoice->getGatewayFeeItem()) {
+            $label = ' + ' . trans('texts.fee');
         } else {
-            $label = trans('texts.fee');
-        }
+            $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
+            $fee = $account->formatMoney($fee, $invoice->client);
 
-        $label = ' - ' . $fee . ' ' . $label;
+            if ((float) ($settings->fee_amount) < 0 || (float) ($settings->fee_percent) < 0) {
+                $label = trans('texts.discount');
+            } else {
+                $label = trans('texts.fee');
+            }
+
+            $label = ' - ' . $fee . ' ' . $label;
+        }
 
         $label .= '&nbsp;&nbsp; <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.fee_help') . '"></i>';
 

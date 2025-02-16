@@ -2,29 +2,27 @@
 
 namespace App\Models;
 
-use Carbon;
+use App\Libraries\Utils;
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Company.
  */
 class Company extends Eloquent
 {
-    use SoftDeletes;
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\CompanyPresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'plan',
         'plan_term',
@@ -34,9 +32,6 @@ class Company extends Eloquent
         'plan_expires',
     ];
 
-    /**
-     * @var array
-     */
     protected $dates = [
         'deleted_at',
         'promo_expires',
@@ -69,9 +64,9 @@ class Company extends Eloquent
     }
 
     // handle promos and discounts
-    public function hasActiveDiscount(Carbon $date = null)
+    public function hasActiveDiscount(?Carbon $date = null)
     {
-        if (! $this->discount || ! $this->discount_expires) {
+        if ( ! $this->discount || ! $this->discount_expires) {
             return false;
         }
 
@@ -79,14 +74,14 @@ class Company extends Eloquent
 
         if ($this->plan_term == PLAN_TERM_MONTHLY) {
             return $this->discount_expires->gt($date);
-        } else {
-            return $this->discount_expires->subMonths(11)->gt($date);
         }
+
+        return $this->discount_expires->subMonths(11)->gt($date);
     }
 
     public function discountedPrice($price)
     {
-        if (! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
+        if ( ! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
             return $price;
         }
 
@@ -95,7 +90,7 @@ class Company extends Eloquent
 
     public function daysUntilPlanExpires()
     {
-        if (! $this->hasActivePlan()) {
+        if ( ! $this->hasActivePlan()) {
             return 0;
         }
 
@@ -104,7 +99,7 @@ class Company extends Eloquent
 
     public function hasActivePlan()
     {
-        return Carbon::parse($this->plan_expires) >= Carbon::today();
+        return $this->plan_expires && Carbon::parse($this->plan_expires) >= Carbon::today();
     }
 
     public function hasExpiredPlan($plan)
@@ -118,7 +113,12 @@ class Company extends Eloquent
 
     public function hasEarnedPromo()
     {
-        if (! Utils::isNinjaProd() || Utils::isPro()) {
+        if ( ! Utils::isNinjaProd() || Utils::isPro()) {
+            return false;
+        }
+
+        // if they've already been pro return false
+        if ($this->plan_expires && $this->plan_expires != '0000-00-00') {
             return false;
         }
 
@@ -157,7 +157,7 @@ class Company extends Eloquent
     {
         $account = $this->accounts()->first();
 
-        if (! $account) {
+        if ( ! $account) {
             return false;
         }
 
@@ -166,14 +166,14 @@ class Company extends Eloquent
 
     public function processRefund($user)
     {
-        if (! $this->payment) {
+        if ( ! $this->payment) {
             return false;
         }
 
         $account = $this->accounts()->first();
         $planDetails = $account->getPlanDetails(false, false);
 
-        if (! empty($planDetails['started'])) {
+        if ( ! empty($planDetails['started'])) {
             $deadline = clone $planDetails['started'];
             $deadline->modify('+30 days');
 
@@ -183,7 +183,7 @@ class Company extends Eloquent
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
-                \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+                Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
 
                 return true;
             }
@@ -198,7 +198,7 @@ class Company extends Eloquent
         $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
     }
 
-    public function applyFreeYear()
+    public function applyFreeYear($numYears = 1)
     {
         if ($this->plan_started && $this->plan_started != '0000-00-00') {
             return;
@@ -209,7 +209,12 @@ class Company extends Eloquent
         $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
         $this->plan_started = date_create()->format('Y-m-d');
         $this->plan_paid = date_create()->format('Y-m-d');
-        $this->plan_expires = date_create()->modify('1 year')->format('Y-m-d');
+        $this->plan_expires = date_create()->modify($numYears . ' year')->format('Y-m-d');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 
     protected function serializeDate(DateTimeInterface $date)
@@ -218,16 +223,15 @@ class Company extends Eloquent
     }
 }
 
-Company::deleted(function ($company)
-{
-    if (! env('MULTI_DB_ENABLED')) {
+Company::deleted(function ($company) {
+    if ( ! env('MULTI_DB_ENABLED')) {
         return;
     }
 
     $server = \App\Models\DbServer::whereName(config('database.default'))->firstOrFail();
 
     LookupCompany::deleteWhere([
-        'company_id' => $company->id,
+        'company_id'   => $company->id,
         'db_server_id' => $server->id,
     ]);
 });

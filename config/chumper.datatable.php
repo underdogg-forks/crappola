@@ -1,7 +1,6 @@
 <?php
 
-return array(
-
+return [
     /*
     |--------------------------------------------------------------------------
     | Table specific configuration options.
@@ -9,8 +8,7 @@ return array(
     |
     */
 
-    'table' => array(
-
+    'table' => [
         /*
         |--------------------------------------------------------------------------
         | Table class
@@ -48,13 +46,11 @@ return array(
         |
         */
 
-        'options' => array(
+        'options' => [
+            'sPaginationType' => 'full_numbers',
 
-            "sPaginationType" => "full_numbers",
-
-            "bProcessing" => false
-
-        ),
+            'bProcessing' => false,
+        ],
 
         /*
         |--------------------------------------------------------------------------
@@ -68,7 +64,7 @@ return array(
         |
         */
 
-        'callbacks' => array(),
+        'callbacks' => [],
 
         /*
         |--------------------------------------------------------------------------
@@ -82,7 +78,6 @@ return array(
 
         'noScript' => false,
 
-
         /*
         |--------------------------------------------------------------------------
         | Table view
@@ -95,7 +90,6 @@ return array(
 
         'table_view' => 'chumper.datatable::template',
 
-
         /*
         |--------------------------------------------------------------------------
         | Script view
@@ -107,7 +101,7 @@ return array(
         */
 
         'script_view' => 'chumper.datatable::javascript',
-        
+
         /*
           |--------------------------------------------------------------------------
           | Option view
@@ -116,11 +110,9 @@ return array(
           | Template used to render the options recursive
           |
         */
-        
-        'options_view' => config('chumper.datatable::options')
 
-    ),
-
+        'options_view' => config('chumper.datatable::options'),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -129,8 +121,7 @@ return array(
     |
     */
 
-    'engine' => array(
-
+    'engine' => [
         /*
         |--------------------------------------------------------------------------
         | Search for exact words
@@ -142,8 +133,5 @@ return array(
         */
 
         'exactWordSearch' => false,
-
-    )
-
-
-);
+    ],
+];

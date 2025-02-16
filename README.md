@@ -4,49 +4,61 @@
 
 # Invoice Ninja
 
-[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
-[![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
+[![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](https://invoice-ninja.readthedocs.io/en/latest/?badge=latest)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8) | [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
+## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
+### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com) or if you like [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
-All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $20 per year white-label license to remove our branding for personal use.
+Just make sure to add the `invoice-ninja` tag to your question.
+
+#### Note: v5 is now tagged Stable! To upgrade from v4 you need to [install v5](https://invoiceninja.github.io/docs/self-host-installation/) as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
+
+All Pro and Enterprise features from the hosted app are included in the open-code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
 * [Features](https://www.invoiceninja.com/invoicing-features/)
 * [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
-* [User Guide](http://docs.invoiceninja.com/en/latest/)
+* [User Guide](https://docs.invoiceninja.com/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
-* [Roadmap](https://trello.com/b/63BbiVVe/)
+* [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
-## Affiliates Programs
-* Referral Program (we pay you)
-	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-Label Reseller (you pay us)
-	* Hosted: $500 annually and either 10% of revenue or $1/user/month
-	* Self-Hosted: Contact us for volume license pricing
+## Mobile App
+* [iPhone](https://apps.apple.com/us/app/invoice-ninja-v5/id1503970375#?platform=iphone)
+* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
+* [Linux](https://github.com/invoiceninja/flutter-mobile)
 
-### Installation Options
+## Desktop App
+* [MacOS](https://apps.apple.com/app/id1503970375)
+* [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
+* [MacOS Desktop](https://snapcraft.io/invoiceninja)
+
+## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
-* [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
-* [Docker File](https://github.com/invoiceninja/dockerfiles)
+* [Self-Host Zip](https://invoice-ninja.readthedocs.io/en/latest/install.html)
+* [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
+* [Lando](https://github.com/invoiceninja/invoiceninja/issues/2880)
+* [Yunohost](https://github.com/YunoHost-Apps/invoiceninja_ynh)
 
 ## Recommended Providers
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
 ## Development
-* [API Documentation](http://docs.invoiceninja.com/en/latest/api.html)
+* [API Documentation](https://invoice-ninja.readthedocs.io/en/latest/api.html)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
-* [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
-* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
+* [Laminas Framework](https://github.com/alexz707/InvoiceNinjaModule)
+* [Custom Module](https://invoice-ninja.readthedocs.io/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
 ## Third Party Modules
 * [Event Scheduler](https://github.com/cytech/Scheduler-InvoiceNinja)
+* [Manufacturer Module](https://github.com/dicarlosystems/manufacturer-invoiceninja)
+* [Point of Sale](https://github.com/dicarlosystems/pointofsale-invoiceninja)
+* [Invoice Design Import/Export](https://github.com/feyst/invoicedesignexport)
 
 > Feel free to email us for help if you're working on a module, we're happy to provide developer support.
 
@@ -56,7 +68,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
 
 ## Third Party Developers
-* [Some Techie](https://www.sometechie.com/customize-invoice-ninja/)
+* [Bold Compass](https://boldcompass.com/customize-invoice-ninja/)
 
 ## Contributing
 All contributors are welcome!  
@@ -71,12 +83,16 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 * [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
-* [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
+* [Joshua Dwire](https://github.com/joshuadwire) - [Bold Compass](https://boldcompass.com/)
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
 * [Matthieu Calie](https://github.com/Matth--)
+* [Christopher Di Carlo](https://github.com/dicarlosystems) - [Di Carlo Systems Inc.](https://www.dicarlosystems.ca)
+* [Kristian Feldsam](https://github.com/feldsam) - [FeldHost™](https://www.feldhost.net)
+* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad)
+* [Mike Skaggs](https://github.com/titan-fail)
 
 ## License
-Invoice Ninja is released under the Attribution Assurance License.  
+Invoice Ninja is released under the Elastic License 2.0
 See [LICENSE](LICENSE) for details.

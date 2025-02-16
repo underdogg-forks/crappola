@@ -4,32 +4,27 @@ namespace App\Models;
 
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
+use App\Libraries\Utils;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
-use Utils;
 
 /**
  * Class Expense.
  */
 class Expense extends EntityModel
 {
+    use PresentableTrait;
     // Expenses
     use SoftDeletes;
-    use PresentableTrait;
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
+
     /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'client_id',
         'vendor_id',
@@ -76,17 +71,69 @@ class Expense extends EntityModel
     public static function getImportMap()
     {
         return [
-            'amount|total' => 'amount',
-            'category' => 'expense_category',
-            'client' => 'client',
-            'vendor' => 'vendor',
+            'amount|total'          => 'amount',
+            'category'              => 'expense_category',
+            'client'                => 'client',
+            'vendor'                => 'vendor',
             'notes|details^private' => 'public_notes',
-            'notes|details^public' => 'private_notes',
-            'date^payment' => 'expense_date',
-            'payment type' => 'payment_type',
-            'payment date' => 'payment_date',
-            'reference' => 'transaction_reference',
+            'notes|details^public'  => 'private_notes',
+            'date^payment'          => 'expense_date',
+            'payment type'          => 'payment_type',
+            'payment date'          => 'payment_date',
+            'reference'             => 'transaction_reference',
         ];
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
+        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
+        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
+        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
+
+        return $statuses;
+    }
+
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'billed';
+            }
+        } elseif ($shouldBeInvoiced) {
+            $label = 'pending';
+        } else {
+            $label = 'logged';
+        }
+
+        $label = trans("texts.{$label}");
+
+        if ($paymentDate) {
+            $label = trans('texts.paid') . ' | ' . $label;
+        }
+
+        return $label;
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if ((float) $balance > 0) {
+                return 'default';
+            }
+
+            return 'success';
+        }
+        if ($shouldBeInvoiced) {
+            return 'warning';
+        }
+
+        return 'primary';
     }
 
     /**
@@ -105,41 +152,26 @@ class Expense extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function vendor()
     {
         return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function documents()
     {
         return $this->hasMany('App\Models\Document')->orderBy('id');
@@ -158,27 +190,21 @@ class Expense extends EntityModel
      */
     public function recurring_expense()
     {
-        return $this->belongsTo('App\Models\RecurringExpense');
+        return $this->belongsTo('App\Models\RecurringExpense')->withTrashed();
     }
 
-
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         if ($this->transaction_id) {
             return $this->transaction_id;
-        } elseif ($this->public_notes) {
-            return Utils::truncateString($this->public_notes, 16);
-        } else {
-            return '#' . $this->public_id;
         }
+        if ($this->public_notes) {
+            return Utils::truncateString($this->public_notes, 16);
+        }
+
+        return '#' . $this->public_id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDisplayName()
     {
         return $this->getName();
@@ -192,9 +218,6 @@ class Expense extends EntityModel
         return "/expenses/{$this->public_id}";
     }
 
-    /**
-     * @return mixed
-     */
     public function getEntityType()
     {
         return ENTITY_EXPENSE;
@@ -238,18 +261,13 @@ class Expense extends EntityModel
         return $array;
     }
 
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('expense_date', [$startDate, $endDate]);
     }
 
     /**
-     * @param $query
+     * @param      $query
      * @param null $bankdId
      *
      * @return mixed
@@ -257,7 +275,7 @@ class Expense extends EntityModel
     public function scopeBankId($query, $bankdId = null)
     {
         if ($bankdId) {
-            $query->whereBankId($bankId);
+            $query->whereBankId($bankdId);
         }
 
         return $query;
@@ -271,58 +289,6 @@ class Expense extends EntityModel
     public function taxAmount()
     {
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
-    }
-
-    public static function getStatuses($entityType = false)
-    {
-        $statuses = [];
-        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
-        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
-        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
-        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
-
-
-        return $statuses;
-    }
-
-    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                $label = 'invoiced';
-            } else {
-                $label = 'billed';
-            }
-        } elseif ($shouldBeInvoiced) {
-            $label = 'pending';
-        } else {
-            $label = 'logged';
-        }
-
-        $label = trans("texts.{$label}");
-
-        if ($paymentDate) {
-            $label = trans('texts.paid') . ' | ' . $label;
-        }
-
-        return $label;
-    }
-
-    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
-    {
-        if ($invoiceId) {
-            if (floatval($balance) > 0) {
-                return 'default';
-            } else {
-                return 'success';
-            }
-        } elseif ($shouldBeInvoiced) {
-            return 'warning';
-        } else {
-            return 'primary';
-        }
     }
 
     public function statusClass()

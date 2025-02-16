@@ -1,6 +1,9 @@
 Custom Modules
 ==============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Invoice Ninja support customs modules using https://github.com/nWidart/laravel-modules
 
 You can watch this `short video <https://www.youtube.com/watch?v=8jJ-PYuq85k>`_ for a quick overview of the feature.
@@ -45,9 +48,9 @@ To run the database migration use:
     php artisan module:migrate <module>
 
 
-.. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in modules.json.
+.. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in module.json.
 
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app.
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json. 
 
 If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
 

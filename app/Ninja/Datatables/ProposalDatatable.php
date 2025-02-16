@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ProposalDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROPOSAL;
+
     public $sortCol = 1;
 
     public function columns()
@@ -17,41 +18,41 @@ class ProposalDatatable extends EntityDatatable
             [
                 'quote',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_QUOTE, $model->invoice_user_id])) {
-                        return $model->invoice_number;
+                    if (Auth::user()->can('view', [ENTITY_QUOTE, $model])) {
+                        return link_to("quotes/{$model->invoice_public_id}", $model->invoice_number)->toHtml();
                     }
 
-                    return link_to("quotes/{$model->invoice_public_id}", $model->invoice_number)->toHtml();
+                    return $model->invoice_number;
                 },
             ],
             [
                 'client',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
-                        return $model->client;
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return link_to("clients/{$model->client_public_id}", $model->client)->toHtml();
                     }
 
-                    return link_to("clients/{$model->client_public_id}", $model->client)->toHtml();
+                    return $model->client;
                 },
             ],
             [
                 'template',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->template_user_id])) {
-                        return $model->template ?: ' ';
+                    if(Auth::user()->can('view', [ENTITY_PROPOSAL_TEMPLATE, $model])) {
+                        return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template ?: ' ')->toHtml();
                     }
 
-                    return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template ?: ' ')->toHtml();
+                    return $model->template ?: ' ';
                 },
             ],
             [
                 'created_at',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL, $model->user_id])) {
-                        return Utils::timestampToDateString(strtotime($model->created_at));
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL, $model])) {
+                        return link_to("proposals/{$model->public_id}/edit", Utils::timestampToDateString(strtotime($model->created_at)))->toHtml();
                     }
 
-                    return link_to("proposals/{$model->public_id}/edit", Utils::timestampToDateString(strtotime($model->created_at)))->toHtml();
+                    return Utils::timestampToDateString(strtotime($model->created_at));
                 },
             ],
             [
@@ -78,7 +79,7 @@ class ProposalDatatable extends EntityDatatable
                     return URL::to("proposals/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_PROPOSAL, $model]);
                 },
             ],
         ];

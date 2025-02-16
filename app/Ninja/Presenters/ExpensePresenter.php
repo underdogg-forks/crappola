@@ -2,8 +2,9 @@
 
 namespace App\Ninja\Presenters;
 
-use Carbon;
-use Utils;
+use App\Libraries\Utils;
+use DateTime;
+use Illuminate\Support\Carbon;
 
 /**
  * Class ExpensePresenter.
@@ -19,7 +20,7 @@ class ExpensePresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function expense_date()
     {
@@ -27,7 +28,7 @@ class ExpensePresenter extends EntityPresenter
     }
 
     /**
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function payment_date()
     {
@@ -61,7 +62,7 @@ class ExpensePresenter extends EntityPresenter
 
     public function payment_type()
     {
-        if (! $this->payment_type_id) {
+        if ( ! $this->payment_type_id) {
             return '';
         }
 
@@ -73,7 +74,7 @@ class ExpensePresenter extends EntityPresenter
         $data = parent::calendarEvent();
         $expense = $this->entity;
 
-        $data->title = trans('texts.expense')  . ' ' . $this->amount() . ' | ' . $this->category();
+        $data->title = trans('texts.expense') . ' ' . $this->amount() . ' | ' . $this->category();
 
         $data->title = trans('texts.expense') . ' ' . $this->amount();
         if ($category = $this->category()) {
@@ -82,7 +83,6 @@ class ExpensePresenter extends EntityPresenter
         if ($this->public_notes) {
             $data->title .= ' | ' . $this->public_notes;
         }
-
 
         $data->start = $expense->expense_date;
 

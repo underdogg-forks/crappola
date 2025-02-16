@@ -12,7 +12,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
@@ -56,6 +55,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\TaskListener@deletedInvoice',
             'App\Listeners\ExpenseListener@deletedInvoice',
             'App\Listeners\HistoryListener@deletedInvoice',
+            'App\Listeners\SubscriptionListener@deletedInvoice',
         ],
         'App\Events\InvoiceWasRestored' => [
             'App\Listeners\ActivityListener@restoredInvoice',
@@ -92,6 +92,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\QuoteWasDeleted' => [
             'App\Listeners\ActivityListener@deletedQuote',
             'App\Listeners\HistoryListener@deletedQuote',
+            'App\Listeners\SubscriptionListener@deletedQuote',
         ],
         'App\Events\QuoteWasRestored' => [
             'App\Listeners\ActivityListener@restoredQuote',
@@ -237,18 +238,18 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [
-            'App\Listeners\InvoiceListener@jobFailed'
+            'App\Listeners\InvoiceListener@jobFailed',
         ],
 
         //DNS Add A record to Cloudflare
         'App\Events\SubdomainWasUpdated' => [
-            'App\Listeners\DNSListener@addDNSRecord'
+            'App\Listeners\DNSListener@addDNSRecord',
         ],
 
         //DNS Remove A record from Cloudflare
         'App\Events\SubdomainWasRemoved' => [
-            'App\Listeners\DNSListener@removeDNSRecord'
-        ]
+            'App\Listeners\DNSListener@removeDNSRecord',
+        ],
 
         /*
         // Update events
@@ -268,7 +269,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        //
     }
 }

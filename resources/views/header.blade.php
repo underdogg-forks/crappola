@@ -95,6 +95,28 @@
             }
           }
           @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text1'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text1') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text1') }}</span>'
+            }
+          }
+          @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text2'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text2') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text2') }}</span>'
+            }
+          }
+          @endif
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
@@ -151,8 +173,8 @@
 
     @yield('onReady')
 
-    @if (Input::has('focus'))
-        $('#{{ Input::get('focus') }}').focus();
+    @if (\Request::has('focus'))
+        $('#{{ \Request::input('focus') }}').focus();
     @endif
 
     // Focus the search input if the user clicks forward slash
@@ -330,7 +352,7 @@
 
       </div>
 
-      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
+      {!! Former::open(env('SPEECH_ENABLED') ? '/handle_command' : '/#')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
         <div class="form-group has-feedback">
           <input type="text" name="command" id="search" style="width: 280px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
             class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
@@ -397,21 +419,21 @@
                 'expenses',
                 'vendors',
             ] as $option)
-                @if (in_array($option, ['dashboard', 'settings'])
-                    || Auth::user()->can('view', substr($option, 0, -1))
-                    || Auth::user()->can('create', substr($option, 0, -1)))
+                @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
+                    {{ '' }}
+                @else
                     @include('partials.navigation_option')
                 @endif
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
-                    @include('partials.navigation_option', [
+                    @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->hasPermission('view_all'))
+            @if (Auth::user()->hasPermission('view_reports'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
@@ -462,7 +484,7 @@
           @endif
 
           @if (Session::has('message'))
-            <div class="alert alert-info alert-hide">
+            <div class="alert alert-info alert-hide" style="z-index:9999">
               {{ Session::get('message') }}
             </div>
           @elseif (Session::has('news_feed_message'))
@@ -481,7 +503,7 @@
           </div>
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs((! empty($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
+            {!! Form::breadcrumbs((! empty($entity) && $entity->exists && !$entity->deleted_at) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')
@@ -511,9 +533,11 @@
 
 @include('partials.contact_us')
 @include('partials.sign_up')
-@include('partials.keyboard_shortcuts')
+@if (!request()->is('*proposals*'))
+    @include('partials.keyboard_shortcuts')
+@endif
 
-@if (auth()->check() && ! auth()->user()->hasAcceptedLatestTerms())
+@if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
     @include('partials.accept_terms')
 @endif
 

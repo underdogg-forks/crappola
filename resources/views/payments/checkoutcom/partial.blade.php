@@ -1,5 +1,5 @@
 @if ($accountGateway->getConfigField('testMode'))
-    <script src="https://sandbox.checkout.com/js/v1/checkout.js"></script>
+    <script src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
 @else
     <script src="https://cdn.checkout.com/js/checkout.js"></script>
 @endif
@@ -12,7 +12,11 @@
             paymentToken: '{{ $transactionToken }}',
             customerEmail: '{{ $contact->email }}',
             customerName: '{{ $contact->getFullName() }}',
+            @if( $invoice->getCurrencyCode() == 'BHD' ||  $invoice->getCurrencyCode() == 'KWD' ||  $invoice->getCurrencyCode() == 'OMR')
+            value: {{ $invoice->getRequestedAmount() * 1000 }},
+            @else
             value: {{ $invoice->getRequestedAmount() * 100 }},
+            @endif
             currency: '{{ $invoice->getCurrencyCode() }}',
             widgetContainerSelector: '.payment-form',
             widgetColor: '#333',

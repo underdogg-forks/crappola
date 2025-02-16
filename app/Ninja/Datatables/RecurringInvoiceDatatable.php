@@ -2,10 +2,11 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
-use URL;
-use Utils;
+use App\Libraries\Utils;
 use App\Models\Invoice;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use URL;
 
 class RecurringInvoiceDatatable extends EntityDatatable
 {
@@ -18,7 +19,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                 'frequency',
                 function ($model) {
                     if ($model->frequency) {
-                        $frequency = strtolower($model->frequency);
+                        $frequency = mb_strtolower($model->frequency);
                         $frequency = preg_replace('/\s/', '_', $frequency);
                         $label = trans('texts.freq_' . $frequency);
                     } else {
@@ -76,22 +77,6 @@ class RecurringInvoiceDatatable extends EntityDatatable
         ];
     }
 
-    private function getStatusLabel($model)
-    {
-        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
-        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
-
-        if ($model->invoice_status_id == INVOICE_STATUS_SENT) {
-            if (! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00') {
-                $label = trans('texts.pending');
-            } else {
-                $label = trans('texts.active');
-            }
-        }
-
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-
     public function actions()
     {
         return [
@@ -101,11 +86,11 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]);
                 },
             ],
             [
-                trans("texts.clone_invoice"),
+                trans('texts.clone_invoice'),
                 function ($model) {
                     return URL::to("invoices/{$model->public_id}/clone");
                 },
@@ -114,7 +99,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                 },
             ],
             [
-                trans("texts.clone_quote"),
+                trans('texts.clone_quote'),
                 function ($model) {
                     return URL::to("quotes/{$model->public_id}/clone");
                 },
@@ -122,7 +107,24 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
-
         ];
+    }
+
+    private function getStatusLabel($model)
+    {
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
+        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
+
+        if ($model->invoice_status_id == INVOICE_STATUS_SENT) {
+            if ( ! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00') {
+                $label = trans('texts.pending');
+            } elseif ($model->end_date_sql && Carbon::parse($model->end_date_sql)->isPast()) {
+                $label = trans('texts.status_completed');
+            } else {
+                $label = trans('texts.active');
+            }
+        }
+
+        return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }
 }

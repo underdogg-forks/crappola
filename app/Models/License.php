@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -11,14 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class License extends Eloquent
 {
-    /**
-     * @var bool
-     */
-    public $timestamps = true;
     use SoftDeletes;
-    /**
-     * @var array
-     */
+
+    public $timestamps = true;
+
     protected $dates = ['deleted_at'];
 
     protected function serializeDate(DateTimeInterface $date)

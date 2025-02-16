@@ -14,7 +14,7 @@
 
 @section('content')
 
-	{!! Former::open($url)
+	{!! Former::open($payment ? $url : '')
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('return onFormSubmit(event)')
         ->method($method)
@@ -111,7 +111,7 @@
 		</div>
 	</div>
 
-
+    @if (Auth::user()->canCreateOrEdit(ENTITY_PAYMENT, $payment))
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(HTMLUtils::previousUrl('/payments'))->large() !!}
         @if (!$payment || !$payment->is_deleted)
@@ -126,6 +126,7 @@
         @endif
 
 	</center>
+    @endif
 
     @include('partials/refund_payment')
 
@@ -133,6 +134,7 @@
 
 	<script type="text/javascript">
 
+    var canSubmitPayment = true;
 	var invoices = {!! $invoices !!};
 	var clients = {!! $clients !!};
 
@@ -167,7 +169,7 @@
             $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
         @endif
 
-        @if (Input::old('data'))
+        @if (Request::old('data'))
             // this means we failed so we'll reload the previous state
             window.model = new ViewModel({!! $data !!});
         @else
@@ -219,12 +221,13 @@
 	});
 
     function onFormSubmit(event) {
-        if ($('#saveButton').is(':disabled')) {
+        if (! canSubmitPayment) {
             return false;
         }
 
         @if ($payment)
             $('#saveButton').attr('disabled', true);
+            canSubmitPayment = false;
             return true;
         @else
             // warn if amount is more than balance/credit will be created
@@ -234,12 +237,39 @@
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
                 $('#saveButton').attr('disabled', true);
-                return true;
+                canSubmitPayment = false;
+                submitAjax();
+                return false;
             } else {
                 return false;
             }
         @endif
     }
+
+    function submitAjax() {
+        $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+            if (data && data.toLowerCase().indexOf('http') === 0) {
+                NINJA.formIsChanged = false;
+                location.href = data;
+            } else {
+                handleSaveFailed();
+            }
+        }).fail(function(data) {
+            handleSaveFailed(data);
+        });
+    }
+
+    function handleSaveFailed(data) {
+		$('#saveButton').attr('disabled', false);
+        canSubmitPayment = true;
+
+		var error = '{{ trans('texts.error_refresh_page') }}';
+		if (data) {
+		    error = firstJSONError(data.responseJSON);
+		}
+
+		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
+	}
 
     function submitAction(action) {
         $('#action').val(action);

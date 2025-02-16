@@ -30,6 +30,8 @@
             vertical-align: top;
             white-space: normal;
             cursor: pointer;
+            max-height:70vh;
+            overflow-y: scroll;
         }
 
         .kanban-column-last {
@@ -736,7 +738,7 @@
                         <div class="view" data-bind="event: { click: startEditTask }">
                             <div class="panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
-                                <div data-bind="text: description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
+                                <div data-bind="text: description() &amp;&amp; description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
                             </div>
                         </div>
                         <div class="edit">
@@ -793,9 +795,11 @@
                         <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelNewStatus">
                             {{ trans('texts.cancel') }}
                         </button>
+                        <!--
                         <button type='button' class='btn btn-success btn-sm' data-bind="click: saveNewStatus">
                             {{ trans('texts.save') }}
                         </button>
+                        -->
                     </div>
                 </div>
             </div>

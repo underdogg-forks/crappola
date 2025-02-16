@@ -1,9 +1,12 @@
 Install
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Thanks for taking the time to setup Invoice Ninja.
 
-.. Note:: The applications requires PHP >= 7.0.0 and MySQL.
+.. Note:: The applications requires PHP 7.1 or 7.2 and MySQL.
 
 Detailed Guides
 ^^^^^^^^^^^^^^^
@@ -16,12 +19,15 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
-Automated Installers
-^^^^^^^^^^^^^^^^^^^^
+- HostGator: `carlosthomas.net <https://carlosthomas.net/blog/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+
+
+Automatic Install/Update
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ansible: `github.com <https://github.com/invoiceninja/ansible-installer>`_
 
-- Dockerfile: `github.com <https://github.com/invoiceninja/dockerfiles>`_
+- Dockerfile: `docker.com <https://hub.docker.com/r/invoiceninja/invoiceninja/>`_
 
 - Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
 
@@ -29,8 +35,8 @@ Automated Installers
 
 .. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
 
-Steps to Install
-^^^^^^^^^^^^^^^^
+Manual Install
+^^^^^^^^^^^^^^
 
 Step 1: Download the code
 """""""""""""""""""""""""
@@ -39,11 +45,9 @@ You can either download the zip file below or checkout the code from our GitHub 
 
 https://download.invoiceninja.com
 
-.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
+.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $30 per year white-label license to remove our branding.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
-
-- Roadmap: `trello.com/b/63BbiVVe/invoice-ninja <https://trello.com/b/63BbiVVe/invoice-ninja>`_
 
 Step 2: Upload the code to your server
 """"""""""""""""""""""""""""""""""""""
@@ -74,12 +78,17 @@ See the guides listed above for detailed information on configuring Apache or Ng
 
 Once you can access the site the initial setup screen will enable you to configure the database and email settings as well as create the initial admin user.
 
-.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
+.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file. There is more info `here <https://www.invoiceninja.com/forums/topic/clean-4-4-3-self-hosted-install-url-configuration-clarification/#post-14186>`_.
 
-Step 5: Enable auto updates
+Step 5: Configure the application
+"""""""""""""""""""""""""""""""""
+
+See the `details here <https://invoice-ninja.readthedocs.io/en/latest/configure.html>`_ for additional configuration options.
+
+Step 6: Enable auto updates
 """""""""""""""""""""""""""
 
-Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.
+Use this `shell script <https://github.com/titan-fail/Ninja_Update>`_ to automate the update process.
 
 You can run it as a daily cron to automatically keep your app up to date.
 
@@ -87,6 +96,7 @@ Troubleshooting
 ^^^^^^^^^^^^^^^
 
 - Check your webserver log (ie, /var/log/apache2/error.log) and the application logs (storage/logs/laravel-error.log) for more details or set ``APP_DEBUG=true`` in .env
+- If you see "Whoops, looks like something went wrong" this `blog post <https://bobcares.com/blog/laravel-something-went-wrong/>`_ may be helpful.
 - To resolve ``[Symfony\Component\Debug\Exception\FatalErrorException] Class 'SomeClass' not found`` try running php artisan optimize
 - To resolve ``file_put_contents(...): failed to open stream: Permission denied`` run ``chmod -R 777 storage`` then ``chmod -R 755 storage``
 - If index.php is in the URL it likely means that mod_rewrite needs to be enabled.
@@ -94,3 +104,12 @@ Troubleshooting
 - If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `here <https://stackoverflow.com/a/37266353/497368>`_ may help.
+- To support invoices with many line items you may need to increase the value of max_input_vars in the php.ini file.
+- Some webservers run filtering software which can cause errors, you can test adding this code to your .htaccess file to test if it's related.
+
+.. code-block:: shell
+
+   <IfModule mod_security.c>
+     SecFilterEngine Off
+     SecFilterScanPOST Off
+   </IfModule>

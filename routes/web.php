@@ -1,6 +1,9 @@
 <?php
 
 // Application setup
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Route;
+
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
 Route::get('/install', 'AppController@install');
@@ -13,6 +16,20 @@ Route::get('/invoice_now', 'HomeController@invoiceNow');
 Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
 
+// Client auth
+Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
+Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogoutWrapper']);
+Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
+Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
+Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
+
+Route::group(['middleware' => ['lookup:contact']], function () {
+    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
+    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
+    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
+    Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
+});
+
 // Client visible pages
 Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
@@ -23,7 +40,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
-    Route::post('payment/{invitation_key}/{gateway_type?}', 'OnlinePaymentController@doPayment');
+    Route::post('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@doPayment');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
@@ -97,20 +114,6 @@ Route::group(['middleware' => ['lookup:user']], function () {
     Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@reset']);
 });
 
-// Client auth
-Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
-Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogoutWrapper']);
-Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
-Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
-Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
-
-Route::group(['middleware' => ['lookup:contact']], function () {
-    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
-    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
-    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
-    Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
-});
-
 if (Utils::isSelfHost()) {
     Route::get('/run_command', 'AppController@runCommand');
 }
@@ -123,7 +126,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user', 'migration_channel:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
@@ -147,6 +150,22 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
+
+    Route::get('migration/start', 'Migration\StepsController@start');
+    Route::post('migration/type', 'Migration\StepsController@handleType');
+    Route::get('migration/download', 'Migration\StepsController@download');
+    Route::post('migration/download', 'Migration\StepsController@handleDownload');
+    Route::get('migration/endpoint', 'Migration\StepsController@endpoint');
+    Route::post('migration/endpoint', 'Migration\StepsController@handleEndpoint');
+    Route::get('migration/auth', 'Migration\StepsController@auth');
+    Route::post('migration/auth', 'Migration\StepsController@handleAuth');
+    Route::get('migration/companies', 'Migration\StepsController@companies');
+    Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
+    Route::get('migration/completed', 'Migration\StepsController@completed');
+    Route::post('migration/forward', 'Migration\StepsController@forwardUrl');
+    Route::get('migration/disable_forward', 'Migration\StepsController@disableForwarding');
+
+    Route::get('migration/import', 'Migration\StepsController@import');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
@@ -299,7 +318,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 });
 
 Route::group([
-    'middleware' => ['lookup:user', 'auth:user', 'permissions.required'],
+    'middleware'  => ['lookup:user', 'auth:user', 'permissions.required'],
     'permissions' => 'admin',
 ], function () {
     Route::get('api/users', 'UserController@getDatatable');

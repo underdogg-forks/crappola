@@ -55,6 +55,7 @@
         </div>
     </div>
 
+    @if(Auth::user()->canCreateOrEdit(ENTITY_PROPOSAL, $proposal))
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))
                 ->appendIcon(Icon::create('remove-circle'))
@@ -81,6 +82,7 @@
         @endif
 
     </center>
+    @endif
 
     {!! Former::close() !!}
 
@@ -145,6 +147,7 @@
         }
 
         invoice.account = {!! auth()->user()->account->load('country') !!};
+        invoice.contact = invoice.client.contacts[0];
 
         var regExp = new RegExp(/\$[a-z][\w\.]*/g);
         var matches = html.match(regExp);

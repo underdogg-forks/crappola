@@ -3,35 +3,33 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class UpdateSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $this->command->info('Running UpdateSeeder...');
 
-        $this->call('CountriesSeeder');
-        $this->call('PaymentLibrariesSeeder');
-        $this->call('FontsSeeder');
-        $this->call('GatewayTypesSeeder');
-        $this->call('BanksSeeder');
-        $this->call('InvoiceStatusSeeder');
-        $this->call('PaymentStatusSeeder');
-        $this->call('CurrenciesSeeder');
-        $this->call('DateFormatsSeeder');
-        $this->call('InvoiceDesignsSeeder');
-        $this->call('ProposalTemplatesSeeder');
-        $this->call('PaymentTermsSeeder');
-        $this->call('PaymentTypesSeeder');
-        $this->call('LanguageSeeder');
-        $this->call('IndustrySeeder');
-        $this->call('FrequencySeeder');
-        $this->call('DbServerSeeder');
+        $this->call([
+            CountriesSeeder::class,
+            PaymentLibrariesSeeder::class,
+            FontsSeeder::class,
+            GatewayTypesSeeder::class,
+            BanksSeeder::class,
+            InvoiceStatusSeeder::class,
+            PaymentStatusSeeder::class,
+            CurrenciesSeeder::class,
+            DateFormatsSeeder::class,
+            InvoiceDesignsSeeder::class,
+            ProposalTemplatesSeeder::class,
+            PaymentTermsSeeder::class,
+            PaymentTypesSeeder::class,
+            LanguageSeeder::class,
+            IndustrySeeder::class,
+            FrequencySeeder::class,
+            DbServerSeeder::class,
+        ]);
 
         Cache::flush();
     }

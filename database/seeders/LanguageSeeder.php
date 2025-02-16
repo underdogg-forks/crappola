@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         // https://github.com/caouecs/Laravel-lang
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
@@ -41,6 +42,12 @@ class LanguageSeeder extends Seeder
             ['name' => 'Romanian', 'locale' => 'ro'],
             ['name' => 'Turkish - Turkey', 'locale' => 'tr_TR'],
             ['name' => 'Thai', 'locale' => 'th'],
+            ['name' => 'Macedonian', 'locale' => 'mk_MK'],
+            ['name' => 'Chinese - Taiwan', 'locale' => 'zh_TW'],
+            ['name' => 'English - Australia', 'locale' => 'en_AU'],
+            ['name' => 'Serbian', 'locale' => 'sr_RS'],
+            ['name' => 'Bulgarian', 'locale' => 'bg'],
+            ['name' => 'Russian', 'locale' => 'ru_RU'],
         ];
 
         foreach ($languages as $language) {
@@ -53,6 +60,6 @@ class LanguageSeeder extends Seeder
             }
         }
 
-        Eloquent::reguard();
+        Model::reguard();
     }
 }

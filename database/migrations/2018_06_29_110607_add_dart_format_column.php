@@ -4,34 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+class AddDartFormatColumn extends Migration
+{
+    public function up()
     {
-        Schema::table('date_formats', function (Blueprint $table): void {
-            $table->string('format_dart');
-        });
-        Schema::table('datetime_formats', function (Blueprint $table): void {
-            $table->string('format_dart');
-        });
+        Schema::table('date_formats', function (Blueprint $table) {});
+        Schema::table('datetime_formats', function (Blueprint $table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('date_formats', function (Blueprint $table): void {
+        Schema::table('date_formats', function (Blueprint $table) {
             $table->dropColumn('format_dart');
         });
-        Schema::table('datetime_formats', function (Blueprint $table): void {
+        Schema::table('datetime_formats', function (Blueprint $table) {
             $table->dropColumn('format_dart');
         });
     }
-};
+}

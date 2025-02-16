@@ -1,7 +1,6 @@
 <?php
 
 use Faker\Factory;
-use Codeception\Util\Fixtures;
 
 class ExpenseCest
 {
@@ -47,9 +46,9 @@ class ExpenseCest
         $vendorId = $I->grabFromDatabase('vendors', 'id', ['name' => $vendorName]);
         $categoryId = $I->grabFromDatabase('expense_categories', 'id', ['name' => $categoryName]);
         $I->seeInDatabase('expenses', [
-            'client_id' => $clientId,
-            'vendor_id' => $vendorId,
-            'expense_category_id' => $categoryId
+            'client_id'           => $clientId,
+            'vendor_id'           => $vendorId,
+            'expense_category_id' => $categoryId,
         ]);
 
         // invoice expense

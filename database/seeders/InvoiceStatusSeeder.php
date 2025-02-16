@@ -3,17 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class InvoiceStatusSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createInvoiceStatuses();
 
-        Eloquent::reguard();
+        Model::reguard();
     }
 
     private function createInvoiceStatuses()

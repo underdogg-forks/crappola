@@ -19,22 +19,8 @@ class InvoiceItem extends EntityModel
      */
     protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
 
-    /**
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_INVOICE_ITEM;
-    }
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
@@ -44,17 +30,19 @@ class InvoiceItem extends EntityModel
         'discount',
     ];
 
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
@@ -139,9 +127,9 @@ class InvoiceItem extends EntityModel
 
         if ($this->discount != 0) {
             if ($this->invoice->is_amount_discount) {
-                $cost -= $discount / $this->qty;
+                $cost -= $this->discount / $this->qty;
             } else {
-                $cost -= $cost * $discount / 100;
+                $cost -= $cost * $this->discount / 100;
             }
         }
 

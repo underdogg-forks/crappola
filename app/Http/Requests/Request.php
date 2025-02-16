@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Libraries\Utils;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Response;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
 abstract class Request extends FormRequest
@@ -22,7 +24,9 @@ abstract class Request extends FormRequest
     public function validator($factory)
     {
         return $factory->make(
-            $this->sanitizeInput(), $this->container->call([$this, 'rules']), $this->messages()
+            $this->sanitizeInput(),
+            $this->container->call([$this, 'rules']),
+            $this->messages()
         );
     }
 
@@ -54,22 +58,20 @@ abstract class Request extends FormRequest
         return $this->all();
     }
 
-    public function response(array $errors)
+    protected function failedValidation(Validator $validator)
     {
-        /* If the user is not validating from a mobile app - pass through parent::response */
-        if (! request()->api_secret) {
-            return parent::response($errors);
+        // If the user is not validating from a mobile app - pass through parent::response
+        if ( ! request()->api_secret) {
+            parent::failedValidation($validator);
         }
 
-        /* If the user is validating from a mobile app - pass through first error string and return error */
-        foreach ($errors as $error) {
-            foreach ($error as $key => $value) {
-                $message['error'] = ['message' => $value];
-                $message = json_encode($message, JSON_PRETTY_PRINT);
-                $headers = Utils::getApiHeaders();
+        // If the user is validating from a mobile app - pass through first error string and return error
+        if ($value = $validator->getMessageBag()->first()) {
+            $message['error'] = ['message' => $value];
+            $message = json_encode($message, JSON_PRETTY_PRINT);
+            $headers = Utils::getApiHeaders();
 
-                return Response::make($message, 400, $headers);
-            }
+            throw new ValidationException($validator, Response::make($message, 400, $headers));
         }
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Models\RecurringExpense;
+use App\Libraries\Utils;
 use App\Models\Expense;
-use App\Models\Vendor;
-use Auth;
+use App\Models\RecurringExpense;
 use DB;
-use Utils;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RecurringExpenseRepository extends BaseRepository
 {
@@ -20,72 +20,71 @@ class RecurringExpenseRepository extends BaseRepository
     public function all()
     {
         return RecurringExpense::scope()
-                ->with('user')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
-                ->get();
+            ->with('user')
+            ->withTrashed()
+            ->where('is_deleted', '=', false)
+            ->get();
     }
 
     public function find($filter = null)
     {
-        $accountid = \Auth::user()->account_id;
+        $accountid = Auth::user()->account_id;
         $query = DB::table('recurring_expenses')
-                    ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
-                    ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
-                    ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->leftjoin('vendors', 'vendors.id', '=', 'recurring_expenses.vendor_id')
-                    ->join('frequencies', 'frequencies.id', '=', 'recurring_expenses.frequency_id')
-                    ->leftJoin('expense_categories', 'recurring_expenses.expense_category_id', '=', 'expense_categories.id')
-                    ->where('recurring_expenses.account_id', '=', $accountid)
-                    ->where('contacts.deleted_at', '=', null)
-                    ->where('vendors.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)
-                    ->where(function ($query) { // handle when client isn't set
-                        $query->where('contacts.is_primary', '=', true)
-                              ->orWhere('contacts.is_primary', '=', null);
-                    })
-                    ->select(
-                        'recurring_expenses.account_id',
-                        'recurring_expenses.amount',
-                        'recurring_expenses.deleted_at',
-                        'recurring_expenses.id',
-                        'recurring_expenses.is_deleted',
-                        'recurring_expenses.private_notes',
-                        'recurring_expenses.public_id',
-                        'recurring_expenses.public_notes',
-                        'recurring_expenses.should_be_invoiced',
-                        'recurring_expenses.vendor_id',
-                        'recurring_expenses.expense_currency_id',
-                        'recurring_expenses.invoice_currency_id',
-                        'recurring_expenses.user_id',
-                        'recurring_expenses.tax_rate1',
-                        'recurring_expenses.tax_rate2',
-                        'recurring_expenses.private_notes',
-                        'frequencies.name as frequency',
-                        'expense_categories.name as category',
-                        'expense_categories.user_id as category_user_id',
-                        'expense_categories.public_id as category_public_id',
-                        'vendors.name as vendor_name',
-                        'vendors.public_id as vendor_public_id',
-                        'vendors.user_id as vendor_user_id',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                        'clients.public_id as client_public_id',
-                        'clients.user_id as client_user_id',
-                        'contacts.first_name',
-                        'contacts.email',
-                        'contacts.last_name',
-                        'clients.country_id as client_country_id'
-                    );
+            ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
+            ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
+            ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
+            ->leftjoin('vendors', 'vendors.id', '=', 'recurring_expenses.vendor_id')
+            ->join('frequencies', 'frequencies.id', '=', 'recurring_expenses.frequency_id')
+            ->leftJoin('expense_categories', 'recurring_expenses.expense_category_id', '=', 'expense_categories.id')
+            ->where('recurring_expenses.account_id', '=', $accountid)
+            ->where('contacts.deleted_at', '=', null)
+            ->where('vendors.deleted_at', '=', null)
+            ->where('clients.deleted_at', '=', null)
+            ->where(function ($query) { // handle when client isn't set
+                $query->where('contacts.is_primary', '=', true)
+                    ->orWhere('contacts.is_primary', '=', null);
+            })
+            ->select(
+                'recurring_expenses.account_id',
+                'recurring_expenses.amount',
+                'recurring_expenses.deleted_at',
+                'recurring_expenses.id',
+                'recurring_expenses.is_deleted',
+                'recurring_expenses.private_notes',
+                'recurring_expenses.public_id',
+                'recurring_expenses.public_notes',
+                'recurring_expenses.should_be_invoiced',
+                'recurring_expenses.vendor_id',
+                'recurring_expenses.expense_currency_id',
+                'recurring_expenses.invoice_currency_id',
+                'recurring_expenses.user_id',
+                'recurring_expenses.tax_rate1',
+                'recurring_expenses.tax_rate2',
+                'recurring_expenses.private_notes',
+                'frequencies.name as frequency',
+                'expense_categories.name as category',
+                'expense_categories.user_id as category_user_id',
+                'expense_categories.public_id as category_public_id',
+                'vendors.name as vendor_name',
+                'vendors.public_id as vendor_public_id',
+                'vendors.user_id as vendor_user_id',
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                'clients.public_id as client_public_id',
+                'clients.user_id as client_user_id',
+                'contacts.first_name',
+                'contacts.email',
+                'contacts.last_name',
+                'clients.country_id as client_country_id'
+            );
 
         $this->applyFilters($query, ENTITY_RECURRING_EXPENSE);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('recurring_expenses.public_notes', 'like', '%'.$filter.'%')
-                      ->orWhere('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('vendors.name', 'like', '%'.$filter.'%')
-                      ->orWhere('expense_categories.name', 'like', '%'.$filter.'%');
-                ;
+                $query->where('recurring_expenses.public_notes', 'like', '%' . $filter . '%')
+                    ->orWhere('clients.name', 'like', '%' . $filter . '%')
+                    ->orWhere('vendors.name', 'like', '%' . $filter . '%')
+                    ->orWhere('expense_categories.name', 'like', '%' . $filter . '%');
             });
         }
 
@@ -94,14 +93,14 @@ class RecurringExpenseRepository extends BaseRepository
 
     public function save($input, $expense = null)
     {
-        $publicId = isset($input['public_id']) ? $input['public_id'] : false;
+        $publicId = $input['public_id'] ?? false;
 
         if ($expense) {
             // do nothing
         } elseif ($publicId) {
             $expense = RecurringExpense::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
-                \Log::warning('Entity not set in expense repo save');
+                Log::warning('Entity not set in expense repo save');
             }
         } else {
             $expense = RecurringExpense::createNew();
@@ -115,7 +114,7 @@ class RecurringExpenseRepository extends BaseRepository
         $expense->fill($input);
 
         if (isset($input['start_date'])) {
-            if ($expense->exists && $expense->start_date && $expense->start_date != Utils::toSqlDate($input['start_date'])) {
+            if ($expense->exists && ! $expense->deleted_at && $expense->start_date && $expense->start_date != Utils::toSqlDate($input['start_date'])) {
                 $expense->last_sent_date = null;
             }
             $expense->start_date = Utils::toSqlDate($input['start_date']);
@@ -124,8 +123,8 @@ class RecurringExpenseRepository extends BaseRepository
             $expense->end_date = Utils::toSqlDate($input['end_date']);
         }
 
-        if (! $expense->expense_currency_id) {
-            $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
+        if ( ! $expense->expense_currency_id) {
+            $expense->expense_currency_id = Auth::user()->account->getCurrencyId();
         }
 
         /*
@@ -150,11 +149,11 @@ class RecurringExpenseRepository extends BaseRepository
             return false;
         }
 
-        if (! $recurringExpense->user->confirmed) {
+        if ( ! $recurringExpense->user->confirmed) {
             return false;
         }
 
-        if (! $recurringExpense->shouldSendToday()) {
+        if ( ! $recurringExpense->shouldSendToday()) {
             return false;
         }
 
@@ -178,7 +177,7 @@ class RecurringExpenseRepository extends BaseRepository
         ];
 
         foreach ($fields as $field) {
-            $expense->$field = $recurringExpense->$field;
+            $expense->{$field} = $recurringExpense->{$field};
         }
 
         $expense->expense_date = $account->getDateTime()->format('Y-m-d');

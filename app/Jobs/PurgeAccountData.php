@@ -2,13 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Models\Document;
 use App\Models\LookupAccount;
-use Auth;
+use App\Ninja\Mailers\UserMailer;
 use DB;
 use Exception;
-use App\Ninja\Mailers\UserMailer;
+use Illuminate\Support\Facades\Auth;
 
 class PurgeAccountData extends Job
 {
@@ -22,7 +21,7 @@ class PurgeAccountData extends Job
         $user = Auth::user();
         $account = $user->account;
 
-        if (! $user->is_admin) {
+        if ( ! $user->is_admin) {
             throw new Exception(trans('texts.forbidden'));
         }
 

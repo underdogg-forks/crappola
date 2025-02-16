@@ -1,6 +1,5 @@
 /<?php
 
-use Codeception\Util\Fixtures;
 use Faker\Factory;
 
 class OnlinePaymentCest
@@ -62,5 +61,5 @@ class OnlinePaymentCest
         $invoiceId = $I->grabFromDatabase('invoices', 'public_id', ['recurring_invoice_id' => $invoiceId]);
 
         $I->seeInDatabase('invoices', ['client_id' => $clientId, 'public_id' => $invoiceId, 'balance' => 0]);
-   }
+    }
 }

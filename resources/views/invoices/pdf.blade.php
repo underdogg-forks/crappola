@@ -1,12 +1,13 @@
 @if (empty($hide_pdf))
-<object id="pdfObject" type="application/pdf" style="display:block;background-color:#525659;border:solid 2px #9a9a9a;" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></object>
+<object id="pdfObject" style="display:block;background-color:#525659;border:solid 2px #9a9a9a;" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></object>
 <div id="pdfCanvas" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
     <canvas id="theCanvas" style="max-width:100%;border:solid 1px #CCCCCC;"></canvas>
 </div>
 <canvas id="signatureCanvas" style="display:none;"></canvas>
 @endif
 
-@if (!Utils::isNinja() || !Utils::isPro())
+@if (!Utils::isPro() && !request()->borderless)
+<br/>
 <div class="modal fade" id="moreDesignsModal" tabindex="-1" role="dialog" aria-labelledby="moreDesignsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

@@ -1,26 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddPdfmakeSupport extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('invoice_designs', function ($table) {
-            $table->mediumText('pdfmake')->nullable();
-        });
+        Schema::table('invoice_designs', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('invoice_designs', function ($table) {

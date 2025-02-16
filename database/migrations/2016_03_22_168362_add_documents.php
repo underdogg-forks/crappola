@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddDocuments extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('accounts', function ($table) {
@@ -20,15 +17,15 @@ class AddDocuments extends Migration
             $table->boolean('document_email_attachment')->default(0);
         });
 
-        \DB::table('accounts')->update(['logo' => '']);
+        DB::table('accounts')->update(['logo' => '']);
         Schema::dropIfExists('documents');
         Schema::create('documents', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('public_id')->nullable();
             $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
             $t->unsignedInteger('invoice_id')->nullable();
             $t->unsignedInteger('expense_id')->nullable();
+            $t->unsignedInteger('user_id');
             $t->string('path');
             $t->string('preview');
             $t->string('name');
@@ -50,11 +47,6 @@ class AddDocuments extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('accounts', function ($table) {

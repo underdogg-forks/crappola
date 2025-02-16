@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ClientDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CLIENT;
+
     public $sortCol = 4;
 
     public function columns()
@@ -18,6 +19,7 @@ class ClientDatatable extends EntityDatatable
                 'name',
                 function ($model) {
                     $str = link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
+
                     return $this->addNote($str, $model->private_notes);
                 },
             ],
@@ -38,7 +40,7 @@ class ClientDatatable extends EntityDatatable
                 function ($model) {
                     return $model->id_number;
                 },
-                Auth::user()->account->clientNumbersEnabled()
+                Auth::user()->account->clientNumbersEnabled(),
             ],
             [
                 'client_created_at',
@@ -67,10 +69,12 @@ class ClientDatatable extends EntityDatatable
             [
                 trans('texts.edit_client'),
                 function ($model) {
-                    return URL::to("clients/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_CLIENT, $model->user_id]);
+                    if(Auth::user()->can('edit', [ENTITY_CLIENT, $model])) {
+                        return URL::to("clients/{$model->public_id}/edit");
+                    }
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                        return URL::to("clients/{$model->public_id}");
+                    }
                 },
             ],
             [
@@ -78,9 +82,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    $user = Auth::user();
-
-                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
+                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE));
                 },
             ],
             [
@@ -115,9 +117,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    $user = Auth::user();
-
-                    return ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create', ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));
+                    return (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)) && (Auth::user()->can('create', ENTITY_PAYMENT) || Auth::user()->can('create', ENTITY_CREDIT) || Auth::user()->can('create', ENTITY_EXPENSE));
                 },
             ],
             [

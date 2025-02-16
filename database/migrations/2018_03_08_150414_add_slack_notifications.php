@@ -1,16 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSlackNotifications extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('activities', function ($table) {
@@ -20,7 +15,7 @@ class AddSlackNotifications extends Migration
 
         DB::statement('UPDATE activities SET client_id = NULL WHERE client_id = 0');
 
-        if (! Schema::hasColumn('users', 'slack_webhook_url')) {
+        if ( ! Schema::hasColumn('users', 'slack_webhook_url')) {
             Schema::table('users', function ($table) {
                 $table->string('slack_webhook_url')->nullable();
                 $table->string('accepted_terms_version')->nullable();
@@ -29,7 +24,7 @@ class AddSlackNotifications extends Migration
             });
         }
 
-        if (! Schema::hasColumn('accounts', 'auto_archive_invoice')) {
+        if ( ! Schema::hasColumn('accounts', 'auto_archive_invoice')) {
             Schema::table('accounts', function ($table) {
                 $table->boolean('auto_archive_invoice')->default(false)->nullable();
                 $table->boolean('auto_archive_quote')->default(false)->nullable();
@@ -86,11 +81,6 @@ class AddSlackNotifications extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('users', function ($table) {

@@ -1,28 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddEmailTemplates extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            $table->text('email_template_invoice')->nullable();
-            $table->text('email_template_quote')->nullable();
-            $table->text('email_template_payment')->nullable();
-        });
+        Schema::table('accounts', function ($table) {});
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         if (Schema::hasColumn('accounts', 'email_template_invoice')) {

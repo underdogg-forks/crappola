@@ -3,17 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\PaymentStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentStatusSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createPaymentStatuses();
 
-        Eloquent::reguard();
+        Model::reguard();
     }
 
     private function createPaymentStatuses()

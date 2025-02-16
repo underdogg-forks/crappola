@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\Utils;
 use Closure;
 use DB;
 use Illuminate\Http\Request;
-use Log;
-use Utils;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class QueryLogging.
@@ -33,12 +33,12 @@ class QueryLogging
 
         if (Utils::isNinjaDev()) {
             // hide requests made by debugbar
-            if (strstr($request->url(), '_debugbar') === false) {
+            if (mb_strstr($request->url(), '_debugbar') === false) {
                 $queries = DB::getQueryLog();
                 $count = count($queries);
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
-                Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
+                Log::info($request->method() . ' - ' . $request->url() . ": {$count} queries - " . $time);
                 //Log::info($queries);
             }
         }

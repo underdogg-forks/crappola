@@ -2,13 +2,14 @@
 
 namespace App\Ninja\Datatables;
 
-use Auth;
+use App\Libraries\Utils;
+use Illuminate\Support\Facades\Auth;
 use URL;
-use Utils;
 
 class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
+
     public $sortCol = 1;
 
     public function columns()
@@ -17,26 +18,25 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
-                        return $model->project;
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model])) {
+                        return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
                     }
 
-                    $str = link_to("projects/{$model->public_id}", $model->project)->toHtml();
-                    return $this->addNote($str, $model->private_notes);
+                    return $model->project;
                 },
             ],
             [
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
-                            return Utils::getClientDisplayName($model);
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model])) {
+                            return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
                         }
 
-                        return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
-                    } else {
-                        return '';
+                        return Utils::getClientDisplayName($model);
                     }
+
+                    return '';
                 },
             ],
             [
@@ -54,8 +54,8 @@ class ProjectDatatable extends EntityDatatable
             [
                 'task_rate',
                 function ($model) {
-                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
-                }
+                    return (float) ($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
+                },
             ],
         ];
     }
@@ -69,7 +69,7 @@ class ProjectDatatable extends EntityDatatable
                     return URL::to("projects/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_PROJECT, $model]);
                 },
             ],
             [

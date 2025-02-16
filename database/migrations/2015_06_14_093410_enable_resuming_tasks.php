@@ -1,33 +1,24 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class EnableResumingTasks extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('tasks', function ($table) {
-            $table->boolean('is_running')->default(false);
-            $table->integer('break_duration')->nullable();
-            $table->timestamp('resume_time')->nullable();
-            $table->text('time_log')->nullable();
-        });
+        Schema::table('tasks', function ($table) {});
 
         $tasks = DB::table('tasks')
-                    ->where('duration', '=', -1)
-                    ->select('id', 'duration', 'start_time')
-                    ->get();
+            ->where('duration', '=', -1)
+            ->select('id', 'duration', 'start_time')
+            ->get();
 
         foreach ($tasks as $task) {
             $data = [
                 'is_running' => true,
-                'duration' => 0,
-                
+                'duration'   => 0,
             ];
 
             DB::table('tasks')
@@ -36,11 +27,6 @@ class EnableResumingTasks extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('tasks', function ($table) {

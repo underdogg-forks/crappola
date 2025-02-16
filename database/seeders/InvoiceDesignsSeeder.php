@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceDesign;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class InvoiceDesignsSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $designs = [
             'Clean',
@@ -26,12 +27,12 @@ class InvoiceDesignsSeeder extends Seeder
 
         for ($i = 0; $i < count($designs); $i++) {
             $design = $designs[$i];
-            $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
+            $fileName = storage_path() . '/templates/' . mb_strtolower($design) . '.js';
             if (file_exists($fileName)) {
                 $pdfmake = file_get_contents($fileName);
                 if ($pdfmake) {
                     $record = InvoiceDesign::whereName($design)->first();
-                    if (! $record) {
+                    if ( ! $record) {
                         $record = new InvoiceDesign();
                         $record->id = $i + 1;
                         $record->name = $design;
@@ -51,7 +52,7 @@ class InvoiceDesignsSeeder extends Seeder
             }
 
             InvoiceDesign::create([
-                'id' => $id,
+                'id'   => $id,
                 'name' => $name,
             ]);
         }

@@ -12,8 +12,8 @@
 
 {!! Form::open(array('url' => 'get_started', 'id' => 'startForm')) !!}
 {!! Form::hidden('guest_key') !!}
-{!! Form::hidden('sign_up', Input::get('sign_up')) !!}
-{!! Form::hidden('redirect_to', Input::get('redirect_to')) !!}
+{!! Form::hidden('sign_up', \Request::input('sign_up')) !!}
+{!! Form::hidden('redirect_to', \Request::input('redirect_to')) !!}
 {!! Form::close() !!}
 
 <script>
@@ -121,7 +121,7 @@
                     @endif
                     @if ($account->enable_portal_password && request()->contact->password)
                         <li>
-                            {!! link_to('/client/logout', trans('texts.logout')) !!}
+                            {!! link_to('/client/logout?account_key=' . $account->account_key, trans('texts.logout')) !!}
                         </li>
                     @endif
                 @elseif (! empty($account))

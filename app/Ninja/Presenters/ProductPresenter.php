@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
-use DropdownButton;
 use App\Libraries\Skype\HeroCard;
+use DropdownButton;
 
 class ProductPresenter extends EntityPresenter
 {
@@ -29,7 +29,7 @@ class ProductPresenter extends EntityPresenter
         $product = $this->entity;
         $actions = [];
 
-        if (! $product->trashed()) {
+        if ( ! $product->trashed()) {
             if (auth()->user()->can('create', ENTITY_PRODUCT)) {
                 $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_product')];
             }
@@ -39,15 +39,14 @@ class ProductPresenter extends EntityPresenter
             if (count($actions)) {
                 $actions[] = DropdownButton::DIVIDER;
             }
-            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans("texts.archive_product")];
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_product')];
         } else {
-            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans("texts.restore_product")];
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_product')];
         }
-        if (! $product->is_deleted) {
-            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_product")];
+        if ( ! $product->is_deleted) {
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_product')];
         }
 
         return $actions;
     }
-
 }
