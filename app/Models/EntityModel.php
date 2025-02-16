@@ -459,4 +459,9 @@ class EntityModel extends Eloquent
 
         return 1;
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

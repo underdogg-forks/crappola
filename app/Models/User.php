@@ -416,6 +416,31 @@ class User extends Authenticatable
     {
         return null === $this->public_id || $this->public_id == 0;
     }
+
+    public function permissionsMap()
+    {
+        $data = [];
+        $permissions = json_decode($this->permissions);
+
+        if (! $permissions) {
+            return $data;
+        }
+
+        $keys = array_values((array) $permissions);
+        $values = array_fill(0, count($keys), true);
+
+        return array_combine($keys, $values);
+    }
+
+    public function eligibleForMigration()
+    {
+        return is_null($this->public_id) || $this->public_id == 0;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
 
 User::created(function ($user) {

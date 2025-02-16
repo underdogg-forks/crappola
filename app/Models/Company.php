@@ -216,6 +216,11 @@ class Company extends Eloquent
     {
         return $date->format('Y-m-d H:i:s');
     }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }
 
 Company::deleted(function ($company) {
