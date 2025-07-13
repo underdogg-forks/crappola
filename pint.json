@@ -1,6 +1,7 @@
 {
     "preset": "per",
     "exclude": [
+        "application/views/**/pdf/",
         "resources",
         "storage"
     ],
@@ -15,7 +16,7 @@
         "binary_operator_spaces": {
             "default": "single_space",
             "operators": {
-                "=": "align_single_space_minimal"
+                "=": "align_single_space_minimal",
                 "=>": "align_single_space_minimal"
             }
         },
@@ -151,7 +152,7 @@
         "self_accessor": true,
         "simplified_if_return": true,
         "simplified_null_return": true,
-        "single_line_comment_style": true,
+        "single_line_comment_style": false,
         "single_quote": true,
         "space_after_semicolon": true,
         "standardize_not_equals": true,
@@ -164,7 +165,7 @@
         },
         "trim_array_spaces": true,
         "use_arrow_functions": false,
-        "void_return": true,
+        "void_return": false,
         "whitespace_after_comma_in_array": true,
         "yoda_style": false
     }

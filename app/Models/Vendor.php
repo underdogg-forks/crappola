@@ -221,7 +221,7 @@ class Vendor extends EntityModel
     {
         $publicId = $data['public_id'] ?? ($data['id'] ?? false);
 
-        if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
+        if (! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = VendorContact::scope($publicId)->whereVendorId($this->id)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();
@@ -318,7 +318,7 @@ class Vendor extends EntityModel
             return $this->currency_id;
         }
 
-        if ( ! $this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -336,11 +336,6 @@ class Vendor extends EntityModel
             ->whereIsDeleted(false)
             ->groupBy('expense_currency_id')
             ->get();
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 
     protected function serializeDate(DateTimeInterface $date)

@@ -19,13 +19,11 @@
     "require": {
         "php": "^8.1",
         "ext-gd": "*",
-        "ext-gmp": "*",
         "ext-json": "*",
         "ext-zip": "*",
         "anahkiasen/former": ">=5",
         "asgrim/ofxparser": ">=1.1.1",
         "bacon/bacon-qr-code": ">=3.0.1",
-        "barracudanetworks/archivestream-php": ">=1.0.8",
         "barryvdh/laravel-cors": "*",
         "braintree/braintree_php": "^6.23",
         "cerdic/css-tidy": ">=2.2.1",

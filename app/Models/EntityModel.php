@@ -92,7 +92,7 @@ class EntityModel extends Eloquent
      */
     public static function getPrivateId($publicId)
     {
-        if ( ! $publicId) {
+        if (! $publicId) {
             return;
         }
 
@@ -112,7 +112,7 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
             }
@@ -132,7 +132,7 @@ class EntityModel extends Eloquent
      */
     public static function getTransformerName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
             }
@@ -151,7 +151,7 @@ class EntityModel extends Eloquent
      */
     public static function validate($data, $entityType = false, $entity = false)
     {
-        if ( ! $entityType) {
+        if (! $entityType) {
             $className = get_called_class();
             $entityBlank = new $className();
             $entityType = $entityBlank->getEntityType();
@@ -160,7 +160,7 @@ class EntityModel extends Eloquent
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
         $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
-        if ( ! class_exists($requestClass)) {
+        if (! class_exists($requestClass)) {
             $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
@@ -171,7 +171,7 @@ class EntityModel extends Eloquent
         $request->setEntity($entity);
         $request->replace($data);
 
-        if ( ! $request->authorize()) {
+        if (! $request->authorize()) {
             return trans('texts.not_allowed');
         }
 
@@ -299,7 +299,7 @@ class EntityModel extends Eloquent
             return $query;
         }
 
-        if ( ! $accountId) {
+        if (! $accountId) {
             $accountId = Auth::user()->account_id;
         }
 
@@ -313,11 +313,13 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && method_exists($this, 'getEntityType')
+        if (
+            Auth::check() && method_exists($this, 'getEntityType')
             && ! Auth::user()->hasPermission('view_' . $this->getEntityType())
             && $this->getEntityType() != ENTITY_TAX_RATE
             && $this->getEntityType() != ENTITY_DOCUMENT
-            && $this->getEntityType() != ENTITY_INVITATION) {
+            && $this->getEntityType() != ENTITY_INVITATION
+        ) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -458,10 +460,5 @@ class EntityModel extends Eloquent
         }
 
         return 1;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 }

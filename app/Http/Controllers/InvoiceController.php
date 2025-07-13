@@ -143,7 +143,7 @@ class InvoiceController extends BaseController
 
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
-        if ( ! Auth::user()->hasPermission('view_client')) {
+        if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
@@ -158,7 +158,8 @@ class InvoiceController extends BaseController
             'title'                => trans("texts.edit_{$entityType}"),
             'client'               => $invoice->client,
             'isRecurring'          => $invoice->is_recurring,
-            'lastSent'             => $lastSent, ];
+            'lastSent'             => $lastSent,
+        ];
         $data = array_merge($data, self::getViewModel($invoice));
 
         if ($invoice->isSent() && $invoice->getAutoBillEnabled() && ! $invoice->isPaid()) {
@@ -170,7 +171,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if ( ! $clone) {
+        if (! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {
@@ -218,11 +219,11 @@ class InvoiceController extends BaseController
         $invoice->loadFromRequest();
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
-        if ( ! Auth::user()->hasPermission('view_client')) {
+        if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
-        if($clientPublicId != 0) {
+        if ($clientPublicId != 0) {
             $clients->where('public_id', $clientPublicId);
         }
 
@@ -252,7 +253,6 @@ class InvoiceController extends BaseController
     public function store(CreateInvoiceRequest $request)
     {
         $data = $request->input();
-        dd($data);
 
         $data['documents'] = $request->file('documents');
 
@@ -437,7 +437,7 @@ class InvoiceController extends BaseController
         }
 
         // Show the current version as the last in the history
-        if ( ! $paymentId) {
+        if (! $paymentId) {
             $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
         }
 
@@ -608,7 +608,7 @@ class InvoiceController extends BaseController
             $account->setTemplateDefaults(Request::input('template_type'), $template['subject'], $template['body']);
         }
 
-        if ( ! Auth::user()->confirmed) {
+        if (! Auth::user()->confirmed) {
             if (Auth::user()->registered) {
                 $errorMessage = trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]);
             } else {
@@ -637,7 +637,7 @@ class InvoiceController extends BaseController
 
     private function emailRecurringInvoice(&$invoice)
     {
-        if ( ! $invoice->shouldSendToday()) {
+        if (! $invoice->shouldSendToday()) {
             if ($date = $invoice->getNextSendDate()) {
                 $date = $invoice->account->formatDate($date);
                 $date .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00 am ' . $invoice->account->getTimezone();

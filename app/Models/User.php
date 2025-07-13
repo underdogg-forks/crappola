@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Libraries\Utils;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -66,10 +67,12 @@ class User extends Authenticatable
 
     public static function onUpdatedUser($user)
     {
-        if ( ! $user->getOriginal('email')
+        if (
+            ! $user->getOriginal('email')
             || $user->getOriginal('email') == TEST_USERNAME
             || $user->getOriginal('username') == TEST_USERNAME
-            || $user->getOriginal('email') == 'tests@bitrock.com') {
+            || $user->getOriginal('email') == 'tests@bitrock.com'
+        ) {
             event(new UserSignedUp());
         }
 
@@ -273,7 +276,7 @@ class User extends Authenticatable
             return true;
         }
         if (is_string($permission)) {
-            if(is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
+            if (is_array(json_decode($this->permissions, 1)) && in_array($permission, json_decode($this->permissions, 1))) {
                 return true;
             }
         } elseif (is_array($permission)) {
@@ -289,7 +292,7 @@ class User extends Authenticatable
 
     public function viewModel($model, $entityType)
     {
-        if($this->hasPermission('view_' . $entityType)) {
+        if ($this->hasPermission('view_' . $entityType)) {
             return true;
         }
 
@@ -321,10 +324,10 @@ class User extends Authenticatable
 
     public function caddAddUsers()
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             return true;
         }
-        if ( ! $this->hasFeature(FEATURE_USERS)) {
+        if (! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -342,7 +345,7 @@ class User extends Authenticatable
     public function canCreateOrEdit($entityType, $entity = false)
     {
         return ($entity && $this->can('edit', $entity))
-            || ( ! $entity && $this->can('create', $entityType));
+            || (! $entity && $this->can('create', $entityType));
     }
 
     public function primaryAccount()
@@ -363,7 +366,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if ( ! NINJA_TERMS_VERSION) {
+        if (! NINJA_TERMS_VERSION) {
             return true;
         }
 
@@ -386,7 +389,7 @@ class User extends Authenticatable
 
     public function shouldNotify($invoice)
     {
-        if ( ! $this->email || ! $this->confirmed) {
+        if (! $this->email || ! $this->confirmed) {
             return false;
         }
 
@@ -395,26 +398,6 @@ class User extends Authenticatable
         }
 
         return ! ($this->only_notify_owned && ! $this->ownsEntity($invoice));
-    }
-
-    public function permissionsMap()
-    {
-        $data = [];
-        $permissions = json_decode($this->permissions);
-
-        if ( ! $permissions) {
-            return $data;
-        }
-
-        $keys = array_values((array) $permissions);
-        $values = array_fill(0, count($keys), true);
-
-        return array_combine($keys, $values);
-    }
-
-    public function eligibleForMigration()
-    {
-        return null === $this->public_id || $this->public_id == 0;
     }
 
     public function permissionsMap()
@@ -434,7 +417,7 @@ class User extends Authenticatable
 
     public function eligibleForMigration()
     {
-        return is_null($this->public_id) || $this->public_id == 0;
+        return null === $this->public_id || $this->public_id == 0;
     }
 
     protected function serializeDate(DateTimeInterface $date)
@@ -455,11 +438,13 @@ User::updating(function ($user) {
     User::onUpdatingUser($user);
 
     $dirty = $user->getDirty();
-    if (array_key_exists('email', $dirty)
+    if (
+        array_key_exists('email', $dirty)
         || array_key_exists('confirmation_code', $dirty)
         || array_key_exists('oauth_user_id', $dirty)
         || array_key_exists('oauth_provider_id', $dirty)
-        || array_key_exists('referral_code', $dirty)) {
+        || array_key_exists('referral_code', $dirty)
+    ) {
         LookupUser::updateUser($user->account->account_key, $user);
     }
 });
@@ -469,7 +454,7 @@ User::updated(function ($user) {
 });
 
 User::deleted(function ($user) {
-    if ( ! $user->email) {
+    if (! $user->email) {
         return;
     }
 

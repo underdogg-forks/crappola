@@ -45,7 +45,7 @@ class PaymentMethod extends EntityModel
 
         $dataPath = base_path('app/Ninja/PaymentDrivers/FedACHdir.txt');
 
-        if ( ! file_exists($dataPath) || ! $size = filesize($dataPath)) {
+        if (! file_exists($dataPath) || ! $size = filesize($dataPath)) {
             return 'Invalid data file';
         }
 
@@ -89,7 +89,7 @@ class PaymentMethod extends EntityModel
             }
         }
 
-        if ( ! empty($data)) {
+        if (! empty($data)) {
             Cache::put('bankData:' . $routingNumber, $data, 5 * 60);
 
             return $data;
@@ -150,7 +150,7 @@ class PaymentMethod extends EntityModel
      */
     public function getBankDataAttribute()
     {
-        if ( ! $this->routing_number) {
+        if (! $this->routing_number) {
             return;
         }
 
@@ -234,11 +234,6 @@ class PaymentMethod extends EntityModel
         }
 
         return GATEWAY_TYPE_TOKEN;
-    }
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
     }
 
     protected function serializeDate(DateTimeInterface $date)
