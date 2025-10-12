@@ -37,7 +37,7 @@ reviews:
     ignore_title_keywords: ['WIP', 'draft']
     labels: ['needs-review']
     drafts: false
-    base_branches: ['master', 'development']
+    base_branches: ['master', 'develop']
     ignore_usernames: ['dependabot', 'renovate']
     # ------------------------------------------------------------------------------------
 
