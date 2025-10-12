@@ -131,17 +131,20 @@ code_generation:
     path_instructions:
       - path: 'tests/Unit/**'
         instructions: |
-          Each test method must begin with `it_`  and is in snake_case.
+          Each test method must begin with `it_`.
+          Each test method is in snake_case, NOT camel case.
           Annotate each test method with `#[Test]`.
           Each test method must contain `$this->markTestIncomplete();` by default.
           Prefer Fakes and Fixtures over Mocks.
-          Structure tests with `it_` functions and place happy paths last.
+          Each test method has meaningful testlogic in the Arrange, Act, Assert form.
           Reusable logic (e.g., fixtures) must reside in an abstract test case.
       - path: 'tests/Feature/**'
         instructions: |
-          Each test method must begin with `it_` and is in snake_case.
+          Each test method must begin with `it_`.
+          Each test method is in snake_case, NOT camel case.
           Annotate each test method with `#[Test]`.
-          Default to `$this->markTestIncomplete();` until test logic is finalized.
+          Default to `$this->markTestIncomplete();`
+          Each test method has meaningful testlogic in the Arrange, Act, Assert form.
           Use Laravel’s HTTP helpers (`->postJson()`, `->getJson()`, etc.).
           Avoid inline fixture setup; use factories and seeders.
 # ---------------------------------------------------------------------------------------
