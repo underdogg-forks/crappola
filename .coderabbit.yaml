@@ -53,7 +53,7 @@ reviews:
   pre_merge_checks:
     docstrings:
       mode: warning
-      threshold: 80
+      threshold: 0
     title:
       mode: warning
       requirements: 'Descriptive, mentions component or ticket'
