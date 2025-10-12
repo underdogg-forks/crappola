@@ -41,11 +41,11 @@ class QuoteReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
-        $statusIds = $this->options['status_ids'];
+        $account      = Auth::user()->account;
+        $statusIds    = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
-        $hasTaxRates = TaxRate::scope()->count();
-        $subgroup = $this->options['subgroup'];
+        $hasTaxRates  = TaxRate::scope()->count();
+        $subgroup     = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')

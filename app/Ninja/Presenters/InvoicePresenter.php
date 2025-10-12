@@ -193,7 +193,7 @@ class InvoicePresenter extends EntityPresenter
 
     public function autoBillEmailMessage()
     {
-        $client = $this->entity->client;
+        $client        = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
         if ( ! $paymentMethod) {
@@ -223,27 +223,27 @@ class InvoicePresenter extends EntityPresenter
 
     public function rBits()
     {
-        $properties = new stdClass();
-        $properties->terms_text = $this->entity->terms;
-        $properties->note = $this->entity->public_notes;
+        $properties                   = new stdClass();
+        $properties->terms_text       = $this->entity->terms;
+        $properties->note             = $this->entity->public_notes;
         $properties->itemized_receipt = [];
 
         foreach ($this->entity->invoice_items as $item) {
             $properties->itemized_receipt[] = $item->present()->rBits;
         }
 
-        $data = new stdClass();
+        $data               = new stdClass();
         $data->receive_time = time();
-        $data->type = 'transaction_details';
-        $data->source = 'user';
-        $data->properties = $properties;
+        $data->type         = 'transaction_details';
+        $data->source       = 'user';
+        $data->properties   = $properties;
 
         return [$data];
     }
 
     public function moreActions()
     {
-        $invoice = $this->entity;
+        $invoice    = $this->entity;
         $entityType = $invoice->getEntityType();
 
         $actions = [
@@ -359,8 +359,8 @@ class InvoicePresenter extends EntityPresenter
 
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
-        $invoice = $this->entity;
+        $data       = parent::calendarEvent();
+        $invoice    = $this->entity;
         $entityType = $invoice->getEntityType();
 
         $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();

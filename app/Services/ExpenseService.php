@@ -32,7 +32,7 @@ class ExpenseService extends BaseService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
-        $this->expenseRepo = $expenseRepo;
+        $this->expenseRepo      = $expenseRepo;
         $this->datatableService = $datatableService;
     }
 

@@ -21,7 +21,7 @@ class ClientReport extends AbstractReport
             'user'          => ['columnSelector-false'],
         ];
 
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('client1')) {
@@ -36,7 +36,7 @@ class ClientReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account  = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
@@ -53,7 +53,7 @@ class ClientReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             $amount = 0;
-            $paid = 0;
+            $paid   = 0;
 
             foreach ($client->invoices as $invoice) {
                 $amount += $invoice->amount;

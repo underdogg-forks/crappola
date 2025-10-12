@@ -24,7 +24,7 @@ class ProposalSnippetController extends BaseController
 
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, ProposalSnippetService $proposalSnippetService)
     {
-        $this->proposalSnippetRepo = $proposalSnippetRepo;
+        $this->proposalSnippetRepo    = $proposalSnippetRepo;
         $this->proposalSnippetService = $proposalSnippetService;
     }
 
@@ -118,12 +118,12 @@ class ProposalSnippetController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalSnippetService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal_snippet" : "{$action}d_proposal_snippets";
+            $field   = $count == 1 ? "{$action}d_proposal_snippet" : "{$action}d_proposal_snippets";
             $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
@@ -133,7 +133,7 @@ class ProposalSnippetController extends BaseController
 
     private function getIcons()
     {
-        $data = [];
+        $data  = [];
         $icons = [
             ['name' => 'glass', 'code' => 'f000'],
             ['name' => 'music', 'code' => 'f001'],

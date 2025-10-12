@@ -105,7 +105,7 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = mb_strtolower($data['currency_code']);
-            $currency = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
+            $currency     = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
                 return mb_strtolower($item->code) == $currencyCode;
             })->first();
             if ($currency) {
@@ -116,7 +116,7 @@ class ClientRepository extends BaseRepository
         // convert country code to id
         if (isset($data['country_code'])) {
             $countryCode = mb_strtolower($data['country_code']);
-            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+            $country     = Cache::get('countries')->filter(function ($item) use ($countryCode) {
                 return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
             })->first();
             if ($country) {
@@ -127,7 +127,7 @@ class ClientRepository extends BaseRepository
         // convert shipping country code to id
         if (isset($data['shipping_country_code'])) {
             $countryCode = mb_strtolower($data['shipping_country_code']);
-            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+            $country     = Cache::get('countries')->filter(function ($item) use ($countryCode) {
                 return mb_strtolower($item->iso_3166_2) == $countryCode || mb_strtolower($item->iso_3166_3) == $countryCode;
             })->first();
             if ($country) {
@@ -149,8 +149,8 @@ class ClientRepository extends BaseRepository
         }
         */
 
-        $first = true;
-        $contacts = isset($data['contact']) ? [$data['contact']] : ($data['contacts'] ?? [[]]);
+        $first      = true;
+        $contacts   = isset($data['contact']) ? [$data['contact']] : ($data['contacts'] ?? [[]]);
         $contactIds = [];
 
         // If the primary is set ensure it's listed first
@@ -163,9 +163,9 @@ class ClientRepository extends BaseRepository
         });
 
         foreach ($contacts as $contact) {
-            $contact = $client->addContact($contact, $first);
+            $contact      = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;
-            $first = false;
+            $first        = false;
         }
 
         if ( ! $client->wasRecentlyCreated) {
@@ -189,8 +189,8 @@ class ClientRepository extends BaseRepository
     {
         $clientNameMeta = metaphone($clientName);
 
-        $map = [];
-        $max = SIMILAR_MIN_THRESHOLD;
+        $map      = [];
+        $max      = SIMILAR_MIN_THRESHOLD;
         $clientId = 0;
 
         $clients = Client::scope()->get(['id', 'name', 'public_id']);
@@ -206,7 +206,7 @@ class ClientRepository extends BaseRepository
 
             if ($percent > $max) {
                 $clientId = $client->id;
-                $max = $percent;
+                $max      = $percent;
             }
         }
 
@@ -221,7 +221,7 @@ class ClientRepository extends BaseRepository
 
             if ($percent > $max) {
                 $clientId = $contact->client_id;
-                $max = $percent;
+                $max      = $percent;
             }
         }
 

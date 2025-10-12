@@ -60,7 +60,7 @@ class User extends Authenticatable
 
         // if the user changes their email then they need to reconfirm it
         if ($user->isEmailBeingChanged()) {
-            $user->confirmed = 0;
+            $user->confirmed         = 0;
             $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         }
     }
@@ -324,10 +324,10 @@ class User extends Authenticatable
 
     public function caddAddUsers()
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
         }
-        if (! $this->hasFeature(FEATURE_USERS)) {
+        if ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -345,7 +345,7 @@ class User extends Authenticatable
     public function canCreateOrEdit($entityType, $entity = false)
     {
         return ($entity && $this->can('edit', $entity))
-            || (! $entity && $this->can('create', $entityType));
+            || ( ! $entity && $this->can('create', $entityType));
     }
 
     public function primaryAccount()
@@ -366,7 +366,7 @@ class User extends Authenticatable
 
     public function hasAcceptedLatestTerms()
     {
-        if (! NINJA_TERMS_VERSION) {
+        if ( ! NINJA_TERMS_VERSION) {
             return true;
         }
 
@@ -375,9 +375,9 @@ class User extends Authenticatable
 
     public function acceptLatestTerms($ip)
     {
-        $this->accepted_terms_version = NINJA_TERMS_VERSION;
+        $this->accepted_terms_version   = NINJA_TERMS_VERSION;
         $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
-        $this->accepted_terms_ip = $ip;
+        $this->accepted_terms_ip        = $ip;
 
         return $this;
     }
@@ -389,7 +389,7 @@ class User extends Authenticatable
 
     public function shouldNotify($invoice)
     {
-        if (! $this->email || ! $this->confirmed) {
+        if ( ! $this->email || ! $this->confirmed) {
             return false;
         }
 
@@ -402,14 +402,14 @@ class User extends Authenticatable
 
     public function permissionsMap()
     {
-        $data = [];
+        $data        = [];
         $permissions = json_decode($this->permissions);
 
-        if (! $permissions) {
+        if ( ! $permissions) {
             return $data;
         }
 
-        $keys = array_values((array) $permissions);
+        $keys   = array_values((array) $permissions);
         $values = array_fill(0, count($keys), true);
 
         return array_combine($keys, $values);
@@ -454,7 +454,7 @@ User::updated(function ($user) {
 });
 
 User::deleted(function ($user) {
-    if (! $user->email) {
+    if ( ! $user->email) {
         return;
     }
 

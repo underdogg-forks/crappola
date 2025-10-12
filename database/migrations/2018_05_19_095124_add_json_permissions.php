@@ -46,8 +46,8 @@ class AddJsonPermissions extends Migration
      */
     public function returnFormattedPermissions($userPermission)
     {
-        $viewPermissionEntities = [];
-        $editPermissionEntities = [];
+        $viewPermissionEntities   = [];
+        $editPermissionEntities   = [];
         $createPermissionEntities = [];
 
         $permissionEntities = [

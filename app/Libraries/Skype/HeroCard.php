@@ -8,8 +8,8 @@ class HeroCard
 {
     public function __construct()
     {
-        $this->contentType = 'application/vnd.microsoft.card.hero';
-        $this->content = new stdClass();
+        $this->contentType      = 'application/vnd.microsoft.card.hero';
+        $this->content          = new stdClass();
         $this->content->buttons = [];
     }
 

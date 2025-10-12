@@ -28,7 +28,7 @@ class CreditController extends BaseController
     {
         // parent::__construct();
 
-        $this->creditRepo = $creditRepo;
+        $this->creditRepo    = $creditRepo;
         $this->creditService = $creditService;
     }
 
@@ -113,8 +113,8 @@ class CreditController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count = $this->creditService->bulk($ids, $action);
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $count  = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
             $message = Utils::pluralize($action . 'd_credit', $count);

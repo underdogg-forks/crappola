@@ -59,25 +59,25 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rules([
         //AddParamTypeDeclarationRector::class,
         //AddParamTypeFromPropertyTypeRector::class,
-//
+        //
         //AddReturnTypeDeclarationBasedOnParentClassMethodRector::class,
-//
+        //
         //AddVoidReturnTypeWhereNoReturnRector::class,
 
         //BoolReturnTypeFromStrictScalarReturnsRector::class,
-//
+        //
         //CallOnAppArrayAccessToStandaloneAssignRector::class,
-//
+        //
         //ClassPropertyAssignToConstructorPromotionRector::class,
-//
+        //
         //JsonThrowOnErrorRector::class,
-//
+        //
         //ReturnTypeFromReturnDirectArrayRector::class,
         //ReturnTypeFromReturnNewRector::class,
         //ReturnTypeFromStrictBoolReturnExprRector::class,
         //ReturnTypeFromStrictNativeCallRector::class,
         //ReturnTypeFromStrictScalarReturnExprRector::class,
-//
+        //
         SimplifyConditionsRector::class,
         SimplifyForeachToArrayFilterRector::class,
         SimplifyForeachToCoalescingRector::class,

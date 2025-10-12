@@ -35,8 +35,8 @@ class AppController extends BaseController
     {
         //parent::__construct();
 
-        $this->accountRepo = $accountRepo;
-        $this->mailer = $mailer;
+        $this->accountRepo  = $accountRepo;
+        $this->mailer       = $mailer;
         $this->emailService = $emailService;
     }
 
@@ -47,17 +47,17 @@ class AppController extends BaseController
         }
 
         $valid = false;
-        $test = Request::input('test');
+        $test  = Request::input('test');
 
-        $app = Request::input('app');
-        $app['key'] = env('APP_KEY') ?: mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $app          = Request::input('app');
+        $app['key']   = env('APP_KEY') ?: mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         $app['debug'] = Request::input('debug') ? 'true' : 'false';
         $app['https'] = Request::input('https') ? 'true' : 'false';
 
-        $database = Request::input('database');
-        $dbType = 'mysql'; // $database['default'];
+        $database                = Request::input('database');
+        $dbType                  = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
-        $mail = Request::input('mail');
+        $mail                    = Request::input('mail');
 
         if ($test == 'mail') {
             return self::testMail($mail);
@@ -76,30 +76,30 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $_ENV['APP_ENV'] = 'local';
-        $_ENV['APP_DEBUG'] = $app['debug'];
-        $_ENV['APP_LOCALE'] = 'en';
-        $_ENV['APP_URL'] = $app['url'];
-        $_ENV['APP_KEY'] = $app['key'];
-        $_ENV['APP_CIPHER'] = env('APP_CIPHER', 'AES-256-CBC');
-        $_ENV['REQUIRE_HTTPS'] = $app['https'];
-        $_ENV['DB_TYPE'] = $dbType;
-        $_ENV['DB_HOST'] = $database['type']['host'];
-        $_ENV['DB_DATABASE'] = $database['type']['database'];
-        $_ENV['DB_USERNAME'] = $database['type']['username'];
-        $_ENV['DB_PASSWORD'] = $database['type']['password'];
-        $_ENV['MAIL_DRIVER'] = $mail['driver'];
-        $_ENV['MAIL_PORT'] = $mail['port'];
-        $_ENV['MAIL_ENCRYPTION'] = $mail['encryption'];
-        $_ENV['MAIL_HOST'] = $mail['host'];
-        $_ENV['MAIL_USERNAME'] = $mail['username'];
-        $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
-        $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
-        $_ENV['MAIL_PASSWORD'] = $mail['password'];
+        $_ENV['APP_ENV']             = 'local';
+        $_ENV['APP_DEBUG']           = $app['debug'];
+        $_ENV['APP_LOCALE']          = 'en';
+        $_ENV['APP_URL']             = $app['url'];
+        $_ENV['APP_KEY']             = $app['key'];
+        $_ENV['APP_CIPHER']          = env('APP_CIPHER', 'AES-256-CBC');
+        $_ENV['REQUIRE_HTTPS']       = $app['https'];
+        $_ENV['DB_TYPE']             = $dbType;
+        $_ENV['DB_HOST']             = $database['type']['host'];
+        $_ENV['DB_DATABASE']         = $database['type']['database'];
+        $_ENV['DB_USERNAME']         = $database['type']['username'];
+        $_ENV['DB_PASSWORD']         = $database['type']['password'];
+        $_ENV['MAIL_DRIVER']         = $mail['driver'];
+        $_ENV['MAIL_PORT']           = $mail['port'];
+        $_ENV['MAIL_ENCRYPTION']     = $mail['encryption'];
+        $_ENV['MAIL_HOST']           = $mail['host'];
+        $_ENV['MAIL_USERNAME']       = $mail['username'];
+        $_ENV['MAIL_FROM_NAME']      = $mail['from']['name'];
+        $_ENV['MAIL_FROM_ADDRESS']   = $mail['from']['address'];
+        $_ENV['MAIL_PASSWORD']       = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
-        $_ENV['PHANTOMJS_SECRET'] = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-        $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
-        $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
+        $_ENV['PHANTOMJS_SECRET']    = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $_ENV['MAILGUN_DOMAIN']      = $mail['mailgun_domain'];
+        $_ENV['MAILGUN_SECRET']      = $mail['mailgun_secret'];
 
         $config = '';
         foreach ($_ENV as $key => $val) {
@@ -129,10 +129,10 @@ class AppController extends BaseController
 
         if ( ! Account::count()) {
             $firstName = trim(Request::input('first_name'));
-            $lastName = trim(Request::input('last_name'));
-            $email = trim(mb_strtolower(Request::input('email')));
-            $password = trim(Request::input('password'));
-            $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
+            $lastName  = trim(Request::input('last_name'));
+            $email     = trim(mb_strtolower(Request::input('email')));
+            $password  = trim(Request::input('password'));
+            $account   = $this->accountRepo->create($firstName, $lastName, $email, $password);
 
             $user = $account->users()->first();
             $user->acceptLatestTerms(request()->getClientIp());
@@ -171,16 +171,16 @@ class AppController extends BaseController
             return Redirect::to('/settings/system_settings');
         }
 
-        $app = Request::input('app');
-        $db = Request::input('database');
+        $app  = Request::input('app');
+        $db   = Request::input('database');
         $mail = Request::input('mail');
 
-        $_ENV['APP_URL'] = $app['url'];
-        $_ENV['APP_DEBUG'] = Request::input('debug') ? 'true' : 'false';
+        $_ENV['APP_URL']       = $app['url'];
+        $_ENV['APP_DEBUG']     = Request::input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = Request::input('https') ? 'true' : 'false';
 
-        $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
-        $_ENV['DB_HOST'] = $db['type']['host'];
+        $_ENV['DB_TYPE']     = 'mysql'; // $db['default'];
+        $_ENV['DB_HOST']     = $db['type']['host'];
         $_ENV['DB_DATABASE'] = $db['type']['database'];
         $_ENV['DB_USERNAME'] = $db['type']['username'];
         $_ENV['DB_PASSWORD'] = $db['type']['password'];
@@ -190,16 +190,16 @@ class AppController extends BaseController
             if (($user = auth()->user()) && Account::count() > 1) {
                 $prefix = $user->account_id . '_';
             }
-            $_ENV[$prefix . 'MAIL_DRIVER'] = $mail['driver'];
-            $_ENV[$prefix . 'MAIL_PORT'] = $mail['port'];
-            $_ENV[$prefix . 'MAIL_ENCRYPTION'] = $mail['encryption'];
-            $_ENV[$prefix . 'MAIL_HOST'] = $mail['host'];
-            $_ENV[$prefix . 'MAIL_USERNAME'] = $mail['username'];
-            $_ENV[$prefix . 'MAIL_FROM_NAME'] = $mail['from']['name'];
+            $_ENV[$prefix . 'MAIL_DRIVER']       = $mail['driver'];
+            $_ENV[$prefix . 'MAIL_PORT']         = $mail['port'];
+            $_ENV[$prefix . 'MAIL_ENCRYPTION']   = $mail['encryption'];
+            $_ENV[$prefix . 'MAIL_HOST']         = $mail['host'];
+            $_ENV[$prefix . 'MAIL_USERNAME']     = $mail['username'];
+            $_ENV[$prefix . 'MAIL_FROM_NAME']    = $mail['from']['name'];
             $_ENV[$prefix . 'MAIL_FROM_ADDRESS'] = $mail['from']['address'];
-            $_ENV[$prefix . 'MAIL_PASSWORD'] = $mail['password'];
-            $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
-            $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
+            $_ENV[$prefix . 'MAIL_PASSWORD']     = $mail['password'];
+            $_ENV['MAILGUN_DOMAIN']              = $mail['mailgun_domain'];
+            $_ENV['MAILGUN_SECRET']              = $mail['mailgun_secret'];
         }
 
         $config = '';
@@ -214,7 +214,7 @@ class AppController extends BaseController
         }
 
         $filePath = base_path() . '/.env';
-        $fp = fopen($filePath, 'w');
+        $fp       = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
 
@@ -321,7 +321,7 @@ class AppController extends BaseController
         }
 
         $tables = DB::select('SHOW TABLES');
-        $sql = "SET sql_mode = 'ALLOW_INVALID_DATES';\n";
+        $sql    = "SET sql_mode = 'ALLOW_INVALID_DATES';\n";
 
         foreach($tables as $table) {
             $fieldName = 'Tables_in_' . env('DB_DATABASE');
@@ -334,7 +334,7 @@ class AppController extends BaseController
     public function emailBounced()
     {
         $messageId = Request::input('MessageID');
-        $error = Request::input('Name') . ': ' . Request::input('Description');
+        $error     = Request::input('Name') . ': ' . Request::input('Description');
 
         return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
     }
@@ -425,7 +425,7 @@ class AppController extends BaseController
 
         $command = request()->command;
         $options = request()->options ?: [];
-        $secret = env('COMMAND_SECRET');
+        $secret  = env('COMMAND_SECRET');
 
         if ( ! $secret) {
             exit('Set a value for COMMAND_SECRET in the .env file');
@@ -468,7 +468,7 @@ class AppController extends BaseController
 
     private function testMail($mail)
     {
-        $email = $mail['from']['address'];
+        $email    = $mail['from']['address'];
         $fromName = $mail['from']['name'];
 
         foreach ($mail as $key => $val) {

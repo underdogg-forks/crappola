@@ -17,19 +17,19 @@ class TaxRatesCest
     {
         $I->wantTo('test line item tax rates');
 
-        $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
-        $itemTaxRate = $this->faker->randomFloat(2, 5, 15);
-        $itemTaxName = $this->faker->word();
+        $clientEmail    = $this->faker->safeEmail;
+        $productKey     = $this->faker->text(10);
+        $itemTaxRate    = $this->faker->randomFloat(2, 5, 15);
+        $itemTaxName    = $this->faker->word();
         $invoiceTaxRate = $this->faker->randomFloat(2, 5, 15);
         $invoiceTaxName = $this->faker->word();
-        $itemCost = $this->faker->numberBetween(1, 20);
+        $itemCost       = $this->faker->numberBetween(1, 20);
 
         $total = $itemCost;
         $total += round($itemCost * $itemTaxRate / 100, 2);
         $total += round($itemCost * $invoiceTaxRate / 100, 2);
 
-        $itemTaxRate = number_format($itemTaxRate, 3);
+        $itemTaxRate    = number_format($itemTaxRate, 3);
         $invoiceTaxRate = number_format($invoiceTaxRate, 3);
 
         // create tax rates
@@ -84,11 +84,11 @@ class TaxRatesCest
     {
         $I->wantTo('test invoice tax rates');
 
-        $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
+        $clientEmail    = $this->faker->safeEmail;
+        $productKey     = $this->faker->text(10);
         $invoiceTaxRate = $this->faker->randomFloat(2, 5, 15);
         $invoiceTaxName = $this->faker->word();
-        $itemCost = $this->faker->numberBetween(1, 20);
+        $itemCost       = $this->faker->numberBetween(1, 20);
 
         $total = $itemCost;
         $total += round($itemCost * $invoiceTaxRate / 100, 2);

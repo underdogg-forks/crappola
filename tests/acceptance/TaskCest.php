@@ -18,9 +18,9 @@ class TaskCest
 
     public function createTimerTask(AcceptanceTester $I)
     {
-        $clientName = $this->faker->name;
+        $clientName  = $this->faker->name;
         $clientEmail = $this->faker->safeEmail;
-        $project = $this->faker->text(20);
+        $project     = $this->faker->text(20);
         $description = $this->faker->text(100);
 
         $I->wantTo('create a timed task');

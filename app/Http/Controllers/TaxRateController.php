@@ -24,7 +24,7 @@ class TaxRateController extends BaseController
         //parent::__construct();
 
         $this->taxRateService = $taxRateService;
-        $this->taxRateRepo = $taxRateRepo;
+        $this->taxRateRepo    = $taxRateRepo;
     }
 
     public function index()
@@ -82,8 +82,8 @@ class TaxRateController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
-        $count = $this->taxRateService->bulk($ids, $action);
+        $ids    = Request::input('bulk_public_id');
+        $count  = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));
 

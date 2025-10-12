@@ -28,7 +28,7 @@ class TokenService extends BaseService
      */
     public function __construct(TokenRepository $tokenRepo, DatatableService $datatableService)
     {
-        $this->tokenRepo = $tokenRepo;
+        $this->tokenRepo        = $tokenRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -40,7 +40,7 @@ class TokenService extends BaseService
     public function getDatatable($userId)
     {
         $datatable = new TokenDatatable(false);
-        $query = $this->tokenRepo->find($userId);
+        $query     = $this->tokenRepo->find($userId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

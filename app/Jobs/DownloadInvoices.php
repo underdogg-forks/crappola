@@ -29,7 +29,7 @@ class DownloadInvoices extends Job
      */
     public function __construct(User $user, $invoices)
     {
-        $this->user = $user;
+        $this->user     = $user;
         $this->invoices = $invoices;
     }
 

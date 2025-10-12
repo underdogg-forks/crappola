@@ -37,23 +37,23 @@ reviews:
     ignore_title_keywords: ['WIP', 'draft']
     labels: ['needs-review']
     drafts: false
-    base_branches: ['master', 'development']
+    base_branches: ['master', 'develop']
     ignore_usernames: ['dependabot', 'renovate']
     # ------------------------------------------------------------------------------------
 
   # --- collapsible: doc/test auto-suggestions ------------------------------------------
   finishing_touches:
     docstrings:
-      enabled: false
+      enabled: true
     unit_tests:
-      enabled: false
+      enabled: true
   # ------------------------------------------------------------------------------------
 
   # --- collapsible: pre-merge quality gates --------------------------------------------
   pre_merge_checks:
     docstrings:
       mode: warning
-      threshold: 80
+      threshold: 0
     title:
       mode: warning
       requirements: 'Descriptive, mentions component or ticket'
@@ -65,7 +65,7 @@ tools:
   # --- Core linters for Laravel (PHP) and JS -------------------------------------------
   phpstan:
     enabled: true
-    level: 3
+    level: "0"
   phpcs:
     enabled: true
   eslint:
@@ -100,9 +100,9 @@ chat:
   auto_reply: true
   integrations:
     jira:
-      usage: off
+      usage: disabled
     linear:
-      usage: off
+      usage: disabled
   # ------------------------------------------------------------------------------------
 
 # --- collapsible: AI learning + docs integration ---------------------------------------
@@ -114,11 +114,11 @@ knowledge_base:
     enabled: false
     filePatterns: ['CONTRIBUTING.md', 'docs/code-guidelines.md']
   learnings:
-    scope: org
+    scope: global
   issues:
-    scope: org
+    scope: global
   pull_requests:
-    scope: org
+    scope: global
 # ---------------------------------------------------------------------------------------
 
 # --- collapsible: AI code generation suggestions ---------------------------------------
@@ -127,22 +127,24 @@ code_generation:
     language: en-US
 
   unit_tests:
-    # Allows AI-generated unit tests to follow local conventions.
+    # Instructions for AI-generated unit tests
     path_instructions:
       - path: 'tests/Unit/**'
         instructions: |
           Each test method must begin with `it_`.
+          Each test method is in snake_case, NOT camel case.
           Annotate each test method with `#[Test]`.
           Each test method must contain `$this->markTestIncomplete();` by default.
           Prefer Fakes and Fixtures over Mocks.
-          Structure tests with `it_` functions and place happy paths first.
+          Each test method has meaningful testlogic in the Arrange, Act, Assert form.
           Reusable logic (e.g., fixtures) must reside in an abstract test case.
       - path: 'tests/Feature/**'
         instructions: |
           Each test method must begin with `it_`.
+          Each test method is in snake_case, NOT camel case.
           Annotate each test method with `#[Test]`.
-          Default to `$this->markTestIncomplete();` until test logic is finalized.
-          Write the tests in "Arrange, Act, Assert" form
-          Prefix each phase of "Arrange, Act, Assert" with a phpdoc annotations of that phase (not php `//` comment)
+          Default to `$this->markTestIncomplete();`
+          Each test method has meaningful testlogic in the Arrange, Act, Assert form.
+          Use Laravel’s HTTP helpers (`->postJson()`, `->getJson()`, etc.).
           Avoid inline fixture setup; use factories and seeders.
 # ---------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ class BaseIntent
         if ( ! $state || is_string($state)) {
             $state = new stdClass();
             foreach (['current', 'previous'] as $reference) {
-                $state->{$reference} = new stdClass();
+                $state->{$reference}             = new stdClass();
                 $state->{$reference}->entityType = false;
                 foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
                     $state->{$reference}->{$entityType} = [];
@@ -30,7 +30,7 @@ class BaseIntent
         }
 
         $this->state = $state;
-        $this->data = $data;
+        $this->data  = $data;
 
         // If they're viewing a client set it as the current state
         if ( ! $this->hasField('Filter', 'all')) {
@@ -52,7 +52,7 @@ class BaseIntent
             throw new Exception(trans('texts.intent_not_found'));
         }
 
-        $intent = $data->intents[0]->intent;
+        $intent     = $data->intents[0]->intent;
         $entityType = false;
 
         foreach ($data->entities as $entity) {
@@ -99,7 +99,7 @@ class BaseIntent
         $state = $this->state;
 
         $state->previous->{$entityType} = $state->current->{$entityType};
-        $state->current->{$entityType} = $entities;
+        $state->current->{$entityType}  = $entities;
     }
 
     public function setStateEntityType($entityType)
@@ -111,7 +111,7 @@ class BaseIntent
         }
 
         $state->previous->entityType = $state->current->entityType;
-        $state->current->entityType = $entityType;
+        $state->current->entityType  = $entityType;
     }
 
     public function stateEntities($entityType)
@@ -190,12 +190,12 @@ class BaseIntent
     protected function requestClient()
     {
         $clientRepo = app('App\Ninja\Repositories\ClientRepository');
-        $client = false;
+        $client     = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'Name') {
                 $param->type = rtrim($param->type, ' \' s');
-                $client = $clientRepo->findPhonetically($param->entity);
+                $client      = $clientRepo->findPhonetically($param->entity);
             }
         }
 
@@ -209,7 +209,7 @@ class BaseIntent
     protected function requestInvoice()
     {
         $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
-        $invoice = false;
+        $invoice     = false;
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'builtin.number') {

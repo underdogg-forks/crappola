@@ -224,7 +224,7 @@ class InvoiceDatatable extends EntityDatatable
         }
 
         $actions[] = DropdownButton::DIVIDER;
-        $actions = array_merge($actions, parent::bulkActions());
+        $actions   = array_merge($actions, parent::bulkActions());
 
         return $actions;
     }

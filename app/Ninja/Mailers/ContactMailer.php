@@ -51,8 +51,8 @@ class ContactMailer extends Mailer
             $entityType = $invoice->getEntityType();
         }
 
-        $client = $invoice->client;
-        $account = $invoice->account;
+        $client   = $invoice->client;
+        $account  = $invoice->account;
         $response = null;
 
         if ($client->trashed()) {
@@ -64,9 +64,9 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings($client);
         $emailTemplate = ! empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = ! empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
+        $emailSubject  = ! empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
-        $sent = false;
+        $sent      = false;
         $pdfString = false;
         $ublString = false;
 
@@ -79,7 +79,7 @@ class ContactMailer extends Mailer
             $documents = $invoice->allDocuments();
             $documents = $documents->sortBy('size');
 
-            $size = 0;
+            $size    = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
             foreach ($documents as $document) {
                 $size += $document->size;
@@ -94,7 +94,7 @@ class ContactMailer extends Mailer
             }
         }
 
-        $isFirst = true;
+        $isFirst     = true;
         $invitations = $proposal ? $proposal->invitations : $invoice->invitations;
         foreach ($invitations as $invitation) {
             if ($account->attachPDF() && ! $proposal) {
@@ -107,7 +107,7 @@ class ContactMailer extends Mailer
                 'proposal'        => $proposal,
             ];
             $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst, $data);
-            $isFirst = false;
+            $isFirst  = false;
             if ($response === true) {
                 $sent = true;
             }
@@ -132,29 +132,29 @@ class ContactMailer extends Mailer
     public function sendPaymentConfirmation(Payment $payment, $refunded = 0)
     {
         $account = $payment->account;
-        $client = $payment->client;
+        $client  = $payment->client;
 
         $account->loadLocalizationSettings($client);
-        $invoice = $payment->invoice;
-        $invitation = $payment->invitation ?: $payment->invoice->invitations[0];
+        $invoice     = $payment->invoice;
+        $invitation  = $payment->invitation ?: $payment->invoice->invitations[0];
         $accountName = $account->getDisplayName();
 
         if ($refunded > 0) {
-            $emailSubject = trans('texts.refund_subject');
+            $emailSubject  = trans('texts.refund_subject');
             $emailTemplate = trans('texts.refund_body', [
                 'amount'         => $account->formatMoney($refunded, $client),
                 'invoice_number' => $invoice->invoice_number,
             ]);
         } else {
-            $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
+            $emailSubject  = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
             $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
         }
 
         if ($payment->invitation) {
-            $user = $payment->invitation->user;
+            $user    = $payment->invitation->user;
             $contact = $payment->contact;
         } else {
-            $user = $payment->user;
+            $user    = $payment->user;
             $contact = $client->contacts->count() ? $client->contacts[0] : '';
         }
 
@@ -180,14 +180,14 @@ class ContactMailer extends Mailer
         ];
 
         if ( ! $refunded && $account->attachPDF()) {
-            $data['pdfString'] = $invoice->getPDFString();
+            $data['pdfString']   = $invoice->getPDFString();
             $data['pdfFileName'] = $invoice->getFileName();
         }
 
-        $subject = $this->templateService->processVariables($emailSubject, $variables);
+        $subject            = $this->templateService->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
 
-        $view = $account->getTemplateView('payment_confirmation');
+        $view      = $account->getTemplateView('payment_confirmation');
         $fromEmail = $account->getReplyToEmail() ?: $user->email;
 
         if ($user->email && $contact->email) {
@@ -206,7 +206,7 @@ class ContactMailer extends Mailer
      */
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
     {
-        $view = 'license_confirmation';
+        $view    = 'license_confirmation';
         $subject = trans('texts.payment_subject');
 
         if ($productId == PRODUCT_ONE_CLICK_INSTALL) {
@@ -233,8 +233,8 @@ class ContactMailer extends Mailer
         }
 
         $subject = trans('texts.your_password_reset_link');
-        $view = 'client_password';
-        $data = [
+        $view    = 'client_password';
+        $data    = [
             'token' => $token,
         ];
 
@@ -253,7 +253,7 @@ class ContactMailer extends Mailer
             'ABCDEFGHJKMNPQRSTUVWXYZ',
             '23456789',
         ];
-        $all = '';
+        $all      = '';
         $password = '';
         foreach ($sets as $set) {
             $password .= $set[array_rand(mb_str_split($set))];
@@ -290,9 +290,9 @@ class ContactMailer extends Mailer
         $isFirst,
         $extra
     ) {
-        $client = $invoice->client;
-        $account = $invoice->account;
-        $user = $invitation->user;
+        $client   = $invoice->client;
+        $account  = $invoice->account;
+        $user     = $invitation->user;
         $proposal = $extra['proposal'];
 
         if ($user->trashed()) {
@@ -327,7 +327,7 @@ class ContactMailer extends Mailer
 
             if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
                 // The contact needs a password
-                $variables['password'] = $password = $this->generatePassword();
+                $variables['password']         = $password = $this->generatePassword();
                 $invitation->contact->password = bcrypt($password);
                 $invitation->contact->save();
             }
@@ -358,18 +358,18 @@ class ContactMailer extends Mailer
 
         if ( ! $proposal) {
             if ($account->attachPDF()) {
-                $data['pdfString'] = $extra['pdfString'];
+                $data['pdfString']   = $extra['pdfString'];
                 $data['pdfFileName'] = $invoice->getFileName();
             }
             if ($account->attachUBL()) {
-                $data['ublString'] = $extra['ublString'];
+                $data['ublString']   = $extra['ublString'];
                 $data['ublFileName'] = $invoice->getFileName('xml');
             }
         }
 
-        $subject = $this->templateService->processVariables($subject, $variables);
+        $subject   = $this->templateService->processVariables($subject, $variables);
         $fromEmail = $account->getReplyToEmail() ?: $user->email;
-        $view = $account->getTemplateView(ENTITY_INVOICE);
+        $view      = $account->getTemplateView(ENTITY_INVOICE);
 
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
 
@@ -389,11 +389,11 @@ class ContactMailer extends Mailer
         $key = $account->company_id;
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
-        $day = 60 * 60 * 24;
-        $day_limit = $account->getDailyEmailLimit();
-        $day_throttle = Cache::get("email_day_throttle:{$key}", null);
+        $day              = 60 * 60 * 24;
+        $day_limit        = $account->getDailyEmailLimit();
+        $day_throttle     = Cache::get("email_day_throttle:{$key}", null);
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
-        $last_api_diff = time() - $last_api_request;
+        $last_api_diff    = time() - $last_api_request;
 
         if (null === $day_throttle) {
             $new_day_throttle = 0;

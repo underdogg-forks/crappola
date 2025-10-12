@@ -61,7 +61,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'source',
                 function ($model) {
-                    $code = str_replace(' ', '', mb_strtolower($model->payment_type));
+                    $code      = str_replace(' ', '', mb_strtolower($model->payment_type));
                     $card_type = trans('texts.card_' . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
                         if ($model->last4) {
@@ -149,9 +149,9 @@ class PaymentDatatable extends EntityDatatable
                 trans('texts.refund_payment'),
                 function ($model) {
                     $max_refund = $model->amount - $model->refunded;
-                    $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
-                    $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
-                    $local = in_array($model->gateway_id, [GATEWAY_BRAINTREE, GATEWAY_STRIPE, GATEWAY_WEPAY]) || ! $model->gateway_id ? 0 : 1;
+                    $formatted  = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
+                    $symbol     = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
+                    $local      = in_array($model->gateway_id, [GATEWAY_BRAINTREE, GATEWAY_STRIPE, GATEWAY_WEPAY]) || ! $model->gateway_id ? 0 : 1;
 
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}', {$local})";
                 },
@@ -167,8 +167,8 @@ class PaymentDatatable extends EntityDatatable
     private function getStatusLabel($model)
     {
         $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
-        $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
-        $class = Payment::calcStatusClass($model->payment_status_id);
+        $label  = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
+        $class  = Payment::calcStatusClass($model->payment_status_id);
 
         return "<h4><div class=\"label label-{$class}\">{$label}</div></h4>";
     }

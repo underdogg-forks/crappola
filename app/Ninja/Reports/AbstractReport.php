@@ -30,9 +30,9 @@ class AbstractReport
     public function __construct($startDate, $endDate, $isExport, $options = false)
     {
         $this->startDate = $startDate;
-        $this->endDate = $endDate;
-        $this->isExport = $isExport;
-        $this->options = $options;
+        $this->endDate   = $endDate;
+        $this->isExport  = $isExport;
+        $this->options   = $options;
     }
 
     public function run() {}
@@ -94,7 +94,7 @@ class AbstractReport
     public function tableHeader()
     {
         $columns_labeled = $this->tableHeaderArray();
-        $str = '';
+        $str             = '';
 
         foreach ($columns_labeled as $field => $attr) {
             $str .= sprintf('<th class="%s" data-priorityx="3">%s</th>', $attr['class'], $attr['label']);
@@ -107,16 +107,16 @@ class AbstractReport
     public function convertDateFormat()
     {
         $account = Auth::user()->account;
-        $format = $account->getMomentDateFormat();
-        $format = mb_strtolower($format);
-        $format = str_replace('do', '', $format);
+        $format  = $account->getMomentDateFormat();
+        $format  = mb_strtolower($format);
+        $format  = str_replace('do', '', $format);
 
         $orignalFormat = $format;
-        $format = preg_replace('/[^mdy]/', '', $format);
+        $format        = preg_replace('/[^mdy]/', '', $format);
 
-        $lastLetter = false;
+        $lastLetter  = false;
         $reportParts = [];
-        $phpParts = [];
+        $phpParts    = [];
 
         foreach (mb_str_split($format) as $letter) {
             if ($lastLetter && $letter == $lastLetter) {
@@ -125,13 +125,13 @@ class AbstractReport
             $lastLetter = $letter;
             if ($letter == 'm') {
                 $reportParts[] = 'mm';
-                $phpParts[] = 'm';
+                $phpParts[]    = 'm';
             } elseif ($letter == 'd') {
                 $reportParts[] = 'dd';
-                $phpParts[] = 'd';
+                $phpParts[]    = 'd';
             } elseif ($letter == 'y') {
                 $reportParts[] = 'yyyy';
-                $phpParts[] = 'Y';
+                $phpParts[]    = 'Y';
             }
         }
 
@@ -152,16 +152,16 @@ class AbstractReport
     public function getLineChartData()
     {
         $startDate = date_create($this->startDate);
-        $endDate = date_create($this->endDate);
-        $groupBy = $this->chartGroupBy();
+        $endDate   = date_create($this->endDate);
+        $groupBy   = $this->chartGroupBy();
 
         $datasets = [];
-        $labels = [];
+        $labels   = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
+            $interval          = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
             $intervalStartDate = Carbon::instance($startDate);
-            $intervalEndDate = Carbon::instance($endDate);
+            $intervalEndDate   = Carbon::instance($endDate);
 
             // round dates to match grouping
             $intervalStartDate->hour(0)->minute(0)->second(0);
@@ -175,29 +175,29 @@ class AbstractReport
                 $intervalEndDate->month(12);
             }
 
-            $period = new DatePeriod($intervalStartDate, $interval, $intervalEndDate);
+            $period  = new DatePeriod($intervalStartDate, $interval, $intervalEndDate);
             $records = [];
 
             foreach ($period as $date) {
-                $labels[] = $date->format('m/d/Y');
-                $date = $this->formatDate($date);
+                $labels[]  = $date->format('m/d/Y');
+                $date      = $this->formatDate($date);
                 $records[] = $data[$date] ?? 0;
             }
 
-            $record = new stdClass();
+            $record     = new stdClass();
             $datasets[] = $record;
-            $color = Utils::brewerColorRGB(count($datasets));
+            $color      = Utils::brewerColorRGB(count($datasets));
 
-            $record->data = $records;
-            $record->label = $dimension;
-            $record->lineTension = 0;
-            $record->borderWidth = 3;
-            $record->borderColor = "rgba({$color}, 1)";
+            $record->data            = $records;
+            $record->label           = $dimension;
+            $record->lineTension     = 0;
+            $record->borderWidth     = 3;
+            $record->borderColor     = "rgba({$color}, 1)";
             $record->backgroundColor = 'rgba(255,255,255,0)';
         }
 
-        $data = new stdClass();
-        $data->labels = $labels;
+        $data           = new stdClass();
+        $data->labels   = $labels;
         $data->datasets = $datasets;
 
         return $data;
@@ -220,8 +220,8 @@ class AbstractReport
         }
 
         $datasets = [];
-        $labels = [];
-        $totals = [];
+        $labels   = [];
+        $totals   = [];
 
         foreach ($this->chartData as $dimension => $data) {
             foreach ($data as $date => $value) {
@@ -233,21 +233,21 @@ class AbstractReport
             }
         }
 
-        $response = new stdClass();
+        $response         = new stdClass();
         $response->labels = [];
 
-        $datasets = new stdClass();
-        $datasets->data = [];
+        $datasets                  = new stdClass();
+        $datasets->data            = [];
         $datasets->backgroundColor = [];
 
         foreach ($totals as $dimension => $value) {
-            $response->labels[] = $dimension;
-            $datasets->data[] = $value;
+            $response->labels[]    = $dimension;
+            $datasets->data[]      = $value;
             $datasets->lineTension = 0;
             $datasets->borderWidth = 3;
 
-            $color = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
-            $datasets->borderColor[] = "rgba({$color}, 1)";
+            $color                       = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
+            $datasets->borderColor[]     = "rgba({$color}, 1)";
             $datasets->backgroundColor[] = "rgba({$color}, 0.1)";
         }
 
@@ -311,7 +311,7 @@ class AbstractReport
             $date = new DateTime($date);
         }
 
-        $groupBy = $this->chartGroupBy();
+        $groupBy    = $this->chartGroupBy();
         $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
 
         return $date->format('Y' . $dateFormat);

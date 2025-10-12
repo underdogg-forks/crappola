@@ -185,10 +185,10 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             $paymentMethod->payment_type_id = PaymentType::parseCardType($response->cardType);
-            $paymentMethod->last4 = $response->last4;
-            $paymentMethod->expiration = $response->expirationYear . '-' . $response->expirationMonth . '-01';
+            $paymentMethod->last4           = $response->last4;
+            $paymentMethod->expiration      = $response->expirationYear . '-' . $response->expirationMonth . '-01';
         } elseif ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {
-            $paymentMethod->email = $response->email;
+            $paymentMethod->email           = $response->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_PAYPAL;
         } else {
             return;

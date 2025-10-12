@@ -32,7 +32,7 @@ class RecurringExpenseService extends BaseService
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, DatatableService $datatableService)
     {
         $this->recurringExpenseRepo = $recurringExpenseRepo;
-        $this->datatableService = $datatableService;
+        $this->datatableService     = $datatableService;
     }
 
     /**

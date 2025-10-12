@@ -13,9 +13,9 @@ class Cloudflare
         foreach($zones as $zone) {
             if($account->subdomain != '') {
                 $jsonEncodedData = json_encode(['type' => 'A', 'name' => $account->subdomain, 'content' => env('CLOUDFLARE_TARGET_IP_ADDRESS', ''), 'proxied' => true]);
-                $requestType = 'POST';
-                $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records';
-                $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+                $requestType     = 'POST';
+                $url             = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records';
+                $response        = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
                 if ($response['status'] != 200) {
                     Utils::logError('Unable to update subdomain ' . $account->subdomain . ' @ Cloudflare - ' . $response['result']['result']);
                 }
@@ -34,9 +34,9 @@ class Cloudflare
                     return;
                 }
                 $jsonEncodedData = json_encode([]);
-                $requestType = 'DELETE';
-                $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records/' . $dnsRecordId . '';
-                $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+                $requestType     = 'DELETE';
+                $url             = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records/' . $dnsRecordId . '';
+                $response        = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
                 if ($response['status'] != 200) {
                     Utils::logError('Unable to delete subdomain ' . $account->subdomain . ' @ Cloudflare - ' . $response['result']['result']);
                 }
@@ -47,16 +47,16 @@ class Cloudflare
     public static function getDNSRecord($zone, $aRecord)
     {
         //harvest the zone_name
-        $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&per_page=1';
-        $requestType = 'GET';
+        $url             = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&per_page=1';
+        $requestType     = 'GET';
         $jsonEncodedData = json_encode([]);
-        $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+        $response        = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
         if ($response['status'] != 200) {
             Utils::logError('Unable to get the zone name for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
         }
         $zoneName = $response['result']['result'][0]['zone_name'];
         //get the A record
-        $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&name=' . $aRecord . '.' . $zoneName . ' ';
+        $url      = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records?type=A&name=' . $aRecord . '.' . $zoneName . ' ';
         $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
         if ($response['status'] != 200) {
             Utils::logError('Unable to get the record ID for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
@@ -84,8 +84,8 @@ class Cloudflare
             ],
         ];
         curl_setopt_array($curl, $opts);
-        $result = curl_exec($curl);
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $result         = curl_exec($curl);
+        $status         = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $data['status'] = $status;
         $data['result'] = \json_decode($result, true);
         curl_close($curl);

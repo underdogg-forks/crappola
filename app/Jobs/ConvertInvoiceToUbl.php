@@ -31,9 +31,9 @@ class ConvertInvoiceToUbl extends Job
 
     public function handle()
     {
-        $invoice = $this->invoice;
-        $account = $invoice->account;
-        $client = $invoice->client;
+        $invoice    = $this->invoice;
+        $account    = $invoice->account;
+        $client     = $invoice->client;
         $ublInvoice = new Invoice();
 
         // invoice
@@ -49,7 +49,7 @@ class ConvertInvoiceToUbl extends Job
 
         // line items
         $invoiceLines = [];
-        $taxable = $invoice->getTaxable();
+        $taxable      = $invoice->getTaxable();
 
         foreach ($invoice->invoice_items as $index => $item) {
             $itemTaxable = $invoice->getItemTaxable($item, $taxable);
@@ -59,7 +59,7 @@ class ConvertInvoiceToUbl extends Job
 
         $ublInvoice->setInvoiceLines($invoiceLines);
 
-        $taxtotal = new TaxTotal();
+        $taxtotal   = new TaxTotal();
         $taxAmount1 = $taxAmount2 = 0;
 
         $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
@@ -121,7 +121,7 @@ class ConvertInvoiceToUbl extends Job
                 ->setDescription($item->description));
         //->setSellersItemIdentification("1ABCD"));
 
-        $taxtotal = new TaxTotal();
+        $taxtotal       = new TaxTotal();
         $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
         $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
@@ -137,7 +137,7 @@ class ConvertInvoiceToUbl extends Job
 
     private function createTaxRate(&$taxtotal, $taxable, $taxRate, $taxName)
     {
-        $invoice = $this->invoice;
+        $invoice   = $this->invoice;
         $taxAmount = $invoice->taxAmount($taxable, $taxRate);
         $taxScheme = ((new TaxScheme()))->setId($taxName);
 

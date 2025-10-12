@@ -25,7 +25,7 @@ class ProposalCategoryController extends BaseController
 
     public function __construct(ProposalCategoryRepository $proposalCategoryRepo, ProposalCategoryService $proposalCategoryService)
     {
-        $this->proposalCategoryRepo = $proposalCategoryRepo;
+        $this->proposalCategoryRepo    = $proposalCategoryRepo;
         $this->proposalCategoryService = $proposalCategoryService;
     }
 
@@ -115,12 +115,12 @@ class ProposalCategoryController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal_category" : "{$action}d_proposal_categories";
+            $field   = $count == 1 ? "{$action}d_proposal_category" : "{$action}d_proposal_categories";
             $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }

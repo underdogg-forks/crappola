@@ -25,10 +25,10 @@ class PaymentReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account      = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
-        $invoiceMap = [];
-        $subgroup = $this->options['subgroup'];
+        $invoiceMap   = [];
+        $subgroup     = $this->options['subgroup'];
 
         $payments = Payment::scope()
             ->orderBy('payment_date', 'desc')
@@ -47,8 +47,8 @@ class PaymentReport extends AbstractReport
         $lastInvoiceId = 0;
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
-            $client = $payment->client;
-            $amount = $payment->getCompletedAmount();
+            $client  = $payment->client;
+            $amount  = $payment->getCompletedAmount();
 
             if ($currencyType == 'converted') {
                 $amount *= $payment->exchange_rate;

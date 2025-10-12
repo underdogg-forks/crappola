@@ -60,12 +60,12 @@ class CreateTestData extends Command
 
         $this->faker = Factory::create();
 
-        $this->clientRepo = $clientRepo;
+        $this->clientRepo  = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
-        $this->vendorRepo = $vendorRepo;
+        $this->vendorRepo  = $vendorRepo;
         $this->expenseRepo = $expenseRepo;
-        $this->taskRepo = $taskRepo;
+        $this->taskRepo    = $taskRepo;
         $this->projectRepo = $projectRepo;
         $this->accountRepo = $accountRepo;
     }
@@ -210,9 +210,9 @@ class CreateTestData extends Command
 
         for ($i = 0; $i < $this->count; $i++) {
             $startTime = date_create()->modify(rand(-100, 100) . ' days')->format('U');
-            $endTime = $startTime + (60 * 60 * 2);
-            $timeLog = "[[{$startTime},{$endTime}]]";
-            $data = [
+            $endTime   = $startTime + (60 * 60 * 2);
+            $timeLog   = "[[{$startTime},{$endTime}]]";
+            $data      = [
                 'client_id'   => $client->id,
                 'project_id'  => $project->id,
                 'description' => $this->faker->text($this->faker->numberBetween(50, 300)),
@@ -280,33 +280,33 @@ class CreateTestData extends Command
 
     private function createTaxRate($name, $rate, $publicId)
     {
-        $taxRate = new TaxRate();
-        $taxRate->name = $name;
-        $taxRate->rate = $rate;
+        $taxRate             = new TaxRate();
+        $taxRate->name       = $name;
+        $taxRate->rate       = $rate;
         $taxRate->account_id = 1;
-        $taxRate->user_id = 1;
-        $taxRate->public_id = $publicId;
+        $taxRate->user_id    = 1;
+        $taxRate->public_id  = $publicId;
         $taxRate->save();
     }
 
     private function createCategory($name, $publicId)
     {
-        $category = new ExpenseCategory();
-        $category->name = $name;
+        $category             = new ExpenseCategory();
+        $category->name       = $name;
         $category->account_id = 1;
-        $category->user_id = 1;
-        $category->public_id = $publicId;
+        $category->user_id    = 1;
+        $category->public_id  = $publicId;
         $category->save();
     }
 
     private function createProject($name, $publicId)
     {
-        $project = new Project();
-        $project->name = $name;
+        $project             = new Project();
+        $project->name       = $name;
         $project->account_id = 1;
-        $project->client_id = 1;
-        $project->user_id = 1;
-        $project->public_id = $publicId;
+        $project->client_id  = 1;
+        $project->user_id    = 1;
+        $project->public_id  = $publicId;
         $project->save();
     }
 }

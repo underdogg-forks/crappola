@@ -59,19 +59,19 @@ class EntityModel extends Eloquent
     public static function createNew($context = null)
     {
         $className = get_called_class();
-        $entity = new $className();
+        $entity    = new $className();
 
         if ($context) {
-            $user = $context instanceof User ? $context : $context->user;
+            $user    = $context instanceof User ? $context : $context->user;
             $account = $context->account;
         } elseif (Auth::check()) {
-            $user = Auth::user();
+            $user    = Auth::user();
             $account = Auth::user()->account;
         } else {
             Utils::fatalError();
         }
 
-        $entity->user_id = $user->id;
+        $entity->user_id    = $user->id;
         $entity->account_id = $account->id;
 
         // store references to the original user/account to prevent needing to reload them
@@ -92,7 +92,7 @@ class EntityModel extends Eloquent
      */
     public static function getPrivateId($publicId)
     {
-        if (! $publicId) {
+        if ( ! $publicId) {
             return;
         }
 
@@ -112,7 +112,7 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
             }
@@ -132,7 +132,7 @@ class EntityModel extends Eloquent
      */
     public static function getTransformerName($entityType)
     {
-        if (! Utils::isNinjaProd()) {
+        if ( ! Utils::isNinjaProd()) {
             if ($module = Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
             }
@@ -151,16 +151,16 @@ class EntityModel extends Eloquent
      */
     public static function validate($data, $entityType = false, $entity = false)
     {
-        if (! $entityType) {
-            $className = get_called_class();
+        if ( ! $entityType) {
+            $className   = get_called_class();
             $entityBlank = new $className();
-            $entityType = $entityBlank->getEntityType();
+            $entityType  = $entityBlank->getEntityType();
         }
 
         // Use the API request if it exists
-        $action = $entity ? 'update' : 'create';
+        $action       = $entity ? 'update' : 'create';
         $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
-        if (! class_exists($requestClass)) {
+        if ( ! class_exists($requestClass)) {
             $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
@@ -171,7 +171,7 @@ class EntityModel extends Eloquent
         $request->setEntity($entity);
         $request->replace($data);
 
-        if (! $request->authorize()) {
+        if ( ! $request->authorize()) {
             return trans('texts.not_allowed');
         }
 
@@ -299,7 +299,7 @@ class EntityModel extends Eloquent
             return $query;
         }
 
-        if (! $accountId) {
+        if ( ! $accountId) {
             $accountId = Auth::user()->account_id;
         }
 
@@ -368,7 +368,7 @@ class EntityModel extends Eloquent
     {
         $class = get_class($this);
         $parts = explode('\\', $class);
-        $name = $parts[count($parts) - 1];
+        $name  = $parts[count($parts) - 1];
 
         return mb_strtolower($name) . '_id';
     }

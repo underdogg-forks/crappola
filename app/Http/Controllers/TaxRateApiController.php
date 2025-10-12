@@ -168,9 +168,9 @@ class TaxRateApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $taxRate = $this->taxRateRepo->save($data, $request->entity());
+        $taxRate           = $this->taxRateRepo->save($data, $request->entity());
 
         return $this->itemResponse($taxRate);
     }

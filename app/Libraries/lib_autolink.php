@@ -39,33 +39,33 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
 {
     $text_l = mb_strtolower($text);
     $cursor = 0;
-    $loop = 1;
+    $loop   = 1;
     $buffer = '';
 
     while (($cursor < mb_strlen($text)) && $loop) {
-        $ok = 1;
+        $ok      = 1;
         $matched = preg_match($sub, $text_l, $m, PREG_OFFSET_CAPTURE, $cursor);
 
         if ( ! $matched) {
             $loop = 0;
-            $ok = 0;
+            $ok   = 0;
         } else {
-            $pos = $m[0][1];
+            $pos     = $m[0][1];
             $sub_len = mb_strlen($m[0][0]);
 
             $pre_hit = mb_substr($text, $cursor, $pos - $cursor);
-            $hit = mb_substr($text, $pos, $sub_len);
-            $pre = mb_substr($text, 0, $pos);
-            $post = mb_substr($text, $pos + $sub_len);
+            $hit     = mb_substr($text, $pos, $sub_len);
+            $pre     = mb_substr($text, 0, $pos);
+            $post    = mb_substr($text, $pos + $sub_len);
 
             $fail_text = $pre_hit . $hit;
-            $fail_len = mb_strlen($fail_text);
+            $fail_len  = mb_strlen($fail_text);
 
             //
             // substring found - first check to see if we're inside a link tag already...
             //
 
-            $bits = preg_split('!</a>!i', $pre);
+            $bits     = preg_split('!</a>!i', $pre);
             $last_bit = array_pop($bits);
             if (preg_match("!<a\s!i", $last_bit)) {
                 //echo "fail 1 at $cursor<br />\n";
@@ -127,7 +127,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                 // nice-i-fy url here
                 //
 
-                $link_url = $url;
+                $link_url    = $url;
                 $display_url = $url;
 
                 if ($force_prefix) {
@@ -155,7 +155,7 @@ function autolink_do($text, $sub, $limit, $tagfill, $auto_title, $force_prefix =
                     }
                 }
 
-                $link_url_enc = htmlspecialchars($link_url);
+                $link_url_enc    = htmlspecialchars($link_url);
                 $display_url_enc = htmlspecialchars($display_url);
 
                 $buffer .= "<a href=\"{$link_url_enc}\"{$currentTagfill}>{$display_url_enc}</a>";
@@ -203,7 +203,7 @@ function autolink_email($text, $tagfill = '')
 
     $text_l = mb_strtolower($text);
     $cursor = 0;
-    $loop = 1;
+    $loop   = 1;
     $buffer = '';
 
     while (($cursor < mb_strlen($text)) && $loop) {
@@ -211,19 +211,19 @@ function autolink_email($text, $tagfill = '')
         // find an '@' symbol
         //
 
-        $ok = 1;
+        $ok  = 1;
         $pos = mb_strpos($text_l, '@', $cursor);
 
         if ($pos === false) {
             $loop = 0;
-            $ok = 0;
+            $ok   = 0;
         } else {
-            $pre = mb_substr($text, $cursor, $pos - $cursor);
-            $hit = mb_substr($text, $pos, 1);
+            $pre  = mb_substr($text, $cursor, $pos - $cursor);
+            $hit  = mb_substr($text, $pos, 1);
             $post = mb_substr($text, $pos + 1);
 
             $fail_text = $pre . $hit;
-            $fail_len = mb_strlen($fail_text);
+            $fail_len  = mb_strlen($fail_text);
 
             //die("$pre::$hit::$post::$fail_text");
 
@@ -231,7 +231,7 @@ function autolink_email($text, $tagfill = '')
             // substring found - first check to see if we're inside a link tag already...
             //
 
-            $bits = preg_split('!</a>!i', $pre);
+            $bits     = preg_split('!</a>!i', $pre);
             $last_bit = array_pop($bits);
             if (preg_match("!<a\s!i", $last_bit)) {
                 //echo "fail 1 at $cursor<br />\n";
@@ -250,7 +250,7 @@ function autolink_email($text, $tagfill = '')
             if (preg_match("!({$atom}(\.{$atom})*)\$!", $pre, $matches)) {
                 // move matched part of address into $hit
 
-                $len = mb_strlen($matches[1]);
+                $len  = mb_strlen($matches[1]);
                 $plen = mb_strlen($pre);
 
                 $hit = mb_substr($pre, $plen - $len) . $hit;

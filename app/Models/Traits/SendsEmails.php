@@ -91,7 +91,7 @@ trait SendsEmails
         $template = false;
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $field = "email_template_{$entityType}";
+            $field    = "email_template_{$entityType}";
             $template = $this->account_email_settings->{$field};
         }
 
@@ -138,7 +138,7 @@ trait SendsEmails
             return false;
         }
 
-        $numDays = $this->{"num_days_reminder{$reminder}"};
+        $numDays   = $this->{"num_days_reminder{$reminder}"};
         $plusMinus = $this->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
 
         return date('Y-m-d', strtotime("{$plusMinus} {$numDays} days"));

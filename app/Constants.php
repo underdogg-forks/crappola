@@ -668,7 +668,7 @@ if ( ! defined('APP_NAME')) {
     function uctrans($text, $data = [])
     {
         $locale = Session::get(SESSION_LOCALE);
-        $text = trans($text, $data);
+        $text   = trans($text, $data);
 
         return $locale == 'en' ? ucwords($text) : $text;
     }
@@ -676,7 +676,7 @@ if ( ! defined('APP_NAME')) {
     function utrans($text, $data = [])
     {
         $locale = Session::get(SESSION_LOCALE);
-        $text = trans($text, $data);
+        $text   = trans($text, $data);
 
         return $locale == 'en' ? mb_strtoupper($text) : $text;
     }
@@ -689,7 +689,7 @@ if ( ! defined('APP_NAME')) {
         if ($locale == 'en') {
             return trans($text);
         }
-        $string = trans($text);
+        $string  = trans($text);
         $english = trans($text, [], 'en');
 
         return $string != $english ? $string : '';
@@ -704,7 +704,7 @@ if ( ! defined('APP_NAME')) {
 
         // check if this has been translated in a module language file
         if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
-            $key = "{$module->getLowerName()}::texts.{$text}";
+            $key   = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;

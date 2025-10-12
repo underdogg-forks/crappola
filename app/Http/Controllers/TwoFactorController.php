@@ -40,8 +40,8 @@ class TwoFactorController extends Controller
 
     public function enableTwoFactor()
     {
-        $user = auth()->user();
-        $secret = session('2fa:secret');
+        $user            = auth()->user();
+        $secret          = session('2fa:secret');
         $oneTimePassword = request('one_time_password');
 
         if ( ! $secret || ! \Google2FA::verifyKey($secret, $oneTimePassword)) {

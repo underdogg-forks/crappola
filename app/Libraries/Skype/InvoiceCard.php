@@ -9,10 +9,10 @@ class InvoiceCard
 {
     public function __construct($invoice)
     {
-        $this->contentType = 'application/vnd.microsoft.card.receipt';
-        $this->content = new stdClass();
-        $this->content->facts = [];
-        $this->content->items = [];
+        $this->contentType      = 'application/vnd.microsoft.card.receipt';
+        $this->content          = new stdClass();
+        $this->content->facts   = [];
+        $this->content->items   = [];
         $this->content->buttons = [];
 
         $this->setTitle('test');
@@ -62,8 +62,8 @@ class InvoiceCard
 
     public function addFact($key, $value)
     {
-        $fact = new stdClass();
-        $fact->key = $key;
+        $fact        = new stdClass();
+        $fact->key   = $key;
         $fact->value = $value;
 
         $this->content->facts[] = $fact;

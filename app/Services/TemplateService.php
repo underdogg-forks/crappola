@@ -31,15 +31,15 @@ class TemplateService
 
         // check if it's a proposal
         if ($invitation->proposal) {
-            $invoice = $invitation->proposal->invoice;
+            $invoice    = $invitation->proposal->invoice;
             $entityType = ENTITY_PROPOSAL;
         } else {
-            $invoice = $invitation->invoice;
+            $invoice    = $invitation->invoice;
             $entityType = $invoice->getEntityType();
         }
 
-        $contact = $invitation->contact;
-        $passwordHTML = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
+        $contact       = $invitation->contact;
+        $passwordHTML  = isset($data['password']) ? '<p>' . trans('texts.password') . ': ' . $data['password'] . '<p>' : false;
         $documentsHTML = '';
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
@@ -96,9 +96,9 @@ class TemplateService
             if ($type == GATEWAY_TYPE_TOKEN) {
                 continue;
             }
-            $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
-            $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
-            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$snakeCase}";
+            $camelType                         = Utils::toCamelCase(GatewayType::getAliasFromId($type));
+            $snakeCase                         = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
+            $variables["\${$camelType}Link"]   = $invitation->getLink('payment') . "/{$snakeCase}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment') . "/{$snakeCase}");
         }
 

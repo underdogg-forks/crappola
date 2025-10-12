@@ -55,8 +55,8 @@ class OnlinePaymentController extends BaseController
     public function __construct(PaymentService $paymentService, UserMailer $userMailer, InvoiceRepository $invoiceRepo)
     {
         $this->paymentService = $paymentService;
-        $this->userMailer = $userMailer;
-        $this->invoiceRepo = $invoiceRepo;
+        $this->userMailer     = $userMailer;
+        $this->invoiceRepo    = $invoiceRepo;
     }
 
     /**
@@ -81,7 +81,7 @@ class OnlinePaymentController extends BaseController
         }
 
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
-        $account = $invitation->account;
+        $account    = $invitation->account;
 
         if ( ! request()->capture && $account->requiresAuthorization($invitation->invoice) && ! session('authorized:' . $invitation->invitation_key)) {
             return redirect()->to('view/' . $invitation->invitation_key);
@@ -188,7 +188,7 @@ class OnlinePaymentController extends BaseController
         }
 
         $invitationKey = $invitationKey ?: Session::get('invitation_key');
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
+        $invitation    = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
             ->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
         if ( ! $gatewayTypeAlias) {
@@ -304,9 +304,9 @@ class OnlinePaymentController extends BaseController
             return redirect()->to(NINJA_WEB_URL, 301);
         }
 
-        $account = Account::whereAccountKey(Request::input('account_key'))->first();
+        $account     = Account::whereAccountKey(Request::input('account_key'))->first();
         $redirectUrl = Request::input('redirect_url');
-        $failureUrl = URL::previous();
+        $failureUrl  = URL::previous();
 
         if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$failureUrl}/?error=invalid account");
@@ -339,11 +339,11 @@ class OnlinePaymentController extends BaseController
                 return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
             }
 
-            $data = request()->all();
-            $data['currency_id'] = $account->currency_id;
-            $data['custom_value1'] = request()->custom_client1;
-            $data['custom_value2'] = request()->custom_client2;
-            $data['contact'] = request()->all();
+            $data                             = request()->all();
+            $data['currency_id']              = $account->currency_id;
+            $data['custom_value1']            = request()->custom_client1;
+            $data['custom_value2']            = request()->custom_client2;
+            $data['contact']                  = request()->all();
             $data['contact']['custom_value1'] = request()->custom_contact1;
             $data['contact']['custom_value2'] = request()->custom_contact2;
 
@@ -387,7 +387,7 @@ class OnlinePaymentController extends BaseController
             $invoice = $this->invoiceRepo->createRecurringInvoice($invoice->fresh());
         }
         $invitation = $invoice->invitations[0];
-        $link = $invitation->getLink();
+        $link       = $invitation->getLink();
 
         if ($redirectUrl) {
             session(['redirect_url:' . $invitation->invitation_key => $redirectUrl]);
@@ -462,10 +462,10 @@ class OnlinePaymentController extends BaseController
     {
         if (is_string($exception)) {
             $displayError = $exception;
-            $logError = $exception;
+            $logError     = $exception;
         } else {
             $displayError = $exception->getMessage();
-            $logError = Utils::getErrorString($exception);
+            $logError     = Utils::getErrorString($exception);
         }
 
         $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $displayError);

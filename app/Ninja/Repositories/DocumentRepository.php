@@ -28,7 +28,7 @@ class DocumentRepository extends BaseRepository
     public function find()
     {
         $accountid = Auth::user()->account_id;
-        $query = DB::table('clients')
+        $query     = DB::table('clients')
             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
             ->where('documents.account_id', '=', $accountid)
@@ -58,10 +58,10 @@ class DocumentRepository extends BaseRepository
     {
         if ( ! empty($data['grapesjs']) && $data['grapesjs']) {
             $isProposal = true;
-            $uploaded = $data['files'][0];
+            $uploaded   = $data['files'][0];
         } else {
             $isProposal = false;
-            $uploaded = $data['file'];
+            $uploaded   = $data['file'];
         }
 
         $extension = mb_strtolower($uploaded->getClientOriginalExtension());
@@ -78,8 +78,8 @@ class DocumentRepository extends BaseRepository
         $documentTypeData = Document::$types[$documentType];
 
         $filePath = $uploaded->path();
-        $name = $uploaded->getClientOriginalName();
-        $size = filesize($filePath);
+        $name     = $uploaded->getClientOriginalName();
+        $size     = filesize($filePath);
 
         if ($size / 1000 > MAX_DOCUMENT_SIZE) {
             return 'File too large';
@@ -90,14 +90,14 @@ class DocumentRepository extends BaseRepository
             unset($data['expense_id']);
         }
 
-        $hash = sha1_file($filePath);
+        $hash     = sha1_file($filePath);
         $filename = Auth::user()->account->account_key . '/' . $hash . '.' . $documentType;
 
         $document = Document::createNew();
         $document->fill($data);
 
         if ($isProposal) {
-            $document->is_proposal = true;
+            $document->is_proposal  = true;
             $document->document_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         }
 
@@ -110,10 +110,10 @@ class DocumentRepository extends BaseRepository
 
         // This is an image; check if we need to create a preview
         if (in_array($documentType, ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
-            $makePreview = false;
-            $imageSize = getimagesize($filePath);
-            $width = $imageSize[0];
-            $height = $imageSize[1];
+            $makePreview      = false;
+            $imageSize        = getimagesize($filePath);
+            $width            = $imageSize[0];
+            $height           = $imageSize[1];
             $imgManagerConfig = [];
             if (in_array($documentType, ['gif', 'bmp', 'tiff', 'psd'])) {
                 // Needs to be converted
@@ -146,14 +146,14 @@ class DocumentRepository extends BaseRepository
                     $img = $imgManager->make($filePath);
 
                     if ($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE) {
-                        $previewWidth = $width;
+                        $previewWidth  = $width;
                         $previewHeight = $height;
                     } elseif ($width > $height) {
-                        $previewWidth = DOCUMENT_PREVIEW_SIZE;
+                        $previewWidth  = DOCUMENT_PREVIEW_SIZE;
                         $previewHeight = $height * DOCUMENT_PREVIEW_SIZE / $width;
                     } else {
                         $previewHeight = DOCUMENT_PREVIEW_SIZE;
-                        $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
+                        $previewWidth  = $width * DOCUMENT_PREVIEW_SIZE / $height;
                     }
 
                     $img->resize($previewWidth, $previewHeight);
@@ -176,7 +176,7 @@ class DocumentRepository extends BaseRepository
         $document->name = mb_substr($name, -255);
 
         if ( ! empty($imageSize)) {
-            $document->width = $imageSize[0];
+            $document->width  = $imageSize[0];
             $document->height = $imageSize[1];
         }
 
@@ -184,7 +184,7 @@ class DocumentRepository extends BaseRepository
         $doc_array = $document->toArray();
 
         if ( ! empty($base64)) {
-            $mime = Document::$types[ ! empty($previewType) ? $previewType : $documentType]['mime'];
+            $mime                = Document::$types[ ! empty($previewType) ? $previewType : $documentType]['mime'];
             $doc_array['base64'] = 'data:' . $mime . ';base64,' . $base64;
         }
 

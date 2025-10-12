@@ -20,7 +20,7 @@ class PaymentTermService extends BaseService
      */
     public function __construct(PaymentTermRepository $paymentTermRepo, DatatableService $datatableService)
     {
-        $this->paymentTermRepo = $paymentTermRepo;
+        $this->paymentTermRepo  = $paymentTermRepo;
         $this->datatableService = $datatableService;
     }
 

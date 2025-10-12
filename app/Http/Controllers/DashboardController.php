@@ -25,23 +25,23 @@ class DashboardController extends BaseController
      */
     public function index()
     {
-        $user = Auth::user();
-        $viewAll = $user->hasPermission('view_reports');
-        $userId = $user->id;
-        $account = $user->account;
+        $user      = Auth::user();
+        $viewAll   = $user->hasPermission('view_reports');
+        $userId    = $user->id;
+        $account   = $user->account;
         $accountId = $account->id;
 
-        $dashboardRepo = $this->dashboardRepo;
-        $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
-        $paidToDate = $dashboardRepo->paidToDate($account, $userId, $viewAll);
+        $dashboardRepo  = $this->dashboardRepo;
+        $metrics        = $dashboardRepo->totals($accountId, $userId, $viewAll);
+        $paidToDate     = $dashboardRepo->paidToDate($account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($account, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
-        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
-        $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
-        $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
-        $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
-        $expenses = $dashboardRepo->expenses($account, $userId, $viewAll);
-        $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
+        $balances       = $dashboardRepo->balances($accountId, $userId, $viewAll);
+        $activities     = $dashboardRepo->activities($accountId, $userId, $viewAll);
+        $pastDue        = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
+        $upcoming       = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
+        $payments       = $dashboardRepo->payments($accountId, $userId, $viewAll);
+        $expenses       = $dashboardRepo->expenses($account, $userId, $viewAll);
+        $tasks          = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
         $showBlueVinePromo = false;
         if ($user->is_admin && env('BLUEVINE_PARTNER_UNIQUE_ID')) {
@@ -90,8 +90,8 @@ class DashboardController extends BaseController
         ];
 
         if ($showBlueVinePromo) {
-            $usdLast12Months = 0;
-            $pastYear = date('Y-m-d', strtotime('-1 year'));
+            $usdLast12Months  = 0;
+            $pastYear         = date('Y-m-d', strtotime('-1 year'));
             $paidLast12Months = $dashboardRepo->paidToDate($account, $userId, $viewAll, $pastYear);
 
             foreach ($paidLast12Months as $item) {
@@ -115,14 +115,14 @@ class DashboardController extends BaseController
     public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
     {
         $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
-        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
+        $data            = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
 
         return json_encode($data);
     }
 
     private function getCurrencyCodes()
     {
-        $account = Auth::user()->account;
+        $account     = Auth::user()->account;
         $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
 
         // get client/invoice currencies

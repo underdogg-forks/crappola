@@ -26,16 +26,16 @@ class ImportController extends BaseController
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
         }
 
-        $source = \Request::input('source');
-        $files = [];
+        $source    = \Request::input('source');
+        $files     = [];
         $timestamp = time();
 
         foreach (ImportService::$entityTypes as $entityType) {
             $fileName = $entityType;
             if ($request->hasFile($fileName)) {
-                $file = $request->file($fileName);
+                $file            = $request->file($fileName);
                 $destinationPath = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
-                $extension = mb_strtolower($file->getClientOriginalExtension());
+                $extension       = mb_strtolower($file->getClientOriginalExtension());
 
                 if ($source === IMPORT_CSV) {
                     if ($extension != 'csv') {
@@ -73,7 +73,7 @@ class ImportController extends BaseController
                 ]);
             }
             if ($source === IMPORT_JSON) {
-                $includeData = filter_var(\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
+                $includeData     = filter_var(\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
                 $includeSettings = filter_var(\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
                 if (config('queue.default') === 'sync') {
                     $results = $this->importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
@@ -113,8 +113,8 @@ class ImportController extends BaseController
     public function doImportCSV()
     {
         try {
-            $map = \Request::input('map');
-            $headers = \Request::input('headers');
+            $map       = \Request::input('map');
+            $headers   = \Request::input('headers');
             $timestamp = \Request::input('timestamp');
 
             if (config('queue.default') === 'sync') {

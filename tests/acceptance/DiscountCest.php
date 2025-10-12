@@ -22,15 +22,15 @@ class DiscountCest
         $I->checkOption('#invoice_item_taxes');
         $I->click('Save');
 
-        $clientEmail = $this->faker->safeEmail;
-        $itemTaxName = $this->faker->word;
-        $productKey = $this->faker->word;
-        $itemTaxRate = rand(1, 1000) / 10;
+        $clientEmail  = $this->faker->safeEmail;
+        $itemTaxName  = $this->faker->word;
+        $productKey   = $this->faker->word;
+        $itemTaxRate  = rand(1, 1000) / 10;
         $itemDiscount = rand(1, 1000) / 10;
         $itemDiscount = rand(1, 1000) / 10;
-        $discount = rand(1, 1000) / 10;
-        $itemAmount = rand(1, 10000) / 10;
-        $quantity = rand(1, 20);
+        $discount     = rand(1, 1000) / 10;
+        $itemAmount   = rand(1, 10000) / 10;
+        $quantity     = rand(1, 20);
 
         $I->amOnPage('/settings/invoice_design#product_fields');
         $I->selectOption('#product_fields_select', 'product.discount');

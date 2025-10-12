@@ -13,7 +13,7 @@ class EnterprisePlan extends Migration
         if ($timeout == 0) {
             $timeout = 600;
         }
-        $timeout = max($timeout - 10, $timeout * .9);
+        $timeout   = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
         if ( ! Schema::hasTable('companies')) {
@@ -116,7 +116,7 @@ class EnterprisePlan extends Migration
         if ($timeout == 0) {
             $timeout = 600;
         }
-        $timeout = max($timeout - 10, $timeout * .9);
+        $timeout   = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
         if ( ! Schema::hasColumn('accounts', 'pro_plan_paid')) {
@@ -141,7 +141,7 @@ class EnterprisePlan extends Migration
         if (count($company_ids)) {
             foreach (Company::find($company_ids) as $company) {
                 foreach ($company->accounts as $account) {
-                    $account->pro_plan_paid = $company->plan_paid;
+                    $account->pro_plan_paid  = $company->plan_paid;
                     $account->pro_plan_trial = $company->trial_started;
                     $account->save();
                 }
@@ -178,10 +178,10 @@ class EnterprisePlan extends Migration
 
         $company = Company::create();
         if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
-            $company->plan = 'pro';
-            $company->plan_term = 'year';
+            $company->plan         = 'pro';
+            $company->plan_term    = 'year';
             $company->plan_started = $primaryAccount->pro_plan_paid;
-            $company->plan_paid = $primaryAccount->pro_plan_paid;
+            $company->plan_paid    = $primaryAccount->pro_plan_paid;
 
             $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
             $expires->modify('+1 year');
@@ -195,7 +195,7 @@ class EnterprisePlan extends Migration
                     if ($company->plan_paid == NINJA_DATE) {
                         $company->plan_term = null;
                     } else {
-                        $company->plan_term = PLAN_TERM_YEARLY;
+                        $company->plan_term    = PLAN_TERM_YEARLY;
                         $company->plan_expires = $expires;
                     }
                 }
@@ -206,7 +206,7 @@ class EnterprisePlan extends Migration
 
         if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {
             $company->trial_started = $primaryAccount->pro_plan_trial;
-            $company->trial_plan = 'pro';
+            $company->trial_plan    = 'pro';
         }
 
         $company->save();

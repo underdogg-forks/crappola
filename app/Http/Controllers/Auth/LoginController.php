@@ -64,8 +64,8 @@ class LoginController extends Controller
         if (Utils::isNinja() && ! Utils::isTravis()) {
             // make sure the user is on SITE_URL/login to ensure OAuth works
             $requestURL = request()->url();
-            $loginURL = SITE_URL . '/login';
-            $subdomain = Utils::getSubdomain(request()->url());
+            $loginURL   = SITE_URL . '/login';
+            $subdomain  = Utils::getSubdomain(request()->url());
             if ($requestURL != $loginURL && ! mb_strstr($subdomain, 'webapp-')) {
                 return redirect()->to($loginURL);
             }
@@ -82,7 +82,7 @@ class LoginController extends Controller
     public function postLoginWrapper(Request $request)
     {
         $userId = auth()->check() ? auth()->user()->id : null;
-        $user = User::where('email', '=', $request->input('email'))->first();
+        $user   = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             session()->flash('error', trans('texts.invalid_credentials'));
@@ -141,7 +141,7 @@ class LoginController extends Controller
     {
         //get user id and create cache key
         $userId = session()->pull('2fa:user:id');
-        $key = $userId . ':' . $request->totp;
+        $key    = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
         Cache::add($key, true, 4 * 60);

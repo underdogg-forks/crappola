@@ -15,8 +15,8 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails();
 
-        $data['ButtonSource'] = 'InvoiceNinja_SP';
-        $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
+        $data['ButtonSource']  = 'InvoiceNinja_SP';
+        $data['solutionType']  = 'Sole'; // show 'Pay with credit card' option
         $data['transactionId'] = $data['transactionId'] . '-' . time();
 
         return $data;
@@ -47,17 +47,17 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             'token' => $transRef,
         ])->send();
 
-        $data = $response->getData();
+        $data   = $response->getData();
         $client = $this->client();
 
         if (empty($data['SHIPTOSTREET'])) {
             return;
         }
 
-        $client->shipping_address1 = isset($data['SHIPTOSTREET']) ? trim($data['SHIPTOSTREET']) : '';
-        $client->shipping_address2 = isset($data['SHIPTOSTREET2']) ? trim($data['SHIPTOSTREET2']) : '';
-        $client->shipping_city = isset($data['SHIPTOCITY']) ? trim($data['SHIPTOCITY']) : '';
-        $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
+        $client->shipping_address1    = isset($data['SHIPTOSTREET']) ? trim($data['SHIPTOSTREET']) : '';
+        $client->shipping_address2    = isset($data['SHIPTOSTREET2']) ? trim($data['SHIPTOSTREET2']) : '';
+        $client->shipping_city        = isset($data['SHIPTOCITY']) ? trim($data['SHIPTOCITY']) : '';
+        $client->shipping_state       = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
         $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
         if (isset($data['SHIPTOCOUNTRYCODE']) && $country = cache('countries')->filter(function ($item) use ($data) {

@@ -71,7 +71,7 @@ class ExpensePresenter extends EntityPresenter
 
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
+        $data    = parent::calendarEvent();
         $expense = $this->entity;
 
         $data->title = trans('texts.expense') . ' ' . $this->amount() . ' | ' . $this->category();

@@ -53,8 +53,8 @@ class ChargeRenewalInvoices extends Command
     {
         parent::__construct();
 
-        $this->mailer = $mailer;
-        $this->accountRepo = $repo;
+        $this->mailer         = $mailer;
+        $this->accountRepo    = $repo;
         $this->paymentService = $paymentService;
     }
 
@@ -67,7 +67,7 @@ class ChargeRenewalInvoices extends Command
         }
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
-        $invoices = Invoice::whereAccountId($ninjaAccount->id)
+        $invoices     = Invoice::whereAccountId($ninjaAccount->id)
             ->whereDueDate(date('Y-m-d'))
             ->where('balance', '>', 0)
             ->with('client')

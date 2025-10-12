@@ -97,7 +97,7 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
+        $transformer      = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
@@ -115,7 +115,7 @@ class BaseAPIController extends Controller
 
         if (Request::input('client_id') > 0) {
             $clientPublicId = Request::input('client_id');
-            $filter = function ($query) use ($clientPublicId) {
+            $filter         = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
@@ -141,7 +141,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Request::input('serializer'));
+        $transformer      = new $transformerClass(Auth::user()->account, Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -171,8 +171,8 @@ class BaseAPIController extends Controller
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
             $paginator = $query->paginate($limit);
-            $query = $paginator->getCollection();
-            $resource = new Collection($query, $transformer, $entityType);
+            $query     = $paginator->getCollection();
+            $resource  = new Collection($query, $transformer, $entityType);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
             $resource = new Collection($query, $transformer, $entityType);
@@ -188,7 +188,7 @@ class BaseAPIController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta = $response['meta'] ?? null;
+            $meta     = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];
@@ -200,7 +200,7 @@ class BaseAPIController extends Controller
         }
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $headers  = Utils::getApiHeaders();
 
         return Response::make($response, 200, $headers);
     }
@@ -208,8 +208,8 @@ class BaseAPIController extends Controller
     protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
-        $error = json_encode($error, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $error          = json_encode($error, JSON_PRETTY_PRINT);
+        $headers        = Utils::getApiHeaders();
 
         return Response::make($error, $httpErrorCode, $headers);
     }

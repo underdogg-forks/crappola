@@ -21,7 +21,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     if ($model->frequency) {
                         $frequency = mb_strtolower($model->frequency);
                         $frequency = preg_replace('/\s/', '_', $frequency);
-                        $label = trans('texts.freq_' . $frequency);
+                        $label     = trans('texts.freq_' . $frequency);
                     } else {
                         $label = trans('texts.freq_inactive');
                     }

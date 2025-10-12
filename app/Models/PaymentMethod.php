@@ -45,7 +45,7 @@ class PaymentMethod extends EntityModel
 
         $dataPath = base_path('app/Ninja/PaymentDrivers/FedACHdir.txt');
 
-        if (! file_exists($dataPath) || ! $size = filesize($dataPath)) {
+        if ( ! file_exists($dataPath) || ! $size = filesize($dataPath)) {
             return 'Invalid data file';
         }
 
@@ -61,7 +61,7 @@ class PaymentMethod extends EntityModel
         $file = fopen($dataPath, 'r');
 
         // Binary search
-        $low = 0;
+        $low  = 0;
         $high = $numLines - 1;
         while ($low <= $high) {
             $mid = floor(($low + $high) / 2);
@@ -74,22 +74,22 @@ class PaymentMethod extends EntityModel
             } elseif ($thisNumber < $routingNumber) {
                 $low = $mid + 1;
             } else {
-                $data = new stdClass();
+                $data                 = new stdClass();
                 $data->routing_number = $thisNumber;
 
                 fseek($file, 26, SEEK_CUR);
 
-                $data->name = trim(fread($file, 36));
+                $data->name    = trim(fread($file, 36));
                 $data->address = trim(fread($file, 36));
-                $data->city = trim(fread($file, 20));
-                $data->state = fread($file, 2);
-                $data->zip = fread($file, 5) . '-' . fread($file, 4);
-                $data->phone = fread($file, 10);
+                $data->city    = trim(fread($file, 20));
+                $data->state   = fread($file, 2);
+                $data->zip     = fread($file, 5) . '-' . fread($file, 4);
+                $data->phone   = fread($file, 10);
                 break;
             }
         }
 
-        if (! empty($data)) {
+        if ( ! empty($data)) {
             Cache::put('bankData:' . $routingNumber, $data, 5 * 60);
 
             return $data;
@@ -150,7 +150,7 @@ class PaymentMethod extends EntityModel
      */
     public function getBankDataAttribute()
     {
-        if (! $this->routing_number) {
+        if ( ! $this->routing_number) {
             return;
         }
 

@@ -23,7 +23,7 @@ class UserApiController extends BaseAPIController
         parent::__construct();
 
         $this->userService = $userService;
-        $this->userRepo = $userRepo;
+        $this->userRepo    = $userRepo;
     }
 
     /**
@@ -162,7 +162,7 @@ class UserApiController extends BaseAPIController
             $this->userRepo->archive($user);
 
             $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
-            $data = $this->createItem($user, $transformer, 'users');
+            $data        = $this->createItem($user, $transformer, 'users');
 
             return $this->response($data);
         }
@@ -211,7 +211,7 @@ class UserApiController extends BaseAPIController
         $user = $this->userRepo->save($request->input(), $user);
 
         $transformer = new UserTransformer(Auth::user()->account, $request->serializer);
-        $data = $this->createItem($user, $transformer, 'users');
+        $data        = $this->createItem($user, $transformer, 'users');
 
         return $this->response($data);
     }

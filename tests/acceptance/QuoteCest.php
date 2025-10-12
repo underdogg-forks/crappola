@@ -18,10 +18,10 @@ class QuoteCest
 
     public function createQuote(AcceptanceTester $I)
     {
-        $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
+        $clientEmail  = $this->faker->safeEmail;
+        $productKey   = $this->faker->text(10);
         $categoryName = $this->faker->text(11);
-        $snippetName = $this->faker->text(12);
+        $snippetName  = $this->faker->text(12);
         $templateName = $this->faker->text(13);
 
         $I->wantTo('create a quote and proposal');
@@ -83,9 +83,9 @@ class QuoteCest
         $I->click('Save');
         $I->click('Download');
 
-        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
-        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
-        $proposalId = $I->grabFromDatabase('proposals', 'id', ['invoice_id' => $invoiceId]);
+        $clientId      = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        $invoiceId     = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
+        $proposalId    = $I->grabFromDatabase('proposals', 'id', ['invoice_id' => $invoiceId]);
         $invitationKey = $I->grabFromDatabase('proposal_invitations', 'invitation_key', ['proposal_id' => $proposalId]);
 
         $clientSession = $I->haveFriend('client');

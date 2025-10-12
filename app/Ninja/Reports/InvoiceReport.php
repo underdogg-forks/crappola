@@ -51,11 +51,11 @@ class InvoiceReport extends AbstractReport
             return;
         }
 
-        $account = Auth::user()->account;
-        $statusIds = $this->options['status_ids'];
+        $account      = Auth::user()->account;
+        $statusIds    = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
-        $hasTaxRates = TaxRate::scope()->count();
+        $subgroup     = $this->options['subgroup'];
+        $hasTaxRates  = TaxRate::scope()->count();
 
         $clients = Client::scope()
             ->orderBy('name')
@@ -109,7 +109,7 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $isFirst = true;
+                $isFirst  = true;
                 $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $row = [

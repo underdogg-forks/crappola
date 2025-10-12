@@ -39,7 +39,7 @@ class ProjectApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->projectRepo = $projectRepo;
+        $this->projectRepo    = $projectRepo;
         $this->projectService = $projectService;
     }
 
@@ -179,9 +179,9 @@ class ProjectApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $project = $this->projectService->save($request->input(), $request->entity());
+        $project           = $this->projectService->save($request->input(), $request->entity());
 
         return $this->itemResponse($project);
     }

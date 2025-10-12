@@ -169,10 +169,10 @@ class InvoiceCest
     private function fillItems(AcceptanceTester $I, $max = 2)
     {
         for ($row = 1; $row <= $max; $row++) {
-            $product = $this->faker->text(10);
+            $product     = $this->faker->text(10);
             $description = $this->faker->text(80);
-            $cost = $this->faker->randomFloat(2, 0, 100);
-            $quantity = $this->faker->randomDigitNotNull;
+            $cost        = $this->faker->randomFloat(2, 0, 100);
+            $quantity    = $this->faker->randomDigitNotNull;
 
             $this->fillItem($I, $row, $product, $description, $cost, $quantity);
         }

@@ -56,7 +56,7 @@ class ExpenseRepository extends BaseRepository
     public function find($filter = null)
     {
         $accountid = Auth::user()->account_id;
-        $query = DB::table('expenses')
+        $query     = DB::table('expenses')
             ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -194,7 +194,7 @@ class ExpenseRepository extends BaseRepository
             $expense->invoice_currency_id = Auth::user()->account->getCurrencyId();
         }
 
-        $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
+        $rate                   = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
         if (isset($input['amount'])) {
             $expense->amount = round(Utils::parseFloat($input['amount']), 2);

@@ -39,15 +39,15 @@ class QuoteController extends BaseController
     {
         // parent::__construct();
 
-        $this->mailer = $mailer;
-        $this->invoiceRepo = $invoiceRepo;
-        $this->clientRepo = $clientRepo;
+        $this->mailer         = $mailer;
+        $this->invoiceRepo    = $invoiceRepo;
+        $this->clientRepo     = $clientRepo;
         $this->invoiceService = $invoiceService;
     }
 
     public function index()
     {
-        $datatable = new InvoiceDatatable();
+        $datatable             = new InvoiceDatatable();
         $datatable->entityType = ENTITY_QUOTE;
 
         $data = [
@@ -62,7 +62,7 @@ class QuoteController extends BaseController
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
-        $search = Request::input('sSearch');
+        $search    = Request::input('sSearch');
 
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
@@ -73,12 +73,12 @@ class QuoteController extends BaseController
             return Redirect::to('/invoices/create');
         }
 
-        $account = Auth::user()->account;
+        $account  = Auth::user()->account;
         $clientId = null;
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-        $invoice = $account->createInvoice(ENTITY_QUOTE, $clientId);
+        $invoice            = $account->createInvoice(ENTITY_QUOTE, $clientId);
         $invoice->public_id = 0;
 
         $data = [
@@ -102,7 +102,7 @@ class QuoteController extends BaseController
 
         if ($action == 'convert') {
             $invoice = Invoice::with('invoice_items')->scope($ids)->firstOrFail();
-            $clone = $this->invoiceService->convertQuote($invoice);
+            $clone   = $this->invoiceService->convertQuote($invoice);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
 
@@ -129,8 +129,8 @@ class QuoteController extends BaseController
     public function approve($invitationKey)
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;
-        $account = $invoice->account;
+        $invoice    = $invitation->invoice;
+        $account    = $invoice->account;
 
         if ($account->requiresAuthorization($invoice) && ! session('authorized:' . $invitation->invitation_key)) {
             return redirect()->to('view/' . $invitation->invitation_key);

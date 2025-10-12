@@ -67,7 +67,7 @@ class DocumentController extends BaseController
         }
 
         $previewType = pathinfo($document->preview, PATHINFO_EXTENSION);
-        $response = Response::make($document->getRawPreview(), 200);
+        $response    = Response::make($document->getRawPreview(), 200);
         $response->header('content-type', Document::$types[$previewType]['mime']);
 
         return $response;
@@ -85,8 +85,8 @@ class DocumentController extends BaseController
             return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
-        $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
-        $content = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
+        $content  = $document->preview ? $document->getRawPreview() : $document->getRaw();
+        $content  = 'ninjaAddVFSDoc(' . json_encode((int) $publicId . '/' . (string) $name) . ',"' . base64_encode($content) . '")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');

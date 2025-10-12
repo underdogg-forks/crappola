@@ -21,7 +21,7 @@ class ContactApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->contactRepo = $contactRepo;
+        $this->contactRepo    = $contactRepo;
         $this->contactService = $contactService;
     }
 
@@ -157,9 +157,9 @@ class ContactApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $contact = $this->contactService->save($data, $request->entity());
+        $contact           = $this->contactService->save($data, $request->entity());
 
         return $this->itemResponse($contact);
     }

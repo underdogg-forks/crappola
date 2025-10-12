@@ -13,7 +13,7 @@ class GoProCest
 
     public function signUpAndGoPro(AcceptanceTester $I)
     {
-        $userEmail = $this->faker->safeEmail;
+        $userEmail    = $this->faker->safeEmail;
         $userPassword = $this->faker->password;
 
         $I->wantTo('test purchasing a pro plan');

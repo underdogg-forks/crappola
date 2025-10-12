@@ -22,7 +22,7 @@ class CustomerTransformer extends BaseTransformer
             return false;
         }
 
-        $account = auth()->user()->account;
+        $account        = auth()->user()->account;
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
 
         if ( ! $accountGateway) {

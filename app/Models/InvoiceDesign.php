@@ -77,7 +77,7 @@ class InvoiceDesign extends Eloquent
             }
 
             $design->javascript = $design->pdfmake;
-            $design->pdfmake = null;
+            $design->pdfmake    = null;
 
             if (in_array($design->id, [CUSTOM_DESIGN1, CUSTOM_DESIGN2, CUSTOM_DESIGN3])) {
                 if ($javascript = $account->getCustomDesign($design->id)) {

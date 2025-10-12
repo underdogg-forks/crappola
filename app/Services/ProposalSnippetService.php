@@ -30,7 +30,7 @@ class ProposalSnippetService extends BaseService
     public function __construct(ProposalSnippetRepository $proposalSnippetRepo, DatatableService $datatableService)
     {
         $this->proposalSnippetRepo = $proposalSnippetRepo;
-        $this->datatableService = $datatableService;
+        $this->datatableService    = $datatableService;
     }
 
     /**
