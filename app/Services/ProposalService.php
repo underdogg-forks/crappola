@@ -29,7 +29,7 @@ class ProposalService extends BaseService
      */
     public function __construct(ProposalRepository $proposalRepo, DatatableService $datatableService)
     {
-        $this->proposalRepo = $proposalRepo;
+        $this->proposalRepo     = $proposalRepo;
         $this->datatableService = $datatableService;
     }
 

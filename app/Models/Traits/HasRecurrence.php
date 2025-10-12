@@ -52,10 +52,10 @@ trait HasRecurrence
         if ( ! $this->last_sent_date) {
             return true;
         }
-        $date1 = new DateTime($this->last_sent_date);
-        $date2 = new DateTime();
-        $diff = $date2->diff($date1);
-        $daysSinceLastSent = $diff->format('%a');
+        $date1               = new DateTime($this->last_sent_date);
+        $date2               = new DateTime();
+        $diff                = $date2->diff($date1);
+        $daysSinceLastSent   = $diff->format('%a');
         $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
         // check we don't send a few hours early due to timezone difference
@@ -102,7 +102,7 @@ trait HasRecurrence
             return false;
         }
 
-        $account = $this->account;
+        $account  = $this->account;
         $timezone = $account->getTimezone();
 
         if ( ! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {

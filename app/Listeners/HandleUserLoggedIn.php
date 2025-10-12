@@ -41,7 +41,7 @@ class HandleUserLoggedIn
      */
     public function handle(UserLoggedIn $event)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         if ( ! Utils::isNinja() && empty($account->last_login)) {
@@ -85,7 +85,7 @@ class HandleUserLoggedIn
             }
 
             // make sure APP_KEY and APP_CIPHER are in the .env file
-            $appKey = env('APP_KEY');
+            $appKey    = env('APP_KEY');
             $appCipher = env('APP_CIPHER');
             if ( ! $appKey || ! $appCipher) {
                 $fp = fopen(base_path() . '/.env', 'a');

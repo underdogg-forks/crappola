@@ -17,8 +17,8 @@ class PaymentCest
     public function create(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
-        $amount = rand(1, 10);
+        $productKey  = $this->faker->text(10);
+        $amount      = rand(1, 10);
 
         $I->wantTo('enter a payment');
 

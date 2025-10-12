@@ -28,7 +28,7 @@ class TaxRateService extends BaseService
      */
     public function __construct(TaxRateRepository $taxRateRepo, DatatableService $datatableService)
     {
-        $this->taxRateRepo = $taxRateRepo;
+        $this->taxRateRepo      = $taxRateRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -40,7 +40,7 @@ class TaxRateService extends BaseService
     public function getDatatable($accountId)
     {
         $datatable = new TaxRateDatatable(false);
-        $query = $this->taxRateRepo->find($accountId);
+        $query     = $this->taxRateRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

@@ -28,7 +28,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = Request::all();
+        $input     = Request::all();
         $botUserId = $input['from']['id'];
 
         if ( ! $token = $this->authenticate($input)) {
@@ -40,7 +40,7 @@ class BotController extends Controller
                 // brand new user, ask for their email
                 if ($input['action'] === 'add') {
                     $response = SkypeResponse::message(trans('texts.bot_get_email'));
-                    $state = BOT_STATE_GET_EMAIL;
+                    $state    = BOT_STATE_GET_EMAIL;
                 } elseif ($input['action'] === 'remove') {
                     $this->removeBot($botUserId);
                     $this->saveState($token, false);
@@ -49,13 +49,13 @@ class BotController extends Controller
                 }
             } else {
                 $state = $this->loadState($token);
-                $text = strip_tags($input['text']);
+                $text  = strip_tags($input['text']);
 
                 // user gaves us their email
                 if ($state === BOT_STATE_GET_EMAIL) {
                     if ($this->validateEmail($text, $botUserId)) {
                         $response = SkypeResponse::message(trans('texts.bot_get_code'));
-                        $state = BOT_STATE_GET_CODE;
+                        $state    = BOT_STATE_GET_CODE;
                     } else {
                         $response = SkypeResponse::message(trans('texts.email_not_found', ['email' => $text]));
                     }
@@ -63,7 +63,7 @@ class BotController extends Controller
                 } elseif ($state === BOT_STATE_GET_CODE) {
                     if ($this->validateCode($text, $botUserId)) {
                         $response = SkypeResponse::message(trans('texts.bot_welcome') . trans('texts.bot_help_message'));
-                        $state = BOT_STATE_READY;
+                        $state    = BOT_STATE_READY;
                     } else {
                         $response = SkypeResponse::message(trans('texts.invalid_code'));
                     }
@@ -81,10 +81,10 @@ class BotController extends Controller
                         Auth::onceUsingId($user->id);
                         $user->account->loadLocalizationSettings();
 
-                        $data = $this->parseMessage($text);
-                        $intent = BaseIntent::createIntent($platform, $state, $data);
+                        $data     = $this->parseMessage($text);
+                        $intent   = BaseIntent::createIntent($platform, $state, $data);
                         $response = $intent->process();
-                        $state = $intent->getState();
+                        $state    = $intent->getState();
                     }
                 }
             }
@@ -102,7 +102,7 @@ class BotController extends Controller
     public function handleCommand()
     {
         $command = request()->command;
-        $data = $this->parseMessage($command);
+        $data    = $this->parseMessage($command);
 
         try {
             $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
@@ -129,9 +129,9 @@ class BotController extends Controller
             return $token;
         }
 
-        $clientId = env('MSBOT_CLIENT_ID');
+        $clientId     = env('MSBOT_CLIENT_ID');
         $clientSecret = env('MSBOT_CLIENT_SECRET');
-        $scope = 'https://graph.microsoft.com/.default';
+        $scope        = 'https://graph.microsoft.com/.default';
 
         $data = sprintf('grant_type=client_credentials&client_id=%s&client_secret=%s&scope=%s', $clientId, $clientSecret, $scope);
 
@@ -153,15 +153,15 @@ class BotController extends Controller
         ];
 
         $response = CurlUtils::get($url, $headers);
-        $data = json_decode($response);
+        $data     = json_decode($response);
 
         return json_decode($data->data);
     }
 
     private function parseMessage($message)
     {
-        $appId = config('ninja.voice_commands.app_id');
-        $subKey = config('ninja.voice_commands.subscription_key');
+        $appId   = config('ninja.voice_commands.app_id');
+        $subKey  = config('ninja.voice_commands.subscription_key');
         $message = rawurlencode($message);
 
         $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
@@ -226,10 +226,10 @@ class BotController extends Controller
             return false;
         }
 
-        $code = new SecurityCode();
-        $code->user_id = $user->id;
-        $code->account_id = $user->account_id;
-        $code->code = mt_rand(100000, 999999);
+        $code              = new SecurityCode();
+        $code->user_id     = $user->id;
+        $code->account_id  = $user->account_id;
+        $code->code        = mt_rand(100000, 999999);
         $code->bot_user_id = $botUserId;
         $code->save();
 
@@ -260,7 +260,7 @@ class BotController extends Controller
             return false;
         }
 
-        $user = User::find($code->user_id);
+        $user              = User::find($code->user_id);
         $user->bot_user_id = $code->bot_user_id;
         $user->save();
 
@@ -269,7 +269,7 @@ class BotController extends Controller
 
     private function removeBot($botUserId)
     {
-        $user = User::whereBotUserId($botUserId)->first();
+        $user              = User::whereBotUserId($botUserId)->first();
         $user->bot_user_id = null;
         $user->save();
     }
@@ -287,18 +287,18 @@ class BotController extends Controller
         $token_valid = 0;
 
         // 1 separate token by dot (.)
-        $token_arr = explode('.', $token);
+        $token_arr   = explode('.', $token);
         $headers_enc = $token_arr[0];
-        $claims_enc = $token_arr[1];
-        $sig_enc = $token_arr[2];
+        $claims_enc  = $token_arr[1];
+        $sig_enc     = $token_arr[2];
 
         // 2 base 64 url decoding
         $headers_arr = json_decode($this->base64_url_decode($headers_enc), true);
-        $claims_arr = json_decode($this->base64_url_decode($claims_enc), true);
-        $sig = $this->base64_url_decode($sig_enc);
+        $claims_arr  = json_decode($this->base64_url_decode($claims_enc), true);
+        $sig         = $this->base64_url_decode($sig_enc);
 
         // 3 get key list
-        $keylist = file_get_contents('https://api.aps.skype.com/v1/keys');
+        $keylist     = file_get_contents('https://api.aps.skype.com/v1/keys');
         $keylist_arr = json_decode($keylist, true);
         foreach ($keylist_arr['keys'] as $key => $value) {
             // 4 select one key (which matches)

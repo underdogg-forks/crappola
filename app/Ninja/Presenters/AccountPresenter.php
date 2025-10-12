@@ -65,7 +65,7 @@ class AccountPresenter extends Presenter
     public function currencyCode()
     {
         $currencyId = $this->entity->getCurrencyId();
-        $currency = Utils::getFromCache($currencyId, 'currencies');
+        $currency   = Utils::getFromCache($currencyId, 'currencies');
 
         return $currency->code;
     }
@@ -73,7 +73,7 @@ class AccountPresenter extends Presenter
     public function clientPortalLink($subdomain = false)
     {
         $account = $this->entity;
-        $url = Domain::getLinkFromId($account->domain_id);
+        $url     = Domain::getLinkFromId($account->domain_id);
 
         if ($subdomain && $account->subdomain) {
             $url = Utils::replaceSubdomain($url, $account->subdomain);
@@ -120,8 +120,8 @@ class AccountPresenter extends Presenter
     public function rBits()
     {
         $account = $this->entity;
-        $user = $account->users()->first();
-        $data = [];
+        $user    = $account->users()->first();
+        $data    = [];
 
         $data[] = $this->createRBit('business_name', 'user', ['business_name' => $account->name]);
         $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $account->present()->industry]);
@@ -140,9 +140,9 @@ class AccountPresenter extends Presenter
     public function dateRangeOptions()
     {
         $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
-        $month = $yearStart->month - 1;
-        $year = $yearStart->year;
-        $lastYear = $year - 1;
+        $month     = $yearStart->month - 1;
+        $year      = $yearStart->year;
+        $lastYear  = $year - 1;
 
         $str = '{
             "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
@@ -158,7 +158,7 @@ class AccountPresenter extends Presenter
 
     public function taxRateOptions()
     {
-        $rates = TaxRate::scope()->orderBy('name')->get();
+        $rates   = TaxRate::scope()->orderBy('name')->get();
         $options = [];
 
         foreach ($rates as $rate) {
@@ -201,7 +201,7 @@ class AccountPresenter extends Presenter
     public function customDesigns()
     {
         $account = $this->entity;
-        $data = [];
+        $data    = [];
 
         for ($i = 1; $i <= 3; $i++) {
             $label = trans('texts.custom_design' . $i);
@@ -252,11 +252,11 @@ class AccountPresenter extends Presenter
 
     private function createRBit($type, $source, $properties)
     {
-        $data = new stdClass();
+        $data               = new stdClass();
         $data->receive_time = time();
-        $data->type = $type;
-        $data->source = $source;
-        $data->properties = new stdClass();
+        $data->type         = $type;
+        $data->source       = $source;
+        $data->properties   = new stdClass();
 
         foreach ($properties as $key => $val) {
             $data->properties->{$key} = $val;

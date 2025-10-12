@@ -22,8 +22,8 @@ class ActivityReport extends AbstractReport
         $account = Auth::user()->account;
 
         $startDate = $this->startDate;
-        $endDate = $this->endDate;
-        $subgroup = $this->options['subgroup'];
+        $endDate   = $this->endDate;
+        $subgroup  = $this->options['subgroup'];
 
         $activities = Activity::scope()
             ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
@@ -31,7 +31,7 @@ class ActivityReport extends AbstractReport
             ->orderBy('id', 'desc');
 
         foreach ($activities->get() as $activity) {
-            $client = $activity->client;
+            $client       = $activity->client;
             $this->data[] = [
                 $activity->present()->createdAt,
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',

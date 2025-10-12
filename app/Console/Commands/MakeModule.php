@@ -39,11 +39,11 @@ class MakeModule extends Command
      */
     public function handle()
     {
-        $name = $this->argument('name');
-        $fields = $this->argument('fields');
+        $name    = $this->argument('name');
+        $fields  = $this->argument('fields');
         $migrate = $this->option('migrate');
-        $plain = $this->option('plain');
-        $lower = mb_strtolower($name);
+        $plain   = $this->option('plain');
+        $lower   = mb_strtolower($name);
 
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);

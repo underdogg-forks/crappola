@@ -27,7 +27,7 @@ class RecurringExpenseController extends BaseController
 
     public function __construct(RecurringExpenseRepository $recurringExpenseRepo, RecurringExpenseService $recurringExpenseService)
     {
-        $this->recurringExpenseRepo = $recurringExpenseRepo;
+        $this->recurringExpenseRepo    = $recurringExpenseRepo;
         $this->recurringExpenseService = $recurringExpenseService;
     }
 
@@ -136,11 +136,11 @@ class RecurringExpenseController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count = $this->recurringExpenseService->bulk($ids, $action);
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $count  = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
+            $field   = $count == 1 ? "{$action}d_recurring_expense" : "{$action}d_recurring_expenses";
             $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }

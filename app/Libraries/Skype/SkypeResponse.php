@@ -6,7 +6,7 @@ class SkypeResponse
 {
     public function __construct($type)
     {
-        $this->type = $type;
+        $this->type        = $type;
         $this->attachments = [];
     }
 

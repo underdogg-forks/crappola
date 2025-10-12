@@ -17,7 +17,7 @@ class PayFastPaymentDriver extends BasePaymentDriver
 
     protected function paymentDetails($paymentMethod = false)
     {
-        $data = parent::paymentDetails();
+        $data              = parent::paymentDetails();
         $data['notifyUrl'] = $this->invitation->getLink('complete', true);
 
         return $data;

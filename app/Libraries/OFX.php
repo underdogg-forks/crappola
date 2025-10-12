@@ -20,7 +20,7 @@ class OFX
 
     public function __construct($bank, $request)
     {
-        $this->bank = $bank;
+        $this->bank    = $bank;
         $this->request = $request;
     }
 
@@ -49,16 +49,16 @@ class OFX
 
         curl_close($c);
 
-        $tmp = explode('<OFX>', $this->response);
+        $tmp                  = explode('<OFX>', $this->response);
         $this->responseHeader = $tmp[0];
-        $this->responseBody = '<OFX>' . $tmp[1];
+        $this->responseBody   = '<OFX>' . $tmp[1];
     }
 
     public function xml()
     {
         $xml = $this->responseBody;
         $xml = self::closeTags($xml);
-        $x = new SimpleXMLElement($xml);
+        $x   = new SimpleXMLElement($xml);
 
         return $x;
     }
@@ -84,9 +84,9 @@ class Bank
     public function __construct($finance, $fid, $url, $org)
     {
         $this->finance = $finance;
-        $this->fid = $fid;
-        $this->url = $url;
-        $this->org = $org;
+        $this->fid     = $fid;
+        $this->url     = $url;
+        $this->org     = $org;
     }
 }
 
@@ -107,14 +107,13 @@ class Login
     public function __construct($bank, $id, $pass)
     {
         $this->bank = $bank;
-        $this->id = $id;
+        $this->id   = $id;
         $this->pass = $pass;
     }
 
     public function setup()
     {
-        $ofxRequest =
-        "OFXHEADER:100\n" .
+        $ofxRequest = "OFXHEADER:100\n" .
         "DATA:OFXSGML\n" .
         'VERSION:' . $this->ofxVersion . "\n" .
         "SECURITY:NONE\n" .
@@ -181,17 +180,16 @@ class Account
 
     public function __construct($login, $id, $type, $subType = null, $bankId = null)
     {
-        $this->login = $login;
-        $this->id = $id;
-        $this->type = $type;
+        $this->login   = $login;
+        $this->id      = $id;
+        $this->type    = $type;
         $this->subType = $subType;
-        $this->bankId = $bankId;
+        $this->bankId  = $bankId;
     }
 
     public function setup($includeTransactions = true)
     {
-        $ofxRequest =
-            "OFXHEADER:100\n" .
+        $ofxRequest = "OFXHEADER:100\n" .
             "DATA:OFXSGML\n" .
             'VERSION:' . $this->login->ofxVersion . "\n" .
             "SECURITY:NONE\n" .
@@ -255,11 +253,11 @@ class Account
             '</OFX>';
         $o = new OFX($this->login->bank, $ofxRequest);
         $o->go();
-        $this->response = $o->response;
-        $x = $o->xml();
-        $a = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');
+        $this->response      = $o->response;
+        $x                   = $o->xml();
+        $a                   = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');
         $this->ledgerBalance = (float) $a[0];
-        $a = $x->xpath('/OFX/*/*/*/AVAILBAL/BALAMT');
+        $a                   = $x->xpath('/OFX/*/*/*/AVAILBAL/BALAMT');
         if (isset($a[0])) {
             $this->availableBalance = (float) $a[0];
         }

@@ -24,7 +24,7 @@ class ProposalTemplateController extends BaseController
 
     public function __construct(ProposalTemplateRepository $proposalTemplateRepo, ProposalTemplateService $proposalTemplateService)
     {
-        $this->proposalTemplateRepo = $proposalTemplateRepo;
+        $this->proposalTemplateRepo    = $proposalTemplateRepo;
         $this->proposalTemplateService = $proposalTemplateService;
     }
 
@@ -74,15 +74,15 @@ class ProposalTemplateController extends BaseController
         $template = $request->entity();
 
         if ($clone) {
-            $template->id = null;
-            $template->public_id = null;
-            $template->name = '';
+            $template->id            = null;
+            $template->public_id     = null;
+            $template->name          = '';
             $template->private_notes = '';
-            $method = 'POST';
-            $url = 'proposals/templates';
+            $method                  = 'POST';
+            $url                     = 'proposals/templates';
         } else {
             $method = 'PUT';
-            $url = 'proposals/templates/' . $template->public_id;
+            $url    = 'proposals/templates/' . $template->public_id;
         }
 
         $data = array_merge($this->getViewmodel(), [
@@ -127,12 +127,12 @@ class ProposalTemplateController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
+            $field   = $count == 1 ? "{$action}d_proposal_template" : "{$action}d_proposal_templates";
             $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }
@@ -142,11 +142,11 @@ class ProposalTemplateController extends BaseController
 
     private function getViewmodel()
     {
-        $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
+        $customTemplates  = ProposalTemplate::scope()->orderBy('name')->get();
         $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
 
-        $options = [];
-        $customLabel = trans('texts.custom');
+        $options      = [];
+        $customLabel  = trans('texts.custom');
         $defaultLabel = trans('texts.default');
 
         foreach ($customTemplates as $template) {

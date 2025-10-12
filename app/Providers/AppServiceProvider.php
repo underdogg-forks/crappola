@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
 
         Form::macro('menu_link', function ($type) {
             $types = $type . 's';
-            $Type = ucfirst($type);
+            $Type  = ucfirst($type);
             $Types = ucfirst($types);
             $class = (Request::is($types) || Request::is('*' . $type . '*')) && ! Request::is('*settings*') ? ' active' : '';
 
@@ -102,8 +102,8 @@ class AppServiceProvider extends ServiceProvider
 
             // Get the breadcrumbs by exploding the current path.
             $basePath = Utils::basePath();
-            $parts = explode('?', $_SERVER['REQUEST_URI'] ?? '');
-            $path = $parts[0];
+            $parts    = explode('?', $_SERVER['REQUEST_URI'] ?? '');
+            $path     = $parts[0];
 
             if ($basePath != '/') {
                 $path = str_replace($basePath, '', $path);
@@ -150,7 +150,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Form::macro('human_filesize', function ($bytes, $decimals = 1) {
-            $size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            $size   = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             $factor = floor((mb_strlen($bytes) - 1) / 3);
             if ($factor == 0) {
                 $decimals = 0;
@@ -165,7 +165,7 @@ class AppServiceProvider extends ServiceProvider
 
         Validator::extend('has_credit', function ($attribute, $value, $parameters) {
             $publicClientId = $parameters[0];
-            $amount = $parameters[1];
+            $amount         = $parameters[1];
 
             $client = \App\Models\Client::scope($publicClientId)->firstOrFail();
             $credit = $client->getTotalCredit();
@@ -176,7 +176,7 @@ class AppServiceProvider extends ServiceProvider
         // check that the time log elements don't overlap
         Validator::extend('time_log', function ($attribute, $value, $parameters) {
             $lastTime = 0;
-            $value = json_decode($value);
+            $value    = json_decode($value);
             array_multisort($value);
             foreach ($value as $timeLog) {
                 list($startTime, $endTime) = $timeLog;
@@ -210,7 +210,7 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
             $total = 0;
             foreach ($value as $item) {
-                $qty = ! empty($item['qty']) ? Utils::parseFloat($item['qty']) : 1;
+                $qty  = ! empty($item['qty']) ? Utils::parseFloat($item['qty']) : 1;
                 $cost = ! empty($item['cost']) ? Utils::parseFloat($item['cost']) : 1;
                 $total += $qty * $cost;
             }

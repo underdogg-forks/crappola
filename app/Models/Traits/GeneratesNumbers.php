@@ -19,14 +19,14 @@ trait GeneratesNumbers
      */
     public function getNextNumber($entity = false)
     {
-        $entity = $entity ?: new Client();
+        $entity     = $entity ?: new Client();
         $entityType = $entity->getEntityType();
 
-        $counter = $this->getCounter($entityType);
-        $prefix = $this->getNumberPrefix($entityType);
+        $counter       = $this->getCounter($entityType);
+        $prefix        = $this->getNumberPrefix($entityType);
         $counterOffset = 0;
-        $check = false;
-        $lastNumber = false;
+        $check         = false;
+        $lastNumber    = false;
 
         if ($entityType == ENTITY_CLIENT && ! $this->clientNumbersEnabled()) {
             return '';
@@ -154,32 +154,32 @@ trait GeneratesNumbers
     public function applyNumberPattern($entity, $counter = 0)
     {
         $entityType = $entity->getEntityType();
-        $counter = $counter ?: $this->getCounter($entityType);
-        $pattern = $this->getNumberPattern($entityType);
+        $counter    = $counter ?: $this->getCounter($entityType);
+        $pattern    = $this->getNumberPattern($entityType);
 
         if ( ! $pattern) {
             return false;
         }
 
-        $search = ['{$year}'];
+        $search  = ['{$year}'];
         $replace = [date('Y')];
 
-        $search[] = '{$counter}';
+        $search[]  = '{$counter}';
         $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (mb_strstr($pattern, '{$userId}')) {
-            $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
-            $search[] = '{$userId}';
+            $userId    = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
+            $search[]  = '{$userId}';
             $replace[] = str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
         preg_match('/{\$date:(.*?)}/', $pattern, $matches);
         if (count($matches) > 1) {
-            $format = $matches[1];
+            $format   = $matches[1];
             $search[] = $matches[0];
             //$date = date_create()->format($format);
-            $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
+            $date      = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
@@ -290,7 +290,7 @@ trait GeneratesNumbers
             return false;
         }
 
-        $timezone = $this->getTimezone();
+        $timezone  = $this->getTimezone();
         $resetDate = Carbon::parse($this->reset_counter_date, $timezone);
 
         if ( ! $resetDate->isToday()) {
@@ -330,10 +330,10 @@ trait GeneratesNumbers
                 break;
         }
 
-        $this->reset_counter_date = $resetDate->format('Y-m-d');
+        $this->reset_counter_date     = $resetDate->format('Y-m-d');
         $this->invoice_number_counter = 1;
-        $this->quote_number_counter = 1;
-        $this->credit_number_counter = $this->credit_number_counter > 0 ? 1 : 0;
+        $this->quote_number_counter   = 1;
+        $this->credit_number_counter  = $this->credit_number_counter > 0 ? 1 : 0;
         $this->save();
     }
 
@@ -359,7 +359,7 @@ trait GeneratesNumbers
             '{$clientCounter}',
         ];
 
-        $client = $invoice->client;
+        $client        = $invoice->client;
         $clientCounter = ($invoice->isQuote() && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
 
         $replace = [

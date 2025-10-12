@@ -33,7 +33,7 @@ class ExportController extends BaseController
     public function doExport(Request $request)
     {
         $format = $request->input('format');
-        $date = date('Y-m-d');
+        $date   = date('Y-m-d');
 
         // set the filename based on the entity types selected
         if ($request->include == 'all') {
@@ -86,7 +86,7 @@ class ExportController extends BaseController
         }]);
 
         $resource = new Item($account, new AccountTransformer());
-        $data = $manager->parseIncludes('clients.invoices.payments')
+        $data     = $manager->parseIncludes('clients.invoices.payments')
             ->createData($resource)
             ->toArray();
 
@@ -142,9 +142,9 @@ class ExportController extends BaseController
                 $label = trans("texts.{$key}");
                 $excel->sheet($label, function ($sheet) use ($key, $data) {
                     if ($key === 'quotes') {
-                        $key = 'invoices';
+                        $key                = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
-                        $data['invoices'] = $data['quotes'];
+                        $data['invoices']   = $data['quotes'];
                     }
                     $sheet->loadView("export.{$key}", $data);
                 });

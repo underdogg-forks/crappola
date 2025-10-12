@@ -26,7 +26,7 @@ class ProjectController extends BaseController
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
-        $this->projectRepo = $projectRepo;
+        $this->projectRepo    = $projectRepo;
         $this->projectService = $projectService;
     }
 
@@ -54,8 +54,8 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
-        $account = auth()->user()->account;
-        $project = $request->entity();
+        $account   = auth()->user()->account;
+        $project   = $request->entity();
         $chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
@@ -127,14 +127,14 @@ class ProjectController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'invoice') {
-            $data = [];
+            $data           = [];
             $clientPublicId = false;
-            $lastClientId = false;
-            $lastProjectId = false;
-            $projects = Project::scope($ids)
+            $lastClientId   = false;
+            $lastProjectId  = false;
+            $projects       = Project::scope($ids)
                 ->with(['client', 'tasks' => function ($query) {
                     $query->whereNull('invoice_id');
                 }])
@@ -153,7 +153,7 @@ class ProjectController extends BaseController
                         return redirect('projects')->withError(trans('texts.task_error_running'));
                     }
                     $showProject = $lastProjectId != $task->project_id;
-                    $data[] = [
+                    $data[]      = [
                         'publicId'    => $task->public_id,
                         'description' => $task->present()->invoiceDescription(auth()->user()->account, $showProject),
                         'duration'    => $task->getHours(),
@@ -168,7 +168,7 @@ class ProjectController extends BaseController
         $count = $this->projectService->bulk($ids, $action);
 
         if ($count > 0) {
-            $field = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
+            $field   = $count == 1 ? "{$action}d_project" : "{$action}d_projects";
             $message = trans("texts.{$field}", ['count' => $count]);
             Session::flash('message', $message);
         }

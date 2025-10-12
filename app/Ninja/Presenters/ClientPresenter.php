@@ -18,7 +18,7 @@ class ClientPresenter extends EntityPresenter
 
     public function balance()
     {
-        $client = $this->entity;
+        $client  = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->balance, $client);
@@ -33,14 +33,14 @@ class ClientPresenter extends EntityPresenter
         }
 
         $website = e($client->website);
-        $link = Utils::addHttp($website);
+        $link    = Utils::addHttp($website);
 
         return link_to($link, $website, ['target' => '_blank']);
     }
 
     public function paid_to_date()
     {
-        $client = $this->entity;
+        $client  = $this->entity;
         $account = $client->account;
 
         return $account->formatMoney($client->paid_to_date, $client);
@@ -59,7 +59,7 @@ class ClientPresenter extends EntityPresenter
 
     public function address($addressType = ADDRESS_BILLING, $showHeader = false)
     {
-        $str = '';
+        $str    = '';
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
         $client = $this->entity;
 
@@ -90,10 +90,10 @@ class ClientPresenter extends EntityPresenter
     {
         $client = $this->entity;
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
-        $swap = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
+        $swap   = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
 
-        $city = e($client->{$prefix . 'city'});
-        $state = e($client->{$prefix . 'state'});
+        $city       = e($client->{$prefix . 'city'});
+        $state      = e($client->{$prefix . 'state'});
         $postalCode = e($client->{$prefix . 'postal_code'});
 
         if ($city || $state || $postalCode) {

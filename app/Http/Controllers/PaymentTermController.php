@@ -106,8 +106,8 @@ class PaymentTermController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
-        $count = $this->paymentTermService->bulk($ids, $action);
+        $ids    = Request::input('bulk_public_id');
+        $count  = $this->paymentTermService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_payment_term'));
 
@@ -128,7 +128,7 @@ class PaymentTermController extends BaseController
         }
 
         $paymentTerm->num_days = Utils::parseInt(Request::input('num_days'));
-        $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
+        $paymentTerm->name     = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 
         $message = $publicId ? trans('texts.updated_payment_term') : trans('texts.created_payment_term');

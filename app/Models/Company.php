@@ -66,7 +66,7 @@ class Company extends Eloquent
     // handle promos and discounts
     public function hasActiveDiscount(?Carbon $date = null)
     {
-        if (! $this->discount || ! $this->discount_expires) {
+        if ( ! $this->discount || ! $this->discount_expires) {
             return false;
         }
 
@@ -81,7 +81,7 @@ class Company extends Eloquent
 
     public function discountedPrice($price)
     {
-        if (! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
+        if ( ! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
             return $price;
         }
 
@@ -90,7 +90,7 @@ class Company extends Eloquent
 
     public function daysUntilPlanExpires()
     {
-        if (! $this->hasActivePlan()) {
+        if ( ! $this->hasActivePlan()) {
             return 0;
         }
 
@@ -113,7 +113,7 @@ class Company extends Eloquent
 
     public function hasEarnedPromo()
     {
-        if (! Utils::isNinjaProd() || Utils::isPro()) {
+        if ( ! Utils::isNinjaProd() || Utils::isPro()) {
             return false;
         }
 
@@ -140,9 +140,9 @@ class Company extends Eloquent
 
         foreach ($discounts as $weeks => $promo) {
             list($discount, $validFor) = $promo;
-            $difference = $this->created_at->diffInWeeks();
+            $difference                = $this->created_at->diffInWeeks();
             if ($difference >= $weeks && $discount > $this->discount) {
-                $this->discount = $discount;
+                $this->discount      = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
 
@@ -157,7 +157,7 @@ class Company extends Eloquent
     {
         $account = $this->accounts()->first();
 
-        if (! $account) {
+        if ( ! $account) {
             return false;
         }
 
@@ -166,20 +166,20 @@ class Company extends Eloquent
 
     public function processRefund($user)
     {
-        if (! $this->payment) {
+        if ( ! $this->payment) {
             return false;
         }
 
-        $account = $this->accounts()->first();
+        $account     = $this->accounts()->first();
         $planDetails = $account->getPlanDetails(false, false);
 
-        if (! empty($planDetails['started'])) {
+        if ( ! empty($planDetails['started'])) {
             $deadline = clone $planDetails['started'];
             $deadline->modify('+30 days');
 
             if ($deadline >= date_create()) {
-                $accountRepo = app('App\Ninja\Repositories\AccountRepository');
-                $ninjaAccount = $accountRepo->getNinjaAccount();
+                $accountRepo   = app('App\Ninja\Repositories\AccountRepository');
+                $ninjaAccount  = $accountRepo->getNinjaAccount();
                 $paymentDriver = $ninjaAccount->paymentDriver();
                 $paymentDriver->refundPayment($this->payment);
 
@@ -194,7 +194,7 @@ class Company extends Eloquent
 
     public function applyDiscount($amount)
     {
-        $this->discount = $amount;
+        $this->discount      = $amount;
         $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
     }
 
@@ -204,11 +204,11 @@ class Company extends Eloquent
             return;
         }
 
-        $this->plan = PLAN_PRO;
-        $this->plan_term = PLAN_TERM_YEARLY;
-        $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
+        $this->plan         = PLAN_PRO;
+        $this->plan_term    = PLAN_TERM_YEARLY;
+        $this->plan_price   = PLAN_PRICE_PRO_MONTHLY;
         $this->plan_started = date_create()->format('Y-m-d');
-        $this->plan_paid = date_create()->format('Y-m-d');
+        $this->plan_paid    = date_create()->format('Y-m-d');
         $this->plan_expires = date_create()->modify($numYears . ' year')->format('Y-m-d');
     }
 
@@ -219,7 +219,7 @@ class Company extends Eloquent
 }
 
 Company::deleted(function ($company) {
-    if (! env('MULTI_DB_ENABLED')) {
+    if ( ! env('MULTI_DB_ENABLED')) {
         return;
     }
 

@@ -47,7 +47,7 @@ class InvoiceIntent extends BaseIntent
         $productRepo = app('App\Ninja\Repositories\ProductRepository');
 
         $invoiceItems = [];
-        $offset = 0;
+        $offset       = 0;
 
         if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
@@ -56,32 +56,32 @@ class InvoiceIntent extends BaseIntent
         foreach ($this->data->compositeEntities as $entity) {
             if ($entity->parentType == 'InvoiceItem') {
                 $product = false;
-                $qty = 1;
+                $qty     = 1;
                 foreach ($entity->children as $child) {
                     if ($child->type == 'Product') {
                         // check additional words in product name
                         // https://social.msdn.microsoft.com/Forums/azure/en-US/a508e039-0f76-4280-8156-4a017bcfc6dd/none-of-your-composite-entities-contain-all-of-the-highlighted-entities?forum=LUIS
-                        $query = $this->data->query;
+                        $query      = $this->data->query;
                         $startIndex = mb_strpos($query, $child->value, $offset);
-                        $endIndex = mb_strlen($query);
-                        $offset = $startIndex + 1;
+                        $endIndex   = mb_strlen($query);
+                        $offset     = $startIndex + 1;
                         foreach ($this->data->entities as $indexChild) {
                             if ($indexChild->startIndex > $startIndex) {
                                 $endIndex = min($endIndex, $indexChild->startIndex);
                             }
                         }
                         $productName = mb_substr($query, $startIndex, ($endIndex - $startIndex));
-                        $product = $productRepo->findPhonetically($productName);
+                        $product     = $productRepo->findPhonetically($productName);
                     } else {
                         $qty = $child->value;
                     }
                 }
 
                 if ($product) {
-                    $item['qty'] = $qty;
+                    $item['qty']         = $qty;
                     $item['product_key'] = $product->product_key;
-                    $item['cost'] = $product->cost;
-                    $item['notes'] = $product->notes;
+                    $item['cost']        = $product->cost;
+                    $item['notes']       = $product->notes;
 
                     /*
                     if ($taxRate = $product->default_tax_rate) {
@@ -111,7 +111,7 @@ class InvoiceIntent extends BaseIntent
     protected function loadStatuses($entityType)
     {
         $statusIds = [];
-        $statuses = $this->getFields('Filter');
+        $statuses  = $this->getFields('Filter');
 
         foreach ($statuses as $status) {
             if ($statusId = InvoiceStatus::getIdFromAlias($status)) {

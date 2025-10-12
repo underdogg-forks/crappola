@@ -86,13 +86,13 @@ class Expense extends EntityModel
 
     public static function getStatuses($entityType = false)
     {
-        $statuses = [];
-        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
+        $statuses                          = [];
+        $statuses[EXPENSE_STATUS_LOGGED]   = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_PENDING]  = trans('texts.pending');
         $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
-        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
-        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
+        $statuses[EXPENSE_STATUS_BILLED]   = trans('texts.billed');
+        $statuses[EXPENSE_STATUS_PAID]     = trans('texts.paid');
+        $statuses[EXPENSE_STATUS_UNPAID]   = trans('texts.unpaid');
 
         return $statuses;
     }

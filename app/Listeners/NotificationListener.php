@@ -45,9 +45,9 @@ class NotificationListener
      */
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
     {
-        $this->userMailer = $userMailer;
+        $this->userMailer    = $userMailer;
         $this->contactMailer = $contactMailer;
-        $this->pushService = $pushService;
+        $this->pushService   = $pushService;
     }
 
     /**

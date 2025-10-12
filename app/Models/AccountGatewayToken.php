@@ -104,7 +104,7 @@ class AccountGatewayToken extends Eloquent
         }
         if ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
-            $testMode = $accountGateway->getConfigField('testMode');
+            $testMode   = $accountGateway->getConfigField('testMode');
 
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
         }

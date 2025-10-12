@@ -22,7 +22,7 @@ class EntityRequest extends Request
 
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
-        $field = $this->entityType . '_id';
+        $field    = $this->entityType . '_id';
         if ( ! empty($this->{$field})) {
             $publicId = $this->{$field};
         }

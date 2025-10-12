@@ -60,7 +60,7 @@ class ExpenseDatatable extends EntityDatatable
                 'amount',
                 function ($model) {
                     $amount = $model->amount + Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
-                    $str = Utils::formatMoney($amount, $model->expense_currency_id);
+                    $str    = Utils::formatMoney($amount, $model->expense_currency_id);
 
                     // show both the amount and the converted amount
                     if ($model->exchange_rate != 1) {

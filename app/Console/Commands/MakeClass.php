@@ -33,7 +33,7 @@ class MakeClass extends GeneratorCommand
     public function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
-        $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
+        $path   = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
 
         return (new Stub('/' . $this->argument('prefix') . $this->argument('class') . '.stub', [
             'NAMESPACE'          => $this->getClassNamespace($module) . '\\' . $path,
@@ -49,7 +49,7 @@ class MakeClass extends GeneratorCommand
 
     public function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $path       = $this->laravel['modules']->getModulePath($this->getModuleName());
         $seederPath = $this->laravel['modules']->config('paths.generator.' . $this->argument('class'));
 
         return $path . $seederPath . '/' . $this->getFileName() . '.php';
@@ -94,7 +94,7 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-        $str = '';
+        $str    = '';
 
         foreach ($fields as $field) {
             if ( ! $field) {
@@ -116,7 +116,7 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-        $str = '';
+        $str    = '';
 
         foreach ($fields as $field) {
             if ( ! $field) {
@@ -124,7 +124,7 @@ class MakeClass extends GeneratorCommand
             }
             $parts = explode(':', $field);
             $field = $parts[0];
-            $type = $parts[1];
+            $type  = $parts[1];
 
             if ($type == 'text') {
                 $str .= "{!! Former::textarea('" . $field . "') !!}\n";
@@ -140,7 +140,7 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-        $str = '';
+        $str    = '';
 
         foreach ($fields as $field) {
             if ( ! $field) {
@@ -157,7 +157,7 @@ class MakeClass extends GeneratorCommand
     {
         $fields = $this->option('fields');
         $fields = explode(',', $fields);
-        $str = '';
+        $str    = '';
 
         foreach ($fields as $field) {
             if ( ! $field) {

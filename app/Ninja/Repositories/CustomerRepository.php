@@ -23,12 +23,12 @@ class CustomerRepository extends BaseRepository
     {
         $account = auth()->user()->account;
 
-        $customer = new AccountGatewayToken();
+        $customer             = new AccountGatewayToken();
         $customer->account_id = $account->id;
         $customer->fill($data);
         $customer->save();
 
-        $paymentMethod = PaymentMethod::createNew();
+        $paymentMethod                           = PaymentMethod::createNew();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->fill($data['payment_method']);
         $paymentMethod->save();

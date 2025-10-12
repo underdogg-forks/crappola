@@ -31,7 +31,7 @@ class InvoiceInvitationWasViewed extends Event
      */
     public function __construct(Invoice $invoice, Invitation $invitation)
     {
-        $this->invoice = $invoice;
+        $this->invoice    = $invoice;
         $this->invitation = $invitation;
     }
 }

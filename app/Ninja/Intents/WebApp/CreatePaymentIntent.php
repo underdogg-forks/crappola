@@ -8,7 +8,7 @@ class CreatePaymentIntent extends BaseIntent
 {
     public function process()
     {
-        $clientPublicId = 0;
+        $clientPublicId  = 0;
         $invoicePublicId = 0;
 
         if ($invoice = $this->requestInvoice()) {

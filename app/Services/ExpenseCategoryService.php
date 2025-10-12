@@ -28,7 +28,7 @@ class ExpenseCategoryService extends BaseService
      */
     public function __construct(ExpenseCategoryRepository $categoryRepo, DatatableService $datatableService)
     {
-        $this->categoryRepo = $categoryRepo;
+        $this->categoryRepo     = $categoryRepo;
         $this->datatableService = $datatableService;
     }
 

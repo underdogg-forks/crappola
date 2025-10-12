@@ -81,7 +81,7 @@ class InvoiceItem extends EntityModel
 
     public function getTaxAmount()
     {
-        $tax = 0;
+        $tax          = 0;
         $preTaxAmount = $this->getPreTaxAmount();
 
         if ($this->tax_rate1) {

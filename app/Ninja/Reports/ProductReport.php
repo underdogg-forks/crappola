@@ -44,9 +44,9 @@ class ProductReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account   = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
-        $subgroup = $this->options['subgroup'];
+        $subgroup  = $this->options['subgroup'];
 
         $clients = Client::scope()
             ->orderBy('name')

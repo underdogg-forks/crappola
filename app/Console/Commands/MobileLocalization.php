@@ -103,12 +103,12 @@ class MobileLocalization extends Command
 
     private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
+        $url  = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
         $start = mb_strpos($data, 'do not remove comment') + 25;
-        $end = mb_strpos($data, '},', $start);
-        $data = mb_substr($data, $start, $end - $start - 5);
+        $end   = mb_strpos($data, '},', $start);
+        $data  = mb_substr($data, $start, $end - $start - 5);
 
         $data = str_replace("\n", '', $data);
         $data = str_replace('"', "\'", $data);

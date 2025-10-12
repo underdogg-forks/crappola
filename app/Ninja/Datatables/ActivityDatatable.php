@@ -14,7 +14,7 @@ class ActivityDatatable extends EntityDatatable
             [
                 'activities.id',
                 function ($model) {
-                    $str = Utils::timestampToDateTimeString(strtotime($model->created_at));
+                    $str           = Utils::timestampToDateTimeString(strtotime($model->created_at));
                     $activityTypes = [
                         ACTIVITY_TYPE_VIEW_INVOICE,
                         ACTIVITY_TYPE_VIEW_QUOTE,

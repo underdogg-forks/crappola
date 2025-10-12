@@ -221,7 +221,7 @@ class Vendor extends EntityModel
     {
         $publicId = $data['public_id'] ?? ($data['id'] ?? false);
 
-        if (! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
+        if ( ! $this->wasRecentlyCreated && $publicId && (int) $publicId > 0) {
             $contact = VendorContact::scope($publicId)->whereVendorId($this->id)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();
@@ -318,7 +318,7 @@ class Vendor extends EntityModel
             return $this->currency_id;
         }
 
-        if (! $this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 

@@ -35,7 +35,7 @@ class Authenticate
             if ( ! empty($request->invitation_key) || ! empty($request->proposal_invitation_key)) {
                 $contact_key = session('contact_key');
                 if ($contact_key) {
-                    $contact = $this->getContact($contact_key);
+                    $contact    = $this->getContact($contact_key);
                     $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key));
 
                     if ( ! $invitation) {
@@ -136,7 +136,7 @@ class Authenticate
 
         // check for extra params at end of value (from website feature)
         list($key) = explode('&', $key);
-        $key = mb_substr($key, 0, RANDOM_KEY_LENGTH);
+        $key       = mb_substr($key, 0, RANDOM_KEY_LENGTH);
 
         if ($isProposal) {
             $invitation = ProposalInvitation::withTrashed()->where('invitation_key', '=', $key)->first();

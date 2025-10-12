@@ -39,9 +39,9 @@ class Mailer
             'emails.' . $view . '_text',
         ];
 
-        $toEmail = mb_strtolower($toEmail);
+        $toEmail    = mb_strtolower($toEmail);
         $replyEmail = $fromEmail;
-        $fromEmail = CONTACT_EMAIL;
+        $fromEmail  = CONTACT_EMAIL;
 
         if (Utils::isSelfHost() && config('app.debug')) {
             Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: {$fromEmail}");
@@ -83,7 +83,7 @@ class Mailer
                     }
 
                     $fromEmail = config('mail.from.address');
-                    $app = App::getInstance();
+                    $app       = App::getInstance();
                     $app->singleton('swift.transport', function ($app) {
                         return new \Illuminate\Mail\TransportManager($app);
                     });
@@ -127,12 +127,12 @@ class Mailer
 
     private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
-        $htmlBody = view($views[0], $data)->render();
-        $textBody = view($views[1], $data)->render();
+        $htmlBody    = view($views[0], $data)->render();
+        $textBody    = view($views[1], $data)->render();
         $attachments = [];
 
         if (isset($data['account'])) {
-            $account = $data['account'];
+            $account  = $data['account'];
             $logoName = $account->getLogoName();
             if (str_contains($htmlBody, 'cid:' . $logoName) && $account->hasLogo()) {
                 $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
@@ -160,7 +160,7 @@ class Mailer
         }
 
         try {
-            $client = new PostmarkClient(config('services.postmark'));
+            $client  = new PostmarkClient(config('services.postmark'));
             $message = [
                 'To'          => $toEmail,
                 'From'        => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
@@ -203,8 +203,8 @@ class Mailer
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
-            $invoice = $invitation->invoice;
-            $notes = $data['notes'] ?? false;
+            $invoice    = $invitation->invoice;
+            $notes      = $data['notes'] ?? false;
 
             if ( ! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
@@ -224,7 +224,7 @@ class Mailer
     private function handleFailure($data, $emailError)
     {
         if (isset($data['invitation'])) {
-            $invitation = $data['invitation'];
+            $invitation              = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
         } elseif ( ! Utils::isNinjaProd()) {

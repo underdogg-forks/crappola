@@ -158,9 +158,9 @@ class CreditApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $credit = $this->creditRepo->save($data, $request->entity());
+        $credit            = $this->creditRepo->save($data, $request->entity());
 
         return $this->itemResponse($credit);
     }

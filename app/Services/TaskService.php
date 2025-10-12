@@ -25,7 +25,7 @@ class TaskService extends BaseService
      */
     public function __construct(TaskRepository $taskRepo, DatatableService $datatableService)
     {
-        $this->taskRepo = $taskRepo;
+        $this->taskRepo         = $taskRepo;
         $this->datatableService = $datatableService;
     }
 

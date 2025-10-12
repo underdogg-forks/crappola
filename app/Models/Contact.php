@@ -109,7 +109,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 
     public function getSearchName()
     {
-        $name = $this->getFullName();
+        $name  = $this->getFullName();
         $email = $this->email;
 
         if ($name && $email) {
@@ -155,9 +155,9 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
             $this->load('account');
         }
 
-        $account = $this->account;
+        $account    = $this->account;
         $iframe_url = $account->iframe_url;
-        $url = trim(SITE_URL, '/');
+        $url        = trim(SITE_URL, '/');
 
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
             if (Utils::isNinjaProd() && ! Utils::isReseller()) {

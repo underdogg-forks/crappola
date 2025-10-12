@@ -26,15 +26,15 @@ class DashboardRepository
     {
         $accountId = $account->id;
         $startDate = date_create($startDate);
-        $endDate = date_create($endDate);
-        $groupBy = mb_strtoupper($groupBy);
+        $endDate   = date_create($endDate);
+        $groupBy   = mb_strtoupper($groupBy);
         if ($groupBy == 'DAY') {
             $groupBy = 'DAYOFYEAR';
         }
 
         $datasets = [];
-        $labels = [];
-        $totals = new stdClass();
+        $labels   = [];
+        $totals   = new stdClass();
 
         $entitTypes = [ENTITY_INVOICE, ENTITY_PAYMENT];
         if ($includeExpenses) {
@@ -42,8 +42,8 @@ class DashboardRepository
         }
 
         foreach ($entitTypes as $entityType) {
-            $data = [];
-            $count = 0;
+            $data    = [];
+            $count   = 0;
             $balance = 0;
             $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
 
@@ -56,7 +56,7 @@ class DashboardRepository
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 ' . $padding);
             $interval = new DateInterval('P1' . mb_substr($groupBy, 0, 1));
-            $period = new DatePeriod($startDate, $interval, $endDate);
+            $period   = new DatePeriod($startDate, $interval, $endDate);
             $endDate->modify('-1 ' . $padding);
             $records = [];
 
@@ -86,19 +86,19 @@ class DashboardRepository
                 $color = '128,128,128';
             }
 
-            $record = new stdClass();
-            $record->data = $records;
-            $record->label = trans("texts.{$entityType}s");
-            $record->lineTension = 0;
-            $record->borderWidth = 4;
-            $record->borderColor = "rgba({$color}, 1)";
+            $record                  = new stdClass();
+            $record->data            = $records;
+            $record->label           = trans("texts.{$entityType}s");
+            $record->lineTension     = 0;
+            $record->borderWidth     = 4;
+            $record->borderColor     = "rgba({$color}, 1)";
             $record->backgroundColor = "rgba({$color}, 0.1)";
-            $datasets[] = $record;
+            $datasets[]              = $record;
 
             if ($entityType == ENTITY_INVOICE) {
                 $totals->invoices = array_sum($data);
-                $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
-                $totals->balance = $balance;
+                $totals->average  = $count ? round($totals->invoices / $count, 2) : 0;
+                $totals->balance  = $balance;
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $totals->revenue = array_sum($data);
             } elseif ($entityType == ENTITY_EXPENSE) {
@@ -107,12 +107,12 @@ class DashboardRepository
             }
         }
 
-        $data = new stdClass();
-        $data->labels = $labels;
+        $data           = new stdClass();
+        $data->labels   = $labels;
         $data->datasets = $datasets;
 
-        $response = new stdClass();
-        $response->data = $data;
+        $response         = new stdClass();
+        $response->data   = $data;
         $response->totals = $totals;
 
         return $response;
@@ -154,7 +154,7 @@ class DashboardRepository
     public function paidToDate($account, $userId, $viewAll, $startDate = false)
     {
         $accountId = $account->id;
-        $select = DB::raw(
+        $select    = DB::raw(
             'SUM(' . DB::getQueryGrammar()->wrap('payments.amount', true) . ' - ' . DB::getQueryGrammar()->wrap('payments.refunded', true) . ') as value,'
                   . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
         );
@@ -186,7 +186,7 @@ class DashboardRepository
     public function averages($account, $userId, $viewAll)
     {
         $accountId = $account->id;
-        $select = DB::raw(
+        $select    = DB::raw(
             'AVG(' . DB::getQueryGrammar()->wrap('invoices.amount', true) . ') as invoice_avg, '
                   . DB::getQueryGrammar()->wrap('clients.currency_id', true) . ' as currency_id'
         );
@@ -333,7 +333,7 @@ class DashboardRepository
 
     public function expenses($account, $userId, $viewAll)
     {
-        $amountField = DB::getQueryGrammar()->wrap('expenses.amount', true);
+        $amountField   = DB::getQueryGrammar()->wrap('expenses.amount', true);
         $taxRate1Field = DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
         $taxRate2Field = DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
 
@@ -374,9 +374,9 @@ class DashboardRepository
             return [];
         }
 
-        $accountId = $account->id;
+        $accountId  = $account->id;
         $currencyId = (int) $currencyId;
-        $timeframe = 'concat(YEAR(' . $entityType . '_date), ' . $groupBy . '(' . $entityType . '_date))';
+        $timeframe  = 'concat(YEAR(' . $entityType . '_date), ' . $groupBy . '(' . $entityType . '_date))';
 
         $records = DB::table($entityType . 's')
             ->leftJoin('clients', 'clients.id', '=', $entityType . 's.client_id')

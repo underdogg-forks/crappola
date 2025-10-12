@@ -29,8 +29,8 @@ class ClientPortalProposalController extends BaseController
             return $this->returnError(trans('texts.proposal_not_found'));
         }
 
-        $account = $invitation->account;
-        $proposal = $invitation->proposal;
+        $account           = $invitation->account;
+        $proposal          = $invitation->proposal;
         $invoiceInvitation = Invitation::whereContactId($invitation->contact_id)
             ->whereInvoiceId($proposal->invoice_id)
             ->firstOrFail();

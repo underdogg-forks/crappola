@@ -52,8 +52,8 @@ class BasePaymentDriver
     public function __construct($accountGateway = false, $invitation = false, $gatewayType = false)
     {
         $this->accountGateway = $accountGateway;
-        $this->invitation = $invitation;
-        $this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
+        $this->invitation     = $invitation;
+        $this->gatewayType    = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
     public function isGateway($gatewayId)
@@ -97,7 +97,7 @@ class BasePaymentDriver
 
     public function startPurchase($input = false, $sourceId = false)
     {
-        $this->input = $input;
+        $this->input    = $input;
         $this->sourceId = $sourceId;
 
         Session::put('invitation_key', $this->invitation->invitation_key);
@@ -282,9 +282,9 @@ class BasePaymentDriver
 
     public function paymentDetailsFromClient()
     {
-        $invoice = $this->invoice();
-        $client = $this->client();
-        $contact = $this->invitation->contact ?: $client->contacts()->first();
+        $invoice            = $this->invoice();
+        $client             = $this->client();
+        $contact            = $this->invitation->contact ?: $client->contacts()->first();
         $hasShippingAddress = $this->accountGateway->show_shipping_address;
 
         return [
@@ -368,12 +368,12 @@ class BasePaymentDriver
         $account = $this->account();
 
         if ( ! $customer = $this->customer()) {
-            $customer = new AccountGatewayToken();
-            $customer->account_id = $account->id;
-            $customer->contact_id = $this->invitation->contact_id;
+            $customer                     = new AccountGatewayToken();
+            $customer->account_id         = $account->id;
+            $customer->contact_id         = $this->invitation->contact_id;
             $customer->account_gateway_id = $this->accountGateway->id;
-            $customer->client_id = $this->client()->id;
-            $customer = $this->creatingCustomer($customer);
+            $customer->client_id          = $this->client()->id;
+            $customer                     = $this->creatingCustomer($customer);
             $customer->save();
         }
 
@@ -398,9 +398,9 @@ class BasePaymentDriver
 
     public function createPaymentMethod($customer)
     {
-        $paymentMethod = PaymentMethod::createNew($this->invitation);
-        $paymentMethod->contact_id = $this->contact()->id;
-        $paymentMethod->ip = Request::ip();
+        $paymentMethod                           = PaymentMethod::createNew($this->invitation);
+        $paymentMethod->contact_id               = $this->contact()->id;
+        $paymentMethod->ip                       = Request::ip();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
@@ -425,35 +425,35 @@ class BasePaymentDriver
 
     public function createPayment($ref = false, $paymentMethod = null)
     {
-        $account = $this->account();
+        $account    = $this->account();
         $invitation = $this->invitation;
-        $invoice = $this->invoice();
+        $invoice    = $this->invoice();
         if ( ! $invoice->canBePaid()) {
             return false;
         }
         $invoice->markSentIfUnsent();
 
-        $payment = Payment::createNew($invitation);
-        $payment->invitation_id = $invitation->id;
-        $payment->account_gateway_id = $this->accountGateway->id;
-        $payment->invoice_id = $invoice->id;
-        $payment->amount = $invoice->getRequestedAmount();
-        $payment->client_id = $invoice->client_id;
-        $payment->contact_id = $invitation->contact_id;
+        $payment                        = Payment::createNew($invitation);
+        $payment->invitation_id         = $invitation->id;
+        $payment->account_gateway_id    = $this->accountGateway->id;
+        $payment->invoice_id            = $invoice->id;
+        $payment->amount                = $invoice->getRequestedAmount();
+        $payment->client_id             = $invoice->client_id;
+        $payment->contact_id            = $invitation->contact_id;
         $payment->transaction_reference = $ref;
-        $payment->payment_date = $account->getDateTime()->format('Y-m-d');
-        $payment->ip = Request::ip();
+        $payment->payment_date          = $account->getDateTime()->format('Y-m-d');
+        $payment->ip                    = Request::ip();
 
         //Laravel 6 upgrade - uncommented this line as it was causing a failure
         // $payment = $this->creatingPayment($payment, $paymentMethod);
 
         if ($paymentMethod) {
-            $payment->last4 = $paymentMethod->last4;
-            $payment->expiration = $paymentMethod->expiration;
-            $payment->routing_number = $paymentMethod->routing_number;
-            $payment->payment_type_id = $paymentMethod->payment_type_id;
-            $payment->email = $paymentMethod->email;
-            $payment->bank_name = $paymentMethod->bank_name;
+            $payment->last4             = $paymentMethod->last4;
+            $payment->expiration        = $paymentMethod->expiration;
+            $payment->routing_number    = $paymentMethod->routing_number;
+            $payment->payment_type_id   = $paymentMethod->payment_type_id;
+            $payment->email             = $paymentMethod->email;
+            $payment->bank_name         = $paymentMethod->bank_name;
             $payment->payment_method_id = $paymentMethod->id;
         }
 
@@ -469,8 +469,8 @@ class BasePaymentDriver
             foreach ($invoice->invoice_items as $invoice_item) {
                 // Hacky, but invoices don't have meta fields to allow us to store this easily
                 if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
-                    $plan = mb_strtolower($matches[1]);
-                    $term = mb_strtolower($matches[2]);
+                    $plan  = mb_strtolower($matches[1]);
+                    $term  = mb_strtolower($matches[2]);
                     $price = $invoice_item->cost;
                     if ($plan == PLAN_ENTERPRISE) {
                         preg_match('/###[\d]* [\w]* (\d*)/', $invoice_item->notes, $numUserMatches);
@@ -509,17 +509,17 @@ class BasePaymentDriver
                     $company->plan_paid = date_create()->format('Y-m-d');
                 }
 
-                $company->payment_id = $payment->id;
-                $company->plan = $plan;
-                $company->plan_term = $term;
-                $company->plan_price = $price;
-                $company->num_users = $numUsers;
+                $company->payment_id   = $payment->id;
+                $company->plan         = $plan;
+                $company->plan_term    = $term;
+                $company->plan_price   = $price;
+                $company->num_users    = $numUsers;
                 $company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
                 if ($company->hasActivePromo()) {
                     $company->discount_expires = date_create()->modify('1 year')->format('Y-m-d');
-                    $company->promo_expires = null;
+                    $company->promo_expires    = null;
                 }
 
                 $company->save();
@@ -549,14 +549,14 @@ class BasePaymentDriver
             return $payment->recordRefund($amount);
         }
 
-        $details = $this->refundDetails($payment, $amount);
+        $details  = $this->refundDetails($payment, $amount);
         $response = $this->gateway()->refund($details)->send();
 
         if ($response->isSuccessful()) {
             return $payment->recordRefund($amount);
         }
         if ($this->attemptVoidPayment($response, $payment, $amount)) {
-            $details = ['transactionReference' => $payment->transaction_reference];
+            $details  = ['transactionReference' => $payment->transaction_reference];
             $response = $this->gateway->void($details)->send();
             if ($response->isSuccessful()) {
                 return $payment->markVoided();
@@ -569,11 +569,11 @@ class BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $this->input = $input;
-        $transRef = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
+        $transRef    = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
 
         if (method_exists($this->gateway(), 'completePurchase')) {
-            $details = $this->paymentDetails();
-            $response = $this->gateway()->completePurchase($details)->send();
+            $details    = $this->paymentDetails();
+            $response   = $this->gateway()->completePurchase($details)->send();
             $paymentRef = $response->getTransactionReference() ?: $transRef;
 
             if ($response->isCancelled()) {
@@ -610,7 +610,7 @@ class BasePaymentDriver
         }
 
         $paymentMethods = $this->customer()->payment_methods;
-        $links = [];
+        $links          = [];
 
         foreach ($paymentMethods as $paymentMethod) {
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH && $paymentMethod->status != PAYMENT_METHOD_STATUS_VERIFIED) {
@@ -662,13 +662,13 @@ class BasePaymentDriver
             $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
 
             if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM1) {
-                $url = 'javascript:showCustom1Modal();';
+                $url   = 'javascript:showCustom1Modal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } elseif ($gatewayTypeId == GATEWAY_TYPE_CUSTOM2) {
-                $url = 'javascript:showCustom2Modal();';
+                $url   = 'javascript:showCustom2Modal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } elseif ($gatewayTypeId == GATEWAY_TYPE_CUSTOM3) {
-                $url = 'javascript:showCustom3Modal();';
+                $url   = 'javascript:showCustom3Modal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
@@ -868,9 +868,9 @@ class BasePaymentDriver
 
     protected function paymentDetails($paymentMethod = false)
     {
-        $invoice = $this->invoice();
+        $invoice          = $this->invoice();
         $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
-        $completeUrl = $this->invitation->getLink('complete', true) . '/' . $gatewayTypeAlias;
+        $completeUrl      = $this->invitation->getLink('complete', true) . '/' . $gatewayTypeAlias;
 
         $data = [
             'amount'          => $invoice->getRequestedAmount(),
@@ -934,21 +934,21 @@ class BasePaymentDriver
         // TODO parse invoice to determine license
         if ($payment->amount == WHITE_LABEL_PRICE) {
             $affiliateId = 4;
-            $productId = PRODUCT_WHITE_LABEL;
+            $productId   = PRODUCT_WHITE_LABEL;
         } else {
             $affiliateId = 1;
-            $productId = PRODUCT_ONE_CLICK_INSTALL;
+            $productId   = PRODUCT_ONE_CLICK_INSTALL;
         }
 
-        $license = new License();
-        $license->first_name = $this->contact()->first_name;
-        $license->last_name = $this->contact()->last_name;
-        $license->email = $this->contact()->email;
+        $license                        = new License();
+        $license->first_name            = $this->contact()->first_name;
+        $license->last_name             = $this->contact()->last_name;
+        $license->email                 = $this->contact()->email;
         $license->transaction_reference = $payment->transaction_reference;
-        $license->license_key = Utils::generateLicense();
-        $license->affiliate_id = $affiliateId;
-        $license->product_id = $productId;
-        $license->is_claimed = 0;
+        $license->license_key           = Utils::generateLicense();
+        $license->affiliate_id          = $affiliateId;
+        $license->product_id            = $productId;
+        $license->is_claimed            = 0;
         $license->save();
 
         // Add the license key to the invoice content
@@ -1014,7 +1014,7 @@ class BasePaymentDriver
     protected function paymentUrl($gatewayTypeAlias)
     {
         $account = $this->account();
-        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
+        $url     = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
 
         return $url;
     }
@@ -1022,8 +1022,8 @@ class BasePaymentDriver
     private function paymentItems()
     {
         $invoice = $this->invoice();
-        $items = [];
-        $total = 0;
+        $items   = [];
+        $total   = 0;
 
         foreach ($invoice->invoice_items as $invoiceItem) {
             // Some gateways require quantity is an integer
@@ -1066,7 +1066,7 @@ class BasePaymentDriver
         // update the contact info
         if ( ! $this->contact()->getFullName()) {
             $this->contact()->first_name = $this->input['first_name'];
-            $this->contact()->last_name = $this->input['last_name'];
+            $this->contact()->last_name  = $this->input['last_name'];
         }
 
         if ( ! $this->contact()->email) {
@@ -1081,21 +1081,21 @@ class BasePaymentDriver
         $client = $this->client();
 
         if ($this->accountGateway->show_address && $this->accountGateway->update_address) {
-            $client->address1 = trim($this->input['address1']);
-            $client->address2 = trim($this->input['address2']);
-            $client->city = trim($this->input['city']);
-            $client->state = trim($this->input['state']);
+            $client->address1    = trim($this->input['address1']);
+            $client->address2    = trim($this->input['address2']);
+            $client->city        = trim($this->input['city']);
+            $client->state       = trim($this->input['state']);
             $client->postal_code = trim($this->input['postal_code']);
-            $client->country_id = trim($this->input['country_id']);
+            $client->country_id  = trim($this->input['country_id']);
         }
 
         if ($this->accountGateway->show_shipping_address) {
-            $client->shipping_address1 = trim($this->input['shipping_address1']);
-            $client->shipping_address2 = trim($this->input['shipping_address2']);
-            $client->shipping_city = trim($this->input['shipping_city']);
-            $client->shipping_state = trim($this->input['shipping_state']);
+            $client->shipping_address1    = trim($this->input['shipping_address1']);
+            $client->shipping_address2    = trim($this->input['shipping_address2']);
+            $client->shipping_city        = trim($this->input['shipping_city']);
+            $client->shipping_state       = trim($this->input['shipping_state']);
             $client->shipping_postal_code = trim($this->input['shipping_postal_code']);
-            $client->shipping_country_id = trim($this->input['shipping_country_id']);
+            $client->shipping_country_id  = trim($this->input['shipping_country_id']);
         }
 
         if ($client->isDirty()) {
@@ -1106,7 +1106,7 @@ class BasePaymentDriver
     private function paymentDetailsFromInput($input)
     {
         $invoice = $this->invoice();
-        $client = $this->client();
+        $client  = $this->client();
 
         $data = [
             'company'     => $client->getDisplayName(),
@@ -1125,8 +1125,8 @@ class BasePaymentDriver
 
         if (isset($input['address1'])) {
             $hasShippingAddress = $this->accountGateway->show_shipping_address;
-            $country = Utils::getFromCache($input['country_id'], 'countries');
-            $shippingCountry = $hasShippingAddress ? Utils::getFromCache($input['shipping_country_id'], 'countries') : $country;
+            $country            = Utils::getFromCache($input['country_id'], 'countries');
+            $shippingCountry    = $hasShippingAddress ? Utils::getFromCache($input['shipping_country_id'], 'countries') : $country;
 
             $data = array_merge($data, [
                 'billingAddress1'  => trim($input['address1']),

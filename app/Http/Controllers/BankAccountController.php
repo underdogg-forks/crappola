@@ -28,7 +28,7 @@ class BankAccountController extends BaseController
         //parent::__construct();
 
         $this->bankAccountService = $bankAccountService;
-        $this->bankAccountRepo = $bankAccountRepo;
+        $this->bankAccountRepo    = $bankAccountRepo;
     }
 
     public function index()
@@ -75,8 +75,8 @@ class BankAccountController extends BaseController
     public function bulk()
     {
         $action = \Request::input('bulk_action');
-        $ids = \Request::input('bulk_public_id');
-        $count = $this->bankAccountService->bulk($ids, $action);
+        $ids    = \Request::input('bulk_public_id');
+        $count  = $this->bankAccountService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_bank_account'));
 
@@ -99,7 +99,7 @@ class BankAccountController extends BaseController
             }
             $bankId = $bankAccount->bank_id;
         } else {
-            $bankAccount = new BankAccount();
+            $bankAccount          = new BankAccount();
             $bankAccount->bank_id = \Request::input('bank_id');
         }
 
@@ -117,7 +117,7 @@ class BankAccountController extends BaseController
     {
         $bankAccount = $this->bankAccountRepo->save(Request::all());
 
-        $bankId = \Request::input('bank_id');
+        $bankId   = \Request::input('bank_id');
         $username = trim(\Request::input('bank_username'));
         $password = trim(\Request::input('bank_password'));
 

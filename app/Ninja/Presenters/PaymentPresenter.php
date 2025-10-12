@@ -58,7 +58,7 @@ class PaymentPresenter extends EntityPresenter
 
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
+        $data    = parent::calendarEvent();
         $payment = $this->entity;
         $invoice = $payment->invoice;
 

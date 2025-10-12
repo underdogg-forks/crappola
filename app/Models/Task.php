@@ -55,7 +55,7 @@ class Task extends EntityModel
     public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         $duration = 0;
-        $parts = json_decode($task->time_log) ?: [];
+        $parts    = json_decode($task->time_log) ?: [];
 
         foreach ($parts as $part) {
             $startTime = $part[0];
@@ -88,10 +88,10 @@ class Task extends EntityModel
             $statuses[$status->public_id] = $status->name;
         }
 
-        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
-        $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
+        $statuses[TASK_STATUS_LOGGED]   = trans('texts.logged');
+        $statuses[TASK_STATUS_RUNNING]  = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
-        $statuses[TASK_STATUS_PAID] = trans('texts.paid');
+        $statuses[TASK_STATUS_PAID]     = trans('texts.paid');
 
         return $statuses;
     }
@@ -221,7 +221,7 @@ class Task extends EntityModel
     public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
-        $part = $parts[count($parts) - 1];
+        $part  = $parts[count($parts) - 1];
 
         if (count($part) == 1 || ! $part[1]) {
             return time() - $part[0];
@@ -286,10 +286,10 @@ class Task extends EntityModel
     public function statusClass()
     {
         if ($this->invoice) {
-            $balance = $this->invoice->balance;
+            $balance       = $this->invoice->balance;
             $invoiceNumber = $this->invoice->invoice_number;
         } else {
-            $balance = 0;
+            $balance       = 0;
             $invoiceNumber = false;
         }
 
@@ -299,10 +299,10 @@ class Task extends EntityModel
     public function statusLabel()
     {
         if ($this->invoice) {
-            $balance = $this->invoice->balance;
+            $balance       = $this->invoice->balance;
             $invoiceNumber = $this->invoice->invoice_number;
         } else {
-            $balance = 0;
+            $balance       = 0;
             $invoiceNumber = false;
         }
 

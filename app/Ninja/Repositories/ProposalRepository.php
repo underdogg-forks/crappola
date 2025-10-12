@@ -94,7 +94,7 @@ class ProposalRepository extends BaseRepository
 
         foreach ($proposal->invoice->invitations as $invitation) {
             $conactIds[] = $invitation->contact_id;
-            $found = false;
+            $found       = false;
             foreach ($proposal->proposal_invitations as $proposalInvitation) {
                 if ($invitation->contact_id == $proposalInvitation->contact_id) {
                     $found = true;
@@ -102,9 +102,9 @@ class ProposalRepository extends BaseRepository
                 }
             }
             if ( ! $found) {
-                $proposalInvitation = ProposalInvitation::createNew();
-                $proposalInvitation->proposal_id = $proposal->id;
-                $proposalInvitation->contact_id = $invitation->contact_id;
+                $proposalInvitation                 = ProposalInvitation::createNew();
+                $proposalInvitation->proposal_id    = $proposal->id;
+                $proposalInvitation->contact_id     = $invitation->contact_id;
                 $proposalInvitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
                 $proposalInvitation->save();
             }
@@ -129,7 +129,7 @@ class ProposalRepository extends BaseRepository
     {
         // check for extra params at end of value (from website feature)
         list($invitationKey) = explode('&', $invitationKey);
-        $invitationKey = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
+        $invitationKey       = mb_substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         /** @var \App\Models\Invitation $invitation */
         $invitation = ProposalInvitation::where('invitation_key', '=', $invitationKey)->first();

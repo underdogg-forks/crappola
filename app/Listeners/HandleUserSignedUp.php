@@ -32,7 +32,7 @@ class HandleUserSignedUp
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
         $this->accountRepo = $accountRepo;
-        $this->userMailer = $userMailer;
+        $this->userMailer  = $userMailer;
     }
 
     /**

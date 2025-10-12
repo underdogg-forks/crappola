@@ -9,7 +9,7 @@ class CreateInvoiceIntent extends InvoiceIntent
 {
     public function process()
     {
-        $client = $this->requestClient();
+        $client       = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();
 
         if ( ! $client) {
@@ -30,7 +30,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         }
 
         $invoiceService = app('App\Services\InvoiceService');
-        $invoice = $invoiceService->save($data);
+        $invoice        = $invoiceService->save($data);
 
         $invoiceItemIds = array_map(function ($item) {
             return $item['public_id'];

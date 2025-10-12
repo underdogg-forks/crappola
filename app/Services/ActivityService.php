@@ -29,7 +29,7 @@ class ActivityService extends BaseService
      */
     public function __construct(ActivityRepository $activityRepo, DatatableService $datatableService)
     {
-        $this->activityRepo = $activityRepo;
+        $this->activityRepo     = $activityRepo;
         $this->datatableService = $datatableService;
     }
 

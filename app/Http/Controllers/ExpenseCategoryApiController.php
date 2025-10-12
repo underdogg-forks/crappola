@@ -20,7 +20,7 @@ class ExpenseCategoryApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->categoryRepo = $categoryRepo;
+        $this->categoryRepo    = $categoryRepo;
         $this->categoryService = $categoryService;
     }
 

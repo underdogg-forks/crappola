@@ -14,7 +14,7 @@ class EntityTransformer extends TransformerAbstract
 
     public function __construct(?Account $account = null, $serializer = null)
     {
-        $this->account = $account;
+        $this->account    = $account;
         $this->serializer = $serializer;
     }
 

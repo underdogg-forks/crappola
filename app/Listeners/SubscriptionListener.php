@@ -231,9 +231,9 @@ class SubscriptionListener
 
     private static function notifySubscription($subscription, $data)
     {
-        $curl = curl_init();
+        $curl            = curl_init();
         $jsonEncodedData = json_encode($data);
-        $url = $subscription->target_url;
+        $url             = $subscription->target_url;
 
         if ( ! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
             $url .= '?secret=' . $secret;

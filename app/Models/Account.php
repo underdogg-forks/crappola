@@ -731,8 +731,8 @@ class Account extends Eloquent
 
     public function getSampleLink()
     {
-        $invitation = new Invitation();
-        $invitation->account = $this;
+        $invitation                 = new Invitation();
+        $invitation->account        = $this;
         $invitation->invitation_key = '...';
 
         return $invitation->getLink();
@@ -905,20 +905,20 @@ class Account extends Eloquent
             $this->load('account_gateways');
         }
 
-        $gatewayTypes = [];
-        $gatewayIds = [];
+        $gatewayTypes   = [];
+        $gatewayIds     = [];
         $usedGatewayIds = [];
 
         foreach ($this->account_gateways as $accountGateway) {
             $usedGatewayIds[] = $accountGateway->gateway_id;
-            $paymentDriver = $accountGateway->paymentDriver();
-            $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
+            $paymentDriver    = $accountGateway->paymentDriver();
+            $gatewayTypes     = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
         }
 
         foreach (Cache::get('gateways') as $gateway) {
             $paymentDriverClass = AccountGateway::paymentDriverClass($gateway->provider);
-            $paymentDriver = new $paymentDriverClass();
-            $available = true;
+            $paymentDriver      = new $paymentDriverClass();
+            $available          = true;
 
             foreach ($gatewayTypes as $type) {
                 if ($paymentDriver->handles($type)) {
@@ -1013,21 +1013,21 @@ class Account extends Eloquent
     {
         $invoice = Invoice::createNew();
 
-        $invoice->is_recurring = false;
-        $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
-        $invoice->invoice_date = Utils::today();
-        $invoice->start_date = Utils::today();
+        $invoice->is_recurring      = false;
+        $invoice->invoice_type_id   = INVOICE_TYPE_STANDARD;
+        $invoice->invoice_date      = Utils::today();
+        $invoice->start_date        = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
-        $invoice->client_id = $clientId;
-        $invoice->custom_taxes1 = $this->custom_invoice_taxes1;
-        $invoice->custom_taxes2 = $this->custom_invoice_taxes2;
+        $invoice->client_id         = $clientId;
+        $invoice->custom_taxes1     = $this->custom_invoice_taxes1;
+        $invoice->custom_taxes2     = $this->custom_invoice_taxes2;
 
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
-            $invoice->is_recurring = true;
+            $invoice->is_recurring   = true;
         } else {
             if ($entityType == ENTITY_QUOTE) {
-                $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
+                $invoice->invoice_type_id   = INVOICE_TYPE_QUOTE;
                 $invoice->invoice_design_id = $this->quote_design_id;
             }
 
@@ -1039,7 +1039,7 @@ class Account extends Eloquent
         }
 
         if ( ! $clientId) {
-            $invoice->client = Client::createNew();
+            $invoice->client            = Client::createNew();
             $invoice->client->public_id = 0;
         }
 
@@ -1112,7 +1112,7 @@ class Account extends Eloquent
             return;
         }
 
-        $this->company->trial_plan = $plan;
+        $this->company->trial_plan    = $plan;
         $this->company->trial_started = date_create()->format('Y-m-d');
         $this->company->save();
     }
@@ -1138,7 +1138,7 @@ class Account extends Eloquent
         }
 
         $planDetails = $this->getPlanDetails();
-        $selfHost = ! Utils::isNinjaProd();
+        $selfHost    = ! Utils::isNinjaProd();
 
         if ( ! $selfHost && function_exists('ninja_account_features')) {
             $result = ninja_account_features($this, $feature);
@@ -1264,8 +1264,8 @@ class Account extends Eloquent
             return;
         }
 
-        $plan = $this->company->plan;
-        $price = $this->company->plan_price;
+        $plan       = $this->company->plan;
+        $price      = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
         if (( ! $plan || $plan == PLAN_FREE) && ( ! $trial_plan || ! $include_trial)) {
@@ -1286,7 +1286,7 @@ class Account extends Eloquent
         $plan_active = false;
         if ($plan) {
             if ($this->company->plan_expires == null) {
-                $plan_active = true;
+                $plan_active  = true;
                 $plan_expires = false;
             } else {
                 $plan_expires = DateTime::createFromFormat('Y-m-d', $this->company->plan_expires);
@@ -1376,7 +1376,7 @@ class Account extends Eloquent
             return 0;
         }
 
-        $today = new DateTime('now');
+        $today    = new DateTime('now');
         $interval = $today->diff($planDetails['expires']);
 
         return $interval ? $interval->d : 0;
@@ -1524,7 +1524,7 @@ class Account extends Eloquent
      */
     public function getSiteUrl()
     {
-        $url = trim(SITE_URL, '/');
+        $url        = trim(SITE_URL, '/');
         $iframe_url = $this->iframe_url;
 
         if ($iframe_url) {
@@ -1548,7 +1548,7 @@ class Account extends Eloquent
             return true;
         }
 
-        $server = explode('.', $host);
+        $server    = explode('.', $host);
         $subdomain = $server[0];
 
         return ! ( ! in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain);
@@ -1583,7 +1583,7 @@ class Account extends Eloquent
         $css = '';
 
         if ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
-            $bodyFont = $this->getBodyFontCss();
+            $bodyFont   = $this->getBodyFontCss();
             $headerFont = $this->getHeaderFontCss();
 
             $css = 'body{' . $bodyFont . '}';
@@ -1604,15 +1604,15 @@ class Account extends Eloquent
      */
     public function getFontsUrl($protocol = '')
     {
-        $bodyFont = $this->getHeaderFontId();
+        $bodyFont   = $this->getHeaderFontId();
         $headerFont = $this->getBodyFontId();
 
         $bodyFontSettings = Utils::getFromCache($bodyFont, 'fonts');
-        $google_fonts = [$bodyFontSettings['google_font']];
+        $google_fonts     = [$bodyFontSettings['google_font']];
 
         if ($headerFont != $bodyFont) {
             $headerFontSettings = Utils::getFromCache($headerFont, 'fonts');
-            $google_fonts[] = $headerFontSettings['google_font'];
+            $google_fonts[]     = $headerFontSettings['google_font'];
         }
 
         return ($protocol ? $protocol . ':' : '') . '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts);
@@ -1652,7 +1652,7 @@ class Account extends Eloquent
     public function getHeaderFontCss($include_weight = true)
     {
         $font_data = Utils::getFromCache($this->getHeaderFontId(), 'fonts');
-        $css = 'font-family:' . $font_data['css_stack'] . ';';
+        $css       = 'font-family:' . $font_data['css_stack'] . ';';
 
         if ($include_weight) {
             $css .= 'font-weight:' . $font_data['css_weight'] . ';';
@@ -1669,7 +1669,7 @@ class Account extends Eloquent
     public function getBodyFontCss($include_weight = true)
     {
         $font_data = Utils::getFromCache($this->getBodyFontId(), 'fonts');
-        $css = 'font-family:' . $font_data['css_stack'] . ';';
+        $css       = 'font-family:' . $font_data['css_stack'] . ';';
 
         if ($include_weight) {
             $css .= 'font-weight:' . $font_data['css_weight'] . ';';
@@ -1823,7 +1823,7 @@ class Account extends Eloquent
             return false;
         }
 
-        $yearStart = Carbon::parse($this->financial_year_start);
+        $yearStart       = Carbon::parse($this->financial_year_start);
         $yearStart->year = date('Y');
 
         if ($yearStart->isFuture()) {

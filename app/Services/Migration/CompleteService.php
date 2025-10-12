@@ -89,7 +89,7 @@ class CompleteService
         // info($response->raw_body);
 
         $this->isSuccessful = false;
-        $this->errors = [
+        $this->errors       = [
             'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
         ];
 

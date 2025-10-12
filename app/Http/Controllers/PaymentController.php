@@ -55,8 +55,8 @@ class PaymentController extends BaseController
         ContactMailer $contactMailer,
         PaymentService $paymentService
     ) {
-        $this->paymentRepo = $paymentRepo;
-        $this->contactMailer = $contactMailer;
+        $this->paymentRepo    = $paymentRepo;
+        $this->contactMailer  = $contactMailer;
         $this->paymentService = $paymentService;
     }
 
@@ -89,7 +89,7 @@ class PaymentController extends BaseController
      */
     public function create(PaymentRequest $request)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         $invoices = Invoice::scope()
@@ -98,7 +98,7 @@ class PaymentController extends BaseController
             ->with('client', 'invoice_status')
             ->orderBy('invoice_number')->get();
 
-        $clientPublicId = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
+        $clientPublicId  = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
         $invoicePublicId = Request::old('invoice') ? Request::old('invoice') : ($request->invoice_id ?: 0);
 
         $totalCredit = false;
@@ -145,7 +145,7 @@ class PaymentController extends BaseController
      */
     public function edit(PaymentRequest $request)
     {
-        $payment = $request->entity();
+        $payment               = $request->entity();
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
         $actions = [];
@@ -200,7 +200,7 @@ class PaymentController extends BaseController
     {
         // check payment has been marked sent
         $request->invoice->markSentIfUnsent();
-        $input = $request->input();
+        $input  = $request->input();
         $amount = Utils::parseFloat($input['amount']);
         $credit = false;
 
@@ -242,7 +242,7 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();

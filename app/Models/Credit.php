@@ -79,10 +79,10 @@ class Credit extends EntityModel
     public function apply($amount)
     {
         if ($amount > $this->balance) {
-            $applied = $this->balance;
+            $applied       = $this->balance;
             $this->balance = 0;
         } else {
-            $applied = $amount;
+            $applied       = $amount;
             $this->balance = $this->balance - $amount;
         }
 

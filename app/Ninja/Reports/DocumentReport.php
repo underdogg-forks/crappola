@@ -20,11 +20,11 @@ class DocumentReport extends AbstractReport
 
     public function run()
     {
-        $account = auth()->user()->account;
-        $filter = $this->options['document_filter'];
+        $account      = auth()->user()->account;
+        $filter       = $this->options['document_filter'];
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
-        $records = false;
+        $subgroup     = $this->options['subgroup'];
+        $records      = false;
 
         if ( ! $filter || $filter == ENTITY_INVOICE) {
             $records = Invoice::scope()
@@ -70,7 +70,7 @@ class DocumentReport extends AbstractReport
 
         foreach ($records as $record) {
             foreach ($record->documents as $document) {
-                $date = $record->getEntityType() == ENTITY_INVOICE ? $record->invoice_date : $record->expense_date;
+                $date         = $record->getEntityType() == ENTITY_INVOICE ? $record->invoice_date : $record->expense_date;
                 $this->data[] = [
                     $this->isExport ? $document->name : link_to($document->getUrl(), $document->name),
                     $record->client ? ($this->isExport ? $record->client->getDisplayName() : $record->client->present()->link) : '',

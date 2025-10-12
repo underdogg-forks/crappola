@@ -15,7 +15,7 @@ class CreditCest
 
     public function create(AcceptanceTester $I)
     {
-        $note = $this->faker->catchPhrase;
+        $note        = $this->faker->catchPhrase;
         $clientEmail = $this->faker->safeEmail;
 
         $I->wantTo('Create a credit');

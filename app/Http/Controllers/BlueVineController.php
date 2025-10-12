@@ -27,11 +27,11 @@ class BlueVineController extends BaseController
 
         if ( ! empty(Request::input('quote_type_factoring'))) {
             $data['invoice_factoring_offer'] = true;
-            $data['desired_credit_line'] = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
+            $data['desired_credit_line']     = (int) (Request::input('desired_credit_limit')['invoice_factoring']);
         }
 
         if ( ! empty(Request::input('quote_type_loc'))) {
-            $data['line_of_credit_offer'] = true;
+            $data['line_of_credit_offer']        = true;
             $data['desired_credit_line_for_loc'] = (int) (Request::input('desired_credit_limit')['line_of_credit']);
         }
 
@@ -64,7 +64,7 @@ class BlueVineController extends BaseController
             ]);
         }
 
-        $company = $user->account->company;
+        $company                  = $user->account->company;
         $company->bluevine_status = 'signed_up';
         $company->save();
 
@@ -78,7 +78,7 @@ class BlueVineController extends BaseController
         $user = Auth::user();
 
         if ($user) {
-            $company = $user->account->company;
+            $company                  = $user->account->company;
             $company->bluevine_status = 'ignored';
             $company->save();
         }

@@ -36,7 +36,7 @@ class ClientPortalHeaderComposer
             return false;
         }
 
-        $client = $contact->client;
+        $client  = $contact->client;
         $account = $contact->account;
 
         $hasDocuments = DB::table('invoices')

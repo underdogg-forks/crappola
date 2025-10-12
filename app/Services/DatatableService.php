@@ -64,7 +64,7 @@ class DatatableService
     {
         $table->addColumn('dropdown', function ($model) use ($datatable) {
             $hasAction = false;
-            $str = '<center style="min-width:100px">';
+            $str       = '<center style="min-width:100px">';
 
             $can_edit = Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
@@ -94,15 +94,15 @@ class DatatableService
                                 $dropdown_contents .= '<li class="divider"></li>';
                                 $lastIsDivider = true;
                             } else {
-                                $urlVal = $url($model);
-                                $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
+                                $urlVal     = $url($model);
+                                $urlStr     = is_string($urlVal) ? $urlVal : $urlVal['url'];
                                 $attributes = '';
                                 if ( ! empty($urlVal['attributes'])) {
                                     $attributes = ' ' . $urlVal['attributes'];
                                 }
 
                                 $dropdown_contents .= "<li><a href=\"{$urlStr}\"{$attributes}>{$value}</a></li>";
-                                $hasAction = true;
+                                $hasAction     = true;
                                 $lastIsDivider = false;
                             }
                         }

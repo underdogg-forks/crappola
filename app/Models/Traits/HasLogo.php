@@ -52,7 +52,7 @@ trait HasLogo
             return;
         }
 
-        $disk = $this->getLogoDisk();
+        $disk    = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
         if ($adapter instanceof \League\Flysystem\Adapter\Local) {
@@ -75,7 +75,7 @@ trait HasLogo
             return;
         }
 
-        $disk = $this->getLogoDisk();
+        $disk    = $this->getLogoDisk();
         $adapter = $disk->getAdapter();
 
         if ($adapter instanceof \League\Flysystem\Adapter\Local) {
@@ -143,10 +143,10 @@ trait HasLogo
 
     public function clearLogo()
     {
-        $this->logo = '';
-        $this->logo_width = 0;
+        $this->logo        = '';
+        $this->logo_width  = 0;
         $this->logo_height = 0;
-        $this->logo_size = 0;
+        $this->logo_size   = 0;
     }
 
     protected function calculateLogoDetails()
@@ -160,10 +160,10 @@ trait HasLogo
         }
 
         if ( ! empty($this->logo)) {
-            $image = imagecreatefromstring($disk->get($this->logo));
-            $this->logo_width = imagesx($image);
+            $image             = imagecreatefromstring($disk->get($this->logo));
+            $this->logo_width  = imagesx($image);
             $this->logo_height = imagesy($image);
-            $this->logo_size = $disk->size($this->logo);
+            $this->logo_size   = $disk->size($this->logo);
         } else {
             $this->logo = null;
         }

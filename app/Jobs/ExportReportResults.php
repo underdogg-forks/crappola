@@ -10,10 +10,10 @@ class ExportReportResults extends Job
 {
     public function __construct($user, $format, $reportType, $params)
     {
-        $this->user = $user;
-        $this->format = mb_strtolower($format);
+        $this->user       = $user;
+        $this->format     = mb_strtolower($format);
         $this->reportType = $reportType;
-        $this->params = $params;
+        $this->params     = $params;
     }
 
     /**
@@ -27,14 +27,14 @@ class ExportReportResults extends Job
             return false;
         }
 
-        $format = $this->format;
+        $format     = $this->format;
         $reportType = $this->reportType;
-        $params = $this->params;
+        $params     = $this->params;
 
-        $data = $params['displayData'];
+        $data    = $params['displayData'];
         $columns = $params['columns'];
-        $totals = $params['reportTotals'];
-        $report = $params['report'];
+        $totals  = $params['reportTotals'];
+        $report  = $params['report'];
 
         $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-" . mb_strtolower(Utils::normalizeChars(trans("texts.{$reportType}"))) . '-report';
 
@@ -64,7 +64,7 @@ class ExportReportResults extends Job
 
         foreach ($totals as $currencyId => $each) {
             foreach ($each as $dimension => $val) {
-                $tmp = [];
+                $tmp   = [];
                 $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
                 foreach ($val as $field => $value) {
                     if ($field == 'duration') {

@@ -107,7 +107,7 @@ class SubscriptionController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
+        $ids    = Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
@@ -132,7 +132,7 @@ class SubscriptionController extends BaseController
             if ($subscriptionPublicId) {
                 $subscription = Subscription::scope($subscriptionPublicId)->firstOrFail();
             } else {
-                $subscription = Subscription::createNew();
+                $subscription         = Subscription::createNew();
                 $subscriptionPublicId = $subscription->public_id;
             }
 

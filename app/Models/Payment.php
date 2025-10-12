@@ -231,11 +231,11 @@ class Payment extends EntityModel
             $amount = $this->amount;
         }
 
-        $new_refund = min($this->amount, $this->refunded + $amount);
+        $new_refund    = min($this->amount, $this->refunded + $amount);
         $refund_change = $new_refund - $this->refunded;
 
         if ($refund_change) {
-            $this->refunded = $new_refund;
+            $this->refunded          = $new_refund;
             $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
             $this->save();
 
@@ -256,7 +256,7 @@ class Payment extends EntityModel
 
         Event::dispatch(new PaymentWasVoided($this));
 
-        $this->refunded = $this->amount;
+        $this->refunded          = $this->amount;
         $this->payment_status_id = PAYMENT_STATUS_VOIDED;
         $this->save();
 
@@ -276,7 +276,7 @@ class Payment extends EntityModel
     public function markFailed($failureMessage = '')
     {
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
-        $this->gateway_error = $failureMessage;
+        $this->gateway_error     = $failureMessage;
         $this->save();
         Event::dispatch(new PaymentFailed($this));
     }

@@ -29,12 +29,12 @@ class ActivityRepository
         $activity = Utils::copyContext($activity, $altEntity);
 
         $activity->activity_type_id = $activityTypeId;
-        $activity->adjustment = $balanceChange;
-        $activity->client_id = $client ? $client->id : null;
-        $activity->balance = $client ? ($client->balance + $balanceChange) : 0;
-        $activity->notes = $notes ?: '';
+        $activity->adjustment       = $balanceChange;
+        $activity->client_id        = $client ? $client->id : null;
+        $activity->balance          = $client ? ($client->balance + $balanceChange) : 0;
+        $activity->notes            = $notes ?: '';
 
-        $keyField = $entity->getKeyField();
+        $keyField              = $entity->getKeyField();
         $activity->{$keyField} = $entity->id;
 
         $activity->ip = Request::getClientIp();
@@ -103,15 +103,15 @@ class ActivityRepository
         $activity = new Activity();
 
         if (Auth::check() && Auth::user()->account_id == $entity->account_id) {
-            $activity->user_id = Auth::user()->id;
+            $activity->user_id    = Auth::user()->id;
             $activity->account_id = Auth::user()->account_id;
         } else {
-            $activity->user_id = $entity->user_id;
+            $activity->user_id    = $entity->user_id;
             $activity->account_id = $entity->account_id;
         }
 
         $activity->is_system = App::runningInConsole();
-        $activity->token_id = session('token_id');
+        $activity->token_id  = session('token_id');
 
         return $activity;
     }

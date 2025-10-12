@@ -20,7 +20,7 @@ class TaskReport extends AbstractReport
             'user'        => ['columnSelector-false'],
         ];
 
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('task1')) {
@@ -35,10 +35,10 @@ class TaskReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account   = Auth::user()->account;
         $startDate = date_create($this->startDate);
-        $endDate = date_create($this->endDate);
-        $subgroup = $this->options['subgroup'];
+        $endDate   = date_create($this->endDate);
+        $subgroup  = $this->options['subgroup'];
 
         $tasks = Task::scope()
             ->orderBy('created_at', 'desc')
@@ -48,7 +48,7 @@ class TaskReport extends AbstractReport
 
         foreach ($tasks->get() as $task) {
             $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));
-            $amount = $task->getRate() * ($duration / 60 / 60);
+            $amount   = $task->getRate() * ($duration / 60 / 60);
             if ($task->client && $task->client->currency_id) {
                 $currencyId = $task->client->currency_id;
             } else {

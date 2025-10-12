@@ -44,7 +44,7 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+        $subdomain             = Utils::getSubdomain(\Request::server('HTTP_HOST'));
         $hasAccountIndentifier = request()->account_key || ($subdomain && ! in_array($subdomain, ['www', 'app']));
 
         if ( ! session('contact_key')) {
@@ -97,11 +97,11 @@ class LoginController extends Controller
     protected function credentials(Request $request)
     {
         if ($contactKey = session('contact_key')) {
-            $credentials = $request->only('password');
+            $credentials                = $request->only('password');
             $credentials['contact_key'] = $contactKey;
         } else {
             $credentials = $request->only('email', 'password');
-            $account = false;
+            $account     = false;
 
             // resolve the email to a contact/account
             if ( ! Utils::isNinja() && Account::count() == 1) {

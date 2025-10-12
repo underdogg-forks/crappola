@@ -46,10 +46,10 @@ class ImportData extends Job implements ShouldQueue
      */
     public function __construct(User $user, $type, $settings)
     {
-        $this->user = $user;
-        $this->type = $type;
+        $this->user     = $user;
+        $this->type     = $type;
         $this->settings = $settings;
-        $this->server = config('database.default');
+        $this->server   = config('database.default');
     }
 
     /**
@@ -68,18 +68,18 @@ class ImportData extends Job implements ShouldQueue
 
         try {
             if ($this->type === IMPORT_JSON) {
-                $includeData = $this->settings['include_data'];
+                $includeData     = $this->settings['include_data'];
                 $includeSettings = $this->settings['include_settings'];
-                $files = $this->settings['files'];
-                $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
+                $files           = $this->settings['files'];
+                $results         = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
             } elseif ($this->type === IMPORT_CSV) {
-                $map = $this->settings['map'];
-                $headers = $this->settings['headers'];
+                $map       = $this->settings['map'];
+                $headers   = $this->settings['headers'];
                 $timestamp = $this->settings['timestamp'];
-                $results = $importService->importCSV($map, $headers, $timestamp);
+                $results   = $importService->importCSV($map, $headers, $timestamp);
             } else {
-                $source = $this->settings['source'];
-                $files = $this->settings['files'];
+                $source  = $this->settings['source'];
+                $files   = $this->settings['files'];
                 $results = $importService->importFiles($source, $files);
             }
 

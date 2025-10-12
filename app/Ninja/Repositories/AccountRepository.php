@@ -34,12 +34,12 @@ class AccountRepository
                 $this->checkForSpammer();
             }
 
-            $company = new Company();
-            $company->utm_source = Request::input('utm_source');
-            $company->utm_medium = Request::input('utm_medium');
-            $company->utm_campaign = Request::input('utm_campaign');
-            $company->utm_term = Request::input('utm_term');
-            $company->utm_content = Request::input('utm_content');
+            $company                = new Company();
+            $company->utm_source    = Request::input('utm_source');
+            $company->utm_medium    = Request::input('utm_medium');
+            $company->utm_campaign  = Request::input('utm_campaign');
+            $company->utm_term      = Request::input('utm_term');
+            $company->utm_content   = Request::input('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
 
             if (Request::input('utm_campaign')) {
@@ -57,10 +57,10 @@ class AccountRepository
             $company->save();
         }
 
-        $account = new Account();
-        $account->ip = Request::getClientIp();
+        $account              = new Account();
+        $account->ip          = Request::getClientIp();
         $account->account_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-        $account->company_id = $company->id;
+        $account->company_id  = $company->id;
         $account->currency_id = DEFAULT_CURRENCY;
 
         // Set default language/currency based on IP
@@ -103,15 +103,15 @@ class AccountRepository
             $user->username = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         } else {
             $user->first_name = $firstName;
-            $user->last_name = $lastName;
-            $user->email = $user->username = $email;
+            $user->last_name  = $lastName;
+            $user->email      = $user->username = $email;
             if ( ! $password) {
                 $password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             }
             $user->password = bcrypt($password);
         }
 
-        $user->confirmed = ! Utils::isNinja();
+        $user->confirmed  = ! Utils::isNinja();
         $user->registered = ! Utils::isNinja() || $email;
 
         if ( ! $user->confirmed) {
@@ -137,8 +137,8 @@ class AccountRepository
 
     public function enablePlan($plan, $credit = 0)
     {
-        $account = Auth::user()->account;
-        $client = $this->getNinjaClient($account);
+        $account    = Auth::user()->account;
+        $client     = $this->getNinjaClient($account);
         $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
         return $invitation;
@@ -149,14 +149,14 @@ class AccountRepository
         $account = $this->getNinjaAccount();
 
         $lastCredit = Credit::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
-        $publicId = $lastCredit ? ($lastCredit->public_id + 1) : 1;
+        $publicId   = $lastCredit ? ($lastCredit->public_id + 1) : 1;
 
-        $credit = new Credit();
-        $credit->public_id = $publicId;
+        $credit             = new Credit();
+        $credit->public_id  = $publicId;
         $credit->account_id = $account->id;
-        $credit->user_id = $account->users()->first()->id;
-        $credit->client_id = $client->id;
-        $credit->amount = $amount;
+        $credit->user_id    = $account->users()->first()->id;
+        $credit->client_id  = $client->id;
+        $credit->amount     = $amount;
         $credit->save();
 
         return $credit;
@@ -164,35 +164,35 @@ class AccountRepository
 
     public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0)
     {
-        $term = $plan['term'];
+        $term      = $plan['term'];
         $plan_cost = $plan['price'];
         $num_users = $plan['num_users'];
-        $plan = $plan['plan'];
+        $plan      = $plan['plan'];
 
         if ($credit < 0) {
             $credit = 0;
         }
 
-        $account = $this->getNinjaAccount();
+        $account     = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
         $renewalDate = $clientAccount->getRenewalDate();
-        $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
+        $publicId    = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
 
-        $invoice = new Invoice();
-        $invoice->is_public = true;
-        $invoice->account_id = $account->id;
-        $invoice->user_id = $account->users()->first()->id;
-        $invoice->public_id = $publicId;
-        $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextNumber($invoice);
-        $invoice->invoice_date = $renewalDate->format('Y-m-d');
-        $invoice->amount = $invoice->balance = $plan_cost - $credit;
+        $invoice                  = new Invoice();
+        $invoice->is_public       = true;
+        $invoice->account_id      = $account->id;
+        $invoice->user_id         = $account->users()->first()->id;
+        $invoice->public_id       = $publicId;
+        $invoice->client_id       = $client->id;
+        $invoice->invoice_number  = $account->getNextNumber($invoice);
+        $invoice->invoice_date    = $renewalDate->format('Y-m-d');
+        $invoice->amount          = $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
 
         // check for promo/discount
         $clientCompany = $clientAccount->company;
         if ($clientCompany->hasActivePromo() || $clientCompany->hasActiveDiscount($renewalDate)) {
-            $discount = $invoice->amount * $clientCompany->discount;
+            $discount          = $invoice->amount * $clientCompany->discount;
             $invoice->discount = $clientCompany->discount * 100;
             $invoice->amount -= $discount;
             $invoice->balance -= $discount;
@@ -201,17 +201,17 @@ class AccountRepository
         $invoice->save();
 
         if ($credit) {
-            $credit_item = InvoiceItem::createNew($invoice);
-            $credit_item->qty = 1;
-            $credit_item->cost = -$credit;
-            $credit_item->notes = trans('texts.plan_credit_description');
+            $credit_item              = InvoiceItem::createNew($invoice);
+            $credit_item->qty         = 1;
+            $credit_item->cost        = -$credit;
+            $credit_item->notes       = trans('texts.plan_credit_description');
             $credit_item->product_key = trans('texts.plan_credit_product');
             $invoice->invoice_items()->save($credit_item);
         }
 
-        $item = InvoiceItem::createNew($invoice);
-        $item->qty = 1;
-        $item->cost = $plan_cost;
+        $item        = InvoiceItem::createNew($invoice);
+        $item->qty   = 1;
+        $item->cost  = $plan_cost;
         $item->notes = trans("texts.{$plan}_plan_{$term}_description");
 
         if ($plan == PLAN_ENTERPRISE) {
@@ -223,9 +223,9 @@ class AccountRepository
         $item->product_key = 'Plan - ' . ucfirst($plan) . ' (' . ucfirst($term) . ')';
         $invoice->invoice_items()->save($item);
 
-        $invitation = Invitation::createNew($invoice);
-        $invitation->invoice_id = $invoice->id;
-        $invitation->contact_id = $client->contacts()->first()->id;
+        $invitation                 = Invitation::createNew($invoice);
+        $invitation->invoice_id     = $invoice->id;
+        $invitation->contact_id     = $client->contacts()->first()->id;
         $invitation->invitation_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
         $invitation->save();
 
@@ -242,34 +242,34 @@ class AccountRepository
         $company = new Company();
         $company->save();
 
-        $account = new Account();
-        $account->name = 'Invoice Ninja';
-        $account->work_email = 'contact@invoiceninja.com';
-        $account->work_phone = '(800) 763-1948';
+        $account              = new Account();
+        $account->name        = 'Invoice Ninja';
+        $account->work_email  = 'contact@invoiceninja.com';
+        $account->work_phone  = '(800) 763-1948';
         $account->account_key = NINJA_ACCOUNT_KEY;
-        $account->company_id = $company->id;
+        $account->company_id  = $company->id;
         $account->save();
 
         $emailSettings = new AccountEmailSettings();
         $account->account_email_settings()->save($emailSettings);
 
-        $user = new User();
-        $user->registered = true;
-        $user->confirmed = true;
-        $user->email = NINJA_ACCOUNT_EMAIL;
-        $user->username = NINJA_ACCOUNT_EMAIL;
-        $user->password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-        $user->first_name = 'Invoice';
-        $user->last_name = 'Ninja';
+        $user              = new User();
+        $user->registered  = true;
+        $user->confirmed   = true;
+        $user->email       = NINJA_ACCOUNT_EMAIL;
+        $user->username    = NINJA_ACCOUNT_EMAIL;
+        $user->password    = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+        $user->first_name  = 'Invoice';
+        $user->last_name   = 'Ninja';
         $user->notify_sent = true;
         $user->notify_paid = true;
         $account->users()->save($user);
 
         if ($config = env(NINJA_GATEWAY_CONFIG)) {
-            $accountGateway = new AccountGateway();
-            $accountGateway->user_id = $user->id;
+            $accountGateway             = new AccountGateway();
+            $accountGateway->user_id    = $user->id;
             $accountGateway->gateway_id = NINJA_GATEWAY_ID;
-            $accountGateway->public_id = 1;
+            $accountGateway->public_id  = 1;
             $accountGateway->setConfig(json_decode($config));
             $account->account_gateways()->save($accountGateway);
         }
@@ -281,27 +281,27 @@ class AccountRepository
     {
         $account->load('users');
         $ninjaAccount = $this->getNinjaAccount();
-        $ninjaUser = $ninjaAccount->getPrimaryUser();
-        $client = Client::whereAccountId($ninjaAccount->id)
+        $ninjaUser    = $ninjaAccount->getPrimaryUser();
+        $client       = Client::whereAccountId($ninjaAccount->id)
             ->wherePublicId($account->id)
             ->first();
 
         if ( ! $client) {
-            $client = new Client();
-            $client->public_id = $account->id;
-            $client->account_id = $ninjaAccount->id;
-            $client->user_id = $ninjaUser->id;
+            $client              = new Client();
+            $client->public_id   = $account->id;
+            $client->account_id  = $ninjaAccount->id;
+            $client->user_id     = $ninjaUser->id;
             $client->currency_id = 1;
             foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
                 $client->{$field} = $account->{$field};
             }
             $client->save();
-            $contact = new Contact();
-            $contact->user_id = $ninjaUser->id;
-            $contact->account_id = $ninjaAccount->id;
-            $contact->public_id = $account->id;
+            $contact              = new Contact();
+            $contact->user_id     = $ninjaUser->id;
+            $contact->account_id  = $ninjaAccount->id;
+            $contact->public_id   = $account->id;
             $contact->contact_key = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            $contact->is_primary = true;
+            $contact->is_primary  = true;
             foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
                 $contact->{$field} = $account->users()->first()->{$field};
             }
@@ -323,7 +323,7 @@ class AccountRepository
     public function unlinkUserFromOauth($user)
     {
         $user->oauth_provider_id = null;
-        $user->oauth_user_id = null;
+        $user->oauth_user_id     = null;
         $user->save();
     }
 
@@ -339,7 +339,7 @@ class AccountRepository
         }
 
         if ( ! $user->registered) {
-            $rules = ['email' => 'email|required|unique:users,email,' . $user->id . ',id'];
+            $rules     = ['email' => 'email|required|unique:users,email,' . $user->id . ',id'];
             $validator = Validator::make(['email' => $email], $rules);
 
             if ($validator->fails()) {
@@ -352,16 +352,16 @@ class AccountRepository
                 return trans('texts.email_taken');
             }
 
-            $user->email = $email;
+            $user->email      = $email;
             $user->first_name = $firstName;
-            $user->last_name = $lastName;
+            $user->last_name  = $lastName;
             $user->registered = true;
 
             $user->account->startTrial(PLAN_PRO);
         }
 
         $user->oauth_provider_id = $providerId;
-        $user->oauth_user_id = $oauthUserId;
+        $user->oauth_user_id     = $oauthUserId;
         $user->save();
 
         return true;
@@ -373,8 +373,8 @@ class AccountRepository
             return false;
         }
 
-        $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
-        $data = '';
+        $url    = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
+        $data   = '';
         $fields = [
             'first_name' => urlencode($user->first_name),
             'last_name'  => urlencode($user->last_name),
@@ -483,15 +483,15 @@ class AccountRepository
 
         $data = [];
         foreach ($users as $user) {
-            $item = new stdClass();
-            $item->id = $record->id;
-            $item->user_id = $user->id;
-            $item->public_id = $user->public_id;
-            $item->user_name = $user->getDisplayName();
-            $item->account_id = $user->account->id;
+            $item               = new stdClass();
+            $item->id           = $record->id;
+            $item->user_id      = $user->id;
+            $item->public_id    = $user->public_id;
+            $item->user_name    = $user->getDisplayName();
+            $item->account_id   = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
-            $item->logo_url = $user->account->hasLogo() ? $user->account->getLogoUrl() : null;
-            $data[] = $item;
+            $item->logo_url     = $user->account->hasLogo() ? $user->account->getLogoUrl() : null;
+            $data[]             = $item;
         }
 
         return $data;
@@ -515,7 +515,7 @@ class AccountRepository
                 }
             }
         } else {
-            $record = new UserAccount();
+            $record           = new UserAccount();
             $record->user_id1 = $userId1;
             $record->user_id2 = $userId2;
         }
@@ -572,7 +572,7 @@ class AccountRepository
 
     public function createTokens($user, $name)
     {
-        $name = trim($name) ?: 'TOKEN';
+        $name  = trim($name) ?: 'TOKEN';
         $users = $this->findUsers($user);
 
         foreach ($users as $user) {
@@ -580,8 +580,8 @@ class AccountRepository
                 continue;
             }
 
-            $token = AccountToken::createNew($user);
-            $token->name = $name;
+            $token        = AccountToken::createNew($user);
+            $token->name  = $name;
             $token->token = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $token->save();
         }
@@ -589,7 +589,7 @@ class AccountRepository
 
     public function getUserAccountId($account)
     {
-        $user = $account->users()->first();
+        $user        = $account->users()->first();
         $userAccount = $this->findUserAccounts($user->id);
 
         return $userAccount ? $userAccount->id : false;
@@ -701,7 +701,7 @@ class AccountRepository
             }
 
             foreach ($client->invoices as $invoice) {
-                $entityType = $invoice->getEntityType();
+                $entityType               = $invoice->getEntityType();
                 $data["{$entityType}s"][] = [
                     'value'  => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
                     'tokens' => implode(',', [$invoice->invoice_number, $invoice->po_number]),

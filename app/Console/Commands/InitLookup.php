@@ -123,7 +123,7 @@ class InitLookup extends Command
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $validate = $this->option('validate');
-        $update = $this->option('update');
+        $update   = $this->option('update');
 
         foreach ($data as $accountKey => $subdomain) {
             LookupAccount::whereAccountKey($accountKey)->update(['subdomain' => $subdomain]);
@@ -149,7 +149,7 @@ class InitLookup extends Command
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $validate = $this->option('validate');
-        $update = $this->option('update');
+        $update   = $this->option('update');
 
         foreach ($data as $companyId => $company) {
             $lookupCompany = false;
@@ -200,9 +200,9 @@ class InitLookup extends Command
                     }
                     if ($update && $lookupUser) {
                         if ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
-                            $lookupUser->email = $user['email'];
+                            $lookupUser->email          = $user['email'];
                             $lookupUser->oauth_user_key = $user['oauth_user_key'];
-                            $lookupUser->referral_code = $user['referral_code'];
+                            $lookupUser->referral_code  = $user['referral_code'];
                             $lookupUser->save();
                         }
                     } elseif ( ! $lookupUser) {

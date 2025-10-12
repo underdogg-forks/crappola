@@ -41,9 +41,9 @@ class ExpenseController extends BaseController
     {
         // parent::__construct();
 
-        $this->expenseRepo = $expenseRepo;
+        $this->expenseRepo    = $expenseRepo;
         $this->expenseService = $expenseService;
-        $this->invoiceRepo = $invoiceRepo;
+        $this->invoiceRepo    = $invoiceRepo;
     }
 
     /**
@@ -139,22 +139,22 @@ class ExpenseController extends BaseController
         }
 
         if ($clone) {
-            $expense->id = null;
-            $expense->public_id = null;
-            $expense->expense_date = date_create()->format('Y-m-d');
-            $expense->deleted_at = null;
-            $expense->invoice_id = null;
-            $expense->payment_date = null;
-            $expense->payment_type_id = null;
+            $expense->id                    = null;
+            $expense->public_id             = null;
+            $expense->expense_date          = date_create()->format('Y-m-d');
+            $expense->deleted_at            = null;
+            $expense->invoice_id            = null;
+            $expense->payment_date          = null;
+            $expense->payment_type_id       = null;
             $expense->transaction_reference = null;
             while ($expense->documents->count()) {
                 $expense->documents->pop();
             }
             $method = 'POST';
-            $url = 'expenses';
+            $url    = 'expenses';
         } else {
             $method = 'PUT';
-            $url = 'expenses/' . $expense->public_id;
+            $url    = 'expenses/' . $expense->public_id;
         }
 
         $data = [
@@ -184,7 +184,7 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $data = $request->input();
+        $data              = $request->input();
         $data['documents'] = $request->file('documents');
 
         $expense = $this->expenseService->save($data, $request->entity());
@@ -205,7 +205,7 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $data = $request->input();
+        $data              = $request->input();
         $data['documents'] = $request->file('documents');
 
         // check for possible duplicate expense
@@ -230,16 +230,16 @@ class ExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $action  = Request::input('action');
+        $ids     = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
         $referer = Request::server('HTTP_REFERER');
 
         switch ($action) {
             case 'invoice':
             case 'add_to_invoice':
-                $expenses = Expense::scope($ids)->with('client')->get();
+                $expenses       = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
-                $currencyId = null;
+                $currencyId     = null;
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense) {

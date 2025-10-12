@@ -23,7 +23,7 @@ class TaxRateReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account  = Auth::user()->account;
         $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()

@@ -27,6 +27,6 @@ class ProductWasUpdated extends Event
     public function __construct(Product $product, $input = null)
     {
         $this->product = $product;
-        $this->input = $input;
+        $this->input   = $input;
     }
 }

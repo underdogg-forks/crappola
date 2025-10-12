@@ -62,7 +62,7 @@ class TaskPresenter extends EntityPresenter
             }
 
             $start = $account->formatDateTime('@' . (int) $start);
-            $end = $account->formatTime('@' . (int) $end);
+            $end   = $account->formatTime('@' . (int) $end);
 
             $times[] = "### {$start} - {$end}";
         }
@@ -72,10 +72,10 @@ class TaskPresenter extends EntityPresenter
 
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
-        $task = $this->entity;
+        $data    = parent::calendarEvent();
+        $task    = $this->entity;
         $account = $task->account;
-        $date = $account->getDateTime();
+        $date    = $account->getDateTime();
 
         $data->title = trans('texts.task');
         if ($project = $this->project()) {
@@ -100,7 +100,7 @@ class TaskPresenter extends EntityPresenter
             $data->start = $date->format('Y-m-d H:i:m');
 
             $last = $parts[count($parts) - 1];
-            $end = count($last) == 2 ? $last[1] : $last[0];
+            $end  = count($last) == 2 ? $last[1] : $last[0];
             $date->setTimestamp($end);
             $data->end = $date->format('Y-m-d H:i:m');
         }

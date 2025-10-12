@@ -36,8 +36,8 @@ class AuthService
 
     public function __construct(string $username, string $password, ?string $apiSecret = null)
     {
-        $this->username = $username;
-        $this->password = $password;
+        $this->username  = $username;
+        $this->password  = $password;
         $this->apiSecret = $apiSecret;
     }
 
@@ -74,12 +74,12 @@ class AuthService
             //info(print_r($message_body,1));
 
             $this->isSuccessful = true;
-            $this->token = $message_body['data'][0]['token']['token'];
+            $this->token        = $message_body['data'][0]['token']['token'];
         } else {
             info(json_decode($response->getBody()->getContents()));
 
             $this->isSuccessful = false;
-            $this->errors = [trans('texts.migration_went_wrong')];
+            $this->errors       = [trans('texts.migration_went_wrong')];
         }
 
         //return $response->getBody();

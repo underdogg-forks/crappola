@@ -11,9 +11,9 @@ class ProposalPresenter extends EntityPresenter
 {
     public function moreActions()
     {
-        $proposal = $this->entity;
+        $proposal   = $this->entity;
         $invitation = $proposal->invitations->first();
-        $actions = [];
+        $actions    = [];
 
         $actions[] = ['url' => $invitation->getLink('proposal'), 'label' => trans('texts.view_in_portal')];
 

@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
 
         Model::unguard();
 
-        $faker = Faker\Factory::create();
+        $faker   = Faker\Factory::create();
         $company = Company::create();
 
         $account = Account::create([
