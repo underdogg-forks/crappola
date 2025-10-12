@@ -34,10 +34,10 @@ class LookupUser extends LookupModel
             ->whereUserId($user->id)
             ->firstOrFail();
 
-        $lookupUser->email = $user->email;
+        $lookupUser->email             = $user->email;
         $lookupUser->confirmation_code = $user->confirmation_code ?: null;
-        $lookupUser->oauth_user_key = ($user->oauth_provider_id && $user->oauth_user_id) ? ($user->oauth_provider_id . '-' . $user->oauth_user_id) : null;
-        $lookupUser->referral_code = $user->referral_code;
+        $lookupUser->oauth_user_key    = ($user->oauth_provider_id && $user->oauth_user_id) ? ($user->oauth_provider_id . '-' . $user->oauth_user_id) : null;
+        $lookupUser->referral_code     = $user->referral_code;
         $lookupUser->save();
 
         config(['database.default' => $current]);
@@ -49,7 +49,7 @@ class LookupUser extends LookupModel
             return true;
         }
 
-        $current = config('database.default');
+        $current    = config('database.default');
         $accountKey = $user ? $user->account->account_key : false;
 
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -58,7 +58,7 @@ class LookupUser extends LookupModel
 
         if ($user) {
             $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
-            $isValid = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
+            $isValid       = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
         } else {
             $isValid = ! $lookupUser;
         }

@@ -15,7 +15,7 @@ class MolliePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
-        $ref = array_get($input, 'id');
+        $ref  = array_get($input, 'id');
         $data = [
             'transactionReference' => $ref,
         ];

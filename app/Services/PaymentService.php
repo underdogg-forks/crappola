@@ -29,8 +29,8 @@ class PaymentService extends BaseService
         DatatableService $datatableService
     ) {
         $this->datatableService = $datatableService;
-        $this->paymentRepo = $paymentRepo;
-        $this->accountRepo = $accountRepo;
+        $this->paymentRepo      = $paymentRepo;
+        $this->accountRepo      = $accountRepo;
     }
 
     /**
@@ -61,8 +61,8 @@ class PaymentService extends BaseService
 
         if ($credits = $client->credits->sum('balance')) {
             $balance = $invoice->balance;
-            $amount = min($credits, $balance);
-            $data = [
+            $amount  = min($credits, $balance);
+            $data    = [
                 'payment_type_id' => PAYMENT_TYPE_CREDIT,
                 'invoice_id'      => $invoice->id,
                 'client_id'       => $client->id,
@@ -94,7 +94,7 @@ class PaymentService extends BaseService
 
         if ($paymentMethod->requiresDelayedAutoBill()) {
             $invoiceDate = DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
-            $minDueDate = clone $invoiceDate;
+            $minDueDate  = clone $invoiceDate;
             $minDueDate->modify('+10 days');
 
             if (date_create() < $minDueDate) {
@@ -148,10 +148,10 @@ class PaymentService extends BaseService
     {
         // if the payment amount is more than the balance create a credit
         if ($invoice && Utils::parseFloat($input['amount']) > $invoice->balance) {
-            $credit = Credit::createNew();
-            $credit->client_id = $invoice->client_id;
-            $credit->credit_date = date_create()->format('Y-m-d');
-            $credit->amount = $credit->balance = $input['amount'] - $invoice->balance;
+            $credit                = Credit::createNew();
+            $credit->client_id     = $invoice->client_id;
+            $credit->credit_date   = date_create()->format('Y-m-d');
+            $credit->amount        = $credit->balance = $input['amount'] - $invoice->balance;
             $credit->private_notes = trans('texts.credit_created_by', ['transaction_reference' => $input['transaction_reference'] ?? '']);
             $credit->save();
             $input['amount'] = $invoice->balance;
@@ -163,7 +163,7 @@ class PaymentService extends BaseService
     public function getDatatable($clientPublicId, $search)
     {
         $datatable = new PaymentDatatable(true, $clientPublicId);
-        $query = $this->paymentRepo->find($clientPublicId, $search);
+        $query     = $this->paymentRepo->find($clientPublicId, $search);
 
         if ( ! Utils::hasPermission('view_payment')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
@@ -179,15 +179,15 @@ class PaymentService extends BaseService
                 return 0;
             }
 
-            $payments = $this->getRepo()->findByPublicIdsWithTrashed($ids);
+            $payments   = $this->getRepo()->findByPublicIdsWithTrashed($ids);
             $successful = 0;
 
             foreach ($payments as $payment) {
                 if (Auth::user()->can('edit', $payment) && ! $payment->is_deleted) {
-                    $amount = ! empty($params['refund_amount']) ? (float) ($params['refund_amount']) : null;
-                    $sendEmail = ! empty($params['refund_email']) ? (bool) ($params['refund_email']) : false;
+                    $amount        = ! empty($params['refund_amount']) ? (float) ($params['refund_amount']) : null;
+                    $sendEmail     = ! empty($params['refund_email']) ? (bool) ($params['refund_email']) : false;
                     $paymentDriver = false;
-                    $refunded = false;
+                    $refunded      = false;
 
                     if ($accountGateway = $payment->account_gateway) {
                         $paymentDriver = $accountGateway->paymentDriver();

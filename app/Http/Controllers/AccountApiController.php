@@ -48,7 +48,7 @@ class AccountApiController extends BaseAPIController
         }
 
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
-        $user = $account->users()->first();
+        $user    = $account->users()->first();
 
         Auth::login($user);
         event(new UserSignedUp());
@@ -101,7 +101,7 @@ class AccountApiController extends BaseAPIController
 
     public function show(Request $request)
     {
-        $account = Auth::user()->account;
+        $account   = Auth::user()->account;
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
@@ -120,9 +120,9 @@ class AccountApiController extends BaseAPIController
     {
         $user = Auth::user();
 
-        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $users       = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
-        $data = $this->createCollection($users, $transformer, 'user_account');
+        $data        = $this->createCollection($users, $transformer, 'user_account');
 
         return $this->response($data);
     }
@@ -133,7 +133,7 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo->save($request->input(), $account);
 
         $transformer = new AccountTransformer(null, $request->serializer);
-        $account = $this->createItem($account, $transformer, 'account');
+        $account     = $this->createItem($account, $transformer, 'account');
 
         return $this->response($account);
     }
@@ -147,9 +147,9 @@ class AccountApiController extends BaseAPIController
 
         for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == $request->email) {
-                $devices[$x]['token'] = $request->token; //update
+                $devices[$x]['token']  = $request->token; //update
                 $devices[$x]['device'] = $request->device;
-                $account->devices = json_encode($devices);
+                $account->devices      = json_encode($devices);
                 $account->save();
                 $devices[$x]['account_key'] = $account->account_key;
 
@@ -170,7 +170,7 @@ class AccountApiController extends BaseAPIController
             'notify_paid'     => true,
         ];
 
-        $devices[] = $newDevice;
+        $devices[]        = $newDevice;
         $account->devices = json_encode($devices);
         $account->save();
 
@@ -218,7 +218,7 @@ class AccountApiController extends BaseAPIController
                     'notify_paid'     => $request->notify_paid,
                 ];
 
-                $devices[$x] = $newDevice;
+                $devices[$x]      = $newDevice;
                 $account->devices = json_encode($devices);
                 $account->save();
 
@@ -229,12 +229,12 @@ class AccountApiController extends BaseAPIController
 
     public function oauthLogin(Request $request)
     {
-        $user = false;
-        $token = $request->input('token');
+        $user     = false;
+        $token    = $request->input('token');
         $provider = $request->input('provider');
 
         $oAuth = new OAuth();
-        $user = $oAuth->getProvider($provider)->getTokenResponse($token);
+        $user  = $oAuth->getProvider($provider)->getTokenResponse($token);
 
         /*
         if ($user->google_2fa_secret && strpos($request->token_name, 'invoice-ninja-') !== false) {
@@ -263,10 +263,10 @@ class AccountApiController extends BaseAPIController
 
     public function upgrade(Request $request)
     {
-        $user = Auth::user();
-        $account = $user->account;
-        $company = $account->company;
-        $orderId = $request->order_id;
+        $user      = Auth::user();
+        $account   = $user->account;
+        $company   = $account->company;
+        $orderId   = $request->order_id;
         $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
@@ -275,33 +275,33 @@ class AccountApiController extends BaseAPIController
         }
 
         if ($productId == 'v1_pro_yearly') {
-            $company->plan = PLAN_PRO;
-            $company->num_users = 1;
+            $company->plan       = PLAN_PRO;
+            $company->num_users  = 1;
             $company->plan_price = PLAN_PRICE_PRO_MONTHLY * 10;
         } elseif ($productId == 'v1_enterprise_2_yearly') {
-            $company->plan = PLAN_ENTERPRISE;
-            $company->num_users = 2;
+            $company->plan       = PLAN_ENTERPRISE;
+            $company->num_users  = 2;
             $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10;
         } elseif ($productId == 'v1_enterprise_5_yearly') {
-            $company->plan = PLAN_ENTERPRISE;
-            $company->num_users = 5;
+            $company->plan       = PLAN_ENTERPRISE;
+            $company->num_users  = 5;
             $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10;
         } elseif ($productId == 'v1_enterprise_10_yearly') {
-            $company->plan = PLAN_ENTERPRISE;
-            $company->num_users = 10;
+            $company->plan       = PLAN_ENTERPRISE;
+            $company->num_users  = 10;
             $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10;
         } elseif ($productId == 'v1_enterprise_20_yearly') {
-            $company->plan = PLAN_ENTERPRISE;
-            $company->num_users = 20;
+            $company->plan       = PLAN_ENTERPRISE;
+            $company->num_users  = 20;
             $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10;
         }
 
         $company->app_store_order_id = $orderId;
-        $company->plan_term = PLAN_TERM_YEARLY;
-        $company->plan_started = $company->plan_started ?: date('Y-m-d');
-        $company->plan_paid = date('Y-m-d');
-        $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
-        $company->trial_plan = null;
+        $company->plan_term          = PLAN_TERM_YEARLY;
+        $company->plan_started       = $company->plan_started ?: date('Y-m-d');
+        $company->plan_paid          = date('Y-m-d');
+        $company->plan_expires       = Carbon::now()->addYear()->format('Y-m-d');
+        $company->trial_plan         = null;
         $company->save();
 
         return '{"message":"success"}';
@@ -310,16 +310,16 @@ class AccountApiController extends BaseAPIController
     private function processLogin(Request $request, $createToken = true)
     {
         // Create a new token only if one does not already exist
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $user->account;
 
         if ($createToken) {
             $this->accountRepo->createTokens($user, $request->token_name);
         }
 
-        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $users       = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($account, $request->serializer, $request->token_name);
-        $data = $this->createCollection($users, $transformer, 'user_account');
+        $data        = $this->createCollection($users, $transformer, 'user_account');
 
         if (request()->include_static) {
             $data = [

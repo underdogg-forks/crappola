@@ -26,7 +26,7 @@ class ExpenseReport extends AbstractReport
             'payment_reference' => ['columnSelector-false'],
         ];
 
-        $user = auth()->user();
+        $user    = auth()->user();
         $account = $user->account;
 
         if ($account->customLabel('expense1')) {
@@ -49,11 +49,11 @@ class ExpenseReport extends AbstractReport
 
     public function run()
     {
-        $account = Auth::user()->account;
+        $account      = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
-        $subgroup = $this->options['subgroup'];
-        $with = ['client.contacts', 'vendor'];
-        $hasTaxRates = TaxRate::scope()->count();
+        $subgroup     = $this->options['subgroup'];
+        $with         = ['client.contacts', 'vendor'];
+        $hasTaxRates  = TaxRate::scope()->count();
 
         if ($exportFormat == 'zip') {
             $with[] = ['documents'];
@@ -75,8 +75,8 @@ class ExpenseReport extends AbstractReport
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
                     $expenseId = str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
-                    $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
-                    $name = str_replace(' ', '_', $name);
+                    $name      = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                    $name      = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }
             }

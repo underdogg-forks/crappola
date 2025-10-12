@@ -114,7 +114,7 @@ class TaskApiController extends BaseAPIController
      */
     public function store()
     {
-        $data = Request::all();
+        $data   = Request::all();
         $taskId = $data['id'] ?? false;
 
         if (isset($data['client_id']) && $data['client_id']) {
@@ -125,7 +125,7 @@ class TaskApiController extends BaseAPIController
             $timeLog = [];
             foreach ($data['time_details'] as $detail) {
                 $startTime = strtotime($detail['start_datetime']);
-                $endTime = false;
+                $endTime   = false;
                 if ( ! empty($detail['end_datetime'])) {
                     $endTime = strtotime($detail['end_datetime']);
                 } else {
@@ -155,7 +155,7 @@ class TaskApiController extends BaseAPIController
         $task = Task::scope($task->public_id)->with('client')->first();
 
         $transformer = new TaskTransformer(Auth::user()->account, Request::input('serializer'));
-        $data = $this->createItem($task, $transformer, 'task');
+        $data        = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);
     }

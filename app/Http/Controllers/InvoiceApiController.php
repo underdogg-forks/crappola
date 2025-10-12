@@ -31,9 +31,9 @@ class InvoiceApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->invoiceRepo = $invoiceRepo;
-        $this->clientRepo = $clientRepo;
-        $this->paymentRepo = $paymentRepo;
+        $this->invoiceRepo    = $invoiceRepo;
+        $this->clientRepo     = $clientRepo;
+        $this->paymentRepo    = $paymentRepo;
         $this->invoiceService = $invoiceService;
         $this->paymentService = $paymentService;
     }
@@ -145,11 +145,11 @@ class InvoiceApiController extends BaseAPIController
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
-        $data = Request::all();
+        $data  = Request::all();
         $error = null;
 
         if (isset($data['email'])) {
-            $email = $data['email'];
+            $email  = $data['email'];
             $client = Client::scope()->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', '=', $email);
             })->first();
@@ -199,13 +199,13 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        $data = self::prepareData($data, $client);
+        $data              = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
 
         // in these cases the invoice needs to be set as public
-        $isAutoBill = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
+        $isAutoBill     = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
         $isEmailInvoice = isset($data['email_invoice']) && filter_var($data['email_invoice'], FILTER_VALIDATE_BOOLEAN);
-        $isPaid = isset($data['paid']) && (float) ($data['paid']);
+        $isPaid         = isset($data['paid']) && (float) ($data['paid']);
 
         if ($isAutoBill || $isPaid || $isEmailInvoice) {
             $data['is_public'] = true;
@@ -269,7 +269,7 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        $headers = Utils::getApiHeaders();
+        $headers  = Utils::getApiHeaders();
         $response = json_encode(['message' => RESULT_SUCCESS], JSON_PRETTY_PRINT);
 
         return Response::make($response, 200, $headers);
@@ -312,7 +312,7 @@ class InvoiceApiController extends BaseAPIController
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
-            $quote = $request->entity();
+            $quote   = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
 
             return $this->itemResponse($invoice);
@@ -321,7 +321,7 @@ class InvoiceApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
         $this->invoiceService->save($data, $request->entity());
 

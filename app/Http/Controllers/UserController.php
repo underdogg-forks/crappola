@@ -30,10 +30,10 @@ class UserController extends BaseController
     {
         //parent::__construct();
 
-        $this->accountRepo = $accountRepo;
+        $this->accountRepo   = $accountRepo;
         $this->contactMailer = $contactMailer;
-        $this->userMailer = $userMailer;
-        $this->userService = $userService;
+        $this->userMailer    = $userMailer;
+        $this->userService   = $userService;
     }
 
     public function index()
@@ -48,7 +48,7 @@ class UserController extends BaseController
 
     public function forcePDFJS()
     {
-        $user = Auth::user();
+        $user              = Auth::user();
         $user->force_pdfjs = true;
         $user->save();
 
@@ -133,7 +133,7 @@ class UserController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $id = Request::input('bulk_public_id');
+        $id     = Request::input('bulk_public_id');
 
         $user = User::where('account_id', '=', Auth::user()->account_id)
             ->where('public_id', '=', $id)
@@ -180,7 +180,7 @@ class UserController extends BaseController
 
             $rules['email'] = 'required|email|unique:users,email,' . $user->id . ',id';
         } else {
-            $user = false;
+            $user           = false;
             $rules['email'] = 'required|email|unique:users';
         }
 
@@ -200,29 +200,29 @@ class UserController extends BaseController
 
         if ($userPublicId) {
             $user->first_name = trim(Request::input('first_name'));
-            $user->last_name = trim(Request::input('last_name'));
-            $user->username = trim(Request::input('email'));
-            $user->email = trim(Request::input('email'));
+            $user->last_name  = trim(Request::input('last_name'));
+            $user->username   = trim(Request::input('email'));
+            $user->email      = trim(Request::input('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = (bool) (Request::input('is_admin'));
+                $user->is_admin    = (bool) (Request::input('is_admin'));
                 $user->permissions = self::formatUserPermissions(Request::input('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
                 ->orderBy('public_id', 'DESC')->first();
 
-            $user = new User();
-            $user->account_id = Auth::user()->account_id;
-            $user->first_name = trim(Request::input('first_name'));
-            $user->last_name = trim(Request::input('last_name'));
-            $user->username = trim(Request::input('email'));
-            $user->email = trim(Request::input('email'));
-            $user->registered = true;
-            $user->password = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user                    = new User();
+            $user->account_id        = Auth::user()->account_id;
+            $user->first_name        = trim(Request::input('first_name'));
+            $user->last_name         = trim(Request::input('last_name'));
+            $user->username          = trim(Request::input('email'));
+            $user->email             = trim(Request::input('email'));
+            $user->registered        = true;
+            $user->password          = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
             $user->confirmation_code = mb_strtolower(str_random(RANDOM_KEY_LENGTH));
-            $user->public_id = $lastUser->public_id + 1;
+            $user->public_id         = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                $user->is_admin = (bool) (Request::input('is_admin'));
+                $user->is_admin    = (bool) (Request::input('is_admin'));
                 $user->permissions = self::formatUserPermissions(Request::input('permissions'));
             }
         }
@@ -264,7 +264,7 @@ class UserController extends BaseController
         if ($user) {
             $notice_msg = trans('texts.security_confirmation');
 
-            $user->confirmed = true;
+            $user->confirmed         = true;
             $user->confirmation_code = null;
             $user->save();
 
@@ -305,14 +305,14 @@ class UserController extends BaseController
 
         // validate the new password
         $password = Request::input('new_password');
-        $confirm = Request::input('confirm_password');
+        $confirm  = Request::input('confirm_password');
 
         if (mb_strlen($password) < 6 || $password != $confirm) {
             return trans('texts.password_error_invalid');
         }
 
         // save the new password
-        $user = Auth::user();
+        $user           = Auth::user();
         $user->password = bcrypt($password);
         $user->save();
 
@@ -322,8 +322,8 @@ class UserController extends BaseController
     public function switchAccount($newUserId)
     {
         $oldUserId = Auth::user()->id;
-        $referer = Request::header('referer');
-        $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
+        $referer   = Request::header('referer');
+        $account   = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
 
         if ($account) {
             if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
@@ -394,7 +394,7 @@ class UserController extends BaseController
 
     public function acceptTerms()
     {
-        $ip = Request::getClientIp();
+        $ip      = Request::getClientIp();
         $referer = Request::server('HTTP_REFERER');
         $message = '';
 

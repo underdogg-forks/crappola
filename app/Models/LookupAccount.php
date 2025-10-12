@@ -23,7 +23,7 @@ class LookupAccount extends LookupModel
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $server = DbServer::whereName($current)->firstOrFail();
+        $server        = DbServer::whereName($current)->firstOrFail();
         $lookupCompany = LookupCompany::whereDbServerId($server->id)
             ->whereCompanyId($companyId)->first();
 

@@ -26,7 +26,7 @@ class QuoteInvitationWasApproved extends Event
      */
     public function __construct(Invoice $quote, Invitation $invitation)
     {
-        $this->quote = $quote;
+        $this->quote      = $quote;
         $this->invitation = $invitation;
     }
 }

@@ -150,7 +150,7 @@ class TaskRepository extends BaseRepository
         } elseif ($publicId) {
             $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
-            $task = Task::createNew();
+            $task                         = Task::createNew();
             $task->task_status_sort_order = 9999;
         }
 
@@ -161,9 +161,9 @@ class TaskRepository extends BaseRepository
         $task->fill($data);
 
         if ( ! empty($data['project_id'])) {
-            $project = Project::scope($data['project_id'])->firstOrFail();
+            $project          = Project::scope($data['project_id'])->firstOrFail();
             $task->project_id = $project->id;
-            $task->client_id = $project->client_id;
+            $task->client_id  = $project->client_id;
         } else {
             if (isset($data['client'])) {
                 $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
@@ -195,13 +195,13 @@ class TaskRepository extends BaseRepository
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
                 $task->is_running = true;
-                $timeLog[] = [strtotime('now'), false];
+                $timeLog[]        = [strtotime('now'), false];
             } elseif ($data['action'] == 'resume') {
                 $task->is_running = true;
-                $timeLog[] = [strtotime('now'), false];
+                $timeLog[]        = [strtotime('now'), false];
             } elseif ($data['action'] == 'stop' && $task->is_running) {
                 $timeLog[count($timeLog) - 1][1] = time();
-                $task->is_running = false;
+                $task->is_running                = false;
             } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }

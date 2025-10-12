@@ -51,7 +51,7 @@ class AccountGatewayController extends BaseController
     public function edit($publicId)
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
-        $config = $accountGateway->getConfig();
+        $config         = $accountGateway->getConfig();
 
         if ( ! $accountGateway->isCustom()) {
             foreach ($config as $field => $value) {
@@ -59,12 +59,12 @@ class AccountGatewayController extends BaseController
             }
         }
 
-        $data = self::getViewModel($accountGateway);
-        $data['url'] = 'gateways/' . $publicId;
-        $data['method'] = 'PUT';
-        $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
-        $data['config'] = $config;
-        $data['hiddenFields'] = Gateway::$hiddenFields;
+        $data                   = self::getViewModel($accountGateway);
+        $data['url']            = 'gateways/' . $publicId;
+        $data['method']         = 'PUT';
+        $data['title']          = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
+        $data['config']         = $config;
+        $data['hiddenFields']   = Gateway::$hiddenFields;
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
 
         return View::make('accounts.account_gateway', $data);
@@ -89,22 +89,22 @@ class AccountGatewayController extends BaseController
             Session::now('warning', trans('texts.enable_https'));
         }
 
-        $account = Auth::user()->account;
+        $account            = Auth::user()->account;
         $accountGatewaysIds = $account->gatewayIds();
-        $wepay = Request::input('wepay');
+        $wepay              = Request::input('wepay');
 
-        $data = self::getViewModel();
-        $data['url'] = 'gateways';
+        $data           = self::getViewModel();
+        $data['url']    = 'gateways';
         $data['method'] = 'POST';
-        $data['title'] = trans('texts.add_gateway');
+        $data['title']  = trans('texts.add_gateway');
 
         if ($wepay) {
             return View::make('accounts.account_gateway_wepay', $data);
         }
-        $availableGatewaysIds = $account->availableGatewaysIds();
-        $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
-        $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
-        $data['hiddenFields'] = Gateway::$hiddenFields;
+        $availableGatewaysIds       = $account->availableGatewaysIds();
+        $data['primaryGateways']    = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
+        $data['secondaryGateways']  = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
+        $data['hiddenFields']       = Gateway::$hiddenFields;
         $data['accountGatewaysIds'] = $accountGatewaysIds;
 
         return View::make('accounts.account_gateway', $data);
@@ -113,8 +113,8 @@ class AccountGatewayController extends BaseController
     public function bulk()
     {
         $action = Request::input('bulk_action');
-        $ids = Request::input('bulk_public_id');
-        $count = $this->accountGatewayService->bulk($ids, $action);
+        $ids    = Request::input('bulk_public_id');
+        $count  = $this->accountGatewayService->bulk($ids, $action);
 
         Session::flash('message', trans("texts.{$action}d_account_gateway"));
 
@@ -129,10 +129,10 @@ class AccountGatewayController extends BaseController
     public function save($accountGatewayPublicId = false)
     {
         $gatewayId = Request::input('primary_gateway_id') ?: Request::input('secondary_gateway_id');
-        $gateway = Gateway::findOrFail($gatewayId);
+        $gateway   = Gateway::findOrFail($gatewayId);
 
-        $rules = [];
-        $fields = $gateway->getFields();
+        $rules    = [];
+        $fields   = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
         if ($gatewayId == GATEWAY_DWOLLA) {
@@ -144,7 +144,7 @@ class AccountGatewayController extends BaseController
                 // do nothing - we're unable to acceptance test with StripeJS
             } else {
                 $rules['publishable_key'] = 'required';
-                $rules['enable_ach'] = 'boolean';
+                $rules['enable_ach']      = 'boolean';
             }
         }
 
@@ -163,7 +163,7 @@ class AccountGatewayController extends BaseController
         }
 
         $creditcards = Request::input('creditCardTypes');
-        $validator = Validator::make(Request::all(), $rules);
+        $validator   = Validator::make(Request::all(), $rules);
 
         if ($validator->fails()) {
             $url = $accountGatewayPublicId ? "/gateways/{$accountGatewayPublicId}/edit" : 'gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true');
@@ -172,12 +172,12 @@ class AccountGatewayController extends BaseController
                 ->withErrors($validator)
                 ->withInput();
         }
-        $account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
+        $account   = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
         $oldConfig = null;
 
         if ($accountGatewayPublicId) {
             $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
-            $oldConfig = $accountGateway->getConfig();
+            $oldConfig      = $accountGateway->getConfig();
         } else {
             // check they don't already have an active gateway for this provider
             // TODO complete this
@@ -190,7 +190,7 @@ class AccountGatewayController extends BaseController
                 return Redirect::to("gateways/{$accountGateway->public_id}/edit");
             }
 
-            $accountGateway = AccountGateway::createNew();
+            $accountGateway             = AccountGateway::createNew();
             $accountGateway->gateway_id = $gatewayId;
 
             if ($gatewayId == GATEWAY_WEPAY) {
@@ -249,10 +249,10 @@ class AccountGatewayController extends BaseController
         }
 
         if ($gatewayId == GATEWAY_STRIPE) {
-            $config->enableAlipay = (bool) (Request::input('enable_alipay'));
-            $config->enableSofort = (bool) (Request::input('enable_sofort'));
-            $config->enableSepa = (bool) (Request::input('enable_sepa'));
-            $config->enableBitcoin = (bool) (Request::input('enable_bitcoin'));
+            $config->enableAlipay   = (bool) (Request::input('enable_alipay'));
+            $config->enableSofort   = (bool) (Request::input('enable_sofort'));
+            $config->enableSepa     = (bool) (Request::input('enable_sepa'));
+            $config->enableBitcoin  = (bool) (Request::input('enable_bitcoin'));
             $config->enableApplePay = (bool) (Request::input('enable_apple_pay'));
 
             if ($config->enableApplePay && $uploadedFile = request()->file('apple_merchant_id')) {
@@ -278,9 +278,9 @@ class AccountGatewayController extends BaseController
         }
 
         $accountGateway->accepted_credit_cards = $cardCount;
-        $accountGateway->show_address = Request::input('show_address') ? true : false;
+        $accountGateway->show_address          = Request::input('show_address') ? true : false;
         $accountGateway->show_shipping_address = Request::input('show_shipping_address') ? true : false;
-        $accountGateway->update_address = Request::input('update_address') ? true : false;
+        $accountGateway->update_address        = Request::input('update_address') ? true : false;
         $accountGateway->setConfig($config);
 
         if ($accountGatewayPublicId) {
@@ -329,11 +329,11 @@ class AccountGatewayController extends BaseController
      */
     public function savePaymentGatewayLimits()
     {
-        $gateway_type_id = (int) (Request::input('gateway_type_id'));
+        $gateway_type_id  = (int) (Request::input('gateway_type_id'));
         $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
 
         if ( ! $gateway_settings) {
-            $gateway_settings = AccountGatewaySettings::createNew();
+            $gateway_settings                  = AccountGatewaySettings::createNew();
             $gateway_settings->gateway_type_id = $gateway_type_id;
         }
 
@@ -371,7 +371,7 @@ class AccountGatewayController extends BaseController
 
     protected function setupWePay($accountGateway, &$response)
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $user->account;
 
         $rules = [
@@ -392,9 +392,9 @@ class AccountGatewayController extends BaseController
         }
 
         if ( ! $user->email) {
-            $user->email = trim(Request::input('email'));
+            $user->email      = trim(Request::input('email'));
             $user->first_name = trim(Request::input('first_name'));
-            $user->last_name = trim(Request::input('last_name'));
+            $user->last_name  = trim(Request::input('last_name'));
             $user->save();
         }
 
@@ -416,7 +416,7 @@ class AccountGatewayController extends BaseController
 
             $wepayUser = $wepay->request('user/register/', $userDetails);
 
-            $accessToken = $wepayUser->access_token;
+            $accessToken        = $wepayUser->access_token;
             $accessTokenExpires = $wepayUser->expires_in ? (time() + $wepayUser->expires_in) : null;
 
             $wepay = new WePay($accessToken);
@@ -431,7 +431,7 @@ class AccountGatewayController extends BaseController
             ];
 
             if (Request::input('country') == 'CA') {
-                $accountDetails['currencies'] = ['CAD'];
+                $accountDetails['currencies']      = ['CAD'];
                 $accountDetails['country_options'] = ['debit_opt_in' => (bool) (Request::input('debit_cards'))];
             } elseif (Request::input('country') == 'GB') {
                 $accountDetails['currencies'] = ['GBP'];
@@ -490,11 +490,11 @@ class AccountGatewayController extends BaseController
     private function getViewModel($accountGateway = false)
     {
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
-        $user = Auth::user();
-        $account = $user->account;
+        $user          = Auth::user();
+        $account       = $user->account;
 
         $creditCardsArray = unserialize(CREDIT_CARDS);
-        $creditCards = [];
+        $creditCards      = [];
         foreach ($creditCardsArray as $card => $name) {
             if ($selectedCards > 0 && ($selectedCards & $card) == $card) {
                 $creditCards['<div>' . $name['text'] . '</div>'] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
@@ -505,7 +505,7 @@ class AccountGatewayController extends BaseController
 
         $account->load('account_gateways');
         $currentGateways = $account->account_gateways;
-        $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
+        $gateways        = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
 
         if ($accountGateway) {
             $accountGateway->fields = [];
@@ -536,7 +536,7 @@ class AccountGatewayController extends BaseController
     private function testGateway($accountGateway)
     {
         $paymentDriver = $accountGateway->paymentDriver();
-        $result = $paymentDriver->isValid();
+        $result        = $paymentDriver->isValid();
 
         if ($result !== true) {
             Session::flash('error', $result . ' - ' . trans('texts.gateway_config_error'));

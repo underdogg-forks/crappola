@@ -133,7 +133,7 @@ class ForceMigration extends Command
 
         if($company) {
             foreach($company->accounts as $key => $account) {
-                $data['companies'][$key]['id'] = $account->id;
+                $data['companies'][$key]['id']    = $account->id;
                 $data['companies'][$key]['force'] = $this->force;
             }
 

@@ -18,7 +18,7 @@ class InvoiceTransformer extends BaseTransformer
     public function transform($data)
     {
         $clientName = trim(array_last(explode('-', $data->client)));
-        $clientId = $this->getClientId($data->client) ?: $this->getClientId($clientName);
+        $clientId   = $this->getClientId($data->client) ?: $this->getClientId($clientName);
 
         if ( ! $clientId) {
             return false;

@@ -31,6 +31,6 @@ class InvoiceInvitationWasEmailed extends Event
     public function __construct(Invitation $invitation, $notes)
     {
         $this->invitation = $invitation;
-        $this->notes = $notes;
+        $this->notes      = $notes;
     }
 }

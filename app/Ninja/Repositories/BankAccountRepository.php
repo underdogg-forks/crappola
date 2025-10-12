@@ -31,7 +31,7 @@ class BankAccountRepository extends BaseRepository
 
     public function save($input)
     {
-        $bankAccount = BankAccount::createNew();
+        $bankAccount           = BankAccount::createNew();
         $bankAccount->username = Crypt::encrypt(trim($input['bank_username']));
         $bankAccount->fill($input);
 
@@ -43,8 +43,8 @@ class BankAccountRepository extends BaseRepository
                 continue;
             }
 
-            $subaccount = BankSubaccount::createNew();
-            $subaccount->account_name = trim($data['account_name']);
+            $subaccount                 = BankSubaccount::createNew();
+            $subaccount->account_name   = trim($data['account_name']);
             $subaccount->account_number = trim($data['hashed_account_number']);
             $bankAccount->bank_subaccounts()->save($subaccount);
         }

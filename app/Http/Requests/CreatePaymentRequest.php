@@ -13,7 +13,7 @@ class CreatePaymentRequest extends PaymentRequest
 
     public function rules()
     {
-        $input = $this->input();
+        $input         = $this->input();
         $this->invoice = $invoice = Invoice::scope($input['invoice'])
             ->withArchived()
             ->invoices()

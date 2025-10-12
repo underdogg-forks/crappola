@@ -178,7 +178,7 @@ class PaymentRepository extends BaseRepository
 
         $paymentTypeId = false;
         if (isset($input['payment_type_id'])) {
-            $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+            $paymentTypeId            = $input['payment_type_id'] ? $input['payment_type_id'] : null;
             $payment->payment_type_id = $paymentTypeId;
         }
 
@@ -194,8 +194,8 @@ class PaymentRepository extends BaseRepository
 
         if ( ! $publicId) {
             $clientId = $input['client_id'];
-            $amount = round(Utils::parseFloat($input['amount']), 2);
-            $amount = min($amount, MAX_INVOICE_AMOUNT);
+            $amount   = round(Utils::parseFloat($input['amount']), 2);
+            $amount   = min($amount, MAX_INVOICE_AMOUNT);
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
                 $credits = Credit::scope()->where('client_id', '=', $clientId)
@@ -211,8 +211,8 @@ class PaymentRepository extends BaseRepository
             }
 
             $payment->invoice_id = $input['invoice_id'];
-            $payment->client_id = $clientId;
-            $payment->amount = $amount;
+            $payment->client_id  = $clientId;
+            $payment->amount     = $amount;
         }
 
         $payment->save();

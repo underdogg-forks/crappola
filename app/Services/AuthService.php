@@ -73,16 +73,16 @@ class AuthService
         }
 
         $socialiteUser = Socialite::driver($provider)->user();
-        $providerId = self::getProviderId($provider);
+        $providerId    = self::getProviderId($provider);
 
-        $email = $socialiteUser->email;
+        $email       = $socialiteUser->email;
         $oauthUserId = $socialiteUser->id;
-        $name = Utils::splitName($socialiteUser->name);
+        $name        = Utils::splitName($socialiteUser->name);
 
         if (Auth::check()) {
-            $user = Auth::user();
+            $user         = Auth::user();
             $isRegistered = $user->registered;
-            $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
+            $result       = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
                 if ( ! $isRegistered) {

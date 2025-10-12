@@ -13,7 +13,7 @@ class InvoiceEventHandler
 
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
     {
-        $this->userMailer = $userMailer;
+        $this->userMailer    = $userMailer;
         $this->contactMailer = $contactMailer;
     }
 

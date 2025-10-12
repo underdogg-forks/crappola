@@ -37,7 +37,7 @@ class CompanyService
             $this->isSuccessful = true;
         } catch (Exception $th) {
             $this->isSuccessful = false;
-            $this->errors = [];
+            $this->errors       = [];
         }
 
         return $this;

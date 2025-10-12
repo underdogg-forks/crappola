@@ -171,9 +171,9 @@ class VendorApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $vendor = $this->vendorRepo->save($data, $request->entity());
+        $vendor            = $this->vendorRepo->save($data, $request->entity());
 
         $vendor->load(['vendor_contacts']);
 

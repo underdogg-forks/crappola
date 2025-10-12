@@ -30,6 +30,6 @@ class InvoiceWasEmailed extends Event
     public function __construct(Invoice $invoice, $notes)
     {
         $this->invoice = $invoice;
-        $this->notes = $notes;
+        $this->notes   = $notes;
     }
 }

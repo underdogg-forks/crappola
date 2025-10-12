@@ -84,9 +84,9 @@ class HistoryUtils
 
     public static function deleteHistory(EntityModel $entity)
     {
-        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $history        = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
-        $remove = [];
+        $remove         = [];
 
         for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
@@ -106,7 +106,7 @@ class HistoryUtils
 
     public static function trackViewed(EntityModel $entity)
     {
-        $entityType = $entity->getEntityType();
+        $entityType   = $entity->getEntityType();
         $trackedTypes = [
             ENTITY_CLIENT,
             ENTITY_INVOICE,
@@ -126,10 +126,10 @@ class HistoryUtils
             return;
         }
 
-        $object = static::convertToObject($entity);
-        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $object         = static::convertToObject($entity);
+        $history        = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = $history[$entity->account_id] ?? [];
-        $data = [];
+        $data           = [];
 
         // Add to the list and make sure to only show each item once
         for ($i = 0; $i < count($accountHistory); $i++) {
@@ -162,8 +162,8 @@ class HistoryUtils
     public static function renderHtml($accountId)
     {
         $lastClientId = false;
-        $clientMap = [];
-        $str = '';
+        $clientMap    = [];
+        $str          = '';
 
         $history = Session::get(RECENTLY_VIEWED, []);
         $history = $history[$accountId] ?? [];
@@ -182,12 +182,12 @@ class HistoryUtils
                     $name = e($item->client_name);
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
-                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
+                    $button     = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
                                     <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
                                 </a>';
                 } else {
-                    $link = '#';
-                    $name = trans('texts.unassigned');
+                    $link   = '#';
+                    $name   = trans('texts.unassigned');
                     $button = '';
                 }
 
@@ -209,25 +209,25 @@ class HistoryUtils
 
     private static function convertToObject($entity)
     {
-        $object = new stdClass();
-        $object->id = $entity->id;
-        $object->accountId = $entity->account_id;
-        $object->url = $entity->present()->url;
+        $object             = new stdClass();
+        $object->id         = $entity->id;
+        $object->accountId  = $entity->account_id;
+        $object->url        = $entity->present()->url;
         $object->entityType = $entity->subEntityType();
-        $object->name = $entity->present()->titledName;
-        $object->timestamp = time();
+        $object->name       = $entity->present()->titledName;
+        $object->timestamp  = time();
 
         if ($entity->isEntityType(ENTITY_CLIENT)) {
-            $object->client_id = $entity->public_id;
+            $object->client_id   = $entity->public_id;
             $object->client_name = $entity->getDisplayName();
         } elseif (method_exists($entity, 'client') && $entity->client) {
-            $object->client_id = $entity->client->public_id;
+            $object->client_id   = $entity->client->public_id;
             $object->client_name = $entity->client->getDisplayName();
         } elseif (method_exists($entity, 'invoice') && $entity->invoice) {
-            $object->client_id = $entity->invoice->client->public_id;
+            $object->client_id   = $entity->invoice->client->public_id;
             $object->client_name = $entity->invoice->client->getDisplayName();
         } else {
-            $object->client_id = 0;
+            $object->client_id   = 0;
             $object->client_name = 0;
         }
 

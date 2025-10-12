@@ -40,7 +40,7 @@ class NinjaController extends BaseController
      */
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
-        $this->accountRepo = $accountRepo;
+        $this->accountRepo   = $accountRepo;
         $this->contactMailer = $contactMailer;
     }
 
@@ -75,8 +75,8 @@ class NinjaController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
-        $gateway = $accountGateway->gateway;
+        $accountGateway          = $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD);
+        $gateway                 = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
         $affiliate = Affiliate::find(Session::get('affiliate_id'));
@@ -160,14 +160,14 @@ class NinjaController extends BaseController
 
             $licenseKey = Utils::generateLicense();
 
-            $license = new License();
-            $license->first_name = Request::input('first_name');
-            $license->last_name = Request::input('last_name');
-            $license->email = Request::input('email');
+            $license                        = new License();
+            $license->first_name            = Request::input('first_name');
+            $license->last_name             = Request::input('last_name');
+            $license->email                 = Request::input('email');
             $license->transaction_reference = $ref;
-            $license->license_key = $licenseKey;
-            $license->affiliate_id = Session::get('affiliate_id');
-            $license->product_id = Session::get('product_id');
+            $license->license_key           = $licenseKey;
+            $license->affiliate_id          = Session::get('affiliate_id');
+            $license->product_id            = Session::get('product_id');
             $license->save();
 
             $data = [
@@ -183,7 +183,7 @@ class NinjaController extends BaseController
 
             if (Session::has('return_url')) {
                 $data['redirectTo'] = Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . Session::get('product_id');
-                $data['message'] = 'Redirecting to ' . Session::get('return_url');
+                $data['message']    = 'Redirecting to ' . Session::get('return_url');
             }
 
             return View::make('public.license', $data);
@@ -200,7 +200,7 @@ class NinjaController extends BaseController
     public function claim_license()
     {
         $licenseKey = Request::input('license_key');
-        $productId = Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        $productId  = Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         // add in dashes
         if (mb_strlen($licenseKey) == 20) {
@@ -237,7 +237,7 @@ class NinjaController extends BaseController
 
     public function hideWhiteLabelMessage()
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $company = $user->account->company;
 
         $company->plan = null;
@@ -252,9 +252,9 @@ class NinjaController extends BaseController
             return redirect('/');
         }
 
-        $user = Auth::user();
-        $account = $user->account;
-        $url = NINJA_APP_URL . '/buy_now';
+        $user       = Auth::user();
+        $account    = $user->account;
+        $url        = NINJA_APP_URL . '/buy_now';
         $contactKey = $user->primaryAccount()->account_key;
 
         $data = [

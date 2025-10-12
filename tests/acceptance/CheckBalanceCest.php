@@ -17,8 +17,8 @@ class CheckBalanceCest
     {
         $I->wantTo('ensure the balance is correct');
 
-        $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
+        $clientEmail  = $this->faker->safeEmail;
+        $productKey   = $this->faker->text(10);
         $productPrice = $this->faker->numberBetween(1, 20);
 
         // create client

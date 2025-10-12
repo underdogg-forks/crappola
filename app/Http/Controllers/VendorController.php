@@ -30,7 +30,7 @@ class VendorController extends BaseController
     {
         //parent::__construct();
 
-        $this->vendorRepo = $vendorRepo;
+        $this->vendorRepo    = $vendorRepo;
         $this->vendorService = $vendorService;
     }
 
@@ -166,8 +166,8 @@ class VendorController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
-        $count = $this->vendorService->bulk($ids, $action);
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $count  = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action . 'd_vendor', $count);
         Session::flash('message', $message);

@@ -29,7 +29,7 @@ class AccountGatewayService extends BaseService
     public function __construct(AccountGatewayRepository $accountGatewayRepo, DatatableService $datatableService)
     {
         $this->accountGatewayRepo = $accountGatewayRepo;
-        $this->datatableService = $datatableService;
+        $this->datatableService   = $datatableService;
     }
 
     /**

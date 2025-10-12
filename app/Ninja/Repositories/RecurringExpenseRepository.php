@@ -29,7 +29,7 @@ class RecurringExpenseRepository extends BaseRepository
     public function find($filter = null)
     {
         $accountid = Auth::user()->account_id;
-        $query = DB::table('recurring_expenses')
+        $query     = DB::table('recurring_expenses')
             ->join('accounts', 'accounts.id', '=', 'recurring_expenses.account_id')
             ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -180,9 +180,9 @@ class RecurringExpenseRepository extends BaseRepository
             $expense->{$field} = $recurringExpense->{$field};
         }
 
-        $expense->expense_date = $account->getDateTime()->format('Y-m-d');
-        $expense->exchange_rate = 1;
-        $expense->invoice_currency_id = $recurringExpense->expense_currency_id;
+        $expense->expense_date         = $account->getDateTime()->format('Y-m-d');
+        $expense->exchange_rate        = 1;
+        $expense->invoice_currency_id  = $recurringExpense->expense_currency_id;
         $expense->recurring_expense_id = $recurringExpense->id;
         $expense->save();
 

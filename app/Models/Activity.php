@@ -82,17 +82,17 @@ class Activity extends Eloquent
     public function getMessage()
     {
         $activityTypeId = $this->activity_type_id;
-        $account = $this->account;
-        $client = $this->client;
-        $user = $this->user;
-        $invoice = $this->invoice;
-        $contactId = $this->contact_id;
-        $contact = $this->contact;
-        $payment = $this->payment;
-        $credit = $this->credit;
-        $expense = $this->expense;
-        $isSystem = $this->is_system;
-        $task = $this->task;
+        $account        = $this->account;
+        $client         = $this->client;
+        $user           = $this->user;
+        $invoice        = $this->invoice;
+        $contactId      = $this->contact_id;
+        $contact        = $this->contact;
+        $payment        = $this->payment;
+        $credit         = $this->credit;
+        $expense        = $this->expense;
+        $isSystem       = $this->is_system;
+        $task           = $this->task;
 
         $data = [
             'client'         => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,

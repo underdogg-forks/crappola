@@ -42,8 +42,8 @@ class InvoiceService extends BaseService
         InvoiceRepository $invoiceRepo,
         DatatableService $datatableService
     ) {
-        $this->clientRepo = $clientRepo;
-        $this->invoiceRepo = $invoiceRepo;
+        $this->clientRepo       = $clientRepo;
+        $this->invoiceRepo      = $invoiceRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -74,13 +74,13 @@ class InvoiceService extends BaseService
     public function save(array $data, ?Invoice $invoice = null)
     {
         if (isset($data['client'])) {
-            $canSaveClient = false;
-            $canViewClient = false;
+            $canSaveClient  = false;
+            $canViewClient  = false;
             $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
             if (empty($clientPublicId) || (int) $clientPublicId < 0) {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
-                $client = Client::scope($clientPublicId)->first();
+                $client        = Client::scope($clientPublicId)->first();
                 $canSaveClient = Auth::user()->can('edit', $client);
                 $canViewClient = Auth::user()->can('view', $client);
             }
@@ -146,7 +146,7 @@ class InvoiceService extends BaseService
 
     public function getDatatable($accountId, $clientPublicId, $entityType, $search)
     {
-        $datatable = new InvoiceDatatable(true, $clientPublicId);
+        $datatable             = new InvoiceDatatable(true, $clientPublicId);
         $datatable->entityType = $entityType;
 
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)

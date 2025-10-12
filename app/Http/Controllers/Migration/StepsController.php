@@ -129,9 +129,9 @@ class StepsController extends BaseController
     {
         $account = Auth::user()->account;
 
-        $account_settings = $account->account_email_settings;
+        $account_settings                     = $account->account_email_settings;
         $account_settings->forward_url_for_v5 = '';
-        $account_settings->is_disabled = false;
+        $account_settings->is_disabled        = false;
         $account_settings->save();
 
         return back();
@@ -299,7 +299,7 @@ class StepsController extends BaseController
 
             $this->account = $account;
 
-            $date = date('Y-m-d');
+            $date       = date('Y-m-d');
             $accountKey = $this->account->account_key;
 
             $output = fopen('php://output', 'w') || Utils::fatalError();
@@ -367,7 +367,7 @@ class StepsController extends BaseController
             'Content-Type'        => 'application/json',
         ];
 
-        $account = Auth::user()->account;
+        $account           = Auth::user()->account;
         $gateway_reference = '';
 
         $ninja_client = Client::where('public_id', $account->id)->first();
@@ -426,8 +426,8 @@ class StepsController extends BaseController
             $billing_transferred = $message_body['billing_transferred'];
 
             if($billing_transferred == 'true') {
-                $company = $account->company;
-                $company->plan = null;
+                $company               = $account->company;
+                $company->plan         = null;
                 $company->plan_expires = null;
                 $company->save();
             }

@@ -40,7 +40,7 @@ class SubscriptionService extends BaseService
     public function getDatatable($accountId)
     {
         $datatable = new SubscriptionDatatable(false);
-        $query = $this->subscriptionRepo->find($accountId);
+        $query     = $this->subscriptionRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

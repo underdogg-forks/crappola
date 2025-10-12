@@ -15,13 +15,13 @@ class APICest
         $this->faker = Factory::create();
 
         Debug::debug('Create/get token');
-        $data = new stdClass();
-        $data->email = Fixtures::get('username');
-        $data->password = Fixtures::get('password');
+        $data             = new stdClass();
+        $data->email      = Fixtures::get('username');
+        $data->password   = Fixtures::get('password');
         $data->api_secret = Fixtures::get('api_secret');
         $data->token_name = 'iOS Token';
 
-        $response = $this->sendRequest('login', $data);
+        $response     = $this->sendRequest('login', $data);
         $userAccounts = $response->data;
 
         PHPUnit_Framework_Assert::assertGreaterThan(0, count((array) $userAccounts));
@@ -36,56 +36,56 @@ class APICest
     {
         $I->wantTo('test the API');
 
-        $data = new stdClass();
-        $data->contact = new stdClass();
+        $data                 = new stdClass();
+        $data->contact        = new stdClass();
         $data->contact->email = $this->faker->safeEmail;
-        $clientId = $this->createEntity('client', $data);
+        $clientId             = $this->createEntity('client', $data);
         $this->listEntities('clients');
 
-        $data = new stdClass();
-        $data->client_id = $clientId;
+        $data              = new stdClass();
+        $data->client_id   = $clientId;
         $data->description = $this->faker->realText(100);
         $this->createEntity('task', $data);
         $this->listEntities('tasks');
 
-        $lineItem = new stdClass();
-        $lineItem->qty = $this->faker->numberBetween(1, 10);
-        $lineItem->cost = $this->faker->numberBetween(1, 10);
-        $data = new stdClass();
-        $data->client_id = $clientId;
+        $lineItem            = new stdClass();
+        $lineItem->qty       = $this->faker->numberBetween(1, 10);
+        $lineItem->cost      = $this->faker->numberBetween(1, 10);
+        $data                = new stdClass();
+        $data->client_id     = $clientId;
         $data->invoice_items = [
             $lineItem,
         ];
         $invoiceId = $this->createEntity('invoice', $data);
         $this->listEntities('invoices');
 
-        $data = new stdClass();
+        $data             = new stdClass();
         $data->invoice_id = $invoiceId;
-        $data->amount = 1;
+        $data->amount     = 1;
         $this->createEntity('payment', $data);
         $this->listEntities('payments');
 
-        $data = new stdClass();
+        $data       = new stdClass();
         $data->name = $this->faker->word;
         $data->rate = $this->faker->numberBetween(1, 10);
         $this->createEntity('tax_rate', $data);
         $this->listEntities('tax_rates');
 
-        $data = new stdClass();
+        $data              = new stdClass();
         $data->product_key = $this->faker->word;
-        $data->notes = $this->faker->realText(100);
+        $data->notes       = $this->faker->realText(100);
         $this->createEntity('product', $data);
         $this->listEntities('products');
 
-        $data = new stdClass();
-        $data->name = $this->faker->word;
+        $data                  = new stdClass();
+        $data->name            = $this->faker->word;
         $data->vendor_contacts = [];
         $this->createEntity('vendor', $data);
         $this->listEntities('vendors');
 
-        $data = new stdClass();
+        $data            = new stdClass();
         $data->client_id = $clientId;
-        $data->amount = 1;
+        $data->amount    = 1;
         $this->createEntity('credit', $data);
         $this->listEntities('credits');
 
@@ -117,7 +117,7 @@ class APICest
 
     private function sendRequest($url, $data, $type = 'POST')
     {
-        $url = Fixtures::get('url') . '/api/v1/' . $url;
+        $url  = Fixtures::get('url') . '/api/v1/' . $url;
         $data = json_encode($data);
         $curl = curl_init();
 

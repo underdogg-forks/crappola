@@ -70,7 +70,7 @@ class ProjectRepository extends BaseRepository
         $publicId = $data['public_id'] ?? false;
 
         if ( ! $project) {
-            $project = Project::createNew();
+            $project              = Project::createNew();
             $project['client_id'] = $input['client_id'];
         }
 

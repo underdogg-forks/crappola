@@ -22,7 +22,7 @@ class ExpenseApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->expenseRepo = $expenseRepo;
+        $this->expenseRepo    = $expenseRepo;
         $this->expenseService = $expenseService;
     }
 
@@ -167,9 +167,9 @@ class ExpenseApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $expense = $this->expenseService->save($data, $request->entity());
+        $expense           = $this->expenseService->save($data, $request->entity());
 
         return $this->itemResponse($expense);
     }

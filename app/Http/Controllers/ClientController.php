@@ -37,7 +37,7 @@ class ClientController extends BaseController
     {
         //parent::__construct();
 
-        $this->clientRepo = $clientRepo;
+        $this->clientRepo    = $clientRepo;
         $this->clientService = $clientService;
     }
 
@@ -87,8 +87,8 @@ class ClientController extends BaseController
      */
     public function show(ClientRequest $request)
     {
-        $client = $request->entity();
-        $user = Auth::user();
+        $client  = $request->entity();
+        $user    = Auth::user();
         $account = $user->account;
 
         //$user->can('view', [ENTITY_CLIENT, $client]);
@@ -216,7 +216,7 @@ class ClientController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'purge' && ! auth()->user()->is_admin) {
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
@@ -236,15 +236,15 @@ class ClientController extends BaseController
 
     public function statement($clientPublicId)
     {
-        $statusId = request()->status_id;
+        $statusId  = request()->status_id;
         $startDate = request()->start_date;
-        $endDate = request()->end_date;
-        $account = Auth::user()->account;
-        $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
+        $endDate   = request()->end_date;
+        $account   = Auth::user()->account;
+        $client    = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
 
         if ( ! $startDate) {
             $startDate = Utils::today(false)->modify('-6 month')->format('Y-m-d');
-            $endDate = Utils::today(false)->format('Y-m-d');
+            $endDate   = Utils::today(false)->format('Y-m-d');
         }
 
         if (request()->json) {

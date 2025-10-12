@@ -24,7 +24,7 @@ class QuoteListener
      */
     public function emailedQuote(QuoteWasEmailed $event)
     {
-        $quote = $event->quote;
+        $quote                 = $event->quote;
         $quote->last_sent_date = date('Y-m-d');
         $quote->save();
     }

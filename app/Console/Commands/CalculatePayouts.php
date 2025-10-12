@@ -95,7 +95,7 @@ class CalculatePayouts extends Command
                     continue;
                 }
 
-                $user = $userMap[$company->referral_code];
+                $user    = $userMap[$company->referral_code];
                 $payment = $company->payment;
 
                 if ($payment) {

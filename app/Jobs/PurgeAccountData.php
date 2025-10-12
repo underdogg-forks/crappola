@@ -18,7 +18,7 @@ class PurgeAccountData extends Job
      */
     public function handle(UserMailer $userMailer)
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $user->account;
 
         if ( ! $user->is_admin) {
@@ -62,9 +62,9 @@ class PurgeAccountData extends Job
         }
 
         $account->invoice_number_counter = 1;
-        $account->quote_number_counter = 1;
-        $account->credit_number_counter = $account->credit_number_counter > 0 ? 1 : 0;
-        $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
+        $account->quote_number_counter   = 1;
+        $account->credit_number_counter  = $account->credit_number_counter > 0 ? 1 : 0;
+        $account->client_number_counter  = $account->client_number_counter > 0 ? 1 : 0;
         $account->save();
 
         session([RECENTLY_VIEWED => false]);

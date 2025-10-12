@@ -46,9 +46,9 @@ abstract class Request extends FormRequest
         // autoload referenced entities
         foreach ($this->autoload as $entityType) {
             if ($id = $this->input("{$entityType}_public_id") ?: $this->input("{$entityType}_id")) {
-                $class = 'App\\Models\\' . ucwords($entityType);
-                $entity = $class::scope($id)->firstOrFail();
-                $input[$entityType] = $entity;
+                $class                      = 'App\\Models\\' . ucwords($entityType);
+                $entity                     = $class::scope($id)->firstOrFail();
+                $input[$entityType]         = $entity;
                 $input[$entityType . '_id'] = $entity->id;
             }
         }
@@ -68,8 +68,8 @@ abstract class Request extends FormRequest
         // If the user is validating from a mobile app - pass through first error string and return error
         if ($value = $validator->getMessageBag()->first()) {
             $message['error'] = ['message' => $value];
-            $message = json_encode($message, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
+            $message          = json_encode($message, JSON_PRETTY_PRINT);
+            $headers          = Utils::getApiHeaders();
 
             throw new ValidationException($validator, Response::make($message, 400, $headers));
         }

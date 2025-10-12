@@ -48,7 +48,7 @@ class EntityDatatable
 
     public function columnFields()
     {
-        $data = [];
+        $data    = [];
         $columns = $this->columns();
 
         if ($this->isBulkEdit) {

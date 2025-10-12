@@ -106,7 +106,7 @@ class ExportMigrations extends Command
         $this->account = $user->account;
         Auth::login($user);
 
-        $date = date('Y-m-d');
+        $date       = date('Y-m-d');
         $accountKey = $this->account->account_key;
 
         $output = fopen('php://output', 'w') || Utils::fatalError();

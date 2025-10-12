@@ -26,7 +26,7 @@ class OAuth
         switch ($provider) {
             case 'google':
                 $this->providerInstance = new Providers\Google();
-                $this->providerId = self::SOCIAL_GOOGLE;
+                $this->providerId       = self::SOCIAL_GOOGLE;
 
                 return $this;
 
@@ -40,7 +40,7 @@ class OAuth
     {
         $user = null;
 
-        $payload = $this->providerInstance->getTokenResponse($token);
+        $payload     = $this->providerInstance->getTokenResponse($token);
         $oauthUserId = $this->providerInstance->harvestSubField($payload);
 
         LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);

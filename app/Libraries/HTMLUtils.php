@@ -53,7 +53,7 @@ class HTMLUtils
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();
-        $current = request()->url();
+        $current  = request()->url();
 
         if ($previous == $current) {
             return url($fallback);

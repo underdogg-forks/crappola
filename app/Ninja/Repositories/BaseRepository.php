@@ -46,7 +46,7 @@ class BaseRepository
         $entity->restore();
 
         if ($entity->is_deleted) {
-            $fromDeleted = true;
+            $fromDeleted        = true;
             $entity->is_deleted = false;
             $entity->save();
         }

@@ -28,7 +28,7 @@ class UserService extends BaseService
      */
     public function __construct(UserRepository $userRepo, DatatableService $datatableService)
     {
-        $this->userRepo = $userRepo;
+        $this->userRepo         = $userRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -40,7 +40,7 @@ class UserService extends BaseService
     public function getDatatable($accountId)
     {
         $datatable = new UserDatatable(false);
-        $query = $this->userRepo->find($accountId);
+        $query     = $this->userRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

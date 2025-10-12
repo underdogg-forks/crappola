@@ -8,7 +8,7 @@ class CreateTaskIntent extends BaseIntent
 {
     public function process()
     {
-        $client = $this->requestClient();
+        $client         = $this->requestClient();
         $clientPublicId = $client ? $client->public_id : null;
 
         //$invoiceItems = $this->requestInvoiceItems();

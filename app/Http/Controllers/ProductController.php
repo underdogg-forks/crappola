@@ -42,7 +42,7 @@ class ProductController extends BaseController
         //parent::__construct();
 
         $this->productService = $productService;
-        $this->productRepo = $productRepo;
+        $this->productRepo    = $productRepo;
     }
 
     /**
@@ -91,13 +91,13 @@ class ProductController extends BaseController
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         if ($clone) {
-            $product->id = null;
-            $product->public_id = null;
+            $product->id         = null;
+            $product->public_id  = null;
             $product->deleted_at = null;
-            $url = 'products';
-            $method = 'POST';
+            $url                 = 'products';
+            $method              = 'POST';
         } else {
-            $url = 'products/' . $publicId;
+            $url    = 'products/' . $publicId;
             $method = 'PUT';
         }
 
@@ -157,11 +157,11 @@ class ProductController extends BaseController
     public function bulk()
     {
         $action = Request::input('action');
-        $ids = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
+        $ids    = Request::input('public_id') ? Request::input('public_id') : Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();
-            $data = [];
+            $data     = [];
             foreach ($products as $product) {
                 $data[] = $product->product_key;
             }

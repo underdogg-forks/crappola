@@ -30,12 +30,12 @@ class ApiCheck
             || $request->is('api/v1/oauth_login')
             || $request->is('api/v1/ios_subscription_status');
 
-        $headers = Utils::getApiHeaders();
+        $headers      = Utils::getApiHeaders();
         $hasApiSecret = false;
 
         if ($secret = env(API_SECRET)) {
             $requestSecret = Request::header('X-Ninja-Secret') ?: ($request->api_secret ?: '');
-            $hasApiSecret = hash_equals($requestSecret, $secret);
+            $hasApiSecret  = hash_equals($requestSecret, $secret);
         } elseif (Utils::isSelfHost()) {
             $hasApiSecret = true;
         }
@@ -80,11 +80,11 @@ class ApiCheck
         $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
-        $hour = 60 * 60;
-        $hour_limit = 1000;
-        $hour_throttle = Cache::get("hour_throttle:{$key}", null);
+        $hour             = 60 * 60;
+        $hour_limit       = 1000;
+        $hour_throttle    = Cache::get("hour_throttle:{$key}", null);
         $last_api_request = Cache::get("last_api_request:{$key}", 0);
-        $last_api_diff = time() - $last_api_request;
+        $last_api_diff    = time() - $last_api_request;
 
         if (null === $hour_throttle) {
             $new_hour_throttle = 0;

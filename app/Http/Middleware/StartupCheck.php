@@ -55,7 +55,7 @@ class StartupCheck
             }
 
             // Check if a new version was installed
-            $file = storage_path() . '/version.txt';
+            $file    = storage_path() . '/version.txt';
             $version = @file_get_contents($file);
             if ($version != NINJA_VERSION) {
                 if (version_compare(phpversion(), '7.1.0', '<')) {
@@ -77,7 +77,7 @@ class StartupCheck
 
         if (Auth::check()) {
             $company = Auth::user()->account->company;
-            $count = Session::get(SESSION_COUNTER, 0);
+            $count   = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
             if (Utils::isNinja()) {
@@ -144,7 +144,7 @@ class StartupCheck
 
             if (Auth::check()) {
                 if ($language = Language::whereLocale($locale)->first()) {
-                    $account = Auth::user()->account;
+                    $account              = Auth::user()->account;
                     $account->language_id = $language->id;
                     $account->save();
                 }
@@ -166,9 +166,9 @@ class StartupCheck
             $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
             if ( ! $claimingLicense && \Request::has('license_key') && \Request::has('product_id')) {
                 $licenseKey = \Request::input('license_key');
-                $productId = \Request::input('product_id');
+                $productId  = \Request::input('product_id');
 
-                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
+                $url  = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(CurlUtils::get($url));
 
                 if ($data == RESULT_FAILURE) {
@@ -178,10 +178,10 @@ class StartupCheck
                     if ($date < date_create()) {
                         Session::flash('message', trans('texts.expired_white_label'));
                     } else {
-                        $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_paid = $data;
+                        $company->plan_term    = PLAN_TERM_YEARLY;
+                        $company->plan_paid    = $data;
                         $company->plan_expires = $date->format('Y-m-d');
-                        $company->plan = PLAN_WHITE_LABEL;
+                        $company->plan         = PLAN_WHITE_LABEL;
                         $company->save();
 
                         Session::flash('message', trans('texts.bought_white_label'));

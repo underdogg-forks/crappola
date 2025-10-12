@@ -23,8 +23,8 @@ class IntegrationController extends BaseAPIController
             return Response::json('Event is invalid', 500);
         }
 
-        $subscription = Subscription::createNew();
-        $subscription->event_id = $eventId;
+        $subscription             = Subscription::createNew();
+        $subscription->event_id   = $eventId;
         $subscription->target_url = trim(Request::input('target_url'));
         $subscription->save();
 

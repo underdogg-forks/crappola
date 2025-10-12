@@ -8,7 +8,7 @@ class ProjectPresenter extends EntityPresenter
 {
     public function calendarEvent($subColors = false)
     {
-        $data = parent::calendarEvent();
+        $data    = parent::calendarEvent();
         $project = $this->entity;
 
         $data->title = trans('texts.project') . ': ' . $project->name;

@@ -31,8 +31,8 @@ class ClientService extends BaseService
      */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
-        $this->clientRepo = $clientRepo;
-        $this->ninjaRepo = $ninjaRepo;
+        $this->clientRepo       = $clientRepo;
+        $this->ninjaRepo        = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 

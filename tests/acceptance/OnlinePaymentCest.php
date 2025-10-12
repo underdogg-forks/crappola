@@ -18,7 +18,7 @@ class OnlinePaymentCest
         $I->wantTo('test an online payment');
 
         $clientEmail = $this->faker->safeEmail;
-        $productKey = $this->faker->text(10);
+        $productKey  = $this->faker->text(10);
 
         $I->createGateway($I);
         $I->createClient($I, $clientEmail);
@@ -42,8 +42,8 @@ class OnlinePaymentCest
         $I->see($clientEmail);
 
         // enter payment
-        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
-        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
+        $clientId      = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        $invoiceId     = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 
         $I->createOnlinePayment($I, $invitationKey);

@@ -10,7 +10,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
 {
     public function process()
     {
-        $invoice = $this->stateInvoice();
+        $invoice      = $this->stateInvoice();
         $invoiceItems = $this->requestInvoiceItems();
 
         $data = array_merge($this->requestFields(), [
@@ -24,7 +24,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
                 // if it's new or we recently created it
                 if (empty($item['public_id']) || in_array($item['public_id'], $this->entities(ENTITY_INVOICE_ITEM))) {
                     $data['invoice_items'][$key]['cost'] = $data['cost'] ?? $item['cost'];
-                    $data['invoice_items'][$key]['qty'] = $data['quantity'] ?? $item['qty'];
+                    $data['invoice_items'][$key]['qty']  = $data['quantity'] ?? $item['qty'];
                 }
             }
         }
@@ -39,7 +39,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
 
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
-        $invoiceItems = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
+        $invoiceItems   = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
         $invoiceItemIds = array_map(function ($item) {
             return $item['public_id'];
         }, $invoiceItems);

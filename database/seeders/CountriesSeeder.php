@@ -17,7 +17,7 @@ class CountriesSeeder extends Seeder
         $countries = Countries::getList();
         foreach ($countries as $countryId => $country) {
             if ($record = Country::whereCountryCode($country['country-code'])->first()) {
-                $record->name = $country['name'];
+                $record->name      = $country['name'];
                 $record->full_name = ((isset($country['full_name'])) ? $country['full_name'] : null);
                 $record->save();
             } else {

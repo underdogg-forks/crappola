@@ -23,9 +23,9 @@ class PaymentApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->paymentRepo = $paymentRepo;
+        $this->paymentRepo    = $paymentRepo;
         $this->paymentService = $paymentService;
-        $this->contactMailer = $contactMailer;
+        $this->contactMailer  = $contactMailer;
     }
 
     /**
@@ -172,9 +172,9 @@ class PaymentApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        $data = $request->input();
+        $data              = $request->input();
         $data['public_id'] = $publicId;
-        $payment = $this->paymentRepo->save($data, $request->entity());
+        $payment           = $this->paymentRepo->save($data, $request->entity());
 
         if (Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);

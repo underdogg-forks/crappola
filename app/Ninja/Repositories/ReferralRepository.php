@@ -19,7 +19,7 @@ class ReferralRepository
             return $counts;
         }
 
-        $current = config('database.default');
+        $current   = config('database.default');
         $databases = env('MULTI_DB_ENABLED')
             ? DbServer::pluck('name')->all()
             : [$current];
